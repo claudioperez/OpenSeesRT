@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 // 
 // Description: This command is used to update a PressureDependMultiYield,
 // PressureDependMultiYield02, PressureIndependMultiYield, or FluidSolidPorous
@@ -31,14 +32,13 @@
 #include <Information.h>
 #include <UniaxialMaterial.h>
 #include <MaterialStageParameter.h>
-
+#include <tcl.h>
 #include <PyLiq1.h>
 #include <TzLiq1.h>
 #include <QzLiq1.h>
 
 #include <string.h>
 
-class TclBasicBuilder;
 
 int
 TclCommand_updateMaterialStage(ClientData clientData,

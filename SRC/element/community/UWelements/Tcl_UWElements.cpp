@@ -1,3 +1,4 @@
+#include <tcl.h>
 #include <assert.h>
 #include <Domain.h>
 #include <BasicModelBuilder.h>

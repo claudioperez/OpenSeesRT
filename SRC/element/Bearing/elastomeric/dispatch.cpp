@@ -32,11 +32,11 @@
 // Description: This file contains the function to parse the TCL input
 // for the elastomericBearingUFRP element.
 //
-class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 #include <runtime/BasicModelBuilder.h>
-
+#include <tcl.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <string.h>
 #include <ID.h>
 #include <Vector.h>
@@ -53,18 +53,12 @@ class TclBasicBuilder;
 
 int
 TclBasicBuilder_addElastomericBearingBoucWen(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv,
-    Domain *theTclDomain, TclBasicBuilder *theTclBuilder, int eleArgStart)
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
+  constexpr static int eleArtStart = 1;
 
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  // ensure the destructor has not been called
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr
-        << "WARNING builder has been destroyed - elastomericBearingBoucWen\n";
-    return TCL_ERROR;
-  }
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
   Element *theElement = 0;
   int ndm = builder->getNDM();
@@ -605,10 +599,9 @@ TclBasicBuilder_addElastomericBearingBoucWen(
 
 int
 TclBasicBuilder_addElastomericBearingPlasticity(
-    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv,
-    Domain *theTclDomain, TclBasicBuilder *theTclBuilder, int eleArgStart)
+    ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-
+  constexpr static int eleArgStart = 1;
   // ensure the destructor has not been called
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
@@ -1097,12 +1090,10 @@ TclBasicBuilder_addElastomericBearingPlasticity(
 
 int
 TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *interp,
-                                          int argc, TCL_Char ** const argv,
-                                          void *theTclDomain_,
-                                          void *theTclBuilder_,
-                                          int eleArgStart)
+                                          int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
+  constexpr static int eleArtStart = 1;
 
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   Domain* theTclDomain = builder->getDomain();

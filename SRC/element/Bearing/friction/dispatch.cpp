@@ -26,7 +26,7 @@
 // for the flatSliderBearing element.
 #include <assert.h>
 #include <runtime/BasicModelBuilder.h>
-
+#include <tcl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>

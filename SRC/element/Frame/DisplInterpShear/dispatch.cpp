@@ -4,6 +4,7 @@
 // implementation of TclBasicBuilder_addDispBeamColumnInt(). Based on
 // TclBasicBuilder_addDispBeamColumn().
 //
+#include <tcl.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +12,6 @@
 #include <CrdTransf.h>
 
 #include "DispBeamColumn2dInt.h"
-class TclBasicBuilder;
 #include <runtimeAPI.h>
 #include <runtime/BasicModelBuilder.h>
 #include <SectionForceDeformation.h>
@@ -19,18 +19,11 @@ class TclBasicBuilder;
 
 int
 TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
-                                     int argc, TCL_Char ** const argv,
-                                     Domain *theTclDomain,
-                                     TclBasicBuilder *theTclBuilder)
+                                     int argc, TCL_Char ** const argv)
 {
   // ensure the destructor has not been called -
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed\n";
-    return TCL_ERROR;
-  }
 
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
@@ -170,7 +163,7 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  if (theTclDomain->addElement(theElement) == false) {
+  if (builder->getDomain()->addElement(theElement) == false) {
     opserr << "WARNING could not add element to the domain\n";
     opserr << "dispBeamColumn element: " << eleTag << endln;
     delete theElement;

@@ -1,18 +1,20 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
 //
-// Written: MHS, CMP
-// Created: Feb 2001
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the implementation of the
 // TclBasicBuilder_addDispBeamColumn() command.
+//
+// Written: MHS, CMP
+// Created: Feb 2001
 //
 #include <utility>
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+#include <tcl.h>
 
 #ifdef _MSC_VER 
 #  include <string.h>
@@ -98,6 +100,7 @@ validateOptions(const char* name, int ndm, struct Options options)
 }
 #endif
 
+//
 //     0       1     2    3      4      5    6    7
 //  a)
 //     element $type $tag $iNode $jNode $trn "IntegrationType arg1 arg2 ..." 
@@ -115,6 +118,7 @@ validateOptions(const char* name, int ndm, struct Options options)
 //
 //   5 : trn | nip 
 //   6 : int | sec | itag
+//
 int
 TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
                                    int inArgc, TCL_Char **const inArgv)
@@ -243,6 +247,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       if (Tcl_GetInt(interp, argv[argi], &secTag) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "invalid secTag\n";
         return TCL_ERROR;
+
       } else
         argi++;
 
@@ -485,7 +490,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
         theElement =
             new ForceFrame3d(eleTag, nodes, nIP, sections,
-                                 *beamIntegr, *theTransf3d, mass, numIter, tol);
+                                 *beamIntegr, *theTransf3d, mass, numIter, tol, cMass);
 
       } else if (strcmp(argv[1], "elasticForceBeamColumn") == 0)
         theElement =
@@ -686,7 +691,15 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }
 
-#if 0
+#if 1
+int
+TclDispatch_newBeamIntegration(ClientData clientData, Tcl_Interp *interp,
+                               int argc, TCL_Char **const argv)
+{
+  FrameSection** sections = nullptr;
+  BeamIntegration *beamIntegr = nullptr;
+  int nIP;
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
   if (strcmp(argv[6], "Lobatto") == 0 || 
       strcmp(argv[6], "Legendre") == 0 ||
       strcmp(argv[6], "Radau") == 0 ||
@@ -1404,6 +1417,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         temp = pts(i);
         pts(i) = pts(key);
         pts(key) = temp;
+
         // Swap sections
         FrameSection *tempSection;
         tempSection = sections[i];
@@ -1417,7 +1431,8 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
   else {
     opserr << "Unknown integration type: " << argv[6] << "\n";
-    opserr << argv[1] << " element: " << eleTag << "\n";
     return TCL_ERROR;
   }
+
+}
 #endif

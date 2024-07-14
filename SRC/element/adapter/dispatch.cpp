@@ -25,9 +25,8 @@
 // Description: This file contains the function to parse the TCL input
 // for the actuator element.
 //
-class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
-
+#include <tcl.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,20 +39,15 @@ class TclBasicBuilder;
 
 int
 TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
-                            TCL_Char ** const argv, Domain *theTclDomain,
-                            TclBasicBuilder *theTclBuilder, int eleArgStart)
+                            TCL_Char ** const argv)
 {
+  constexpr static int eleArtStart = 1;
   // ensure the destructor has not been called
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - actuator\n";
-    return TCL_ERROR;
-  }
-
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 6) {
-    opserr << "WARNING insufficient arguments\n";
+    opserr << OpenSees::PromptValueError << "insufficient arguments\n";
     opserr << "Want: element actuator eleTag iNode jNode EA ipPort "
               "<-doRayleigh> <-rho rho>\n";
     return TCL_ERROR;
@@ -70,27 +64,27 @@ TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
   double rho = 0.0;
 
   if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
-    opserr << "WARNING invalid actuator eleTag" << endln;
+    opserr << OpenSees::PromptValueError << "invalid actuator eleTag" << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
-    opserr << "WARNING invalid iNode\n";
-    opserr << "actuator element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "invalid iNode\n";
+    opserr << "actuator element: " << tag << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
-    opserr << "WARNING invalid jNode\n";
-    opserr << "actuator element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "invalid jNode\n";
+    opserr << "actuator element: " << tag << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &EA) != TCL_OK) {
-    opserr << "WARNING invalid EA\n";
-    opserr << "actuator element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "invalid EA\n";
+    opserr << "actuator element: " << tag << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[5 + eleArgStart], &ipPort) != TCL_OK) {
-    opserr << "WARNING invalid ipPort\n";
-    opserr << "actuator element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "invalid ipPort\n";
+    opserr << "actuator element: " << tag << "\n";
     return TCL_ERROR;
   }
   for (int i = 6 + eleArgStart; i < argc; ++i) {
@@ -100,8 +94,8 @@ TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
   for (int i = 6 + eleArgStart; i < argc; ++i) {
     if (i + 1 < argc && strcmp(argv[i], "-rho") == 0) {
       if (Tcl_GetDouble(interp, argv[i + 1], &rho) != TCL_OK) {
-        opserr << "WARNING invalid rho\n";
-        opserr << "actuator element: " << tag << endln;
+        opserr << OpenSees::PromptValueError << "invalid rho\n";
+        opserr << "actuator element: " << tag << "\n";
         return TCL_ERROR;
       }
     }
@@ -111,15 +105,10 @@ TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
   theElement =
       new Actuator(tag, ndm, iNode, jNode, EA, ipPort, doRayleigh, rho);
 
-  if (theElement == 0) {
-    opserr << "WARNING ran out of memory creating element\n";
-    opserr << "actuator element: " << tag << endln;
-    return TCL_ERROR;
-  }
 
   if (theTclDomain->addElement(theElement) == false) {
-    opserr << "WARNING could not add element to the domain\n";
-    opserr << "actuator element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "could not add element to the domain\n";
+    opserr << "actuator element: " << tag << "\n";
     delete theElement;
     return TCL_ERROR;
   }
@@ -132,21 +121,19 @@ TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
 int
 TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char ** const argv,
-                                 Domain *theTclDomain,
-                                 TclBasicBuilder *theTclBuilder,
                                  int eleArgStart)
 {
   // ensure the destructor has not been called
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - corotActuator\n";
+    opserr << OpenSees::PromptValueError << "builder has been destroyed - corotActuator\n";
     return TCL_ERROR;
   }
 
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 6) {
-    opserr << "WARNING insufficient arguments\n";
+    opserr << OpenSees::PromptValueError << "insufficient arguments\n";
     opserr << "Want: element corotActuator eleTag iNode jNode EA ipPort "
               "<-doRayleigh> <-rho rho>\n";
     return TCL_ERROR;
@@ -163,27 +150,27 @@ TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
   double rho = 0.0;
 
   if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
-    opserr << "WARNING invalid corotActuator eleTag" << endln;
+    opserr << OpenSees::PromptValueError << "invalid corotActuator eleTag" << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
-    opserr << "WARNING invalid iNode\n";
-    opserr << "corotActuator element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "invalid iNode\n";
+    opserr << "corotActuator element: " << tag << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
-    opserr << "WARNING invalid jNode\n";
-    opserr << "corotActuator element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "invalid jNode\n";
+    opserr << "corotActuator element: " << tag << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &EA) != TCL_OK) {
-    opserr << "WARNING invalid EA\n";
-    opserr << "corotActuator element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "invalid EA\n";
+    opserr << "corotActuator element: " << tag << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[5 + eleArgStart], &ipPort) != TCL_OK) {
-    opserr << "WARNING invalid ipPort\n";
-    opserr << "corotActuator element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "invalid ipPort\n";
+    opserr << "corotActuator element: " << tag << "\n";
     return TCL_ERROR;
   }
   for (int i = 6 + eleArgStart; i < argc; ++i) {
@@ -193,8 +180,8 @@ TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
   for (int i = 6 + eleArgStart; i < argc; ++i) {
     if (i + 1 < argc && strcmp(argv[i], "-rho") == 0) {
       if (Tcl_GetDouble(interp, argv[i + 1], &rho) != TCL_OK) {
-        opserr << "WARNING invalid rho\n";
-        opserr << "corotActuator element: " << tag << endln;
+        opserr << OpenSees::PromptValueError << "invalid rho\n";
+        opserr << "corotActuator element: " << tag << "\n";
         return TCL_ERROR;
       }
     }
@@ -206,8 +193,8 @@ TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
 
 
   if (theTclDomain->addElement(theElement) == false) {
-    opserr << "WARNING could not add element to the domain\n";
-    opserr << "corotActuator element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "could not add element to the domain\n";
+    opserr << "corotActuator element: " << tag << "\n";
     delete theElement;
     return TCL_ERROR;
   }
@@ -220,12 +207,11 @@ TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char ** const argv, Domain *theTclDomain,
-                           TclBasicBuilder *theTclBuilder, int eleArgStart)
+                           TCL_Char ** const argv, int eleArgStart)
 {
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 8) {
-    opserr << "WARNING insufficient arguments\n";
+    opserr << OpenSees::PromptValueError << "insufficient arguments\n";
     opserr << "Want: element adapter eleTag -node Ndi Ndj ... -dof dofNdi -dof "
               "dofNdj ... -stif Kij ipPort <-doRayleigh> <-mass Mij>\n";
     return TCL_ERROR;
@@ -241,13 +227,13 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   Element *theElement = nullptr;
 
   if (Tcl_GetInt(interp, argv[1 + eleArgStart], &tag) != TCL_OK) {
-    opserr << "WARNING invalid adapter eleTag" << endln;
+    opserr << OpenSees::PromptValueError << "invalid adapter eleTag" << "\n";
     return TCL_ERROR;
   }
   // read the number of nodes
   if (strcmp(argv[2 + eleArgStart], "-node") != 0) {
-    opserr << "WARNING expecting -node flag\n";
-    opserr << "adapter element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "expecting -node flag\n";
+    opserr << "adapter element: " << tag << "\n";
     return TCL_ERROR;
   }
   argi = 3 + eleArgStart;
@@ -257,23 +243,19 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
     i++;
   }
   if (numNodes == 0) {
-    opserr << "WARNING no nodes specified\n";
-    opserr << "adapter element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "no nodes specified\n";
+    opserr << "adapter element: " << tag << "\n";
     return TCL_ERROR;
   }
   // create the ID arrays to hold the nodes and dofs
   ID nodes(numNodes);
   ID *dofs = new ID[numNodes];
-  if (dofs == 0) {
-    opserr << "WARNING out of memory\n";
-    opserr << "adapter element: " << tag << endln;
-    return TCL_ERROR;
-  }
+
   // fill in the nodes ID
   for (i = 0; i < numNodes; ++i) {
     if (Tcl_GetInt(interp, argv[argi], &node) != TCL_OK) {
-      opserr << "WARNING invalid node\n";
-      opserr << "adapter element: " << tag << endln;
+      opserr << OpenSees::PromptValueError << "invalid node\n";
+      opserr << "adapter element: " << tag << "\n";
       return TCL_ERROR;
     }
     nodes(i) = node;
@@ -283,8 +265,8 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
     // read the number of dofs per node j
     numDOFj = 0;
     if (strcmp(argv[argi], "-dof") != 0) {
-      opserr << "WARNING expect -dof\n";
-      opserr << "adapter element: " << tag << endln;
+      opserr << OpenSees::PromptValueError << "expect -dof\n";
+      opserr << "adapter element: " << tag << "\n";
       return TCL_ERROR;
     }
     argi++;
@@ -299,8 +281,8 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
     ID dofsj(numDOFj);
     for (i = 0; i < numDOFj; ++i) {
       if (Tcl_GetInt(interp, argv[argi], &dof) != TCL_OK) {
-        opserr << "WARNING invalid dof\n";
-        opserr << "adapter element: " << tag << endln;
+        opserr << OpenSees::PromptValueError << "invalid dof\n";
+        opserr << "adapter element: " << tag << "\n";
         return TCL_ERROR;
       }
       dofsj(i) = dof - 1;
@@ -311,22 +293,22 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   // get stiffness matrix
   Matrix kb(numDOF, numDOF);
   if (strcmp(argv[argi], "-stif") != 0) {
-    opserr << "WARNING expecting -stif flag\n";
-    opserr << "adapter element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "expecting -stif flag\n";
+    opserr << "adapter element: " << tag << "\n";
     return TCL_ERROR;
   }
   argi++;
   if (argc - 1 < argi + numDOF * numDOF) {
-    opserr << "WARNING incorrect number of stiffness terms\n";
-    opserr << "adapter element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "incorrect number of stiffness terms\n";
+    opserr << "adapter element: " << tag << "\n";
     return TCL_ERROR;
   }
   double stif;
   for (j = 0; j < numDOF; j++) {
     for (k = 0; k < numDOF; k++) {
       if (Tcl_GetDouble(interp, argv[argi], &stif) != TCL_OK) {
-        opserr << "WARNING invalid stiffness term\n";
-        opserr << "adapter element: " << tag << endln;
+        opserr << OpenSees::PromptValueError << "invalid stiffness term\n";
+        opserr << "adapter element: " << tag << "\n";
         return TCL_ERROR;
       }
       kb(j, k) = stif;
@@ -335,8 +317,8 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   // get ip-port
   if (Tcl_GetInt(interp, argv[argi], &ipPort) != TCL_OK) {
-    opserr << "WARNING invalid ipPort\n";
-    opserr << "adapter element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "invalid ipPort\n";
+    opserr << "adapter element: " << tag << "\n";
     return TCL_ERROR;
   }
   argi++;
@@ -349,8 +331,8 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   for (int i = argi; i < argc; ++i) {
     if (strcmp(argv[i], "-mass") == 0) {
       if (argc - 1 < i + numDOF * numDOF) {
-        opserr << "WARNING incorrect number of mass terms\n";
-        opserr << "adapter element: " << tag << endln;
+        opserr << OpenSees::PromptValueError << "incorrect number of mass terms\n";
+        opserr << "adapter element: " << tag << "\n";
         return TCL_ERROR;
       }
       mass = new Matrix(numDOF, numDOF);
@@ -358,8 +340,8 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
       for (j = 0; j < numDOF; j++) {
         for (k = 0; k < numDOF; k++) {
           if (Tcl_GetDouble(interp, argv[i + 1 + numDOF * j + k], &m) != TCL_OK) {
-            opserr << "WARNING invalid mass term\n";
-            opserr << "adapter element: " << tag << endln;
+            opserr << OpenSees::PromptValueError << "invalid mass term\n";
+            opserr << "adapter element: " << tag << "\n";
             return TCL_ERROR;
           }
           (*mass)(j, k) = m;
@@ -379,15 +361,10 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
   if (dofs != 0)
     delete[] dofs;
 
-  if (theElement == nullptr) {
-    opserr << "WARNING ran out of memory creating element\n";
-    opserr << "adapter element: " << tag << endln;
-    return TCL_ERROR;
-  }
 
   if (theTclDomain->addElement(theElement) == false) {
-    opserr << "WARNING could not add element to the domain\n";
-    opserr << "adapter element: " << tag << endln;
+    opserr << OpenSees::PromptValueError << "could not add element to the domain\n";
+    opserr << "adapter element: " << tag << "\n";
     delete theElement;
     return TCL_ERROR;
   }

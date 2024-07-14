@@ -1,27 +1,32 @@
-/* ****************************************************************** **
-**    Opensees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: Geometric transformation command
 //
 // cmp
 //
+#include <tcl.h>
 #include <string.h>
 #include <assert.h>
 #include <runtime/BasicModelBuilder.h>
 #include <G3_Logging.h>
 
 #include <LinearCrdTransf2d.h>
-#include <LinearCrdTransf2d02.h>
-#include <LinearCrdTransf2dInt.h>
 #include <LinearCrdTransf3d.h>
 #include <PDeltaCrdTransf2d.h>
 #include <PDeltaCrdTransf3d.h>
 #include <CorotCrdTransf2d.h>
 #include <CorotCrdTransf3d.h>
-#include <CorotCrdTransf3d02.h>
+//#include <LinearCrdTransf2d02.h>
+#include <LinearCrdTransf2dInt.h>
 #include <CorotCrdTransfWarping2d.h>
+
+#include <LinearFrameTransf3d.h>
+#include <PDeltaFrameTransf3d.h>
+#include <CorotFrameTransf3d.h>
 
 //
 // Create a coordinate transformation
@@ -97,13 +102,12 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // construct the transformation
 
-    FrameTransform<2> *crdTransf2d = nullptr;
+    FrameTransform2d *crdTransf2d = nullptr;
 
     if (strcmp(argv[1], "Linear") == 0)
-      if (getenv("CRD")) {
-        opserr << "Using new CRD\n";
-        crdTransf2d = new LinearCrdTransf2d02(crdTransfTag, jntOffsetI, jntOffsetJ);
-      } else
+//    if (getenv("CRD")) {
+//      crdTransf2d = new LinearCrdTransf2d02(crdTransfTag, jntOffsetI, jntOffsetJ);
+//    } else
         crdTransf2d = new LinearCrdTransf2d(crdTransfTag, jntOffsetI, jntOffsetJ);
 
     else if (strcmp(argv[1], "LinearInt") == 0)
@@ -128,7 +132,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // add the transformation to the modelBuilder
-    if (builder->addTaggedObject<CrdTransf>(*crdTransf2d) != TCL_OK)
+    if (builder->addTaggedObject<FrameTransform2d>(*crdTransf2d) != TCL_OK)
       return TCL_ERROR;
 
   } else if (ndm == 3 && ndf == 6) {
@@ -136,7 +140,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     Vector vecxzPlane(3);                // vector that defines local xz plane
     Vector jntOffsetI(3), jntOffsetJ(3); // joint offsets in global coordinates
 
-    if (argc < 4) {
+    if (argc < 6) {
       opserr << G3_ERROR_PROMPT << "insufficient arguments\n    Expected: geomTransf type? tag? "
                 "vecxzPlaneX? vecxzPlaneY? vecxzPlaneZ?  <-jntOffset dXi? dYi? "
                 "dZi? dXj? dYj? dZj? >\n";
@@ -226,21 +230,27 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // construct the transformation object
-    FrameTransform<3> *crdTransf3d;
+    FrameTransform3d *crdTransf3d;
 
     if (strcmp(argv[1], "Linear") == 0)
-      crdTransf3d = new LinearCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+      if (getenv("CRD"))
+        crdTransf3d = new LinearFrameTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+      else
+        crdTransf3d = new LinearCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else if (strcmp(argv[1], "PDelta") == 0 ||
              strcmp(argv[1], "LinearWithPDelta") == 0)
-      crdTransf3d = new PDeltaCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+      if (getenv("CRD"))
+        crdTransf3d = new PDeltaFrameTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+      else
+        crdTransf3d = new PDeltaCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else if (strcmp(argv[1], "Corotational") == 0)
       // By default use new faster version
       if (getenv("CRD"))
-        crdTransf3d = new CorotCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+        crdTransf3d = new CorotFrameTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
       else
-        crdTransf3d = new CorotCrdTransf3d02(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+        crdTransf3d = new CorotCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else {
       opserr << G3_ERROR_PROMPT << "invalid Type\n";
@@ -253,7 +263,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // add the transformation to the modelBuilder
-    if (builder->addTaggedObject<CrdTransf>(*crdTransf3d) != TCL_OK) {
+    if (builder->addTaggedObject<FrameTransform3d>(*crdTransf3d) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "could not add "
                 "geometric transformation to model Builder\n";
       return TCL_ERROR;

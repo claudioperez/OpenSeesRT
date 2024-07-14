@@ -1,5 +1,5 @@
+#include <tcl.h>
 #include "YieldSurface_BC.h"
-class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 #include <string.h>
 #include <Vector.h>
@@ -502,9 +502,9 @@ getTclYieldSurface_BC(Tcl_Interp *interp, TCL_Char *arg,
 //
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-int
+static int
 TclNullEvolutionCommand(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char ** const argv, TclBasicBuilder *theBuilder)
+                        TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   YS_Evolution *theModel = 0;
@@ -549,9 +549,9 @@ TclNullEvolutionCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   return addTclYS_Evolution(builder, theModel);
 }
 
-int
+static int
 TclKinematic2D01Command(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char ** const argv, TclBasicBuilder *theBuilder)
+                        TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   YS_Evolution *theModel = 0;
@@ -584,9 +584,9 @@ TclKinematic2D01Command(ClientData clientData, Tcl_Interp *interp, int argc,
   return addTclYS_Evolution(builder, theModel);
 }
 
-int
+static int
 TclIsotropic2D01Command(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char ** const argv, TclBasicBuilder *theBuilder)
+                        TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   YS_Evolution *theModel = 0;
@@ -616,9 +616,9 @@ TclIsotropic2D01Command(ClientData clientData, Tcl_Interp *interp, int argc,
   return addTclYS_Evolution(builder, theModel);
 }
 
-int
+static int
 TclPeakOriented2D01Command(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char ** const argv, TclBasicBuilder *theBuilder)
+                           TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   YS_Evolution *theModel = 0;
@@ -649,7 +649,7 @@ TclPeakOriented2D01Command(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclCombinedIsoKin2D01Command(ClientData clientData, Tcl_Interp *interp, int argc,
-                             TCL_Char ** const argv, TclBasicBuilder *theBuilder)
+                             TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
 
@@ -712,9 +712,9 @@ TclCombinedIsoKin2D01Command(ClientData clientData, Tcl_Interp *interp, int argc
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-int
+static int
 TclKinematic2D02Command(ClientData clientData, Tcl_Interp *interp, int argc,
-                        TCL_Char ** const argv, TclBasicBuilder *theBuilder)
+                        TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   YS_Evolution *theModel = 0;
@@ -765,7 +765,7 @@ TclKinematic2D02Command(ClientData clientData, Tcl_Interp *interp, int argc,
 
 int
 TclPeakOriented2D02Command(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char ** const argv, TclBasicBuilder *theBuilder)
+                           TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   YS_Evolution *theModel = 0;
@@ -813,9 +813,9 @@ TclPeakOriented2D02Command(ClientData clientData, Tcl_Interp *interp, int argc,
   return addTclYS_Evolution(builder, theModel);
 }
 
-int
+static int
 TclCombinedIsoKin2D02Command(ClientData clientData, Tcl_Interp *interp, int argc,
-                             TCL_Char ** const argv, TclBasicBuilder *theBuilder)
+                             TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   YS_Evolution *theModel = 0;
@@ -900,33 +900,28 @@ TclCombinedIsoKin2D02Command(ClientData clientData, Tcl_Interp *interp, int argc
 int
 TclBasicBuilderYS_EvolutionModelCommand(ClientData clientData,
                                         Tcl_Interp *interp, int argc,
-                                        TCL_Char ** const argv,
-                                        TclBasicBuilder *theBuilder)
+                                        TCL_Char ** const argv)
 {
   // TODO: BasicModelBuilder* theBuilder = (BasicModelBuilder*)clientData;
 
   if (strcmp(argv[1], "null") == 0) {
-    return TclNullEvolutionCommand(clientData, interp, argc, argv, theBuilder);
+    return TclNullEvolutionCommand(clientData, interp, argc, argv);
   } else if (strcmp(argv[1], "kinematic2D01") == 0) {
-    return TclKinematic2D01Command(clientData, interp, argc, argv, theBuilder);
+    return TclKinematic2D01Command(clientData, interp, argc, argv);
   } else if (strcmp(argv[1], "isotropic2D01") == 0) {
-    return TclIsotropic2D01Command(clientData, interp, argc, argv, theBuilder);
+    return TclIsotropic2D01Command(clientData, interp, argc, argv);
   } else if (strcmp(argv[1], "peakOriented2D01") == 0) {
-    return TclPeakOriented2D01Command(clientData, interp, argc, argv,
-                                      theBuilder);
+    return TclPeakOriented2D01Command(clientData, interp, argc, argv)
   } else if (strcmp(argv[1], "combinedIsoKin2D01") == 0) {
-    return TclCombinedIsoKin2D01Command(clientData, interp, argc, argv,
-                                        theBuilder);
+    return TclCombinedIsoKin2D01Command(clientData, interp, argc, argv)
   }
 
   else if (strcmp(argv[1], "kinematic2D02") == 0) {
-    return TclKinematic2D02Command(clientData, interp, argc, argv, theBuilder);
+    return TclKinematic2D02Command(clientData, interp, argc, argv);
   } else if (strcmp(argv[1], "peakOriented2D02") == 0) {
-    return TclPeakOriented2D02Command(clientData, interp, argc, argv,
-                                      theBuilder);
+    return TclPeakOriented2D02Command(clientData, interp, argc, argv)
   } else if (strcmp(argv[1], "combinedIsoKin2D02") == 0) {
-    return TclCombinedIsoKin2D02Command(clientData, interp, argc, argv,
-                                        theBuilder);
+    return TclCombinedIsoKin2D02Command(clientData, interp, argc, argv)
   } else {
     opserr << "Unknown YS_Evolution type: " << argv[1] << endln;
     return TCL_ERROR;
@@ -941,9 +936,8 @@ TclBasicBuilderYS_EvolutionModelCommand(ClientData clientData,
 #include <BasicModelBuilder.h>
 
 
-int
-TclMultiLinearCommand(ClientData clientData, Tcl_Interp *interp, int argc,
-                      TCL_Char ** const argv, TclBasicBuilder *theTclBuilder)
+static int
+TclMultiLinearCommand(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   // Pointer to a uniaxial material that will be added to the model builder
@@ -1113,10 +1107,9 @@ TclExponReducingCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-int
+static int
 TclNullPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char ** const argv,
-                              TclBasicBuilder *theTclBuilder)
+                              int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   PlasticHardeningMaterial *theMaterial = 0;
@@ -1144,12 +1137,11 @@ TclNullPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilderPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char ** const argv,
-                                      TclBasicBuilder *theTclBuilder)
+                                      int argc, TCL_Char ** const argv)
 {
 
   if (strcmp(argv[1], "multiLinearKp") == 0) {
-    return TclMultiLinearCommand(clientData, interp, argc, argv, theTclBuilder);
+    return TclMultiLinearCommand(clientData, interp, argc, argv);
   }
 #if 0
   else if (strcmp(argv[1],"quadrReducing") == 0) {
@@ -1160,7 +1152,7 @@ TclBasicBuilderPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
     return TclExponReducingCommand(clientData, interp, argc, argv);
 
   } else if (strcmp(argv[1], "null") == 0) {
-    return TclNullPlasticMaterialCommand(clientData, interp, argc, argv, theTclBuilder);
+    return TclNullPlasticMaterialCommand(clientData, interp, argc, argv);
   } else {
     opserr << "Unknown PlasticMaterial: \nValid types: null, multiLinearKp, "
            << "quadrReducing, exponReducing \n";
@@ -1173,7 +1165,6 @@ TclBasicBuilderPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 // @ rkaul@stanford.edu
 // @ ggd@stanford.edu
 
-class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 #include <string.h>
 #include <Vector.h>
