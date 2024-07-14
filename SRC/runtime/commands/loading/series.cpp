@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the function invoked when the user invokes
 // the Pattern command in the interpreter. It is invoked by the
@@ -14,6 +15,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <tcl.h>
 #include <string.h>
 #include <runtimeAPI.h>
 #include <G3_Logging.h>

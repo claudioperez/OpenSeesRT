@@ -17,7 +17,7 @@ printCommand(int argc, TCL_Char ** const argv)
   opserr << "Input command: ";
   for (int i = 0; i < argc; i++)
     opserr << argv[i] << " ";
-  opserr << endln;
+  opserr << "\n";
 }
 
 int
@@ -31,7 +31,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
   if (argc < 3) {
     opserr << "WARNING insufficient number of uniaxial material arguments\n";
     opserr << "Want: yieldSurfaceBC type? tag? <specific material args>"
-           << endln;
+           << "\n";
     return TCL_ERROR;
   }
 
@@ -42,16 +42,16 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
     if (argc < 4) {
       opserr << "WARNING invalid number of arguments\n";
       printCommand(argc, argv);
-      opserr << "Want: yieldSurfaceBC null tag? dimensions?" << endln;
+      opserr << "Want: yieldSurfaceBC null tag? dimensions?" << "\n";
       return TCL_ERROR;
     }
     int dim;
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING invalid yieldSurfaceBC null tag" << endln;
+      opserr << "WARNING invalid yieldSurfaceBC null tag" << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argv[3], &dim) != TCL_OK) {
-      opserr << "WARNING invalid yieldSurfaceBC null dimensions" << endln;
+      opserr << "WARNING invalid yieldSurfaceBC null dimensions" << "\n";
       return TCL_ERROR;
     }
 
@@ -72,7 +72,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       printCommand(argc, argv);
       // Orbison2D(int tag, double xmax, double ymax, YS_HardeningModel &model);
       opserr << "Want: yieldSurfaceBC Orbison2D tag? xCap? yCap? ys_model_tag?"
-             << endln;
+             << "\n";
       return TCL_ERROR;
     }
 
@@ -82,32 +82,32 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
     //		double isoRatio;
 
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING invalid yieldSurfaceBC Orbison2D tag" << endln;
+      opserr << "WARNING invalid yieldSurfaceBC Orbison2D tag" << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[3], &xCap) != TCL_OK) {
       opserr << "WARNING invalid xCap\n";
-      opserr << "yieldSurfaceBC Orbison2D tag: " << tag << endln;
+      opserr << "yieldSurfaceBC Orbison2D tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[4], &yCap) != TCL_OK) {
       opserr << "WARNING invalid yCap\n";
-      opserr << "yieldSurfaceBC Orbison2D tag: " << tag << endln;
+      opserr << "yieldSurfaceBC Orbison2D tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetInt(interp, argv[5], &modelID) != TCL_OK) {
       opserr << "WARNING invalid yieldSurfaceBC Orbison2D matID1" << modelID
-             << endln;
+             << "\n";
       return TCL_ERROR;
     }
 
     YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
-             << modelID << endln;
+             << modelID << "\n";
       return TCL_ERROR;
     }
 
@@ -121,7 +121,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       printCommand(argc, argv);
       // Orbison2D(int tag, double xmax, double ymax, YS_HardeningModel &model);
       opserr << "Want: yieldSurfaceBC ElTawil2D tag? xCap? yCap? ys_model_tag?"
-             << endln;
+             << "\n";
       return TCL_ERROR;
     }
 
@@ -131,44 +131,44 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
     int modelID;
 
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING invalid yieldSurfaceBC ElTawil2D tag" << endln;
+      opserr << "WARNING invalid yieldSurfaceBC ElTawil2D tag" << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[3], &xBal) != TCL_OK) {
       opserr << "WARNING invalid xBal\n";
-      opserr << "yieldSurfaceBC ElTawil2D tag: " << tag << endln;
+      opserr << "yieldSurfaceBC ElTawil2D tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[4], &yBal) != TCL_OK) {
       opserr << "WARNING invalid yBal\n";
-      opserr << "yieldSurfaceBC ElTawil2D tag: " << tag << endln;
+      opserr << "yieldSurfaceBC ElTawil2D tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[5], &yPos) != TCL_OK) {
       opserr << "WARNING invalid xPos\n";
-      opserr << "yieldSurfaceBC ElTawil2D tag: " << tag << endln;
+      opserr << "yieldSurfaceBC ElTawil2D tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[6], &yNeg) != TCL_OK) {
       opserr << "WARNING invalid yNeg\n";
-      opserr << "yieldSurfaceBC ElTawil2D tag: " << tag << endln;
+      opserr << "yieldSurfaceBC ElTawil2D tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetInt(interp, argv[7], &modelID) != TCL_OK) {
       opserr << "WARNING invalid yieldSurfaceBC ElTawil2D matID1" << modelID
-             << endln;
+             << "\n";
       return TCL_ERROR;
     }
 
     YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC ElTawil2D no ys_model exists with tag: "
-             << modelID << endln;
+             << modelID << "\n";
       return TCL_ERROR;
     }
 
@@ -182,7 +182,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       printCommand(argc, argv);
       // Orbison2D(int tag, double xmax, double ymax, YS_HardeningModel &model);
       opserr << "Want: yieldSurfaceBC ElTawil2DUnSym tag? xPosBal? yPosBal? "
-             << "xNegBal? yPos? yNeg? ys_model_tag?" << endln;
+             << "xNegBal? yPos? yNeg? ys_model_tag?" << "\n";
       return TCL_ERROR;
     }
 
@@ -193,55 +193,55 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
     int modelID;
 
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING invalid yieldSurfaceBC ElTawil2DUnSym tag" << endln;
+      opserr << "WARNING invalid yieldSurfaceBC ElTawil2DUnSym tag" << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[3], &xPosBal) != TCL_OK) {
       opserr << "WARNING invalid xPosBal\n";
-      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << endln;
+      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[4], &yPosBal) != TCL_OK) {
       opserr << "WARNING invalid yPosBal\n";
-      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << endln;
+      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[5], &xNegBal) != TCL_OK) {
       opserr << "WARNING invalid xNegBal\n";
-      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << endln;
+      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[6], &yNegBal) != TCL_OK) {
       opserr << "WARNING invalid yNegBal\n";
-      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << endln;
+      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[7], &yPos) != TCL_OK) {
       opserr << "WARNING invalid xPos\n";
-      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << endln;
+      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[8], &yNeg) != TCL_OK) {
       opserr << "WARNING invalid yNeg\n";
-      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << endln;
+      opserr << "yieldSurfaceBC ElTawil2DUnSym tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetInt(interp, argv[9], &modelID) != TCL_OK) {
       opserr << "WARNING invalid yieldSurfaceBC ElTawil2DUnSym matID1"
-             << modelID << endln;
+             << modelID << "\n";
       return TCL_ERROR;
     }
 
     YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC ElTawil2D no ys_model exists with tag: "
-             << modelID << endln;
+             << modelID << "\n";
       return TCL_ERROR;
     }
 
@@ -261,7 +261,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       printCommand(argc, argv);
       opserr << "Want: yieldSurfaceBC Attalla2D tag? xCap? yCap? matXTag? "
                 "maxYTag? isoRatio? <..>"
-             << endln;
+             << "\n";
       return TCL_ERROR;
     }
 
@@ -280,32 +280,32 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
     param[5] = 2.10;
 
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING invalid yieldSurfaceBC Attalla2D tag" << endln;
+      opserr << "WARNING invalid yieldSurfaceBC Attalla2D tag" << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[3], &xCap) != TCL_OK) {
       opserr << "WARNING invalid xCap\n";
-      opserr << "yieldSurfaceBC Attalla2D tag: " << tag << endln;
+      opserr << "yieldSurfaceBC Attalla2D tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[4], &yCap) != TCL_OK) {
       opserr << "WARNING invalid yCap\n";
-      opserr << "yieldSurfaceBC Attalla2D tag: " << tag << endln;
+      opserr << "yieldSurfaceBC Attalla2D tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetInt(interp, argv[5], &modelID) != TCL_OK) {
       opserr << "WARNING invalid yieldSurfaceBC Attalla2D modelID" << modelID
-             << endln;
+             << "\n";
       return TCL_ERROR;
     }
 
     YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
-             << modelID << endln;
+             << modelID << "\n";
       return TCL_ERROR;
     }
 
@@ -316,7 +316,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       for (int i = 0; i < 6; i++) {
         if (Tcl_GetDouble(interp, argv[count], &temp) != TCL_OK) {
           opserr << "WARNING invalid parameter " << i + 1 << "\n";
-          opserr << "yieldSurfaceBC Attalla2D tag: " << tag << endln;
+          opserr << "yieldSurfaceBC Attalla2D tag: " << tag << "\n";
           return TCL_ERROR;
         }
         param(i) = temp;
@@ -336,7 +336,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       printCommand(argc, argv);
       opserr
           << "Want: yieldSurfaceBC Hajjar2D tag? ysModelTag? D? b? t? fc? fy?"
-          << endln;
+          << "\n";
       return TCL_ERROR;
     }
 
@@ -346,50 +346,50 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
     double D, b, t, fc, fy;
 
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING invalid yieldSurfaceBC Hajjar2D  tag" << endln;
+      opserr << "WARNING invalid yieldSurfaceBC Hajjar2D  tag" << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetInt(interp, argv[3], &modelID) != TCL_OK) {
       opserr << "WARNING invalid yieldSurfaceBC Hajjar2D  matID1" << modelID
-             << endln;
+             << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[4], &D) != TCL_OK) {
       opserr << "WARNING invalid D \n";
-      opserr << "yieldSurfaceBC Hajjar2D  tag: " << tag << endln;
+      opserr << "yieldSurfaceBC Hajjar2D  tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[5], &b) != TCL_OK) {
       opserr << "WARNING invalid b \n";
-      opserr << "yieldSurfaceBC Hajjar2D  tag: " << tag << endln;
+      opserr << "yieldSurfaceBC Hajjar2D  tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[6], &t) != TCL_OK) {
       opserr << "WARNING invalid t \n";
-      opserr << "yieldSurfaceBC Hajjar2D  tag: " << tag << endln;
+      opserr << "yieldSurfaceBC Hajjar2D  tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[7], &fc) != TCL_OK) {
       opserr << "WARNING invalid fc \n";
-      opserr << "yieldSurfaceBC Hajjar2D  tag: " << tag << endln;
+      opserr << "yieldSurfaceBC Hajjar2D  tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[8], &fy) != TCL_OK) {
       opserr << "WARNING invalid fy \n";
-      opserr << "yieldSurfaceBC Hajjar2D  tag: " << tag << endln;
+      opserr << "yieldSurfaceBC Hajjar2D  tag: " << tag << "\n";
       return TCL_ERROR;
     }
 
     YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
-             << modelID << endln;
+             << modelID << "\n";
       return TCL_ERROR;
     }
 
@@ -408,7 +408,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
 
   if (builder->addRegistryObject("YieldSurface_BC", tag, (void*)theYS) < 0) {
     opserr << "WARNING could not add YieldSurfaceBC to the domain\n";
-    opserr << *theYS << endln;
+    opserr << *theYS << "\n";
     delete theYS; // invoke the material objects destructor, otherwise mem leak
     return TCL_ERROR;
   }
@@ -447,7 +447,7 @@ addTclYS_Evolution(BasicModelBuilder *theBuilder, YS_Evolution *theModel)
 
   if (theBuilder->addRegistryObject("YS_EvolutionModel", theModel->getTag(), theModel) < 0) {
     opserr << "WARNING could not add hardening model to the domain\n";
-    opserr << *theModel << endln;
+    opserr << *theModel << "\n";
     delete theModel; // invoke the material objects destructor, otherwise mem
                      // leak
     return TCL_ERROR;
@@ -533,7 +533,7 @@ TclNullEvolutionCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     dim++;
   }
 
-  //		opserr << "Dim = " << dim << endln;
+  //		opserr << "Dim = " << dim << "\n";
   //		opserr << "\a";
 
   // Parsing was successful, allocate the material
@@ -911,19 +911,19 @@ TclBasicBuilderYS_EvolutionModelCommand(ClientData clientData,
   } else if (strcmp(argv[1], "isotropic2D01") == 0) {
     return TclIsotropic2D01Command(clientData, interp, argc, argv);
   } else if (strcmp(argv[1], "peakOriented2D01") == 0) {
-    return TclPeakOriented2D01Command(clientData, interp, argc, argv)
+    return TclPeakOriented2D01Command(clientData, interp, argc, argv);
   } else if (strcmp(argv[1], "combinedIsoKin2D01") == 0) {
-    return TclCombinedIsoKin2D01Command(clientData, interp, argc, argv)
+    return TclCombinedIsoKin2D01Command(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "kinematic2D02") == 0) {
     return TclKinematic2D02Command(clientData, interp, argc, argv);
   } else if (strcmp(argv[1], "peakOriented2D02") == 0) {
-    return TclPeakOriented2D02Command(clientData, interp, argc, argv)
+    return TclPeakOriented2D02Command(clientData, interp, argc, argv);
   } else if (strcmp(argv[1], "combinedIsoKin2D02") == 0) {
-    return TclCombinedIsoKin2D02Command(clientData, interp, argc, argv)
+    return TclCombinedIsoKin2D02Command(clientData, interp, argc, argv);
   } else {
-    opserr << "Unknown YS_Evolution type: " << argv[1] << endln;
+    opserr << "Unknown YS_Evolution type: " << argv[1] << "\n";
     return TCL_ERROR;
   }
 }
@@ -1205,7 +1205,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
       opserr << "WARNING invalid number of arguments\n";
       printCommand(argc, argv);
       opserr << "Want: section YS_Section2D01 tag? E? A? Iz? ysTag? <algo?>"
-             << endln;
+             << "\n";
       return 0;
     }
 
@@ -1214,26 +1214,26 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
     int indx = 3;
 
     if (Tcl_GetDouble(interp, argv[indx++], &E) != TCL_OK) {
-      opserr << "WARNING invalid E" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid E" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &A) != TCL_OK) {
-      opserr << "WARNING invalid A" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid A" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &Iz) != TCL_OK) {
-      opserr << "WARNING invalid Iz" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid Iz" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetInt(interp, argv[indx++], &ysTag) != TCL_OK) {
-      opserr << "WARNING invalid ysTag" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid ysTag" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
@@ -1242,15 +1242,15 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
     if (ys == 0) {
       opserr << "WARNING yield surface does not exist\n";
       opserr << "yieldSurface: " << ysTag;
-      opserr << "\nsection YieldSurface: " << tag << endln;
+      opserr << "\nsection YieldSurface: " << tag << "\n";
       return 0;
     }
 
     bool useKr = true;
     if (argc > indx) {
       if (Tcl_GetInt(interp, argv[indx++], &algo) != TCL_OK) {
-        opserr << "WARNING invalid algo" << endln;
-        opserr << " section: " << tag << endln;
+        opserr << "WARNING invalid algo" << "\n";
+        opserr << " section: " << tag << "\n";
         return 0;
       }
       if (algo == 0)
@@ -1268,7 +1268,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
       printCommand(argc, argv);
       opserr << "Want: section YS_Section2D01 tag? E? A? Iz? maxPlastRot? "
                 "ysTag? <algo?>"
-             << endln;
+             << "\n";
       return 0;
     }
 
@@ -1277,32 +1277,32 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
     int indx = 3;
 
     if (Tcl_GetDouble(interp, argv[indx++], &E) != TCL_OK) {
-      opserr << "WARNING invalid E" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid E" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &A) != TCL_OK) {
-      opserr << "WARNING invalid A" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid A" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &Iz) != TCL_OK) {
-      opserr << "WARNING invalid Iz" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid Iz" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &maxPlstkRot) != TCL_OK) {
-      opserr << "WARNING maxPlstkRot " << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING maxPlstkRot " << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetInt(interp, argv[indx++], &ysTag) != TCL_OK) {
-      opserr << "WARNING invalid ysTag" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid ysTag" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
@@ -1311,15 +1311,15 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
     if (ys == 0) {
       opserr << "WARNING yield surface does not exist\n";
       opserr << "yieldSurface: " << ysTag;
-      opserr << "\nsection YieldSurface: " << tag << endln;
+      opserr << "\nsection YieldSurface: " << tag << "\n";
       return 0;
     }
 
     bool useKr = true;
     if (argc > indx) {
       if (Tcl_GetInt(interp, argv[indx++], &algo) != TCL_OK) {
-        opserr << "WARNING invalid algo" << endln;
-        opserr << " section: " << tag << endln;
+        opserr << "WARNING invalid algo" << "\n";
+        opserr << " section: " << tag << "\n";
         return 0;
       }
       if (algo == 0)
@@ -1338,7 +1338,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
       opserr << "WARNING invalid number of arguments\n";
       printCommand(argc, argv);
       opserr << "Want: section soilFootingSection2d tag? FS? Vult? L? Kv? dL?"
-             << endln;
+             << "\n";
       return 0;
     }
 
@@ -1346,44 +1346,44 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
     int indx = 3;
 
     if (Tcl_GetDouble(interp, argv[indx++], &FS) != TCL_OK) {
-      opserr << "WARNING invalid FS" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid FS" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &Vult) != TCL_OK) {
-      opserr << "WARNING invalid Vult" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid Vult" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &L) != TCL_OK) {
-      opserr << "WARNING invalid L" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid L" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &Kv) != TCL_OK) {
-      opserr << "WARNING invalid Kv" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid Kv" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &Kh) != TCL_OK) {
-      opserr << "WARNING invalid Kh" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid Kh" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &Rv) != TCL_OK) {
-      opserr << "WARNING invalid Rv" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid Rv" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[indx++], &deltaL) != TCL_OK) {
-      opserr << "WARNING invalid Kv" << endln;
-      opserr << " section: " << tag << endln;
+      opserr << "WARNING invalid Kv" << "\n";
+      opserr << " section: " << tag << "\n";
       return 0;
     }
 

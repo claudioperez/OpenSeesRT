@@ -55,7 +55,7 @@ int
 TclBasicBuilder_addElastomericBearingBoucWen(
     ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-  constexpr static int eleArtStart = 1;
+  constexpr static int eleArgStart = 1;
 
   assert(clientData != nullptr);
   BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
@@ -104,52 +104,52 @@ TclBasicBuilder_addElastomericBearingBoucWen(
     }
     if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &kInit) != TCL_OK) {
       opserr << "WARNING invalid kInit\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &qd) != TCL_OK) {
       opserr << "WARNING invalid qd\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[6 + eleArgStart], &alpha1) != TCL_OK) {
       opserr << "WARNING invalid alpha1\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[7 + eleArgStart], &alpha2) != TCL_OK) {
       opserr << "WARNING invalid alpha2\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &mu) != TCL_OK) {
       opserr << "WARNING invalid mu\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[9 + eleArgStart], &eta) != TCL_OK) {
       opserr << "WARNING invalid eta\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[10 + eleArgStart], &beta) != TCL_OK) {
       opserr << "WARNING invalid beta\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[11 + eleArgStart], &gamma) != TCL_OK) {
       opserr << "WARNING invalid gamma\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     UniaxialMaterial *theMaterials[2];
@@ -158,14 +158,14 @@ TclBasicBuilder_addElastomericBearingBoucWen(
         theMaterials[0] = 0;
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid matTag\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[0] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[0] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -175,14 +175,14 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid matTag\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[1] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[1] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -191,7 +191,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
     if (recvMat != 2) {
       opserr << "WARNING wrong number of materials\n";
       opserr << "got " << recvMat << " materials, but want 2 materials\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
 
@@ -217,7 +217,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearingBoucWen element: " << tag << endln;
+              opserr << "elastomericBearingBoucWen element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -228,7 +228,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearingBoucWen element: " << tag << endln;
+              opserr << "elastomericBearingBoucWen element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -237,7 +237,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
           }
         } else {
           opserr << "WARNING insufficient arguments after -orient flag\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -246,7 +246,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
         if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -259,7 +259,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
         if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -268,12 +268,12 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 2 < argc && strcmp(argv[i], "-iter") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &maxIter) != TCL_OK) {
           opserr << "WARNING invalid maxIter\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         if (Tcl_GetDouble(interp, argv[i + 2], &tol) != TCL_OK) {
           opserr << "WARNING invalid tol\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -286,14 +286,15 @@ TclBasicBuilder_addElastomericBearingBoucWen(
 
     if (theElement == 0) {
       opserr << "WARNING ran out of memory creating element\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
 
+    Domain* theTclDomain = builder->getDomain();
     // then add the elastomericBearingBoucWen to the domain
     if (theTclDomain->addElement(theElement) == false) {
       opserr << "WARNING could not add element to the domain\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       delete theElement;
       return TCL_ERROR;
     }
@@ -338,52 +339,52 @@ TclBasicBuilder_addElastomericBearingBoucWen(
     }
     if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &kInit) != TCL_OK) {
       opserr << "WARNING invalid kInit\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &qd) != TCL_OK) {
       opserr << "WARNING invalid qd\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[6 + eleArgStart], &alpha1) != TCL_OK) {
       opserr << "WARNING invalid alpha1\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[7 + eleArgStart], &alpha2) != TCL_OK) {
       opserr << "WARNING invalid alpha2\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &mu) != TCL_OK) {
       opserr << "WARNING invalid mu\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[9 + eleArgStart], &eta) != TCL_OK) {
       opserr << "WARNING invalid eta\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[10 + eleArgStart], &beta) != TCL_OK) {
       opserr << "WARNING invalid beta\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[11 + eleArgStart], &gamma) != TCL_OK) {
       opserr << "WARNING invalid gamma\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
     UniaxialMaterial *theMaterials[4];
@@ -391,14 +392,14 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 1 < argc && strcmp(argv[i], "-P") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid axial matTag\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[0] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[0] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -408,14 +409,14 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 1 < argc && strcmp(argv[i], "-T") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid torsional matTag\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[1] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[1] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -425,14 +426,14 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 1 < argc && strcmp(argv[i], "-My") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment y matTag\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[2] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[2] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -442,14 +443,14 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment z matTag\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[3] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[3] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -458,7 +459,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
     if (recvMat != 4) {
       opserr << "WARNING wrong number of materials\n";
       opserr << "got " << recvMat << " materials, but want 4 materials\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
 
@@ -485,7 +486,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearingBoucWen element: " << tag << endln;
+              opserr << "elastomericBearingBoucWen element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -500,7 +501,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearingBoucWen element: " << tag << endln;
+              opserr << "elastomericBearingBoucWen element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -511,7 +512,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearingBoucWen element: " << tag << endln;
+              opserr << "elastomericBearingBoucWen element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -520,7 +521,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
           }
         } else {
           opserr << "WARNING insufficient arguments after -orient flag\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -529,7 +530,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
         if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -542,7 +543,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
         if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -551,12 +552,12 @@ TclBasicBuilder_addElastomericBearingBoucWen(
       if (i + 2 < argc && strcmp(argv[i], "-iter") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &maxIter) != TCL_OK) {
           opserr << "WARNING invalid maxIter\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
         if (Tcl_GetDouble(interp, argv[i + 2], &tol) != TCL_OK) {
           opserr << "WARNING invalid tol\n";
-          opserr << "elastomericBearingBoucWen element: " << tag << endln;
+          opserr << "elastomericBearingBoucWen element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -569,14 +570,15 @@ TclBasicBuilder_addElastomericBearingBoucWen(
 
     if (theElement == 0) {
       opserr << "WARNING ran out of memory creating element\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       return TCL_ERROR;
     }
 
+    Domain* theTclDomain = builder->getDomain();
     // then add the elastomericBearingBoucWen to the domain
     if (theTclDomain->addElement(theElement) == false) {
       opserr << "WARNING could not add element to the domain\n";
-      opserr << "elastomericBearingBoucWen element: " << tag << endln;
+      opserr << "elastomericBearingBoucWen element: " << tag << "\n";
       delete theElement;
       return TCL_ERROR;
     }
@@ -585,7 +587,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
   else {
     opserr << "WARNING elastomericBearingBoucWen command only works when ndm "
               "is 2 or 3, ndm: ";
-    opserr << ndm << endln;
+    opserr << ndm << "\n";
     return TCL_ERROR;
   }
 
@@ -648,37 +650,37 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
     if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &kInit) != TCL_OK) {
       opserr << "WARNING invalid kInit\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &qd) != TCL_OK) {
       opserr << "WARNING invalid qd\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[6 + eleArgStart], &alpha1) != TCL_OK) {
       opserr << "WARNING invalid alpha1\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[7 + eleArgStart], &alpha2) != TCL_OK) {
       opserr << "WARNING invalid alpha2\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &mu) != TCL_OK) {
       opserr << "WARNING invalid mu\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     UniaxialMaterial *theMaterials[2];
@@ -687,14 +689,14 @@ TclBasicBuilder_addElastomericBearingPlasticity(
         theMaterials[0] = 0;
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid matTag\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[0] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[0] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -704,14 +706,14 @@ TclBasicBuilder_addElastomericBearingPlasticity(
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid matTag\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[1] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[1] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -720,7 +722,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     if (recvMat != 2) {
       opserr << "WARNING wrong number of materials\n";
       opserr << "got " << recvMat << " materials, but want 2 materials\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
 
@@ -746,7 +748,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearing element: " << tag << endln;
+              opserr << "elastomericBearing element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -757,7 +759,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearing element: " << tag << endln;
+              opserr << "elastomericBearing element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -766,7 +768,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           }
         } else {
           opserr << "WARNING insufficient arguments after -orient flag\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -775,7 +777,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
         if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -788,7 +790,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
         if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -801,14 +803,15 @@ TclBasicBuilder_addElastomericBearingPlasticity(
 
     if (theElement == 0) {
       opserr << "WARNING ran out of memory creating element\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
 
+    Domain* theTclDomain = builder->getDomain();
     // then add the elastomericBearing to the domain
     if (theTclDomain->addElement(theElement) == false) {
       opserr << "WARNING could not add element to the domain\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       delete theElement;
       return TCL_ERROR;
     }
@@ -847,37 +850,37 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
     if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &kInit) != TCL_OK) {
       opserr << "WARNING invalid kInit\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &qd) != TCL_OK) {
       opserr << "WARNING invalid qd\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[6 + eleArgStart], &alpha1) != TCL_OK) {
       opserr << "WARNING invalid alpha1\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[7 + eleArgStart], &alpha2) != TCL_OK) {
       opserr << "WARNING invalid alpha2\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &mu) != TCL_OK) {
       opserr << "WARNING invalid mu\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
     UniaxialMaterial *theMaterials[4];
@@ -885,14 +888,14 @@ TclBasicBuilder_addElastomericBearingPlasticity(
       if (i + 1 < argc && strcmp(argv[i], "-P") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid axial matTag\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[0] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[0] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -902,14 +905,14 @@ TclBasicBuilder_addElastomericBearingPlasticity(
       if (i + 1 < argc && strcmp(argv[i], "-T") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid torsional matTag\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[1] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[1] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -919,14 +922,14 @@ TclBasicBuilder_addElastomericBearingPlasticity(
       if (i + 1 < argc && strcmp(argv[i], "-My") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment y matTag\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[2] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[2] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -936,14 +939,14 @@ TclBasicBuilder_addElastomericBearingPlasticity(
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid moment z matTag\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[3] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[3] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -952,7 +955,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     if (recvMat != 4) {
       opserr << "WARNING wrong number of materials\n";
       opserr << "got " << recvMat << " materials, but want 4 materials\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
 
@@ -979,7 +982,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearing element: " << tag << endln;
+              opserr << "elastomericBearing element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -994,7 +997,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearing element: " << tag << endln;
+              opserr << "elastomericBearing element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -1005,7 +1008,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearing element: " << tag << endln;
+              opserr << "elastomericBearing element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -1014,7 +1017,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
           }
         } else {
           opserr << "WARNING insufficient arguments after -orient flag\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -1023,7 +1026,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
         if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -1036,7 +1039,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
         if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
-          opserr << "elastomericBearing element: " << tag << endln;
+          opserr << "elastomericBearing element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -1049,14 +1052,15 @@ TclBasicBuilder_addElastomericBearingPlasticity(
 
     if (theElement == 0) {
       opserr << "WARNING ran out of memory creating element\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       return TCL_ERROR;
     }
 
+    Domain* theTclDomain = builder->getDomain();
     // then add the elastomericBearing to the domain
     if (theTclDomain->addElement(theElement) == false) {
       opserr << "WARNING could not add element to the domain\n";
-      opserr << "elastomericBearing element: " << tag << endln;
+      opserr << "elastomericBearing element: " << tag << "\n";
       delete theElement;
       return TCL_ERROR;
     }
@@ -1065,7 +1069,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
   else {
     opserr << "WARNING elastomericBearing command only works when ndm is 2 or "
               "3, ndm: ";
-    opserr << ndm << endln;
+    opserr << ndm << "\n";
     return TCL_ERROR;
   }
 
@@ -1093,10 +1097,9 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
                                           int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
-  constexpr static int eleArtStart = 1;
+  constexpr static int eleArgStart = 1;
 
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
-  Domain* theTclDomain = builder->getDomain();
 
   Element *theElement = nullptr;
   int ndm = builder->getNDM();
@@ -1142,67 +1145,67 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
     }
     if (Tcl_GetInt(interp, argv[2 + eleArgStart], &iNode) != TCL_OK) {
       opserr << "WARNING invalid iNode\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argv[3 + eleArgStart], &jNode) != TCL_OK) {
       opserr << "WARNING invalid jNode\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[4 + eleArgStart], &uy) != TCL_OK) {
       opserr << "WARNING invalid uy\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[5 + eleArgStart], &a1) != TCL_OK) {
       opserr << "WARNING invalid a1\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[6 + eleArgStart], &a2) != TCL_OK) {
       opserr << "WARNING invalid a2\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[7 + eleArgStart], &a3) != TCL_OK) {
       opserr << "WARNING invalid a3\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[8 + eleArgStart], &a4) != TCL_OK) {
       opserr << "WARNING invalid a4\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[9 + eleArgStart], &a5) != TCL_OK) {
       opserr << "WARNING invalid a5\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[10 + eleArgStart], &b) != TCL_OK) {
       opserr << "WARNING invalid b\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[11 + eleArgStart], &c) != TCL_OK) {
       opserr << "WARNING invalid c\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[12 + eleArgStart], &eta) != TCL_OK) {
       opserr << "WARNING invalid eta\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[13 + eleArgStart], &beta) != TCL_OK) {
       opserr << "WARNING invalid beta\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[14 + eleArgStart], &gamma) != TCL_OK) {
       opserr << "WARNING invalid gamma\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
     UniaxialMaterial *theMaterials[2];
@@ -1211,14 +1214,14 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
         theMaterials[0] = 0;
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid matTag\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[0] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[0] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -1228,14 +1231,14 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
       if (i + 1 < argc && strcmp(argv[i], "-Mz") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &matTag) != TCL_OK) {
           opserr << "WARNING invalid matTag\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
         }
         theMaterials[1] = builder->getTypedObject<UniaxialMaterial>(matTag);
         if (theMaterials[1] == 0) {
           opserr << "WARNING material model not found\n";
-          opserr << "uniaxialMaterial: " << matTag << endln;
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "uniaxialMaterial: " << matTag << "\n";
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
         }
         recvMat++;
@@ -1244,7 +1247,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
     if (recvMat != 2) {
       opserr << "WARNING wrong number of materials\n";
       opserr << "got " << recvMat << " materials, but want 2 materials\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
 
@@ -1270,7 +1273,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearingUFRP element: " << tag << endln;
+              opserr << "elastomericBearingUFRP element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -1281,7 +1284,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           for (j = 0; j < 3; j++) {
             if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
               opserr << "WARNING invalid -orient value\n";
-              opserr << "elastomericBearingUFRP element: " << tag << endln;
+              opserr << "elastomericBearingUFRP element: " << tag << "\n";
               return TCL_ERROR;
             } else {
               argi++;
@@ -1290,7 +1293,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           }
         } else {
           opserr << "WARNING insufficient arguments after -orient flag\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -1299,7 +1302,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
       if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
         if (Tcl_GetDouble(interp, argv[i + 1], &shearDistI) != TCL_OK) {
           opserr << "WARNING invalid -shearDist value\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -1312,7 +1315,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
       if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
         if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
           opserr << "WARNING invalid -mass value\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -1321,12 +1324,12 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
       if (i + 2 < argc && strcmp(argv[i], "-iter") == 0) {
         if (Tcl_GetInt(interp, argv[i + 1], &maxIter) != TCL_OK) {
           opserr << "WARNING invalid maxIter\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
         }
         if (Tcl_GetDouble(interp, argv[i + 2], &tol) != TCL_OK) {
           opserr << "WARNING invalid tol\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
         }
       }
@@ -1339,14 +1342,15 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
 
     if (theElement == 0) {
       opserr << "WARNING ran out of memory creating element\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       return TCL_ERROR;
     }
 
+    Domain* theTclDomain = builder->getDomain();
     // then add the elastomericBearingUFRP to the domain
     if (theTclDomain->addElement(theElement) == false) {
       opserr << "WARNING could not add element to the domain\n";
-      opserr << "elastomericBearingUFRP element: " << tag << endln;
+      opserr << "elastomericBearingUFRP element: " << tag << "\n";
       delete theElement;
       return TCL_ERROR;
     }
@@ -1389,67 +1393,67 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
       }
       if (Tcl_GetInt(interp, argv[2+eleArgStart], &iNode) != TCL_OK)  {
           opserr << "WARNING invalid iNode\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetInt(interp, argv[3+eleArgStart], &jNode) != TCL_OK)  {
           opserr << "WARNING invalid jNode\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[4+eleArgStart], &uy) != TCL_OK)  {
           opserr << "WARNING invalid uy\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[5+eleArgStart], &a1) != TCL_OK)  {
           opserr << "WARNING invalid a1\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[6+eleArgStart], &a2) != TCL_OK)  {
           opserr << "WARNING invalid a2\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[7+eleArgStart], &a3) != TCL_OK)  {
           opserr << "WARNING invalid a3\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[8+eleArgStart], &a4) != TCL_OK)  {
           opserr << "WARNING invalid a4\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[9+eleArgStart], &a5) != TCL_OK)  {
           opserr << "WARNING invalid a5\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[10+eleArgStart], &b) != TCL_OK)  {
           opserr << "WARNING invalid b\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[11+eleArgStart], &c) != TCL_OK)  {
           opserr << "WARNING invalid c\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[12+eleArgStart], &eta) != TCL_OK)  {
           opserr << "WARNING invalid eta\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[13+eleArgStart], &beta) != TCL_OK)  {
           opserr << "WARNING invalid beta\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       if (Tcl_GetDouble(interp, argv[14+eleArgStart], &gamma) != TCL_OK)  {
           opserr << "WARNING invalid gamma\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
       UniaxialMaterial *theMaterials[4];
@@ -1457,14 +1461,14 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           if (i+1 < argc && strcmp(argv[i], "-P") == 0)  {
               if (Tcl_GetInt(interp, argv[i+1], &matTag) != TCL_OK)  {
                   opserr << "WARNING invalid axial matTag\n";
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
               theMaterials[0] = builder->getTypedObject<UniaxialMaterial>(matTag);
               if (theMaterials[0] == 0)  {
                   opserr << "WARNING material model not found\n";
-                  opserr << "uniaxialMaterial: " << matTag << endln;
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "uniaxialMaterial: " << matTag << "\n";
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
               recvMat++;
@@ -1474,14 +1478,14 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           if (i+1 < argc && strcmp(argv[i], "-T") == 0)  {
               if (Tcl_GetInt(interp, argv[i+1], &matTag) != TCL_OK)  {
                   opserr << "WARNING invalid torsional matTag\n";
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
               theMaterials[1] = builder->getTypedObject<UniaxialMaterial>(matTag);
               if (theMaterials[1] == 0)  {
                   opserr << "WARNING material model not found\n";
-                  opserr << "uniaxialMaterial: " << matTag << endln;
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "uniaxialMaterial: " << matTag << "\n";
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
               recvMat++;
@@ -1491,14 +1495,14 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           if (i+1 < argc && strcmp(argv[i], "-My") == 0)  {
               if (Tcl_GetInt(interp, argv[i+1], &matTag) != TCL_OK)  {
                   opserr << "WARNING invalid moment y matTag\n";
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
               theMaterials[2] = builder->getTypedObject<UniaxialMaterial>(matTag);
               if (theMaterials[2] == 0)  {
                   opserr << "WARNING material model not found\n";
-                  opserr << "uniaxialMaterial: " << matTag << endln;
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "uniaxialMaterial: " << matTag << "\n";
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
               recvMat++;
@@ -1508,14 +1512,14 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           if (i+1 < argc && strcmp(argv[i], "-Mz") == 0)  {
               if (Tcl_GetInt(interp, argv[i+1], &matTag) != TCL_OK)  {
                   opserr << "WARNING invalid moment z matTag\n";
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
               theMaterials[3] = builder->getTypedObject<UniaxialMaterial>(matTag);
               if (theMaterials[3] == 0)  {
                   opserr << "WARNING material model not found\n";
-                  opserr << "uniaxialMaterial: " << matTag << endln;
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "uniaxialMaterial: " << matTag << "\n";
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
               recvMat++;
@@ -1524,7 +1528,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
       if (recvMat != 4)  {
           opserr << "WARNING wrong number of materials\n";
           opserr << "got " << recvMat << " materials, but want 4 materials\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
 
@@ -1550,7 +1554,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
                   for (j=0; j<3; j++)  {
                       if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
                           opserr << "WARNING invalid -orient value\n";
-                          opserr << "elastomericBearingUFRP element: " << tag <<  endln; 
+                          opserr << "elastomericBearingUFRP element: " << tag <<  "\n"; 
                           return TCL_ERROR; 
                       } else  { 
                         argi++; 
@@ -1566,7 +1570,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
                   for (j=0; j<3; j++)  {
                       if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
                           opserr << "WARNING invalid -orient value\n";
-                          opserr << "elastomericBearingUFRP element: " << tag <<  endln; 
+                          opserr << "elastomericBearingUFRP element: " << tag <<  "\n"; 
                           return TCL_ERROR; 
                       } else  { 
                         argi++; 
@@ -1577,7 +1581,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
                   for (j=0; j<3; j++)  {
                       if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
                           opserr << "WARNING invalid -orient value\n";
-                          opserr << "elastomericBearingUFRP element: " << tag << endln; 
+                          opserr << "elastomericBearingUFRP element: " << tag << "\n"; 
                           return TCL_ERROR; 
                       } else  {
                         argi++; 
@@ -1586,7 +1590,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
                   }
               } else  {
                   opserr << "WARNING insufficient arguments after -orientflag\n"; 
-                  opserr << "elastomericBearingUFRP element: " << tag << endln; 
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n"; 
                   return  TCL_ERROR;
               }
           }
@@ -1595,7 +1599,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           if (i+1 < argc && strcmp(argv[i], "-shearDist") == 0)  {
               if (Tcl_GetDouble(interp, argv[i+1], &shearDistI) != TCL_OK)  {
                   opserr << "WARNING invalid -shearDist value\n";
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
           }
@@ -1608,7 +1612,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           if (i+1 < argc && strcmp(argv[i], "-mass") == 0)  {
               if (Tcl_GetDouble(interp, argv[i+1], &mass) != TCL_OK)  {
                   opserr << "WARNING invalid -mass value\n";
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
           }
@@ -1617,12 +1621,12 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
           if (i+2 < argc && strcmp(argv[i], "-iter") == 0)  {
               if (Tcl_GetInt(interp, argv[i+1], &maxIter) != TCL_OK)  {
                   opserr << "WARNING invalid maxIter\n";
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
               if (Tcl_GetDouble(interp, argv[i+2], &tol) != TCL_OK)  {
                   opserr << "WARNING invalid tol\n";
-                  opserr << "elastomericBearingUFRP element: " << tag << endln;
+                  opserr << "elastomericBearingUFRP element: " << tag << "\n";
                   return TCL_ERROR;
               }
           }
@@ -1635,14 +1639,15 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
 
       if (theElement == nullptr)  {
           opserr << "WARNING ran out of memory creating element\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           return TCL_ERROR;
       }
 
+      Domain* theTclDomain = builder->getDomain();
       // then add the elastomericBearingUFRP to the domain
       if (theTclDomain->addElement(theElement) == false)  {
           opserr << "WARNING could not add element to the domain\n";
-          opserr << "elastomericBearingUFRP element: " << tag << endln;
+          opserr << "elastomericBearingUFRP element: " << tag << "\n";
           delete theElement;
           return TCL_ERROR;
       }
@@ -1652,7 +1657,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
   else {
     opserr << "WARNING elastomericBearingUFRP command only works when ndm is "
               "2, ndm: ";
-    opserr << ndm << endln;
+    opserr << ndm << "\n";
     return TCL_ERROR;
   }
 

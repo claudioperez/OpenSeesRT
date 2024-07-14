@@ -1,3 +1,4 @@
+#include <tcl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <OPS_Stream.h>
@@ -8,21 +9,19 @@
 
 #include <Elastic2DGNL.h>
 
-class TclBasicBuilder;
 #include <runtime/BasicModelBuilder.h>
 
-#define tcl_debug 1
+#define tcl_debug 0
 
 // Elastic2DGNL(int tag, double A, double E, double I, int Nd1, int Nd2,
 //             double rho = 0.0, bool islinear = false);
 
 int
 TclBasicBuilder_addElastic2dGNL(ClientData clientData, Tcl_Interp *interp, int argc,
-                                TCL_Char ** const argv, Domain *theDomain,
-                                TclBasicBuilder *theBuilder)
+                                TCL_Char ** const argv)
 {
-  // cerr << "Press key to continue...\n";
-  // cin.get();
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
   if (tcl_debug)
     opserr << " TclBasicBuilder_addElastic2dGNL \n";
@@ -109,7 +108,7 @@ TclBasicBuilder_addElastic2dGNL(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
-  if (theDomain->addElement(theElement) == false) {
+  if (builder->getDomain()->addElement(theElement) == false) {
     opserr << "WARNING TclElmtBuilder - addElastic2dGNL - could not add "
               "element to domain ";
     opserr << tag << endln;

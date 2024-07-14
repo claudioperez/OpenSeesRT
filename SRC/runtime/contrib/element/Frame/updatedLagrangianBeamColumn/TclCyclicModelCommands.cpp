@@ -1,3 +1,10 @@
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
+//
+#include <tcl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <OPS_Stream.h>
@@ -11,11 +18,10 @@
 #include <BilinearCyclic.h>
 #include <QuadraticCyclic.h>
 #include <runtime/BasicModelBuilder.h>
-class TclBasicBuilder;
 
 int
 TclBasicBuilder_addLinearCylic(ClientData clientData, Tcl_Interp *interp, int argc,
-                               TCL_Char ** const argv, TclBasicBuilder *theBuilder)
+                               TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   int tag;
@@ -42,8 +48,7 @@ TclBasicBuilder_addLinearCylic(ClientData clientData, Tcl_Interp *interp, int ar
 
 int
 TclBasicBuilder_addBilinearCyclic(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char ** const argv,
-                                  TclBasicBuilder *theBuilder)
+                                  int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   int tag;
@@ -71,8 +76,7 @@ TclBasicBuilder_addBilinearCyclic(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addQuadraticCyclic(ClientData clientData, Tcl_Interp *interp,
-                                   int argc, TCL_Char ** const argv,
-                                   TclBasicBuilder *theBuilder)
+                                   int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder* builder = (BasicModelBuilder*)clientData;
   int tag;
@@ -103,24 +107,21 @@ TclBasicBuilder_addQuadraticCyclic(ClientData clientData, Tcl_Interp *interp,
 
 /*******************************************************************************************/
 int
-TclBasicBuilderCyclicModelCommand(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char ** const argv,
-                                  TclBasicBuilder *theTclBuilder)
+TclCommand_addCyclicModel(ClientData clientData, Tcl_Interp *interp,
+                                  int argc, TCL_Char ** const argv)
 {
 
   if (strcmp(argv[1], "linear") == 0) {
-    int result = TclBasicBuilder_addLinearCylic(clientData, interp, argc, argv,
-                                                theTclBuilder);
+    int result = TclBasicBuilder_addLinearCylic(clientData, interp, argc, argv);
     return result;
+
   } else if (strcmp(argv[1], "bilinear") == 0) {
-    int result = TclBasicBuilder_addBilinearCyclic(clientData, interp, argc, argv,
-                                                   theTclBuilder);
+    int result = TclBasicBuilder_addBilinearCyclic(clientData, interp, argc, argv);
     return result;
   }
 
   else if (strcmp(argv[1], "quadratic") == 0) {
-    int result = TclBasicBuilder_addQuadraticCyclic(clientData, interp, argc, argv,
-                                                    theTclBuilder);
+    int result = TclBasicBuilder_addQuadraticCyclic(clientData, interp, argc, argv);
     return result;
   }
 

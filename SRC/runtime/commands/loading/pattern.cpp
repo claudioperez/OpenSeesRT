@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the function invoked when the user invokes
 // the "pattern" command in the interpreter. 
@@ -22,6 +23,7 @@
 // Modified: fmk 11/00 - removed TimeSeries stuff from file, now an external
 // procedure
 //
+#include <tcl.h>
 #include <assert.h>
 #include <runtime/BasicModelBuilder.h>
 #include <runtimeAPI.h>

@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
-
+#include <Logging.h>
 #include <Actuator.h>
 #include <Adapter.h>
 #include <ActuatorCorot.h>
@@ -41,7 +41,7 @@ int
 TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char ** const argv)
 {
-  constexpr static int eleArtStart = 1;
+  constexpr static int eleArgStart = 1;
   // ensure the destructor has not been called
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
@@ -106,6 +106,7 @@ TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
       new Actuator(tag, ndm, iNode, jNode, EA, ipPort, doRayleigh, rho);
 
 
+  Domain* theTclDomain = builder->getDomain();
   if (theTclDomain->addElement(theElement) == false) {
     opserr << OpenSees::PromptValueError << "could not add element to the domain\n";
     opserr << "actuator element: " << tag << "\n";
@@ -192,6 +193,7 @@ TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
       new ActuatorCorot(tag, ndm, iNode, jNode, EA, ipPort, doRayleigh, rho);
 
 
+  Domain* theTclDomain = builder->getDomain();
   if (theTclDomain->addElement(theElement) == false) {
     opserr << OpenSees::PromptValueError << "could not add element to the domain\n";
     opserr << "corotActuator element: " << tag << "\n";
@@ -362,6 +364,7 @@ TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
     delete[] dofs;
 
 
+  Domain* theTclDomain = builder->getDomain();
   if (theTclDomain->addElement(theElement) == false) {
     opserr << OpenSees::PromptValueError << "could not add element to the domain\n";
     opserr << "adapter element: " << tag << "\n";
