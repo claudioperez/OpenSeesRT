@@ -38,7 +38,7 @@
 
 
 int
-TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
+TclCommand_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char ** const argv)
 {
   constexpr static int eleArgStart = 1;
@@ -120,10 +120,10 @@ TclBasicBuilder_addActuator(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
-                                 int argc, TCL_Char ** const argv,
-                                 int eleArgStart)
+TclCommand_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
+                                 int argc, TCL_Char ** const argv)
 {
+  constexpr static int eleArgStart = 1;
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
@@ -204,7 +204,7 @@ TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
 
 
 int
-TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
+TclCommand_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
                            TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
