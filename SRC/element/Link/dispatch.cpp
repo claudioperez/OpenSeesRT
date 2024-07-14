@@ -26,10 +26,10 @@
 // for the TwoNodeLink element.
 
 class TclBasicBuilder;
-#include <runtime/BasicModelBuilder.h>
-
 #include <stdlib.h>
 #include <string.h>
+#include <tcl.h>
+#include <runtime/BasicModelBuilder.h>
 #include <Domain.h>
 #include <ID.h>
 #include <Vector.h>
