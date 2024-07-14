@@ -1,23 +1,16 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
 //
-// Description: This file contains the implementation of the commands used
-// to add sections and nonlinear frame elements to the model.
+//        OpenSees - Open System for Earthquake Engineering Simulation    
 //
-// Written: Remo M. de Souza
-// Created: 08/99
-// based on TclPlaneFrame.C by fmk and rms
+//===----------------------------------------------------------------------===//
 //
-
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
-#include <Domain.h>
+#include <tcl.h>
 #include <Node.h>
-#include <Matrix.h>
+#include <Domain.h>
 
 #include <ForceBeamColumn2d.h>
 #include <ForceBeamColumn3d.h>
@@ -27,20 +20,21 @@
 #include <HingeRadauTwoBeamIntegration.h>
 #include <HingeRadauBeamIntegration.h>
 
+#include <FrameSection.h>
 #include <ElasticSection2d.h>
 #include <ElasticSection3d.h>
-
-#include <FrameSection.h>
 
 #include <FrameTransform.h>
 
 #include <runtime/BasicModelBuilder.h>
 
-class TclBasicBuilder;
+//
+//     element beamWithHinges tag? ndI? ndJ? secTagI? lenI? secTagJ? lenJ? 
+//        E? A? I? transfTag? <-shear shearLength?> <-mass massDens?> 
+//        <-iter maxIters tolerance>
 int
 TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char ** const argv, Domain *theDomain,
-                                  TclBasicBuilder *_builder)
+                                  int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
@@ -249,18 +243,8 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
 
     delete theBeamIntegr;
 
-    // Ensure we have created the element, out of memory if got here and no
-    // element
-    if (theElement == nullptr) {
-      opserr << "WARNING ran out of memory creating element\n";
-      opserr << "BeamWithHinges: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (theDomain->addElement(theElement) == false) {
-      opserr << "WARNING TclElmtBuilder - addBeamWithHinges - could not add "
-                "element to domain ";
-      opserr << tag << endln;
+    if (builder->getDomain()->addElement(theElement) == false) {
+      opserr << "WARNING could not add element to domain.\n";
       return TCL_ERROR;
     }
   }
@@ -428,6 +412,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
       sections[1] = &elastic;
       sections[2] = &elastic;
       sections[3] = sectionJ;
+
     } else if (strcmp(argv[1], "beamWithHinges2") == 0) {
       theBeamIntegr = new HingeRadauTwoBeamIntegration(lenI, lenJ);
 
@@ -438,6 +423,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
       sections[3] = &elastic;
       sections[4] = sectionJ;
       sections[5] = sectionJ;
+
     } else if (strcmp(argv[1], "beamWithHinges3") == 0 ||
                strcmp(argv[1], "beamWithHinges") == 0) {
       theBeamIntegr = new HingeRadauBeamIntegration(lenI, lenJ);
@@ -449,6 +435,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
       sections[3] = &elastic;
       sections[4] = &elastic;
       sections[5] = sectionJ;
+
     } else if (strcmp(argv[1], "beamWithHinges4") == 0) {
       theBeamIntegr = new HingeEndpointBeamIntegration(lenI, lenJ);
 
@@ -459,11 +446,12 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
       sections[3] = sectionJ;
     }
 
-    if (theBeamIntegr == 0) {
+    if (theBeamIntegr == nullptr) {
       opserr << "Unknown element type: " << argv[1] << endln;
       return TCL_ERROR;
     }
 
+    // TODO fix shear for beamWithHinges
     /*
     if (isShear) {
       SectionForceDeformation *sectionL = builder->getTypedObject<SectionForceDeformation>(shearTag);
@@ -484,16 +472,9 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
 
     delete theBeamIntegr;
 
-    // Ensure we have created the element, out of memory if got here and no
-    // element
-    if (theElement == nullptr) {
-      opserr << "WARNING ran out of memory creating element\n";
-      opserr << "BeamWithHinges: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (theDomain->addElement(theElement) == false) {
-      opserr << "WARNING TclElmtBuilder - addBeamWithHinges - could not add "
+    // Add to the domain
+    if (builder->getDomain()->addElement(theElement) == false) {
+      opserr << "WARNING could not add "
                 "element to domain ";
       opserr << tag << endln;
       return TCL_ERROR;

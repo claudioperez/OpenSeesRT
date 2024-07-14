@@ -23,7 +23,7 @@
 ** Description: The source code for the Tcl commands of gradient inelastic (GI)
 *force-based beam-column element formulation
 */
-
+#include <tcl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
