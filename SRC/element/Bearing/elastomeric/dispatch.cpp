@@ -604,13 +604,9 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   constexpr static int eleArgStart = 1;
-  // ensure the destructor has not been called
+  assert(builder != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - elastomericBearing\n";
-    return TCL_ERROR;
-  }
 
   Element *theElement = 0;
   int ndm = builder->getNDM();

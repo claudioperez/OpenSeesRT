@@ -5,6 +5,7 @@
 // TCL strengthDegradation command.
 
 #include <string.h>
+#include <tcl.h>
 #include <OPS_Globals.h>
 
 #include <runtime/BasicModelBuilder.h>

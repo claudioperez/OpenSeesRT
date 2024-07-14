@@ -124,13 +124,9 @@ TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char ** const argv,
                                  int eleArgStart)
 {
-  // ensure the destructor has not been called
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << OpenSees::PromptValueError << "builder has been destroyed - corotActuator\n";
-    return TCL_ERROR;
-  }
 
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 6) {
@@ -209,8 +205,12 @@ TclBasicBuilder_addActuatorCorot(ClientData clientData, Tcl_Interp *interp,
 
 int
 TclBasicBuilder_addAdapter(ClientData clientData, Tcl_Interp *interp, int argc,
-                           TCL_Char ** const argv, int eleArgStart)
+                           TCL_Char ** const argv)
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  constexpr static int eleArgStart = 1;
   // check the number of arguments is correct
   if ((argc - eleArgStart) < 8) {
     opserr << OpenSees::PromptValueError << "insufficient arguments\n";
