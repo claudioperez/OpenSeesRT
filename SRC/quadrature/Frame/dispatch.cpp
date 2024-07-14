@@ -6,9 +6,8 @@
 #include <BeamIntegration.h>
 #include <BasicModelBuilder.h>
 
-extern int OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg,
-                          int mArg, TCL_Char ** const argv, Domain *domain,
-                          TclBuilder *builder);
+extern int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
+                          int mArg, TCL_Char ** const argv, Domain *domain);
 
 extern void *OPS_LobattoBeamIntegration(int &integrationTag, ID &secTags);
 extern void *OPS_LegendreBeamIntegration(int &integrationTag, ID &secTags);
@@ -41,7 +40,7 @@ TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  OPS_ResetInput(clientData, interp, 2, argc, argv, nullptr, nullptr);
+  OPS_ResetInputNoBuilder(clientData, interp, 2, argc, argv, nullptr);
 
   int iTag;
   ID secTags;
