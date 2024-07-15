@@ -39,7 +39,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (ndm < 2) {
     opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-    opserr << " : model dimension (ndm) must be at leat 2 " << endln;
+    opserr << " : model dimension (ndm) must be at leat 2 " << "\n";
     return TCL_ERROR;
   }
 
@@ -56,17 +56,17 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   if (Tcl_GetInt(interp, argv[2], &numY) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-    opserr << " : invalid numY: " << argv[2] << endln;
+    opserr << " : invalid numY: " << argv[2] << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[3], &startNodeNum) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-    opserr << " : invalid startNode: " << argv[3] << endln;
+    opserr << " : invalid startNode: " << argv[3] << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[4], &startEleNum) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-    opserr << " : invalid startEle: " << argv[4] << endln;
+    opserr << " : invalid startEle: " << argv[4] << "\n";
     return TCL_ERROR;
   }
 
@@ -81,7 +81,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
     if (strcmp(argv[7],"-numEleNodes") == 0)
       if (Tcl_GetInt(interp, argv[8], &numNodes) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType eleArgs?";
-        opserr << " -numEleNodes numNodes?: invalid numNodes: " << argv[8] << endln; 
+        opserr << " -numEleNodes numNodes?: invalid numNodes: " << argv[8] << "\n"; 
         return TCL_ERROR;
       }
     if (numNodes != 4 && numNodes != 9) {
@@ -115,26 +115,26 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
     double value;
     if ((count + ndm + 1) >  argcNodes) {
       opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-      opserr << " : invalid number of node args: " << argv[7] << endln;
+      opserr << " : invalid number of node args: " << argv[7] << "\n";
       Tcl_Free((char *)argvNodes);
       return TCL_ERROR;
     }
     if (Tcl_GetInt(interp, argvNodes[count], &nodeTag) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-      opserr << " : invalid node tag: " << argvNodes[count] << endln;
+      opserr << " : invalid node tag: " << argvNodes[count] << "\n";
       Tcl_Free((char *)argvNodes);
       return TCL_ERROR;
     }
     if (nodeTag < 1 || nodeTag > 9) {
       opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-      opserr << " : invalid node tag out of bounds [1,9]: " << argvNodes[count] << endln;
+      opserr << " : invalid node tag out of bounds [1,9]: " << argvNodes[count] << "\n";
       Tcl_Free((char *)argvNodes);
       return TCL_ERROR;
     }
     for (int i=0; i<ndm; ++i) {
       if (Tcl_GetDouble(interp, argvNodes[count+1+i], &value) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-        opserr << " : invalid node coordinate for node: " << argvNodes[count] << endln;
+        opserr << " : invalid node coordinate for node: " << argvNodes[count] << "\n";
         Tcl_Free((char *)argvNodes); return TCL_ERROR;
       }
       Coordinates(nodeTag-1,i) = value;
@@ -180,7 +180,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
 
       if (theTclDomain->addNode(theNode) == false) {
         opserr << G3_ERROR_PROMPT << "failed to add node to the domain\n";
-        opserr << "node: " << nodeID << endln;
+        opserr << "node: " << nodeID << "\n";
         delete theNode; // otherwise memory leak
         return TCL_ERROR;
       }
@@ -246,34 +246,34 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (ndm < 3) {
     opserr << G3_ERROR_PROMPT << "block3D numX? numY? startNode? startEle? eleType? eleArgs?";
-    opserr << " : model dimension (ndm) must be at leat 2 " << endln;
+    opserr << " : model dimension (ndm) must be at leat 2 " << "\n";
     return TCL_ERROR;
   }
 
   int numX, numY, numZ, startNodeNum, startEleNum;
   if (Tcl_GetInt(interp, argv[1], &numX) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "block3D numX? numY? numZ? startNode? startEle? eleType? eleArgs?";
-    opserr << " : invalid numX: " << argv[1] << endln;
+    opserr << " : invalid numX: " << argv[1] << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[2], &numY) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "block3D numX? numY? numZ? startNode? startEle? eleType? eleArgs?";
-    opserr << " : invalid numY: " << argv[2] << endln;
+    opserr << " : invalid numY: " << argv[2] << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[3], &numZ) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "block3D numX? numY? numZ? startNode? startEle? eleType? eleArgs?";
-    opserr << " : invalid numZ: " << argv[3] << endln;
+    opserr << " : invalid numZ: " << argv[3] << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[4], &startNodeNum) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "block3D numX? numY? numZ? startNode? startEle? eleType? eleArgs?";
-    opserr << " : invalid startNode: " << argv[4] << endln;
+    opserr << " : invalid startNode: " << argv[4] << "\n";
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[5], &startEleNum) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "block3D numX? numY? numZ? startNode? startEle? eleType? eleArgs?";
-    opserr << " : invalid startEle: " << argv[5] << endln;
+    opserr << " : invalid startEle: " << argv[5] << "\n";
     return TCL_ERROR;
   }
 
@@ -293,7 +293,7 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
   while (count < argcNodes) {
     if ((count + ndm + 1) > argcNodes) {
       opserr << G3_ERROR_PROMPT << "block3D numX? numY? numZ? startNode? startEle? eleType eleArgs?";
-      opserr << " : invalid number of node args: " << argv[8] << endln;
+      opserr << " : invalid number of node args: " << argv[8] << "\n";
       Tcl_Free((char *)argvNodes);
       return TCL_ERROR;
     }
@@ -301,20 +301,20 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
     double value;
     if (Tcl_GetInt(interp, argvNodes[count], &nodeTag) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "block3D numX? numY? numZ? startNode? startEle? eleType? eleArgs?";
-      opserr << " : invalid node id in node args: " << argvNodes[count] << endln;
+      opserr << " : invalid node id in node args: " << argvNodes[count] << "\n";
       Tcl_Free((char *)argvNodes);
       return TCL_ERROR;
     }
     if (nodeTag < 1 || nodeTag > 27) {
       opserr << G3_ERROR_PROMPT << "block3D numX? numY? numZ? startNode? startEle? eleType? eleArgs?";
-      opserr << " : node tag out of bounds [1, 27]: " << argvNodes[count] << endln;
+      opserr << " : node tag out of bounds [1, 27]: " << argvNodes[count] << "\n";
       Tcl_Free((char *)argvNodes);
       return TCL_ERROR;
     }
     for (int i=0; i<ndm; ++i) {
       if (Tcl_GetDouble(interp, argvNodes[count+1+i], &value) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "block3D numX? numY? numZ? startNode? startEle? eleType? eleArgs?";
-        opserr << " : invalid coordinate in node args: " << argvNodes[count] << endln;
+        opserr << " : invalid coordinate in node args: " << argvNodes[count] << "\n";
         Tcl_Free((char *)argvNodes);
         return TCL_ERROR;
       }
@@ -357,7 +357,7 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
 
         if (theTclDomain->addNode(theNode) == false) {
           opserr << G3_ERROR_PROMPT << "failed to add node to the domain\n";
-          opserr << "node: " << nodeID << endln;
+          opserr << "node: " << nodeID << "\n";
           delete theNode;
           return TCL_ERROR;
         }
