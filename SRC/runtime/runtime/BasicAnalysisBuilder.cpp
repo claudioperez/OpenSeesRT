@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Written: Claudio Perez
 //
@@ -94,7 +95,7 @@ BasicAnalysisBuilder::wipe()
       delete theStaticIntegrator;
       theStaticIntegrator = nullptr;
   }
-  if (theTransientIntegrator != nullptr) {
+  if ((theTransientIntegrator != nullptr) && freeTI) {
       delete theTransientIntegrator;
       theTransientIntegrator = nullptr;
   }
@@ -366,8 +367,27 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
 
       result = theAlgorithm->solveCurrentStep();
       if (result < 0) {
-//      opserr << "StaticAnalysis::analyze - the Algorithm failed at step: " << i
-//             << " with domain at load factor " << theDomain->getCurrentTime() << "\n";
+        switch (result) {
+          case SolutionAlgorithm::BadFormResidual:
+            opserr << OpenSees::PromptAnalysisFailure
+                   << "Failed to form residual\n";
+            break;
+          case SolutionAlgorithm::BadFormTangent:
+            opserr << OpenSees::PromptAnalysisFailure
+                   << "Failed to form tangent\n";
+            break;
+          case SolutionAlgorithm::BadLinearSolve:
+            opserr << OpenSees::PromptAnalysisFailure
+                   << "Failed to solve system, tangent may be singular\n";
+            break;
+          case SolutionAlgorithm::TestFailed:
+            // no output; information will have been printed 
+            // by the test
+            break;
+          case SolutionAlgorithm::BadTestStart:
+            opserr << "Failed to initialize the convergence test\n";
+            break;
+        }
         theDomain->revertToLastCommit();
         theStaticIntegrator->revertToLastStep();
         return -3;
