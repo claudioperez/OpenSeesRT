@@ -89,10 +89,12 @@ Tcl_CmdProc TclCommand_addZeroLengthND;
 Tcl_CmdProc TclBasicBuilder_addBeamWithHinges;
 Tcl_CmdProc TclBasicBuilder_addDispBeamColumnInt;
 
+// Joint
+Tcl_CmdProc TclBasicBuilder_addJoint2D;
+Tcl_CmdProc TclBasicBuilder_addJoint3D;
+Tcl_CmdProc TclBasicBuilder_addBeamColumnJoint;
 
 // Other
-extern int TclBasicBuilder_addJoint2D(ClientData, Tcl_Interp *, int, TCL_Char **const, Domain *);
-G3_TclElementCommand TclBasicBuilder_addJoint3D;
 G3_TclElementCommand TclBasicBuilder_addMultipleShearSpring;
 G3_TclElementCommand TclBasicBuilder_addMultipleNormalSpring;
 Tcl_CmdProc TclBasicBuilder_addElement2dYS;
@@ -103,7 +105,6 @@ G3_TclElementCommand TclBasicBuilder_addMasonPan12;
 G3_TclElementCommand TclBasicBuilder_addMasonPan3D;
 G3_TclElementCommand TclBasicBuilder_addBeamGT;
 
-Tcl_CmdProc TclBasicBuilder_addBeamColumnJoint;
 
 Tcl_CmdProc TclBasicBuilder_addGradientInelasticBeamColumn;
 
@@ -418,23 +419,23 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   }
 
   else if (strcmp(argv[1], "DisplFrame") == 0 ||
-             strcmp(argv[1], "CubicFrame") == 0 ||
-             strcmp(argv[1], "ForceFrame") == 0 ||
+           strcmp(argv[1], "CubicFrame") == 0 ||
+           strcmp(argv[1], "ForceFrame") == 0 ||
 
-             strcmp(argv[1], "ForceBeamColumn") == 0 ||
-             strcmp(argv[1], "DispBeamColumn") == 0 ||
-             strcmp(argv[1], "DispBeamColumn") == 0 ||
-             strcmp(argv[1], "TimoshenkoBeamColumn") == 0 ||
-             strcmp(argv[1], "ForceBeamColumnCBDI") == 0 ||
-             strcmp(argv[1], "ForceBeamColumnCSBDI") == 0 ||
-             strcmp(argv[1], "ForceBeamColumnWarping") == 0 ||
-             strcmp(argv[1], "ForceBeamColumnThermal") == 0 ||
-             strcmp(argv[1], "ElasticForceBeamColumnWarping") == 0 ||
-             strcmp(argv[1], "DispBeamColumnNL") == 0 ||
-             strcmp(argv[1], "DispBeamColumnThermal") == 0 ||
-             strcmp(argv[1], "ElasticForceBeamColumn") == 0 ||
-             strcmp(argv[1], "NonlinearBeamColumn") == 0 ||
-             strcmp(argv[1], "DispBeamColumnWithSensitivity") == 0) {
+           strcmp(argv[1], "ForceBeamColumn") == 0 ||
+           strcmp(argv[1], "DispBeamColumn") == 0 ||
+           strcmp(argv[1], "DispBeamColumn") == 0 ||
+           strcmp(argv[1], "TimoshenkoBeamColumn") == 0 ||
+           strcmp(argv[1], "ForceBeamColumnCBDI") == 0 ||
+           strcmp(argv[1], "ForceBeamColumnCSBDI") == 0 ||
+           strcmp(argv[1], "ForceBeamColumnWarping") == 0 ||
+           strcmp(argv[1], "ForceBeamColumnThermal") == 0 ||
+           strcmp(argv[1], "ElasticForceBeamColumnWarping") == 0 ||
+           strcmp(argv[1], "DispBeamColumnNL") == 0 ||
+           strcmp(argv[1], "DispBeamColumnThermal") == 0 ||
+           strcmp(argv[1], "ElasticForceBeamColumn") == 0 ||
+           strcmp(argv[1], "NonlinearBeamColumn") == 0 ||
+           strcmp(argv[1], "DispBeamColumnWithSensitivity") == 0) {
 
     return TclBasicBuilder_addForceBeamColumn(clientData, interp, argc, argv);
 
@@ -473,15 +474,13 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
   //
   } else if ((strcmp(argv[1], "Joint2D") == 0) ||
              (strcmp(argv[1], "Joint2d") == 0)) {
-    int result =
-        TclBasicBuilder_addJoint2D(clientData, interp, argc, argv, theTclDomain);
+    return
+        TclBasicBuilder_addJoint2D(clientData, interp, argc, argv);
 
-    return result;
+
   } else if ((strcmp(argv[1], "Joint3D") == 0) ||
              (strcmp(argv[1], "Joint3d") == 0)) {
-    int result = TclBasicBuilder_addJoint3D(clientData, interp, argc, argv,
-                                            theTclDomain, theTclBuilder);
-    return result;
+    return TclBasicBuilder_addJoint3D(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "genericClient") == 0) {

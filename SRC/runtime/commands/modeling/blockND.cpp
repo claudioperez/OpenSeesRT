@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // NOTE: This doesnt really need access to the model builder, it would
 // work with just the domain
@@ -13,7 +14,7 @@
 #else
 #  define TCL_Char char
 #endif
-
+#include <tcl.h>
 #include <assert.h>
 #include <Domain.h>
 #include <Matrix.h>

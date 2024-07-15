@@ -1,8 +1,9 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
+//
 //
 // Description: This file contains the implementaion of functions
 // used to directly invoke methods of a UniaxialMaterial from a
@@ -230,6 +231,9 @@ fsdof_integrate(struct generalized_alpha* conf,
     // const double C = material.getDampTangent() ;
     a[pres] = (p[i] - C*v[pres] - material.getStress())/M;
 
+    enum {Accel, Veloc, Displ} init = Accel, 
+                               form = Veloc;
+
     for (i = 1; i < n; ++i) {
       u += 3; v += 3; a += 3;
 
@@ -243,8 +247,14 @@ fsdof_integrate(struct generalized_alpha* conf,
       aa = (1.0 - alpha_m)*a[past] + alpha_m*a[pres];
 
       double du = 0.0;
+      switch (init) {
+        case Displ:   du = 0.0; break;
+        case Veloc:   du = 0.0; break;
+        case Accel:   du = 0.0; break;
+      }
+
       for (int j=0; j<max_iter; j++) {
-        // Corrector step
+        //
         u[pres] += du;
         v[pres] += c2*du;
         a[pres] += c3*du;
@@ -252,12 +262,14 @@ fsdof_integrate(struct generalized_alpha* conf,
         ua = (1.0 - alpha_f)*u[past] + alpha_f*u[pres];
         va = (1.0 - alpha_f)*v[past] + alpha_f*v[pres];
         aa = (1.0 - alpha_m)*a[past] + alpha_m*a[pres];
+
         material.setTrialStrain(ua); //u[pres]);
         // STATE DETERMINATION
         // double C = material.getDampTangent();
         double ri = (scale*p[i] - C*va - M*aa - material.getStress());
-        double K = material.getTangent();
+        double K  = material.getTangent();
         double ki = alpha_f*c1*K + alpha_f*c2*C + alpha_m*c3*M;
+
         // SOLVE
         du = ri / ki;
 

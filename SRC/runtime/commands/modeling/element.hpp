@@ -27,7 +27,6 @@ extern OPS_Routine OPS_TriSurfaceLoad;
 
 extern OPS_Routine OPS_ModElasticBeam2d;
 extern OPS_Routine OPS_ModElasticBeam3d;
-extern OPS_Routine OPS_ElasticBeam3d;
 extern OPS_Routine OPS_ElasticTimoshenkoBeam2d;
 extern OPS_Routine OPS_ElasticTimoshenkoBeam3d;
 extern OPS_Routine OPS_AxEqDispBeamColumn2d;
@@ -180,6 +179,10 @@ Tcl_CmdProc TclBasicBuilder_addTwentyNodeBrick;
 Tcl_CmdProc TclBasicBuilder_addBrick;
 Tcl_CmdProc TclCommand_SSP_Element;
 
+Tcl_CmdProc TclCommand_addActuator;
+Tcl_CmdProc TclCommand_addActuatorCorot;
+Tcl_CmdProc TclCommand_addAdapter;
+
 static
 std::unordered_map<std::string, Tcl_CmdProc *, CaseInsensitive, CaseInsensitive> 
 element_dispatch_tcl = {
@@ -230,6 +233,11 @@ element_dispatch_tcl = {
   {"SSPquad",                   TclCommand_SSP_Element},
   {"SSPquadUP",                 TclCommand_SSP_Element},
   {"SSPbrick",                  TclCommand_SSP_Element},
+
+// Actuators
+  {"actuator",                  TclCommand_addActuator},
+  {"corotActuator",             TclCommand_addActuatorCorot},
+  {"adapter",                   TclCommand_addAdapter},
 };
 
 static

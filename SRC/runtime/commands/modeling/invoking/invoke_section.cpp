@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Written: cmp
 //
@@ -15,7 +16,7 @@
 #include <DummyStream.h>
 #include <G3_Logging.h>
 #include <Response.h>
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <BasicModelBuilder.h>
 
 static Tcl_CmdProc SectionTest_setStrainSection;
@@ -27,6 +28,7 @@ static Tcl_CmdProc SectionTest_getResponseSection;
 static int count;
 static int countsTillCommit;
 
+// invoke Section $tag $commands
 int
 TclCommand_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
@@ -34,7 +36,7 @@ TclCommand_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc, 
   assert(clientData != nullptr);
   // TODO: Parse tag properly
   SectionForceDeformation *theSection = 
-    ((BasicModelBuilder*)clientData)->getTypedObject<SectionForceDeformation>(std::atoi(argv[2]));
+    ((BasicModelBuilder*)clientData)->getTypedObject<FrameSection>(std::atoi(argv[2]));
 
   if (theSection == nullptr) {
     opserr << G3_ERROR_PROMPT << "no section found with tag '" << argv[2] << "'\n";
@@ -57,11 +59,12 @@ TclCommand_useCrossSection(ClientData clientData, Tcl_Interp *interp, int argc, 
 
   Tcl_CreateCommand(interp, "responseSectionTest",
                     SectionTest_getResponseSection, (ClientData)theSection, NULL);
-  //
+
+  Tcl_CreateCommand(interp, "response",
+                    SectionTest_getResponseSection, (ClientData)theSection, NULL);
   //
   //
   Tcl_Eval(interp, argv[3]);
-  //
   //
   //
 
@@ -151,10 +154,13 @@ SectionTest_getResponseSection(ClientData clientData, Tcl_Interp *interp,
       theSection->setResponse(argv + 1, argc - 1, dummy);
 
   if (theResponse == nullptr) {
+    opserr << G3_ERROR_PROMPT << "Response returned a null pointer\n";
     return TCL_ERROR;
   }
+
   if (theResponse->getResponse() < 0) {
     delete theResponse;
+    opserr << G3_ERROR_PROMPT << "Failed to get response\n";
     return TCL_ERROR;
   }
 

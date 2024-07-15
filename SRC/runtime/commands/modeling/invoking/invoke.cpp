@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Written: cmp
 // Created: Spring 2023
@@ -19,7 +20,10 @@ Tcl_CmdProc TclCommand_usePlaneStress;
 const std::unordered_map<std::string, Tcl_CmdProc*> invoke_commands 
 {
   {"UniaxialMaterial",  &TclCommand_useUniaxialMaterial       },
-  {"CrossSection",      &TclCommand_useCrossSection           },
+
+  {"FrameSection",      &TclCommand_useCrossSection           },
+  {"section",           &TclCommand_useCrossSection           },
+
   {"PlaneStress",       &TclCommand_usePlaneStress            }
 };
 

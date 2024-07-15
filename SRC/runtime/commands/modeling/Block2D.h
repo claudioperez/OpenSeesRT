@@ -1,22 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the implementation of Block2D.
 // Written: Ed Love
@@ -40,21 +26,19 @@ class Block2D {
 	  const Matrix& coorArray,
 	  int numNodeElement);
 
-  //destructor
+  // destructor
   ~Block2D();
 
-  //generate node 
+  // generate node 
   const Vector &getNodalCoords(int i, int j);
 
-  //generate element
+  // generate element
   const ID &getElementNodes(int i, int j);
 
- protected:
 
  private:
 
   int nx; //number of elements x-direction
-
   int ny; //number of elements y-direction
 
   double xl[3][9]; //block coordinates 
