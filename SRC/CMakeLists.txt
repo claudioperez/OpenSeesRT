@@ -5,9 +5,10 @@
 #
 #==============================================================================
 
-add_subdirectory(matrix)
-add_subdirectory(tagged)
 add_subdirectory(handler)
+add_subdirectory(matrix)
+add_subdirectory(logging)
+add_subdirectory(tagged)
 add_subdirectory(domain)
 add_subdirectory(recorder)
 add_subdirectory(actor)

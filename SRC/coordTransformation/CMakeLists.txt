@@ -4,9 +4,8 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-add_library(OPS_Transform "")
 
-target_link_libraries(OPS_Transform PRIVATE OPS_Recorder)
+target_link_libraries(OPS_Transform PRIVATE OPS_Logging OPS_Recorder)
 
 target_sources(OPS_Transform
   PRIVATE
@@ -22,7 +21,6 @@ target_sources(OPS_Transform
     LinearCrdTransf2dInt.cpp
 #   LinearCrdTransf2d02.cpp
 #   LinearCrdTransf3d02.cpp
-#   CorotCrdTransf3d02.cpp
 
   PUBLIC
     CrdTransf.h
@@ -36,7 +34,6 @@ target_sources(OPS_Transform
     LinearCrdTransf2dInt.h
 #   LinearCrdTransf2d02.h
 #   LinearCrdTransf3d02.h
-#   CorotCrdTransf3d02.h
 
     ASDEICR.h
     ASDShellQ4CorotationalTransformation.h
