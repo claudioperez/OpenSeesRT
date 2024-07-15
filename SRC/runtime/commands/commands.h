@@ -8,7 +8,6 @@
 // domain/element.cpp
 Tcl_CmdProc TclCommand_addElementRayleigh;
 Tcl_CmdProc TclCommand_getEleTags;
-//
 
 Tcl_CmdProc getNumElements;
 
