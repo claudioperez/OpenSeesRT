@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains functions that are responsible
 // for orchestrating an analysis.
@@ -584,6 +585,7 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
   // Form the tangent
   //
   TransientIntegrator *oldint = nullptr;
+
   // construct integrator here so that it is not
   // destructed when the `if` scope ends
   GimmeMCK integrator(m, c, k, 0.0);
@@ -607,13 +609,19 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
   const Matrix *A = theSOE.getA();
   if (A == nullptr) {
-    opserr << G3_ERROR_PROMPT << "Could not get matrix from linear system\n";
+    opserr << OpenSees::PromptValueError 
+           << "Could not get matrix from linear system\n";
     return TCL_ERROR;
   }
 
   if (ret) {
     int n = A->noRows();
     int m = A->noCols();
+    if (n == 0) {
+      opserr << OpenSees::PromptValueError 
+             << "linear system is empty\n";
+      return TCL_ERROR;
+    }
     if (n * m > 0) {
       for (int i = 0; i < n; ++i) {
         for (int j = 0; j < m; j++) {
