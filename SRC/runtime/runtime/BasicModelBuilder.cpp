@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the class definition for BasicModelBuilder.
 // A BasicModelBuilder adds the commands to create the model for the standard
@@ -43,9 +44,15 @@
 //
 // CLASS CONSTRUCTOR & DESTRUCTOR
 //
-BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int NDM,
-                               int NDF)
-    : TclBuilder(theDomain, NDM, NDF), theInterp(interp)
+BasicModelBuilder::BasicModelBuilder(Domain &domain, Tcl_Interp *interp, 
+                                     int NDM, int NDF)
+    : ndm(NDM), ndf(NDF), theInterp(interp),
+      section_builder_is_set(false),
+      theDomain(&domain),
+      tclEnclosingPattern(nullptr),
+      next_node_load(0),
+      next_elem_load(0)
+
 {
   static int ncmd = sizeof(tcl_char_cmds)/sizeof(char_cmd);
 
@@ -57,13 +64,8 @@ BasicModelBuilder::BasicModelBuilder(Domain &theDomain, Tcl_Interp *interp, int 
         tcl_char_cmds[i].func, 
         (ClientData) this, nullptr);
  
-  theTclBuilder = this;
-  theTclDomain = &theDomain;
   tclEnclosingPattern = nullptr;
   // theTclMultiSupportPattern = 0;
-
-  nodeLoadTag = 0;
-  eleArgStart = 0;
 
   Tcl_SetAssocData(interp, "OPS::theTclBuilder", NULL, (ClientData)this);
   Tcl_SetAssocData(interp, "OPS::theBasicModelBuilder", NULL, (ClientData)this);
@@ -80,8 +82,8 @@ BasicModelBuilder::~BasicModelBuilder()
   }
 
   // set the pointers to 0
-  theTclDomain = nullptr;
-  theTclBuilder = nullptr;
+  theDomain = nullptr;
+//theTclBuilder = nullptr;
   tclEnclosingPattern = nullptr;
 
   static int ncmd = sizeof(tcl_char_cmds)/sizeof(char_cmd);
@@ -89,9 +91,23 @@ BasicModelBuilder::~BasicModelBuilder()
     Tcl_DeleteCommand(theInterp, tcl_char_cmds[i].name);
 }
 
-//
-// CLASS METHODS
-//
+
+int
+BasicModelBuilder::buildFE_Model() {return 0;}
+
+int
+BasicModelBuilder::getNDM() const {return ndm;}
+
+int
+BasicModelBuilder::getNDF() const {return ndf;}
+
+LoadPattern*
+BasicModelBuilder::getCurrentLoadPattern() 
+{
+  return m_current_load_pattern;
+}
+
+
 void
 BasicModelBuilder::letClobber(bool let_clobber) {
   no_clobber = !let_clobber;
@@ -102,18 +118,18 @@ BasicModelBuilder::canClobber() {
   return !no_clobber;
 }
 
-int BasicModelBuilder::incrNodalLoadTag(void){return ++nodeLoadTag;};
-int BasicModelBuilder::decrNodalLoadTag(void){return --nodeLoadTag;};
-int BasicModelBuilder::getNodalLoadTag(void) {return   nodeLoadTag;};
+int BasicModelBuilder::incrNodalLoadTag(){return ++next_node_load;};
+int BasicModelBuilder::decrNodalLoadTag(){return --next_node_load;};
+int BasicModelBuilder::getNodalLoadTag() {return   next_node_load;};
 
 int
 BasicModelBuilder::addSP_Constraint(int axisDirn, double axisValue, const ID &fixityCodes, double tol)
 {
-  return theTclDomain->addSP_Constraint(axisDirn, axisValue, fixityCodes, tol);
+  return theDomain->addSP_Constraint(axisDirn, axisValue, fixityCodes, tol);
 }
 
 LoadPattern *
-BasicModelBuilder::getEnclosingPattern(void)
+BasicModelBuilder::getEnclosingPattern()
 {
   return tclEnclosingPattern;
 }
@@ -125,35 +141,54 @@ BasicModelBuilder::setEnclosingPattern(LoadPattern* pat)
   return 1;
 }
 
-Domain *
-BasicModelBuilder::getDomain(void) const 
+int
+BasicModelBuilder::getCurrentSectionBuilder(int& tag)
 {
-  return theTclDomain;
-}
-
-BasicModelBuilder *
-BasicModelBuilder::getBuilder(void) const {
-  return theTclBuilder;
+  if (section_builder_is_set) {
+    tag = current_section_builder;
+    return  0;
+  } else
+    return -1;
 }
 
 void 
+BasicModelBuilder::setCurrentSectionBuilder(int tag)
+{
+  section_builder_is_set   = true;
+  current_section_builder  = tag;
+}
+
+Domain *
+BasicModelBuilder::getDomain() const 
+{
+  return theDomain;
+}
+
+#if 0
+BasicModelBuilder *
+BasicModelBuilder::getBuilder() const {
+  return theTclBuilder;
+}
+#endif
+
+int 
 BasicModelBuilder::printRegistry(const char *partition, OPS_Stream& stream, int flag) const 
 {
+    int count = 0;
     auto iter = m_registry.find(partition);
     if (iter == m_registry.end()) {
-      // opserr << "No objects of type \"" << partition << "\" have been created.\n";
-      return;// nullptr;
+      return count;
     }
 
-    bool first = true;
     for (auto const& [key, val] : iter->second) {
-      if (!first)
+      if (count != 0)
         stream << ",\n";
 
       val->Print(stream, flag);
-
-      first = false;
+      count++;
     }
+
+    return count;
 }
 
 void* 
