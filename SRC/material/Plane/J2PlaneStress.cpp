@@ -48,7 +48,7 @@
 // 
 //  set eta := 0 for rate independent case
 //
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <J2PlaneStress.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
