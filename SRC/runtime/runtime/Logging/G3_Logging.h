@@ -13,6 +13,15 @@ extern const char *G3_WARN_PROMPT;
 extern const char *G3_ERROR_PROMPT;
 extern const char *G3_DEBUG_PROMPT;
 
+namespace OpenSees {
+extern const char * PromptParseError;
+extern const char * PromptValueError;
+extern const char * PromptAnalysisFailure;
+extern const char * PromptAnalysisSuccess;
+extern const char * PromptAnalysisIterate;
+};
+
+
 enum G3_Stream {
   G3_StdOut, G3_StdIn, G3_StdErr, G3_Null
 };
