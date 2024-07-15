@@ -36,10 +36,9 @@
 //
 // What: "@(#) TaggedObjectStorage.h, revA"
 
+class OPS_Stream;
 class TaggedObject;
 class TaggedObjectIter;
-
-#include <OPS_Globals.h>
 
 class TaggedObjectStorage 
 {
@@ -50,7 +49,6 @@ class TaggedObjectStorage
     // public methods to populate the container
     virtual  int   setSize(int newSize) =0;
     virtual  bool  addComponent(TaggedObject *newComponent) =0;
-//				bool allowMultipleTags = false) =0;
     virtual  TaggedObject  *removeComponent(int tag) =0;    
     virtual  int   getNumComponents(void) const =0;
     
