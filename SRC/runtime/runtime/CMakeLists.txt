@@ -17,7 +17,6 @@ target_sources(OPS_Runtime
       TclPackageClassBroker.h
 )
 
-add_subdirectory(Logging)
 add_subdirectory(SectionBuilder)
 
 

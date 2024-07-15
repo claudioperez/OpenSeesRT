@@ -4,6 +4,26 @@
 //
 //===----------------------------------------------------------------------===//
 //
+//  RESPONSE
+//  [ ] Force
+//  [ ] Mass (Lumped)
+//  [ ] Mass (Consistent)
+//  [ ] Tangent
+//
+//  GEOMETRY
+//  [ ] Linear
+//  [ ] P-delta
+//
+//  TRANSFORMS
+//  [ ]
+//
+//  RELEASES
+//
+//  LOADING
+//  [ ] Beam3dUniformLoad
+//  [ ] Beam3dPointLoad
+//  [ ] Beam3dPartialUniformLoad
+//
 #include <array>
 #include <math.h>
 #include <string.h>
@@ -86,17 +106,17 @@ DisplEulerFrame3d::DisplEulerFrame3d(int tag, std::array<int,2>& nodes, int numS
 
     : FiniteElement(tag, ELE_TAG_DisplEulerFrame3d, nodes),
       numSections(numSec), 
-      theSections(nullptr),
+      sections(nullptr),
       theCoordTransf(nullptr), beamInt(nullptr), 
-      rho(r), cMass(cm), parameterID(0)
+      density(r), cMass(cm), parameterID(0)
 
 {
   // Allocate arrays of pointers to FrameSections
-  theSections = new FrameSection *[numSections];
+  sections = new FrameSection *[numSections];
 
   for (int i = 0; i < numSections; i++) {
     // Get copies of the material model for each integration point
-    theSections[i] = s[i]->getFrameCopy();
+    sections[i] = s[i]->getFrameCopy();
   }
 
   beamInt = bi.getCopy();
@@ -108,9 +128,9 @@ DisplEulerFrame3d::DisplEulerFrame3d(int tag, std::array<int,2>& nodes, int numS
 
 DisplEulerFrame3d::DisplEulerFrame3d()
     : FiniteElement(0, ELE_TAG_DisplEulerFrame3d),
-      numSections(0), theSections(0),
+      numSections(0), sections(0),
       beamInt(0),
-      rho(0.0), cMass(0), parameterID(0)
+      density(0.0), cMass(0), parameterID(0)
 {
   q0.zero();
 }
@@ -118,13 +138,13 @@ DisplEulerFrame3d::DisplEulerFrame3d()
 DisplEulerFrame3d::~DisplEulerFrame3d()
 {
   for (int i = 0; i < numSections; i++) {
-    if (theSections[i])
-      delete theSections[i];
+    if (sections[i])
+      delete sections[i];
   }
 
   // Delete the array of pointers to FrameSection pointer arrays
-  if (theSections)
-    delete[] theSections;
+  if (sections)
+    delete[] sections;
 
   if (theCoordTransf)
     delete theCoordTransf;
@@ -141,7 +161,7 @@ DisplEulerFrame3d::commitState()
 
   // Loop over the integration points and commit the material states
   for (int i = 0; i < numSections; i++)
-    retVal += theSections[i]->commitState();
+    retVal += sections[i]->commitState();
 
   return retVal;
 }
@@ -153,7 +173,7 @@ DisplEulerFrame3d::revertToLastCommit()
 
   // Loop over the integration points and revert to last committed state
   for (int i = 0; i < numSections; i++)
-    retVal += theSections[i]->revertToLastCommit();
+    retVal += sections[i]->revertToLastCommit();
 
   return retVal;
 }
@@ -165,7 +185,7 @@ DisplEulerFrame3d::revertToStart()
 
   // Loop over the integration points and revert states to start
   for (int i = 0; i < numSections; i++)
-    retVal += theSections[i]->revertToStart();
+    retVal += sections[i]->revertToStart();
 
   return retVal;
 }
@@ -219,7 +239,7 @@ DisplEulerFrame3d::update()
     };
 
     // Update the section state
-    err += theSections[i]->setTrialState<nsr,scheme>(e);
+    err += sections[i]->setTrialState<nsr,scheme>(e);
   }
 
   if (err != 0) {
@@ -233,11 +253,73 @@ int
 DisplEulerFrame3d::setNodes()
 {
   double L  = theCoordTransf->getInitialLength();
-  double xi[maxNumSections];
   beamInt->getSectionLocations(numSections, L, xi);
-  double wt[maxNumSections];
   beamInt->getSectionWeights(numSections, L, wt);
   return 0;
+}
+
+int
+DisplEulerFrame3d::getIntegral(Field field, State state, double& total)
+{
+
+  if (this->setState(State::Init) != 0)
+    return -1;
+
+  total = 0.0;
+  switch (field) {
+
+    // Integrate density to compute total mass
+    case Field::Density: {
+      double value = 0.0;
+      for (int i=0; i< numSections; i++) {
+        // First try using section's internal density
+        if (sections[i]->getIntegral(Field::Density, state, value) == 0) {
+          total += wt[i]*value;
+        }
+        // if that didnt work, just multiply by our density
+        else if (sections[i]->getIntegral(Field::Unit, state, value) == 0) {
+          total += wt[i]*density;
+        }
+        else {
+          ; // TODO: This should be written to a log
+        }
+      }
+      return 0;
+    }
+
+    case Field::PolarInertia: {
+      for (int i=0; i< numSections; i++) {
+        double A;
+        if (sections[i]->getIntegral(Field::UnitYY, state, A) != 0)
+          continue;
+
+        // Get \int \rho y^2
+        double Iz;
+        if (sections[i]->getIntegral(Field::DensityYY, state, Iz) != 0) {
+          // Section does not allow integrating density; try
+          // integrating product of inertia and multiplying by rho
+          if (sections[i]->getIntegral(Field::UnitYY, state, Iz) == 0)
+            Iz *= density/A;
+          else
+            continue;
+        }
+        // Get \int \rho z^2
+        double Iy;
+        if (sections[i]->getIntegral(Field::DensityZZ, state, Iy) != 0) {
+          if (sections[i]->getIntegral(Field::UnitZZ, state, Iy) == 0)
+            Iy *= density/A;
+          else
+            continue;
+        }
+        total += wt[i]*(Iy + Iz);
+      }
+      return 0;
+    }
+
+    default:
+      return -1;
+
+  }
 }
 
 const Matrix &
@@ -268,8 +350,8 @@ DisplEulerFrame3d::getTangentStiff()
     getStrainMatrix(xi[i], L, v, B, A);
 
     // Get the section tangent stiffness and stress resultant
-    MatrixND<4,4> Ks = theSections[i]->getTangent<nsr,scheme>(State::Pres);
-    VectorND<4>   s  = theSections[i]->getResultant<nsr,scheme>();
+    MatrixND<4,4> Ks = sections[i]->getTangent<nsr,scheme>(State::Pres);
+    VectorND<4>   s  = sections[i]->getResultant<nsr,scheme>();
 
 
     // Add material stiffness
@@ -324,34 +406,45 @@ DisplEulerFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
 void
 DisplEulerFrame3d::Print(OPS_Stream &s, int flag)
 {
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+    s << "\"name\": " << this->getTag() << ", ";
+    s << "\"type\": \"DisplEulerFrame3d\", ";
+    s << "\"nodes\": [" << connectedExternalNodes(0) << ", " 
+                        << connectedExternalNodes(1)
+      << "], ";
+
+    // Mass
+    double mass;
+    if (getIntegral(Field::Density, State::Init, mass) == 0)
+      s << ", \"mass\": " << mass << ", ";
+    else
+      s << ", \"massperlength\": " << density << ", ";
+
+    s << "\"sections\": [";
+    for (int i = 0; i < numSections - 1; i++)
+      s << "\"" << sections[i]->getTag() << "\", ";
+    s << "\"" << sections[numSections - 1]->getTag() << "\"], ";
+
+    s << "\"integration\": ";
+    beamInt->Print(s, flag);
+
+    s << "\"crdTransformation\": \"" << theCoordTransf->getTag() << "\"}";
+  }
+
   if (flag == OPS_PRINT_CURRENTSTATE) {
     s << "\nDisplEulerFrame3d, element id:  " << this->getTag() << "\n";
     s << "\tConnected external nodes:  " << connectedExternalNodes;
     s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
-    s << "\tmass density:  " << rho << ", cMass: " << cMass << "\n";
+    s << "\tmass density:  " << density << ", cMass: " << cMass << "\n";
 
     beamInt->Print(s, flag);
 
     for (int i = 0; i < numSections; i++) {
-      theSections[i]->Print(s, flag);
+      sections[i]->Print(s, flag);
     }
   }
 
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\t{";
-    s << "\"name\": " << this->getTag() << ", ";
-    s << "\"type\": \"DisplEulerFrame3d\", ";
-    s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1)
-      << "], ";
-    s << "\"sections\": [";
-    for (int i = 0; i < numSections - 1; i++)
-      s << "\"" << theSections[i]->getTag() << "\", ";
-    s << "\"" << theSections[numSections - 1]->getTag() << "\"], ";
-    s << "\"integration\": ";
-    beamInt->Print(s, flag);
-    s << ", \"massperlength\": " << rho << ", ";
-    s << "\"crdTransformation\": \"" << theCoordTransf->getTag() << "\"}";
-  }
 }
 
 
@@ -475,7 +568,7 @@ DisplEulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
       output.attr("number", sectionNum + 1);
       output.attr("eta", xi[sectionNum] * L);
 
-      theResponse = theSections[sectionNum]->setResponse(&argv[2], argc - 2, output);
+      theResponse = sections[sectionNum]->setResponse(&argv[2], argc - 2, output);
     }
   }
 
@@ -495,7 +588,7 @@ DisplEulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
         output.attr("eta", xi[sectionNum - 1] * L);
 
         theResponse =
-            theSections[sectionNum - 1]->setResponse(&argv[2], argc - 2, output);
+            sections[sectionNum - 1]->setResponse(&argv[2], argc - 2, output);
 
         output.endTag();
       } else if (sectionNum == 0) { // argv[1] was not an int, we want all sections,
@@ -513,7 +606,7 @@ DisplEulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
           output.attr("eta", xi[i] * L);
 
           Response *theSectionResponse =
-              theSections[i]->setResponse(&argv[1], argc - 1, output);
+              sections[i]->setResponse(&argv[1], argc - 1, output);
 
           output.endTag();
 
@@ -592,7 +685,7 @@ DisplEulerFrame3d::getResponse(int responseID, Information &eleInfo)
   else if (responseID == 110) {
     ID tags(numSections);
     for (int i = 0; i < numSections; i++)
-      tags(i) = theSections[i]->getTag();
+      tags(i) = sections[i]->getTag();
     return eleInfo.setID(tags);
   }
 
@@ -626,7 +719,7 @@ DisplEulerFrame3d::setParameter(const char **argv, int argc, Parameter &param)
         sectionNum  = i;
       }
     }
-    return theSections[sectionNum]->setParameter(&argv[2], argc - 2, param);
+    return sections[sectionNum]->setParameter(&argv[2], argc - 2, param);
   }
 
   // If the parameter belongs to a section or lower
@@ -639,7 +732,7 @@ DisplEulerFrame3d::setParameter(const char **argv, int argc, Parameter &param)
     int sectionNum = atoi(argv[1]);
 
     if (sectionNum > 0 && sectionNum <= numSections)
-      return theSections[sectionNum - 1]->setParameter(&argv[2], argc - 2, param);
+      return sections[sectionNum - 1]->setParameter(&argv[2], argc - 2, param);
     else
       return -1;
   }
@@ -657,7 +750,7 @@ DisplEulerFrame3d::setParameter(const char **argv, int argc, Parameter &param)
   int result = 0;
 
   for (int i = 0; i < numSections; i++) {
-    ok = theSections[i]->setParameter(argv, argc, param);
+    ok = sections[i]->setParameter(argv, argc, param);
     if (ok != -1)
       result = ok;
   }
@@ -673,7 +766,7 @@ int
 DisplEulerFrame3d::updateParameter(int parameterID, Information &info)
 {
   if (parameterID == 1) {
-    rho = info.theDouble;
+    density = info.theDouble;
     return 0;
   } else
     return -1;
@@ -717,7 +810,7 @@ DisplEulerFrame3d::sendSelf(int commitTag, Channel &theChannel)
       beamInt->setDbTag(beamIntDbTag);
   }
   data(7)  = beamIntDbTag;
-  data(8)  = rho;
+  data(8)  = density;
   data(9)  = cMass;
   data(10) = alphaM;
   data(11) = betaK;
@@ -749,11 +842,11 @@ DisplEulerFrame3d::sendSelf(int commitTag, Channel &theChannel)
   ID idSections(2 * numSections);
   loc = 0;
   for (i = 0; i < numSections; i++) {
-    int sectClassTag = theSections[i]->getClassTag();
-    int sectDbTag    = theSections[i]->getDbTag();
+    int sectClassTag = sections[i]->getClassTag();
+    int sectDbTag    = sections[i]->getDbTag();
     if (sectDbTag == 0) {
       sectDbTag = theChannel.getDbTag();
-      theSections[i]->setDbTag(sectDbTag);
+      sections[i]->setDbTag(sectDbTag);
     }
 
     idSections(loc)     = sectClassTag;
@@ -771,7 +864,7 @@ DisplEulerFrame3d::sendSelf(int commitTag, Channel &theChannel)
   //
 
   for (int j = 0; j < numSections; j++) {
-    if (theSections[j]->sendSelf(commitTag, theChannel) < 0) {
+    if (sections[j]->sendSelf(commitTag, theChannel) < 0) {
       opserr << "DisplEulerFrame3d::sendSelf() - section " << j
              << "failed to send itself\n";
       return -1;
@@ -808,7 +901,7 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
   int beamIntClassTag = (int)data(6);
   int beamIntDbTag    = (int)data(7);
 
-  rho   = data(8);
+  density   = data(8);
   cMass = (int)data(9);
 
   alphaM = data(10);
@@ -889,12 +982,12 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
     // delete the old
     if (numSections != 0) {
       for (int i = 0; i < numSections; i++)
-        delete theSections[i];
-      delete[] theSections;
+        delete sections[i];
+      delete[] sections;
     }
 
     // create a new array to hold pointers
-    theSections = new FrameSection *[nSect];
+    sections = new FrameSection *[nSect];
 
     // create a section and recvSelf on it
     numSections = nSect;
@@ -905,15 +998,15 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
       int sectDbTag    = idSections(loc + 1);
       loc += 2;
       // TODO(cmp) add FrameSection to broker
-//    theSections[i] = theBroker.getNewSection(sectClassTag);
-      if (theSections[i] == nullptr) {
+//    sections[i] = theBroker.getNewSection(sectClassTag);
+      if (sections[i] == nullptr) {
         opserr << "DisplEulerFrame3d::recvSelf() - Broker could not create Section of "
                   "class type"
                << sectClassTag << "\n";
         return -1;
       }
-      theSections[i]->setDbTag(sectDbTag);
-      if (theSections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
+      sections[i]->setDbTag(sectDbTag);
+      if (sections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
         opserr << "DisplEulerFrame3d::recvSelf() - section " << i
                << "failed to recv itself\n";
         return -1;
@@ -934,12 +1027,12 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
       loc += 2;
 
       // check of correct type
-      if (theSections[i]->getClassTag() != sectClassTag) {
+      if (sections[i]->getClassTag() != sectClassTag) {
         // delete the old section[i] and create a new one
-        delete theSections[i];
+        delete sections[i];
       // TODO(cmp) add FrameSection to broker
-//      theSections[i] = theBroker.getNewSection(sectClassTag);
-        if (theSections[i] == nullptr) {
+//      sections[i] = theBroker.getNewSection(sectClassTag);
+        if (sections[i] == nullptr) {
           opserr << "DisplEulerFrame3d::recvSelf() - Broker could not create Section "
                     "of class type"
                  << sectClassTag << "\n";
@@ -948,8 +1041,8 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
       }
 
       // recvSelf on it
-      theSections[i]->setDbTag(sectDbTag);
-      if (theSections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
+      sections[i]->setDbTag(sectDbTag);
+      if (sections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
         opserr << "DisplEulerFrame3d::recvSelf() - section " << i
                << "failed to recv itself\n";
         return -1;

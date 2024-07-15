@@ -112,16 +112,16 @@ if (UNIX)
     message(":: LINUX")
     add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1 -ffloat-store")
-    if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+    if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
       add_compile_options(
         $<$<CONFIG:DEBUG>:-ggdb>
         $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-fsanitize=address,undefined> #, leak
         $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-fno-omit-frame-pointer>
       )
       add_link_options(
-        "-fsanitize=address,undefined>" # , leak
+        $<$<LINK_LANG_AND_ID:CXX,GNU>:-fsanitize=address,undefined> # , leak
       )
-    elseif (CMAKE_BUILD_TYPE EQUAL "RELEASE")
+    elseif (CMAKE_BUILD_TYPE STREQUAL "RELEASE")
       # Some x86_64 optimizations
       add_compile_options(
         $<$<CONFIG:RELEASE>:-march=haswell>
@@ -176,6 +176,7 @@ enable_language(Fortran)
 #--------------------------------------
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 #set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
 
 # Compiler warnings
@@ -201,10 +202,47 @@ add_compile_definitions(
 
 include_directories(
   ${OPS_SRC_DIR}
+  ${OPS_SRC_DIR}/handler
   ${OPS_SRC_DIR}/actor/actor
   ${OPS_SRC_DIR}/actor/objectBroker
   ${OPS_SRC_DIR}/actor/channel
   ${OPS_SRC_DIR}/actor/message
+
+  ${OPS_SRC_DIR}/api
+
+  ${OPS_SRC_DIR}/database
+
+  ${OPS_SRC_DIR}/domain/constraints
+  ${OPS_SRC_DIR}/domain/component
+  ${OPS_SRC_DIR}/domain/domain
+  ${OPS_SRC_DIR}/domain/domain/single
+  ${OPS_SRC_DIR}/domain/groundMotion
+  ${OPS_SRC_DIR}/domain/load
+  ${OPS_SRC_DIR}/domain/node
+  ${OPS_SRC_DIR}/domain/pattern
+  ${OPS_SRC_DIR}/domain/pattern/drm
+  ${OPS_SRC_DIR}/domain/region
+  ${OPS_SRC_DIR}/domain/subdomain
+
+  ${OPS_SRC_DIR}/element
+  ${OPS_SRC_DIR}/graph/graph
+  ${OPS_SRC_DIR}/graph/numberer
+  ${OPS_SRC_DIR}/graph/partitioner
+  ${OPS_SRC_DIR}/material
+  ${OPS_SRC_DIR}/material/nD
+  ${OPS_SRC_DIR}/material/Solid
+  ${OPS_SRC_DIR}/material/section
+  ${OPS_SRC_DIR}/material/section/yieldSurface
+  ${OPS_SRC_DIR}/material/uniaxial
+  ${OPS_SRC_DIR}/matrix
+  ${OPS_SRC_DIR}/recorder
+  ${OPS_SRC_DIR}/recorder/response
+  ${OPS_SRC_DIR}/system_of_eqn
+  ${OPS_SRC_DIR}/system_of_eqn/linearSOE
+  ${OPS_SRC_DIR}/system_of_eqn/eigenSOE
+  ${OPS_SRC_DIR}/tagged
+  ${OPS_SRC_DIR}/tagged/storage
+  ${OPS_SRC_DIR}/utility
 
   ${OPS_SRC_DIR}/analysis/algorithm
   ${OPS_SRC_DIR}/analysis/algorithm/domainDecompAlgo
@@ -221,43 +259,6 @@ include_directories(
 
   ${OPS_SRC_DIR}/runtime
 
-  ${OPS_SRC_DIR}/api
-  ${OPS_SRC_DIR}/domain/constraints
-
-  ${OPS_SRC_DIR}/domain/component
-  ${OPS_SRC_DIR}/domain/domain
-  ${OPS_SRC_DIR}/database
-
-  ${OPS_SRC_DIR}/domain/domain/single
-  ${OPS_SRC_DIR}/domain/groundMotion
-  ${OPS_SRC_DIR}/domain/load
-  ${OPS_SRC_DIR}/domain/node
-  ${OPS_SRC_DIR}/domain/partitioner
-  ${OPS_SRC_DIR}/domain/pattern
-  ${OPS_SRC_DIR}/domain/pattern/drm
-  ${OPS_SRC_DIR}/domain/region
-  ${OPS_SRC_DIR}/domain/subdomain
-  ${OPS_SRC_DIR}/element
-  ${OPS_SRC_DIR}/graph/graph
-  ${OPS_SRC_DIR}/graph/numberer
-  ${OPS_SRC_DIR}/graph/partitioner
-  ${OPS_SRC_DIR}/handler
-  ${OPS_SRC_DIR}/material
-  ${OPS_SRC_DIR}/material/nD
-  ${OPS_SRC_DIR}/material/Solid
-  ${OPS_SRC_DIR}/material/section
-  ${OPS_SRC_DIR}/material/section/yieldSurface
-  ${OPS_SRC_DIR}/material/uniaxial
-  ${OPS_SRC_DIR}/matrix
-  ${OPS_SRC_DIR}/modelbuilder
-  ${OPS_SRC_DIR}/recorder
-  ${OPS_SRC_DIR}/recorder/response
-  ${OPS_SRC_DIR}/system_of_eqn
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE
-  ${OPS_SRC_DIR}/system_of_eqn/eigenSOE
-  ${OPS_SRC_DIR}/tagged
-  ${OPS_SRC_DIR}/tagged/storage
-  ${OPS_SRC_DIR}/utility
 )
 
 #==============================================================================
@@ -266,37 +267,7 @@ include_directories(
 #==============================================================================
 # find_package(MKL)
 set(BLA_STATIC ON)
-if (TRUE)
-  add_subdirectory(OTHER)
-else()
-  opensees_load(SUPERLU
-    #BUNDLED "${OPS_BUNDLED_DIR}/SuperLU_5.1.1/"
-    LIBRARY "${OPS_BUNDLED_DIR}/bin/SuperLU_5.1.1/libSUPERLU.a"
-  )
-
-  opensees_load(UMFPACK
-    #BUNDLED "${OPS_BUNDLED_DIR}/UMFPACK/" 
-    LIBRARY "${OPS_BUNDLED_DIR}/bin/UMFPACK/libUMFPACK.a" 
-  )
-
-  opensees_load(CSPARSE
-    #BUNDLED "${OPS_BUNDLED_DIR}/CSPARSE/"
-    LIBRARY "${OPS_BUNDLED_DIR}/bin/CSPARSE/libCSPARSE.a"
-  )
-
-  opensees_load(ARPACK
-    BUNDLED ${OPS_BUNDLED_DIR}/ARPACK/
-  )
-
-  opensees_load(AMD
-    BUNDLED "${OPS_BUNDLED_DIR}/AMD/"
-    #LIBRARY "${OPS_BUNDLED_DIR}/bin/AMD/libAMD.a"
-  )
-
-  opensees_load(METIS
-    LIBRARY "${OPS_BUNDLED_DIR}/bin/METIS/libMETIS.a"
-  )
-endif()
+add_subdirectory(OTHER)
 
 find_package(TCL)
 find_package(TclStub) # TODO: may not need to find TCL first
@@ -306,13 +277,13 @@ include_directories(${TCL_INCLUDE_PATH})
 
 # Print out a summary of build configuration
 message("\n:: OpenSees Summary")
+message("  :: CXX:       ${CMAKE_CXX_FLAGS}")
 message("  :: BLAS:      ${BLAS_LIBRARIES}")
 message("  :: LAPACK:    ${LAPACK_LIBRARIES}")
 message("  :: Eigen:     ${Eigen_INCLUDE_DIRS}")
 message("  :: SUPERLU:   ${SUPERLU_LIBRARIES}")
 message("  :: ARPACK:    ${ARPACK_LIBRARIES}")
 message("  :: UMFPACK:   ${UMFPACK_LIBRARIES}")
-message("  :: CSPARSE:   ${CSPARSE_LIBRARIES}")
 message("  :: AMD:       ${AMD_LIBRARIES}")
 message("  :: TCL  a:    ${TCL_LIBRARY}  ")
 message("          b:    ${TCL_STUB_LIBRARY}")
@@ -333,23 +304,25 @@ target_link_libraries(OPS_Numerics INTERFACE
 
 # Core OpenSees
 add_library(OPS_Matrix             OBJECT)
+add_library(OPS_Handler            OBJECT)
+add_library(OPS_Logging            OBJECT)
 add_library(OPS_Actor              OBJECT)
 add_library(G3_ObjectBroker        OBJECT)
-add_library(OPS_Handler            OBJECT)
-add_library(OPS_Recorder           OBJECT)
 add_library(OPS_Tagged             OBJECT)
 add_library(OPS_Utilities          OBJECT)
-add_library(OPS_ModelBuilder       OBJECT)
 add_library(OPS_Domain             OBJECT)
-add_library(OPS_SysOfEqn           OBJECT)
+add_library(OPS_Recorder           OBJECT)
 
-add_library(OPS_Analysis           OBJECT)
 add_library(OPS_ConvergenceTest    OBJECT)
 add_library(OPS_Thermal            OBJECT)
-add_library(OPS_Element            OBJECT)
 add_library(OPS_ElementFortran     OBJECT)
 add_library(OPS_Material           OBJECT)
 add_library(OPS_MaterialFortran    OBJECT)
+add_library(OPS_Transform "")
+add_library(OPS_Element            OBJECT)
+
+add_library(OPS_SysOfEqn           OBJECT)
+add_library(OPS_Analysis           OBJECT)
 add_library(OPS_Damage             OBJECT)
 add_library(OPS_Runtime            OBJECT)
 add_library(OPS_Database           OBJECT EXCLUDE_FROM_ALL)
@@ -408,13 +381,12 @@ target_link_libraries(G3 PUBLIC
     OPS_Tagged
     OPS_Utilities
     graph
-    coordTransformation
+    OPS_Transform
     G3_ObjectBroker
     OPS_Numerics 
     ${OPS_Element_List}
     OPS_Material
     OPS_Damage
-    OPS_ModelBuilder
     G3_ObjectBroker
 )
 

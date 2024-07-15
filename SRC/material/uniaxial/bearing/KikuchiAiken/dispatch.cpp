@@ -1,7 +1,7 @@
 #include <tcl.h>
+#include <Logging.h>
+#include <Parsing.h>
 #include <BasicModelBuilder.h>
-#include <OPS_ErrorStream.h>
-#include <G3_Char.h>
 #include <string.h>
 #include "KikuchiAikenHDR.h"
 #include "KikuchiAikenLRB.h"

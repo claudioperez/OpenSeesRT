@@ -7,16 +7,6 @@
 // Description: This file contains the class definition for DisplEulerFrame3d.
 // The element displacement field gives rise to constant axial strain,
 // linear curvature, and constant twist angle.
-
-// Modified by: Xinlong Du and Jerome F. Hajjar, Northeastern University, USA; Year 2019
-// Description: Adapted for analysis of asymmetric sections with introducing
-// high-order axial terms for the basic element formulation
-// References:
-// Du, X., & Hajjar, J. (2021). Three-dimensional nonlinear displacement-based beam element
-// for members with angle and tee sections. Engineering Structures, 239, 112239.
-//
-// Written: MHS
-// Created: Feb 2001
 //
 #ifndef DisplEulerFrame3d_h
 #define DisplEulerFrame3d_h
@@ -41,6 +31,7 @@ class DisplEulerFrame3d : public FiniteElement<2, 3, 6>
              int numSections, FrameSection **s,
              BeamIntegration &bi, FrameTransform3d &coordTransf,
              double rho = 0.0, int cMass = 0);
+
     DisplEulerFrame3d();
     ~DisplEulerFrame3d();
 
@@ -78,6 +69,8 @@ class DisplEulerFrame3d : public FiniteElement<2, 3, 6>
     int            updateParameter(int parameterID, Information &info);
     int            activateParameter(int parameterID);
 
+    virtual int getIntegral(Field field, State state, double& total);
+
   protected:
     int setNodes();
     
@@ -90,10 +83,8 @@ class DisplEulerFrame3d : public FiniteElement<2, 3, 6>
 
     int cMass;
 
-
-
     int numSections;
-    FrameSection **theSections;            // pointer to the Sections
+    FrameSection **sections;               // vector of Sections
     FrameTransform3d *theCoordTransf;      // pointer to coordinate transformation
 
     BeamIntegration *beamInt;
@@ -103,7 +94,7 @@ class DisplEulerFrame3d : public FiniteElement<2, 3, 6>
     OpenSees::VectorND<6*nen> q0;  // Fixed end forces in basic system
     OpenSees::VectorND<5> p0;      // Reactions in basic system
 
-    double rho;    // Mass density per unit length
+    double density;    // Mass density per unit length
 
     int parameterID;
 

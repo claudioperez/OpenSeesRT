@@ -6,11 +6,12 @@
 //
 //
 #include <tcl.h>
-#include <OPS_Globals.h> // Tcl_Char
-#include <G3_Logging.h>
+#include <Parsing.h>
+#include <Logging.h>
 #include <runtime/BasicModelBuilder.h>
 #include <Domain.h>
 #include <vector>
+#include <cstddef>
 
 #include <ElementalLoad.h>
 #include <Beam2dPointLoad.h>
@@ -30,15 +31,14 @@
 #include <SelfWeight.h>
 #include <LoadPattern.h>
 
-extern const char *getInterpPWD(Tcl_Interp *interp);
 
 int
 TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **const argv)
 {
-  BasicModelBuilder *builder     = static_cast<BasicModelBuilder*>(clientData);
-  Domain *theTclDomain           = builder->getDomain();
-  static int eleLoadTag          = 0; // TODO: this is ugly
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
+  Domain *domain       = builder->getDomain();
+  static int eleLoadTag      = 0; // TODO: this is ugly
 
   // ensure the destructor has not been called
 
@@ -48,18 +48,16 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
 
-  int ndm                = builder->getNDM();
+  int ndm = builder->getNDM();
   bool explicitPatternPassed = false;
 
-  ID theEleTags(0, 16);
-  std::vector<int> element_tags;
+  std::vector<int> element_tags(16);
   int loadPatternTag = 0;
 
   // First create an ID containing the ele tags of all elements
   // for which the load applies.
   int count    = 1;
   int doneEle  = 0;
-  int eleCount = 0;
   int typeIndex = -1;
   while (doneEle == 0 && count < argc) {
 
@@ -79,7 +77,6 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         for (int i = eleStart; i < eleEnd; ++i) {
           Tcl_GetInt(interp, argv[i], &eleID);
           element_tags.push_back(eleID);
-          theEleTags[eleCount++] = eleID;
         }
       }
     }
@@ -93,15 +90,12 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       count++;
       if (Tcl_GetInt(interp, argv[count], &eleEnd) != TCL_OK) {
-        opserr << "WARNING eleLoad -range invalid eleEnd " << argv[count]
-               << "\n";
+        opserr << "WARNING eleLoad -range invalid eleEnd " << argv[count] << "\n";
         return TCL_ERROR;
       }
       count++;
-      for (int i = eleStart; i <= eleEnd; ++i) {
+      for (int i = eleStart; i <= eleEnd; ++i)
         element_tags.push_back(i);
-        theEleTags[eleCount++] = i;
-      }
 
     } 
 
@@ -143,7 +137,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   if ((typeIndex == -1) && (strcmp(argv[count], "-type") != 0)) {
     opserr << "WARNING eleLoad - expecting -type option but got " << argv[count]
-           << endln;
+           << "\n";
     return TCL_ERROR;
   }
 
@@ -199,7 +193,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           theLoad = new Beam2dUniformLoad(eleLoadTag, wta, waa, tag);
 
         // add the load to the domain
-        if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+        if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
           opserr
               << "WARNING eleLoad - could not add following load to domain:\n ";
           opserr << theLoad;
@@ -249,7 +243,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           theLoad = new Beam3dUniformLoad(eleLoadTag, wy, wz, wx, tag);
 
         // add the load to the domain
-        if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+        if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
           opserr << "WARNING eleLoad - could not add following load to domain:\n ";
           delete theLoad;
           return TCL_ERROR;
@@ -297,7 +291,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         theLoad = new Beam2dPointLoad(eleLoadTag, P, x, tag, N);
 
         // add the load to the domain
-        if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+        if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
           opserr << "WARNING eleLoad - could not add load to domain:\n ";
           delete theLoad;
           return TCL_ERROR;
@@ -341,7 +335,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           new Beam3dPointLoad(eleLoadTag, Py, Pz, x, tag, N);
 
         // add the load to the domain
-        if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+        if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
           opserr
               << "WARNING eleLoad - could not add following load to domain:\n ";
           opserr << theLoad;
@@ -362,11 +356,11 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   // Added Joey Yang UC Davis
   else if (strcmp(argv[count], "-BrickW") == 0) {
 
-    for (int i = 0; i < theEleTags.Size(); ++i) {
-        ElementalLoad *theLoad = new BrickSelfWeight(eleLoadTag, theEleTags(i));
+    for (int tag : element_tags) {
+        ElementalLoad *theLoad = new BrickSelfWeight(eleLoadTag, tag);
 
       // add the load to the domain
-      if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+      if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
         opserr
             << "WARNING eleLoad - could not add following load to domain:\n ";
         opserr << theLoad;
@@ -381,12 +375,12 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   else if ((strcmp(argv[count], "-surfaceLoad") == 0) ||
            (strcmp(argv[count], "-SurfaceLoad") == 0)) {
     count++;
-    for (int i = 0; i < theEleTags.Size(); ++i) {
+    for (int tag : element_tags) {
       ElementalLoad *theLoad = 
-                new SurfaceLoader(eleLoadTag, theEleTags(i));
+                new SurfaceLoader(eleLoadTag, tag);
 
       // add the load to the domain
-      if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+      if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
         opserr
             << "WARNING eleLoad - could not add following load to domain:\n ";
         opserr << theLoad;
@@ -421,12 +415,12 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
 
-    for (int i = 0; i < theEleTags.Size(); ++i) {
+    for (std::size_t i=0; i< element_tags.size(); ++i) {
       ElementalLoad *theLoad = 
-                new SelfWeight(eleLoadTag, xf, yf, zf, theEleTags(i));
+                new SelfWeight(eleLoadTag, xf, yf, zf, element_tags[i]);
 
       // add the load to the domain
-      if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+      if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
         opserr << "WARNING eleLoad - could not add load to domain:\n ";
         delete theLoad;
         return TCL_ERROR;
@@ -480,13 +474,13 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           opserr << "WARNING eleLoad - invalid input for -shellThermal\n";
         }
 
-        for (int i = 0; i < theEleTags.Size(); ++i) {
+        for (std::size_t i=0; i< element_tags.size(); ++i) {
           ElementalLoad *theLoad = 
                     new ShellThermalAction(eleLoadTag, RcvLoc1, RcvLoc2,
-                                           theSeries, theEleTags(i));
+                                           theSeries, element_tags[i]);
 
           // add the load to the domain
-          if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+          if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
             opserr << "WARNING eleLoad - could not add following load to "
                       "domain:\n ";
             delete theLoad;
@@ -501,7 +495,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           ElementalLoad *theLoad = new ShellThermalAction(eleLoadTag, tag);
 
           // add the load to the domain
-          if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+          if (domain->addElementalLoad(theLoad, loadPatternTag) ==
               false) {
             opserr << "WARNING eleLoad - could not add following load to "
                       "domain:\n ";
@@ -533,15 +527,15 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
         //temp1,loc1,temp2,loc2...temp9,loc9
 
-        for (int i = 0; i < theEleTags.Size(); ++i) {
+        for (std::size_t i=0; i< element_tags.size(); ++i) {
           ElementalLoad *theLoad =  new ShellThermalAction(
               eleLoadTag, indata[0], indata[1], indata[2], indata[3], indata[4],
               indata[5], indata[6], indata[7], indata[8], indata[9], indata[10],
               indata[11], indata[12], indata[13], indata[14], indata[15],
-              indata[16], indata[17], theEleTags(i));
+              indata[16], indata[17], element_tags[i]);
 
           // add the load to the domain
-          if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+          if (domain->addElementalLoad(theLoad, loadPatternTag) ==
               false) {
             opserr << "WARNING eleLoad - could not add following load to "
                       "domain:\n ";
@@ -570,16 +564,16 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
         //temp1,loc1,temp2,loc2...temp5,loc5
 
-        for (int i = 0; i < theEleTags.Size(); ++i) {
+        for (std::size_t i=0; i< element_tags.size(); ++i) {
           ElementalLoad *theLoad = 
                     new ShellThermalAction(eleLoadTag, indata[0], indata[1],
                                            indata[2], indata[3], indata[4],
                                            indata[5], indata[6], indata[7],
-                                           indata[8], indata[9], theEleTags(i));
+                                           indata[8], indata[9], element_tags[i]);
 
 
           // add the load to the domain
-          if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+          if (domain->addElementalLoad(theLoad, loadPatternTag) ==
               false) {
             opserr << "WARNING eleLoad - could not add following load to "
                       "domain:\n ";
@@ -619,13 +613,13 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_ERROR;
         }
 
-        for (int i = 0; i < theEleTags.Size(); ++i) {
+        for (std::size_t i=0; i< element_tags.size(); ++i) {
           ElementalLoad *theLoad = 
                     new ShellThermalAction(eleLoadTag, t1, locY1, t2, locY2,
-                                           theEleTags(i));
+                                           element_tags[i]);
 
           // add the load to the domain
-          if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+          if (domain->addElementalLoad(theLoad, loadPatternTag) ==
               false) {
             opserr << "WARNING eleLoad - could not add following load to "
                       "domain:\n ";
@@ -714,37 +708,37 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
     theNodalThermals                      = new NodalThermalAction *[numNodal];
 
     for (int i = 0; i < numNodal; ++i) {
-      theNode             = theTclDomain->getNode(NodalThermal(i));
+      theNode             = domain->getNode(NodalThermal(i));
       theNodalThermals[i] = theNode->getNodalThermalActionPtr();
       if (theNodalThermals[i] == 0) {
         opserr << "WARNING:: An empty nodalThermalAction detected for "
                   "ThermalActionWrapper"
-               << endln;
+               << "\n";
         return TCL_ERROR;
       }
     }
 
-    for (int i = 0; i < theEleTags.Size(); ++i) {
+    for (std::size_t i=0; i< element_tags.size(); ++i) {
       ElementalLoad *theLoad = nullptr;
       if (numNodal == 2) {
         theLoad =
-            new ThermalActionWrapper(eleLoadTag, theEleTags(i),
+            new ThermalActionWrapper(eleLoadTag, element_tags[i],
                                      theNodalThermals[0], theNodalThermals[1]);
       } else if (numNodal == 3) {
         theLoad = new ThermalActionWrapper(
-            eleLoadTag, theEleTags(i), theNodalThermals[0], theNodalThermals[1],
+            eleLoadTag, element_tags[i], theNodalThermals[0], theNodalThermals[1],
             theNodalThermals[2]);
       } else if (numNodal == 4) {
         theLoad = new ThermalActionWrapper(
-            eleLoadTag, theEleTags(i), theNodalThermals[0], theNodalThermals[1],
+            eleLoadTag, element_tags[i], theNodalThermals[0], theNodalThermals[1],
             theNodalThermals[2], theNodalThermals[3]);
       } else if (numNodal == 5) {
         theLoad = new ThermalActionWrapper(
-            eleLoadTag, theEleTags(i), theNodalThermals[0], theNodalThermals[1],
+            eleLoadTag, element_tags[i], theNodalThermals[0], theNodalThermals[1],
             theNodalThermals[2], theNodalThermals[3], theNodalThermals[4]);
       } else if (numNodal == 6) {
         theLoad = new ThermalActionWrapper(
-            eleLoadTag, theEleTags(i), theNodalThermals[0], theNodalThermals[1],
+            eleLoadTag, element_tags[i], theNodalThermals[0], theNodalThermals[1],
             theNodalThermals[2], theNodalThermals[3], theNodalThermals[4],
             theNodalThermals[5]);
       }
@@ -754,7 +748,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         ((ThermalActionWrapper *)theLoad)->setRatios(loc);
 
       // add the load to the domain
-      if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+      if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
         opserr
             << "WARNING eleLoad - could not add following load to domain:\n ";
         opserr << theLoad;
@@ -777,12 +771,12 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       if (strcmp(argv[count], "-source") == 0) {
 
         if (strcmp(argv[count + 1], "-node") == 0) {
-          for (int i = 0; i < theEleTags.Size(); ++i) {
+          for (std::size_t i=0; i< element_tags.size(); ++i) {
             ElementalLoad *theLoad =         
-                      new Beam2dThermalAction(eleLoadTag, theEleTags(i));
+                      new Beam2dThermalAction(eleLoadTag, element_tags[i]);
 
             // add the load to the domain
-            if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+            if (domain->addElementalLoad(theLoad, loadPatternTag) ==
                 false) {
               opserr << "WARNING eleLoad - could not add following load to "
                         "domain:\n ";
@@ -847,13 +841,13 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             opserr << "WARNING eleLoad - invalid input for -beamThermal\n";
           }
 
-          for (int i = 0; i < theEleTags.Size(); ++i) {
+          for (std::size_t i=0; i< element_tags.size(); ++i) {
             ElementalLoad *theLoad =         
                       new Beam2dThermalAction(eleLoadTag, locs, theSeries,
-                                              theEleTags(i));
+                                              element_tags[i]);
 
             // add the load to the domain
-            if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+            if (domain->addElementalLoad(theLoad, loadPatternTag) ==
                 false) {
               opserr << "WARNING eleLoad - could not add following load to "
                         "domain:\n ";
@@ -957,16 +951,16 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
         }
         //end for 2 inputs
 
-        for (int i = 0; i < theEleTags.Size(); ++i) {
+        for (std::size_t i=0; i< element_tags.size(); ++i) {
           ElementalLoad *theLoad =         
                     new Beam2dThermalAction(
               eleLoadTag, Temp[0], Loc[0], Temp[1], Loc[1], Temp[2], Loc[2],
               Temp[3], Loc[3], Temp[4], Loc[4], Temp[5], Loc[5], Temp[6],
-              Loc[6], Temp[7], Loc[7], Temp[8], Loc[8], theEleTags(i));
+              Loc[6], Temp[7], Loc[7], Temp[8], Loc[8], element_tags[i]);
 
 
           // add the load to the domain
-          if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+          if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
             opserr << "WARNING eleLoad - could not add following load to "
                       "domain:\n ";
             opserr << theLoad;
@@ -992,12 +986,12 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       if (strcmp(argv[count], "-source") == 0) {
         count++;
         if (strcmp(argv[count], "-node") == 0) {
-          for (int i = 0; i < theEleTags.Size(); ++i) {
+          for (std::size_t i=0; i< element_tags.size(); ++i) {
             ElementalLoad *theLoad =         
-                      new Beam3dThermalAction(eleLoadTag, theEleTags(i));
+                      new Beam3dThermalAction(eleLoadTag, element_tags[i]);
 
             // add the load to the domain
-            if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+            if (domain->addElementalLoad(theLoad, loadPatternTag) ==
                 false) {
               opserr << "WARNING eleLoad - could not add following load to "
                         "domain:\n ";
@@ -1055,7 +1049,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                                           RcvLoc4, theSeries, tag);
 
               // add the load to the domain
-              if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+              if (domain->addElementalLoad(theLoad, loadPatternTag) ==
                   false) {
                 opserr << "WARNING eleLoad - could not add following load to "
                           "domain:\n ";
@@ -1115,14 +1109,14 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             }
             //end of receiving 9 data points
 
-            for (int i = 0; i < theEleTags.Size(); ++i) {
+            for (std::size_t i=0; i< element_tags.size(); ++i) {
               ElementalLoad *theLoad =         
                         new Beam3dThermalAction(eleLoadTag, locs, theSeries,
-                                                theEleTags(i));
+                                                element_tags[i]);
 
 
               // add the load to the domain
-              if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+              if (domain->addElementalLoad(theLoad, loadPatternTag) ==
                   false) {
                 opserr << "WARNING eleLoad - could not add following load to "
                           "domain:\n ";
@@ -1163,7 +1157,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
             count++;
           }
 
-          for (int i = 0; i < theEleTags.Size(); ++i) {
+          for (std::size_t i=0; i< element_tags.size(); ++i) {
             ElementalLoad *theLoad =         
                       new Beam3dThermalAction(
                 eleLoadTag, indata[0], indata[1], indata[2], indata[3],
@@ -1171,11 +1165,11 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                 indata[9], indata[10], indata[11], indata[12], indata[13],
                 indata[14], indata[15], indata[16], indata[17], indata[18],
                 indata[19], indata[20], indata[21], indata[22], indata[23],
-                indata[24], theEleTags(i));
+                indata[24], element_tags[i]);
 
 
             // add the load to the domain
-            if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+            if (domain->addElementalLoad(theLoad, loadPatternTag) ==
                 false) {
               opserr << "WARNING eleLoad - could not add following load to "
                         "domain:\n ";
@@ -1229,7 +1223,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
             // add the load to the domain
-            if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) == false) {
+            if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
               opserr << "WARNING eleLoad - could not add following load to "
                         "domain:\n ";
               opserr << theLoad;
@@ -1282,13 +1276,13 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_ERROR;
         }
 
-        for (int i = 0; i < theEleTags.Size(); ++i) {
+        for (std::size_t i=0; i< element_tags.size(); ++i) {
           ElementalLoad *theLoad = new Beam2dTempLoad(eleLoadTag, temp1, temp2, temp3, temp4,
-                                       theEleTags(i));
+                                       element_tags[i]);
 
 
           // add the load to the domain
-          if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+          if (domain->addElementalLoad(theLoad, loadPatternTag) ==
               false) {
             opserr << "WARNING eleLoad - could not add following load to "
                       "domain:\n ";
@@ -1316,11 +1310,11 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_ERROR;
         }
 
-        for (int i = 0; i < theEleTags.Size(); ++i) {
-          ElementalLoad *theLoad = new Beam2dTempLoad(eleLoadTag, temp1, temp2, theEleTags(i));
+        for (std::size_t i=0; i< element_tags.size(); ++i) {
+          ElementalLoad *theLoad = new Beam2dTempLoad(eleLoadTag, temp1, temp2, element_tags[i]);
 
           // add the load to the domain
-          if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
+          if (domain->addElementalLoad(theLoad, loadPatternTag) ==
               false) {
             opserr << "WARNING eleLoad - could not add following load to "
                       "domain:\n ";
@@ -1339,22 +1333,20 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_ERROR;
         }
 
-        for (int i = 0; i < theEleTags.Size(); ++i) {
-          ElementalLoad *theLoad = new Beam2dTempLoad(eleLoadTag, temp1, theEleTags(i));
+        for (std::size_t i=0; i< element_tags.size(); ++i) {
+          ElementalLoad *theLoad = new Beam2dTempLoad(eleLoadTag, temp1, element_tags[i]);
 
           // add the load to the domain
-          if (theTclDomain->addElementalLoad(theLoad, loadPatternTag) ==
-              false) {
-            opserr << "WARNING eleLoad - could not add following load to "
+          if (domain->addElementalLoad(theLoad, loadPatternTag) == false) {
+            opserr << "WARNING eleLoad - could not add load to "
                       "domain:\n ";
-            opserr << theLoad;
             delete theLoad;
             return TCL_ERROR;
           }
           eleLoadTag++;
         }
 
-        return 0;
+        return TCL_OK;
 
       }
 

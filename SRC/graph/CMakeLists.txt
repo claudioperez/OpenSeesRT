@@ -5,6 +5,7 @@
 #
 #==============================================================================
 add_library(graph OBJECT)
+target_link_libraries(graph PRIVATE OPS_Logging)
 
 add_subdirectory(graph)
 add_subdirectory(numberer)

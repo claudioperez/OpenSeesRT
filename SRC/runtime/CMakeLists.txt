@@ -1,7 +1,9 @@
-#* ****************************************************************** *#
-#*    OpenSees - Open System for Earthquake Engineering Simulation    *#
-#*          Pacific Earthquake Engineering Research Center            *#
-#* ****************************************************************** *#
+#==============================================================================
+#
+#        OpenSees -- Open System For Earthquake Engineering Simulation
+#                Pacific Earthquake Engineering Research Center
+#
+#==============================================================================
 
 add_library(OpenSeesRT SHARED)
 target_sources(OpenSeesRT PRIVATE "OpenSeesRT.cpp")
@@ -17,14 +19,13 @@ target_compile_options(OPS_Runtime PRIVATE
 target_include_directories(OPS_Runtime PUBLIC 
   ./api/
   ${OPS_SRC_DIR}/runtime/commands
+  ${OPS_SRC_DIR}/runtime/parsing/
   ${OPS_SRC_DIR}/runtime/commands/modeling
   ${OPS_SRC_DIR}/runtime/runtime/
-  ${OPS_SRC_DIR}/runtime/runtime/Logging/
 )
 target_link_libraries(OPS_Runtime PRIVATE G3)
 
 add_subdirectory(commands)
-
 add_subdirectory(runtime)
 
 target_sources(OPS_Runtime PRIVATE
@@ -38,7 +39,7 @@ target_sources(OPS_Runtime PRIVATE
     # "contrib/uniaxial/TclAxialSp.cpp"
     # "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
     # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
-    #"contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
+    # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
 
 )
 

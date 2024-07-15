@@ -24,7 +24,7 @@
 #include <Channel.h>
 #include <EquiSolnAlgo.h>
 #include <LinearSOE.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <iostream>
 #include <fstream>
 
@@ -115,7 +115,7 @@ int CTestNormUnbalance::test(void)
     if (printFlag & ConvergenceTest::PrintTest02) {
         opserr << LOG_ITERATE << "Iter: " << pad(currentIter);
         opserr << ", Norm: " << pad(norm) << " (max: " << tol << ")\n";
-        opserr << "\tNorm deltaX: " << theSOE->getX().pNorm(nType) << ", Norm deltaR: " << pad(norm) << endln;
+        opserr << "\tNorm deltaX: " << theSOE->getX().pNorm(nType) << ", Norm deltaR: " << pad(norm) << "\n";
         opserr << "\tdeltaX: " << theSOE->getX() << "\tdeltaR: " << x;
     }
 
@@ -124,11 +124,11 @@ int CTestNormUnbalance::test(void)
       std::ofstream outDp;
 
       if (currentIter == 1) {
-        outDu.open ("dX.out",std::ios::out);
-        outDp.open ("dP.out", std::ios::out);
+        outDu.open("dX.out",std::ios::out);
+        outDp.open("dP.out", std::ios::out);
       } else {
-        outDu.open ("dX.out",std::ios::app);
-        outDp.open ("dP.out", std::ios::app);
+        outDu.open("dX.out",std::ios::app);
+        outDp.open("dP.out", std::ios::app);
       }
       const Vector &Du = theSOE->getX();
       const Vector &Dp = theSOE->getB();
@@ -151,7 +151,7 @@ int CTestNormUnbalance::test(void)
 
         // do some printing first
         if (printFlag & ConvergenceTest::PrintTest || printFlag & ConvergenceTest::PrintTest02)
-            opserr << endln;
+            opserr << "\n";
         if (printFlag & ConvergenceTest::PrintSuccess || printFlag == 7) {
             opserr << LOG_SUCCESS << "Iter: " << pad(currentIter);
             opserr << ", Norm: " << pad(norm) << " (max: " << tol;
@@ -169,7 +169,7 @@ int CTestNormUnbalance::test(void)
                    //<< "criteria CTestNormUnbalance but going on -";
                    << ", Norm: " << pad(norm) 
                    << ", Norm deltaX: " << pad(theSOE->getX().pNorm(nType))
-                   << endln;
+                   << "\n";
         }
         return currentIter;
     }
@@ -183,7 +183,7 @@ int CTestNormUnbalance::test(void)
                    << "Iter: "           << pad(currentIter)
                    << ", Norm: "         << pad(norm)
                    << ", Norm deltaX: "  << pad(theSOE->getX().pNorm(nType)) 
-                   << endln;
+                   << "\n";
         }
         currentIter++;  // we increment in case analysis does not check for convergence
         return ConvergenceTest::Failure;
