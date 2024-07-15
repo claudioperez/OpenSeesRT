@@ -4,6 +4,9 @@
 //
 //===----------------------------------------------------------------------===//
 //
+// These commands expect a Domain* as their clientData.
+// 
+// Written: cmp
 //
 #include <assert.h>
 #include <Domain.h>
