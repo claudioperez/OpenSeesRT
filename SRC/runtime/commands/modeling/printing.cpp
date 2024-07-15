@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: Commands that are used to print out the domain
 //
@@ -18,6 +19,7 @@
 #include <tcl.h>
 #include <G3_Logging.h>
 #include <FileStream.h>
+#include <DummyStream.h>
 
 #include <BasicModelBuilder.h>
 
@@ -33,6 +35,7 @@
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 #include <SectionForceDeformation.h>
+#include <FrameSection.h>
 
 #include <Pressure_Constraint.h>
 #include <Element.h>
@@ -43,6 +46,8 @@
 
 #include <Node.h>
 #include <NodeIter.h>
+
+#include <FrameTransform.h>
 
 int printElement(ClientData clientData, Tcl_Interp *interp, int argc,
                  TCL_Char ** const argv, OPS_Stream &output);
@@ -99,8 +104,10 @@ int TclCommand_classType(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 static int
-printRegistry(BasicModelBuilder* builder, TCL_Char* type, int flag, OPS_Stream *output)
+printRegistry(const BasicModelBuilder& builder, TCL_Char* type, int flag, OPS_Stream *output)
 {
+  if (type == nullptr)
+    builder.printRegistry<BasicModelBuilder>(*output, flag);
   return TCL_OK;
 }
 
@@ -112,6 +119,8 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
   Domain* theDomain = builder->getDomain();
 
   const char* tab = "    ";
+  // TODO: maybe add a method called countRegistry<>
+  // to BasicModelBuilder
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << "{\n";
@@ -119,14 +128,22 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
 
     s << tab << "\"properties\": {\n";
     //
-    s << tab << tab << "\"sections\": [\n";        
-    builder->printRegistry<SectionForceDeformation>(s, flag);
-    s << "\n" << tab << tab << "]";
-    s << ",\n";
+    {
+      s << tab << tab << "\"sections\": [\n";        
+      int n = builder->printRegistry<SectionForceDeformation>(s, flag);
+
+      DummyStream dummy;
+      if (builder->printRegistry<FrameSection>(dummy, flag) > 0) {
+        if (n > 0)
+          s << ",\n";
+        builder->printRegistry<FrameSection>(s, flag);
+      }
+      s << "\n" << tab << tab << "]";
+      s << ",\n";
+    }
     //
     s << tab << tab << "\"nDMaterials\": [\n";        
     builder->printRegistry<NDMaterial>(s, flag);
-    printRegistry(builder, "NDMaterial", flag, &s);
     s << "\n" << tab << tab << "]";
     s << ",\n";
     //
@@ -136,8 +153,19 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
     s << ",\n";
     //
     s << tab << tab << "\"crdTransformations\": [\n";
-    printRegistry(builder, "CoordinateTransform", flag, &s);
+    {
+      int n = builder->printRegistry<FrameTransform2d>(s, flag);
+
+      DummyStream dummy;
+      if (builder->printRegistry<FrameTransform3d>(dummy, flag) > 0) {
+        if (n > 0)
+          s << ",\n";
+        builder->printRegistry<FrameTransform3d>(s, flag);
+      }
+    }
     s << "\n" << tab << tab << "]";
+//  builder->printRegistry<CrdTransf>(s, flag);
+
     // s << ",\n";
     // //
     // s << tab << tab << "\"constraints\": [\n";
@@ -266,7 +294,10 @@ TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *
 
     else if ((strcmp(argv[currentArg], "-registry") == 0)) {
       currentArg++;
-      res = printRegistry((BasicModelBuilder*)clientData, argv[currentArg++], flag, output);
+      if (currentArg == argc)
+        res = printRegistry(*((BasicModelBuilder*)clientData), nullptr, flag, output);
+      else
+        res = printRegistry(*((BasicModelBuilder*)clientData), argv[currentArg++], flag, output);
       done = true;
     }
 
@@ -499,7 +530,6 @@ printModelGID(ClientData clientData, Tcl_Interp *interp, int argc,
     Quad9  = 1<<4,
     Brick  = 1<<5
   };
-  int object_types = 0;
 
   // This function print's a file with node and elements in a format useful for
   // GID
