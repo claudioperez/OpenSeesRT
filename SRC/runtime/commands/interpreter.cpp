@@ -140,7 +140,7 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
       if (newline == 0)
         opserr << Tcl_GetString(string);
       else
-        opserr << Tcl_GetString(string) << endln;
+        opserr << Tcl_GetString(string) << "\n";
     }
     return TCL_OK;
   } else {

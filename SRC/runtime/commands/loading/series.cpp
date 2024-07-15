@@ -5,7 +5,7 @@
 //===----------------------------------------------------------------------===//
 //
 // Description: This file contains the function invoked when the user invokes
-// the pattern command in the interpreter. It is implemented by the
+// the pattern command in the interpreter. It is invoked by the
 // TclBasicBuilder_addPattern function.
 //
 // Written: fmk
