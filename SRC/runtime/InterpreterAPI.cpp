@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 //
 #include <map>
@@ -74,15 +75,17 @@ OPS_ResetCurrentInputArg(int cArg)
 
 
 // extern "C"
+#if 0
 int
 OPS_ResetInput(ClientData clientData, Tcl_Interp *interp, int cArg, int mArg,
-               TCL_Char ** const argv, Domain *domain, TclBuilder *builder)
+               TCL_Char ** const argv, void*, void*)
 {
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;
   return 0;
 }
+#endif
 
 
 extern "C" int
@@ -239,18 +242,10 @@ extern "C" int OPS_SetDoubleDictListOutput(
 // END INTERPRETER STUFF
 //
 
-// extern EquiSolnAlgo              *theAlgorithm;
-// extern LinearSOE                 *theSOE;
-// extern EigenSOE                  *theEigenSOE;
-// extern StaticAnalysis            *theStaticAnalysis;
-// extern StaticIntegrator          *theStaticIntegrator;
-// extern DirectIntegrationAnalysis *theTransientAnalysis;
-// extern TransientIntegrator       *theTransientIntegrator;
-// extern VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
+
 extern bool builtModel;
 extern FE_Datastore *theDatabase;
-
-static TclBuilder                *theModelBuilder = nullptr;
+static BasicModelBuilder *theModelBuilder = nullptr;
 
 G3_Runtime *
 G3_getRuntime(Tcl_Interp *interp)
@@ -264,7 +259,7 @@ G3_getRuntime(Tcl_Interp *interp)
 Tcl_Interp *
 G3_getInterpreter(G3_Runtime* rt) {return rt->m_interp;}
 
-TclBuilder *
+BasicModelBuilder *
 G3_getModelBuilder(G3_Runtime *rt) {return rt->m_builder;}
 
 int
