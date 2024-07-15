@@ -1,9 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
 //
+//        OpenSees - Open System for Earthquake Engineering Simulation
 //
+//===----------------------------------------------------------------------===//
 //
 
 // domain/element.cpp
