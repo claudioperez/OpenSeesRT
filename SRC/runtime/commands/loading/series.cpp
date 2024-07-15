@@ -5,12 +5,11 @@
 //===----------------------------------------------------------------------===//
 //
 // Description: This file contains the function invoked when the user invokes
-// the Pattern command in the interpreter. It is invoked by the
-// TclBasicBuilder_addPattern function in the TclBasicBuilder.C file.
+// the pattern command in the interpreter. It is implemented by the
+// TclBasicBuilder_addPattern function.
 //
 // Written: fmk
 // Created: 11/00
-// Revision: A
 //
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -35,15 +34,6 @@
 // #include <PeerNGAMotion.h>
 
 
-
-// little function to free memory after invoke Tcl_SplitList
-//   note Tcl_Split list stores the array of pointers and the strings in
-//   one array, which is why Tcl_Free needs only be called on the array.
-static void
-cleanup(TCL_Char ** const argv)
-{
-  Tcl_Free((char *)argv);
-}
 
 extern OPS_Routine OPS_ConstantSeries;
 extern OPS_Routine OPS_LinearSeries;
@@ -73,7 +63,7 @@ TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc,
       if (Tcl_GetInt(interp, argv[0], &tag) != 0) {
         opserr << G3_ERROR_PROMPT << "invalid series tag in LinearSeries tag? <-factor "
                   "factor?>"
-               << endln;
+               << "\n";
         return nullptr;
       }
       numRemainingArgs--;
@@ -83,12 +73,12 @@ TclDispatch_newLinearSeries(ClientData clientData, Tcl_Interp* interp, int argc,
       const char *argvS = argv[1];
       if (argvS == 0) {
         opserr << G3_ERROR_PROMPT << "string error in LinearSeries with tag: " << tag
-               << endln;
+               << "\n";
         return nullptr;
       }
       if (Tcl_GetDouble(interp, argv[2], &cFactor) != 0) {
         opserr << G3_ERROR_PROMPT << "invalid factor in LinearSeries with tag: " << tag
-               << endln;
+               << "\n";
         return nullptr;
       }
     }
@@ -126,14 +116,13 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
      if (argc < 3) {
        opserr << "WARNING not enough TimeSeries args - ";
        opserr << " Trig <tag?> tStart tFinish period <-shift shift> <-factor cFactor>\n";
-       cleanup(argv);
        return nullptr;
      }
      int argi = 1;
 
      if (argc == 5 || argc == 7 || argc == 9 || argc == 11) {
       if (Tcl_GetInt(interp, argv[argi++], &tag) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "invalid series tag in Trig tag?" << endln;
+        opserr << G3_ERROR_PROMPT << "invalid series tag in Trig tag?" << "\n";
         return nullptr;
       }
      }
@@ -141,21 +130,18 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
      if (Tcl_GetDouble(interp, argv[argi++], &tStart) != TCL_OK) {
        opserr << "WARNING invalid tStart " << argv[argi-1] << " - ";
        opserr << " Trig tStart tFinish period <-shift shift> <-factor cFactor>\n";
-       cleanup(argv);
        return nullptr;
      }
 
      if (Tcl_GetDouble(interp, argv[argi++], &tFinish) != TCL_OK) {
        opserr << "WARNING invalid tFinish " << argv[argi-1] << " - ";
        opserr << " Trig tStart tFinish period <-shift shift> <-factor cFactor>\n";
-       cleanup(argv);
        return nullptr; 
      }
 
      if (Tcl_GetDouble(interp, argv[argi++], &period) != TCL_OK) {
        opserr << "WARNING invalid period " << argv[argi-1] << " - ";
        opserr << " Trig tStart tFinish period <-shift shift> <-factor cFactor>\n";
-       cleanup(argv);
        return nullptr; 
 
      } else if (period == 0.0) {
@@ -171,8 +157,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
            
            opserr << "WARNING invalid cFactor " << argv[argi] << " -";
            opserr << " Trig  tStart tFinish period -factor cFactor\n";
-           cleanup(argv);
-           return 0;
+           return nullptr;
          }
        }
  
@@ -184,7 +169,6 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
              
            opserr << "WARNING invalid phase shift " << argv[argi] << " - ";
            opserr << " Trig tStart tFinish period -shift shift\n";
-           cleanup(argv);
            return nullptr;
          }
        }
@@ -364,7 +348,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
             opserr << G3_ERROR_PROMPT << "problem splitting path list " << argv[endMarker]
                    << " - ";
             opserr << " Series -values {path} ... \n";
-            return 0;
+            return nullptr;
           }
 
           dataPath = new Vector(pathSize);
@@ -374,13 +358,13 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
               opserr << G3_ERROR_PROMPT << "problem reading path data value "
                      << pathStrings[i] << " - ";
               opserr << " Series -values {path} ... \n";
-              cleanup(pathStrings);
-              return 0;
+              Tcl_Free((char *)pathStrings);
+              return nullptr;
             }
             (*dataPath)(i) = value;
           }
           // free up the array of pathsStrings .. see tcl man pages as to why
-          cleanup(pathStrings);
+          Tcl_Free((char *)pathStrings);
         }
       }
 
@@ -408,13 +392,13 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
                      << pathStrings[i] << " - ";
               opserr << " Series -values {path} ... \n";
 
-              cleanup(pathStrings);
+              Tcl_Free((char *)pathStrings);
               return 0;
             }
             (*dataTime)(i) = value;
           }
           // free up the array of pathsStrings .. see tcl man pages as to why
-          cleanup(pathStrings);
+          Tcl_Free((char *)pathStrings);
         }
       }
 
@@ -602,7 +586,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
     int tagI;
     for (int i = 0; i < numModFuncs; ++i) {
       if (Tcl_GetInt(interp, argv[i + argsBeforeModList], &tagI) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "invalid modulating function tag. " << endln;
+        opserr << G3_ERROR_PROMPT << "invalid modulating function tag. " << "\n";
         return 0;
       }
 
@@ -631,20 +615,20 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
 
     if (Tcl_GetInt(interp, argv[1], &spectrumTag) != TCL_OK) {
       opserr << "WARNING invalid input to SimulatedRandomProcess: spectrumTag"
-             << endln;
+             << "\n";
       return 0;
     }
 
     if (Tcl_GetDouble(interp, argv[2], &mean) != TCL_OK) {
       opserr << "WARNING invalid input to SimulatedRandomProcess: mean"
-             << endln;
+             << "\n";
       return 0;
     }
 
     if (Tcl_GetInt(interp, argv[3], &numFreqIntervals) != TCL_OK) {
       opserr
           << "WARNING invalid input to SimulatedRandomProcess: numFreqIntervals"
-          << endln;
+          << "\n";
       return 0;
     }
 
@@ -652,7 +636,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
     if (theRandomNumberGenerator == 0) {
       opserr << "WARNING: A random number generator must be instantiated "
                 "before SimulatedRandomProcess."
-             << endln;
+             << "\n";
       return 0;
     }
 
@@ -662,7 +646,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
     if (theSpectrum == 0) {
       opserr << "WARNING: Could not find the spectrum for the "
                 "SimulatedRandomProcess."
-             << endln;
+             << "\n";
       return 0;
     }
 
@@ -676,7 +660,7 @@ TclDispatch_newTimeSeries(ClientData clientData, Tcl_Interp *interp, int argc, T
   else {
     for (int i = 0; i < argc; ++i)
       opserr << argv[i] << ' ';
-    opserr << endln;
+    opserr << "\n";
     // type of load pattern type unknown
     opserr << "WARNING unknown Series type " << argv[0] << " - ";
     opserr << " valid types: Linear, Rectangular, Path, Constant, Trig, Sine\n";
@@ -701,14 +685,14 @@ TclSeriesCommand(ClientData clientData, Tcl_Interp *interp, TCL_Char * const arg
 
   // split the list
   if (Tcl_SplitList(interp, arg, &argc, &argv) != TCL_OK) {
-    opserr << "WARNING could not split series list " << arg << endln;
+    opserr << "WARNING could not split series list " << arg << "\n";
     return nullptr;
   }
 
   TimeSeries *theSeries = TclDispatch_newTimeSeries(clientData, interp, argc, argv);
 
   // clean up after ourselves and return the series
-  cleanup(argv);
+  Tcl_Free((char *)argv);
   return theSeries;
 }
 
