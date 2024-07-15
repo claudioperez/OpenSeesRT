@@ -22,10 +22,8 @@ add_subdirectory(graph)
 add_subdirectory(system_of_eqn)
 add_subdirectory(analysis)
 
-add_subdirectory(modelbuilder)
 add_subdirectory(runtime)
 
-# add_subdirectory(api)
 add_subdirectory(database)
 add_subdirectory(utility)
 add_subdirectory(damage)
