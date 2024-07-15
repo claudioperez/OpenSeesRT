@@ -3,7 +3,7 @@
 #include <ReeseStiffClayBelowWS.h>
 #include <Vector.h>
 #include <Channel.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <math.h>
 
 ReeseStiffClayBelowWS::ReeseStiffClayBelowWS(int tag,double esi,double y,double as,double pc):

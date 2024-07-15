@@ -37,14 +37,11 @@
 
 #include <BasicModelBuilder.h>
 #include <runtimeAPI.h>
+#include <tcl.h>
 
 #include <Vector.h>
 #include <string.h>
-#include <fstream>
-using std::ifstream;
 
-#include <iomanip>
-using std::ios;
 
 int seriesTag;
 

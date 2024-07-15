@@ -93,7 +93,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     if (theSeries == nullptr) {
 
       opserr << "WARNING - problem creating TimeSeries for LoadPattern ";
-      opserr << patternID << endln;
+      opserr << patternID << "\n";
 
       // clean up the memory and return an error
       if (thePattern != nullptr)
@@ -215,7 +215,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     if (theMotion == 0) {
       opserr << "WARNING ran out of memory creating ground motion - pattern "
                 "UniformExcitation ";
-      opserr << patternID << endln;
+      opserr << patternID << "\n";
 
       return TCL_ERROR;
     }
@@ -226,7 +226,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     if (thePattern == 0) {
       opserr << "WARNING ran out of memory creating load pattern - pattern "
                 "UniformExcitation ";
-      opserr << patternID << endln;
+      opserr << patternID << "\n";
 
       // clean up memory allocated up to this point and return an error
       if (theMotion != 0)
@@ -254,7 +254,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
         if (Tcl_GetDouble(interp, argv[i + 2], &dt) != TCL_OK) {
           opserr << "WARNING problem reading ground motion "
                  << "time interval - pattern UniformExcitation: " << patternID
-                 << endln;
+                 << "\n";
           return TCL_ERROR;
         }
         numInputs -= 3;
@@ -290,7 +290,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
         break;
       default:
         opserr << "WARNING cannot read direction for excitation \n";
-        opserr << "UniformExcitation " << patternID << " dir factor" << endln;
+        opserr << "UniformExcitation " << patternID << " dir factor" << "\n";
         return TCL_ERROR;
         break;
       }
@@ -309,7 +309,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     // read in the ground motion
     if (accelFileName == 0) {
       opserr << "WARNING -- No ground motion data provided\n";
-      opserr << "UniformExcitation tag: " << patternID << endln;
+      opserr << "UniformExcitation tag: " << patternID << "\n";
       return TCL_ERROR;
     }
 
@@ -318,7 +318,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     if (theMotion == 0) {
       opserr << "WARNING ran out of memory creating ground motion - pattern "
                 "UniformExcitation ";
-      opserr << patternID << endln;
+      opserr << patternID << "\n";
       return TCL_ERROR;
     }
 
@@ -331,7 +331,7 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     if (thePattern == 0) {
       opserr << "WARNING ran out of memory creating load pattern - pattern "
                 "UniformExcitation ";
-      opserr << patternID << endln;
+      opserr << patternID << "\n";
 
       // clean up memory allocated up to this point and return an error
       if (theMotion != 0)
@@ -351,18 +351,11 @@ TclPatternCommand(ClientData clientData, Tcl_Interp *interp, int argc,
     if (thePattern == 0) {
       opserr << "WARNING ran out of memory creating load pattern - pattern "
                 "MultipleSupportExcitation ";
-      opserr << patternID << endln;
+      opserr << patternID << "\n";
     }
     commandEndMarker = 2;
   }
 
-  // Added Joey Yang and Boris Jeremic at UC Davis 10/31/2002
-  // Added Joey Yang and Boris Jeremic at UC Davis 10/31/2002
-  // Added Joey Yang and Boris Jeremic at UC Davis 10/31/2002
-  // Added Joey Yang and Boris Jeremic at UC Davis 10/31/2002
-  // Added Joey Yang and Boris Jeremic at UC Davis 10/31/2002
-  // Added Joey Yang and Boris Jeremic at UC Davis 10/31/2002
-  // Added Joey Yang and Boris Jeremic at UC Davis 10/31/2002
   // Added Joey Yang and Boris Jeremic at UC Davis 10/31/2002
 
   //////// //////// ///////// ////////// /////  // DRMLoadPattern add BEGIN

@@ -6,7 +6,6 @@
 //
 // written: cmp
 //
-#include <unordered_map>
 #include <string>
 #include <vector>
 #include "G3_Runtime.h"
@@ -132,7 +131,7 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
                              *sintegrator,
                              test);
 }
-
+#if 1
 void *
 G3_Runtime::newTransientAnalysis(G3_Config conf)
 {
@@ -225,3 +224,4 @@ G3_Runtime::newTransientAnalysis(G3_Config conf)
                                        test);
 }
 
+#endif

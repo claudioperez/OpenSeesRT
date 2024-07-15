@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // This file contains functions that are required by Tcl to load the
 // OpenSeesRT library.
@@ -12,9 +13,9 @@
 //
 #include <runtimeAPI.h>
 #include "G3_Runtime.h"
-#include "Logging/G3_Logging.h"
+#include <logging/G3_Logging.h>
 #include <handler/OPS_Stream.h>
-#include <StandardStream.h>      
+#include <StandardStream.h>
 #include "commands/strings.cpp"
 #include <stdio.h>
 #include <stdlib.h>

@@ -9,6 +9,7 @@
 // Written: fmk, MHS, cmp
 // Created: 07/99
 //
+#include <tcl.h>
 #include <assert.h>
 #include <string>
 #include <unordered_map>
@@ -143,12 +144,12 @@ std::unordered_map<std::string, G3_TclUniaxialPackage *> tcl_uniaxial_package_ta
 
 
 typedef UniaxialMaterial* (TclDispatch_UniaxialMaterial)(G3_Runtime*, int, TCL_Char ** const);
-TclDispatch_UniaxialMaterial G3Parse_newFedeasUniaxialDamage;
 TclDispatch_UniaxialMaterial TclCommand_ReinforcingSteel;
 
 static Tcl_CmdProc TclCommand_newFatigueMaterial;
 static Tcl_CmdProc TclCommand_newUniaxialJ2Plasticity;
 
+Tcl_CmdProc TclCommand_newFedeasUniaxialDamage;
 Tcl_CmdProc TclCommand_ContinuumUniaxialMaterial;
 Tcl_CmdProc TclCommand_AxialSp;
 Tcl_CmdProc TclCommand_AxialSpHD;
@@ -224,7 +225,7 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
     {"APDMD",  dispatch<OPS_APDMD> },
     {"APDVFD", dispatch<OPS_APDVFD> },
 
-    {"FedeasUniaxialDamage", dispatch<G3Parse_newFedeasUniaxialDamage>  },
+    {"FedeasUniaxialDamage", dispatch<TclCommand_newFedeasUniaxialDamage>  },
     {"KikuchiAikenHDR",      dispatch<TclCommand_KikuchiAikenHDR>       },
     {"KikuchiAikenLRB",      dispatch<TclCommand_KikuchiAikenLRB>       },
 

@@ -33,8 +33,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 extern OPS_Routine OPS_ArctangentBackbone;
 // extern OPS_Routine OPS_ManderBackbone;
 extern OPS_Routine OPS_TrilinearBackbone;
-HystereticBackbone*
-G3Parse_newManderBackbone(G3_Runtime* rt, int argc, G3_Char ** const argv);
+HystereticBackbone* TclCommand_newManderBackbone(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv);
 extern OPS_Routine OPS_BilinearBackbone;
 extern OPS_Routine OPS_MultilinearBackbone;
 
@@ -210,7 +209,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
 
   else if (strcmp(argv[1], "Mander") == 0) {
     // void *theBB = OPS_ManderBackbone(rt, argc, argv);
-    void *theBB = G3Parse_newManderBackbone(rt, argc, argv);
+    void *theBB = TclCommand_newManderBackbone(clientData, interp, argc, argv);
 
     if (theBB != 0)
       theBackbone = (HystereticBackbone *)theBB;
@@ -434,7 +433,7 @@ TclCommand_addHystereticBackbone(ClientData clientData,
 }
 
 HystereticBackbone*
-G3Parse_newManderBackbone(G3_Runtime* rt, int argc, G3_Char ** const argv)
+TclCommand_newManderBackbone(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv)
 {
   if (argc < 6) {
     opserr << "WARNING insufficient arguments\n";
@@ -445,22 +444,22 @@ G3Parse_newManderBackbone(G3_Runtime* rt, int argc, G3_Char ** const argv)
   int tag;
   double fc, epsc, Ec;
   
-  if (G3Parse_getInt(rt, argv[2], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << "WARNING invalid hystereticBackbone Mander tag" << endln;
     return nullptr;
   }
   
-  if (G3Parse_getDouble(rt, argv[3], &fc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[3], &fc) != TCL_OK) {
     opserr << "WARNING invalid hystereticBackbone Mander fc" << endln;
     return nullptr;
   }
   
-  if (G3Parse_getDouble(rt, argv[4], &epsc) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[4], &epsc) != TCL_OK) {
     opserr << "WARNING invalid hystereticBackbone Mander epsc" << endln;
     return nullptr;
   }
   
-  if (G3Parse_getDouble(rt, argv[5], &Ec) != TCL_OK) {
+  if (Tcl_GetDouble(interp, argv[5], &Ec) != TCL_OK) {
     opserr << "WARNING invalid hystereticBackbone Mander Ec" << endln;
     return nullptr;
   }

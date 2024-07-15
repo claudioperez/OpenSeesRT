@@ -51,7 +51,7 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
   int ndm = builder->getNDM();
   bool explicitPatternPassed = false;
 
-  std::vector<int> element_tags(16);
+  std::vector<int> element_tags;
   int loadPatternTag = 0;
 
   // First create an ID containing the ele tags of all elements

@@ -9,7 +9,6 @@
 //
 // Written: fmk
 // Created: 11/00
-// Revision: A
 //
 #include <tcl.h>
 #include <string.h>
@@ -34,7 +33,7 @@ TclDispatch_newSeriesIntegrator(ClientData clientData, Tcl_Interp* interp, TCL_C
 
   // split the list
   if (Tcl_SplitList(interp, arg, &argc, &argv) != TCL_OK) {
-    opserr << "WARNING could not split series integrator list " << arg << endln;
+    opserr << "WARNING could not split series integrator list " << arg << "\n";
     return 0;
   }
 

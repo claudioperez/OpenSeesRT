@@ -1,44 +1,51 @@
+
+
 #include <stdio.h>
-#include <InputAPI.h>
+#include <string.h>
+#include <Parsing.h>
+#include <Logging.h>
 #include "DegradingUniaxialWrapper.h"
+#include <BasicModelBuilder.h>
 
 #define WRAPPER_CMD "FedeasUniaxialDamage"
 // #define WRAPPER_CMD "FedeasDamage"
 
-UniaxialMaterial*
-G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char ** const argv)
+int
+TclCommand_newFedeasUniaxialDamage(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char ** const argv)
 {
+  assert(clientData != nullptr);
+  BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
   // Pointer to a uniaxial material that will be returned
-  DegradingUniaxialWrapper *theMaterial = 0;
-  UniaxialMaterial *theWrappedMaterial = 0;
+  DegradingUniaxialWrapper *theMaterial = nullptr;
+  UniaxialMaterial *theWrappedMaterial = nullptr;
   int tags[2];
 
   if (argc < 2) {
     opserr << "WARNING invalid uniaxialMaterial " WRAPPER_CMD " $tag "
               "$wrapTag <-damage $damageTag>"
            << endln;
-    return nullptr;
+    return TCL_ERROR;;
   }
 
   // Get wrapper tag
-  if (G3Parse_getInt(rt, argv[2], &tags[0]) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tags[0]) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     // printCommand(argc, argv);
-    return nullptr;
+    return TCL_ERROR;;
   }
   // Get base tag
-  if (G3Parse_getInt(rt, argv[3], &tags[1]) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[3], &tags[1]) != TCL_OK) {
     opserr << "WARNING invalid uniaxialMaterial tag\n";
     // printCommand(argc, argv);
-    return nullptr;
+    return TCL_ERROR;;
   }
 
   // Get base material
-  theWrappedMaterial = G3_getUniaxialMaterialInstance(rt, tags[1]);
-  if (theWrappedMaterial == 0) {
+  theWrappedMaterial = builder->getTypedObject<UniaxialMaterial>(tags[1]);
+  if (theWrappedMaterial == nullptr) {
     opserr << "WARNING unable to retrieve uniaxialMaterial with tag" WRAPPER_CMD " tag: "
            << tags[1] << endln;
-    return nullptr;
+    return TCL_ERROR;;
   }
 
   int argn = 4;
@@ -50,9 +57,8 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char ** const argv
     if ((strcmp(param, "-damage") == 0) || 
         (strcmp(param, "-dmg") == 0)    ||
         (strcmp(param, "-DMG") == 0))   {
-      *damage = *(StateOperator*)Tcl_GetAssocData(G3_getInterpreter(rt), 
+      *damage = *(StateOperator*)Tcl_GetAssocData(interp, 
                                                   "fedeas::damage::UniaxialDamage", NULL);
-      Tcl_Interp* interp = G3_getInterpreter(rt);
       
       damage->call(damage, interp, ISW_CREATE, argc - argn, &argv[1+argn], 0, 0, 0, 0, 0);
       damage->call(damage, interp, ISW_MALLOC, 0, 0, 0, 0, 0, 0, 0);
@@ -70,10 +76,7 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char ** const argv
 
   // Parsing was successful, allocate the material
   theMaterial = new DegradingUniaxialWrapper(tags[0], *theWrappedMaterial, damage);
-  if (theMaterial == 0) {
-    opserr << "WARNING could not create uniaxialMaterial of type " WRAPPER_CMD << endln;
-    return nullptr;
-  }
+
   theMaterial->setCoupling(Ccd);
 
   // if (dmgtag){
@@ -82,6 +85,7 @@ G3Parse_newFedeasUniaxialDamage(G3_Runtime* rt, int argc, TCL_Char ** const argv
   // }
 
   // return G3_addUniaxialMaterial(rt, theMaterial);
-  return theMaterial;
+  builder->addTaggedObject<UniaxialMaterial>(*theMaterial);
+  return TCL_OK;
 }
 

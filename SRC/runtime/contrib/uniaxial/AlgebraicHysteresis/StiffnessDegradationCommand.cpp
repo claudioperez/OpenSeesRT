@@ -4,6 +4,7 @@
 // Description: This file contains the parsing routines for the
 // TCL stiffnessDegradation command.
 
+#include <tcl.h>
 #include <OPS_Globals.h>
 #include <runtime/BasicModelBuilder.h>
 

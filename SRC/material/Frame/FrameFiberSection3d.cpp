@@ -106,8 +106,8 @@ FrameFiberSection3d::FrameFiberSection3d(int tag, int num, Fiber **fibers,
 #endif
 
 
-FrameFiberSection3d::FrameFiberSection3d(int tag, int num, UniaxialMaterial &torsion, bool compCentroid): 
-    FrameSection(tag, SEC_TAG_FrameFiberSection3d),
+FrameFiberSection3d::FrameFiberSection3d(int tag, int num, UniaxialMaterial &torsion, bool compCentroid, double mass, bool use_mass): 
+    FrameSection(tag, SEC_TAG_FrameFiberSection3d, mass, use_mass),
     numFibers(0), sizeFibers(num), theMaterials(nullptr), matData(new double [num*3]{}),
     QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
     theTorsion(0),
@@ -138,9 +138,9 @@ FrameFiberSection3d::FrameFiberSection3d(int tag, int num, UniaxialMaterial &tor
 
 // constructor for blank object that recvSelf needs to be invoked upon
 FrameFiberSection3d::FrameFiberSection3d():
-  FrameSection(0, SEC_TAG_FrameFiberSection3d),
+  FrameSection(0, SEC_TAG_FrameFiberSection3d, 0, false),
   numFibers(0), sizeFibers(0), theMaterials(0), matData(0),
-  QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), computeCentroid(true), 
+  QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), computeCentroid(true),
 #ifdef N_FIBER_THREADS
   pool((void*)new OpenSees::thread_pool{N_FIBER_THREADS}),
 #endif
@@ -188,6 +188,7 @@ int
 FrameFiberSection3d::getIntegral(Field field, State state, double& value) const
 {
   value = 0.0;
+
   switch (field) {
     case Field::Unit:
       for (int i=0; i<numFibers; i++) {
@@ -196,11 +197,19 @@ FrameFiberSection3d::getIntegral(Field field, State state, double& value) const
       }
       return 0;
 
-
     case Field::Density:
+      // First check if density has been specified for the section
+      if (this->FrameSection::getIntegral(field, state, value) == 0) 
+        return 0;
+
       for (int i=0; i<numFibers; i++) {
-        const double A  = theMaterials[i]->getRho();
-        value += A;
+        double density;
+        const double A  = matData[3*i+2];
+//      if (theMaterials[i]->getIntegral(field, state, density) == 0)
+        if (theMaterials[i]->getRho() != 0)
+          value += A*density;
+        else
+          return -1;
       }
       return 0;
 
@@ -892,11 +901,16 @@ FrameFiberSection3d::Print(OPS_Stream &s, int flag)
   }
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\t{";
+        s << OPS_PRINT_JSON_MATE_INDENT << "{";
         s << "\"name\": \"" << this->getTag() << "\", ";
         s << "\"type\": \"FrameFiberSection3d\", ";
         if (theTorsion != 0)
           s << "\"torsion\": " << theTorsion->getInitialTangent() << ", ";
+
+        double mass;
+        if (this->FrameSection::getIntegral(Field::Density, State::Init, mass) == 0)
+          s << "\"mass\": " << mass;
+
         s << "\"fibers\": [\n";
         for (int i = 0; i < numFibers; i++) {
               s << "\t\t\t\t{\"coord\": [" << matData[3*i] << ", " << matData[3*i+1] << "], ";

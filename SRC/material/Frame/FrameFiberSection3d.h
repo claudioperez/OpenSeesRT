@@ -1,9 +1,10 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
 //
-// Written: fmk
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
+// Written: cmp
 // Created: 04/01
 //
 // Description: This file contains the class definition for 
@@ -29,7 +30,9 @@ class FrameFiberSection3d : public FrameSection
 {
   public:
     FrameFiberSection3d(); 
-    FrameFiberSection3d(int tag, int numFibers, UniaxialMaterial &torsion, bool compCentroid=true);
+    FrameFiberSection3d(int tag, int numFibers, UniaxialMaterial &torsion, 
+                        bool compCentroid,
+                        double mass, bool use_mass);
 #if 0
     FrameFiberSection3d(int tag, int numFibers, Fiber **fibers, 
 		   UniaxialMaterial &torsion, bool compCentroid=true);
@@ -43,7 +46,7 @@ class FrameFiberSection3d : public FrameSection
     int   setTrialSectionDeformation(const Vector &deforms);
     const Vector &getSectionDeformation();
 
-    int   getIntegral(Field field, State state, double& value) const;
+    int   getIntegral(Field field, State state, double& value) const override final;
     const Vector &getStressResultant();
     const Matrix &getSectionTangent();
     const Matrix &getInitialTangent();

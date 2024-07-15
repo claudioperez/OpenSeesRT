@@ -3,7 +3,7 @@
 #include <RaynorBackbone.h>
 #include <Vector.h>
 #include <Channel.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <math.h>
 
 RaynorBackbone::RaynorBackbone(int tag,double es,double f1,double f2,double epsh,double epsm,double c1,double ey):
