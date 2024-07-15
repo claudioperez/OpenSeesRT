@@ -1,9 +1,17 @@
-/* ------------------------------------------------------------------ **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ------------------------------------------------------------------ */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the class definition for CubicFrame3d.
+//
+//
+// Loading
+// 
+// Releases
+//
+// Mass
 //
 #include <CubicFrame3d.h>
 #include <Node.h>
@@ -37,19 +45,19 @@ double CubicFrame3d::workArea[200];
 CubicFrame3d::CubicFrame3d(int tag, std::array<int,2>& nodes,
                                    int numSec, FrameSection **s,
                                    BeamIntegration &bi,
-                                   FrameTransform3d &coordTransf, double r, int cm, int rz, int ry)
- : BasicFrame3d(tag, ELE_TAG_CubicFrame3d, nodes, coordTransf, cMass, rz, ry),
-  numSections(numSec), theSections(nullptr), beamInt(nullptr),
-  rho(r)
+                                   FrameTransform3d &coordTransf, double r, int cm)
+ : BasicFrame3d(tag, ELE_TAG_CubicFrame3d, nodes, coordTransf),
+  numSections(numSec), sections(nullptr), beamInt(nullptr),
+  mass_flag(cm), density(r)
 {
   q.zero();
 
   // Allocate arrays of pointers to FrameSections
-  theSections = new FrameSection *[numSections];
+  sections = new FrameSection *[numSections];
 
   for (int i = 0; i < numSections; i++) {    
     // Get copies of the material model for each integration point
-    theSections[i] = s[i]->getFrameCopy();
+    sections[i] = s[i]->getFrameCopy();
   
   }
   
@@ -65,8 +73,9 @@ CubicFrame3d::CubicFrame3d(int tag, std::array<int,2>& nodes,
 CubicFrame3d::CubicFrame3d()
 : BasicFrame3d(0, ELE_TAG_CubicFrame3d),
   numSections(0),
-  theSections(nullptr), beamInt(nullptr),
-  rho(0.0)
+  sections(nullptr), beamInt(nullptr),
+  density(0.0),
+  mass_flag(0)
 {
   q.zero();
 }
@@ -74,13 +83,13 @@ CubicFrame3d::CubicFrame3d()
 CubicFrame3d::~CubicFrame3d()
 {    
   for (int i = 0; i < numSections; i++) {
-    if (theSections[i])
-      delete theSections[i];
+    if (sections[i])
+      delete sections[i];
   }
   
   // Delete the array of pointers to FrameSection pointer arrays
-  if (theSections != nullptr)
-    delete [] theSections;
+  if (sections != nullptr)
+    delete [] sections;
   
   if (beamInt != nullptr)
     delete beamInt;
@@ -98,7 +107,7 @@ CubicFrame3d::commitState()
 
     // Loop over the integration points and commit the material states
     for (int i = 0; i < numSections; i++)
-        retVal += theSections[i]->commitState();
+        retVal += sections[i]->commitState();
 
     retVal += theCoordTransf->commitState();
 
@@ -112,7 +121,7 @@ CubicFrame3d::revertToLastCommit()
 
     // Loop over the integration points and revert to last committed state
     for (int i = 0; i < numSections; i++)
-        retVal += theSections[i]->revertToLastCommit();
+        retVal += sections[i]->revertToLastCommit();
 
     retVal += theCoordTransf->revertToLastCommit();
 
@@ -126,7 +135,7 @@ CubicFrame3d::revertToStart()
 
   // Loop over the integration points and revert states to start
   for (int i = 0; i < numSections; i++)
-      retVal += theSections[i]->revertToStart();
+      retVal += sections[i]->revertToStart();
 
   retVal += theCoordTransf->revertToStart();
 
@@ -149,6 +158,69 @@ CubicFrame3d::setNodes()
 //status += this->update();
 //status += this->setState(State::Pres);
   return status;
+}
+
+int
+CubicFrame3d::getIntegral(Field field, State state, double& total)
+{
+
+  if (this->setState(State::Init) != 0)
+    return -1;
+
+  total = 0.0;
+  switch (field) {
+
+    // Integrate density to compute total mass
+    case Field::Density: {
+      double value = 0.0;
+      for (int i=0; i< numSections; i++) {
+        // First try using section's internal density
+        if (sections[i]->getIntegral(Field::Density, state, value) == 0) {
+          total += wt[i]*value;
+        }
+        // if that didnt work, just multiply by our density
+        else if (sections[i]->getIntegral(Field::Unit, state, value) == 0) {
+          total += wt[i]*density;
+        }
+        else {
+          ; // TODO: This should be written to a log
+        }
+      }
+      return 0;
+    }
+
+    case Field::PolarInertia: {
+      for (int i=0; i< numSections; i++) {
+        double A;
+        if (sections[i]->getIntegral(Field::UnitYY, state, A) != 0)
+          continue;
+
+        // Get \int \rho y^2
+        double Iz;
+        if (sections[i]->getIntegral(Field::DensityYY, state, Iz) != 0) {
+          // Section does not allow integrating density; try
+          // integrating product of inertia and multiplying by rho
+          if (sections[i]->getIntegral(Field::UnitYY, state, Iz) == 0)
+            Iz *= density/A;
+          else
+            continue;
+        }
+        // Get \int \rho z^2
+        double Iy;
+        if (sections[i]->getIntegral(Field::DensityZZ, state, Iy) != 0) {
+          if (sections[i]->getIntegral(Field::UnitZZ, state, Iy) == 0)
+            Iy *= density/A;
+          else
+            continue;
+        }
+        total += wt[i]*(Iy + Iz);
+      }
+      return 0;
+    }
+
+    default:
+      return -1;
+  }
 }
 
 int
@@ -178,7 +250,7 @@ CubicFrame3d::update()
       };
       
       // Set the section deformations
-      err += theSections[i]->setTrialState<4, scheme>(e);
+      err += sections[i]->setTrialState<4, scheme>(e);
   }
 
   if (err != 0)
@@ -215,7 +287,7 @@ CubicFrame3d::getBasicTangent(State state, int rate)
 
     // Get the section tangent stiffness and stress resultant
 
-    const MatrixND<4,4,double> ks = theSections[i]->getTangent<4,scheme>(state);
+    const MatrixND<4,4,double> ks = sections[i]->getTangent<4,scheme>(state);
                
     // Perform numerical integration
     // kb.addMatrixTripleProduct(1.0, *B, ks, wts(i)/L);
@@ -254,8 +326,8 @@ CubicFrame3d::getBasicTangent(State state, int rate)
     }
 
     if (state != State::Init) {
-//    const Vector &s = theSections[i]->getStressResultant();
-      const VectorND<4,double> s = theSections[i]->getResultant<4,scheme>();
+//    const Vector &s = sections[i]->getStressResultant();
+      const VectorND<4,double> s = sections[i]->getResultant<4,scheme>();
       // q.addMatrixTransposeVector(1.0, *B, s, wts(i));
       q[0] += s[0]*wt[i];
       q[1] += (xi6-4.0)*s[1]*wt[i];
@@ -299,7 +371,7 @@ CubicFrame3d::sendSelf(int commitTag, Channel &theChannel)
       beamInt->setDbTag(beamIntDbTag);
   }
   data( 7) = beamIntDbTag;
-  data( 8) = rho;
+  data( 8) = density;
   data( 9) = cMass;
   data(10) = alphaM;
   data(11) = betaK;
@@ -331,11 +403,11 @@ CubicFrame3d::sendSelf(int commitTag, Channel &theChannel)
   ID idSections(2*numSections);
   loc = 0;
   for (int i = 0; i<numSections; i++) {
-    int sectClassTag = theSections[i]->getClassTag();
-    int sectDbTag = theSections[i]->getDbTag();
+    int sectClassTag = sections[i]->getClassTag();
+    int sectDbTag = sections[i]->getDbTag();
     if (sectDbTag == 0) {
       sectDbTag = theChannel.getDbTag();
-      theSections[i]->setDbTag(sectDbTag);
+      sections[i]->setDbTag(sectDbTag);
     }
 
     idSections(loc) = sectClassTag;
@@ -353,7 +425,7 @@ CubicFrame3d::sendSelf(int commitTag, Channel &theChannel)
   //
   
   for (int j = 0; j<numSections; j++) {
-    if (theSections[j]->sendSelf(commitTag, theChannel) < 0) {
+    if (sections[j]->sendSelf(commitTag, theChannel) < 0) {
       opserr << "CubicFrame3d::sendSelf() - section " << j << "failed to send itself\n";
       return -1;
     }
@@ -388,7 +460,7 @@ CubicFrame3d::recvSelf(int commitTag, Channel &theChannel,
   int beamIntClassTag = (int)data(6);
   int beamIntDbTag = (int)data(7);
   
-  rho = data(8);
+  density = data(8);
   cMass = (int)data(9);
   
   alphaM = data(10);
@@ -469,12 +541,12 @@ CubicFrame3d::recvSelf(int commitTag, Channel &theChannel,
     // delete the old
     if (numSections != 0) {
       for (int i=0; i<numSections; i++)
-        delete theSections[i];
-      delete [] theSections;
+        delete sections[i];
+      delete [] sections;
     }
 
     // create a new array to hold pointers
-    theSections = new FrameSection *[nSect];
+    sections = new FrameSection *[nSect];
 
     // create a section and recvSelf on it
     numSections = nSect;
@@ -485,14 +557,14 @@ CubicFrame3d::recvSelf(int commitTag, Channel &theChannel,
       int sectDbTag = idSections(loc+1);
       loc += 2;
       // TODO(cmp) add FrameSection to broker
-//    theSections[i] = theBroker.getNewSection(sectClassTag);
-      if (theSections[i] == 0) {
+//    sections[i] = theBroker.getNewSection(sectClassTag);
+      if (sections[i] == 0) {
         opserr << "CubicFrame3d::recvSelf() - Broker could not create Section of class type" <<
           sectClassTag << "\n";
         return -1;
       }
-      theSections[i]->setDbTag(sectDbTag);
-      if (theSections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
+      sections[i]->setDbTag(sectDbTag);
+      if (sections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
         opserr << "CubicFrame3d::recvSelf() - section " <<
           i << "failed to recv itself\n";
         return -1;
@@ -505,7 +577,6 @@ CubicFrame3d::recvSelf(int commitTag, Channel &theChannel,
     // for each existing section, check it is of correct type
     // (if not delete old & create a new one) then recvSelf on it
     //
-    
     loc = 0;
     for (int i=0; i<numSections; i++) {
       int sectClassTag = idSections(loc);
@@ -513,12 +584,12 @@ CubicFrame3d::recvSelf(int commitTag, Channel &theChannel,
       loc += 2;
 
       // check of correct type
-      if (theSections[i]->getClassTag() !=  sectClassTag) {
+      if (sections[i]->getClassTag() !=  sectClassTag) {
         // delete the old section[i] and create a new one
-        delete theSections[i];
+        delete sections[i];
       // TODO(cmp) add FrameSection to broker
-//      theSections[i] = theBroker.getNewSection(sectClassTag);
-        if (theSections[i] == 0) {
+//      sections[i] = theBroker.getNewSection(sectClassTag);
+        if (sections[i] == 0) {
           opserr << "CubicFrame3d::recvSelf() - Broker could not create Section of class type" <<
             sectClassTag << "\n";
           return -1;
@@ -526,8 +597,8 @@ CubicFrame3d::recvSelf(int commitTag, Channel &theChannel,
       }
 
       // recvSelf on it
-      theSections[i]->setDbTag(sectDbTag);
-      if (theSections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
+      sections[i]->setDbTag(sectDbTag);
+      if (sections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
         opserr << "CubicFrame3d::recvSelf() - section " << 
           i << "failed to recv itself\n";
         return -1;
@@ -543,32 +614,40 @@ CubicFrame3d::Print(OPS_Stream &s, int flag)
 {
 
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-            s << "\t\t\t{";
-            s << "\"name\": " << this->getTag() << ", ";
-            s << "\"type\": \"CubicFrame3d\"" << ", ";
-            s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "]";
-            s << ", ";
-            s << "\"massperlength\": " << rho ;
-            s << ", ";
-            s << "\"crdTransformation\": \"" << theCoordTransf->getTag();
-            s << ", ";
+        s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+        s << "\"name\": " << this->getTag() << ", ";
+        s << "\"type\": \"CubicFrame3d\"" << ", ";
+        s << "\"nodes\": [" << connectedExternalNodes(0) << ", " 
+                            << connectedExternalNodes(1) << "]";
+        s << ", ";
+        // Mass
+        double mass;
+        if (getIntegral(Field::Density, State::Init, mass) == 0)
+          s << ", \"mass\": " << mass << ", ";
+        else
+          s << ", \"massperlength\": " << density << ", ";
 
-            //
-            s << "\"sections\": [";
-            for (int i = 0; i < numSections - 1; i++)
-                    s << "\"" << theSections[i]->getTag() << "\", ";
-            s << "\"" << theSections[numSections - 1]->getTag() << "\"], ";
-            s << "\"integration\": ";
-            beamInt->Print(s, flag);
-            //
-            s << "\"}";
+
+        s << ", ";
+        s << "\"crdTransformation\": \"" << theCoordTransf->getTag();
+        s << ", ";
+
+        //
+        s << "\"sections\": [";
+        for (int i = 0; i < numSections - 1; i++)
+                s << "\"" << sections[i]->getTag() << "\", ";
+        s << "\"" << sections[numSections - 1]->getTag() << "\"], ";
+        s << "\"integration\": ";
+        beamInt->Print(s, flag);
+        //
+        s << "\"}";
     }
 
     if (flag == OPS_PRINT_CURRENTSTATE) {
           s << "\nCubicFrame3d, element id:  " << this->getTag() << "\n";
           s << "\tConnected external nodes:  " << connectedExternalNodes;
           s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
-          s << "\tmass density:  " << rho << ", cMass: " << cMass << "\n";
+          s << "\tmass density:  " << density << ", cMass: " << cMass << "\n";
 
           double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
           double L = theCoordTransf->getInitialLength();
@@ -591,10 +670,10 @@ CubicFrame3d::Print(OPS_Stream &s, int flag)
           beamInt->Print(s, flag);
 
           for (int i = 0; i < numSections; i++) {
-            //opserr << "Section Type: " << theSections[i]->getClassTag() << "\n";
-            theSections[i]->Print(s,flag);
+            //opserr << "Section Type: " << sections[i]->getClassTag() << "\n";
+            sections[i]->Print(s,flag);
           }
-          //  if (rho != 0)
+          //  if (density != 0)
           //    opserr << "Mass: \n" << this->getMass();
     }
 }
@@ -720,7 +799,7 @@ CubicFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
         output.attr("number",sectionNum+1);
         output.attr("eta",xi[sectionNum]*L);
         
-        theResponse = theSections[sectionNum]->setResponse(&argv[2], argc-2, output);
+        theResponse = sections[sectionNum]->setResponse(&argv[2], argc-2, output);
       }
     }
     
@@ -738,7 +817,7 @@ CubicFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
           output.attr("number",sectionNum);
           output.attr("eta",xi[sectionNum-1]*L);
           
-          theResponse =  theSections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
+          theResponse =  sections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
           
           output.endTag();
         } else if (sectionNum == 0) { // argv[1] was not an int, we want all sections, 
@@ -752,7 +831,7 @@ CubicFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
             output.attr("number",i+1);
             output.attr("eta",xi[i]*L);
             
-            Response *theSectionResponse = theSections[i]->setResponse(&argv[1], argc-1, output);
+            Response *theSectionResponse = sections[i]->setResponse(&argv[1], argc-1, output);
             
             output.endTag();          
             
@@ -864,7 +943,7 @@ CubicFrame3d::getResponse(int responseID, Information &eleInfo)
   else if (responseID == 110) {
     ID tags(numSections);
     for (int i = 0; i < numSections; i++)
-      tags(i) = theSections[i]->getTag();
+      tags(i) = sections[i]->getTag();
     return eleInfo.setID(tags);
   }
 
@@ -874,7 +953,7 @@ CubicFrame3d::getResponse(int responseID, Information &eleInfo)
       double L = this->getLength(State::Init);
       double energy = 0;
       for (int i = 0; i < numSections; i++)
-          energy += theSections[i]->getEnergy()*xi[i] * L;
+          energy += sections[i]->getEnergy()*xi[i] * L;
 
       return eleInfo.setDouble(energy);
     }
@@ -915,7 +994,7 @@ CubicFrame3d::setParameter(const char **argv, int argc, Parameter &param)
           sectionNum = i;
         }
       }  
-      return theSections[sectionNum]->setParameter(&argv[2], argc-2, param);
+      return sections[sectionNum]->setParameter(&argv[2], argc-2, param);
   }
 
   // If the parameter belongs to a section or lower
@@ -928,7 +1007,7 @@ CubicFrame3d::setParameter(const char **argv, int argc, Parameter &param)
     int sectionNum = atoi(argv[1]);
     
     if (sectionNum > 0 && sectionNum <= numSections)
-      return theSections[sectionNum-1]->setParameter(&argv[2], argc-2, param);
+      return sections[sectionNum-1]->setParameter(&argv[2], argc-2, param);
     else
       return -1;
   }
@@ -946,7 +1025,7 @@ CubicFrame3d::setParameter(const char **argv, int argc, Parameter &param)
   int result = -1;
 
   for (int i = 0; i < numSections; i++) {
-    ok = theSections[i]->setParameter(argv, argc, param);
+    ok = sections[i]->setParameter(argv, argc, param);
     if (ok != -1)
       result = ok;
   }
@@ -983,8 +1062,8 @@ CubicFrame3d::getResistingForceSensitivity(int gradNumber)
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
     
-    int order = theSections[i]->getOrder();
-    const ID &code = theSections[i]->getType();
+    int order = sections[i]->getOrder();
+    const ID &code = sections[i]->getType();
     
     //double xi6 = 6.0*pts(i,0);
     double xi6 = 6.0*xi[i];
@@ -992,7 +1071,7 @@ CubicFrame3d::getResistingForceSensitivity(int gradNumber)
     double wti = wt[i];
     
     // Get section stress resultant gradient
-    const Vector &dsdh = theSections[i]->getStressResultantSensitivity(gradNumber,true);
+    const Vector &dsdh = sections[i]->getStressResultantSensitivity(gradNumber,true);
     
     // Perform numerical integration on internal force gradient
     double sensi;
@@ -1040,16 +1119,14 @@ CubicFrame3d::getResistingForceSensitivity(int gradNumber)
     
     for (int i = 0; i < numSections; i++) {
       
-      int order = theSections[i]->getOrder();
-      const ID &code = theSections[i]->getType();
-      
-      //double xi6 = 6.0*pts(i,0);
+      int order = sections[i]->getOrder();
+      const ID &code = sections[i]->getType();
+
       double xi6 = 6.0*xi[i];
-      //double wti = wts(i);
       double wti = wt[i];
       
-      const Vector &s = theSections[i]->getStressResultant();
-      const Matrix &ks = theSections[i]->getSectionTangent();
+      const Vector &s = sections[i]->getStressResultant();
+      const Matrix &ks = sections[i]->getSectionTangent();
       
       Matrix ka(workArea, order, 6);
       ka.Zero();
@@ -1163,8 +1240,8 @@ CubicFrame3d::commitSensitivity(int gradNumber, int numGrads)
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
     
-    int order = theSections[i]->getOrder();
-    const ID &code = theSections[i]->getType();
+    int order = sections[i]->getOrder();
+    const ID &code = sections[i]->getType();
     
     Vector e(workArea, order);
     
@@ -1196,7 +1273,7 @@ CubicFrame3d::commitSensitivity(int gradNumber, int numGrads)
     }
     
     // Set the section deformations
-    theSections[i]->commitSensitivity(e,gradNumber,numGrads);
+    sections[i]->commitSensitivity(e,gradNumber,numGrads);
   }
   
   return 0;

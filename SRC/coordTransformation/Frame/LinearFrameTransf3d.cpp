@@ -30,7 +30,6 @@ using OpenSees::Matrix3D;
 using OpenSees::MatrixND;
 
 // initialize static variables
-// Matrix LinearFrameTransf3d::Tlg(12, 12);
 Matrix LinearFrameTransf3d::kg(12, 12);
 
 
@@ -752,8 +751,6 @@ LinearFrameTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
   pl[2] += p0[3];
   pl[8] += p0[4];
 
-
-
   static VectorND<12> pg;
   static Vector wrapper(pg);
 
@@ -761,6 +758,7 @@ LinearFrameTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 
   return wrapper;
 }
+
 
 const Matrix &
 LinearFrameTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
@@ -1071,8 +1069,6 @@ LinearFrameTransf3d::getGlobalMatrixFromLocal(const Matrix &ml)
 //static Matrix M(Kg);
 //Kg = pushConstant(kl);
 
-//this->compTransfMatrixLocalGlobal(Tlg);       // TODO: OPTIMIZE LATER
-//kg.addMatrixTripleProduct(0.0, Tlg, ml, 1.0); // TODO: OPTIMIZE LATER
   return kg;
 }
 
@@ -1128,8 +1124,10 @@ LinearFrameTransf3d::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
       ug[j + 6] -= nodeJInitialDisp[j];
   }
 
+  //
   // transform global end displacements to local coordinates
-  //ul.addMatrixVector(0.0, Tlg,  ug, 1.0);       //  ul = Tlg *  ug;
+  //  ul = Tlg *  ug;
+
   static double ul[12];
 
   ul[0] = R[0][0] * ug[0] + R[0][1] * ug[1] + R[0][2] * ug[2];
@@ -1200,8 +1198,10 @@ LinearFrameTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
       ug[j + 6] -= nodeJInitialDisp[j];
   }
 
+  //
   // transform global end displacements to local coordinates
-  //ul.addMatrixVector(0.0, Tlg,  ug, 1.0);       //  ul = Tlg *  ug;
+  //  ul = Tlg *  ug;
+
   static double ul[12];
 
   ul[0] = R[0][0] * ug[0] + R[0][1] * ug[1] + R[0][2] * ug[2];

@@ -12,30 +12,31 @@ target_sources(OPS_Transform
   PRIVATE
     CrdTransf.cpp
     LinearCrdTransf2d.cpp
-    LinearCrdTransf2d02.cpp
     LinearCrdTransf3d.cpp
-    LinearCrdTransf3d02.cpp
     PDeltaCrdTransf2d.cpp
     PDeltaCrdTransf3d.cpp
     CorotCrdTransf2d.cpp
     CorotCrdTransf3d.cpp
-    CorotCrdTransf3d02.cpp
     CorotCrdTransfWarping2d.cpp
     CorotCrdTransfWarping3d.cpp
     LinearCrdTransf2dInt.cpp
+#   LinearCrdTransf2d02.cpp
+#   LinearCrdTransf3d02.cpp
+#   CorotCrdTransf3d02.cpp
+
   PUBLIC
     CrdTransf.h
     LinearCrdTransf2d.h
-    LinearCrdTransf2d02.h
     LinearCrdTransf3d.h
-    LinearCrdTransf3d02.h
     PDeltaCrdTransf2d.h
     PDeltaCrdTransf3d.h
     CorotCrdTransf2d.h
     CorotCrdTransf3d.h
-    CorotCrdTransf3d02.h
     CorotCrdTransfWarping2d.h
     LinearCrdTransf2dInt.h
+#   LinearCrdTransf2d02.h
+#   LinearCrdTransf3d02.h
+#   CorotCrdTransf3d02.h
 
     ASDEICR.h
     ASDShellQ4CorotationalTransformation.h
@@ -45,3 +46,4 @@ target_sources(OPS_Transform
 
 target_include_directories(OPS_Transform PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 add_subdirectory(Frame)
+

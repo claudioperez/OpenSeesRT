@@ -16,16 +16,30 @@
 //
 // Adapted from: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 //
+
+#if __cplusplus >= 202302L
+    // C++23 (and later) code
+#  include <utility>
+   using std::unreachable;
+#else  
+# define GCC_VERSION (__GNUC__ * 10000 \
+                               + __GNUC_MINOR__ * 100 \
+                               + __GNUC_PATCHLEVEL__)
+# if GCC_VERSION >= 40500
+# define unreachable()  __builtin_unreachable()
+# else
+# define unreachable() do {;} while(0)
+# endif
+#endif
+
 #include <math.h>
-#include <Triad.h>
 
 #include <Node.h>
 #include <Channel.h>
 #include <elementAPI.h>
 #include <CorotFrameTransf3d.h>
 
-#include "RotationLibrary.h"
-
+#include <Triad.h>
 #include <Vector.h>
 #include <Matrix.h>
 #include <VectorND.h>
@@ -33,15 +47,14 @@
 #include <MatrixND.h>
 #include <Matrix3D.h>
 #include "blk3x12x3.h"
+#include "RotationLibrary.h"
 using namespace OpenSees;
 
 #undef OPS_STATIC
 #define OPS_STATIC // static 
 // initialize static variables
 Matrix CorotFrameTransf3d::Tp(6,7);
-Matrix CorotFrameTransf3d::kg(12,12);
-//Matrix CorotFrameTransf3d::Lr2(12,3);
-//Matrix CorotFrameTransf3d::Lr3(12,3);
+// Matrix CorotFrameTransf3d::kg(12,12);
 MatrixND<12,3> CorotFrameTransf3d::Lr2{};
 MatrixND<12,3> CorotFrameTransf3d::Lr3{};
 
@@ -130,11 +143,9 @@ getLMatrix(const Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const Vect
 }
 
 static inline const MatrixND<12,12> &
-// static inline const Matrix &
 getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double Ln, const Vector3D &ri, const Vector3D &z)
 {
     static MatrixND<12,12> ks2;
-//  static Matrix ks2(12,12);
 
     //  Ksigma2 = [ K11   K12 -K11   K12;
     //              K12t  K22 -K12t  K22;
@@ -158,7 +169,7 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
     OPS_STATIC Matrix rizt(3,3), rie1t(3,3);
     OPS_STATIC Matrix3D e1zt; // r1e1t(3,3),
 
-//  const Matrix3D e1zt = e1.bun(z);
+    //  const Matrix3D e1zt = e1.bun(z);
 
     // Chrystal's looping order
     for (int j = 0; j < 3; j++) {
@@ -181,7 +192,7 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
     OPS_STATIC Matrix3D ks;
     OPS_STATIC Matrix3D m1;
 
-    //K11 = U + U' + ri'*e1*(2*(e1'*z)+z'*r1)*A/(2*Ln);
+    // K11 = U + U' + ri'*e1*(2*(e1'*z)+z'*r1)*A/(2*Ln);
     ks.zero();
     ks.addMatrix(U, 1.0);
 
@@ -198,7 +209,7 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
     ks2.assemble(ks, 6, 0, -1.0);
     ks2.assemble(ks, 6, 6,  1.0);
 
-    //K12 = (1/4)*(-A*z*e1'*Sri - A*ri*z'*Sr1 - z'*(e1+r1)*A*Sri);
+    // K12 = (1/4)*(-A*z*e1'*Sri - A*ri*z'*Sr1 - z'*(e1+r1)*A*Sri);
     m1.zero();
     m1.addMatrixProduct(A, ze1t, -1.0);
     ks.zero();
@@ -253,13 +264,14 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
 // constructor:
 CorotFrameTransf3d::CorotFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
                                        const Vector &rigJntOffsetI,
-                                       const Vector &rigJntOffsetJ):
-  FrameTransform3d(tag, CRDTR_TAG_CorotFrameTransf3d),
-  vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
-  nodeIPtr(0), nodeJPtr(0), L(0), Ln(0),
-  alphaI(3), alphaJ(3),
-  ulcommit(7), ul(7),  ulpr(7), // T(7,12),
-  nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
+                                       const Vector &rigJntOffsetJ)
+  : FrameTransform3d(tag, CRDTR_TAG_CorotFrameTransf3d),
+    vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
+    L(0), Ln(0),
+    alphaI(3), alphaJ(3),
+    ulcommit(7), ul(7),  ulpr(7),
+    nodeIInitialDisp(0), nodeJInitialDisp(0),
+    initialDispChecked(false)
 {
     // check vector that defines local xz plane
     if (vecInLocXZPlane.Size() != 3 ) {
@@ -319,7 +331,7 @@ CorotFrameTransf3d::CorotFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
     // using static matrix (one constant matrix for all objects)
 
     if (Tp(0, 6) == 0) {
-      // initialize only once
+        // initialize only once
         Tp(0, 6) =  1;
         Tp(1, 1) =  1;
         Tp(2, 4) =  1;
@@ -336,7 +348,7 @@ CorotFrameTransf3d::CorotFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
 CorotFrameTransf3d::CorotFrameTransf3d():
   FrameTransform3d(0, CRDTR_TAG_CorotFrameTransf3d),
   vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
-  nodeIPtr(0), nodeJPtr(0), L(0), Ln(0),
+  L(0), Ln(0),
 //  alphaIq(4), alphaJq(4),  alphaIqcommit(4), alphaJqcommit(4), 
   alphaI(3), alphaJ(3),
   ulcommit(7), ul(7),  ulpr(7), // T(7,12),
@@ -406,8 +418,8 @@ CorotFrameTransf3d::getCopy()
     return 0;
   }
 
-  theCopy->nodeIPtr = nodeIPtr;
-  theCopy->nodeJPtr = nodeJPtr;
+  theCopy->nodes[0] = nodes[0];
+  theCopy->nodes[1] = nodes[1];
   theCopy->xAxis = xAxis;
   theCopy->L  = L;
   theCopy->Ln = Ln;
@@ -438,8 +450,8 @@ int
 CorotFrameTransf3d::revertToLastCommit()
 {
     // determine global displacement increments from last iteration
-    const Vector &dispI = nodeIPtr->getTrialDisp();
-    const Vector &dispJ = nodeJPtr->getTrialDisp();
+    const Vector &dispI = nodes[0]->getTrialDisp();
+    const Vector &dispJ = nodes[1]->getTrialDisp();
 
     for (int k = 0; k < 3; k++) {
       alphaI(k) =  dispI(k+3);
@@ -486,10 +498,10 @@ CorotFrameTransf3d::initialize(Node *nodeIPointer, Node *nodeJPointer)
 {
     int error;
 
-    nodeIPtr = nodeIPointer;
-    nodeJPtr = nodeJPointer;
+    nodes[0] = nodeIPointer;
+    nodes[1] = nodeJPointer;
 
-    if ((!nodeIPtr) || (!nodeJPtr)) {
+    if ((!nodes[0]) || (!nodes[1])) {
       opserr << "\nCorotFrameTransf3d::initialize";
       opserr << "\ninvalid pointers to the element nodes\n";
       return -1;
@@ -497,8 +509,8 @@ CorotFrameTransf3d::initialize(Node *nodeIPointer, Node *nodeJPointer)
 
     // see if there is some initial displacements at nodes
     if (initialDispChecked == false) {
-      const Vector &nodeIDisp = nodeIPtr->getDisp();
-      const Vector &nodeJDisp = nodeJPtr->getDisp();
+      const Vector &nodeIDisp = nodes[0]->getDisp();
+      const Vector &nodeJDisp = nodes[1]->getDisp();
       for (int i = 0; i<6; i++)
       if (nodeIDisp(i) != 0.0) {
         nodeIInitialDisp = new double [6];
@@ -711,8 +723,8 @@ CorotFrameTransf3d::update()
     /********* OLD REMO - REPLACED BELOW TO FIX BUG ***************/
 #if 0
     // determine global displacement increments from last iteration
-    const Vector &dispIncrI = nodeIPtr->getIncrDeltaDisp();
-    const Vector &dispIncrJ = nodeJPtr->getIncrDeltaDisp();
+    const Vector &dispIncrI = nodes[0]->getIncrDeltaDisp();
+    const Vector &dispIncrJ = nodes[1]->getIncrDeltaDisp();
 
      // get the iterative spins dAlphaI and dAlphaJ
      // (rotational displacement increments at both nodes)
@@ -730,8 +742,8 @@ CorotFrameTransf3d::update()
     // determine global displacement increments from last iteration
     static Vector dispI(6);
     static Vector dispJ(6);
-    dispI = nodeIPtr->getTrialDisp();
-    dispJ = nodeJPtr->getTrialDisp();
+    dispI = nodes[0]->getTrialDisp();
+    dispJ = nodes[1]->getTrialDisp();
 
     if (nodeIInitialDisp != 0) {
       for (int j = 0; j<6; j++)
@@ -805,7 +817,7 @@ CorotFrameTransf3d::update()
 
     // element projection
     OPS_STATIC Vector3D xJI;
-    xJI  = nodeJPtr->getCrds() - nodeIPtr->getCrds();
+    xJI  = nodes[1]->getCrds() - nodes[0]->getCrds();
 
     if (nodeIInitialDisp != nullptr) {
       xJI[0] -= nodeIInitialDisp[0];
@@ -1505,6 +1517,7 @@ CorotFrameTransf3d::addTangent(MatrixND<12,12>& kg, const VectorND<12>& pl)
           case 0: factor =  pl[6*node+0+3] * tan(ul[3*node+k]); break;
           case 1: factor =  pl[6*node+2+3] * tan(ul[3*node+k]); break;
           case 2: factor = -pl[6*node+1+3] * tan(ul[3*node+k]); break;
+          default: unreachable();
         }
         for (int i = 0; i < 12; i++) {
           const double Tki = T(3*node+k,i);
@@ -1524,7 +1537,7 @@ CorotFrameTransf3d::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
 
     static Vector dx(3);
 
-    dx = (nodeJPtr->getCrds() + nodeJOffset) - (nodeIPtr->getCrds() + nodeIOffset);
+    dx = (nodes[1]->getCrds() + nodeJOffset) - (nodes[0]->getCrds() + nodeIOffset);
     if (nodeIInitialDisp != 0) {
         dx(0) -= nodeIInitialDisp[0];
         dx(1) -= nodeIInitialDisp[1];

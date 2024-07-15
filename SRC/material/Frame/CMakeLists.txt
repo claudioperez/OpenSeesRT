@@ -4,10 +4,17 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
+target_sources(OPS_Runtime
+  PRIVATE
+    commands.cpp
+)
+
 target_sources(OPS_Material
   PRIVATE
+    FrameFiberSection3d.cpp
     ElasticLinearFrameSection3d.cpp
   PUBLIC
+    FrameFiberSection3d.h
     ElasticLinearFrameSection3d.h
 )
 

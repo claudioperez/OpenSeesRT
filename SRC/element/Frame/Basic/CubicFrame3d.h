@@ -1,7 +1,8 @@
-/* ------------------------------------------------------------------ *
-      OpenSees - Open System for Earthquake Engineering Simulation      
-            Pacific Earthquake Engineering Research Center              
- * ------------------------------------------------------------------ */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the class definition for CubicFrame3d.
 // The element displacement field gives rise to constant axial strain,
@@ -18,7 +19,6 @@
 #include <FrameSection.h>
 
 class Node;
-// class FrameSection;
 class FrameTransform3d;
 class BeamIntegration;
 class Response;
@@ -29,7 +29,7 @@ class CubicFrame3d : public BasicFrame3d
     CubicFrame3d(int tag, std::array<int,2>& nodes,
                      int numSections, FrameSection **s,
                      BeamIntegration &bi, FrameTransform3d &coordTransf,
-                     double rho = 0.0, int cMass=0, int rz=0, int ry=0);
+                     double rho, int mass_flag);
     CubicFrame3d();
     ~CubicFrame3d();
 
@@ -37,7 +37,7 @@ class CubicFrame3d : public BasicFrame3d
     static constexpr const char* class_name = "CubicFrame3d";
 
 
-    // public methods to set the state of the element    
+    // public methods to set the state of the element   
     int commitState();
     int revertToLastCommit();
     int revertToStart();
@@ -63,7 +63,7 @@ class CubicFrame3d : public BasicFrame3d
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
     int getResponse(int responseID, Information &eleInfo);
 
-    // AddingSensitivity:BEGIN //////////////////////////////////////////
+
     virtual int setParameter(const char **argv, int argc, Parameter &param) final;
 //  virtual int            updateParameter(int parameterID, Information &info);
 //  virtual int            activateParameter(int parameterID) final;
@@ -71,8 +71,9 @@ class CubicFrame3d : public BasicFrame3d
     virtual const Matrix & getInitialStiffSensitivity(int gradNumber);
 //  virtual const Matrix & getMassSensitivity(int gradNumber);
     virtual int            commitSensitivity(int gradNumber, int numGrads);
-    // AddingSensitivity:END ///////////////////////////////////////////
 
+
+    virtual int getIntegral(Field field, State state, double& total);
 protected:
     // For BasicFrame3d
     virtual  OpenSees::VectorND<6>&   getBasicForce() final;
@@ -84,14 +85,14 @@ private:
 //  const Matrix &getInitialBasicStiff();
 
     int numSections;
-    FrameSection **theSections; // pointer to the ND material objects
+    FrameSection **sections; // vector of sections
     BeamIntegration *beamInt;
 
-//  Vector q;           // Basic force
     OpenSees::MatrixND<6,6> kb;
     OpenSees::VectorND<6>   q;
 
-    double rho;         // Mass density per unit length
+    double density;         // Mass density per unit length
+    int mass_flag;
 
     constexpr static int max_nip = 20;
     double xi[max_nip];
@@ -99,7 +100,6 @@ private:
 
     static double workArea[];
 
-//  static constexpr int scheme[] = {
     static constexpr FrameStressLayout scheme = {
       FrameStress::N,
       FrameStress::Mz,

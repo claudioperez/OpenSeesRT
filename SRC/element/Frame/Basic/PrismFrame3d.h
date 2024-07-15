@@ -1,10 +1,14 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Purpose: This file contains the class definition for PrismFrame3d.
 // PrismFrame3d is a plane frame member.
+//
+// RELEASES
+// [ ] 
 //
 // Written: cmp 2024
 //
@@ -33,12 +37,12 @@ class PrismFrame3d : public BasicFrame3d
                  double A, double E, double G, 
 		             double Jx, double Iy, double Iz,
                  FrameTransform3d &theTransf,
-                 double rho = 0.0, int cMass = 0,
-		             int releasez = 0, int releasey = 0);
+                 double rho, int cMass,
+		             int releasez, int releasey);
 
-    PrismFrame3d(int tag, std::array<int,2>&, FrameSection *section, 
-		  FrameTransform3d &theTransf, double rho = 0.0, int cMass = 0,
-		  int releasez = 0, int releasey = 0);
+    PrismFrame3d(int tag, std::array<int,2>&, FrameSection &section, 
+		  FrameTransform3d &theTransf, double rho, int cMass,
+		  int releasez, int releasey);
 
 //  ~PrismFrame3d();
 
@@ -59,11 +63,11 @@ class PrismFrame3d : public BasicFrame3d
     
     void Print(OPS_Stream &s, int flag =0);    
 
-    Response *setResponse (const char **argv, int argc, OPS_Stream &s);
-    int getResponse (int responseID, Information &info);
+    Response *setResponse(const char **argv, int argc, OPS_Stream &s);
+    int getResponse(int responseID, Information &info);
  
-    virtual int setParameter (const char **argv, int argc, Parameter &param) final;
-    virtual int updateParameter (int parameterID, Information &info) final;
+    virtual int setParameter(const char **argv, int argc, Parameter &param) final;
+    virtual int updateParameter(int parameterID, Information &info) final;
 
   protected:
     // For BasicFrame3d
@@ -78,12 +82,19 @@ class PrismFrame3d : public BasicFrame3d
     double A,E,G,Jx,Iy,Iz,rho;
     double L;
 
+    int mass_flag;
+    double total_mass,
+           twist_mass;
+
     int geom_flag = 0; 
+    int releasez; // moment release for bending about z-axis 0=none, 1=I, 2=J, 3=I,J
+    int releasey; // same for y-axis
 
     OpenSees::MatrixND<6,6> ke;
     OpenSees::MatrixND<6,6> km;
     OpenSees::MatrixND<6,6> kg;
     OpenSees::VectorND<6>   q;
+
 
 };
 

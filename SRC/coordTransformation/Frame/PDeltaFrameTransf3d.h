@@ -25,8 +25,8 @@ class PDeltaFrameTransf3d: public FrameTransform3d
 public:
     PDeltaFrameTransf3d(int tag, const Vector &vecInLocXZPlane);
     PDeltaFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
-        const Vector &rigJntOffsetI,
-        const Vector &rigJntOffsetJ);
+                        const Vector &rigJntOffsetI,
+                        const Vector &rigJntOffsetJ);
     
     PDeltaFrameTransf3d();
     ~PDeltaFrameTransf3d();
@@ -89,10 +89,10 @@ private:
     double ul17;         // Transverse local displacement offsets of P-Delta
     double ul28;
 
-//  static Matrix Tlg;  // matrix that transforms from global to local coordinates
     static Matrix kg;   // global stiffness matrix
 
-    double *nodeIInitialDisp, *nodeJInitialDisp;
+    double *nodeIInitialDisp,
+           *nodeJInitialDisp;
     bool initialDispChecked;
 };
 

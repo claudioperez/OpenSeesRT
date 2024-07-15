@@ -1,7 +1,16 @@
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
+// Written: cmp
+//
 #ifndef FrameTransform_h
 #define FrameTransform_h
 
 #include <vector>
+#include <stdexcept>
 #include <VectorND.h>
 #include <MatrixND.h>
 #include <CrdTransf.h>
@@ -52,6 +61,7 @@ public:
   }
   virtual VectorND<12>    pushConstant(const VectorND<12>&pl) const {
     static VectorND<12> empty{};
+//  throw std::runtime_error("");
     return empty;
   }
   virtual MatrixND<12,12> pushVariable(MatrixND<12,12>& kl, const VectorND<12>& pl) {
@@ -163,6 +173,7 @@ protected:
     static std::vector<int> l(0);
     return l;
   }
+
   virtual const Layout& getNodeLayout() const {
     static std::vector<int> l(0);
     return l;

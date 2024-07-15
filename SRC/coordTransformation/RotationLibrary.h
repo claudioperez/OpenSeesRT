@@ -1,3 +1,11 @@
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
+// Written: cmp
+//
 #pragma once
 #include <VectorND.h>
 #include <Vector3D.h>

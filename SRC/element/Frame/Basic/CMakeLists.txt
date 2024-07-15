@@ -11,6 +11,8 @@ target_sources(OPS_Element
       PrismFrame3d.cpp
       CubicFrame3d.cpp
       ForceFrame3d.cpp
+      ForceDeltaFrame3d.cpp
+      DisplEulerFrame3d.cpp
     PUBLIC
       PrismFrame3d.h
       CubicFrame3d.h

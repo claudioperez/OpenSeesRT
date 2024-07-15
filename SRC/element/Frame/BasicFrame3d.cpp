@@ -1,3 +1,9 @@
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
 #include <Node.h>
 #include <Parameter.h>
 #include <element/Frame/BasicFrame3d.h>
@@ -13,6 +19,17 @@ BasicFrame3d::~BasicFrame3d()
   if (theCoordTransf)
     delete theCoordTransf;
 }
+
+int
+BasicFrame3d::update()
+{
+  if (this->getIntegral(Field::Density, State::Init, total_mass) != 0)
+    ;
+  if (this->getIntegral(Field::PolarInertia, State::Init, twist_mass) != 0)
+    ;
+  return 0;
+}
+
 
 VectorND<12>
 BasicFrame3d::getForce(State state, int rate)
@@ -33,18 +50,9 @@ BasicFrame3d::getLength(State state)
 }
 
 
-double
-BasicFrame3d::getTotalMass()
-{
-  MatrixND<6,6>& mb = this->getBasicTangent(State::Pres, 2);
-  return mb(0,0);
-}
-
-
 int
 BasicFrame3d::setNodes()
 {
-
   if (theCoordTransf->initialize(theNodes[0], theNodes[1]) != 0) {
       opserr << "PrismFrame3d::setDomain  tag: " 
              << this->getTag()
@@ -52,16 +60,137 @@ BasicFrame3d::setNodes()
       return -1;
   }
 
-  mass = this->getTotalMass();
-
   return 0;
+}
+
+const Vector &
+BasicFrame3d::getResistingForce()
+{
+  VectorND<6> q  = this->getBasicForce();
+
+//    q += q0; // TODO!!! move this into PrismFrame and maybe DisplFrame 
+
+  double q0 = q[0];
+  double q1 = q[1];
+  double q2 = q[2];
+  double q3 = q[3];
+  double q4 = q[4];
+  double q5 = q[5];
+
+  double oneOverL = 1.0 / theCoordTransf->getInitialLength();
+
+  static VectorND<12> pl;
+  pl[0]  = -q0;                    // Ni
+  pl[1]  =  oneOverL * (q1 + q2);  // Viy
+  pl[2]  = -oneOverL * (q3 + q4);  // Viz
+  pl[3]  = -q5;                    // Ti
+  pl[4]  =  q3;
+  pl[5]  =  q1;
+  pl[6]  =  q0;                    // Nj
+  pl[7]  = -pl[1];                 // Vjy
+  pl[8]  = -pl[2];                 // Vjz
+  pl[9]  = q5;                     // Tj
+  pl[10] = q4;
+  pl[11] = q2;
+
+  static VectorND<12> pf{0.0};
+  pf[0] = p0[0];
+  pf[1] = p0[1];
+  pf[7] = p0[2];
+  pf[2] = p0[3];
+  pf[8] = p0[4];
+
+//    const Vector p0Vec(p0);
+//    P = theCoordTransf->getGlobalResistingForce(q, p0Vec);
+  pg  = theCoordTransf->pushVariable(pl);
+  pg += theCoordTransf->pushConstant(pf);
+  P.setData(pg);
+
+  // Subtract other external nodal loads ... P_res = P_int - P_ext
+  if (total_mass != 0.0)
+    P.addVector(1.0, p_iner, -1.0);
+
+  return P;
+}
+
+const Matrix &
+BasicFrame3d::getTangentStiff()
+{
+  VectorND<6>   q  = this->getBasicForce();
+  MatrixND<6,6> kb = this->getBasicTangent(State::Pres, 0);
+//    q += q0; // TODO!!! move this into PrismFrame and maybe DisplFrame
+
+  double q0 = q[0];
+  double q1 = q[1];
+  double q2 = q[2];
+  double q3 = q[3];
+  double q4 = q[4];
+  double q5 = q[5];
+
+  double oneOverL = 1.0 / theCoordTransf->getInitialLength();
+
+  static VectorND<12> pl;
+  pl[0]  = -q0;                    // Ni
+  pl[1]  =  oneOverL * (q1 + q2);  // Viy
+  pl[2]  = -oneOverL * (q3 + q4);  // Viz
+  pl[3]  = -q5;                    // Ti
+  pl[4]  =  q3;
+  pl[5]  =  q1;
+  pl[6]  =  q0;                    // Nj
+  pl[7]  = -pl[1];                 // Vjy
+  pl[8]  = -pl[2];                 // Vjz
+  pl[9]  =  q5;                    // Tj
+  pl[10] =  q4;
+  pl[11] =  q2;
+  
+
+  // Transform basic stiffness to local system
+  static MatrixND<12,12> kl;  // Local stiffness
+  static double tmp[12][12];  // Temporary storage
+  // First compute kb*T_{bl}
+  for (int i = 0; i < 6; i++) {
+    tmp[i][ 0] = -kb(i, 0);
+    tmp[i][ 1] =  oneOverL * (kb(i, 1) + kb(i, 2));
+    tmp[i][ 2] = -oneOverL * (kb(i, 3) + kb(i, 4));
+    tmp[i][ 3] = -kb(i, 5);
+    tmp[i][ 4] =  kb(i, 3);
+    tmp[i][ 5] =  kb(i, 1);
+    tmp[i][ 6] =  kb(i, 0);
+    tmp[i][ 7] = -tmp[i][1];
+    tmp[i][ 8] = -tmp[i][2];
+    tmp[i][ 9] =  kb(i, 5);
+    tmp[i][10] =  kb(i, 4);
+    tmp[i][11] =  kb(i, 2);
+  }
+
+  // Now compute T'_{bl}*(kb*T_{bl})
+  for (int i = 0; i < 12; i++) {
+    kl( 0, i) = -tmp[0][i];
+    kl( 1, i) =  oneOverL * (tmp[1][i] + tmp[2][i]);
+    kl( 2, i) = -oneOverL * (tmp[3][i] + tmp[4][i]);
+    kl( 3, i) = -tmp[5][i];
+    kl( 4, i) = tmp[3][i];
+    kl( 5, i) = tmp[1][i];
+    kl( 6, i) = tmp[0][i];
+    kl( 7, i) = -kl(1, i);
+    kl( 8, i) = -kl(2, i);
+    kl( 9, i) = tmp[5][i];
+    kl(10, i) = tmp[4][i];
+    kl(11, i) = tmp[2][i];
+  }
+
+
+  static MatrixND<12,12> Kg;
+  static Matrix Wrapper(Kg);
+  Kg = theCoordTransf->pushVariable(kl, pl);
+  return Wrapper;
 }
 
 
 int
 BasicFrame3d::addInertiaLoadToUnbalance(const Vector &accel)
 {
-  if (mass == 0.0)
+  if (total_mass == 0.0)
     return 0;
 
   // get R * accel from the nodes
@@ -76,7 +205,7 @@ BasicFrame3d::addInertiaLoadToUnbalance(const Vector &accel)
   // want to add ( - fact * M R * accel ) to unbalance
   if (cMass == 0)  {
     // take advantage of lumped mass matrix
-    double m = 0.5*mass;
+    double m = 0.5*total_mass;
 
     p_iner[0] -= m * Raccel1(0);
     p_iner[1] -= m * Raccel1(1);
@@ -108,11 +237,9 @@ BasicFrame3d::getResistingForceIncInertia()
   // add the damping forces if rayleigh damping
   if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0)
     P.addVector(1.0, this->getRayleighDampingForces(), 1.0);
-    
 
-  double mass = this->getTotalMass();
 
-  if (mass == 0.0)
+  if (total_mass == 0.0)
     return P;
 
   // add inertia forces from element mass
@@ -121,7 +248,7 @@ BasicFrame3d::getResistingForceIncInertia()
     
   if (cMass == 0)  {
     // take advantage of lumped mass matrix
-    double m = 0.5*mass;
+    double m = 0.5*total_mass;
 
     P(0) += m * accel1(0);
     P(1) += m * accel1(1);
@@ -154,13 +281,12 @@ const Matrix &
 BasicFrame3d::getMass()
 { 
     K.Zero();
-    
 
-    if (mass > 0.0) {
+    if (total_mass > 0.0) {
 //
         if (cMass == 0)  {
             // lumped mass matrix
-            double m = 0.5*mass;
+            double m = 0.5*total_mass;
             K(0,0) = m;
             K(1,1) = m;
             K(2,2) = m;
@@ -169,16 +295,18 @@ BasicFrame3d::getMass()
             K(8,8) = m;
 
         } else  {
-        // get initial element length
-            double L = this->getLength(State::Init);
-            double m = mass/420.0;
-            // consistent mass matrix
-            static Matrix ml(12,12);
-//          double m = rho*L/420.0;
+            // consistent (cubic) mass matrix
+
+            // get initial element length
+            double L  = this->getLength(State::Init);
+            double m  = total_mass/420.0;
+            double mx = twist_mass;
+            static MatrixND<12,12> ml{0};
             ml(0,0) = ml(6,6) = m*140.0;
             ml(0,6) = ml(6,0) = m*70.0;
-//          ml(3,3) = ml(9,9) = m*(Jx/A)*140.0; // TODO!!!! (Torsional mass)
-//          ml(3,9) = ml(9,3) = m*(Jx/A)*70.0;
+
+            ml(3,3) = ml(9,9) = mx/3.0; // Twisting
+            ml(3,9) = ml(9,3) = mx/6.0;
 
             ml( 2, 2) = ml( 8, 8) =  m*156.0;
             ml( 2, 8) = ml( 8, 2) =  m*54.0;
@@ -209,7 +337,7 @@ BasicFrame3d::getMass()
 void 
 BasicFrame3d::zeroLoad()
 {
-  numEleLoads = 0;
+  eleLoads.clear();
 
   p_iner.Zero();
   q0.zero();
@@ -227,28 +355,7 @@ BasicFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
   //
   // a. Store the load for computeReactions()
   //
-  if (numEleLoads == sizeEleLoads) {
-
-    // create larger arrays, copy old, delete old & set as new
-    ElementalLoad ** theNextEleLoads = new ElementalLoad *[sizeEleLoads+1];
-    double *theNextEleLoadFactors = new double[sizeEleLoads+1];
-    for (int i=0; i<numEleLoads; i++) {
-      theNextEleLoads[i] = eleLoads[i];
-      theNextEleLoadFactors[i] = eleLoadFactors[i];
-    }
-
-    delete [] eleLoads;
-    delete [] eleLoadFactors;
-    eleLoads = theNextEleLoads;
-    eleLoadFactors = theNextEleLoadFactors;  
-
-    // increment array size
-    sizeEleLoads+=1;
-  }
-
-  eleLoadFactors[numEleLoads] = loadFactor;
-  eleLoads[numEleLoads] = theLoad;
-  numEleLoads++;
+  eleLoads.push_back({theLoad, loadFactor});
 
   //
   // b. Add to p0.
@@ -400,7 +507,7 @@ BasicFrame3d::getMassSensitivity(int gradNumber)
   // From DispBeamColumn
   K.Zero();
   
-  if (mass == 0.0 || parameterID != 1)
+  if (total_mass == 0.0 || parameterID != 1)
     return K;
   
   double L = theCoordTransf->getInitialLength();
@@ -516,15 +623,14 @@ BasicFrame3d::computeReactions(double* p0)
   int type;
   double L = theCoordTransf->getInitialLength();
 
-  for (int i = 0; i < numEleLoads; i++) {
+  for (auto[load, loadFactor] : eleLoads) {
 
-    double loadFactor   = eleLoadFactors[i];
-    const  Vector& data = eleLoads[i]->getData(type, loadFactor);
+    const  Vector& data = load->getData(type, loadFactor);
 
     if (type == LOAD_TAG_Beam3dUniformLoad) {
-      double wy = data(0) * loadFactor; // Transverse
-      double wz = data(1) * loadFactor; // Transverse
-      double wa = data(2) * loadFactor; // Axial
+      double wy = data[0] * loadFactor; // Transverse
+      double wz = data[1] * loadFactor; // Transverse
+      double wa = data[2] * loadFactor; // Axial
 
       p0[0] -= wa * L;
       double V = 0.5 * wy * L;
@@ -536,11 +642,11 @@ BasicFrame3d::computeReactions(double* p0)
 
     } else if (type == LOAD_TAG_Beam3dPartialUniformLoad) {
 
-      double wy = data(0) * loadFactor; // Transverse
-      double wz = data(1) * loadFactor; // Transverse
-      double wa = data(2) * loadFactor; // Axial
-      double a  = data(3) * L;
-      double b  = data(4) * L;
+      double wy = data[0] * loadFactor; // Transverse
+      double wz = data[1] * loadFactor; // Transverse
+      double wa = data[2] * loadFactor; // Axial
+      double a  = data[3] * L;
+      double b  = data[4] * L;
 
       p0[0] -= wa * (b - a);
       double Fy = wy * (b - a);
@@ -581,16 +687,19 @@ BasicFrame3d::computeReactionSensitivity(double* dp0dh, int gradNumber)
 
   double dLdh = theCoordTransf->getdLdh();
 
-  for (int i = 0; i < numEleLoads; i++) {
+//for (int i = 0; i < numEleLoads; i++) {
+  for (auto[load, loadFactor] : eleLoads) {
 
-    const Vector& data = eleLoads[i]->getData(type, 1.0);
+//  ElementalLoad& load = *eleLoads[i];
+
+    const Vector& data = load->getData(type, 1.0);
 
     if (type == LOAD_TAG_Beam3dUniformLoad) {
       double wy = data(0) * 1.0; // Transverse
       double wz = data(1) * 1.0; // Transverse
       double wa = data(2) * 1.0; // Axial
 
-      const Vector& sens = eleLoads[i]->getSensitivityData(gradNumber);
+      const Vector& sens = load->getSensitivityData(gradNumber);
       double dwydh       = sens(0);
       double dwzdh       = sens(1);
       double dwadh       = sens(2);
@@ -616,7 +725,7 @@ BasicFrame3d::computeReactionSensitivity(double* dp0dh, int gradNumber)
       if (aOverL < 0.0 || aOverL > 1.0)
         continue;
 
-      const Vector& sens = eleLoads[i]->getSensitivityData(gradNumber);
+      const Vector& sens = load->getSensitivityData(gradNumber);
       double dPydh       = sens(0);
       double dPzdh       = sens(1);
       double dNdh        = sens(2);

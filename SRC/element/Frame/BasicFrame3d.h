@@ -1,39 +1,39 @@
-#pragma once
-
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
+#pragma  once
+#include <Field.h>
+#include <State.h>
 #include <Frame/FiniteElement.h>
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 
 #include <Matrix.h>
 #include <MatrixND.h>
 #include <Vector.h>
 #include <VectorND.h>
 #include <ElementalLoad.h>
+#include <vector>
+#include <utility>
 
 using namespace OpenSees;
-
 
 class BasicFrame3d : public FiniteElement<2, 3, 6> {
   constexpr static int ndm = 3;
 
   public:
     virtual ~BasicFrame3d();
-    BasicFrame3d(int tag, int clstag, std::array<int, 2> &nodes, CrdTransf& tran,
-                 int cMass_, int rz, int ry)
-      : FiniteElement<2, 3, 6> (tag, clstag, nodes), theCoordTransf(tran.getCopy3d()),
+    BasicFrame3d(int tag, int clstag, std::array<int, 2> &nodes, 
+                 FrameTransform3d& tran)
+      : FiniteElement<2, 3, 6> (tag, clstag, nodes), theCoordTransf(tran.getCopy()),
         p_iner(12),
-        releasez(rz), releasey(ry),
-        cMass(cMass_), mass(0.0),
         wx(0.0), wy(0.0), wz(0.0),
-        numEleLoads(0), sizeEleLoads(0), eleLoads(0), eleLoadFactors(0),
+        // numEleLoads(0), // sizeEleLoads(0), eleLoads(0), eleLoadFactors(0),
         parameterID(0)
     {
         zeroLoad();
-
-        // Make no release if input not 0, 1, 2, or 3
-        if (releasez < 0 || releasez > 3)
-          releasez = 0;
-        if (releasey < 0 || releasey > 3)
-          releasey = 0;  
 
         if (theCoordTransf == nullptr) {
           opserr << "PrismFrame3d::PrismFrame3d -- failed to get copy of coordinate transformation\n";
@@ -41,19 +41,23 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
     }
 
     BasicFrame3d(int tag, int classtag)
-      : FiniteElement<2, 3, 6> (tag, classtag), theCoordTransf(nullptr), p_iner(12), mass(0.0),
-        releasez(0), releasey(0),
+      : FiniteElement<2, 3, 6> (tag, classtag), theCoordTransf(nullptr), 
+        p_iner(12), 
         wx(0.0), wy(0.0), wz(0.0),
-        numEleLoads(0), sizeEleLoads(0), eleLoads(0), eleLoadFactors(0),
+        // numEleLoads(0), // sizeEleLoads(0), eleLoads(0), eleLoadFactors(0),
         parameterID(0)
     {
         zeroLoad();
     }
 
+    // FrameElement
+    virtual int getIntegral(Field field, State state, double& total) {
+      return -1;
+    }
+
     //
     // For FiniteElement
     //
-    virtual double          getTotalMass() final;
     virtual int             setNodes();
     virtual VectorND<12>    getForce(State state, int rate) override final;
     virtual MatrixND<12,12> getTangent(State state, int rate) override final {
@@ -64,12 +68,18 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
     //
     // For Element
     //
-    virtual void zeroLoad() final;
-    virtual int addLoad(ElementalLoad *theLoad, double loadFactor) final;
-    virtual int         addInertiaLoadToUnbalance(const Vector &accel) final;
+    virtual int   update();
+    virtual const Matrix &getTangentStiff() final;
+    virtual const Vector &getResistingForce() final;
+
+    virtual void  zeroLoad() final;
+    virtual int   addLoad(ElementalLoad *theLoad, double loadFactor) final;
+
+    virtual int   addInertiaLoadToUnbalance(const Vector &accel) final;
     virtual const Vector &getResistingForceIncInertia() final;
     virtual const Matrix &getInitialStiff() final;
     virtual const Matrix &getMass() final;
+
     // Sensitivity
     const Matrix & getMassSensitivity(int gradNumber);
     virtual int setParameter(const char **argv, int argc, Parameter &param);
@@ -77,44 +87,12 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
     virtual int            activateParameter(int parameterID);
 
 
-    const Matrix &
-    getTangentStiff() final
-    {
-      VectorND<6>   q  = this->getBasicForce();
-      MatrixND<6,6> km = this->getBasicTangent(State::Pres, 0);
-      
-//    q += q0; // TODO!!! move this into PrismFrame and maybe DisplFrame
-
-      // TODO
-      const Matrix ktemp(km);
-      const Vector qtemp(q);
-      return theCoordTransf->getGlobalStiffMatrix(ktemp,qtemp);
-    }
-
-
-    const Vector &
-    getResistingForce()
-    {
-      VectorND<6> q  = this->getBasicForce();
-
-//    q += q0; // TODO!!! move this into PrismFrame and maybe DisplFrame
-
-      const Vector p0Vec(p0);
-      P = theCoordTransf->getGlobalResistingForce(q, p0Vec);
-
-      // Subtract other external nodal loads ... P_res = P_int - P_ext
-      if (mass != 0.0)
-        P.addVector(1.0, p_iner, -1.0);
-
-      return P;
-    }
-
-
 protected:
 
   // Implemented by children
   virtual VectorND<6>&   getBasicForce() = 0;
   virtual MatrixND<6,6>& getBasicTangent(State state, int rate) = 0;
+
 
   // Supplied to children
           double         getLength(State flag);
@@ -125,9 +103,10 @@ protected:
 
 // to be made private
    int cMass;
-   CrdTransf* theCoordTransf;
-   OpenSees::VectorND<6>   q0;  // Fixed end forces in basic system (with torsion)
-   OpenSees::VectorND<6>   p0;  // Reactions in basic system (with torsion)
+   FrameTransform3d* theCoordTransf;
+   OpenSees::VectorND<6>   q0;  // Fixed end forces in basic system
+   OpenSees::VectorND<6>   p0;  // Reactions in basic system
+                                // { 
                                 // TODO(cmp): change to size 12
    static Matrix K;
    static Vector P;
@@ -136,20 +115,24 @@ protected:
 
    int parameterID;
 
-   int releasez; // moment release for bending about z-axis 0=none, 1=I, 2=J, 3=I,J
-   int releasey; // same for y-axis
-
    double wx;
    double wy;
    double wz;
-   int numEleLoads;               // Number of element load objects
-   int sizeEleLoads;
-   ElementalLoad **eleLoads;
-   double *eleLoadFactors;
+
+// int numEleLoads;               // Number of element load objects
+// int sizeEleLoads;
+   std::vector<std::pair<ElementalLoad*,double>> eleLoads;
+
 
   private:
+   VectorND<12> pg;
    Vector p_iner;
-   double mass;
+   double total_mass,
+          twist_mass;
+
+   // TODO: Remove
+    int releasez; // moment release for bending about z-axis 0=none, 1=I, 2=J, 3=I,J
+    int releasey; // same for y-axis
 
 };
 

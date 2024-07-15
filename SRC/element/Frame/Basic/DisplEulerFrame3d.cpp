@@ -4,38 +4,87 @@
 //
 //===----------------------------------------------------------------------===//
 //
-//
 #include <array>
 #include <math.h>
 #include <string.h>
 
-#include <DisplDeltaFrame3d.h>
+#include <DisplEulerFrame3d.h>
 
+#include <ID.h>
 #include <Matrix.h>
 #include <Vector.h>
-#include <ID.h>
 
 #include <Node.h>
 #include <FrameSection.h>
 #include <FrameTransform.h>
 #include <Domain.h>
-#include <Information.h>
 #include <Channel.h>
+#include <Parameter.h>
+#include <Information.h>
 #include <FEM_ObjectBroker.h>
 #include <ElementResponse.h>
 #include <CompositeResponse.h>
 #include <ElementalLoad.h>
 #include <BeamIntegration.h>
-#include <Parameter.h>
 
-#define ELE_TAG_DisplDeltaFrame3d 0 // TODO
+#define ELE_TAG_DisplEulerFrame3d 0 // TODO
 
-DisplDeltaFrame3d::DisplDeltaFrame3d(int tag, std::array<int,2>& nodes, int numSec,
+
+int
+getStrainMatrix(double xi, double L, const Vector& v, MatrixND<8,12>&B, MatrixND<4,8>&A)
+{
+    double oneOverL = 1/L;
+
+    double dshp_v1  = 1.0 + 3.0 * xi * xi - 4.0 * xi;
+    double ddshp_v1 = 6.0 * xi * oneOverL - 4.0 * oneOverL;
+    double dshp_v2  = 3.0 * xi * xi - 2.0 * xi;
+    double ddshp_v2 = 6.0 * xi * oneOverL - 2.0 * oneOverL;
+    double dshp_w1  = -dshp_v1;
+    double ddshp_w1 = -ddshp_v1;
+    double dshp_w2  = -dshp_v2;
+    double ddshp_w2 = -ddshp_v2;
+    double shp_alpha1   = xi;
+
+    double dv  =  dshp_v1*v[1] +  dshp_v2*v[2]; // v'
+    double ddv = ddshp_v1*v[1] + ddshp_v2*v[2]; // v"
+    double dw  =  dshp_w1*v[3] +  dshp_w2*v[4]; // w'
+    double ddw = ddshp_w1*v[3] + ddshp_w2*v[4]; // w"
+    double alpha   = shp_alpha1*v[5];           // phi
+    double dalpha  = oneOverL*v[5];             // phi'
+
+    A(0, 0)  = 1.0;
+    A(0, 1)  = (4.0 * v[1] - v[2]) / 30.0;
+    A(0, 2)  = (4.0 * v[3] - v[4]) / 30.0;
+    A(0, 3)  = (4.0 * v[2] - v[1]) / 30.0;
+    A(0, 4)  = (4.0 * v[4] - v[3]) / 30.0;
+    A(1, 7)  = 1.0;
+
+    B( 0, 0)  = oneOverL;
+    B( 1, 1)  = 1.0;
+    B( 2, 3)  = 1.0;
+    B( 3, 2)  = 1.0;
+    B( 4, 4)  = 1.0;
+    B( 5, 1)  = dshp_v1;
+    B( 5, 2)  = dshp_v2;
+    B( 6, 3)  = dshp_w1;
+    B( 6, 4)  = dshp_w2;
+    B( 7, 1)  = ddshp_v1;
+    B( 7, 2)  = ddshp_v2;
+    B( 8, 3)  = ddshp_w1;
+    B( 8, 4)  = ddshp_w2;
+    B( 9, 5)  = shp_alpha1;
+    B(10, 5)  = oneOverL;
+
+    return 0;
+}
+
+DisplEulerFrame3d::DisplEulerFrame3d(int tag, std::array<int,2>& nodes, int numSec,
                                      FrameSection **s,
-                                     BeamIntegration &bi, FrameTransform3d &coordTransf,
+                                     BeamIntegration &bi,
+                                     FrameTransform3d &coordTransf,
                                      double r, int cm)
 
-    : FiniteElement(tag, ELE_TAG_DisplDeltaFrame3d, nodes),
+    : FiniteElement(tag, ELE_TAG_DisplEulerFrame3d, nodes),
       numSections(numSec), 
       theSections(nullptr),
       theCoordTransf(nullptr), beamInt(nullptr), 
@@ -57,8 +106,8 @@ DisplDeltaFrame3d::DisplDeltaFrame3d(int tag, std::array<int,2>& nodes, int numS
   q0.zero();
 }
 
-DisplDeltaFrame3d::DisplDeltaFrame3d()
-    : FiniteElement(0, ELE_TAG_DisplDeltaFrame3d),
+DisplEulerFrame3d::DisplEulerFrame3d()
+    : FiniteElement(0, ELE_TAG_DisplEulerFrame3d),
       numSections(0), theSections(0),
       beamInt(0),
       rho(0.0), cMass(0), parameterID(0)
@@ -66,7 +115,7 @@ DisplDeltaFrame3d::DisplDeltaFrame3d()
   q0.zero();
 }
 
-DisplDeltaFrame3d::~DisplDeltaFrame3d()
+DisplEulerFrame3d::~DisplEulerFrame3d()
 {
   for (int i = 0; i < numSections; i++) {
     if (theSections[i])
@@ -86,7 +135,7 @@ DisplDeltaFrame3d::~DisplDeltaFrame3d()
 
 
 int
-DisplDeltaFrame3d::commitState()
+DisplEulerFrame3d::commitState()
 {
   int retVal = this->Element::commitState();
 
@@ -98,7 +147,7 @@ DisplDeltaFrame3d::commitState()
 }
 
 int
-DisplDeltaFrame3d::revertToLastCommit()
+DisplEulerFrame3d::revertToLastCommit()
 {
   int retVal = 0;
 
@@ -110,7 +159,7 @@ DisplDeltaFrame3d::revertToLastCommit()
 }
 
 int
-DisplDeltaFrame3d::revertToStart()
+DisplEulerFrame3d::revertToStart()
 {
   int retVal = 0;
 
@@ -122,7 +171,7 @@ DisplDeltaFrame3d::revertToStart()
 }
 
 int
-DisplDeltaFrame3d::update()
+DisplEulerFrame3d::update()
 {
   int err = 0;
 
@@ -161,11 +210,6 @@ DisplDeltaFrame3d::update()
     double ddy  = ddNw1*v(3) + ddNw2*v(4);  // y"
     double ddz  = ddNv1*v(1) + ddNv2*v(2);  // z"
     double dphi = oneOverL*v(5);            // phi'
-    double s7   = v(1);                     // theta_Iz
-    double s8   = v(3);                     // theta_Iy
-    double s9   = v(2);                     // theta_Jz
-    double ddz0 = v(4);                     // theta_Jy
-
 
     VectorND<4> e {
             dx,
@@ -179,27 +223,28 @@ DisplDeltaFrame3d::update()
   }
 
   if (err != 0) {
-    opserr << "DisplDeltaFrame3d::update() - failed setTrialSectionDeformations()\n";
+    opserr << "DisplEulerFrame3d::update() - failed setTrialSectionDeformations()\n";
     return err;
   }
   return 0;
 }
 
 int
-DisplDeltaFrame3d::setNodes()
+DisplEulerFrame3d::setNodes()
 {
   double L  = theCoordTransf->getInitialLength();
   double xi[maxNumSections];
   beamInt->getSectionLocations(numSections, L, xi);
   double wt[maxNumSections];
   beamInt->getSectionWeights(numSections, L, wt);
+  return 0;
 }
 
 const Matrix &
-DisplDeltaFrame3d::getTangentStiff()
+DisplEulerFrame3d::getTangentStiff()
 {
   static Matrix kb(ndf*nen,  ndf*nen);
-  static MatrixND<  8,nsr> A;
+  static MatrixND<nsr,  8> A;
   static MatrixND<  8, 12> B;
   static MatrixND<  8,  8> ks;
   static MatrixND< 12, 12> Gm;
@@ -220,62 +265,24 @@ DisplDeltaFrame3d::getTangentStiff()
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
 
-    double xi1   = xi[i];
-    double dNv1  = 1.0 + 3.0 * xi1 * xi1 - 4.0 * xi1;
-    double ddNv1 = 6.0 * xi1 * oneOverL - 4.0 * oneOverL;
-    double dNv2  = 3.0 * xi1 * xi1 - 2.0 * xi1;
-    double ddNv2 = 6.0 * xi1 * oneOverL - 2.0 * oneOverL;
-    double dNw1  = -dNv1;
-    double ddNw1 = -ddNv1;
-    double dNw2  = -dNv2;
-    double ddNw2 = -ddNv2;
-    double Nf1   = xi1;
-
-    double dv  =  dNv1*v(1) +  dNv2*v(2); // v'
-    double ddv = ddNv1*v(1) + ddNv2*v(2); // v"
-    double dw  =  dNw1*v(3) +  dNw2*v(4); // w'
-    double ddw = ddNw1*v(3) + ddNw2*v(4); // w"
-    double f   = Nf1*v(5);                // phi
-    double df  = oneOverL*v(5);           // phi'
-
-    A( 0, 0)  = 1.0;
-    A( 1, 0)  = (4.0 * v(1) - v(2)) / 30.0;
-    A( 2, 0)  = (4.0 * v(3) - v(4)) / 30.0;
-    A( 3, 0)  = (4.0 * v(2) - v(1)) / 30.0;
-    A( 4, 0)  = (4.0 * v(4) - v(3)) / 30.0;
-    A( 7, 1)  = 1.0;
-
-    B( 0, 0)  = oneOverL;
-    B( 1, 1)  = 1.0;
-    B( 2, 3)  = 1.0;
-    B( 3, 2)  = 1.0;
-    B( 4, 4)  = 1.0;
-    B( 5, 1)  = dNv1;
-    B( 5, 2)  = dNv2;
-    B( 6, 3)  = dNw1;
-    B( 6, 4)  = dNw2;
-    B( 7, 1)  = ddNv1;
-    B( 7, 2)  = ddNv2;
-    B( 8, 3)  = ddNw1;
-    B( 8, 4)  = ddNw2;
-    B( 9, 5)  = Nf1;
-    B(10, 5) = oneOverL;
+    getStrainMatrix(xi[i], L, v, B, A);
 
     // Get the section tangent stiffness and stress resultant
     MatrixND<4,4> Ks = theSections[i]->getTangent<nsr,scheme>(State::Pres);
     VectorND<4>   s  = theSections[i]->getResultant<nsr,scheme>();
 
-    ks.addMatrixTripleProduct(0.0, A, Ks, 1.0);
 
-    // Add material stiffness matrix
+    // Add material stiffness
+    // kb += B' * (A' ks A) * B
+    ks.addMatrixTripleProduct(0.0, A, Ks, 1.0);
     kb.addMatrixTripleProduct(1.0, B, ks, L*wt[i]);
 
     // Beam geometric stiffness matrix
     Gm( 1,  1) = Gm(2,  2) = Gm(3, 3) = Gm(4, 4) =  s[0] * 4.0 / 30.0; // 4/30*N
     Gm( 1,  3) = Gm(2,  4) = Gm(3, 1) = Gm(4, 2) = -s[0] / 30.0;      // -1/30*N
-    Gm( 9,  8) = Gm(8,  9) =  s[1];                                        //Mz
-    Gm( 9,  7) = Gm(7,  9) =  s[2];                                        //My
-    Gm(10, 10)             =  s[3];                                      //W
+    Gm( 9,  8) = Gm(8,  9) =  s[1];                                    // Mz
+    Gm( 9,  7) = Gm(7,  9) =  s[2];                                    // My
+    Gm(10, 10)             =  s[3];                                    // W
 
     // Add geometric stiffness
     kb.addMatrixTripleProduct(1.0, B, Gm, L*wt[i]);
@@ -285,6 +292,7 @@ DisplDeltaFrame3d::getTangentStiff()
     p.addMatrixTransposeVector(1.0, B, A*s, L*wt[i]);
   }
 
+// TODO: add q0
 //q[0] += q0[0];
 //q[1] += q0[1];
 //q[2] += q0[2];
@@ -296,17 +304,17 @@ DisplDeltaFrame3d::getTangentStiff()
 
 
 void
-DisplDeltaFrame3d::zeroLoad()
+DisplEulerFrame3d::zeroLoad()
 {
   q0.zero();
   return;
 }
 
 int
-DisplDeltaFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
+DisplEulerFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
 {
   opserr
-      << "DisplDeltaFrame3d::addLoad() -- load type unknown for element with tag: "
+      << "DisplEulerFrame3d::addLoad() -- load type unknown for element with tag: "
       << this->getTag() << "\n";
   return -1;
 }
@@ -314,10 +322,10 @@ DisplDeltaFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
 
 
 void
-DisplDeltaFrame3d::Print(OPS_Stream &s, int flag)
+DisplEulerFrame3d::Print(OPS_Stream &s, int flag)
 {
   if (flag == OPS_PRINT_CURRENTSTATE) {
-    s << "\nDisplDeltaFrame3d, element id:  " << this->getTag() << "\n";
+    s << "\nDisplEulerFrame3d, element id:  " << this->getTag() << "\n";
     s << "\tConnected external nodes:  " << connectedExternalNodes;
     s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
     s << "\tmass density:  " << rho << ", cMass: " << cMass << "\n";
@@ -332,7 +340,7 @@ DisplDeltaFrame3d::Print(OPS_Stream &s, int flag)
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << "\t\t\t{";
     s << "\"name\": " << this->getTag() << ", ";
-    s << "\"type\": \"DisplDeltaFrame3d\", ";
+    s << "\"type\": \"DisplEulerFrame3d\", ";
     s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1)
       << "], ";
     s << "\"sections\": [";
@@ -348,13 +356,13 @@ DisplDeltaFrame3d::Print(OPS_Stream &s, int flag)
 
 
 Response *
-DisplDeltaFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
+DisplEulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 {
 
   Response *theResponse = 0;
 
   output.tag("ElementOutput");
-  output.attr("eleType", "DisplDeltaFrame3d");
+  output.attr("eleType", "DisplEulerFrame3d");
   output.attr("eleTag", this->getTag());
   output.attr("node1", connectedExternalNodes[0]);
   output.attr("node2", connectedExternalNodes[1]);
@@ -527,7 +535,7 @@ DisplDeltaFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 }
 
 int
-DisplDeltaFrame3d::getResponse(int responseID, Information &eleInfo)
+DisplEulerFrame3d::getResponse(int responseID, Information &eleInfo)
 {
   double N, V, M1, M2, T;
   double L        = theCoordTransf->getInitialLength();
@@ -593,7 +601,7 @@ DisplDeltaFrame3d::getResponse(int responseID, Information &eleInfo)
 }
 
 int
-DisplDeltaFrame3d::setParameter(const char **argv, int argc, Parameter &param)
+DisplEulerFrame3d::setParameter(const char **argv, int argc, Parameter &param)
 {
   if (argc < 1)
     return -1;
@@ -662,7 +670,7 @@ DisplDeltaFrame3d::setParameter(const char **argv, int argc, Parameter &param)
 }
 
 int
-DisplDeltaFrame3d::updateParameter(int parameterID, Information &info)
+DisplEulerFrame3d::updateParameter(int parameterID, Information &info)
 {
   if (parameterID == 1) {
     rho = info.theDouble;
@@ -672,7 +680,7 @@ DisplDeltaFrame3d::updateParameter(int parameterID, Information &info)
 }
 
 int
-DisplDeltaFrame3d::activateParameter(int passedParameterID)
+DisplEulerFrame3d::activateParameter(int passedParameterID)
 {
   parameterID = passedParameterID;
   return 0;
@@ -680,7 +688,7 @@ DisplDeltaFrame3d::activateParameter(int passedParameterID)
 
 
 int
-DisplDeltaFrame3d::sendSelf(int commitTag, Channel &theChannel)
+DisplEulerFrame3d::sendSelf(int commitTag, Channel &theChannel)
 {
   // place the integer data into an ID
 
@@ -717,19 +725,19 @@ DisplDeltaFrame3d::sendSelf(int commitTag, Channel &theChannel)
   data(13) = betaKc;
 
   if (theChannel.sendVector(dbTag, commitTag, data) < 0) {
-    opserr << "DisplDeltaFrame3d::sendSelf() - failed to send data Vector\n";
+    opserr << "DisplEulerFrame3d::sendSelf() - failed to send data Vector\n";
     return -1;
   }
 
   // send the coordinate transformation
   if (theCoordTransf->sendSelf(commitTag, theChannel) < 0) {
-    opserr << "DisplDeltaFrame3d::sendSelf() - failed to send crdTranf\n";
+    opserr << "DisplEulerFrame3d::sendSelf() - failed to send crdTranf\n";
     return -1;
   }
 
   // send the beam integration
   if (beamInt->sendSelf(commitTag, theChannel) < 0) {
-    opserr << "DisplDeltaFrame3d::sendSelf() - failed to send beamInt\n";
+    opserr << "DisplEulerFrame3d::sendSelf() - failed to send beamInt\n";
     return -1;
   }
 
@@ -754,7 +762,7 @@ DisplDeltaFrame3d::sendSelf(int commitTag, Channel &theChannel)
   }
 
   if (theChannel.sendID(dbTag, commitTag, idSections) < 0) {
-    opserr << "DisplDeltaFrame3d::sendSelf() - failed to send ID data\n";
+    opserr << "DisplEulerFrame3d::sendSelf() - failed to send ID data\n";
     return -1;
   }
 
@@ -764,7 +772,7 @@ DisplDeltaFrame3d::sendSelf(int commitTag, Channel &theChannel)
 
   for (int j = 0; j < numSections; j++) {
     if (theSections[j]->sendSelf(commitTag, theChannel) < 0) {
-      opserr << "DisplDeltaFrame3d::sendSelf() - section " << j
+      opserr << "DisplEulerFrame3d::sendSelf() - section " << j
              << "failed to send itself\n";
       return -1;
     }
@@ -774,7 +782,7 @@ DisplDeltaFrame3d::sendSelf(int commitTag, Channel &theChannel)
 }
 
 int
-DisplDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
+DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
                                FEM_ObjectBroker &theBroker)
 {
   //
@@ -786,7 +794,7 @@ DisplDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
   static Vector data(16);
 
   if (theChannel.recvVector(dbTag, commitTag, data) < 0) {
-    opserr << "DisplDeltaFrame3d::recvSelf() - failed to recv data Vector\n";
+    opserr << "DisplEulerFrame3d::recvSelf() - failed to recv data Vector\n";
     return -1;
   }
 
@@ -817,7 +825,7 @@ DisplDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
     theCoordTransf = nullptr; // theBroker.getNewFrameTransform3d(crdTransfClassTag);
 
     if (theCoordTransf == nullptr) {
-      opserr << "DisplDeltaFrame3d::recvSelf() - "
+      opserr << "DisplEulerFrame3d::recvSelf() - "
              << "failed to obtain a CrdTrans object with classTag" << crdTransfClassTag
              << "\n";
       return -2;
@@ -828,7 +836,7 @@ DisplDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
 
   // invoke recvSelf on the crdTransf object
   if (theCoordTransf->recvSelf(commitTag, theChannel, theBroker) < 0) {
-    opserr << "DisplDeltaFrame3d::sendSelf() - failed to recv crdTranf\n";
+    opserr << "DisplEulerFrame3d::sendSelf() - failed to recv crdTranf\n";
     return -3;
   }
 
@@ -840,7 +848,7 @@ DisplDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
     beamInt = theBroker.getNewBeamIntegration(beamIntClassTag);
 
     if (beamInt == 0) {
-      opserr << "DisplDeltaFrame3d::recvSelf() - failed to obtain the beam "
+      opserr << "DisplEulerFrame3d::recvSelf() - failed to obtain the beam "
                 "integration object with classTag"
              << beamIntClassTag << "\n";
       return -3;
@@ -851,7 +859,7 @@ DisplDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
 
   // invoke recvSelf on the beamInt object
   if (beamInt->recvSelf(commitTag, theChannel, theBroker) < 0) {
-    opserr << "DisplDeltaFrame3d::sendSelf() - failed to recv beam integration\n";
+    opserr << "DisplEulerFrame3d::sendSelf() - failed to recv beam integration\n";
     return -3;
   }
 
@@ -863,7 +871,7 @@ DisplDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
   int loc = 0;
 
   if (theChannel.recvID(dbTag, commitTag, idSections) < 0) {
-    opserr << "DisplDeltaFrame3d::recvSelf() - failed to recv ID data\n";
+    opserr << "DisplEulerFrame3d::recvSelf() - failed to recv ID data\n";
     return -1;
   }
 
@@ -899,14 +907,14 @@ DisplDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
       // TODO(cmp) add FrameSection to broker
 //    theSections[i] = theBroker.getNewSection(sectClassTag);
       if (theSections[i] == nullptr) {
-        opserr << "DisplDeltaFrame3d::recvSelf() - Broker could not create Section of "
+        opserr << "DisplEulerFrame3d::recvSelf() - Broker could not create Section of "
                   "class type"
                << sectClassTag << "\n";
         return -1;
       }
       theSections[i]->setDbTag(sectDbTag);
       if (theSections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
-        opserr << "DisplDeltaFrame3d::recvSelf() - section " << i
+        opserr << "DisplEulerFrame3d::recvSelf() - section " << i
                << "failed to recv itself\n";
         return -1;
       }
@@ -932,7 +940,7 @@ DisplDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
       // TODO(cmp) add FrameSection to broker
 //      theSections[i] = theBroker.getNewSection(sectClassTag);
         if (theSections[i] == nullptr) {
-          opserr << "DisplDeltaFrame3d::recvSelf() - Broker could not create Section "
+          opserr << "DisplEulerFrame3d::recvSelf() - Broker could not create Section "
                     "of class type"
                  << sectClassTag << "\n";
           return -1;
@@ -942,7 +950,7 @@ DisplDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
       // recvSelf on it
       theSections[i]->setDbTag(sectDbTag);
       if (theSections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
-        opserr << "DisplDeltaFrame3d::recvSelf() - section " << i
+        opserr << "DisplEulerFrame3d::recvSelf() - section " << i
                << "failed to recv itself\n";
         return -1;
       }

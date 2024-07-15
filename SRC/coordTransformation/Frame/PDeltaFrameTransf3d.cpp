@@ -5,8 +5,8 @@
 //===----------------------------------------------------------------------===//
 //
 // Description: This file contains the implementation for the
-// PDeltaFrameTransf3d class. PDeltaFrameTransf3d is a linear
-// transformation for a planar frame between the global
+// PDeltaFrameTransf3d class. PDeltaFrameTransf3d is a nonlinear
+// transformation for a 3D frame between the global
 // and basic coordinate systems
 //
 // Written: Remo Magalhaes de Souza
@@ -26,7 +26,6 @@
 using OpenSees::Matrix3D;
 
 // initialize static variables
-// Matrix PDeltaFrameTransf3d::Tlg(12, 12);
 Matrix PDeltaFrameTransf3d::kg(12, 12);
 
 
@@ -895,9 +894,9 @@ PDeltaFrameTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
 
   static MatrixND<12,12> Kg;
   Kg = pushVariable(kl, pl);
-  static Matrix M;
-  M.setData(Kg);
-  return M;
+
+  static Matrix Wrapper(Kg);
+  return Wrapper;
 }
 
 MatrixND<12,12>

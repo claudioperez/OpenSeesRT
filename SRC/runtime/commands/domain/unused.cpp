@@ -1,4 +1,9 @@
-
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
+// 
 int
 elementActivate(ClientData clientData, Tcl_Interp *interp, int argc,
                 TCL_Char ** const argv)

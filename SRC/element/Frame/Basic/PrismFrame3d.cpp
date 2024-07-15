@@ -1,11 +1,11 @@
-/* ------------------------------------------------------------------ **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ------------------------------------------------------------------ */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Purpose: This file contains the class definition for PrismFrame3d.
-// PrismFrame3d is a 3d beam element. As such it can only
-// connect to a node with 6-dof. 
+// PrismFrame3d is a 3d prismatic beam element. 
 //
 // Written: cmp 2024
 //
@@ -36,53 +36,48 @@ PrismFrame3d::PrismFrame3d()
 PrismFrame3d::PrismFrame3d(int tag, std::array<int, 2>& nodes,
                            double  a, double  e, double  g, 
                            double jx, double iy, double iz,
-                           FrameTransform3d &coordTransf, double r, int cm, int relz, int rely)
-  :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf, cm, relz, rely),
-   A(a), E(e), G(g), Jx(jx), Iy(iy), Iz(iz), rho(r)
+                           FrameTransform3d &coordTransf, 
+                           double r, int cm, int rz, int ry)
+  :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
+   A(a), E(e), G(g), Jx(jx), Iy(iy), Iz(iz), 
+   rho(r), mass_flag(cm),
+   total_mass(r), twist_mass(0.0),
+   releasez(rz), releasey(ry)
 {
   q.zero();
 }
 
-PrismFrame3d::PrismFrame3d(int tag, std::array<int,2>& nodes, FrameSection *section,  
-                             FrameTransform3d &coordTransf, double rho_, int cMass, int relz, int rely)
-  :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf, cMass, relz, rely),
-   rho(rho_)
+PrismFrame3d::PrismFrame3d(int tag, std::array<int,2>& nodes, FrameSection &section,  
+                           FrameTransform3d &coordTransf, 
+                           double rho_, int cMass, int rz, int ry)
+  :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
+   rho(rho_), mass_flag(cMass),
+   total_mass(rho_), twist_mass(0.0),
+   releasez(rz), releasey(ry)
 {
   q.zero();
 
-  if (section != nullptr) {
-    E  = 1.0;
-    G  = 1.0;
-    Jx = 0.0;
+  Jx = 1.0;
 
-    const Matrix &sectTangent = section->getInitialTangent();
-    const ID &sectCode = section->getType();
-    for (int i=0; i<sectCode.Size(); i++) {
-      int code = sectCode(i);
-      switch(code) {
-      case SECTION_RESPONSE_P:
-        A = sectTangent(i,i);
-        break;
-      case SECTION_RESPONSE_MZ:
-        Iz = sectTangent(i,i);
-        break;
-      case SECTION_RESPONSE_MY:
-        Iy = sectTangent(i,i);
-        break;
-      case SECTION_RESPONSE_T:
-        Jx = sectTangent(i,i);
-        break;
-      default:
-        break;
-      }
+  section.getIntegral(Field::Unit,   State::Init, A);
+  section.getIntegral(Field::UnitZZ, State::Init, Iy);
+  section.getIntegral(Field::UnitYY, State::Init, Iz);
+
+  const Matrix &sectTangent = section.getInitialTangent();
+  const ID &sectCode = section.getType();
+  for (int i=0; i<sectCode.Size(); i++) {
+    int code = sectCode(i);
+    switch(code) {
+    case SECTION_RESPONSE_P:
+      E = sectTangent(i,i)/A;
+      break;
+    case SECTION_RESPONSE_T:
+      G  = sectTangent(i,i)/Jx;
+      break;
+    default:
+      break;
     }
-  }    
-
-  if (Jx == 0.0) {
-    opserr << "PrismFrame3d::PrismFrame3d -- no torsion in section -- setting GJ = 1.0e10\n";
-    Jx = 1.0e10;
-  }
-  
+  } 
 }
 
 int
@@ -378,60 +373,61 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
 {
 
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-            s << "\t\t\t{";
-            s << "\"name\": " << this->getTag() << ", ";
-            s << "\"type\": \"PrismFrame3d\", ";
-            s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
-            s << "\"massperlength\": " << rho << ", ";
-            s << "\"releasez\": "<< releasez << ", ";
-            s << "\"releasey\": "<< releasey << ", ";                
-            s << "\"crdTransformation\": \"" << theCoordTransf->getTag()  << ", ";
-            // 
-            s << "\"E\": "  << E  << ", ";
-            s << "\"G\": "  << G  << ", ";
-            s << "\"A\": "  << A  << ", ";
-            s << "\"Jx\": " << Jx << ", ";
-            s << "\"Iy\": " << Iy << ", ";
-            s << "\"Iz\": " << Iz;
-            // 
-            s << "\"}";
+        s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+        s << "\"name\": " << this->getTag() << ", ";
+        s << "\"type\": \"PrismFrame3d\", ";
+        s << "\"nodes\": [" << connectedExternalNodes(0) << ", " 
+                            << connectedExternalNodes(1) << "], ";
+        s << "\"massperlength\": " << rho << ", ";
+        s << "\"releasez\": "<< releasez << ", ";
+        s << "\"releasey\": "<< releasey << ", ";                
+        s << "\"crdTransformation\": " << theCoordTransf->getTag()  << ", ";
+        // 
+        s << "\"E\": "  << E  << ", ";
+        s << "\"G\": "  << G  << ", ";
+        s << "\"A\": "  << A  << ", ";
+        s << "\"Jx\": " << Jx << ", ";
+        s << "\"Iy\": " << Iy << ", ";
+        s << "\"Iz\": " << Iz;
+        // 
+        s << "}";
     }
     
     this->getResistingForce(); 
 
     if (flag == -1) {
-            int eleTag = this->getTag();
-            s << "EL_BEAM\t" << eleTag << "\t";
-            s << "\t" << connectedExternalNodes(0) << "\t" << connectedExternalNodes(1);
-            s << "\t0\t0.0000000\n";
+        int eleTag = this->getTag();
+        s << "EL_BEAM\t" << eleTag << "\t";
+        s << "\t" << connectedExternalNodes(0) << "\t" << connectedExternalNodes(1);
+        s << "\t0\t0.0000000\n";
     }
 
     else if (flag < -1) {
-            int counter = (flag + 1) * -1;
-            int eleTag = this->getTag();
-            const Vector &force = this->getResistingForce();
+      int counter = (flag + 1) * -1;
+      int eleTag = this->getTag();
+      const Vector &force = this->getResistingForce();
 
-            double P, MZ1, MZ2, VY, MY1, MY2, VZ, T;
-            double L = theCoordTransf->getInitialLength();
-            double oneOverL = 1.0 / L;
+      double P, MZ1, MZ2, VY, MY1, MY2, VZ, T;
+      double L = theCoordTransf->getInitialLength();
+      double oneOverL = 1.0 / L;
 
-            P   = q[0];
-            MZ1 = q[1];
-            MZ2 = q[2];
-            VY  = (MZ1 + MZ2)*oneOverL;
-            T   = q[5];
-            MY1 = q[3];
-            MY2 = q[4];
-            VZ  = (MY1 + MY2)*oneOverL;
+      P   = q[0];
+      MZ1 = q[1];
+      MZ2 = q[2];
+      VY  = (MZ1 + MZ2)*oneOverL;
+      T   = q[5];
+      MY1 = q[3];
+      MY2 = q[4];
+      VZ  = (MY1 + MY2)*oneOverL;
 
-            s << "FORCE\t" << eleTag << "\t" << counter << "\t0";
-            s << "\t" << -P + p0[0] << "\t" << VY + p0[1] << "\t" << -VZ + p0[3] << "\n";
-            s << "FORCE\t" << eleTag << "\t" << counter << "\t1";
-            s << "\t" << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << "\n";
-            s << "MOMENT\t" << eleTag << "\t" << counter << "\t0";
-            s << "\t" << -T << "\t" << MY1 << "\t" << MZ1 << "\n";
-            s << "MOMENT\t" << eleTag << "\t" << counter << "\t1";
-            s << "\t" << T << ' ' << MY2 << ' ' << MZ2 << "\n";
+      s << "FORCE\t" << eleTag << "\t" << counter << "\t0";
+      s << "\t" << -P + p0[0] << "\t" << VY + p0[1] << "\t" << -VZ + p0[3] << "\n";
+      s << "FORCE\t" << eleTag << "\t" << counter << "\t1";
+      s << "\t" << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << "\n";
+      s << "MOMENT\t" << eleTag << "\t" << counter << "\t0";
+      s << "\t" << -T << "\t" << MY1 << "\t" << MZ1 << "\n";
+      s << "MOMENT\t" << eleTag << "\t" << counter << "\t1";
+      s << "\t" << T << ' ' << MY2 << ' ' << MZ2 << "\n";
     }
 
     else if (flag == 2) {
@@ -487,32 +483,31 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
     }
     
     if (flag == OPS_PRINT_CURRENTSTATE) {
+        this->getResistingForce(); // in case linear algo
 
-            this->getResistingForce(); // in case linear algo
+        s << "\n  PrismFrame3d: " << this->getTag() << "\n";
+        s << "\tConnected Nodes: " << connectedExternalNodes;
+        s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
+        s << "\tmass density:  " << rho << ", cMass: " << cMass << "\n";
+        s << "\trelease about z:  " << releasez << "\n";
+        s << "\trelease about y:  " << releasey << "\n";                
+        double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
+        double L = theCoordTransf->getInitialLength();
+        double oneOverL = 1.0 / L;
 
-            s << "\n  PrismFrame3d: " << this->getTag() << "\n";
-            s << "\tConnected Nodes: " << connectedExternalNodes;
-            s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
-            s << "\tmass density:  " << rho << ", cMass: " << cMass << "\n";
-            s << "\trelease about z:  " << releasez << "\n";
-            s << "\trelease about y:  " << releasey << "\n";                
-            double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
-            double L = theCoordTransf->getInitialLength();
-            double oneOverL = 1.0 / L;
+        N = q[0];
+        Mz1 = q[1];
+        Mz2 = q[2];
+        Vy = (Mz1 + Mz2)*oneOverL;
+        My1 = q[3];
+        My2 = q[4];
+        Vz = -(My1 + My2)*oneOverL;
+        T = q[5];
 
-            N = q[0];
-            Mz1 = q[1];
-            Mz2 = q[2];
-            Vy = (Mz1 + Mz2)*oneOverL;
-            My1 = q[3];
-            My2 = q[4];
-            Vz = -(My1 + My2)*oneOverL;
-            T = q[5];
-
-            s << "\tEnd 1 Forces (P Mz Vy My Vz T): "
-                    << -N + p0[0] << ' ' << Mz1 << ' ' << Vy + p0[1] << ' ' << My1 << ' ' << Vz + p0[3] << ' ' << -T << "\n";
-            s << "\tEnd 2 Forces (P Mz Vy My Vz T): "
-                    << N << ' ' << Mz2 << ' ' << -Vy + p0[2] << ' ' << My2 << ' ' << -Vz + p0[4] << ' ' << T << "\n";
+        s << "\tEnd 1 Forces (P Mz Vy My Vz T): "
+                << -N + p0[0] << ' ' << Mz1 << ' ' << Vy + p0[1] << ' ' << My1 << ' ' << Vz + p0[3] << ' ' << -T << "\n";
+        s << "\tEnd 2 Forces (P Mz Vy My Vz T): "
+                << N << ' ' << Mz2 << ' ' << -Vy + p0[2] << ' ' << My2 << ' ' << -Vz + p0[4] << ' ' << T << "\n";
     }
 
 }

@@ -1,12 +1,13 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 /*
  * References
  *
- *  State Determination Algorithm
+ *  Element State Determination Algorithm
  *  ---
  *  Neuenhofer, A. and F. C. Filippou (1997). "Evaluation of Nonlinear Frame Finite
  *  Element Models." Journal of Structural Engineering, 123(7):958-966.
@@ -14,7 +15,7 @@
  *  Spacone, E., V. Ciampi, and F. C. Filippou (1996). "Mixed Formulation of
  *  Nonlinear Beam Finite Element." Computers and Structures, 58(1):71-83.
  *
- *  Analytical Response Sensitivity (DDM)
+ *  Response Sensitivity
  *  ---
  *  Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
  *  "Response Sensitivity for Nonlinear Beam-Column Elements."
@@ -48,11 +49,10 @@
 
 Matrix ForceFrame3d::theMatrix(12, 12);
 Vector ForceFrame3d::theVector(12);
-double ForceFrame3d::workArea[200];
 
-VectorND<ForceFrame3d::NEBD>                    ForceFrame3d::es_trial[maxNumSections];
-MatrixND<ForceFrame3d::NEBD,ForceFrame3d::NEBD> ForceFrame3d::Fs_trial[maxNumSections];
-VectorND<ForceFrame3d::NEBD>                    ForceFrame3d::sr_trial[maxNumSections];
+VectorND<ForceFrame3d::nq>                    ForceFrame3d::es_trial[maxNumSections];
+MatrixND<ForceFrame3d::nq,ForceFrame3d::nq> ForceFrame3d::Fs_trial[maxNumSections];
+VectorND<ForceFrame3d::nq>                    ForceFrame3d::sr_trial[maxNumSections];
 
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
@@ -60,12 +60,11 @@ ForceFrame3d::ForceFrame3d()
  : BasicFrame3d(0, ELE_TAG_ForceFrame3d),
    beamIntegr(nullptr),
    numSections(0), sections(nullptr),
-   rho(0.0),
+   density(0.0),
    maxIters(0), tol(0.0),
    initialFlag(0),
    fs(nullptr), es(nullptr), Ssr(nullptr), es_save(nullptr),
    Ki(0),
-   isTorsion(false),
    parameterID(0)
 {
   kv.zero();
@@ -81,16 +80,15 @@ ForceFrame3d::ForceFrame3d(int tag, std::array<int, 2>& nodes, int numSec,
                            FrameSection** sec, BeamIntegration& bi,
                            FrameTransform3d& coordTransf, 
                            double massDensPerUnitLength, int maxNumIters,
-                           double tolerance)
- : BasicFrame3d(tag, ELE_TAG_ForceFrame3d, nodes, coordTransf, 0, 0, 0),
+                           double tolerance, int mass_flag_)
+ : BasicFrame3d(tag, ELE_TAG_ForceFrame3d, nodes, coordTransf),
    beamIntegr(nullptr),
    numSections(0), sections(nullptr),
-   rho(massDensPerUnitLength),
    maxIters(maxNumIters), tol(tolerance),
    initialFlag(0),
    fs(nullptr), es(nullptr), Ssr(nullptr), es_save(nullptr),
    Ki(0),
-   isTorsion(false),
+   density(massDensPerUnitLength), mass_flag(mass_flag_),
    parameterID(0)
 {
   kv.zero();
@@ -101,7 +99,7 @@ ForceFrame3d::ForceFrame3d(int tag, std::array<int, 2>& nodes, int numSec,
   beamIntegr = bi.getCopy();
   if (beamIntegr == nullptr) {
     opserr << "Error: ForceFrame3d::ForceFrame3d: could not create copy of beam integration object"
-           << endln;
+           << "\n";
     exit(-1);
   }
 
@@ -116,14 +114,6 @@ ForceFrame3d::~ForceFrame3d()
       if (sections[i] != 0)
         delete sections[i];
     delete[] sections;
-  }
-
-  if (sizeEleLoads != 0) {
-    if (eleLoads != nullptr)
-      delete[] eleLoads;
-
-    if (eleLoadFactors != nullptr)
-      delete[] eleLoadFactors;
   }
 
   if (fs != nullptr)
@@ -167,6 +157,70 @@ ForceFrame3d::setNodes()
 //this->revertToStart();
 
   return 0;
+}
+
+int
+ForceFrame3d::getIntegral(Field field, State state, double& total)
+{
+
+  if (this->setState(State::Init) != 0)
+    return -1;
+
+  total = 0.0;
+  switch (field) {
+
+    // Integrate density to compute total mass
+    case Field::Density: {
+      double value = 0.0;
+      for (int i=0; i< numSections; i++) {
+        // First try using section's internal density
+        if (sections[i]->getIntegral(Field::Density, state, value) == 0) {
+          total += wt[i]*value;
+        }
+        // if that didnt work, just multiply by our density
+        else if (sections[i]->getIntegral(Field::Unit, state, value) == 0) {
+          total += wt[i]*density;
+        }
+        else {
+          ; // TODO: This should be written to a log
+        }
+      }
+      return 0;
+    }
+
+    case Field::PolarInertia: {
+      for (int i=0; i< numSections; i++) {
+        double A;
+        if (sections[i]->getIntegral(Field::UnitYY, state, A) != 0)
+          continue;
+
+        // Get \int \rho y^2
+        double Iz;
+        if (sections[i]->getIntegral(Field::DensityYY, state, Iz) != 0) {
+          // Section does not allow integrating density; try
+          // integrating product of inertia and multiplying by rho
+          if (sections[i]->getIntegral(Field::UnitYY, state, Iz) == 0)
+            Iz *= density/A;
+          else
+            continue;
+        }
+        // Get \int \rho z^2
+        double Iy;
+        if (sections[i]->getIntegral(Field::DensityZZ, state, Iy) != 0) {
+          if (sections[i]->getIntegral(Field::UnitZZ, state, Iy) == 0)
+            Iy *= density/A;
+          else
+            continue;
+        }
+        total += wt[i]*(Iy + Iz);
+      }
+      return 0;
+    }
+
+    default:
+      return -1;
+
+  }
 }
 
 int
@@ -234,7 +288,6 @@ ForceFrame3d::revertToLastCommit()
   kv = K_save;
 
   initialFlag = 0;
-  // this->update();
 
   return err;
 }
@@ -293,11 +346,11 @@ ForceFrame3d::getInitialStiff()
   if (Ki != 0)
     return *Ki;
 
-  static Matrix f(NEBD,NEBD);   // element flexibility matrix  
+  static Matrix f(nq,nq);   // element flexibility matrix  
   this->getInitialFlexibility(f);
     
   // calculate element stiffness matrix
-  static Matrix kvInit(NEBD, NEBD);
+  static Matrix kvInit(nq, nq);
   if (f.Invert(kvInit) < 0)
     opserr << "ForceFrame3d::getInitialStiff -- could not invert flexibility";
 
@@ -325,6 +378,8 @@ ForceFrame3d::initializeSectionHistoryVariables()
 int
 ForceFrame3d::update()
 {
+  this->BasicFrame3d::update();
+
   // if have completed a recvSelf() - do a revertToLastCommit
   // to get Ssr, etc. set correctly
   if (initialFlag == 2)
@@ -339,20 +394,20 @@ ForceFrame3d::update()
   // get basic displacements and increments
   const Vector& v = theCoordTransf->getBasicTrialDisp();
 
-  static VectorND<NEBD> dv;
+  thread_local VectorND<nq> dv;
   dv = theCoordTransf->getBasicIncrDeltaDisp();
 
-  if (initialFlag != 0 && dv.norm() <= DBL_EPSILON && numEleLoads == 0)
+  if (initialFlag != 0 && (dv.norm() <= DBL_EPSILON) && (eleLoads.size()==0))
     return 0;
 
-  static VectorND<NEBD> Dv;
+  static VectorND<nq> Dv;
   Dv  = v;
   Dv -= dv;
 
 
-  static VectorND<NEBD> vr;        // element residual displacements
-  static MatrixND<NEBD, NEBD> F;   // element flexibility matrix
-  static VectorND<NEBD> dvToDo, dvTrial;
+  thread_local VectorND<nq> vr;        // element residual displacements
+  thread_local MatrixND<nq, nq> F;   // element flexibility matrix
+  thread_local VectorND<nq> dvToDo, dvTrial;
 
   dvToDo  = dv;
   dvTrial = dvToDo;
@@ -394,11 +449,11 @@ ForceFrame3d::update()
       if (initialFlag == 2)
         continue;
 
-      VectorND<NEBD>       q_trial = q_pres;
-      MatrixND<NEBD, NEBD> K_trial = kv;
+      VectorND<nq>       q_trial = q_pres;
+      MatrixND<nq, nq> K_trial = kv;
 
       // calculate nodal force increments and update nodal forces
-      VectorND<NEBD> dqe = kv * dv;
+      VectorND<nq> dqe = kv * dv;
       q_trial += dqe;
 
       // Allow 10 times more iterations for initial tangent strategy
@@ -418,14 +473,13 @@ ForceFrame3d::update()
           vr[5] += F(5, 5) * q_trial[5];
         }
 
-        double v0[5];
-        v0[0] = v0[1] = v0[2] = v0[3] = v0[4] = 0.0;
-
-        for (int ie = 0; ie < numEleLoads; ie++)
-          beamIntegr->addElasticDeformations(eleLoads[ie],
-                                             eleLoadFactors[ie], L, v0);
 
         // Add effects of element loads
+        double v0[5];
+        v0[0] = v0[1] = v0[2] = v0[3] = v0[4] = 0.0;
+        for (auto[load, factor] : eleLoads)
+          beamIntegr->addElasticDeformations(load, factor, L, v0);
+
         vr[0] += v0[0];
         vr[1] += v0[1];
         vr[2] += v0[2];
@@ -460,7 +514,7 @@ ForceFrame3d::update()
             };
             // Add the effects of element loads
             // si += bp*w
-            if (numEleLoads > 0)
+            if (eleLoads.size() != 0)
               this->addLoadAtSection(si, i);
 
 
@@ -468,6 +522,7 @@ ForceFrame3d::update()
             // b. Compute section strain es_trial
             //
             //    es += Fs * ( si - sr(e) );
+            //
             if (initialFlag != 0) {
 
               VectorND<nsr> ds; //, des;
@@ -511,13 +566,12 @@ ForceFrame3d::update()
             sr_trial[i] = sections[i]->getResultant<nsr, scheme>();
             Fs_trial[i] = sections[i]->getFlexibility<nsr, scheme>();
 
-
             //
             // d. Integrate element flexibility matrix
             //
             //    F += (B' * Fs * B) * wi * L;
             {
-              MatrixND<nsr,NEBD> FsB;
+              MatrixND<nsr,nq> FsB;
               FsB.zero();
               for (int jj = 0; jj < nsr; jj++) {
                   // SECTION_RESPONSE_P:
@@ -543,7 +597,7 @@ ForceFrame3d::update()
                   FsB(jj, 2) += xL  * Fs(jj, 5)*wtL;
               }
 
-              for (int jj = 0; jj < NEBD; jj++) {
+              for (int jj = 0; jj < nq; jj++) {
                   double tmp;
                   // SECTION_RESPONSE_P:
                   F(0, jj) += FsB( 0, jj);
@@ -701,23 +755,20 @@ ForceFrame3d::update()
 void
 ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, int isec)
 {
-  int type;
 
   double L = theCoordTransf->getInitialLength();
 
   double x = xi[isec] * L;
 
-//const ID& code = sections[isec]->getType();
+  for (auto[load, loadFactor] : eleLoads) {
 
-  for (int i = 0; i < numEleLoads; i++) {
-
-    double loadFactor  = eleLoadFactors[i];
-    const Vector& data = eleLoads[i]->getData(type, loadFactor);
+    int type;
+    const Vector& data = load->getData(type, loadFactor);
 
     if (type == LOAD_TAG_Beam3dUniformLoad) {
+      double wa = data(2) * loadFactor; // Axial
       double wy = data(0) * loadFactor; // Transverse
       double wz = data(1) * loadFactor; // Transverse
-      double wa = data(2) * loadFactor; // Axial
 
       for (int ii = 0; ii < nsr; ii++) {
         switch (scheme[ii]) {
@@ -815,7 +866,7 @@ ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, int isec)
       }
     } else {
       opserr << "ForceFrame3d::addLoad -- load type unknown for element with tag: "
-             << this->getTag() << endln;
+             << this->getTag() << "\n";
     }
   }
 }
@@ -828,9 +879,6 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
   double L    = theCoordTransf->getInitialLength();
   double dLdh = theCoordTransf->getdLdh();
 
-  double xi[maxNumSections];
-  beamIntegr->getSectionLocations(numSections, L, xi);
-
   double dxidh[maxNumSections];
   beamIntegr->getLocationsDeriv(numSections, L, dLdh, dxidh);
 
@@ -840,16 +888,17 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
   int order      = sections[isec]->getOrder();
   const ID& code = sections[isec]->getType();
 
-  for (int i = 0; i < numEleLoads; i++) {
+  for (auto[load, loadFactor] : eleLoads) {
+    const  Vector& data = load->getData(type, loadFactor);
 
-    const Vector& data = eleLoads[i]->getData(type, 1.0);
+//  const Vector& data = eleLoads[i]->getData(type, 1.0);
 
     if (type == LOAD_TAG_Beam3dUniformLoad) {
       double wy = data(0) * 1.0; // Transverse
       double wz = data(1) * 1.0; // Transverse
       double wa = data(2) * 1.0; // Axial
 
-      const Vector& sens = eleLoads[i]->getSensitivityData(gradNumber);
+      const Vector& sens = load->getSensitivityData(gradNumber);
       double dwydh       = sens(0);
       double dwzdh       = sens(1);
       double dwadh       = sens(2);
@@ -891,11 +940,11 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
       if (aOverL < 0.0 || aOverL > 1.0)
         continue;
 
-      const Vector& sens = eleLoads[i]->getSensitivityData(gradNumber);
-      double dPydh       = sens(0);
-      double dPzdh       = sens(1);
-      double dNdh        = sens(2);
-      double daLdh       = sens(3);
+      const Vector& sens = load->getSensitivityData(gradNumber);
+      double dPydh       = sens[0];
+      double dPzdh       = sens[1];
+      double dNdh        = sens[2];
+      double daLdh       = sens[3];
 
       double a = aOverL * L;
 
@@ -960,7 +1009,7 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
     } else {
       opserr << "ForceFrame3d::computeSectionForceSensitivity -- load type unknown for element "
                 "with tag: "
-             << this->getTag() << endln;
+             << this->getTag() << "\n";
     }
   }
 }
@@ -980,7 +1029,6 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   idData(3) = numSections;
   idData(4) = maxIters;
   idData(5) = initialFlag;
-  idData(6) = (isTorsion) ? 1 : 0;
 
   idData(7)          = theCoordTransf->getClassTag();
   int crdTransfDbTag = theCoordTransf->getDbTag();
@@ -1061,11 +1109,11 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
     secDefSize += size;
   }
 
-  Vector dData(1 + 1 + 1 + NEBD + NEBD * NEBD + secDefSize + 4);
+  Vector dData(1 + 1 + 1 + nq + nq * nq + secDefSize + 4);
   loc = 0;
 
   // place double variables into Vector
-  dData(loc++) = rho;
+  dData(loc++) = density;
   dData(loc++) = tol;
 
   // put  distrLoadCommit into the Vector
@@ -1073,12 +1121,12 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   //dData(loc++) = distrLoadcommit(i);
 
   // place K_save into vector
-  for (i = 0; i < NEBD; i++)
+  for (i = 0; i < nq; i++)
     dData(loc++) = q_save[i];
 
   // place K_save into vector
-  for (i = 0; i < NEBD; i++)
-    for (j = 0; j < NEBD; j++)
+  for (i = 0; i < nq; i++)
+    for (j = 0; j < nq; j++)
       dData(loc++) = K_save(i, j);
 
   // place es_save into vector
@@ -1122,7 +1170,6 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   connectedExternalNodes(1) = idData(2);
   maxIters                  = idData(4);
   initialFlag               = idData(5);
-  isTorsion                 = (idData(6) == 1) ? true : false;
 
   int crdTransfClassTag = idData(7);
   int crdTransfDbTag    = idData(8);
@@ -1140,7 +1187,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
 
     if (theCoordTransf == nullptr) {
       opserr << "ForceFrame3d::recvSelf() - failed to obtain a CrdTrans object with classTag"
-             << crdTransfClassTag << endln;
+             << crdTransfClassTag << "\n";
       return -2;
     }
   }
@@ -1162,7 +1209,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
     if (beamIntegr == 0) {
       opserr
           << "ForceFrame3d::recvSelf() - failed to obtain the beam integration object with classTag"
-          << beamIntegrClassTag << endln;
+          << beamIntegrClassTag << "\n";
       return -1;
     }
   }
@@ -1249,7 +1296,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
 //    sections[i] = theBroker.getNewSection(sectClassTag);
       if (sections[i] == 0) {
         opserr << "ForceFrame3d::recvSelf() - Broker could not create Section of class type"
-               << sectClassTag << endln;
+               << sectClassTag << "\n";
         return -1;
       }
 
@@ -1283,7 +1330,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
 //      sections[i] = theBroker.getNewSection(sectClassTag);
         if (sections[i] == 0) {
           opserr << "ForceFrame3d::recvSelf() - Broker could not create Section of class type "
-                 << sectClassTag << endln;
+                 << sectClassTag << "\n";
           ;
           return -1;
         }
@@ -1305,7 +1352,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
     secDefSize += size;
   }
 
-  Vector dData(1 + 1 + NEBD + NEBD * NEBD + secDefSize + 4);
+  Vector dData(1 + 1 + nq + nq * nq + secDefSize + 4);
 
   if (theChannel.recvVector(dbTag, commitTag, dData) < 0) {
     opserr << "ForceFrame3d::recvSelf() - failed to send Vector data\n";
@@ -1315,7 +1362,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   loc = 0;
 
   // place double variables into Vector
-  rho = dData(loc++);
+  density = dData(loc++);
   tol = dData(loc++);
 
   // put  distrLoadCommit into the Vector
@@ -1323,12 +1370,12 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   // distrLoad(i) = dData(loc++);
 
   // place q_save into vector
-  for (i = 0; i < NEBD; i++)
+  for (i = 0; i < nq; i++)
     q_save[i] = dData(loc++);
 
   // place K_save into matrix
-  for (i = 0; i < NEBD; i++)
-    for (j = 0; j < NEBD; j++)
+  for (i = 0; i < nq; i++)
+    for (j = 0; j < nq; j++)
       K_save(i, j) = dData(loc++);
 
   kv = K_save;
@@ -1355,7 +1402,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
 
 // addBFsB(F, s, i)
 int
-ForceFrame3d::getInitialFlexibility(MatrixND<NEBD,NEBD>& fe)
+ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
 {
   fe.zero();
 
@@ -1375,7 +1422,7 @@ ForceFrame3d::getInitialFlexibility(MatrixND<NEBD,NEBD>& fe)
 
     const MatrixND<nsr,nsr> fSec = sections[i]->getFlexibility<nsr, scheme>(State::Init);
 
-    static MatrixND<nsr, NEBD> FB;
+    static MatrixND<nsr, nq> FB;
     FB.zero();
     double tmp;
     int ii, jj;
@@ -1423,39 +1470,39 @@ ForceFrame3d::getInitialFlexibility(MatrixND<NEBD,NEBD>& fe)
     for (ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (jj = 0; jj < NEBD; jj++)
+        for (jj = 0; jj < nq; jj++)
           fe(0, jj) += FB(ii, jj);
         break;
       case SECTION_RESPONSE_MZ:
-        for (jj = 0; jj < NEBD; jj++) {
+        for (jj = 0; jj < nq; jj++) {
           tmp = FB(ii, jj);
           fe(1, jj) += xL1 * tmp;
           fe(2, jj) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (jj = 0; jj < NEBD; jj++) {
+        for (jj = 0; jj < nq; jj++) {
           tmp = oneOverL * FB(ii, jj);
           fe(1, jj) += tmp;
           fe(2, jj) += tmp;
         }
         break;
       case SECTION_RESPONSE_MY:
-        for (jj = 0; jj < NEBD; jj++) {
+        for (jj = 0; jj < nq; jj++) {
           tmp = FB(ii, jj);
           fe(3, jj) += xL1 * tmp;
           fe(4, jj) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VZ:
-        for (jj = 0; jj < NEBD; jj++) {
+        for (jj = 0; jj < nq; jj++) {
           tmp = oneOverL * FB(ii, jj);
           fe(3, jj) += tmp;
           fe(4, jj) += tmp;
         }
         break;
       case SECTION_RESPONSE_T:
-        for (jj = 0; jj < NEBD; jj++)
+        for (jj = 0; jj < nq; jj++)
           fe(5, jj) += FB(ii, jj);
         break;
       default: break;
@@ -1469,7 +1516,7 @@ int
 ForceFrame3d::getInitialDeformations(Vector& v0)
 {
   v0.Zero();
-  if (numEleLoads < 1 || (this->setState(State::Init) != 0))
+  if (eleLoads.size() < 1 || (this->setState(State::Init) != 0))
     return 0;
 
   double L        = theCoordTransf->getInitialLength();
@@ -1528,29 +1575,22 @@ void
 ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
 {
   // get basic displacements and increments
-  static Vector ub(NEBD);
+  static Vector ub(nq);
   ub = theCoordTransf->getBasicTrialDisp();
 
   double L = theCoordTransf->getInitialLength();
 
-  // get integration point positions and weights
-  static double pts[maxNumSections];
-  beamIntegr->getSectionLocations(numSections, L, pts);
-
   // setup Vandermode and CBDI influence matrices
-  int i;
-  double xi;
 
   // get CBDI influence matrix
   Matrix ls(numSections, numSections);
-  getCBDIinfluenceMatrix(numSections, pts, L, ls);
+  getCBDIinfluenceMatrix(numSections, xi, L, ls);
 
   // get section curvatures
   Vector kappa_y(numSections);
   Vector kappa_z(numSections);
 
-  for (i = 0; i < numSections; i++) {
-
+  for (int i = 0; i < numSections; i++) {
     // get section deformations
     VectorND<nsr> es = sections[i]->getDeformation<nsr,scheme>();
 
@@ -1563,8 +1603,8 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
   }
 
   Vector v(numSections), w(numSections);
-  static Vector xl(NDM), uxb(NDM);
-  static Vector xg(NDM), uxg(NDM);
+  static Vector xl(ndm), uxb(ndm);
+  static Vector xg(ndm), uxg(ndm);
   // double theta;                             // angle of twist of the sections
 
   // v = ls * kappa_z;
@@ -1572,10 +1612,9 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
   // w = ls * kappa_y *  (-1);
   w.addMatrixVector(0.0, ls, kappa_y, -1.0);
 
-  for (i = 0; i < numSections; i++) {
-    xi = pts[i];
+  for (int i = 0; i < numSections; i++) {
 
-    xl(0) = xi * L;
+    xl(0) = xi[i] * L;
     xl(1) = 0;
     xl(2) = 0;
 
@@ -1584,12 +1623,12 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
 
     // compute section displacements
     //theta  = xi * ub(5); // consider linear variation for angle of twist. CHANGE LATER!!!!!!!!!!
-    uxb(0) = xi * ub(0); // consider linear variation for axial displacement. CHANGE LATER!!!!!!!!!!
-    uxb(1) = v(i);
-    uxb(2) = w(i);
+    uxb(0) = xi[i] * ub(0); // consider linear variation for axial displacement. CHANGE LATER!!!!!!!!!!
+    uxb(1) = v[i];
+    uxb(2) = w[i];
 
     // get section displacements in global system
-    sectionDispls[i] = theCoordTransf->getPointGlobalDisplFromBasic(xi, uxb);
+    sectionDispls[i] = theCoordTransf->getPointGlobalDisplFromBasic(xi[i], uxb);
   }
   return;
 }
@@ -1597,6 +1636,30 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
 void
 ForceFrame3d::Print(OPS_Stream& s, int flag)
 {
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+    s << "\"name\": " << this->getTag() << ", ";
+    s << "\"type\": \"ForceFrame3d\", ";
+    s << "\"nodes\": [" << connectedExternalNodes(0) << ", " 
+                        << connectedExternalNodes(1) << "], ";
+
+    // Mass
+    double mass;
+    if (getIntegral(Field::Density, State::Init, mass) == 0)
+      s << ", \"mass\": " << mass << ", ";
+    else
+      s << ", \"massperlength\": " << density << ", ";
+
+    s << "\"sections\": [";
+    for (int i = 0; i < numSections - 1; i++)
+      s << sections[i]->getTag() << ", ";
+    s << sections[numSections - 1]->getTag() << "], ";
+    s << "\"crdTransformation\": " << theCoordTransf->getTag()  << ", ";
+    s << "\"integration\": ";
+    beamIntegr->Print(s, flag);
+    s << "}";
+  }
+
   // flags with negative values are used by GSA
   if (flag == -1) {
     int eleTag = this->getTag();
@@ -1624,17 +1687,17 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
 
     double p0[5];
     p0[0] = p0[1] = p0[2] = p0[3] = p0[4] = 0.0;
-    if (numEleLoads > 0)
+    if (eleLoads.size() > 0)
       this->computeReactions(p0);
 
     s << "FORCE\t" << eleTag << "\t" << counter << "\t0";
-    s << "\t" << -P + p0[0] << "\t" << VY + p0[1] << "\t" << -VZ + p0[3] << endln;
+    s << "\t" << -P + p0[0] << "\t" << VY + p0[1] << "\t" << -VZ + p0[3] << "\n";
     s << "FORCE\t" << eleTag << "\t" << counter << "\t1";
-    s << "\t" << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << endln;
+    s << "\t" << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << "\n";
     s << "MOMENT\t" << eleTag << "\t" << counter << "\t0";
-    s << "\t" << -T << "\t" << MY1 << "\t" << MZ1 << endln;
+    s << "\t" << -T << "\t" << MY1 << "\t" << MZ1 << "\n";
     s << "MOMENT\t" << eleTag << "\t" << counter << "\t1";
-    s << "\t" << T << ' ' << MY2 << ' ' << MZ2 << endln;
+    s << "\t" << T << ' ' << MY2 << ' ' << MZ2 << "\n";
   }
 
   // flag set to 2 used to print everything .. used for viewing data for UCSD renderer
@@ -1648,7 +1711,7 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
     s << "#ForceFrame3D\n";
     s << "#LocalAxis " << xAxis(0) << " " << xAxis(1) << " " << xAxis(2);
     s << " " << yAxis(0) << " " << yAxis(1) << " " << yAxis(2) << " ";
-    s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << endln;
+    s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << "\n";
 
     const Vector& node1Crd  = theNodes[0]->getCrds();
     const Vector& node2Crd  = theNodes[1]->getCrds();
@@ -1657,11 +1720,11 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
 
     s << "#NODE " << node1Crd(0) << " " << node1Crd(1) << " " << node1Crd(2) << " " << node1Disp(0)
       << " " << node1Disp(1) << " " << node1Disp(2) << " " << node1Disp(3) << " " << node1Disp(4)
-      << " " << node1Disp(5) << endln;
+      << " " << node1Disp(5) << "\n";
 
     s << "#NODE " << node2Crd(0) << " " << node2Crd(1) << " " << node2Crd(2) << " " << node2Disp(0)
       << " " << node2Disp(1) << " " << node2Disp(2) << " " << node2Disp(3) << " " << node2Disp(4)
-      << " " << node2Disp(5) << endln;
+      << " " << node2Disp(5) << "\n";
 
     double P     = q_save[0];
     double MZ1   = q_save[1];
@@ -1677,22 +1740,22 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
 
     double p0[5];
     p0[0] = p0[1] = p0[2] = p0[3] = p0[4] = 0.0;
-    if (numEleLoads > 0)
+    if (eleLoads.size() > 0)
       this->computeReactions(p0);
 
     s << "#END_FORCES " << -P + p0[0] << ' ' << VY + p0[1] << ' ' << -VZ + p0[3] << ' ' << -T << ' '
-      << MY1 << ' ' << MZ1 << endln;
+      << MY1 << ' ' << MZ1 << "\n";
     s << "#END_FORCES " << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << ' ' << T << ' ' << MY2
-      << ' ' << MZ2 << endln;
+      << ' ' << MZ2 << "\n";
 
     // plastic hinge rotation
     static Vector vp(6);
-    static MatrixND<NEBD,NEBD> fe;
+    static MatrixND<nq,nq> fe;
     this->getInitialFlexibility(fe);
     vp = theCoordTransf->getBasicTrialDisp();
     vp.addMatrixVector(1.0, fe, q_pres, -1.0);
     s << "#PLASTIC_HINGE_ROTATION " << vp[1] << " " << vp[2] << " " << vp[3] << " " << vp[4] << " "
-      << 0.1 * L << " " << 0.1 * L << endln;
+      << 0.1 * L << " " << 0.1 * L << "\n";
 
     // allocate array of vectors to store section coordinates and displacements
     static int maxNumSections = 0;
@@ -1708,10 +1771,10 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
       displs = new Vector[numSections];
 
       for (int i = 0; i < numSections; i++)
-        coords[i] = Vector(NDM);
+        coords[i] = Vector(ndm);
 
       for (int i = 0; i < numSections; i++)
-        displs[i] = Vector(NDM);
+        displs[i] = Vector(ndm);
 
       maxNumSections = numSections;
     }
@@ -1719,10 +1782,10 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
     // compute section location & displacements
     this->compSectionDisplacements(coords, displs);
 
-    // spit out the section location & invoke print on the scetion
+    // print the section location & invoke print on the section
     for (int i = 0; i < numSections; i++) {
       s << "#SECTION " << (coords[i])(0) << " " << (coords[i])(1) << " " << (coords[i])(2);
-      s << " " << (displs[i])(0) << " " << (displs[i])(1) << " " << (displs[i])(2) << endln;
+      s << " " << (displs[i])(0) << " " << (displs[i])(1) << " " << (displs[i])(2) << "\n";
       sections[i]->Print(s, flag);
     }
   }
@@ -1731,7 +1794,7 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
     s << "\nElement: " << this->getTag() << " Type: ForceFrame3d ";
     s << "\tConnected Nodes: " << connectedExternalNodes;
     s << "\tNumber of Sections: " << numSections;
-    s << "\tMass density: " << rho << endln;
+    s << "\tMass density: " << density << "\n";
     beamIntegr->Print(s, flag);
     double P     = q_save[0];
     double MZ1   = q_save[1];
@@ -1747,31 +1810,16 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
 
     double p0[5];
     p0[0] = p0[1] = p0[2] = p0[3] = p0[4] = 0.0;
-    if (numEleLoads > 0)
+    if (eleLoads.size() > 0)
       this->computeReactions(p0);
 
     s << "\tEnd 1 Forces (P MZ VY MY VZ T): " << -P + p0[0] << " " << MZ1 << " " << VY + p0[1]
-      << " " << MY1 << " " << -VZ + p0[3] << " " << T << endln;
+      << " " << MY1 << " " << -VZ + p0[3] << " " << T << "\n";
     s << "\tEnd 2 Forces (P MZ VY MY VZ T): " << P << " " << MZ2 << " " << -VY + p0[2] << " " << MY2
-      << " " << VZ + p0[4] << " " << -T << endln;
+      << " " << VZ + p0[4] << " " << -T << "\n";
 
     for (int i = 0; i < numSections; i++)
       sections[i]->Print(s, flag);
-  }
-
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\t{";
-    s << "\"name\": " << this->getTag() << ", ";
-    s << "\"type\": \"ForceFrame3d\", ";
-    s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
-    s << "\"sections\": [";
-    for (int i = 0; i < numSections - 1; i++)
-      s << "\"" << sections[i]->getTag() << "\", ";
-    s << "\"" << sections[numSections - 1]->getTag() << "\"], ";
-    s << "\"integration\": ";
-    beamIntegr->Print(s, flag);
-    s << ", \"massperlength\": " << rho << ", ";
-    s << "\"crdTransformation\": \"" << theCoordTransf->getTag() << "\"}";
   }
 }
 
@@ -2022,7 +2070,7 @@ int
 ForceFrame3d::getResponse(int responseID, Information& eleInfo)
 {
   static Vector vp(6);
-  static MatrixND<NEBD,NEBD> fe;
+  static MatrixND<nq,nq> fe;
 
   if (responseID == 1)
     return eleInfo.setVector(this->getResistingForce());
@@ -2030,7 +2078,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
   else if (responseID == 2) {
     double p0[5];
     p0[0] = p0[1] = p0[2] = p0[3] = p0[4] = 0.0;
-    if (numEleLoads > 0)
+    if (eleLoads.size() > 0)
       this->computeReactions(p0);
     // Axial
     double N     = q_pres[0];
@@ -2395,7 +2443,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
         indata.open(filenamewall); // opens the file
         if (!indata) {             // file couldn't be opened
           opserr << "ForceFrame3d::getResponse"
-                 << " file for infill wall (" << filenamewall << " could not be opened" << endln;
+                 << " file for infill wall (" << filenamewall << " could not be opened" << "\n";
           return -1;
         }
         checkvalue1    = 0.0;
@@ -2477,7 +2525,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
     Vector dsdh(order);
     dsdh.Zero();
 
-    if (numEleLoads > 0) {
+    if (eleLoads.size() > 0) {
       this->computeSectionForceSensitivity(dsdh, sectionNum - 1, gradNumber);
     }
     //opserr << "FBC3d::getRespSens dspdh: " << dsdh;
@@ -2544,7 +2592,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
 
     dvpdh = dvdh;
 
-    static MatrixND<NEBD,NEBD> fe;
+    static MatrixND<nq,nq> fe;
     this->getInitialFlexibility(fe);
 
     const Vector& dqdh = this->computedqdh(gradNumber);
@@ -2573,8 +2621,9 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
   int result = -1;
 
   // If the parameter belongs to the element itself
-  if (strcmp(argv[0], "rho") == 0) {
-    param.setValue(rho);
+  if ((strcmp(argv[0], "rho") == 0) 
+     || (strcmp(argv[0], "density") == 0)) {
+    param.setValue(density);
     return param.addObject(1, this);
   }
 
@@ -2662,7 +2711,7 @@ int
 ForceFrame3d::updateParameter(int parameterID, Information& info)
 {
   if (parameterID == 1) {
-    this->rho = info.theDouble;
+    this->density = info.theDouble;
     return 0;
   } else
     return -1;
@@ -2689,7 +2738,7 @@ ForceFrame3d::getMassSensitivity(int gradNumber)
   theMatrix.Zero();
 
   double L = theCoordTransf->getInitialLength();
-  if (rho != 0.0 && parameterID == 1)
+  if (density != 0.0 && parameterID == 1)
     theMatrix(0, 0) = theMatrix(1, 1) = theMatrix(2, 2) = theMatrix(6, 6) = theMatrix(7, 7) =
         theMatrix(8, 8)                                                   = 0.5 * L;
 
@@ -2774,11 +2823,11 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
 
     double dxLdh = dptsdh[i];
 
-    Vector ds(workArea, order);
+    Vector ds(nsr);
     ds.Zero();
 
     // Add sensitivity wrt element loads
-    if (numEleLoads > 0) {
+    if (eleLoads.size() > 0) {
       this->computeSectionForceSensitivity(ds, i, gradNumber);
     }
 
@@ -2808,7 +2857,7 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
       }
     }
 
-    Vector de(&workArea[order], order);
+    Vector de(order);
     const Matrix& fs = sections[i]->getSectionFlexibility();
     de.addMatrixVector(0.0, fs, ds, 1.0);
 
@@ -2824,9 +2873,6 @@ ForceFrame3d::computedqdh(int gradNumber)
 
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
-
-  double pts[maxNumSections];
-  beamIntegr->getSectionLocations(numSections, L, pts);
 
   double wts[maxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wts);
@@ -2850,24 +2896,24 @@ ForceFrame3d::computedqdh(int gradNumber)
     int order      = sections[i]->getOrder();
     const ID& code = sections[i]->getType();
 
-    double xL  = pts[i];
+    double xL  = xi[i];
     double xL1 = xL - 1.0;
-    double wtL = wts[i] * L;
+    double wtL = wt[i] * L;
 
     double dxLdh  = dptsdh[i]; // - xL/L*dLdh;
-    double dwtLdh = wts[i] * dLdh + dwtsdh[i] * L;
+    double dwtLdh = wt[i] * dLdh + dwtsdh[i] * L;
 
 
     // Get section stress resultant gradient
-    Vector dsdh(&workArea[order], order);
+    Vector dsdh(order);
     dsdh = sections[i]->getStressResultantSensitivity(gradNumber, true);
 
-    Vector dspdh(&workArea[2 * order], order);
+    Vector dspdh(order);
     dspdh.Zero();
     // Add sensitivity wrt element loads
-    if (numEleLoads > 0) {
+    if (eleLoads.size() > 0)
       this->computeSectionForceSensitivity(dspdh, i, gradNumber);
-    }
+
     dsdh.addVector(1.0, dspdh, -1.0);
 
     int j;
@@ -2881,7 +2927,7 @@ ForceFrame3d::computedqdh(int gradNumber)
       }
     }
 
-    Vector dedh(workArea, order);
+    Vector dedh(order);
     const Matrix& fs = sections[i]->getSectionFlexibility();
     dedh.addMatrixVector(0.0, fs, dsdh, 1.0);
 
@@ -2979,12 +3025,6 @@ ForceFrame3d::computedfedh(int gradNumber)
 
   beamIntegr->addElasticFlexDeriv(L, dfedh, dLdh);
 
-  double xi[maxNumSections];
-  beamIntegr->getSectionLocations(numSections, L, xi);
-
-  double wt[maxNumSections];
-  beamIntegr->getSectionWeights(numSections, L, wt);
-
   double dptsdh[maxNumSections];
   beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
 
@@ -2996,8 +3036,8 @@ ForceFrame3d::computedfedh(int gradNumber)
     int order      = sections[i]->getOrder();
     const ID& code = sections[i]->getType();
 
-    Matrix fb(workArea, order, NEBD);
-    Matrix fb2(&workArea[order * NEBD], order, NEBD);
+    Matrix fb(order, nq);
+    Matrix fb2(order, nq);
 
     double xL  = xi[i];
     double xL1 = xL - 1.0;
@@ -3057,11 +3097,11 @@ ForceFrame3d::computedfedh(int gradNumber)
     for (ii = 0; ii < order; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (jj = 0; jj < NEBD; jj++)
+        for (jj = 0; jj < nq; jj++)
           dfedh(0, jj) += fb(ii, jj);
         break;
       case SECTION_RESPONSE_MZ:
-        for (jj = 0; jj < NEBD; jj++) {
+        for (jj = 0; jj < nq; jj++) {
           tmp = fb(ii, jj); // 1,2,3
           dfedh(1, jj) += xL1 * tmp;
           dfedh(2, jj) += xL * tmp;
@@ -3072,14 +3112,15 @@ ForceFrame3d::computedfedh(int gradNumber)
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (jj = 0; jj < NEBD; jj++) {
+        for (jj = 0; jj < nq; jj++) {
           tmp = oneOverL * fb(ii, jj);
           dfedh(1, jj) += tmp;
           dfedh(2, jj) += tmp;
           // TODO: Need to complete for dLdh != 0
         }
         break;
-      default: break;
+      default:
+        break;
       }
     }
   }
@@ -3106,10 +3147,10 @@ ForceFrame3d::setSectionPointers(int numSec, FrameSection** secPtrs)
   for (int i = 0; i < numSections; i++) {
 
     if (secPtrs[i] == 0) {
-      opserr << "Error: ForceFrame3d::setSectionPointers -- null section pointer " << i << endln;
+      opserr << "Error: ForceFrame3d::setSectionPointers -- null section pointer " << i << "\n";
     }
 
-    sections[i] = secPtrs[i]->getFrameCopy();
+    sections[i] = secPtrs[i]->getFrameCopy(scheme);
 
     // Check sections
     // TODO: return int, dont exit
@@ -3151,29 +3192,15 @@ ForceFrame3d::getResistingForce()
   Vector p0Vec(p0, 5);
   p0Vec.Zero();
   
-  if (numEleLoads > 0)
+  if (eleLoads.size() > 0)
     this->computeReactions(p0);
   
   theVector =  theCoordTransf->getGlobalResistingForce(Se, p0Vec);
   
-  if (rho != 0)
+  if (density != 0)
     theVector.addVector(1.0, load, -1.0);
   
   return theVector;
-}
-
-
-const Matrix &
-ForceFrame3d::getMass()
-{
-  theMatrix.Zero();
-
-  double L = theCoordTransf->getInitialLength();
-  if (rho != 0.0)
-    theMatrix(0,0) = theMatrix(1,1) = theMatrix(2,2) =
-      theMatrix(6,6) = theMatrix(7,7) = theMatrix(8,8) = 0.5*L*rho;
-
-  return theMatrix;
 }
 
 
@@ -3247,37 +3274,6 @@ ForceFrame3d::getForceInterpolatMatrix(double xi, Matrix& b, const ID& code)
     default: break;
     }
   }
-}
-
-int
-ForceFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
-{
-  if (numEleLoads == sizeEleLoads) {
-
-    //
-    // create larger arrays, copy old, delete old & set as new
-    //
-    ElementalLoad ** theNextEleLoads = new ElementalLoad *[sizeEleLoads+1];
-    double *theNextEleLoadFactors = new double[sizeEleLoads+1];
-    for (int i=0; i<numEleLoads; i++) {
-      theNextEleLoads[i] = eleLoads[i];
-      theNextEleLoadFactors[i] = eleLoadFactors[i];
-    }
-
-    delete [] eleLoads;
-    delete [] eleLoadFactors;
-    eleLoads = theNextEleLoads;
-    eleLoadFactors = theNextEleLoadFactors;  
-
-    // increment array size
-    sizeEleLoads+=1;
-  }
-
-  eleLoadFactors[numEleLoads] = loadFactor;
-  eleLoads[numEleLoads] = theLoad;
-  numEleLoads++;
-
-  return 0;
 }
 
 #endif

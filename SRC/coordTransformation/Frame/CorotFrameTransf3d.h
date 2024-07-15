@@ -8,13 +8,14 @@
 // CorotFrameTransf3d.h. CorotFrameTransf3d provides the
 // abstraction of a corotation transformation for a spatial frame element
 //
-// Modified by : cmp, March 2024
+// Written by : cmp, March 2024
 //
-// Written: Remo Magalhaes de Souza
+// Adapted from work by: Remo Magalhaes de Souza
 //
 #ifndef CorotFrameTransf3d_h
 #define CorotFrameTransf3d_h
 
+#include <array>
 #include "FrameTransform.h"
 #include <Vector.h>
 #include <Matrix.h>
@@ -27,7 +28,7 @@ class CorotFrameTransf3d: public FrameTransform3d
 {
 public:
     CorotFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
-        const Vector &rigJntOffsetI, const Vector &rigJntOffsetJ);
+                       const Vector &rigJntOffsetI, const Vector &rigJntOffsetJ);
 
     CorotFrameTransf3d();
     ~CorotFrameTransf3d();
@@ -112,41 +113,43 @@ private:
 
 
     //
-    // internal data
+    // Internal data
     //
-    Node *nodeIPtr, *nodeJPtr;  // pointers to the element two endnodes
+    std::array<Node*, 2> nodes;                // pointers to the element two endnodes
 
-    Vector xAxis;               // local x axis
-    Vector vAxis;               // Vector that lies in local plane xz
+    Vector xAxis;                              // local x axis
+    Vector vAxis;                              // Vector that lies in local plane xz
+
+    // Rigid joint offsets
     enum {
       end_i = 0<<1,
       end_j = 0<<2,
     };
     int joint_offsets;
-    Vector nodeIOffset, 
-           nodeJOffset;         // rigid joint offsets
 
-    double L;                   // initial element length
-    double Ln;                  // current element length (at trial state)
+    Vector nodeIOffset, 
+           nodeJOffset;                        
+
+    double L;                                  // initial element length
+    double Ln;                                 // current element length (at trial state)
     
-                                // (the columns of which are the element local axes)
+                                               // (the columns of which are the element local axes)
     OpenSees::VectorND<4> alphaIq;             // quaternion for node I
     OpenSees::VectorND<4> alphaJq;             // quaternion for node I 
     OpenSees::VectorND<4> alphaIqcommit;       // commited quaternion for node I
     OpenSees::VectorND<4> alphaJqcommit;       // commited quaternion for node J
-    Vector alphaI;                 // last trial rotations end i
-    Vector alphaJ;                 // last trial rotatations end j
+    Vector alphaI;                             // last trial rotations end i
+    Vector alphaJ;                             // last trial rotatations end j
 
-    Vector ul;                     // local displacements
-    Vector ulcommit;               // commited local displacements
-    Vector ulpr;                   // previous local displacements
+    Vector ul;                                 // local displacements
+    Vector ulcommit;                           // commited local displacements
+    Vector ulpr;                               // previous local displacements
 
     OpenSees::MatrixND<12,12> ag;
-    // previously static variables
-    OpenSees::MatrixND<7,12> T;
-//  Matrix T;                   // transformation matrix from basic to global system
+
+    OpenSees::MatrixND<7,12> T;    // transformation matrix from local to global system
     OpenSees::Matrix3D A;
-    OpenSees::Matrix3D R0;      // rotation matrix from local to global coordinates
+    OpenSees::Matrix3D R0;         // rotation matrix from local to global coordinates
     OpenSees::Matrix3D e, RI, RJ, Rbar;
     
     double *nodeIInitialDisp, *nodeJInitialDisp;
@@ -154,7 +157,7 @@ private:
 
     // Static workspace variables
     static Matrix Tp;                 // transformation matrix to renumber dofs
-    static Matrix kg;                 // global stiffness matrix
+//  static Matrix kg;                 // global stiffness matrix
     static MatrixND<12,3> Lr2, Lr3;   // auxiliary matrices
 };
 

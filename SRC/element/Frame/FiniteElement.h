@@ -133,10 +133,10 @@ protected:
     virtual MatrixND<ndf*nen,ndf*nen> getTangent(State state, int rate) =0;
     virtual VectorND<ndf*nen>         getForce(State state, int rate) =0;
     virtual                       int setNodes() = 0;
-    virtual                    double getTotalMass() = 0;
 
     // Supplied for children
     inline int setState(State state) {
+
       if ((e_state & state) == state)
         return 0;
 
@@ -170,11 +170,12 @@ protected:
 
     ID  connectedExternalNodes;    
 
+    static Vector P;
+
 private:
     State  e_state;
 
     static Matrix K;
-    static Vector P;
 
 };
 

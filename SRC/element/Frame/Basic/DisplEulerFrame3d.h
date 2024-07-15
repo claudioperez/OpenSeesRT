@@ -1,9 +1,10 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
 //
-// Description: This file contains the class definition for DisplDeltaFrame3d.
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
+// Description: This file contains the class definition for DisplEulerFrame3d.
 // The element displacement field gives rise to constant axial strain,
 // linear curvature, and constant twist angle.
 
@@ -17,8 +18,8 @@
 // Written: MHS
 // Created: Feb 2001
 //
-#ifndef DisplDeltaFrame3d_h
-#define DisplDeltaFrame3d_h
+#ifndef DisplEulerFrame3d_h
+#define DisplEulerFrame3d_h
 
 #include <array>
 #include <Frame/FiniteElement.h>
@@ -33,18 +34,18 @@ class FrameTransform3d;
 class BeamIntegration;
 class Response;
 
-class DisplDeltaFrame3d : public FiniteElement<2, 3, 6>
+class DisplEulerFrame3d : public FiniteElement<2, 3, 6>
 {
   public:
-    DisplDeltaFrame3d(int tag, std::array<int,2>& nodes,
+    DisplEulerFrame3d(int tag, std::array<int,2>& nodes,
              int numSections, FrameSection **s,
              BeamIntegration &bi, FrameTransform3d &coordTransf,
              double rho = 0.0, int cMass = 0);
-    DisplDeltaFrame3d();
-    ~DisplDeltaFrame3d();
+    DisplEulerFrame3d();
+    ~DisplEulerFrame3d();
 
-    const char *getClassType() const {return "DisplDeltaFrame3d";};
-    static constexpr const char* class_name = "DisplDeltaFrame3d";
+    const char *getClassType() const {return "DisplEulerFrame3d";};
+    static constexpr const char* class_name = "DisplEulerFrame3d";
 
 
     // public methods to set the state of the element    
@@ -84,16 +85,16 @@ class DisplDeltaFrame3d : public FiniteElement<2, 3, 6>
     constexpr static int
       nen = 2,
       ndf = 6,
-      nsr = 4;
+      nsr = 4,
+      maxNumSections = 20; // TODO: remove
 
     int cMass;
 
-    enum {maxNumSections = 20};
 
 
     int numSections;
-    FrameSection **theSections; // pointer to the Sections
-    FrameTransform3d *theCoordTransf;        // pointer to coordinate transformation
+    FrameSection **theSections;            // pointer to the Sections
+    FrameTransform3d *theCoordTransf;      // pointer to coordinate transformation
 
     BeamIntegration *beamInt;
 

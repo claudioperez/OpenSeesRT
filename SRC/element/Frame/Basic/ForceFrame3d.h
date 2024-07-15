@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 /*
  * References
@@ -31,13 +32,13 @@
 #include <Vector.h>
 #include <VectorND.h>
 #include <MatrixND.h>
+#include <FrameSection.h>
 
 class Matrix;
 class Channel;
 class Response;
 class ElementalLoad;
 class BeamIntegration;
-#include <FrameSection.h>
 
 using namespace OpenSees;
 
@@ -49,7 +50,7 @@ class ForceFrame3d: public BasicFrame3d
 		    int numSections, FrameSection **sec,
 		    BeamIntegration &beamIntegr,
 		    FrameTransform3d &coordTransf, double rho = 0.0, 
-		    int maxNumIters = 10, double tolerance = 1.0e-12);
+		    int maxNumIters = 10, double tolerance = 1.0e-12, int cMass=0);
   
   ~ForceFrame3d();
 
@@ -82,7 +83,7 @@ class ForceFrame3d: public BasicFrame3d
   Response *setResponse(const char **argv, int argc, OPS_Stream &s);
   int getResponse(int responseID, Information &eleInformation);
   
- // AddingSensitivity:BEGIN //////////////////////////////////////////
+
   int setParameter(const char **argv, int argc, Parameter &param);
   int updateParameter(int parameterID, Information &info);
   int activateParameter(int parameterID);
@@ -90,9 +91,10 @@ class ForceFrame3d: public BasicFrame3d
   const Matrix &getKiSensitivity(int gradNumber);
   const Matrix &getMassSensitivity(int gradNumber);
   int commitSensitivity(int gradNumber, int numGrads);
-  int getResponseSensitivity(int responseID, int gradNumber,
-			     Information &eleInformation);
-  // AddingSensitivity:END ///////////////////////////////////////////
+  int getResponseSensitivity(int responseID, int gradNumber, Information &info);
+
+
+  virtual int getIntegral(Field field, State state, double& total);
 
  protected:
 
@@ -104,16 +106,15 @@ class ForceFrame3d: public BasicFrame3d
   constexpr static int 
 //      ndf  = 6,             // number of nodal dofs
         nsr = 6,              // number of section resultants
-        NDM  = 3,             // dimension of the problem (3D)
-//      NEGD = 12,            // number of element global dof's
-        NEBD = 6,             // number of element dof's in the basic system
+        ndm = 3,              // dimension of the problem (3D)
+        nq = 6,               // number of element dof's in the basic system
         maxNumEleLoads = 100,
         maxNumSections = 20,
         maxSubdivisions= 10;
   
 
   void setSectionPointers(int numSections, FrameSection **secPtrs);
-  int getInitialFlexibility(MatrixND<NEBD,NEBD> &fe);
+  int getInitialFlexibility(MatrixND<nq,nq> &fe);
   int getInitialDeformations(Vector &v0);
 
   void compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const;
@@ -128,7 +129,10 @@ class ForceFrame3d: public BasicFrame3d
   // Element State
   //
   // Parameters
-  double rho;                    // mass density per unit length
+  double density;                // mass density per unit length
+  double inertia;
+  int mass_flag;
+
   int    maxIters;               // maximum number of local iterations
   double tol;	                   // tolerance for relative energy norm for local iterations
   // State
@@ -141,7 +145,6 @@ class ForceFrame3d: public BasicFrame3d
 
   Matrix *Ki;
 
-  bool isTorsion;
   static constexpr BasicForceLayout force_layout = {
   };
 
@@ -178,7 +181,6 @@ class ForceFrame3d: public BasicFrame3d
   //
   static Matrix theMatrix;
   static Vector theVector;
-  static double workArea[];
 
   // AddingSensitivity:BEGIN //////////////////////////////////////////
   int parameterID;

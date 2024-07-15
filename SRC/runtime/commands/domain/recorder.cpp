@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the function that is invoked
 // by the interpreter when the comand 'record' is invoked by the
@@ -69,8 +70,7 @@ OPS_Routine OPS_MPCORecorder;
 OPS_Routine OPS_VTK_Recorder;
 OPS_Routine OPS_ElementRecorderRMS;
 
-extern "C" int
-OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
                         int cArg, int mArg, TCL_Char ** const argv,
                         Domain *domain);
 
@@ -557,6 +557,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       else {
+        // TODO: handle the same as Node recorder; see Example1.1.py
         // first unknown string then is assumed to start
         // element response request starts
         eleData = loc;
@@ -1753,7 +1754,7 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     else if (pos < argc) {
       opserr << "WARNING Unknown argument " << argv[pos] << "\n";
     }
-  }
+  } // while (pos < argc)
 
   if (responseID == nullptr) { // pos >= argc) {
     opserr << "WARNING: No response type specified for node recorder, will "

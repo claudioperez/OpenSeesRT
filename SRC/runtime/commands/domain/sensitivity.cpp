@@ -1,3 +1,9 @@
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
+// 
 #include <tcl.h>
 #include <assert.h>
 #include <Domain.h>
@@ -10,7 +16,7 @@
 #include <ElementStateParameter.h>
 
 
-// AddingSensitivity:BEGIN ////////////////////////////////////
+
 int
 sensNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char ** const argv)
@@ -384,7 +390,6 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
   return TCL_OK;
 }
 
-////////////////////////////Abbas///////////////////////////////////////
 
 
 
