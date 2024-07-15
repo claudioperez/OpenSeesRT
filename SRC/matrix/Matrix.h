@@ -60,9 +60,23 @@ class Matrix
 
     // utility methods
     int setData(double *newData, int nRows, int nCols);
+    template <int nr, int nc>
+    inline int setData(OpenSees::MatrixND<nr,nc,double> &M) {
+      if (!fromFree && data != nullptr)
+        delete[] data;
+
+      fromFree = 1; // Cannot delete data
+      data = &M.values[0][0];
+      numRows = nr;
+      numCols = nc;
+      dataSize= nr*nc;
+      return 0;
+    }
+
     inline int noRows() const;
     inline int noCols() const;
-    void Zero(void);
+
+    void Zero();
     int resize(int numRow, int numCol);
     Vector diagonal() const;
 
@@ -192,6 +206,7 @@ class Matrix
     static int sizeDoubleWork;
     static int sizeIntWork;
 #endif
+
     int numRows;
     int numCols;
     int dataSize;
@@ -260,7 +275,7 @@ Matrix::Assemble(const OpenSees::MatrixND<nr,nc,double> &M, int init_row, int in
   
   [[maybe_unused]] int final_row = init_row + nr - 1;
   [[maybe_unused]] int final_col = init_col + nc - 1;
-  
+
   assert((init_row >= 0) && (final_row < numRows) && (init_col >= 0) && (final_col < numCols));
 
   for (int i=0; i<nc; i++) {
