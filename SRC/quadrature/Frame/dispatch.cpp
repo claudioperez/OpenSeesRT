@@ -6,7 +6,7 @@
 #include <BeamIntegration.h>
 #include <BasicModelBuilder.h>
 
-extern int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
                           int mArg, TCL_Char ** const argv, Domain *domain);
 
 extern void *OPS_LobattoBeamIntegration(int &integrationTag, ID &secTags);
