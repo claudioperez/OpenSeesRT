@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <T2Vector.h>
 #include <Matrix.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 static double
 delta(int i,int j) {
