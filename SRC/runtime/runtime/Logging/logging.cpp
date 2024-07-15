@@ -1,6 +1,6 @@
 #include <cstdarg>
-#include <OPS_Globals.h>
 #include <tcl.h>
+#include <string.h>
 #include <elementAPI.h>
 class G3_Runtime;
 
@@ -18,18 +18,44 @@ OPS_Stream *opsmrdPtr = &sserr;
 
 #include <G3_Logging.h>
 
-const char * G3_WarnPromptColor   = RED "WARNING " COLOR_RESET;
-const char * G3_WarnPromptNoColor = "WARNING ";
 
-const char * G3_ErrorPromptColor   = BRED "ERROR " COLOR_RESET;
-const char * G3_ErrorPromptNoColor = "ERROR ";
+namespace OpenSees {
 
-const char * G3_DebugPromptColor   = GRN "DEBUG " COLOR_RESET;
-const char * G3_DebugPromptNoColor = "DEBUG ";
 
-const char * G3_WARN_PROMPT  = G3_WarnPromptNoColor;
-const char * G3_ERROR_PROMPT = G3_ErrorPromptNoColor;
-const char * G3_DEBUG_PROMPT = G3_DebugPromptNoColor;
+namespace Internal {
+  const char * WarnPromptColor   = RED "WARNING " COLOR_RESET;
+  const char * WarnPromptNoColor = "WARNING ";
+
+  const char * ErrorPromptColor   = BRED "ERROR " COLOR_RESET;
+  const char * ErrorPromptNoColor = "ERROR ";
+
+  const char * DebugPromptColor   = GRN "DEBUG " COLOR_RESET;
+  const char * DebugPromptNoColor = "DEBUG ";
+
+  const char * AnalysisIterateColor    = BLU "   ITERATE" COLOR_RESET " :: ";
+  const char * AnalysisIterateNoColor  =     "   ITERATE"             " :: ";
+
+  const char * AnalysisFailureColor    = RED "   FAILURE" COLOR_RESET " :: ";
+  const char * AnalysisFailureNoColor  =     "   FAILURE"             " :: ";
+
+  const char * AnalysisSuccessColor    = GRN "   SUCCESS" COLOR_RESET " :: ";
+  const char * AnalysisSuccessNoColor  =     "   SUCCESS"             " :: ";
+
+}; // namespace OpenSees::Internal
+
+  // Default to no color
+  const char * PromptParseError      = Internal::ErrorPromptNoColor;
+  const char * PromptValueError      = PromptParseError;
+
+  const char * PromptDomainFailure   = Internal::AnalysisFailureNoColor;
+  const char * PromptAnalysisFailure = Internal::AnalysisFailureNoColor;
+  const char * PromptAnalysisSuccess = Internal::AnalysisSuccessNoColor;
+  const char * PromptAnalysisIterate = Internal::AnalysisIterateNoColor;
+};
+
+const char * G3_WARN_PROMPT  = OpenSees::Internal::WarnPromptNoColor;
+const char * G3_ERROR_PROMPT = OpenSees::Internal::ErrorPromptNoColor;
+const char * G3_DEBUG_PROMPT = OpenSees::Internal::DebugPromptNoColor;
 
 int
 G3_SetStreamLevel(int stream, bool on)
@@ -54,14 +80,22 @@ G3_SetStreamLevel(int stream, bool on)
 int G3_SetStreamColor(G3_Runtime* rt, int strm, int flag)
 {
   if (flag == 1) {
-    G3_WARN_PROMPT = G3_WarnPromptColor;
-    G3_ERROR_PROMPT = G3_ErrorPromptColor;
-    G3_DEBUG_PROMPT = G3_DebugPromptColor;
+    G3_WARN_PROMPT                  = OpenSees::Internal::WarnPromptColor;
+    G3_ERROR_PROMPT                 = OpenSees::Internal::ErrorPromptColor;
+    G3_DEBUG_PROMPT                 = OpenSees::Internal::DebugPromptColor;
+    OpenSees::PromptParseError      = OpenSees::Internal::ErrorPromptColor;
+    OpenSees::PromptAnalysisFailure = OpenSees::Internal::AnalysisFailureColor;
+    OpenSees::PromptAnalysisSuccess = OpenSees::Internal::AnalysisSuccessColor;
+    OpenSees::PromptAnalysisIterate = OpenSees::Internal::AnalysisIterateColor;
 
   } else if (flag == 0) {
-    G3_WARN_PROMPT = G3_WarnPromptNoColor;
-    G3_ERROR_PROMPT = G3_ErrorPromptNoColor;
-    G3_DEBUG_PROMPT = G3_DebugPromptNoColor;
+    G3_WARN_PROMPT             = OpenSees::Internal::WarnPromptNoColor;
+    G3_ERROR_PROMPT            = OpenSees::Internal::ErrorPromptNoColor;
+    G3_DEBUG_PROMPT            = OpenSees::Internal::DebugPromptNoColor;
+    OpenSees::PromptParseError = OpenSees::Internal::ErrorPromptNoColor;
+    OpenSees::PromptAnalysisFailure = OpenSees::Internal::AnalysisFailureNoColor;
+    OpenSees::PromptAnalysisSuccess = OpenSees::Internal::AnalysisSuccessNoColor;
+    OpenSees::PromptAnalysisIterate = OpenSees::Internal::AnalysisIterateNoColor;
   }
 
   return 0;
