@@ -12,13 +12,13 @@
 #include <assert.h>
 #include <string.h>
 #include <tcl.h>
-#include <G3_Logging.h>
-#include <G3_Char.h>
+#include <Logging.h>
+#include <Parsing.h>
 #include <Node.h>
 #include <NodeND.h>
 #include <Matrix.h>
 #include <Domain.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #define G3_MAX_NUM_DOFS 1000000000000
 #define G3_NUM_DOF_BUFFER 20
