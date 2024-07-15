@@ -9,7 +9,6 @@
 #include <Vector.h>
 #include <Matrix.h>
 #include "cbdi.h"
-#include <OPS_Globals.h>
 
 void
 vandermonde(int numSections, const double xi[], Matrix& G)
