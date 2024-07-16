@@ -38,7 +38,7 @@
 #include <ID.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 // Constructor
 MyRCM::MyRCM(int startVertex, bool minDegreeFlag)
