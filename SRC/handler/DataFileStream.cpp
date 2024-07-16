@@ -24,7 +24,7 @@
 
 
 #include <DataFileStream.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <Vector.h>
 #include <iostream>
 #include <iomanip>

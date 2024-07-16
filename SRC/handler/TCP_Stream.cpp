@@ -28,7 +28,7 @@
 #include <Channel.h>
 #include <Message.h>
 
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <TCP_Socket.h>
 
 TCP_Stream::TCP_Stream()

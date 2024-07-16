@@ -26,7 +26,7 @@
 #include <ID.h>
 #include <Channel.h>
 #include <Message.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 #include <ChannelStream.h>
 
