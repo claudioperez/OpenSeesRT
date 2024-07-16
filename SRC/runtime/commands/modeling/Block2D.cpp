@@ -5,12 +5,13 @@
 //===----------------------------------------------------------------------===//
 //
 // Description: This file contains the class definition for Block2D.
-//                                                                        
-// $Source: /usr/local/cvs/OpenSees/SRC/modelbuilder/tcl/Block2D.cpp,v $
- //                                                                       
+//
 // Written: Ed Love
 // Created: 07/99
 //
+#include <Vector.h>
+#include <Matrix.h>
+#include <Vector3D.h>
 #include <Block2D.h>
 
 
@@ -20,7 +21,6 @@ Block2D::Block2D(int numx, int numy,
 		 const Matrix& coorArray,
 		 int numNode) 
 : 
-coor(3), 
 element(numNode) ,
 numNodesElement(numNode),
 errorFlag(0)
@@ -40,7 +40,8 @@ errorFlag(0)
       errorFlag = 1;
   }
 
-  this->setUpXl( nodeID, coorArray );
+  if (this->setUpXl( nodeID, coorArray ) != 0)
+    errorFlag = 1;
 
 }
 
@@ -53,60 +54,58 @@ Block2D::~Block2D( )
 
 
 //set up xl array
-void  Block2D::setUpXl( const ID &nodeID, const Matrix &coorArray ) 
+int
+Block2D::setUpXl( const ID &nodeID, const Matrix &coorArray ) 
 {
 
-  int i, j;
 
-  for ( i=0; i<4; i++ ){
+  for (int i=0; i<4; i++ ){
     if ( nodeID(i) == -1 ) {
       opserr << "Warning : in Block2D, block node " 
-	   << i 
-	   << " is not defined.  No Generation will take place."
-	   << endln;
-      break; 
+	           << i << " is not defined.\n";
+      return -1;
     }
   }
 
   // local storage xl = transpose(coorArray)
-  for ( i=0; i<3; i++ ) {
-    for ( j=0; j<9; j++ )
+  for (int i=0; i<3; i++ ) {
+    for (int j=0; j<9; j++ )
       xl[i][j] = coorArray(j,i);
   }
 
 
   if ( nodeID(4) == -1 ) {
-    for ( i=0; i<3; i++ )
+    for (int i=0; i<3; i++ )
       xl[i][4] = 0.5*( xl[i][0] + xl[i][1] );
   }
 
   if ( nodeID(5) == -1 ) {
-    for ( i=0; i<3; i++ )
+    for (int i=0; i<3; i++ )
       xl[i][5] = 0.5*( xl[i][1] + xl[i][2] );
   }
 
   if ( nodeID(6) == -1 ) {
-    for ( i=0; i<3; i++ )
+    for (int i=0; i<3; i++ )
       xl[i][6] = 0.5*( xl[i][2] + xl[i][3] );
   }
 
   if ( nodeID(7) == -1 ) {
-    for ( i=0; i<3; i++ )
+    for (int i=0; i<3; i++ )
       xl[i][7] = 0.5*( xl[i][3] + xl[i][0] );
   }
 
   if ( nodeID(8) == -1 ) {
-    for ( i=0; i<3; i++ ) 
+    for (int i=0; i<3; i++ ) 
       xl[i][8]  = 0.25*( xl[i][0] + xl[i][1] + xl[i][2] + xl[i][3] ) ;
   }
 
   
-  return;
+  return 0;
 }
 
 
 //generate node
-const Vector&
+Vector3D
 Block2D::getNodalCoords( int i, int j )
 {
 
@@ -115,11 +114,12 @@ Block2D::getNodalCoords( int i, int j )
   double x = -1.0 + (i*hx);
   double y = -1.0 + (j*hy);
 
-  coor(0) = x;
-  coor(1) = y;
-  coor(2) = 0.0;
+  Vector3D coor;
+  coor[0] = x;
+  coor[1] = y;
+  coor[2] = 0.0;
 
-  this->transformNodalCoordinates( );
+  this->transformNodalCoordinates(coor);
   
   return coor;
 }
@@ -187,26 +187,27 @@ Block2D::getElementNodes( int i, int j )
 
 
 //transform to real coordiantes
-void  Block2D::transformNodalCoordinates( )
+void
+Block2D::transformNodalCoordinates(Vector3D& coor )
 {
 
   static double shape[9];
   
   static double natCoor[2];
 
-  natCoor[0] = coor(0);
-  natCoor[1] = coor(1);
+  natCoor[0] = coor[0];
+  natCoor[1] = coor[1];
 
-  coor.Zero( );
+  coor.zero( );
 
   this->shape2d( natCoor[0], natCoor[1], shape );
 
   for ( int j=0; j<9; j++ ) {
       
     for ( int dim=0; dim<3; dim++ )
-      coor(dim) += shape[j]*xl[dim][j];
+      coor[dim] += shape[j]*xl[dim][j];
 
-  } //end for j
+  }
 
   return;
 

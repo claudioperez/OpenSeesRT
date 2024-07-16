@@ -32,6 +32,18 @@ TclCommand_getEleTags(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
+int
+getNumElements(ClientData clientData, Tcl_Interp *interp, int argc,
+               TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(((Domain*)clientData)->getNumElements()));
+
+  return TCL_OK;
+}
+
+
 
 int
 TclCommand_addElementRayleigh(ClientData clientData, Tcl_Interp *interp,

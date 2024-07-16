@@ -5,16 +5,37 @@
 //===----------------------------------------------------------------------===//
 //
 
+// domain/node.cpp
+Tcl_CmdProc nodeCoord;
+Tcl_CmdProc nodeDOFs;
+Tcl_CmdProc nodeMass;
+Tcl_CmdProc nodePressure;
+Tcl_CmdProc nodeDisp;
+Tcl_CmdProc nodeReaction;
+Tcl_CmdProc nodeUnbalance;
+Tcl_CmdProc nodeEigenvector;
+Tcl_CmdProc setNodeCoord;
+
+// domain/region.cpp
+Tcl_CmdProc TclCommand_addMeshRegion;
+
+
 // domain/element.cpp
 Tcl_CmdProc TclCommand_addElementRayleigh;
 Tcl_CmdProc TclCommand_getEleTags;
-
 Tcl_CmdProc getNumElements;
-
 Tcl_CmdProc getEleClassTags;
 Tcl_CmdProc getEleLoadClassTags;
 Tcl_CmdProc getEleLoadTags;
 Tcl_CmdProc getEleLoadData;
+
+// domain/section.cpp
+Tcl_CmdProc sectionForce;
+Tcl_CmdProc sectionDeformation;
+Tcl_CmdProc sectionStiffness;
+Tcl_CmdProc sectionFlexibility;
+Tcl_CmdProc sectionLocation;
+Tcl_CmdProc sectionWeight;
 
 Tcl_CmdProc setLoadConst;
 
@@ -47,19 +68,7 @@ Tcl_CmdProc eleResponse;
 
 Tcl_CmdProc findID;
 
-Tcl_CmdProc nodeDisp;
 
-Tcl_CmdProc nodeReaction;
-
-Tcl_CmdProc nodeUnbalance;
-
-Tcl_CmdProc nodeEigenvector;
-
-Tcl_CmdProc nodeCoord;
-
-Tcl_CmdProc setNodeCoord;
-
-Tcl_CmdProc updateElementDomain;
 
 Tcl_CmdProc eleType;
 
@@ -94,6 +103,8 @@ Tcl_ObjCmdProc constrainedNodes;
 Tcl_ObjCmdProc fixedDOFs;
 Tcl_ObjCmdProc constrainedDOFs;
 Tcl_ObjCmdProc domainChange;
+Tcl_CmdProc retainedDOFs;
+Tcl_CmdProc updateElementDomain;
 
 // parameter.cpp
 Tcl_CmdProc getParamTags;
@@ -102,11 +113,6 @@ Tcl_CmdProc getParamValue;
 
 
 //
-Tcl_CmdProc retainedDOFs;
-Tcl_CmdProc nodeDOFs;
-Tcl_CmdProc nodeMass;
-
-Tcl_CmdProc nodePressure;
 
 
 // AddingSensitivity:BEGIN /////////////////////////////////////////////////
@@ -131,20 +137,6 @@ Tcl_CmdProc rayleighDamping;
 Tcl_CmdProc modalDamping;
 
 Tcl_CmdProc modalDampingQ;
-
-Tcl_CmdProc addRegion;
-
-Tcl_CmdProc sectionForce;
-
-Tcl_CmdProc sectionDeformation;
-
-Tcl_CmdProc sectionStiffness;
-
-Tcl_CmdProc sectionFlexibility;
-
-Tcl_CmdProc sectionLocation;
-
-Tcl_CmdProc sectionWeight;
 
 Tcl_CmdProc basicDeformation;
 

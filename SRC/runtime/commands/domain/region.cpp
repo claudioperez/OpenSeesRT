@@ -19,9 +19,11 @@
 #include <ID.h>
 
 int
-TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
-                 TCL_Char ** const argv, Domain &theDomain)
+TclCommand_addMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
+                 TCL_Char ** const argv)
 {
+  Domain& theDomain = *static_cast<Domain*>(clientData);
+
   int loc = 1;
   int tag;
   double alphaM = 0.0;
@@ -29,8 +31,8 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
   double betaK0 = 0.0;
   double betaKc = 0.0;
 
-  ID *theNodes = 0;
-  ID *theElements = 0;
+  ID *theNodes = nullptr;
+  ID *theElements = nullptr;
   int numNodes = 0;
   int numElements = 0;
 
@@ -50,10 +52,11 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
 
   loc++;
 
-  // now contine until end of command
+  // now continue until end of command
   while (loc < argc) {
 
-    if (strcmp(argv[loc], "-ele") == 0 || strcmp(argv[loc], "-eleOnly") == 0) {
+    if (strcmp(argv[loc], "-ele") == 0 ||
+        strcmp(argv[loc], "-eleOnly") == 0) {
 
       if (strcmp(argv[loc], "-eleOnly") == 0)
         eleOnly = true;
@@ -72,8 +75,8 @@ TclAddMeshRegion(ClientData clientData, Tcl_Interp *interp, int argc,
 
       if (theElements == nullptr)
         theElements = new ID(0, 64);
-      int eleTag;
 
+      int eleTag;
       while (loc < argc && Tcl_GetInt(interp, argv[loc++], &eleTag) == TCL_OK) {
         (*theElements)[numElements++] = eleTag;
       }

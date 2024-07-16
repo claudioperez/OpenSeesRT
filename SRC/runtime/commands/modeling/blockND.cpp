@@ -38,8 +38,8 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
   int ndf = builder->getNDF();
 
   if (ndm < 2) {
-    opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-    opserr << " : model dimension (ndm) must be at leat 2 " << "\n";
+    opserr << G3_ERROR_PROMPT
+           << "model dimension (ndm) must be at leat 2 " << "\n";
     return TCL_ERROR;
   }
 
@@ -72,9 +72,11 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
   static Matrix Coordinates(9,3);
-  static ID     haveNode(9);
   Coordinates.Zero();
-  for (int k=0; k<9; k++) haveNode(k) = -1;
+
+  static ID     haveNode(9);
+  for (int k=0; k<9; k++)
+    haveNode(k) = -1;
 
   int numNodes = 4;
   if (argc == 10) {
@@ -126,15 +128,15 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
     if (nodeTag < 1 || nodeTag > 9) {
-      opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-      opserr << " : invalid node tag out of bounds [1,9]: " << argvNodes[count] << "\n";
+      opserr << G3_ERROR_PROMPT
+             << " : invalid node tag out of bounds [1,9]: " << argvNodes[count] << "\n";
       Tcl_Free((char *)argvNodes);
       return TCL_ERROR;
     }
     for (int i=0; i<ndm; ++i) {
       if (Tcl_GetDouble(interp, argvNodes[count+1+i], &value) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "block2D numX? numY? startNode? startEle? eleType? eleArgs?";
-        opserr << " : invalid node coordinate for node: " << argvNodes[count] << "\n";
+        opserr << G3_ERROR_PROMPT
+               << " : invalid node coordinate for node: " << argvNodes[count] << "\n";
         Tcl_Free((char *)argvNodes); return TCL_ERROR;
       }
       Coordinates(nodeTag-1,i) = value;
@@ -153,7 +155,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
   for (jj=0; jj<=numY; jj++) {
     for (int ii=0; ii<=numX; ii++) {
 
-      const Vector &nodeCoords = theBlock.getNodalCoords(ii,jj);
+      Vector3D nodeCoords = theBlock.getNodalCoords(ii,jj);
 
       Node *theNode = nullptr;
 
@@ -181,7 +183,7 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
       if (theTclDomain->addNode(theNode) == false) {
         opserr << G3_ERROR_PROMPT << "failed to add node to the domain\n";
         opserr << "node: " << nodeID << "\n";
-        delete theNode; // otherwise memory leak
+        delete theNode;
         return TCL_ERROR;
       }
       nodeID++;

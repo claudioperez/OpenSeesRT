@@ -17,6 +17,8 @@ target_sources(OPS_Runtime PRIVATE
 
     "domain/domain.cpp"
     "domain/element.cpp"
+    "domain/response.cpp"
+    "domain/region.cpp"
     "domain/nodes.cpp"
     "domain/runtime.cpp"
     "domain/rigid_links.cpp"
@@ -32,7 +34,6 @@ target_sources(OPS_Runtime PRIVATE
     "modeling/constraint.cpp"
     "modeling/geomTransf.cpp"
     "modeling/element.cpp"
-    "modeling/region.cpp"
     "modeling/nDMaterial.cpp"
     "modeling/section.cpp"
     "modeling/uniaxialMaterial.cpp"

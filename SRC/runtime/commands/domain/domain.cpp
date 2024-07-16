@@ -500,3 +500,99 @@ constrainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
+int
+retainedDOFs(ClientData clientData, Tcl_Interp *interp, int argc,
+             TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
+
+  if (argc < 2) {
+    opserr << G3_ERROR_PROMPT << "want - retainedDOFs rNode? <cNode?> <cDOF?>\n";
+    return TCL_ERROR;
+  }
+
+  int rNode;
+  if (Tcl_GetInt(interp, argv[1], &rNode) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "retainedDOFs rNode? <cNode?> <cDOF?> - could not read "
+              "rNode? \n";
+    return TCL_ERROR;
+  }
+
+  int cNode;
+  bool allNodes = 1;
+  if (argc > 2) {
+    if (Tcl_GetInt(interp, argv[2], &cNode) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "retainedDOFs rNode? <cNode?> <cDOF?> - could not read "
+                "cNode? \n";
+      return TCL_ERROR;
+    }
+    allNodes = 0;
+  }
+
+  int cDOF;
+  bool allDOFs = 1;
+  if (argc > 3) {
+    if (Tcl_GetInt(interp, argv[3], &cDOF) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "retainedDOFs rNode? <cNode?> <cDOF?> - could not read "
+                "cDOF? \n";
+      return TCL_ERROR;
+    }
+    cDOF--;
+    allDOFs = 0;
+  }
+
+  MP_Constraint *theMP;
+  MP_ConstraintIter &mpIter = domain->getMPs();
+
+  int tag;
+  int i;
+  int n;
+  Vector retained(6);
+  while ((theMP = mpIter()) != nullptr) {
+    tag = theMP->getNodeRetained();
+    if (tag == rNode) {
+      if (allNodes || cNode == theMP->getNodeConstrained()) {
+        const ID &rDOFs = theMP->getRetainedDOFs();
+        n = rDOFs.Size();
+        if (allDOFs) {
+          for (i = 0; i < n; ++i) {
+            retained(rDOFs(i)) = 1;
+          }
+        } else {
+          const ID &cDOFs = theMP->getConstrainedDOFs();
+          for (int i = 0; i < n; ++i) {
+            if (cDOF == cDOFs(i))
+              retained(rDOFs(i)) = 1;
+          }
+        }
+      }
+    }
+  }
+  char buffer[20];
+  for (int i = 0; i < 6; ++i) {
+    if (retained(i) == 1) {
+      sprintf(buffer, "%d ", i + 1);
+      Tcl_AppendResult(interp, buffer, NULL);
+    }
+  }
+
+  return TCL_OK;
+}
+
+int
+updateElementDomain(ClientData clientData, Tcl_Interp *interp, int argc,
+                    TCL_Char ** const argv)
+{
+  // Need to "setDomain" to make the change take effect.
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
+
+  ElementIter &theElements = domain->getElements();
+  Element *theElement;
+  while ((theElement = theElements()) != nullptr)
+    theElement->setDomain(domain);
+
+  return 0;
+}
+

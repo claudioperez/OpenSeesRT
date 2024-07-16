@@ -12,8 +12,11 @@
 #define Block2D_h
 
 #include <math.h>
-#include <Vector.h>
-#include <Matrix.h>
+class Matrix;
+class Vector;
+// #include <Vector.h>
+// #include <Matrix.h>
+#include <Vector3D.h>
 #include <ID.h> 
 
 class Block2D {
@@ -30,33 +33,31 @@ class Block2D {
   ~Block2D();
 
   // generate node 
-  const Vector &getNodalCoords(int i, int j);
+  Vector3D getNodalCoords(int i, int j);
 
   // generate element
   const ID &getElementNodes(int i, int j);
 
 
  private:
+  // set up xl array
+  int setUpXl(const ID &nodeID, const Matrix &coorArray);
+  
+  // transform to real coordiantes
+  void transformNodalCoordinates(Vector3D&);
+
+  // shape functions
+  void shape2d(double x1, 
+	       double x2, 
+	       double shape[9]);
 
   int nx; //number of elements x-direction
   int ny; //number of elements y-direction
 
   double xl[3][9]; //block coordinates 
 
-  Vector coor; //coordinates of a node
-
   ID element; //ID-array of an element
 
-  //set up xl array
-  void setUpXl(const ID &nodeID, const Matrix &coorArray);
-  
-  //transform to real coordiantes
-  void transformNodalCoordinates();
-
-  //shape functions
-  void shape2d(double x1, 
-	       double x2, 
-	       double shape[9]);
 
   int numNodesElement; // 4 or 9
   int errorFlag;       // flag indicating if odd nx and ny ok for 9-noded elements
