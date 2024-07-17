@@ -4,7 +4,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Purpose: This file contains the implementation for the
+// Description: This file contains the implementation for the
 // LinearFrameTransf3d class. LinearFrameTransf3d is a linear
 // transformation for a planar frame between the global
 // and basic coordinate systems
@@ -1256,7 +1256,8 @@ LinearFrameTransf3d::Print(OPS_Stream &s, int flag)
   }
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\t{\"name\": \"" << this->getTag()
+    s << OPS_PRINT_JSON_MATE_INDENT << "{";
+    s << "\"name\": \"" << this->getTag()
       << "\", \"type\": \"LinearFrameTransf3d\"";
     s << ", \"vecInLocXZPlane\": [" << R[2][0] << ", " << R[2][1] << ", "
       << R[2][2] << "]";

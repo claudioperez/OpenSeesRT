@@ -11,7 +11,6 @@
 //
 // Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 // Created: 04/2000
-// Revision: A
 //
 #ifndef PDeltaFrameTransf3d_h
 #define PDeltaFrameTransf3d_h

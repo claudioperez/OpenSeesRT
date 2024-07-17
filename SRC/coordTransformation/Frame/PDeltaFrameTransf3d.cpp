@@ -1438,19 +1438,10 @@ PDeltaFrameTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
 void
 PDeltaFrameTransf3d::Print(OPS_Stream &s, int flag)
 {
-  if (flag == OPS_PRINT_CURRENTSTATE) {
-    s << "\nFrameTransform: " << this->getTag() << " Type: PDeltaFrameTransf3d"
-      << endln;
-    if (nodeIOffset)
-      s << "\tNode I offset: " << nodeIOffset[0] << " " << nodeIOffset[1] << " "
-        << nodeIOffset[2] << endln;
-    if (nodeJOffset)
-      s << "\tNode J offset: " << nodeJOffset[0] << " " << nodeJOffset[1] << " "
-        << nodeJOffset[2] << endln;
-  }
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\t{\"name\": \"" << this->getTag()
+    s << OPS_PRINT_JSON_MATE_INDENT << "{";
+    s << "\"name\": \"" << this->getTag()
       << "\", \"type\": \"PDeltaFrameTransf3d\"";
     s << ", \"vecInLocXZPlane\": [" << R[2][0] << ", " << R[2][1] << ", "
       << R[2][2] << "]";
@@ -1461,5 +1452,16 @@ PDeltaFrameTransf3d::Print(OPS_Stream &s, int flag)
       s << ", \"jOffset\": [" << nodeJOffset[0] << ", " << nodeJOffset[1]
         << ", " << nodeJOffset[2] << "]";
     s << "}";
+  }
+
+  if (flag == OPS_PRINT_CURRENTSTATE) {
+    s << "\nFrameTransform: " << this->getTag() << " Type: PDeltaFrameTransf3d"
+      << endln;
+    if (nodeIOffset)
+      s << "\tNode I offset: " << nodeIOffset[0] << " " << nodeIOffset[1] << " "
+        << nodeIOffset[2] << endln;
+    if (nodeJOffset)
+      s << "\tNode J offset: " << nodeJOffset[0] << " " << nodeJOffset[1] << " "
+        << nodeJOffset[2] << endln;
   }
 }

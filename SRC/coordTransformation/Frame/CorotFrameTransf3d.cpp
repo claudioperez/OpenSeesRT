@@ -160,9 +160,9 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
     double ztr1  = 0;   // dot product z  . r1
 
     for (int i = 0; i < 3; i++) {
-      rite1 += ri(i)*e1[i];
-      zte1  += z(i)*e1[i];
-      ztr1  += z(i)*r1[i];
+      rite1 += ri[i]*e1[i];
+      zte1  += z[i]*e1[i];
+      ztr1  += z[i]*r1[i];
     }
 
     OPS_STATIC Matrix zrit(3,3), ze1t(3,3);
@@ -174,12 +174,12 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
     // Chrystal's looping order
     for (int j = 0; j < 3; j++) {
       for (int i = 0; i < 3; i++) {
-        zrit(i,j)  = z(i)*ri(j);
-        rizt(i,j)  = ri(i)*z(j);
-        ze1t(i,j)  = z(i)*e1(j);
-        e1zt(i,j)  = e1[i]*z(j);
-        // r1e1t(i,j) = r1(i)*e1(j);
-        rie1t(i,j) = ri(i)*e1(j);
+        zrit(i,j)  = z[i]*ri[j];
+        rizt(i,j)  = ri[i]*z[j];
+        ze1t(i,j)  = z[i]*e1[j];
+        e1zt(i,j)  = e1[i]*z[j];
+        // r1e1t(i,j) = r1[i]*e1[j];
+        rie1t(i,j) = ri[i]*e1[j];
       }
     }
 
@@ -460,12 +460,12 @@ CorotFrameTransf3d::revertToLastCommit()
 
     if (nodeIInitialDisp != 0) {
       for (int j = 0; j<3; j++)
-        alphaI(j) -= nodeIInitialDisp[j+3];
+        alphaI[j] -= nodeIInitialDisp[j+3];
     }
 
     if (nodeJInitialDisp != 0) {
       for (int j = 0; j<3; j++)
-        alphaJ(j) -= nodeJInitialDisp[j+3];
+        alphaJ[j] -= nodeJInitialDisp[j+3];
     }
 
     ul      = ulcommit;
@@ -512,18 +512,18 @@ CorotFrameTransf3d::initialize(Node *nodeIPointer, Node *nodeJPointer)
       const Vector &nodeIDisp = nodes[0]->getDisp();
       const Vector &nodeJDisp = nodes[1]->getDisp();
       for (int i = 0; i<6; i++)
-      if (nodeIDisp(i) != 0.0) {
+      if (nodeIDisp[i] != 0.0) {
         nodeIInitialDisp = new double [6];
         for (int j = 0; j<6; j++)
-          nodeIInitialDisp[j] = nodeIDisp(j);
+          nodeIInitialDisp[j] = nodeIDisp[j];
         i = 6;
       }
 
       for (int j = 0; j<6; j++)
-        if (nodeJDisp(j) != 0.0) {
+        if (nodeJDisp[j] != 0.0) {
           nodeJInitialDisp = new double [6];
           for (int i = 0; i<6; i++)
-            nodeJInitialDisp[i] = nodeJDisp(i);
+            nodeJInitialDisp[i] = nodeJDisp[i];
           j = 6;
         }
       initialDispChecked = true;
@@ -588,7 +588,7 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobal(const Triad& __restrict r,
     Se -= rI3.cross(e2);
 
     for (int i = 0; i < 3; i++)
-      T(0,i+3) =  Se(i);
+      T(0,i+3) =  Se[i];
 
     //   T2 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
 
@@ -614,16 +614,16 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobal(const Triad& __restrict r,
     Se -= rI3.cross(e1);
 
     for (int i = 0; i < 3; i++) {
-        T(2,i  ) =  At(i);
-        T(2,i+3) =  Se(i);
-        T(2,i+6) = -At(i);
+        T(2,i  ) =  At[i];
+        T(2,i+3) =  Se[i];
+        T(2,i+6) = -At[i];
     }
 
     //   T4 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';
     Se  = rJ2.cross(e3);  // -S(rJ3)*e2 + S(rJ2)*e3
     Se -= rJ3.cross(e2);
     for (int i = 0; i < 3; i++)
-      T(3, i+9) =  Se(i);
+      T(3, i+9) =  Se[i];
 
     // T5 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
     At = A*rJ2;
@@ -665,7 +665,7 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobal(const Triad& __restrict r,
     for (int i = 0; i < 12; i++) {
       double T4i = 0;
       for (int k=0; k<3; k++)
-        T4i += Lr2(i,k)*rJ1[k]; // Lr(i);
+        T4i += Lr2(i,k)*rJ1[k]; // Lr[i];
       T(4,i) += T4i;
     }
 
@@ -686,20 +686,20 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobal(const Triad& __restrict r,
     for (int i = 0; i < 12; i++) {
       double T2i = 0;
       for (int k=0; k<3; k++)
-        T2i += Lr3(i,k)*rI1[k]; // Lr(i);
+        T2i += Lr3(i,k)*rI1[k]; // Lr[i];
       T(2,i) += T2i;
     }
 
     for (int i = 0; i < 12; i++) {
       double T5i = 0;
       for (int k=0; k<3; k++)
-        T5i += Lr3(i,k)*rJ1[k]; // Lr(i);
+        T5i += Lr3(i,k)*rJ1[k]; // Lr[i];
       T(5,i) += T5i;
     }
 
     for (int j = 0; j < 6; j++) {
-//      const double c = 2 * cos(ul(j));
-        const double c = 0.5 / cos(ul(j));
+//      const double c = 2 * cos(ul[j]);
+        const double c = 0.5 / cos(ul[j]);
 //      const double c = 0.5 / std::sqrt(1-sn[j]*sn[j]);
         for (int i = 0; i < 12; i++)
           T(j,i) *= c;
@@ -747,12 +747,12 @@ CorotFrameTransf3d::update()
 
     if (nodeIInitialDisp != 0) {
       for (int j = 0; j<6; j++)
-        dispI(j) -= nodeIInitialDisp[j];
+        dispI[j] -= nodeIInitialDisp[j];
     }
 
     if (nodeJInitialDisp != 0) {
       for (int j = 0; j<6; j++)
-        dispJ(j) -= nodeJInitialDisp[j];
+        dispJ[j] -= nodeJInitialDisp[j];
     }
 
     // get the iterative spins dAlphaI and dAlphaJ
@@ -892,11 +892,11 @@ CorotFrameTransf3d::update()
     {
       Vector3D thetaI = LogC90(RI^e);
       for (int i=0; i<3; i++)
-        ul(i) = thetaI[i];
+        ul[i] = thetaI[i];
 
       thetaI = LogC90(RJ^e);
       for (int i=3; i<6; i++)
-        ul(i) = thetaI[i-3];
+        ul[i] = thetaI[i-3];
     }
 
     // Axial
@@ -1598,9 +1598,9 @@ CorotFrameTransf3d::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
     ZAxis(2) = zAxis(2);
 
     for (int i = 0; i < 3; i++) {
-        R0(i,0) = xAxis(i);
-        R0(i,1) = yAxis(i);
-        R0(i,2) = zAxis(i);
+        R0(i,0) = xAxis[i];
+        R0(i,1) = yAxis[i];
+        R0(i,2) = zAxis[i];
     }
 
     return 0;
@@ -1627,14 +1627,15 @@ CorotFrameTransf3d::Print(OPS_Stream &s, int flag)
 {
 
   if (flag == OPS_PRINT_CURRENTSTATE) {
-          s << "\nFrameTransform: " << this->getTag() << " Type: CorotFrameTransf3d";
-          s << "\tvAxis: " << vAxis;
-          s << "\tnodeI Offset: " << nodeIOffset;
-          s << "\tnodeJ Offset: " << nodeJOffset;
+      s << "\nFrameTransform: " << this->getTag() << " Type: CorotFrameTransf3d";
+      s << "\tvAxis: " << vAxis;
+      s << "\tnodeI Offset: " << nodeIOffset;
+      s << "\tnodeJ Offset: " << nodeJOffset;
   }
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-      s << "\t\t\t{\"name\": \"" << this->getTag() << "\", \"type\": \"CorotFrameTransf3d\"";
+      s << OPS_PRINT_JSON_MATE_INDENT << "{";
+      s << "\"name\": \"" << this->getTag() << "\", \"type\": \"CorotFrameTransf3d\"";
       s << ", \"vecInLocXZPlane\": [" << vAxis(0) << ", " << vAxis(1) << ", " << vAxis(2) << "]";
       if (nodeIOffset != 0)
           s << ", \"iOffset\": [" << nodeIOffset[0] << ", " << nodeIOffset[1] << ", " << nodeIOffset[2] << "]";
@@ -1709,7 +1710,7 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobalNew()
     Se.addMatrixVector(0.0, Sr3, e2, -1.0);     // (-S(rI3)*e2 + S(rI2)*e3)
     Se.addMatrixVector(1.0, Sr2, e3,  1.0);
     for (int i = 0; i<3; i++)
-      hI1(i+3) = Se(i);
+      hI1(i+3) = Se[i];
 
     // hI2 = [(A*rI3)', (-S(rI3)*e1 + S(rI1)*e3)', -(A*rI3)', O']';
     At.addMatrixVector(0.0,  A, rI3,  1.0);
@@ -1717,9 +1718,9 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobalNew()
     Se.addMatrixVector(1.0, Sr1, e3,  1.0);
 
     for (int i = 0; i < 3; i++) {
-      hI2(i  ) =  At(i);
-      hI2(i+3) =  Se(i);
-      hI2(i+6) = -At(i);
+      hI2(i  ) =  At[i];
+      hI2(i+3) =  Se[i];
+      hI2(i+6) = -At[i];
     }
 
     // hI3 = [(A*rI2)', (-S(rI2)*e1 + S(rI1)*e2)', -(A*rI2)', O']';
@@ -1728,9 +1729,9 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobalNew()
     Se.addMatrixVector(1.0, Sr1, e2,  1.0);
 
     for (int i = 0; i < 3; i++) {
-      hI3(i  ) =  At(i);
-      hI3(i+3) =  Se(i);
-      hI3(i+6) = -At(i);
+      hI3(i  ) =  At[i];
+      hI3(i+3) =  Se[i];
+      hI3(i+6) = -At[i];
     }
 
     SO3::Spin(rJ1, Sr1);
@@ -1741,7 +1742,7 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobalNew()
     Se.addMatrixVector(0.0, Sr3, e2, -1.0);    // -S(rJ3)*e2 + S(rJ2)*e3
     Se.addMatrixVector(1.0, Sr2, e3,  1.0);
     for (int i = 0; i < 3; i++)
-        hJ1(i+9) =  Se(i);
+        hJ1(i+9) =  Se[i];
 
 
     // hJ2 = [(A*rJ3)', O', -(A*rJ3)', (-S(rJ3)*e1 + S(rJ1)*e3)']';
@@ -1750,9 +1751,9 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobalNew()
     Se.addMatrixVector(1.0, Sr1, e3,  1.0);
 
     for (int i = 0; i < 3; i++) {
-      hJ2(i  ) =  At(i);
-      hJ2(i+6) = -At(i);
-      hJ2(i+9) =  Se(i);
+      hJ2(i  ) =  At[i];
+      hJ2(i+6) = -At[i];
+      hJ2(i+9) =  Se[i];
     }
 
     // hJ3 = [(A*rJ2)', O', -(A*rJ2)', (-S(rJ2)*e1 + S(rJ1)*e2)']';
@@ -1761,9 +1762,9 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobalNew()
     Se.addMatrixVector(1.0, Sr1, e2,  1.0);
 
     for (int i = 0; i < 3; i++) {
-      hJ3(i  ) =  At(i);
-      hJ3(i+6) = -At(i);
-      hJ3(i+9) =  Se(i);
+      hJ3(i  ) =  At[i];
+      hJ3(i+6) = -At[i];
+      hJ3(i+9) =  Se[i];
     }
 
     // f1 =  [-e1' O' e1' O'];
@@ -1814,28 +1815,28 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobalNew()
     Lr += hI3;
     c = 0.5*cos(thetaI(2));
     for (int i = 0; i<12; i++)
-      T(1,i) = Lr(i)*c;
+      T(1,i) = Lr[i]*c;
 
     // f3  = ( Lr2*rJ1 + hJ3)'./(2*(cos(thetalJ(3))));
     Lr.addMatrixVector(0.0, Lr2, rJ1,  1.0);
     Lr += hJ3;
     c = 0.5*cos(thetaJ(2));
     for (int i = 0; i<12; i++)
-      T(2,i) = Lr(i)*c;
+      T(2,i) = Lr[i]*c;
 
     // f4  = (-Lr3*rI1 - hI2)'./(2*(cos(thetalI(2))));
     Lr.addMatrixVector(0.0, Lr3, rI1,  -1.0);
     Lr -= hI2;
     c = 0.5*cos(thetaI(1));
     for (int i = 0; i<12; i++)
-      T(3,i) = Lr(i)*c;
+      T(3,i) = Lr[i]*c;
 
     // f5  = (-Lr3*rJ1 - hJ2)'./(2*(cos(thetalJ(2))));
     Lr.addMatrixVector(0.0, Lr3, rJ1,  -1.0);
     Lr -= hJ2;
     c = 0.5*cos(thetaJ(1));
     for (int i = 0; i<12; i++)
-      T(4,i) = Lr(i)*c;
+      T(4,i) = Lr[i]*c;
 
     // f6I = ( Lr3*rI2 - Lr2*rI3 + hI1)'./(2*(cos(thetalI(1))));
     Lr.addMatrixVector(0.0, Lr3, rI2,  1.0);
@@ -1843,7 +1844,7 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobalNew()
     Lr += hI1;
     c = 0.5*cos(thetaI(0));
     for (int i = 0; i<12; i++)
-      T(5,i) = Lr(i)*c;
+      T(5,i) = Lr[i]*c;
 
     // f6J = ( Lr3*rJ2 - Lr2*rJ3 + hJ1)'./(2*(cos(thetalJ(1))));
     Lr.addMatrixVector(0.0, Lr3, rJ2,  1.0);
@@ -1851,7 +1852,7 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobalNew()
     Lr += hJ1;
     c = 0.5*cos(thetaI(0));
     for (int i = 0; i<12; i++)
-      T(6,i) -= Lr(i)*c;
+      T(6,i) -= Lr[i]*c;
 }
 #endif
 
@@ -1894,7 +1895,7 @@ CorotFrameTransf3d::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &th
   }
 
   for (int i = 0; i<7; i++)
-    ulcommit(i) = data(i);
+    ulcommit[i] = data(i);
 
   for (int j = 0; j<4; j++) {
     alphaIqcommit[j] = data(7+j);
@@ -1949,7 +1950,7 @@ CorotFrameTransf3d::sendSelf(int cTag, Channel &theChannel)
 {
   static Vector data(48);
   for (int i = 0; i<7; i++)
-    data(i) = ulcommit(i);
+    data[i] = ulcommit[i];
 
   for (int j = 0; j<4; j++) {
     data(7+j) = alphaIqcommit[j];
