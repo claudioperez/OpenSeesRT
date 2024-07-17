@@ -132,9 +132,9 @@ SymArpackSOE::setSize(Graph &theGraph)
                   // and place col in current location
                   for (int k=lastLoc; k>j; k--)
                     colA[k] = colA[k-1];
-                    colA[j] = row;
-                    foundPlace = true;
-                    j = lastLoc;
+                  colA[j] = row;
+                  foundPlace = true;
+                  j = lastLoc;
               }
             }
               
