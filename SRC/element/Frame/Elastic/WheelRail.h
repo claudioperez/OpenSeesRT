@@ -1,3 +1,6 @@
+
+// Description: This file contains the class definition for Wheel Rail Dynamic Interaction. 
+
 // Written by: Quan Gu_1,  Yongdou Liu_1, Wei Guo_23, Weiquan Li_1, Zhiwu Yu_23, Lizhong Jiang_23 and Hanyun Liu_2
 //(1.School of Architecture and Civil Engineering, Xiamen University, 361005, China;
 // 2.School of Civil Engineering, Central South University, 410075, China;
@@ -13,8 +16,6 @@
 #ifndef WheelRail_h
 #define WheelRail_h
 
-// Description: This file contains the class definition for Wheel Rail Dynamic Interaction. 
-// What: "@(#) WheelRail.h, revA"
 
 #include <Element.h>
 #include <ElasticBeam2d.h>

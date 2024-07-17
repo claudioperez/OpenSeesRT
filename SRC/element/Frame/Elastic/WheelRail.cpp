@@ -187,18 +187,18 @@ WheelRail::commitState()
 {
 	loadStep++;
 
-	if(loadStep>nLoad){
+	if (loadStep>nLoad){
 		currentLocation = currentLocation + deltT*vel;
 		this->getDeltaY();
 
 		frontRailNode = 	theNodes[activeBeamIndex+2]->getCrds();
-		while((activeBeamIndex<numRailNodeList-2)&&(currentLocation>frontRailNode(0)+1.e-14)){
+		while ((activeBeamIndex<numRailNodeList-2)&&(currentLocation>frontRailNode(0)+1.e-14)){
 			activeBeamIndex++;
 			frontRailNode = 	theNodes[activeBeamIndex+2]->getCrds();
 		}
 		rearRailNode = 	theNodes[activeBeamIndex+1]->getCrds();
 
-		if(activeBeamIndex>numRailNodeList-2){
+		if (activeBeamIndex>numRailNodeList-2){
 			opserr<<"the location of the wheel is "<<currentLocation<<
 				" which is larger than the front element node frontRailNode "<<frontRailNode(0)<<endln;
 			exit(-1);
@@ -250,7 +250,7 @@ WheelRail::update(void)
 	uF=0;
 	deltaU=deltaU0;
 
-	if(deltaU0 >0){
+	if (deltaU0 >0) {
 		limits(0)=0;
 		limits(1)=pow(deltaU0/G,1.5);
 		this->NewtonBisection( limits, disp1(1) );
@@ -286,11 +286,11 @@ WheelRail::update(void)
 			for(int j = 0;j<5;j++)
 				(*theTangent)(activeDof(i),activeDof(j)) = dRdFH(i)*dFHdU(j);
 
-	}else{
+	} else {
 
-		if(loadStep<=nLoad){
+		if (loadStep<=nLoad){
 			*theTangent = this->getInitialStiff();
-		}else{
+		} else {
 			/*/
 			opserr<<"The wheel "<<wheelNodeNum<<" separates with "<<
 				activeBeamIndex+1<<"th rail beam element at location of x= "<<currentLocation<<endln;//*/
@@ -550,14 +550,18 @@ double WheelRail::getResidualOfDeltaU(double pFhz,double uWheel){
 
 
 void WheelRail::NewtonBisection(Vector limits,double uWheel){
-	//The Newton-Bisection algorithm used to solve the Fhz that meets the Geometric equation
-	//between wheel and rail.	
+	// The Newton-Bisection algorithm used to solve the Fhz that meets the Geometric equation
+	// between wheel and rail.	
 
 	//该牛顿二分法1 可行
-	int maxIterT=30;double tol=1.0e-5;
-	double FHL=limits(0),FHH=limits(1);
+	int maxIterT=30;
+  double tol=1.0e-5;
+	double FHL=limits(0),
+         FHH=limits(1);
 	double FHzi=0.5*(FHL+FHH);
-	double dDeltaUi=0,dDeltaU=0;
+	double dDeltaUi=0,
+         dDeltaU=0;
+
 	double R = pow(a*b,3.0)/3/E/I/theEleLength/theEleLength/theEleLength;
 	int i=0;
 	bool converge=false;
@@ -567,8 +571,8 @@ void WheelRail::NewtonBisection(Vector limits,double uWheel){
 		Fhz=FHzi-dDeltaUi/dUdFH;
 
 		if(Fhz>fmax(FHH,FHL)||Fhz<fmin(FHH,FHL)){
-			Fhz=0.5*(FHL+FHH);
-			dDeltaU=getResidualOfDeltaU(Fhz,uWheel);
+			Fhz = 0.5*(FHL+FHH);
+			dDeltaU = getResidualOfDeltaU(Fhz,uWheel);
 			if(dDeltaU==0){
 				converge=true;
 			}else if(dDeltaU*getResidualOfDeltaU(FHH,uWheel)<0){
@@ -709,23 +713,24 @@ void WheelRail::getDeltaY(){
 }
 
 void WheelRail::getActiveDof(){
-	//The relationship between active DOFs and the active rail beam element index( 1th, 2th or nth).
-	activeDof(0)=1;
-	activeDof(1)=3*(activeBeamIndex+1)+1;
-	activeDof(2)=3*(activeBeamIndex+1)+2;
-	activeDof(3)=3*(activeBeamIndex+2)+1;
-	activeDof(4)=3*(activeBeamIndex+2)+2;
+	// The relationship between active DOFs and the active rail beam element index( 1th, 2th or nth).
+	activeDof(0) = 1;
+	activeDof(1) = 3*(activeBeamIndex+1)+1;
+	activeDof(2) = 3*(activeBeamIndex+1)+2;
+	activeDof(3) = 3*(activeBeamIndex+2)+1;
+	activeDof(4) = 3*(activeBeamIndex+2)+2;
 }
 
-void WheelRail::getShapeFuns(){
+void WheelRail::getShapeFuns() {
 
 	theEleLength = sqrt((rearRailNode(0)-frontRailNode(0))*(rearRailNode(0)-frontRailNode(0))+ (rearRailNode(1)-frontRailNode(1))*(rearRailNode(1)-frontRailNode(1)));
-	a=currentLocation-rearRailNode(0);
-	b=theEleLength-a;
+	a = currentLocation-rearRailNode(0);
+	b = theEleLength-a;
 
-	double ksi=2*(currentLocation-rearRailNode(0))/theEleLength-1;
+	double ksi = 2*(currentLocation-rearRailNode(0))/theEleLength-1;
 
-	shapFun1(0)=(1-ksi)/2;    shapFun1(1)=(1+ksi)/2;
+	shapFun1(0)=(1-ksi)/2;
+  shapFun1(1)=(1+ksi)/2;
 
 	shapFun2(0)=0.25*(1-ksi)*(1-ksi)*(2+ksi);    shapFun2(1)=0.125*theEleLength*(1-ksi)*(1-ksi)*(1+ksi);
 	shapFun2(2)=0.25*(1+ksi)*(1+ksi)*(2-ksi);   shapFun2(3)=-0.125*theEleLength*(1+ksi)*(1+ksi)*(1-ksi);
