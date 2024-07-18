@@ -1,6 +1,6 @@
 #include <tcl.h>
 #include "YieldSurface_BC.h"
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <string.h>
 #include <Vector.h>
 
@@ -104,7 +104,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
+    YS_Evolution *theModel = builder->getTypedObject<YS_Evolution>(modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
              << modelID << "\n";
@@ -165,7 +165,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
+    YS_Evolution *theModel = builder->getTypedObject<YS_Evolution>(modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC ElTawil2D no ys_model exists with tag: "
              << modelID << "\n";
@@ -238,7 +238,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
+    YS_Evolution *theModel = builder->getTypedObject<YS_Evolution>(modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC ElTawil2D no ys_model exists with tag: "
              << modelID << "\n";
@@ -302,7 +302,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
+    YS_Evolution *theModel = builder->getTypedObject<YS_Evolution>(modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
              << modelID << "\n";
@@ -386,7 +386,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    YS_Evolution *theModel = (YS_Evolution*)builder->getRegistryObject("YS_EvolutionModel", modelID);
+    YS_Evolution *theModel = builder->getTypedObject<YS_Evolution>(modelID);
     if (theModel == 0) {
       opserr << "WARNING yieldSurfaceBC Orbison2D no ys_model exists with tag: "
              << modelID << "\n";
@@ -406,7 +406,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
   // Now add the ys to the modelBuilder
   ///////////////////////////////////////////////////////////////
 
-  if (builder->addRegistryObject("YieldSurface_BC", tag, (void*)theYS) < 0) {
+  if (builder->addTaggedObject<YieldSurface_BC>(*theYS) < 0) {
     opserr << "WARNING could not add YieldSurfaceBC to the domain\n";
     opserr << *theYS << "\n";
     delete theYS; // invoke the material objects destructor, otherwise mem leak
@@ -416,7 +416,7 @@ TclBasicBuilderYieldSurface_BCCommand(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }
 #include "YieldSurface_BC.h"
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <string.h>
 #include <Vector.h>
 
@@ -440,12 +440,7 @@ addTclYS_Evolution(BasicModelBuilder *theBuilder, YS_Evolution *theModel)
   if (theModel == nullptr)
     return TCL_ERROR;
 
-  if (!theModel) {
-    opserr << "Model not created\n";
-    return TCL_ERROR;
-  }
-
-  if (theBuilder->addRegistryObject("YS_EvolutionModel", theModel->getTag(), theModel) < 0) {
+  if (theBuilder->addTaggedObject<YS_Evolution>(*theModel) < 0) {
     opserr << "WARNING could not add hardening model to the domain\n";
     opserr << *theModel << "\n";
     delete theModel; // invoke the material objects destructor, otherwise mem
@@ -467,7 +462,7 @@ getTclPlasticMaterial(Tcl_Interp *interp, TCL_Char *arg,
     return 0;
   }
 
-  PlasticHardeningMaterial *theMat = (PlasticHardeningMaterial*)theBuilder->getRegistryObject("YS_PlasticMaterial", id);
+  PlasticHardeningMaterial *theMat = theBuilder->getTypedObject<PlasticHardeningMaterial>(id);
   if (theMat == 0) {
     opserr << "WARNING: TclModelYS_EvolutionCommand - no "
               "PlasticHardeningMaterial with id = "
@@ -488,7 +483,7 @@ getTclYieldSurface_BC(Tcl_Interp *interp, TCL_Char *arg,
     return 0;
   }
 
-  YieldSurface_BC *theYS = (YieldSurface_BC *)builder->getRegistryObject("YieldSurface_BC",id);
+  YieldSurface_BC *theYS = builder->getTypedObject<YieldSurface_BC>(id);
   if (theYS == 0) {
     opserr << "WARNING: TclModelYS_EvolutionCommand - no YieldSurface_BC with "
               "id = "
@@ -1165,7 +1160,7 @@ TclBasicBuilderPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
 // @ rkaul@stanford.edu
 // @ ggd@stanford.edu
 
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <string.h>
 #include <Vector.h>
 
@@ -1237,7 +1232,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
       return 0;
     }
 
-    YieldSurface_BC *ys = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysTag);
+    YieldSurface_BC *ys = builder->getTypedObject<YieldSurface_BC>(ysTag);
 
     if (ys == 0) {
       opserr << "WARNING yield surface does not exist\n";
@@ -1306,7 +1301,7 @@ TclBasicBuilderYS_SectionCommand(ClientData clientData, Tcl_Interp *interp,
       return 0;
     }
 
-    YieldSurface_BC *ys = (YieldSurface_BC*)builder->getRegistryObject("YieldSurface_BC", ysTag);
+    YieldSurface_BC *ys = builder->getTypedObject<YieldSurface_BC>(ysTag);
 
     if (ys == 0) {
       opserr << "WARNING yield surface does not exist\n";
