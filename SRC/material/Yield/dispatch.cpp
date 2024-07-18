@@ -987,16 +987,8 @@ TclMultiLinearCommand(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     theMaterial = new MultiLinearKp(tag, defo, kp);
   }
 
-  // Ensure we have created the Material, out of memory if got here and no
-  // material
-  if (theMaterial == 0) {
-    opserr << "WARNING: ran out of memory creating uniaxialMaterial\n";
-    opserr << argv[1] << "\n";
-    return TCL_ERROR;
-  }
-
   // Now add the material to the modelBuilder
-  if (builder->addRegistryObject("YS_PlasticMaterial", tag, (void*)theMaterial) < 0) {
+  if (builder->addTaggedObject<PlasticHardeningMaterial>(*theMaterial) < 0) {
     opserr << "WARNING could not add uniaxialMaterial to the domain\n";
     opserr << *theMaterial << "\n";
     delete theMaterial; // invoke the material objects destructor, otherwise mem
@@ -1091,7 +1083,7 @@ TclExponReducingCommand(ClientData clientData, Tcl_Interp *interp, int argc,
   } else
     theMaterial = new ExponReducing(tag, arg1, arg2);
 
-  if (builder->addRegistryObject("YS_PlasticMaterial", tag, (void*)theMaterial) < 0) {
+  if (builder->addTaggedObject<PlasticHardeningMaterial>(*theMaterial) < 0) {
     opserr << "WARNING could not add uniaxialMaterial to the domain\n";
     opserr << *theMaterial << "\n";
     delete theMaterial; // invoke the material objects destructor, otherwise mem
@@ -1117,7 +1109,7 @@ TclNullPlasticMaterialCommand(ClientData clientData, Tcl_Interp *interp,
   }
 
   theMaterial = new NullPlasticMaterial(tag);
-  if (builder->addRegistryObject("YS_PlasticMaterial", tag, (void*)theMaterial) < 0) {
+  if (builder->addTaggedObject<PlasticHardeningMaterial>(*theMaterial) < 0) {
     opserr << "WARNING could not add uniaxialMaterial to the domain\n";
     opserr << *theMaterial << "\n";
     delete theMaterial; // invoke the material objects destructor, otherwise mem
