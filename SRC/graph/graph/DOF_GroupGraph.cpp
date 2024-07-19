@@ -32,7 +32,7 @@
 #include <DOF_Group.h>
 #include <FE_EleIter.h>
 #include <DOF_GrpIter.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 // constructs the Graph
 DOF_GroupGraph::DOF_GroupGraph(AnalysisModel &theModel)
