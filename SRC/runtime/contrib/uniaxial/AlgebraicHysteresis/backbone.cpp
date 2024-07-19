@@ -7,9 +7,9 @@
 //
 #include <assert.h>
 #include <OPS_Globals.h>
-#include <api/InputAPI.h>
+#include <Parsing.h>
 #include <UniaxialMaterial.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #include <runtimeAPI.h>
 

@@ -78,7 +78,7 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
     virtual int   addInertiaLoadToUnbalance(const Vector &accel) final;
     virtual const Vector &getResistingForceIncInertia() final;
     virtual const Matrix &getInitialStiff() final;
-    virtual const Matrix &getMass() final;
+    virtual const Matrix &getMass();
 
     // Sensitivity
     const Matrix & getMassSensitivity(int gradNumber);
@@ -102,7 +102,6 @@ protected:
   void computeReactions(double *p0);
 
 // to be made private
-   int cMass;
    FrameTransform3d* theCoordTransf;
    OpenSees::VectorND<6>   q0;  // Fixed end forces in basic system
    OpenSees::VectorND<6>   p0;  // Reactions in basic system
@@ -111,7 +110,6 @@ protected:
    static Matrix K;
    static Vector P;
 
-   double rho;
 
    int parameterID;
 
@@ -119,12 +117,13 @@ protected:
    double wy;
    double wz;
 
-// int numEleLoads;               // Number of element load objects
-// int sizeEleLoads;
    std::vector<std::pair<ElementalLoad*,double>> eleLoads;
 
 
   private:
+   int cMass;
+   double rho;
+
    VectorND<12> pg;
    Vector p_iner;
    double total_mass,

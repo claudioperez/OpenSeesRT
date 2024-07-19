@@ -16,7 +16,7 @@
 #include <Node.h>
 #include <NodeData.h>
 
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #include <Parameter.h>
 #include <ParameterIter.h>

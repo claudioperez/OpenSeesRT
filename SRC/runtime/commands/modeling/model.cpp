@@ -14,12 +14,12 @@
 #include <string.h>
 
 #include <tcl.h>
+#include <Logging.h>
 #include <runtimeAPI.h>
-#include <G3_Logging.h>
 #include <Domain.h>
 #include <FE_Datastore.h>
 
-#include "runtime/BasicModelBuilder.h"
+#include "BasicModelBuilder.h"
 
 #ifdef _PARALLEL_PROCESSING
 #  include <PartitionedDomain.h>

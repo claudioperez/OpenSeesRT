@@ -30,6 +30,7 @@
 // 1d material subroutine Concr_3.
 
 #include <stdlib.h>
+#include <Logging.h>
 #include <FedeasConcr3Material.h>
 
 FedeasConcr3Material::FedeasConcr3Material(int tag,

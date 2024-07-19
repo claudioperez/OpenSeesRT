@@ -28,7 +28,7 @@
 #include <string.h>
 #include <Domain.h>
 
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #include "Frame/GradientInelastic/GradientInelasticBeamColumn2d.h"
 #include "Frame/GradientInelastic/GradientInelasticBeamColumn3d.h"

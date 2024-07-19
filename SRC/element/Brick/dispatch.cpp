@@ -39,7 +39,7 @@
 
 int
 TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
-                         TCL_Char **const argv) // Domain *theTclDomain,
+                         TCL_Char **const argv)
 {
   const int eleArgStart = 1;
 
@@ -186,6 +186,7 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
   // if get here we have successfully created the node and added it to the domain
   return TCL_OK;
 }
+
 //
 // Description: This file contains the implementation of
 //    TclBasicBuilder_addBrickUP() ,
@@ -202,8 +203,6 @@ TclBasicBuilder_addBrick(ClientData clientData, Tcl_Interp *interp, int argc,
 #include <BBarBrickUP.h>
 #include <Twenty_Node_Brick.h>
 #include <Twenty_Eight_Node_BrickUP.h>
-
-#include <runtime/BasicModelBuilder.h>
 
 int
 TclBasicBuilder_addTwentyNodeBrick(ClientData clientData, Tcl_Interp *interp,

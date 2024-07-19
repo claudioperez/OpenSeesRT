@@ -19,7 +19,7 @@
 #include <tcl.h>
 #include <G3_Logging.h>
 #include <UniaxialMaterial.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 typedef const char TCL_Char;
 

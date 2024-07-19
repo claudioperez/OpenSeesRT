@@ -13,7 +13,7 @@
 
 #include "DispBeamColumn2dInt.h"
 #include <runtimeAPI.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <SectionForceDeformation.h>
 
 

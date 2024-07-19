@@ -1,9 +1,11 @@
 add_library(OpenSeesCommunity OBJECT)
 
-add_subdirectory(Legacy/Renderer)
 add_subdirectory(packages)
-add_subdirectory(uniaxial)
-add_subdirectory(element)
-# add_subdirectory(packages/YieldSurface/)
 
+add_subdirectory(uniaxial/Parallel)
+add_subdirectory(uniaxial/ReinforcingSteel)
+add_subdirectory(uniaxial/AlgebraicHysteresis)
+# add_subdirectory(uniaxial/SelfCentering)
+
+# add_subdirectory(packages/YieldSurface/)
 

@@ -18,7 +18,7 @@
 #include <Domain.h> // for modal damping
 #include <AnalysisModel.h>
 
-#include "runtime/BasicAnalysisBuilder.h"
+#include "BasicAnalysisBuilder.h"
 
 #include <StaticAnalysis.h>
 #include <DirectIntegrationAnalysis.h>

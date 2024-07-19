@@ -159,7 +159,8 @@ dispatch(BasicModelBuilder* builder, Tcl_Interp* interp, int argc, const char** 
   return TCL_OK;
 }
 #endif
-
+Tcl_CmdProc TclCommand_addTwoNodeLink;
+// Plane
 Tcl_CmdProc TclBasicBuilder_addFourNodeQuad;
 Tcl_CmdProc TclBasicBuilder_addFourNodeQuadWithSensitivity;
 Tcl_CmdProc TclBasicBuilder_addEnhancedQuad;
@@ -182,11 +183,12 @@ Tcl_CmdProc TclCommand_SSP_Element;
 Tcl_CmdProc TclCommand_addActuator;
 Tcl_CmdProc TclCommand_addActuatorCorot;
 Tcl_CmdProc TclCommand_addAdapter;
+Tcl_CmdProc TclBasicBuilder_addRJWatsonEqsBearing;
 
 static
 std::unordered_map<std::string, Tcl_CmdProc *, CaseInsensitive, CaseInsensitive> 
 element_dispatch_tcl = {
-
+  {"twoNodeLink",               TclCommand_addTwoNodeLink},
 //
 // Plane
 //
@@ -238,6 +240,11 @@ element_dispatch_tcl = {
   {"actuator",                  TclCommand_addActuator},
   {"corotActuator",             TclCommand_addActuatorCorot},
   {"adapter",                   TclCommand_addAdapter},
+
+// Bearing
+  {"RJWatsonEqsBearing",        TclBasicBuilder_addRJWatsonEqsBearing},
+  {"RJWatsonBearing",           TclBasicBuilder_addRJWatsonEqsBearing},
+  {"EQSBearing",                TclBasicBuilder_addRJWatsonEqsBearing},
 };
 
 static
@@ -305,7 +312,7 @@ element_dispatch = {
   {"BeamGT",                       OPS_BeamGT},
   {"ZeroLengthVG_HG",              OPS_ZeroLengthVG_HG},
   {"ZeroLengthContactASDimplex",   OPS_ZeroLengthContactASDimplex},
-  {"twoNodeLink",                  OPS_TwoNodeLink},
+//{"twoNodeLink",                  OPS_TwoNodeLink},
   {"SurfaceLoad",                  OPS_SurfaceLoad},
   {"TriSurfaceLoad",               OPS_TriSurfaceLoad},
   {"TPB1D",                        OPS_TPB1D},

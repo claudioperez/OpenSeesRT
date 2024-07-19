@@ -62,6 +62,7 @@ class ForceFrame3d: public BasicFrame3d
   int revertToStart();
   int update();    
   
+  virtual const Matrix &getMass() final;
   /*
   const Matrix &getTangentStiff();
   const Matrix &getInitialStiff();
@@ -130,8 +131,10 @@ class ForceFrame3d: public BasicFrame3d
   //
   // Parameters
   double density;                // mass density per unit length
-  double inertia;
-  int mass_flag;
+  double twist_mass;
+  double total_mass;
+  int  mass_flag;
+  bool mass_initialized;
 
   int    maxIters;               // maximum number of local iterations
   double tol;	                   // tolerance for relative energy norm for local iterations

@@ -39,6 +39,7 @@
 #include <math.h>
 #include <string.h>
 
+#if 0
 #include <elementAPI.h>
 
 void * OPS_ADD_RUNTIME_VPV(OPS_PulseSeries)
@@ -123,6 +124,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_PulseSeries)
 
     return theSeries;
 }
+#endif
 
 
 PulseSeries::PulseSeries(int tag,

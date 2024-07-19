@@ -13,27 +13,39 @@
 #include <tcl.h>
 #include <array>
 #include <vector>
+#include <cstddef>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
-#include <G3_Logging.h>
+#include <Logging.h>
 #include <ArgumentTracker.h>
-#include <CrdTransf.h>
+#include <FrameTransform.h>
+#include <LinearFrameTransf3d.h>
 #include "ElasticBeam2d.h"
 #include "ElasticBeam3d.h"
 
 #include "PrismFrame2d.h"
 #include "PrismFrame3d.h"
-// #include "PrismShearFrame3d.h"
 
 #include <FrameSection.h>
 #include <SectionForceDeformation.h>
 
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
-enum class PositionalArgument : int {
-  E, A, Iz, Iy, G, J, Transform, End
-  // Parse $A $E $G $J $Iy $Iz
+// enum class Position : int {
+//   A, E, Iz, Iy, G, J, Transform, End
+// };
+
+enum class Args2D : int {
+  A, E, Iz, Transform, End, 
+  // values coming after End wont be handled
+  // by ArgumentTracker; these need to be here for
+  // the template to compile.
+  G, J, Iy
+};
+
+enum class Args3D : int {
+  A, E, G, J, Iy, Iz, Transform, End
 };
 
 //
@@ -46,8 +58,19 @@ enum class PositionalArgument : int {
 //    < -mass $m> < -cMass >
 //    < -warp $warp>
 //
+// For a two-dimensional problem:
+// element elasticBeamColumn $eleTag $iNode $jNode $A $E $Iz $transfTag <-mass $massDens> <-cMass>
+//
+// For a three-dimensional problem:
+// 
+// element elasticBeamColumn $eleTag $iNode $jNode $A $E $G $J $Iy $Iz $transfTag <-mass $massDens> <-cMass>
+//
+// For two- and three-dimensional problems:
+// element elasticBeamColumn $eleTag $iNode $jNode $secTag $transfTag <-mass $massDens> <-cMass>
+//
+template <typename Position>
 int
-TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
+Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
                                TCL_Char ** const argv)
 {
 
@@ -66,8 +89,9 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
            thermal_depth = 0.0;
   } beam_data;
   double mass = 0.0;
+  bool use_mass = false;
 
-  ArgumentTracker<PositionalArgument> tracker;
+  ArgumentTracker<Position> tracker;
 
   struct BeamFlags {
     int                                  shear_flag = 0;
@@ -93,13 +117,6 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
 
-  if (ndm == 2) {
-    tracker.consume(PositionalArgument::Iy);
-    tracker.consume(PositionalArgument::G);
-    tracker.consume(PositionalArgument::J);
-  }
-
-
   //
   // Parse common parameters
   //
@@ -123,7 +140,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
   }
 
   //
-  // Parse common keyword arguments
+  // Parse keyword arguments
   //
   for (int argi = 5; argi < argc; argi++) {
 
@@ -141,19 +158,18 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
                << "invalid section tag.\n";
         return TCL_ERROR;
       }
+
       theSection = builder->getTypedObject<FrameSection>(section);
       if (theSection == nullptr)
         return TCL_ERROR;
 
       argi += 1;
-      tracker.consume(PositionalArgument::E);
-      tracker.consume(PositionalArgument::A);
-      tracker.consume(PositionalArgument::Iy);
-      tracker.consume(PositionalArgument::Iz);
+      while (tracker.current() != Position::Transform)
+        tracker.increment();
     }
 
     // Transform
-    if (strcmp(argv[argi], "-transform") == 0) {
+    else if (strcmp(argv[argi], "-transform") == 0) {
       if (argc < argi + 2) {
         opserr << OpenSees::PromptValueError
                << "not enough arguments, expected -transform $transform?\n";
@@ -177,11 +193,35 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
           return TCL_ERROR;
       }
       argi += 1;
-      tracker.consume(PositionalArgument::Transform);
+      tracker.consume(Position::Transform);
+    }
+    else if (strcmp(argv[argi], "-vertical") == 0) {
+      if (argc < argi + 2) {
+        opserr << OpenSees::PromptValueError
+               << "not enough arguments, expected -vertical $vertical?\n";
+        return TCL_ERROR;
+      }
+      int yargc;
+      TCL_Char ** yargv;
+      if (Tcl_SplitList(interp, argv[argi+1], &yargc, &yargv) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "could not split list\n";
+        return TCL_ERROR;
+      }
+      double vertical[3];
+      for (int j=0; j<3; j++)
+        if (Tcl_GetDouble(interp, yargv[j], &vertical[j]) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "could not read vector\n";
+          return TCL_ERROR;
+        }
+      theTrans3d = new LinearFrameTransf3d(0, Vector(vertical,3));
+      builder->addTaggedObject<FrameTransform3d>(*theTrans3d);
+      Tcl_Free((char *)yargv);
+      argi += 1;
+      tracker.consume(Position::Transform);
     }
 
     // Mass density
-    if (strcmp(argv[argi], "-mass") == 0) {
+    else if (strcmp(argv[argi], "-mass") == 0) {
       if (argc < argi + 2) {
         opserr << OpenSees::PromptValueError << "not enough arguments, expected -mass $mass?\n";
         return TCL_ERROR;
@@ -191,11 +231,14 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
                << "invalid mass\n";
         return TCL_ERROR;
       }
+      // If mass is specified directly in the element command, tell the element
+      // not to ask the cross section for it's mass.
+      use_mass = true;
       argi += 1;
     }
 
     // Geometry flag
-    else if (strcmp(argv[argi], "-delta") == 0) {
+    else if (strcmp(argv[argi], "-order") == 0) {
       if (argc < argi + 2) {
         opserr << OpenSees::PromptValueError
                << "not enough arguments, expected -delta $delta\n";
@@ -209,11 +252,12 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
       argi += 1;
 
     // Mass flags
-    } else if ((strcmp(argv[argi], "-lMass") == 0) ||
+    }
+    else if ((strcmp(argv[argi], "-lMass") == 0) ||
                (strcmp(argv[argi], "lMass") == 0)) {
       options.mass_flag = BeamFlags::LumpedMass;
-
-    } else if ((strcmp(argv[argi], "-cMass") == 0) ||
+    }
+    else if ((strcmp(argv[argi], "-cMass") == 0) ||
                (strcmp(argv[argi], "cMass") == 0)) {
       options.mass_flag = BeamFlags::CubicMass;
     }
@@ -247,9 +291,14 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
   // Parse positional arguments
   //
   if (positional.size() <= 2) {
-    int i=0;
+    std::size_t i=0;
     // Section
     if (theSection == nullptr) {
+      if (i >= positional.size()) {
+        opserr << OpenSees::PromptValueError
+               << "Missing required positional argument $section\n";
+        return TCL_ERROR;
+      }
       int section;
       if (Tcl_GetInt(interp, argv[positional[i]], &section) != TCL_OK) {
         opserr << OpenSees::PromptValueError << "invalid secTag\n";
@@ -258,87 +307,100 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
       theSection = builder->getTypedObject<FrameSection>(section);
       if (theSection == nullptr)
         return TCL_ERROR;
+
+      // Fast-forward through section parameters
+      while (tracker.current() != Position::Transform)
+        tracker.increment();
       i++;
     }
 
     // Coordinate transformation
-    if (Tcl_GetInt(interp, argv[positional[i]], &transTag) != TCL_OK) {
-      opserr << OpenSees::PromptValueError << "invalid transTag" << tag;
-      opserr << " iNode jNode sectionTag? transfTag?\n";
-      return TCL_ERROR;
-    }
-    // Check that the builder has a transform with tag; error will be
-    // printed from builder
-    if (ndm == 2) {
-      theTrans2d = builder->getTypedObject<FrameTransform2d>(transTag);
-      if (theTrans2d == nullptr)
+    if (tracker.contains(Position::Transform)) {
+      if (i >= positional.size()) {
+        opserr << OpenSees::PromptValueError
+               << "Missing required positional argument $transform\n";
         return TCL_ERROR;
-    }
-    else if (ndm == 3) {
-      theTrans3d = builder->getTypedObject<FrameTransform3d>(transTag);
-      if (theTrans3d == nullptr)
+      }
+      if (Tcl_GetInt(interp, argv[positional[i]], &transTag) != TCL_OK) {
+        opserr << OpenSees::PromptValueError << "invalid transTag" << tag;
+        opserr << " iNode jNode sectionTag? transfTag?\n";
         return TCL_ERROR;
+      }
+      // Check that the builder has a transform with tag; error will be
+      // printed from builder
+      if (ndm == 2) {
+        theTrans2d = builder->getTypedObject<FrameTransform2d>(transTag);
+        if (theTrans2d == nullptr)
+          return TCL_ERROR;
+      }
+      else if (ndm == 3) {
+        theTrans3d = builder->getTypedObject<FrameTransform3d>(transTag);
+        if (theTrans3d == nullptr)
+          return TCL_ERROR;
+      }
+      tracker.consume(Position::Transform);
     }
   }
 
   else {
+    // Parse remaining section properties as positional arguments
 
     for (int i : positional) {
 
       switch (tracker.current()) {
-        case PositionalArgument::E:
+        case Position::E:
           if (Tcl_GetDouble (interp, argv[i], &beam_data.E) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid E" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid E\n";
               return TCL_ERROR;
           } else {
             tracker.increment();
             break;
           }
 
-        case PositionalArgument::G:
+        case Position::G:
           if (Tcl_GetDouble (interp, argv[i], &beam_data.G) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid G" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid G\n";
               return TCL_ERROR;
           } else {
             tracker.increment();
             break;
           }
 
-        case PositionalArgument::A:
+        case Position::A:
           if (Tcl_GetDouble (interp, argv[i], &beam_data.A) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid A" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid A\n";
               return TCL_ERROR;
           } else {
             tracker.increment();
             break;
           }
 
-        case PositionalArgument::Iz:
+        case Position::Iz:
           if (Tcl_GetDouble (interp, argv[i], &beam_data.Iz) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid Iz" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid Iz\n";
               return TCL_ERROR;
           }
           tracker.increment();
           break;
 
-        case PositionalArgument::Iy:
+        case Position::Iy:
           if (Tcl_GetDouble (interp, argv[i], &beam_data.Iy) != TCL_OK || beam_data.Iy < 0) {
-              opserr << OpenSees::PromptParseError << "invalid Iy" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid Iy\n";
               return TCL_ERROR;
           }
           tracker.increment();
           break;
 
 
-        case PositionalArgument::J:
+        case Position::J:
           if (Tcl_GetDouble (interp, argv[i], &beam_data.J) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid J" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid J\n";
               return TCL_ERROR;
           }
           tracker.increment();
           break;
 
-        case PositionalArgument::Transform:
+        case Position::Transform:
           if (Tcl_GetInt(interp, argv[i], &transTag) != TCL_OK) {
             opserr << OpenSees::PromptValueError << "invalid transTag\n";
             return TCL_ERROR;
@@ -358,7 +420,7 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
           tracker.increment();
           break;
 
-        case PositionalArgument::End:
+        case Position::End:
           opserr << OpenSees::PromptParseError
                  << "unexpected argument" << argv[i] << "\n";
           return TCL_ERROR;
@@ -366,7 +428,11 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
     }
   }
 
-  // TODO: Check remaining in positional
+  if (tracker.current() != Position::End) {
+      opserr << OpenSees::PromptParseError
+             << "Missing required positional arguments\n";
+      return TCL_ERROR;
+  }
 
   if (ndm == 2) {
     // check plane frame problem has 3 dof per node
@@ -376,21 +442,20 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
       return TCL_ERROR;
     }
 
-    if (strcmp(argv[1], "elasticBeamColumn") == 0) {
+    if (strcmp(argv[1], "PrismFrame") == 0) {
 
-      // now create the beam and add it to the Domain
-      theBeam = new ElasticBeam2d(tag, beam_data.A, beam_data.E, beam_data.Iz, 
-                                  iNode, jNode, *theTrans2d,
-                                  beam_data.thermal_coeff, beam_data.thermal_depth, 
-                                  mass, options.mass_flag);
-    } else {
-      // now create the beam and add it to the Domain
       theBeam = new PrismFrame2d(tag, beam_data.A, beam_data.E, beam_data.Iz, 
                                  iNode, jNode, *theTrans2d,
                                  beam_data.thermal_coeff, beam_data.thermal_depth, 
                                  mass, options.mass_flag, 
                                  options.relz_flag, 
                                  options.geom_flag);
+    } else {
+
+      theBeam = new ElasticBeam2d(tag, beam_data.A, beam_data.E, beam_data.Iz, 
+                                  iNode, jNode, *theTrans2d,
+                                  beam_data.thermal_coeff, beam_data.thermal_depth, 
+                                  mass, options.mass_flag);
     }
 
   } else { // ndm == 3
@@ -411,19 +476,13 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
       theBeam = new PrismFrame3d(tag, nodes, *theSection, *theTrans3d, 
                                  mass,
                                  options.mass_flag,
+                                 use_mass,
                                  options.relz_flag, 
                                  options.rely_flag);
 
     } else {
-      if (strcmp(argv[1], "elasticBeamColumn") == 0) {
-
-        // now create the beam and add it to the Domain
-        theBeam = new ElasticBeam3d(tag, 
-                                    beam_data.A, beam_data.E, beam_data.G, 
-                                    beam_data.J, beam_data.Iy, beam_data.Iz,
-                                    iNode, jNode,
-                                    *theTrans3d, mass, options.mass_flag);
-      } else {
+      // now create the beam and add it to the Domain
+      if (strcmp(argv[1], "PrismFrame") == 0) {
         std::array<int, 2> nodes {iNode, jNode};
         theBeam = new PrismFrame3d(tag, 
                                    nodes,
@@ -434,6 +493,13 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
                                    options.relz_flag, 
                                    options.rely_flag);
                                 // options.geom_flag);
+
+      } else {
+        theBeam = new ElasticBeam3d(tag, 
+                                    beam_data.A, beam_data.E, beam_data.G, 
+                                    beam_data.J, beam_data.Iy, beam_data.Iz,
+                                    iNode, jNode,
+                                    *theTrans3d, mass, options.mass_flag);
       }
     }
   }
@@ -449,3 +515,21 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
 
   return TCL_OK;
 }
+
+
+int
+TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
+                               TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+
+  const int ndm = builder->getNDM();
+
+  if (ndm == 2)
+    return Parse_ElasticBeam<Args2D>(clientData, interp, argc, argv);
+
+  else
+    return Parse_ElasticBeam<Args3D>(clientData, interp, argc, argv);
+}
+

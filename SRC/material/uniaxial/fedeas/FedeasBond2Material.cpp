@@ -17,18 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2004-07-15 21:36:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/fedeas/FedeasBond2Material.cpp,v $
-                                                                      
+//
 // Written: MHS
 // Created: Jan 2001
 //
 // Description: This file contains the class definition for 
 // FedeasBond2Material. FedeasBond2Material wraps the FEDEAS
 // 1d material subroutine Bond_2.
-
+#include <Logging.h>
 #include <stdlib.h>
 #include <FedeasBond2Material.h>
 

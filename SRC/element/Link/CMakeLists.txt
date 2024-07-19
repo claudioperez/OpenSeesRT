@@ -4,9 +4,7 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-target_sources(OPS_Runtime PRIVATE
-  dispatch.cpp
-)
+target_sources(OPS_Runtime PRIVATE commands.cpp)
 
 target_sources(OPS_Element
   PRIVATE

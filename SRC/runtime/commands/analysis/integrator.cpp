@@ -13,7 +13,7 @@
 #include <runtimeAPI.h>
 #include <Domain.h>
 #include <Node.h>
-#include "runtime/BasicAnalysisBuilder.h"
+#include "BasicAnalysisBuilder.h"
 
 // integrators
 #include <LoadControl.h>

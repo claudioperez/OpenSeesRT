@@ -1,5 +1,5 @@
       subroutine PD (d,hstvp,hstv,epsp,sigp,deps,str,dd,ist)
-
+c---------------------------------------------------------------
 c
 c       One-D version of (ElastoVisco) Plastic-Damage Model
 c
@@ -14,7 +14,7 @@ c     ->ieps,peps,kapa[2],cohn[2],deg,vdeg,dplas,oldeps,phibound
 c
 c    ! ist = 1: dd is tangent stiffness in any case
 c
-
+      implicit none
 
       integer ist
       real*8 d(10),hstvp(11),hstv(11),delt,xl(2,2),eps,str,dd
@@ -153,7 +153,7 @@ C+++++++++++++++++++++++++ Reloading +++++++++++++++++++++++++++++++
    
 c  plastic loading state  ---------------------------------------------
         
-    chleng = dsqrt((xl(1,1)-xl(1,2))**2+(xl(2,1)-xl(2,2))**2)
+        chleng = dsqrt((xl(1,1)-xl(1,2))**2+(xl(2,1)-xl(2,2))**2)
 
         if ((kp.gt.ktcrit).and.(index.eq.1)) then
 
@@ -222,15 +222,13 @@ c  ------------------------------------------------------------
       end
 
 
-      
-      
- 
-      
-      
-      subroutine setpara(d,matpara)
 
+      subroutine setpara(d,matpara)
+c---------------------------------------------------------------
+
+      implicit none
       real*8 d(*), matpara(4)
-      real*8 temp
+      real*8 temp, deg_para1, deg_para2, deg_para3
 
 
       deg_para1 = 0.7d0
@@ -250,13 +248,12 @@ c ----- compute the parameters for the material model
       end
 
 
-      
-      
-
 
 
       subroutine crstr1(e,cohn,trstr,dplas,dplas1,d2_eps)
+c---------------------------------------------------------------
 
+      implicit none
       real*8 e,trstr,cohn(*),dplas,dplas1,d2_eps
 
       
@@ -270,13 +267,13 @@ c ----- compute the parameters for the material model
 
 
 
-
-
       subroutine plasto1(d,matpara,index,sign,chleng,eps,trstr
+c---------------------------------------------------------------
      &           ,lam,kp,cohn,fenergy,fstr,fkp,ck,dplas1,toler,maxitr)
 
 
 
+      implicit none
       integer index
 
       integer iter,maxitr,switch
@@ -333,12 +330,11 @@ c      write(*,*) 'kp =',kp
 
       if (error .gt. toler) then
 
-        if (iter .gt. maxitr) then
-      
-      write(*,*) 'toler =',toler
-      write(*,*) 'error =', error
-      write(*,*) 'kp =',kp
-      error = error/0.d0
+        if (iter .gt. maxitr) then 
+          write(*,*) 'toler =',toler
+          write(*,*) 'error =', error
+          write(*,*) 'kp =',kp
+          error = error/0.d0
           stop 'VEPD_2D: exceed the maximum iteration (iter)!'
         endif
 
@@ -349,21 +345,20 @@ c      write(*,*) 'kp =',kp
 
         kp = kp - resq
 
-    temp = 1.d0 - toler
+        temp = 1.d0 - toler
         if (kp.lt.kpn) then 
           kp = kpn
         elseif (kp.gt.temp) then
           kp = temp 
-      switch = -1
-    endif
+        switch = -1
+       endif
 
         goto 100                 ! ---> go back to 100 
 
       endif
         
 c     end of iteration loop ----------------------------------------
-      
-      
+
       return
       end
 
@@ -372,8 +367,9 @@ c     end of iteration loop ----------------------------------------
 
 
       subroutine algotan1(e,sign,lam,fenergy,fstr,fkp,ck,dd)
-        
+c---------------------------------------------------------------
 
+      implicit none
       real*8 sign,e,lam,fenergy,fstr,fkp,ck,dd
       
       real*8 omega
@@ -395,6 +391,7 @@ c   construct the algorithmic tangent stiffness: dd
 
       subroutine vdtan1(crmode,index,d,dplas1,mu,delt
      &                 ,tstr,estr,vdeg,degstr,d2_eps,dd)
+c---------------------------------------------------------------
 
 
       integer index,crmode
@@ -434,8 +431,9 @@ c --- Modify Inviscid Algorithmic Tangent for Large Crack Mode ---
 
 
       subroutine elastan1(e,vdeg,dplas1,dd)
+c---------------------------------------------------------------
 
-
+      implicit none
       real*8 e,vdeg,dd,dplas1
       
       
@@ -717,13 +715,13 @@ c   check the convergence of the damage evolution eqn
 
         kp = kp - resq
 
-    temp = 1.d0 - toler
+        temp = 1.d0 - toler
         if (kp.lt.kpn) then 
           kp = kpn
         elseif (kp.gt.temp) then
           kp = temp 
-      switch = -1
-    endif
+          switch = -1
+        endif
 
         peps = pepsn + (kp-kpn)*fenergy/(fstr*(1.d0-br))
 
@@ -785,11 +783,10 @@ c   check the convergence of the damage evolution eqn
 
       if (error .gt. toler) then
 
-        if (iter .gt. maxitr) then
-      
-      write(*,*) 'toler =',toler
-      write(*,*) 'error =', error
-      error = error/0.d0
+        if (iter .gt. maxitr) then 
+          write(*,*) 'toler =',toler
+          write(*,*) 'error =', error
+          error = error/0.d0
           stop 'UNLOADING: exceed the maximum iteration (iter)!'
         endif
 

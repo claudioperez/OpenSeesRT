@@ -25,8 +25,7 @@
 #include <EightNodeQuad.h>
 #include <SixNodeTri.h>
 
-class TclBasicBuilder;
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 int
 TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -1076,9 +1075,6 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
 #include <FourNodeQuadUP.h>
 #include <Nine_Four_Node_QuadUP.h>
 #include <BBarFourNodeQuadUP.h>
-
-class TclBasicBuilder;
-#include <runtime/BasicModelBuilder.h>
 
 
 /*  *****************************************************************************

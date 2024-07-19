@@ -44,9 +44,9 @@ class CubicFrame3d : public BasicFrame3d
 
     // public methods to obtain stiffness, mass, damping and residual information    
     int update();
+    virtual const Matrix &getMass() final;
 //  const Matrix &getTangentStiff();
 //  const Matrix &getInitialStiff();
-//  const Matrix &getMass();
 
 //  void zeroLoad();
 //  int addLoad(ElementalLoad *theLoad, double loadFactor);
@@ -92,7 +92,10 @@ private:
     OpenSees::VectorND<6>   q;
 
     double density;         // Mass density per unit length
+    double total_mass,
+           twist_mass;
     int mass_flag;
+    bool mass_initialized;
 
     constexpr static int max_nip = 20;
     double xi[max_nip];

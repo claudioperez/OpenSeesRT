@@ -29,6 +29,7 @@
 // FedeasConcr2Material. FedeasConcr2Material wraps the FEDEAS
 // 1d material subroutine Concr_2.
 #include <stdlib.h>
+#include <Logging.h>
 #include <FedeasConcr2Material.h>
 
 FedeasConcr2Material::FedeasConcr2Material(int tag,

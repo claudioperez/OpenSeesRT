@@ -30,6 +30,7 @@
 // 1d material subroutine Hyster_1.
 
 #include <stdlib.h>
+#include <Logging.h>
 #include <FedeasHyster1Material.h>
 
 FedeasHyster1Material::FedeasHyster1Material(int tag,

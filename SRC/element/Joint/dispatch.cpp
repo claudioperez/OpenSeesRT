@@ -26,23 +26,22 @@
 // to add beam column joint to a model.
 // Update: Optional User interfaces added in.
 
+#include <tcl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+#include <Domain.h>
 
-#include <runtime/BasicModelBuilder.h>
+
+#include <BasicModelBuilder.h>
 #include <BeamColumnJoint2d.h>
 #include <BeamColumnJoint3d.h>
 #include <Information.h>
 #include <ElementResponse.h>
 
-#include <Domain.h>
 #include <Node.h>
-#include <Channel.h> // parallel prog. not yet implemented
-#include <FEM_ObjectBroker.h>
-#include <Renderer.h>
 #include <UniaxialMaterial.h>
-#include <tcl.h>
-#include <elementAPI.h>
+// #include <elementAPI.h>
 
 
 int
@@ -440,7 +439,6 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
 #include <tcl.h>
 #include <DamageModel.h>
 #include <UniaxialMaterial.h>
-#include <runtime/BasicModelBuilder.h>
 
 
 int
@@ -967,14 +965,7 @@ TclBasicBuilder_addJoint2D(ClientData clientData, Tcl_Interp *interp, int argc,
 // Description: This file contains the implementation of the
 // TclBasicBuilder_addJoint3D() command.
 //
-#include <tcl.h>
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-#include <Domain.h>
-
 #include <Joint3D.h>
-#include <runtime/BasicModelBuilder.h>
 #include <UniaxialMaterial.h>
 
 

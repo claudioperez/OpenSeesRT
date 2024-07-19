@@ -43,12 +43,13 @@ using OpenSees::VectorND;
 double CubicFrame3d::workArea[200];
 
 CubicFrame3d::CubicFrame3d(int tag, std::array<int,2>& nodes,
-                                   int numSec, FrameSection **s,
-                                   BeamIntegration &bi,
-                                   FrameTransform3d &coordTransf, double r, int cm)
+                           int numSec, FrameSection **s,
+                           BeamIntegration &bi,
+                           FrameTransform3d &coordTransf, double r, int cm)
  : BasicFrame3d(tag, ELE_TAG_CubicFrame3d, nodes, coordTransf),
-  numSections(numSec), sections(nullptr), beamInt(nullptr),
-  mass_flag(cm), density(r)
+   numSections(numSec), sections(nullptr), beamInt(nullptr),
+   mass_flag(cm), density(r),
+   mass_initialized(false)
 {
   q.zero();
 
@@ -57,25 +58,18 @@ CubicFrame3d::CubicFrame3d(int tag, std::array<int,2>& nodes,
 
   for (int i = 0; i < numSections; i++) {    
     // Get copies of the material model for each integration point
-    sections[i] = s[i]->getFrameCopy();
-  
+    sections[i] = s[i]->getFrameCopy(); 
   }
   
   beamInt = bi.getCopy();
-  
-  if (beamInt == nullptr) {
-    opserr << "CubicFrame3d::CubicFrame3d - failed to copy beam integration\n";
-    exit(-1);
-  }
-
 }
 
 CubicFrame3d::CubicFrame3d()
-: BasicFrame3d(0, ELE_TAG_CubicFrame3d),
-  numSections(0),
-  sections(nullptr), beamInt(nullptr),
-  density(0.0),
-  mass_flag(0)
+ : BasicFrame3d(0, ELE_TAG_CubicFrame3d),
+   numSections(0),
+   sections(nullptr), beamInt(nullptr),
+   density(0.0), mass_flag(0),
+   mass_initialized(false)
 {
   q.zero();
 }
@@ -287,13 +281,13 @@ CubicFrame3d::getBasicTangent(State state, int rate)
 
     // Get the section tangent stiffness and stress resultant
 
-    const MatrixND<4,4,double> ks = sections[i]->getTangent<4,scheme>(state);
+    const MatrixND<4,4,double> ks = 
+      sections[i]->getTangent<4,scheme>(state);
                
     // Perform numerical integration
     // kb.addMatrixTripleProduct(1.0, *B, ks, wts(i)/L);
     double wti = wt[i]*oneOverL;
 
-    // Truss terms
     for (int k = 0; k < 4; k++) {
       // N
       ka(k,0) += ks(k,0)*wti;
@@ -326,7 +320,6 @@ CubicFrame3d::getBasicTangent(State state, int rate)
     }
 
     if (state != State::Init) {
-//    const Vector &s = sections[i]->getStressResultant();
       const VectorND<4,double> s = sections[i]->getResultant<4,scheme>();
       // q.addMatrixTransposeVector(1.0, *B, s, wts(i));
       q[0] += s[0]*wt[i];
@@ -372,7 +365,7 @@ CubicFrame3d::sendSelf(int commitTag, Channel &theChannel)
   }
   data( 7) = beamIntDbTag;
   data( 8) = density;
-  data( 9) = cMass;
+  data( 9) = mass_flag;
   data(10) = alphaM;
   data(11) = betaK;
   data(12) = betaK0;
@@ -461,7 +454,7 @@ CubicFrame3d::recvSelf(int commitTag, Channel &theChannel,
   int beamIntDbTag = (int)data(7);
   
   density = data(8);
-  cMass = (int)data(9);
+  mass_flag = (int)data(9);
   
   alphaM = data(10);
   betaK = data(11);
@@ -470,7 +463,7 @@ CubicFrame3d::recvSelf(int commitTag, Channel &theChannel,
   
   // create a new crdTransf object if one needed
   if (theCoordTransf == 0 || theCoordTransf->getClassTag() != crdTransfClassTag) {
-      if (theCoordTransf != 0)
+      if (theCoordTransf != nullptr)
           delete theCoordTransf;
 
     // TODO(cmp) - add FrameTransform to ObjBroker
@@ -647,7 +640,7 @@ CubicFrame3d::Print(OPS_Stream &s, int flag)
           s << "\nCubicFrame3d, element id:  " << this->getTag() << "\n";
           s << "\tConnected external nodes:  " << connectedExternalNodes;
           s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
-          s << "\tmass density:  " << density << ", cMass: " << cMass << "\n";
+          s << "\tmass density:  " << density << ", mass_flag: " << mass_flag << "\n";
 
           double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
           double L = theCoordTransf->getInitialLength();
@@ -677,6 +670,76 @@ CubicFrame3d::Print(OPS_Stream &s, int flag)
           //    opserr << "Mass: \n" << this->getMass();
     }
 }
+
+
+const Matrix &
+CubicFrame3d::getMass()
+{
+    if (!mass_initialized) {
+      if (this->getIntegral(Field::Density, State::Init, total_mass) != 0)
+        ;
+      if (this->getIntegral(Field::PolarInertia, State::Init, twist_mass) != 0)
+        ;
+      mass_initialized = true;
+    }
+
+    if (total_mass == 0.0) {
+
+        thread_local MatrixND<12,12> M{0.0};
+        thread_local Matrix Wrapper{M};
+        return Wrapper;
+
+    } else if (mass_flag == 0)  {
+
+        thread_local MatrixND<12,12> M{0.0};
+        thread_local Matrix Wrapper{M};
+        // lumped mass matrix
+        double m = 0.5*total_mass;
+        M(0,0) = m;
+        M(1,1) = m;
+        M(2,2) = m;
+        M(6,6) = m;
+        M(7,7) = m;
+        M(8,8) = m;
+        return Wrapper;
+
+    } else {
+        // consistent (cubic, prismatic) mass matrix
+
+        double L  = this->getLength(State::Init);
+        double m  = total_mass/420.0;
+        double mx = twist_mass;
+        thread_local MatrixND<12,12> ml{0};
+
+        ml(0,0) = ml(6,6) = m*140.0;
+        ml(0,6) = ml(6,0) = m*70.0;
+
+        ml(3,3) = ml(9,9) = mx/3.0; // Twisting
+        ml(3,9) = ml(9,3) = mx/6.0;
+
+        ml( 2, 2) = ml( 8, 8) =  m*156.0;
+        ml( 2, 8) = ml( 8, 2) =  m*54.0;
+        ml( 4, 4) = ml(10,10) =  m*4.0*L*L;
+        ml( 4,10) = ml(10, 4) = -m*3.0*L*L;
+        ml( 2, 4) = ml( 4, 2) = -m*22.0*L;
+        ml( 8,10) = ml(10, 8) = -ml(2,4);
+        ml( 2,10) = ml(10, 2) =  m*13.0*L;
+        ml( 4, 8) = ml( 8, 4) = -ml(2,10);
+
+        ml( 1, 1) = ml( 7, 7) =  m*156.0;
+        ml( 1, 7) = ml( 7, 1) =  m*54.0;
+        ml( 5, 5) = ml(11,11) =  m*4.0*L*L;
+        ml( 5,11) = ml(11, 5) = -m*3.0*L*L;
+        ml( 1, 5) = ml( 5, 1) =  m*22.0*L;
+        ml( 7,11) = ml(11, 7) = -ml(1,5);
+        ml( 1,11) = ml(11, 1) = -m*13.0*L;
+        ml( 5, 7) = ml( 7, 5) = -ml(1,11);
+
+        // transform local mass matrix to global system
+        return theCoordTransf->getGlobalMatrixFromLocal(ml);
+    }
+}
+
 
 
 

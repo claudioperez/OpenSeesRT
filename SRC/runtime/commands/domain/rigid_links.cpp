@@ -7,8 +7,8 @@
 //
 // Author: fmk, cmp
 //
-#include <G3_Logging.h>
-#include <OPS_Globals.h>
+#include <Logging.h>
+#include <Parsing.h>
 #include <Domain.h>
 #include <Node.h>
 #include <MP_Constraint.h>
@@ -18,7 +18,7 @@
 //
 #include <assert.h>
 #include <tcl.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #define CONSTRAINT_ERROR TCL_ERROR
 #define CONSTRAINT_OK    TCL_OK

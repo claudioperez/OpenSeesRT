@@ -34,7 +34,7 @@
 #include <ZeroLengthContact2D.h>
 #include <ZeroLengthRocking.h>
 #include <ZeroLengthContact3D.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <ID.h>
 #include <Vector.h>
 #include <Domain.h>

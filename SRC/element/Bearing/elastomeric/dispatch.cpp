@@ -32,8 +32,8 @@
 // Description: This file contains the function to parse the TCL input
 // for the elastomericBearingUFRP element.
 //
-#include <runtime/BasicModelBuilder.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <tcl.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -604,8 +604,8 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   constexpr static int eleArgStart = 1;
-  assert(builder != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  assert(builder != nullptr);
 
 
   Element *theElement = 0;
@@ -1075,7 +1075,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
 }
 
 
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #include <stdlib.h>
 #include <assert.h>

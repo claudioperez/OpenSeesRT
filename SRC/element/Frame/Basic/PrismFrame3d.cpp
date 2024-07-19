@@ -28,7 +28,8 @@
 
 PrismFrame3d::PrismFrame3d()
   :BasicFrame3d(0,ELE_TAG_ElasticBeam3d),
-   A(0.0), E(0.0), G(0.0), Jx(0.0), Iy(0.0), Iz(0.0), rho(0.0)
+   A(0.0), E(0.0), G(0.0), Jx(0.0), Iy(0.0), Iz(0.0),
+   total_mass(0.0), twist_mass(0.0)
 {
   q.zero();
 }
@@ -40,19 +41,18 @@ PrismFrame3d::PrismFrame3d(int tag, std::array<int, 2>& nodes,
                            double r, int cm, int rz, int ry)
   :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
    A(a), E(e), G(g), Jx(jx), Iy(iy), Iz(iz), 
-   rho(r), mass_flag(cm),
-   total_mass(r), twist_mass(0.0),
+   mass_flag(cm), density(r),
    releasez(rz), releasey(ry)
 {
   q.zero();
 }
 
-PrismFrame3d::PrismFrame3d(int tag, std::array<int,2>& nodes, FrameSection &section,  
+PrismFrame3d::PrismFrame3d(int tag, std::array<int,2>& nodes,
+                           FrameSection &section,  
                            FrameTransform3d &coordTransf, 
                            double rho_, int cMass, int rz, int ry)
   :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
-   rho(rho_), mass_flag(cMass),
-   total_mass(rho_), twist_mass(0.0),
+   mass_flag(cMass), density(rho_),
    releasez(rz), releasey(ry)
 {
   q.zero();
@@ -77,7 +77,16 @@ PrismFrame3d::PrismFrame3d(int tag, std::array<int,2>& nodes, FrameSection &sect
     default:
       break;
     }
-  } 
+  }
+
+  // TODO
+  bool use_mass = false;
+  if (!use_mass) {
+    if (section.getIntegral(Field::Density, State::Init, density) == 0) {
+      ;
+    }
+  }
+
 }
 
 int
@@ -98,6 +107,9 @@ PrismFrame3d::setNodes()
 
   //
   formBasicStiffness(km);
+
+  total_mass = density*L; 
+  twist_mass = (density/A)*Jx*L;
 
   return 0;
 }
@@ -236,15 +248,69 @@ PrismFrame3d::getBasicForce()
 OpenSees::MatrixND<6,6>&
 PrismFrame3d::getBasicTangent(State flag, int rate)
 {
-  if (rate == 2) {
-    // Mass
-    // Store in kg
-    kg(0,0) = rho*L;
-    return kg;
-  }
-  else // if (rate == 0)
-    return ke;
+  return ke;
 }
+
+const Matrix &
+PrismFrame3d::getMass()
+{
+    if (total_mass == 0.0) {
+
+        thread_local MatrixND<12,12> M{0.0};
+        thread_local Matrix Wrapper{M};
+        return Wrapper;
+
+    } else if (mass_flag == 0)  {
+
+        thread_local MatrixND<12,12> M{0.0};
+        thread_local Matrix Wrapper{M};
+        // lumped mass matrix
+        double m = 0.5*total_mass;
+        M(0,0) = m;
+        M(1,1) = m;
+        M(2,2) = m;
+        M(6,6) = m;
+        M(7,7) = m;
+        M(8,8) = m;
+        return Wrapper;
+
+    } else {
+        // consistent (cubic, prismatic) mass matrix
+
+        double L  = this->getLength(State::Init);
+        double m  = total_mass/420.0;
+        double mx = twist_mass;
+        thread_local MatrixND<12,12> ml{0};
+
+        ml(0,0) = ml(6,6) = m*140.0;
+        ml(0,6) = ml(6,0) = m*70.0;
+
+        ml(3,3) = ml(9,9) = mx/3.0; // Twisting
+        ml(3,9) = ml(9,3) = mx/6.0;
+
+        ml( 2, 2) = ml( 8, 8) =  m*156.0;
+        ml( 2, 8) = ml( 8, 2) =  m*54.0;
+        ml( 4, 4) = ml(10,10) =  m*4.0*L*L;
+        ml( 4,10) = ml(10, 4) = -m*3.0*L*L;
+        ml( 2, 4) = ml( 4, 2) = -m*22.0*L;
+        ml( 8,10) = ml(10, 8) = -ml(2,4);
+        ml( 2,10) = ml(10, 2) =  m*13.0*L;
+        ml( 4, 8) = ml( 8, 4) = -ml(2,10);
+
+        ml( 1, 1) = ml( 7, 7) =  m*156.0;
+        ml( 1, 7) = ml( 7, 1) =  m*54.0;
+        ml( 5, 5) = ml(11,11) =  m*4.0*L*L;
+        ml( 5,11) = ml(11, 5) = -m*3.0*L*L;
+        ml( 1, 5) = ml( 5, 1) =  m*22.0*L;
+        ml( 7,11) = ml(11, 7) = -ml(1,5);
+        ml( 1,11) = ml(11, 1) = -m*13.0*L;
+        ml( 5, 7) = ml( 7, 5) = -ml(1,11);
+
+        // transform local mass matrix to global system
+        return theCoordTransf->getGlobalMatrixFromLocal(ml);
+    }
+}
+
 
 int
 PrismFrame3d::sendSelf(int cTag, Channel &theChannel)
@@ -261,8 +327,8 @@ PrismFrame3d::sendSelf(int cTag, Channel &theChannel)
     data(5) = Iz;
 
 // 
-    data( 6) = rho;
-    data( 7) = cMass;
+    data( 6) = total_mass; // TODO
+    data( 7) = mass_flag;
     data( 8) = this->getTag();
     data( 9) = connectedExternalNodes(0);
     data(10) = connectedExternalNodes(1);
@@ -321,8 +387,8 @@ PrismFrame3d::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroke
   Iy = data(4); 
   Iz = data(5);     
 
-  rho = data(6);
-  cMass = (int)data(7);
+  total_mass = data(6);
+  mass_flag  = (int)data(7);
   this->setTag((int)data(8));
   connectedExternalNodes(0) = (int)data(9);
   connectedExternalNodes(1) = (int)data(10);
@@ -378,7 +444,7 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
         s << "\"type\": \"PrismFrame3d\", ";
         s << "\"nodes\": [" << connectedExternalNodes(0) << ", " 
                             << connectedExternalNodes(1) << "], ";
-        s << "\"massperlength\": " << rho << ", ";
+        s << "\"massperlength\": " << total_mass/L << ", ";
         s << "\"releasez\": "<< releasez << ", ";
         s << "\"releasey\": "<< releasey << ", ";                
         s << "\"crdTransformation\": " << theCoordTransf->getTag()  << ", ";
@@ -488,7 +554,7 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
         s << "\n  PrismFrame3d: " << this->getTag() << "\n";
         s << "\tConnected Nodes: " << connectedExternalNodes;
         s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
-        s << "\tmass density:  " << rho << ", cMass: " << cMass << "\n";
+        s << "\tmass density:  " << total_mass/L << ", mass_type: " << mass_flag << "\n";
         s << "\trelease about z:  " << releasez << "\n";
         s << "\trelease about y:  " << releasey << "\n";                
         double N, Mz1, Mz2, Vy, My1, My2, Vz, T;

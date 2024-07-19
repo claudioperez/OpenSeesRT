@@ -40,6 +40,7 @@
 #include <classTags.h>
 #include <Parameter.h>
 
+#if 0
 #include <elementAPI.h>
 #define OPS_Export 
 
@@ -88,6 +89,7 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_ConstantSeries)
 
   return theSeries;
 }
+#endif
 
 
 ConstantSeries::ConstantSeries(int tag, double theFactor)

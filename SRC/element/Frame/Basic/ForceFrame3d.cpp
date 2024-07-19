@@ -60,10 +60,11 @@ ForceFrame3d::ForceFrame3d()
  : BasicFrame3d(0, ELE_TAG_ForceFrame3d),
    beamIntegr(nullptr),
    numSections(0), sections(nullptr),
-   density(0.0),
    maxIters(0), tol(0.0),
    initialFlag(0),
    fs(nullptr), es(nullptr), Ssr(nullptr), es_save(nullptr),
+   density(0), mass_flag(0),
+   mass_initialized(false),
    Ki(0),
    parameterID(0)
 {
@@ -89,6 +90,7 @@ ForceFrame3d::ForceFrame3d(int tag, std::array<int, 2>& nodes, int numSec,
    fs(nullptr), es(nullptr), Ssr(nullptr), es_save(nullptr),
    Ki(0),
    density(massDensPerUnitLength), mass_flag(mass_flag_),
+   mass_initialized(false),
    parameterID(0)
 {
   kv.zero();
@@ -219,7 +221,6 @@ ForceFrame3d::getIntegral(Field field, State state, double& total)
 
     default:
       return -1;
-
   }
 }
 
@@ -229,10 +230,9 @@ ForceFrame3d::commitState()
   int err = 0;
   int i   = 0;
 
-  // call element commitState to do any base class stuff
-  if ((err = this->Element::commitState()) != 0) {
+  // Call element commitState to do any base class stuff
+  if ((err = this->Element::commitState()) != 0)
     opserr << "ForceFrame3d::commitState () - failed in base class";
-  }
 
   do {
 
@@ -338,6 +338,75 @@ ForceFrame3d::getBasicTangent(State state, int rate)
   return kv;
 }
 
+const Matrix &
+ForceFrame3d::getMass()
+{
+    if (!mass_initialized) {
+      if (this->getIntegral(Field::Density, State::Init, total_mass) != 0)
+        ;
+      if (this->getIntegral(Field::PolarInertia, State::Init, twist_mass) != 0)
+        ;
+      mass_initialized = true;
+    }
+
+    if (total_mass == 0.0) {
+
+        thread_local MatrixND<12,12> M{0.0};
+        thread_local Matrix Wrapper{M};
+        return Wrapper;
+
+    } else if (mass_flag == 0)  {
+
+        thread_local MatrixND<12,12> M{0.0};
+        thread_local Matrix Wrapper{M};
+        // lumped mass matrix
+        double m = 0.5*total_mass;
+        M(0,0) = m;
+        M(1,1) = m;
+        M(2,2) = m;
+        M(6,6) = m;
+        M(7,7) = m;
+        M(8,8) = m;
+        return Wrapper;
+
+    } else {
+        // consistent (cubic) mass matrix
+
+        // get initial element length
+        double L  = this->getLength(State::Init);
+        double m  = total_mass/420.0;
+        double mx = twist_mass;
+        thread_local MatrixND<12,12> ml{0.0};
+
+        ml(0,0) = ml(6,6) = m*140.0;
+        ml(0,6) = ml(6,0) = m*70.0;
+
+        ml(3,3) = ml(9,9) = mx/3.0; // Twisting
+        ml(3,9) = ml(9,3) = mx/6.0;
+
+        ml( 2, 2) = ml( 8, 8) =  m*156.0;
+        ml( 2, 8) = ml( 8, 2) =  m*54.0;
+        ml( 4, 4) = ml(10,10) =  m*4.0*L*L;
+        ml( 4,10) = ml(10, 4) = -m*3.0*L*L;
+        ml( 2, 4) = ml( 4, 2) = -m*22.0*L;
+        ml( 8,10) = ml(10, 8) = -ml(2,4);
+        ml( 2,10) = ml(10, 2) =  m*13.0*L;
+        ml( 4, 8) = ml( 8, 4) = -ml(2,10);
+
+        ml( 1, 1) = ml( 7, 7) =  m*156.0;
+        ml( 1, 7) = ml( 7, 1) =  m*54.0;
+        ml( 5, 5) = ml(11,11) =  m*4.0*L*L;
+        ml( 5,11) = ml(11, 5) = -m*3.0*L*L;
+        ml( 1, 5) = ml( 5, 1) =  m*22.0*L;
+        ml( 7,11) = ml(11, 7) = -ml(1,5);
+        ml( 1,11) = ml(11, 1) = -m*13.0*L;
+        ml( 5, 7) = ml( 7, 5) = -ml(1,11);
+
+        // transform local mass matrix to global system
+        return theCoordTransf->getGlobalMatrixFromLocal(ml);
+    }
+}
+
 /*
 const Matrix &
 ForceFrame3d::getInitialStiff()
@@ -400,7 +469,7 @@ ForceFrame3d::update()
   if (initialFlag != 0 && (dv.norm() <= DBL_EPSILON) && (eleLoads.size()==0))
     return 0;
 
-  static VectorND<nq> Dv;
+  thread_local VectorND<nq> Dv;
   Dv  = v;
   Dv -= dv;
 
@@ -1022,7 +1091,7 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   int i, j, k;
   int loc = 0;
 
-  static ID idData(11);
+  ID idData(11);
   idData(0) = this->getTag();
   idData(1) = connectedExternalNodes(0);
   idData(2) = connectedExternalNodes(1);
@@ -1157,7 +1226,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   int dbTag = this->getDbTag();
   int i, j, k;
 
-  static ID idData(11); // one bigger than needed
+  ID idData(11); // one bigger than needed
 
   if (theChannel.recvID(dbTag, commitTag, idData) < 0) {
     opserr << "ForceFrame3d::recvSelf() - failed to recv ID data\n";
@@ -1410,8 +1479,10 @@ ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
   double oneOverL = 1.0 / L;
 
   // Flexibility from elastic interior
-  Matrix Fe(fe);
-  beamIntegr->addElasticFlexibility(L, Fe);
+  {
+    Matrix wrapper(fe);
+    beamIntegr->addElasticFlexibility(L, wrapper);
+  }
 
   for (int i = 0; i < numSections; i++) {
 
@@ -1422,87 +1493,88 @@ ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
 
     const MatrixND<nsr,nsr> fSec = sections[i]->getFlexibility<nsr, scheme>(State::Init);
 
-    static MatrixND<nsr, nq> FB;
+    thread_local MatrixND<nsr, nq> FB;
     FB.zero();
     double tmp;
     int ii, jj;
-    for (ii = 0; ii < nsr; ii++) {
+    for (int ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (jj = 0; jj < nsr; jj++)
+        for (int jj = 0; jj < nsr; jj++)
           FB(jj, 0) += fSec(jj, ii) * wtL;
         break;
       case SECTION_RESPONSE_MZ:
-        for (jj = 0; jj < nsr; jj++) {
+        for (int jj = 0; jj < nsr; jj++) {
           tmp = fSec(jj, ii) * wtL;
           FB(jj, 1) += xL1 * tmp;
           FB(jj, 2) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (jj = 0; jj < nsr; jj++) {
+        for (int jj = 0; jj < nsr; jj++) {
           tmp = oneOverL * fSec(jj, ii) * wtL;
           FB(jj, 1) += tmp;
           FB(jj, 2) += tmp;
         }
         break;
       case SECTION_RESPONSE_MY:
-        for (jj = 0; jj < nsr; jj++) {
+        for (int jj = 0; jj < nsr; jj++) {
           tmp = fSec(jj, ii) * wtL;
           FB(jj, 3) += xL1 * tmp;
           FB(jj, 4) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VZ:
-        for (jj = 0; jj < nsr; jj++) {
+        for (int jj = 0; jj < nsr; jj++) {
           tmp = oneOverL * fSec(jj, ii) * wtL;
           FB(jj, 3) += tmp;
           FB(jj, 4) += tmp;
         }
         break;
       case SECTION_RESPONSE_T:
-        for (jj = 0; jj < nsr; jj++)
+        for (int jj = 0; jj < nsr; jj++)
           FB(jj, 5) += fSec(jj, ii) * wtL;
         break;
       default: break;
       }
     }
-    for (ii = 0; ii < nsr; ii++) {
+    //
+    for (int ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (jj = 0; jj < nq; jj++)
+        for (int jj = 0; jj < nq; jj++)
           fe(0, jj) += FB(ii, jj);
         break;
       case SECTION_RESPONSE_MZ:
-        for (jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < nq; jj++) {
           tmp = FB(ii, jj);
           fe(1, jj) += xL1 * tmp;
           fe(2, jj) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < nq; jj++) {
           tmp = oneOverL * FB(ii, jj);
           fe(1, jj) += tmp;
           fe(2, jj) += tmp;
         }
         break;
       case SECTION_RESPONSE_MY:
-        for (jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < nq; jj++) {
           tmp = FB(ii, jj);
           fe(3, jj) += xL1 * tmp;
           fe(4, jj) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VZ:
-        for (jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < nq; jj++) {
           tmp = oneOverL * FB(ii, jj);
           fe(3, jj) += tmp;
           fe(4, jj) += tmp;
         }
         break;
       case SECTION_RESPONSE_T:
-        for (jj = 0; jj < nq; jj++)
+        for (int jj = 0; jj < nq; jj++)
           fe(5, jj) += FB(ii, jj);
         break;
       default: break;
@@ -1519,7 +1591,7 @@ ForceFrame3d::getInitialDeformations(Vector& v0)
   if (eleLoads.size() < 1 || (this->setState(State::Init) != 0))
     return 0;
 
-  double L        = theCoordTransf->getInitialLength();
+  double L = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
 
@@ -1529,7 +1601,7 @@ ForceFrame3d::getInitialDeformations(Vector& v0)
     double xL1 = xL - 1.0;
     double wtL = wt[i] * L;
 
-    static VectorND<nsr> sp;
+    thread_local VectorND<nsr> sp;
     sp.zero();
 
     this->addLoadAtSection(sp, i);
@@ -1603,7 +1675,7 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
   }
 
   Vector v(numSections), w(numSections);
-  static Vector xl(ndm), uxb(ndm);
+  static VectorND<ndm> xl, uxb;
   static Vector xg(ndm), uxg(ndm);
   // double theta;                             // angle of twist of the sections
 

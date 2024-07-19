@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <Domain.h>
 #include <tcl.h>
-#include <OPS_Globals.h> // Tcl_Char
+#include <Parsing.h> // Tcl_Char
 #include <Logging.h>
 
 int

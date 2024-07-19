@@ -9,6 +9,7 @@ target_link_libraries(OPS_SysOfEqn PRIVATE OPS_Logging)
 target_include_directories(OPS_SysOfEqn 
   PUBLIC 
     ${CMAKE_CURRENT_LIST_DIR}
+    ${OPS_SRC_DIR}/analysis/model
     ${OPS_SRC_DIR}/system_of_eqn/linearSOE
     ${OPS_SRC_DIR}/system_of_eqn/eigenSOE
     ${OPS_SRC_DIR}/system_of_eqn/linearSOE/bandGEN

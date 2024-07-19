@@ -6,11 +6,13 @@
 // 
 // Description: This file implements the selection of a convergence test.
 //
+#include <tcl.h>
+#include <Parsing.h>
+#include <Logging.h>
+#include "BasicAnalysisBuilder.h"
+
 #include <assert.h>
 #include <string.h>
-#include <tcl.h>
-#include <G3_Logging.h>
-#include "runtime/BasicAnalysisBuilder.h"
 
 // convergence tests
 #include <CTestNormUnbalance.h>
@@ -24,9 +26,6 @@
 #include <NormDispAndUnbalance.h>
 #include <NormDispOrUnbalance.h>
 
-#ifndef G3_Char
-#define G3_Char const char
-#endif
 
 ConvergenceTest*
 TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv);

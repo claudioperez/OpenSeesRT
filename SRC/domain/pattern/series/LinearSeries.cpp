@@ -39,6 +39,7 @@
 #include <Vector.h>
 #include <Channel.h>
 
+#if 0
 #include <elementAPI.h>
 
 void * OPS_ADD_RUNTIME_VPV(OPS_LinearSeries)
@@ -86,6 +87,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_LinearSeries)
 
   return theSeries;
 }
+#endif
 
 
 LinearSeries::LinearSeries(int tag, double theFactor)

@@ -19,6 +19,7 @@ target_sources(OPS_Element
       ShellMITC4.cpp
       ShellMITC4Thermal.cpp
       ShellMITC9.cpp
+#     IGAShellMITC9.cpp
       ShellNLDKGQ.cpp
       ShellNLDKGQThermal.cpp
       ShellNLDKGT.cpp

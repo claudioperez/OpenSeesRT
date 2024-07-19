@@ -28,7 +28,7 @@
 #include <FeapMaterial03.h>
 
 class TclBasicBuilder;
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <Vector.h>
 #include <string.h>
 

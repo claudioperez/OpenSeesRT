@@ -17,16 +17,13 @@
 #define TCLSAFEBUILDER_H
 
 #include <typeinfo>
-// #include <tcl.h>
 #include <string>
 #include <unordered_map>
-// #include <runtime/modelbuilder/TclBuilder.h>
-
 
 #include <TaggedObject.h>
+
 class LoadPattern;
 class MultiSupportPattern;
-class G3_Runtime;
 class OPS_Stream;
 class ID;
 class Domain;
@@ -34,9 +31,11 @@ struct Tcl_Interp;
 
 class BasicModelBuilder {
 public:
+
 // Constructors / Destructors
   BasicModelBuilder(Domain &domain, Tcl_Interp *interp, int ndm, int ndf);
   ~BasicModelBuilder();
+
 
 
 // Options
@@ -44,7 +43,6 @@ public:
   bool canClobber();
 
 // Methods
-  int buildFE_Model();
 
   int getNDM() const;
   int getNDF() const;
@@ -64,6 +62,9 @@ public:
   // getCount
 
 
+  //
+  // Managing tagged objects
+  //
   template<class T> int addTypedObject(int tag, T* obj) {
     return addRegistryObject(typeid(T).name(), tag, obj);
   }
@@ -74,34 +75,39 @@ public:
     return addRegistryObject(typeid(T).name(), tag, &obj);
   }
 
-  // TODO: make private
-  int addRegistryObject(const char*, int tag, void* obj); 
-
+  constexpr static int SilentLookup = 1;
   template <class T>
-  int printRegistry(OPS_Stream& stream, int flag) const 
-  {
-    auto partition = typeid(T).name();
-
-    return printRegistry(partition, stream, flag);
-
+  int printRegistry(OPS_Stream& stream, int flag) const {
+    return printRegistry(typeid(T).name(), stream, flag);
   }
 
-
-  void* getRegistryObject(const char*, int tag) const;
-
-  template<class T> T* getTypedObject(int tag) {
-    return (T*)getRegistryObject(typeid(T).name(), tag);
+  template<class T> T* getTypedObject(int tag, int flags=0) const {
+    return (T*)getRegistryObject(typeid(T).name(), tag, flags);
   }
 
+  template<class T> int removeObject(int tag, int flags=0) {
+    return removeRegistryObject(typeid(T).name(), tag, flags);
+  }
+
+  template <class T> int findFreeTag(int &tag) const {
+    return findFreeTag(typeid(T).name(), tag);
+  }
 
   int addSP_Constraint(int axisDirn, 
          double axisValue, 
          const ID &fixityCodes, 
          double tol=1e-10);
 
+  int buildFE_Model();
 
 // 
 private:
+  // find/remove/insert
+  // TODO: make private
+  int addRegistryObject(const char*, int tag, void* obj); 
+  void* getRegistryObject(const char*, int tag, int flags) const;
+  int   removeRegistryObject(const char*, int tag, int flags);
+  int   findFreeTag(const char*, int& tag) const;
   int printRegistry(const char *, OPS_Stream& stream, int flag) const ;
 
 
@@ -110,8 +116,7 @@ private:
 
   Tcl_Interp *theInterp;
   Domain *theDomain     = nullptr;
-//G3_Runtime *m_runtime = nullptr;
-//BasicModelBuilder *theTclBuilder = nullptr;
+
 //int eleArgStart             = 0;
   int next_node_load          = 0;
   int next_elem_load          = 0;

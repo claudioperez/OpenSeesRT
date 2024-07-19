@@ -20,7 +20,7 @@
 #define strcmp strcasecmp
 
 #include <runtimeAPI.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #include <OPS_Stream.h>
 #include <G3_Logging.h>
@@ -303,15 +303,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 //    theEle = OPS_SingleFPSimple2d(rt, argc, argv);
 //  else
 //    theEle = OPS_SingleFPSimple3d(rt, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "RJWatsonEqsBearing") == 0 ||
-           strcmp(argv[1], "RJWatsonBearing") == 0 ||
-           strcmp(argv[1], "EQSBearing") == 0) {
-    if (ndm == 2)
-      theEle = OPS_RJWatsonEQS2d(rt, argc, argv);
-    else
-      theEle = OPS_RJWatsonEQS3d(rt, argc, argv);
   }
 
   // Xinlong Du

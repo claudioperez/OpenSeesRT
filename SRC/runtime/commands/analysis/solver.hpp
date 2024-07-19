@@ -10,7 +10,7 @@
 #include <unordered_map>
 // framework
 #include <runtimeAPI.h>
-#include <OPS_Globals.h>
+#include <Parsing.h>
 #include <packages.h>
 // analysis
 #include <StaticAnalysis.h>

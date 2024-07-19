@@ -37,11 +37,13 @@ class PrismFrame3d : public BasicFrame3d
                  double A, double E, double G, 
 		             double Jx, double Iy, double Iz,
                  FrameTransform3d &theTransf,
-                 double rho, int cMass,
+                 double density, int mass_flag,
 		             int releasez, int releasey);
 
-    PrismFrame3d(int tag, std::array<int,2>&, FrameSection &section, 
-		  FrameTransform3d &theTransf, double rho, int cMass,
+    PrismFrame3d(int tag, std::array<int,2>& nodes,
+      FrameSection &section, 
+		  FrameTransform3d &theTransf,
+      double density, int mass_flag,
 		  int releasez, int releasey);
 
 //  ~PrismFrame3d();
@@ -54,6 +56,7 @@ class PrismFrame3d : public BasicFrame3d
 */
     
     int update();
+    virtual const Matrix &getMass() final;
     int commitState();
     int revertToLastCommit();        
     int revertToStart();
@@ -61,10 +64,10 @@ class PrismFrame3d : public BasicFrame3d
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
     
-    void Print(OPS_Stream &s, int flag =0);    
+    void Print(OPS_Stream &s, int flag =0);
 
-    Response *setResponse(const char **argv, int argc, OPS_Stream &s);
-    int getResponse(int responseID, Information &info);
+    Response *setResponse(const char **argv, int argc, OPS_Stream &s) final;
+    int getResponse(int responseID, Information &info) final;
  
     virtual int setParameter(const char **argv, int argc, Parameter &param) final;
     virtual int updateParameter(int parameterID, Information &info) final;
@@ -79,12 +82,13 @@ class PrismFrame3d : public BasicFrame3d
   private:
     void formBasicStiffness(OpenSees::MatrixND<6,6>& kb) const;
 
-    double A,E,G,Jx,Iy,Iz,rho;
+    double A,E,G,Jx,Iy,Iz;
     double L;
 
     int mass_flag;
     double total_mass,
-           twist_mass;
+           twist_mass,
+           density;
 
     int geom_flag = 0; 
     int releasez; // moment release for bending about z-axis 0=none, 1=I, 2=J, 3=I,J

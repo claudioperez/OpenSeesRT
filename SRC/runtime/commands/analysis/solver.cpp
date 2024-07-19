@@ -23,7 +23,7 @@
 // #include "analysis.h"
 #include <OPS_Globals.h>
 #include "solver.hpp"
-#include "runtime/BasicAnalysisBuilder.h"
+#include "BasicAnalysisBuilder.h"
 
 // analysis
 #include <StaticAnalysis.h>

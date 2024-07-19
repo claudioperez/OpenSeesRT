@@ -8,7 +8,7 @@
 #include <tcl.h>
 #include <OPS_Globals.h>
 
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #include <SectionStrengthDegradation.h>
 #include <EnergyStrengthDegradation.h>

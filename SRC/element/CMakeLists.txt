@@ -10,6 +10,7 @@ target_link_libraries(OPS_Element
 
   PRIVATE OPS_Transform
           OPS_FrameQuadrature
+          OPS_Logging
 )
 
 target_include_directories(OPS_Element PUBLIC

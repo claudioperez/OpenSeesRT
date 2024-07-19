@@ -1,4 +1,0 @@
-https://raw.githubusercontent.com/uncrustify/uncrustify/master/documentation/htdocs/ben.cfg.txt
-sp_arith_additive = true
-output_tab_size			= 2		# new tab size
-indent_with_tabs		= 0		# 1=indent to level only, 2=indent with tabs

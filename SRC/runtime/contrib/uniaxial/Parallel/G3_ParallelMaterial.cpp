@@ -1,6 +1,6 @@
 #include <tcl.h>
 #include <ParallelMaterial.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <runtimeAPI.h>
 
 

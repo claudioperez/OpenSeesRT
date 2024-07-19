@@ -9,11 +9,6 @@
 // models that can be generated using the elements released with the g3
 // framework.
 //
-// TODO:
-// - Remove all *Map.at
-//   - return from registry
-//   - handle find failures consistently
-//
 // Written: cmp
 //
 #include <assert.h>
@@ -21,6 +16,8 @@
 #include <string.h>
 #include <iostream>
 #include <initializer_list>
+#include <string>
+#include <unordered_map>
 
 #include <modeling/commands.h>
 
@@ -31,13 +28,7 @@
 #include <Domain.h>
 
 #include <CrdTransf.h>
-#include <SectionForceDeformation.h>
-#include <UniaxialMaterial.h>
-#include <NDMaterial.h>
-#include <runtime/BasicModelBuilder.h>
-#include <MultiSupportPattern.h>
-
-#include <TimeSeries.h>
+#include <BasicModelBuilder.h>
 
 #include <tcl.h> // For TCL_OK/ERROR
 
@@ -164,12 +155,6 @@ BasicModelBuilder::getDomain() const
   return theDomain;
 }
 
-#if 0
-BasicModelBuilder *
-BasicModelBuilder::getBuilder() const {
-  return theTclBuilder;
-}
-#endif
 
 int 
 BasicModelBuilder::printRegistry(const char *partition, OPS_Stream& stream, int flag) const 
@@ -192,18 +177,22 @@ BasicModelBuilder::printRegistry(const char *partition, OPS_Stream& stream, int 
 }
 
 void* 
-BasicModelBuilder::getRegistryObject(const char* partition, int tag) const
+BasicModelBuilder::getRegistryObject(const char* partition, int tag, int flags) const
 {
 
   auto iter = m_registry.find(std::string{partition});
   if (iter == m_registry.end()) {
-    opserr << "No objects of type \"" << partition << "\" have been created.\n";
+    if (flags == 0)
+      opserr << "No objects of type \"" << partition
+             << "\" have been created.\n";
     return nullptr;
   }
 
   auto iter_objs = iter->second.find(tag) ;
   if (iter_objs == iter->second.end()) {
-    opserr << "No object with tag \"" << tag << "\"in partition \"" << partition << "\"\n";
+    if (flags == 0)
+      opserr << "No object with tag \"" << tag << "\"in partition \"" 
+             << partition << "\"\n";
     return nullptr;
   }
 
@@ -218,4 +207,43 @@ BasicModelBuilder::addRegistryObject(const char* partition, int tag, void *obj)
   m_registry[std::string{partition}][tag] = (TaggedObject*)obj;
   return TCL_OK;
 }
+
+int
+BasicModelBuilder::findFreeTag(const char* partition, int& tag) const
+{
+  tag = 0;
+  const auto iter = m_registry.find(std::string{partition});
+  // If we dont have a table with partition name, no objects
+  // have been created and tag = 0 works; return success.
+  if (iter == m_registry.end())
+    return 0;
+
+
+  // Otherwise, find something larger than all existing tags
+  const std::unordered_map<int, TaggedObject*>& table = iter->second;
+  for (auto const& [key, val] : table)
+    if (key > tag)
+      tag = key + 1;
+
+  return 0;
+}
+
+int
+BasicModelBuilder::removeRegistryObject(const char* partition, int tag, int flags) 
+{
+  const auto iter = m_registry.find(std::string{partition});
+  if (iter == m_registry.end()) {
+    if (flags == 0)
+      opserr << "No objects of type \"" << partition
+             << "\" have been created.\n";
+    return -1;
+  }
+  std::unordered_map<int, TaggedObject*>& table = iter->second;
+  if (table.find(tag) != table.end()) {
+      table.erase(tag);
+      return 0;
+  }
+  return -1;
+}
+
 

@@ -11,9 +11,11 @@
 //
 #include <stdio.h>
 #include <assert.h>
-#include <G3_Logging.h>
+
 #include <tcl.h>
-#include "runtime/BasicAnalysisBuilder.h"
+#include <Logging.h>
+#include <Parsing.h>
+#include "BasicAnalysisBuilder.h"
 
 // soln algorithms
 #include <Linear.h>

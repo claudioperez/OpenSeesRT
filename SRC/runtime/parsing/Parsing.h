@@ -11,3 +11,5 @@ typedef const char TCL_Char;
 // #define G3_Char const char
 typedef const char G3_Char;
 #endif
+
+#include "InputAPI.h"

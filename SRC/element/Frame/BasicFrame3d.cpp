@@ -23,10 +23,6 @@ BasicFrame3d::~BasicFrame3d()
 int
 BasicFrame3d::update()
 {
-  if (this->getIntegral(Field::Density, State::Init, total_mass) != 0)
-    ;
-  if (this->getIntegral(Field::PolarInertia, State::Init, twist_mass) != 0)
-    ;
   return 0;
 }
 
@@ -79,7 +75,7 @@ BasicFrame3d::getResistingForce()
 
   double oneOverL = 1.0 / theCoordTransf->getInitialLength();
 
-  static VectorND<12> pl;
+  thread_local VectorND<12> pl;
   pl[0]  = -q0;                    // Ni
   pl[1]  =  oneOverL * (q1 + q2);  // Viy
   pl[2]  = -oneOverL * (q3 + q4);  // Viz
@@ -93,7 +89,7 @@ BasicFrame3d::getResistingForce()
   pl[10] = q4;
   pl[11] = q2;
 
-  static VectorND<12> pf{0.0};
+  thread_local VectorND<12> pf{0.0};
   pf[0] = p0[0];
   pf[1] = p0[1];
   pf[7] = p0[2];
@@ -129,7 +125,7 @@ BasicFrame3d::getTangentStiff()
 
   double oneOverL = 1.0 / theCoordTransf->getInitialLength();
 
-  static VectorND<12> pl;
+  thread_local VectorND<12> pl;
   pl[0]  = -q0;                    // Ni
   pl[1]  =  oneOverL * (q1 + q2);  // Viy
   pl[2]  = -oneOverL * (q3 + q4);  // Viz
@@ -202,8 +198,8 @@ BasicFrame3d::addInertiaLoadToUnbalance(const Vector &accel)
     return -1;
   }
 
-  // want to add ( - fact * M R * accel ) to unbalance
-  if (cMass == 0)  {
+  // add ( - fact * M R * accel ) to unbalance
+  if (cMass == 0) {
     // take advantage of lumped mass matrix
     double m = 0.5*total_mass;
 
@@ -216,7 +212,8 @@ BasicFrame3d::addInertiaLoadToUnbalance(const Vector &accel)
     p_iner[8] -= m * Raccel2(2);
 
   } else  {
-    // TODO: Move this to FiniteElement::getAcceleration()
+    // TODO: Move this to FiniteElement::getAcceleration() ?
+
     // use matrix vector multip. for consistent mass matrix
     static Vector Raccel(12);
     for (int i=0; i<6; i++)  {
@@ -279,59 +276,62 @@ BasicFrame3d::getInitialStiff()
 
 const Matrix &
 BasicFrame3d::getMass()
-{ 
-    K.Zero();
+{
+    if (total_mass == 0.0) {
 
-    if (total_mass > 0.0) {
-//
-        if (cMass == 0)  {
-            // lumped mass matrix
-            double m = 0.5*total_mass;
-            K(0,0) = m;
-            K(1,1) = m;
-            K(2,2) = m;
-            K(6,6) = m;
-            K(7,7) = m;
-            K(8,8) = m;
+        thread_local MatrixND<12,12> M{0.0};
+        thread_local Matrix Wrapper{M};
+        return Wrapper;
 
-        } else  {
-            // consistent (cubic) mass matrix
+    } else if (cMass == 0)  {
 
-            // get initial element length
-            double L  = this->getLength(State::Init);
-            double m  = total_mass/420.0;
-            double mx = twist_mass;
-            static MatrixND<12,12> ml{0};
-            ml(0,0) = ml(6,6) = m*140.0;
-            ml(0,6) = ml(6,0) = m*70.0;
+        thread_local MatrixND<12,12> M{0.0};
+        thread_local Matrix Wrapper{M};
+        // lumped mass matrix
+        double m = 0.5*total_mass;
+        M(0,0) = m;
+        M(1,1) = m;
+        M(2,2) = m;
+        M(6,6) = m;
+        M(7,7) = m;
+        M(8,8) = m;
+        return Wrapper;
 
-            ml(3,3) = ml(9,9) = mx/3.0; // Twisting
-            ml(3,9) = ml(9,3) = mx/6.0;
+    } else {
+        // consistent (cubic) mass matrix
 
-            ml( 2, 2) = ml( 8, 8) =  m*156.0;
-            ml( 2, 8) = ml( 8, 2) =  m*54.0;
-            ml( 4, 4) = ml(10,10) =  m*4.0*L*L;
-            ml( 4,10) = ml(10, 4) = -m*3.0*L*L;
-            ml( 2, 4) = ml( 4, 2) = -m*22.0*L;
-            ml( 8,10) = ml(10, 8) = -ml(2,4);
-            ml( 2,10) = ml(10, 2) =  m*13.0*L;
-            ml( 4, 8) = ml( 8, 4) = -ml(2,10);
+        // get initial element length
+        double L  = this->getLength(State::Init);
+        double m  = total_mass/420.0;
+        double mx = twist_mass;
+        static MatrixND<12,12> ml{0};
+        ml(0,0) = ml(6,6) = m*140.0;
+        ml(0,6) = ml(6,0) = m*70.0;
 
-            ml( 1, 1) = ml( 7, 7) =  m*156.0;
-            ml( 1, 7) = ml( 7, 1) =  m*54.0;
-            ml( 5, 5) = ml(11,11) =  m*4.0*L*L;
-            ml( 5,11) = ml(11, 5) = -m*3.0*L*L;
-            ml( 1, 5) = ml( 5, 1) =  m*22.0*L;
-            ml( 7,11) = ml(11, 7) = -ml(1,5);
-            ml( 1,11) = ml(11, 1) = -m*13.0*L;
-            ml( 5, 7) = ml( 7, 5) = -ml(1,11);
+        ml(3,3) = ml(9,9) = mx/3.0; // Twisting
+        ml(3,9) = ml(9,3) = mx/6.0;
 
-            // transform local mass matrix to global system
-            K = theCoordTransf->getGlobalMatrixFromLocal(ml);
-        }
+        ml( 2, 2) = ml( 8, 8) =  m*156.0;
+        ml( 2, 8) = ml( 8, 2) =  m*54.0;
+        ml( 4, 4) = ml(10,10) =  m*4.0*L*L;
+        ml( 4,10) = ml(10, 4) = -m*3.0*L*L;
+        ml( 2, 4) = ml( 4, 2) = -m*22.0*L;
+        ml( 8,10) = ml(10, 8) = -ml(2,4);
+        ml( 2,10) = ml(10, 2) =  m*13.0*L;
+        ml( 4, 8) = ml( 8, 4) = -ml(2,10);
+
+        ml( 1, 1) = ml( 7, 7) =  m*156.0;
+        ml( 1, 7) = ml( 7, 1) =  m*54.0;
+        ml( 5, 5) = ml(11,11) =  m*4.0*L*L;
+        ml( 5,11) = ml(11, 5) = -m*3.0*L*L;
+        ml( 1, 5) = ml( 5, 1) =  m*22.0*L;
+        ml( 7,11) = ml(11, 7) = -ml(1,5);
+        ml( 1,11) = ml(11, 1) = -m*13.0*L;
+        ml( 5, 7) = ml( 7, 5) = -ml(1,11);
+
+        // transform local mass matrix to global system
+        return theCoordTransf->getGlobalMatrixFromLocal(ml);
     }
-    
-    return K;
 }
 
 void 
@@ -437,12 +437,12 @@ BasicFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
 
           // Fixed end forces in basic system
           q0[0] -= P * cOverL;
-          double M1, M2;
           double beta2 = (1 - cOverL) * (1 - cOverL);
           double alfa2 = (cOverL) * (cOverL);
           double gamma2 = (b - a) / L;
           gamma2 *= gamma2;
 
+          double M1, M2;
           M1 = -wy * (b - a) * (c * beta2 + gamma2 / 12.0 * (L - 3 * (L - c)));
           M2 = wy * (b - a) * ((L - c) * alfa2 + gamma2 / 12.0 * (L - 3 * c));
           q0[1] += M1;

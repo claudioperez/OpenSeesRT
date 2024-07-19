@@ -106,10 +106,13 @@ FrameFiberSection3d::FrameFiberSection3d(int tag, int num, Fiber **fibers,
 #endif
 
 
-FrameFiberSection3d::FrameFiberSection3d(int tag, int num, UniaxialMaterial &torsion, bool compCentroid, double mass, bool use_mass): 
-    FrameSection(tag, SEC_TAG_FrameFiberSection3d, mass, use_mass),
-    numFibers(0), sizeFibers(num), theMaterials(nullptr), matData(new double [num*3]{}),
-    QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
+FrameFiberSection3d::FrameFiberSection3d(int tag, int num, UniaxialMaterial &torsion, bool compCentroid, 
+                                         double mass, bool use_mass)
+  : FrameSection(tag, SEC_TAG_FrameFiberSection3d, mass, use_mass),
+    numFibers(0), sizeFibers(num), 
+    theMaterials(nullptr), matData(new double [num*3]{}),
+    QzBar(0.0), QyBar(0.0), Abar(0.0), 
+    yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
     theTorsion(0),
 #ifdef N_FIBER_THREADS
     pool((void*)new OpenSees::thread_pool{N_FIBER_THREADS}),

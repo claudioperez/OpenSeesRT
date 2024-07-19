@@ -25,7 +25,7 @@
 // Description: This file contains the function to parse the TCL input
 // for the actuator element.
 //
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <tcl.h>
 #include <assert.h>
 #include <stdlib.h>

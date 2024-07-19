@@ -23,15 +23,15 @@ target_include_directories(OPS_Runtime PUBLIC
   ${OPS_SRC_DIR}/runtime/commands/modeling
   ${OPS_SRC_DIR}/runtime/runtime/
 )
-target_link_libraries(OPS_Runtime PRIVATE G3)
+target_link_libraries(OPS_Runtime PRIVATE G3 OPS_Algorithm)
 
 add_subdirectory(commands)
 add_subdirectory(runtime)
+add_subdirectory(contrib)
 
 target_sources(OPS_Runtime PRIVATE
-    "G3_Runtime.cpp"
-    "InterpreterAPI.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/utilities/tclutils.cpp"
+    "runtime/G3_Runtime.cpp"
+    "parsing/InterpreterAPI.cpp"
 
     #
     # OTHER
@@ -51,7 +51,6 @@ if (DEFINED OPENSEESRT_VERSION)
   )
 endif()
 
-add_subdirectory(contrib/)
 
 #
 # Tcl
@@ -61,7 +60,7 @@ if (${TCL_INCLUDE_PATH})
   target_include_directories(OPS_Runtime PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
-target_link_libraries(OpenSeesRT PRIVATE OPS_Runtime OPS_Renderer ${TCL_STUB_LIBRARY})
+target_link_libraries(OpenSeesRT PRIVATE OPS_Runtime OPS_Renderer OPS_Algorithm ${TCL_STUB_LIBRARY})
 
 #
 # Python
@@ -78,7 +77,7 @@ endif()
 #
 if (FALSE) # (MPI_FOUND)
   add_library(OpenSeesRT_Parallel SHARED)
-  add_subdirectory(parallel)
+  add_subdirectory(commands/parallel)
   target_sources(OpenSeesRT_Parallel PRIVATE OpenSeesPRT.cpp)
 endif()
 

@@ -11,7 +11,7 @@
 #include <tcl.h>
 #include <string.h>
 #include <assert.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <G3_Logging.h>
 
 #include <LinearCrdTransf2d.h>
@@ -230,7 +230,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     // construct the transformation object
-    FrameTransform3d *crdTransf3d;
+    FrameTransform3d *crdTransf3d=nullptr;
 
     if (strcmp(argv[1], "Linear") == 0)
       if (getenv("CRD"))

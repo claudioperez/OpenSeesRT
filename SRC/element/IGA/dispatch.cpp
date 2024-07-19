@@ -88,14 +88,16 @@ void* OPS_ADD_RUNTIME_VPV(OPS_IGASurfacePatch)
     // opserr << "OPS_IGASurfacePatch OPS_GetNumRemainingInputArgs() = " << OPS_GetNumRemainingInputArgs() << endln;
 
     // get other inputs
-    std::vector<double> theta_stdVector, thickness_stdVector , uKnot_stdVector, vKnot_stdVector, controlPts_stdVector;
-    std::vector<int> matTags_stdVector;
+    std::vector<double> theta_stdVector, 
+                        thickness_stdVector, 
+                        uKnot_stdVector, 
+                        vKnot_stdVector, 
+                        controlPts_stdVector;
+    std::vector<NDMaterial*>  materials; //  matTags_stdVector;
     // int loc = 5; // Vector (knotVector) start position
     // int loc = 7;
     int loc = 8;
     while (OPS_GetNumRemainingInputArgs() > 0) {
-
-        // opserr << "loc = " << loc << endln;
 
         // next arg
         const char* arg = OPS_GetString();
@@ -125,7 +127,17 @@ void* OPS_ADD_RUNTIME_VPV(OPS_IGASurfacePatch)
                     OPS_ResetCurrentInputArg(loc);
                     break;
                 }
-                matTags_stdVector.push_back(val);
+
+//              matTags_stdVector.push_back(val);
+
+                NDMaterial* mat = nullptr;
+                if ((mat = OPS_getNDMaterial(val)) {
+                    materials.push_back(mat);
+                } else {
+                    opserr << "Failed to get material with tag " << val << "\n";
+                    return nullptr;
+                }
+
                 loc++;
             }
 
@@ -246,7 +258,7 @@ void* OPS_ADD_RUNTIME_VPV(OPS_IGASurfacePatch)
 
     }
 
-    ID matTags(&matTags_stdVector[0], (int)(matTags_stdVector.size()));
+//  ID matTags(&matTags_stdVector[0], (int)(matTags_stdVector.size()));
     Vector theta(&theta_stdVector[0], (int)(theta_stdVector.size()));
     Vector thickness(&thickness_stdVector[0], (int)(thickness_stdVector.size()));
     Vector uKnot(&uKnot_stdVector[0], (int)uKnot_stdVector.size());
@@ -259,11 +271,9 @@ void* OPS_ADD_RUNTIME_VPV(OPS_IGASurfacePatch)
 
     // Matrix controlPts(&controlPts_stdVector[0], M, N);
     Matrix controlPts(&controlPts_stdVector[0], N, M);
-    // opserr << "controlPts = " << controlPts ;
-    IGASurfacePatch* patch = new IGASurfacePatch(tag, nodeStartTag, P, Q, noPtsX, noPtsY, nonLinearGeometry, gFact, matTags, theta, thickness, uKnot, vKnot, controlPts, shtype); //
-    // opserr << "tag = " << tag << endln;
-    // opserr << "\n\nprint command from OPS_IGASurfacePatch" << endln;
-    // patch->Print(opserr);
+
+    IGASurfacePatch* patch = new IGASurfacePatch(tag, nodeStartTag, P, Q, noPtsX, noPtsY, nonLinearGeometry, gFact, materials, theta, thickness, uKnot, vKnot, controlPts, shtype);
+
 
     Domain* theDomain = OPS_GetDomain();
     theDomain->addElement(patch);
