@@ -33,7 +33,7 @@
 #include "Metis.h"
 #include <Graph.h>
 #include <Vertex.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 /* stuff needed to get the program working on the clump & NOW machines*/
 #include <stdbool.h>
