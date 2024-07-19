@@ -4,7 +4,6 @@
 //
 //===----------------------------------------------------------------------===//
 //
-//
 /*
  * References
  *
@@ -22,7 +21,7 @@
  *  "Response Sensitivity for Nonlinear Beam-Column Elements."
  *  Journal of Structural Engineering, 130(9):1281-1288.
  *
-**/
+ */
 
 #include <math.h>
 #include <stdlib.h>
@@ -32,7 +31,7 @@
 
 #include <Information.h>
 #include <Parameter.h>
-#include <ForceFrame3d.h>
+#include <ForceFrame3d01.h>
 #include <BeamIntegration.h>
 #include <FrameSection.h>
 #include <interpolate/cbdi.h>
@@ -46,23 +45,26 @@
 #include <ElementIter.h>
 #include <Matrix.h>
 
-#define ELE_TAG_ForceFrame3d 0 // TODO
+#define ELE_TAG_ForceFrame3d01 0 // TODO
 
-#define THREAD_LOCAL static
+Matrix ForceFrame3d01::theMatrix(12, 12);
+Vector ForceFrame3d01::theVector(12);
 
-Matrix ForceFrame3d::theMatrix(12, 12);
-Vector ForceFrame3d::theVector(12);
+VectorND<ForceFrame3d01::nq>                    ForceFrame3d01::es_trial[maxNumSections];
+MatrixND<ForceFrame3d01::nq,ForceFrame3d01::nq> ForceFrame3d01::Fs_trial[maxNumSections];
+VectorND<ForceFrame3d01::nq>                    ForceFrame3d01::sr_trial[maxNumSections];
 
-
-// Constructor invoked by a FEM_ObjectBroker; recvSelf() needs to be invoked on this object.
-ForceFrame3d::ForceFrame3d()
- : BasicFrame3d(0, ELE_TAG_ForceFrame3d),
+// constructor:
+// invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
+ForceFrame3d01::ForceFrame3d01()
+ : BasicFrame3d(0, ELE_TAG_ForceFrame3d01),
    beamIntegr(nullptr),
+   numSections(0), sections(nullptr),
+   density(0.0),
    maxIters(0), tol(0.0),
    initialFlag(0),
-   density(0.0), mass_flag(0), use_density(false),
-   mass_initialized(false),
-   Ki(nullptr),
+   fs(nullptr), es(nullptr), Ssr(nullptr), es_save(nullptr),
+   Ki(0),
    parameterID(0)
 {
   kv.zero();
@@ -74,19 +76,19 @@ ForceFrame3d::ForceFrame3d()
 // Constructor which takes the unique element tag, sections,
 // and the node ID's of its nodal end points.
 // allocates the necessary space needed by each object
-ForceFrame3d::ForceFrame3d(int tag, std::array<int, 2>& nodes, 
-                           std::vector<FrameSection*>& sec,
-                           BeamIntegration& bi,
+ForceFrame3d01::ForceFrame3d01(int tag, std::array<int, 2>& nodes, int numSec,
+                           FrameSection** sec, BeamIntegration& bi,
                            FrameTransform3d& coordTransf, 
                            double massDensPerUnitLength, int maxNumIters,
-                           double tolerance, int mass_flag_, bool use_density_)
- : BasicFrame3d(tag, ELE_TAG_ForceFrame3d, nodes, coordTransf),
+                           double tolerance, int mass_flag_)
+ : BasicFrame3d(tag, ELE_TAG_ForceFrame3d01, nodes, coordTransf),
    beamIntegr(nullptr),
+   numSections(0), sections(nullptr),
    maxIters(maxNumIters), tol(tolerance),
    initialFlag(0),
-   Ki(nullptr),
-   density(massDensPerUnitLength), mass_flag(mass_flag_), use_density(use_density_),
-   mass_initialized(false),
+   fs(nullptr), es(nullptr), Ssr(nullptr), es_save(nullptr),
+   Ki(0),
+   density(massDensPerUnitLength), mass_flag(mass_flag_),
    parameterID(0)
 {
   kv.zero();
@@ -95,36 +97,36 @@ ForceFrame3d::ForceFrame3d(int tag, std::array<int, 2>& nodes,
   q_pres.zero();
 
   beamIntegr = bi.getCopy();
+  if (beamIntegr == nullptr) {
+    opserr << "Error: ForceFrame3d01::ForceFrame3d01: could not create copy of beam integration object"
+           << "\n";
+    exit(-1);
+  }
 
-  this->setSectionPointers(sec);
+  this->setSectionPointers(numSec, sec);
 }
 
-
-ForceFrame3d::~ForceFrame3d()
+// Destructor
+ForceFrame3d01::~ForceFrame3d01()
 {
+  if (sections != 0) {
+    for (int i = 0; i < numSections; i++)
+      if (sections[i] != 0)
+        delete sections[i];
+    delete[] sections;
+  }
 
-  for (GaussPoint& point : points)
-    if (point.material != nullptr)
-      delete point.material;
+  if (fs != nullptr)
+    delete[] fs;
 
-//if (sections != nullptr) {
-//  for (int i = 0; i < numSections; i++)
-//    if (sections[i] != 0)
-//      delete sections[i];
-//  delete[] sections;
-//}
+  if (es != nullptr)
+    delete[] es;
 
-//if (fs != nullptr)
-//  delete[] fs;
+  if (Ssr != nullptr)
+    delete[] Ssr;
 
-//if (es != nullptr)
-//  delete[] es;
-
-//if (Ssr != nullptr)
-//  delete[] Ssr;
-
-//if (es_save != nullptr)
-//  delete[] es_save;
+  if (es_save != nullptr)
+    delete[] es_save;
 
   if (beamIntegr != nullptr)
     delete beamIntegr;
@@ -135,7 +137,7 @@ ForceFrame3d::~ForceFrame3d()
 
 
 int
-ForceFrame3d::setNodes()
+ForceFrame3d01::setNodes()
 {
   // call the DomainComponent class method
   this->BasicFrame3d::setNodes();
@@ -145,17 +147,8 @@ ForceFrame3d::setNodes()
   if (L == 0.0)
     return -1;
 
-  int numSections = points.size();
-  double *xi = new double[numSections];
-  double *wt = new double[numSections];
   beamIntegr->getSectionLocations(numSections, L, xi);
   beamIntegr->getSectionWeights(numSections, L, wt);
-  for (int i=0; i<numSections; i++) {
-    points[i].point  = xi[i];
-    points[i].weight = wt[i];
-  }
-  delete[] xi;
-  delete[] wt;
 
 
   if (initialFlag == 0)
@@ -167,7 +160,7 @@ ForceFrame3d::setNodes()
 }
 
 int
-ForceFrame3d::getIntegral(Field field, State state, double& total)
+ForceFrame3d01::getIntegral(Field field, State state, double& total)
 {
 
   if (this->setState(State::Init) != 0)
@@ -178,73 +171,78 @@ ForceFrame3d::getIntegral(Field field, State state, double& total)
 
     // Integrate density to compute total mass
     case Field::Density: {
-      for (GaussPoint& sample : points) {
-        double value = 0.0;
-        // use element density if supplied
-        if (use_density)
-          total += sample.weight*density;
-
-        // try using section's internal density
-        else if (sample.material->getIntegral(Field::Density, state, value) == 0)
-          total += sample.weight*value;
-
-        else
-          return -1;
+      double value = 0.0;
+      for (int i=0; i< numSections; i++) {
+        // First try using section's internal density
+        if (sections[i]->getIntegral(Field::Density, state, value) == 0) {
+          total += wt[i]*value;
+        }
+        // if that didnt work, just multiply by our density
+        else if (sections[i]->getIntegral(Field::Unit, state, value) == 0) {
+          total += wt[i]*density;
+        }
+        else {
+          ; // TODO: This should be written to a log
+        }
       }
       return 0;
     }
 
     case Field::PolarInertia: {
-      for (GaussPoint& sample : points) {
+      for (int i=0; i< numSections; i++) {
         double A;
-        if (sample.material->getIntegral(Field::UnitYY, state, A) != 0)
+        if (sections[i]->getIntegral(Field::UnitYY, state, A) != 0)
           continue;
 
         // Get \int \rho y^2
         double Iz;
-        if (sample.material->getIntegral(Field::DensityYY, state, Iz) != 0) {
-          // Section does not support integrating density; try
+        if (sections[i]->getIntegral(Field::DensityYY, state, Iz) != 0) {
+          // Section does not allow integrating density; try
           // integrating product of inertia and multiplying by rho
-          if (use_density && sample.material->getIntegral(Field::UnitYY, state, Iz) == 0)
+          if (sections[i]->getIntegral(Field::UnitYY, state, Iz) == 0)
             Iz *= density/A;
           else
             continue;
         }
         // Get \int \rho z^2
         double Iy;
-        if (sample.material->getIntegral(Field::DensityZZ, state, Iy) != 0) {
-          if (use_density && sample.material->getIntegral(Field::UnitZZ, state, Iy) == 0)
+        if (sections[i]->getIntegral(Field::DensityZZ, state, Iy) != 0) {
+          if (sections[i]->getIntegral(Field::UnitZZ, state, Iy) == 0)
             Iy *= density/A;
           else
             continue;
         }
-        total += sample.weight*(Iy + Iz);
+        total += wt[i]*(Iy + Iz);
       }
       return 0;
     }
 
     default:
       return -1;
+
   }
 }
 
 int
-ForceFrame3d::commitState()
+ForceFrame3d01::commitState()
 {
   int err = 0;
+  int i   = 0;
 
-  // Call element commitState to do any base class stuff
-  if ((err = this->Element::commitState()) != 0)
-    opserr << "ForceFrame3d::commitState () - failed in base class";
+  // call element commitState to do any base class stuff
+  if ((err = this->Element::commitState()) != 0) {
+    opserr << "ForceFrame3d01::commitState () - failed in base class";
+  }
 
-  for (GaussPoint& point : points) {
+  do {
 
-    point.es_save = point.es;
-    if (point.material->commitState() != 0)
-      return -1;
+    es_save[i] = es[i];
+    err         = sections[i++]->commitState();
 
-  } 
+  } while (err == 0 && i < numSections);
 
+  if (err)
+    return err;
 
   // commit the transformation between coord. systems
   if ((err = theCoordTransf->commitState()) != 0)
@@ -261,23 +259,25 @@ ForceFrame3d::commitState()
 }
 
 int
-ForceFrame3d::revertToLastCommit()
+ForceFrame3d01::revertToLastCommit()
 {
   int err;
   int i = 0;
+  do {
+    es[i] = es_save[i];
+    err   = sections[i]->revertToLastCommit();
 
-  for (GaussPoint& point : points) {
-    FrameSection& section = *point.material;
+    sections[i]->setTrialState<nsr,scheme>(es[i]);
+    Ssr[i] = sections[i]->getResultant<nsr,scheme>();
+    fs[i]  = sections[i]->getFlexibility<nsr,scheme>();
 
-    point.es = point.es_save;
-    if ((err = section.revertToLastCommit()) != 0)
-      return -1;
+    i++;
 
-    section.setTrialState<nsr,scheme>(point.es);
-    point.Ssr = section.getResultant<nsr,scheme>();
-    point.fs  = section.getFlexibility<nsr,scheme>();
+  } while (err == 0 && i < numSections);
 
-  }
+
+  if (err)
+    return err;
 
   // Revert the transformation to last commit
   if ((err = theCoordTransf->revertToLastCommit()) != 0)
@@ -294,20 +294,22 @@ ForceFrame3d::revertToLastCommit()
 
 
 int
-ForceFrame3d::revertToStart()
+ForceFrame3d01::revertToStart()
 {
   // revert the sections state to start
-  for (GaussPoint& point : points) {
-    point.fs.zero();
-    point.es.zero();
-    point.Ssr.zero();
-    if (point.material->revertToStart() != 0)
-      return -1;
-  }
-  // while (err == 0 && i < numSections);
-
-
   int err;
+  int i = 0;
+  do {
+    fs[i].zero();
+    es[i].zero();
+    Ssr[i].zero();
+    err = sections[i++]->revertToStart();
+
+  } while (err == 0 && i < numSections);
+
+  if (err)
+    return err;
+
   // revert the transformation to start
   if ((err = theCoordTransf->revertToStart()) != 0)
     return err;
@@ -325,92 +327,20 @@ ForceFrame3d::revertToStart()
 }
 
 VectorND<6>&
-ForceFrame3d::getBasicForce()
+ForceFrame3d01::getBasicForce()
 {
   return q_pres;
 }
 
 MatrixND<6, 6>&
-ForceFrame3d::getBasicTangent(State state, int rate)
+ForceFrame3d01::getBasicTangent(State state, int rate)
 {
   return kv;
 }
 
-const Matrix &
-ForceFrame3d::getMass()
-{
-    
-    if (!mass_initialized) {
-      total_mass = 0.0;
-      if (this->getIntegral(Field::Density, State::Init, total_mass) != 0)
-        total_mass = 0.0;
-      twist_mass = 0.0;
-      if (this->getIntegral(Field::PolarInertia, State::Init, twist_mass) != 0)
-        twist_mass = 0.0;
-
-      mass_initialized = true;
-    }
-
-    if (total_mass == 0.0) {
-
-        THREAD_LOCAL MatrixND<12,12> M{0.0};
-        THREAD_LOCAL Matrix Wrapper{M};
-        return Wrapper;
-
-    } else if (mass_flag == 0)  {
-
-        THREAD_LOCAL MatrixND<12,12> M{0.0};
-        THREAD_LOCAL Matrix Wrapper{M};
-        // lumped mass matrix
-        double m = 0.5*total_mass;
-        M(0,0) = m;
-        M(1,1) = m;
-        M(2,2) = m;
-        M(6,6) = m;
-        M(7,7) = m;
-        M(8,8) = m;
-        return Wrapper;
-
-    } else {
-        // consistent (cubic, prismatic) mass matrix
-
-        double L  = this->getLength(State::Init);
-        double m  = total_mass/420.0;
-        double mx = twist_mass;
-        THREAD_LOCAL MatrixND<12,12> ml{0.0};
-
-        ml(0,0) = ml(6,6) = m*140.0;
-        ml(0,6) = ml(6,0) = m*70.0;
-
-        ml(3,3) = ml(9,9) = mx/3.0; // Twisting
-        ml(3,9) = ml(9,3) = mx/6.0;
-
-        ml( 2, 2) = ml( 8, 8) =  m*156.0;
-        ml( 2, 8) = ml( 8, 2) =  m*54.0;
-        ml( 4, 4) = ml(10,10) =  m*4.0*L*L;
-        ml( 4,10) = ml(10, 4) = -m*3.0*L*L;
-        ml( 2, 4) = ml( 4, 2) = -m*22.0*L;
-        ml( 8,10) = ml(10, 8) = -ml(2,4);
-        ml( 2,10) = ml(10, 2) =  m*13.0*L;
-        ml( 4, 8) = ml( 8, 4) = -ml(2,10);
-
-        ml( 1, 1) = ml( 7, 7) =  m*156.0;
-        ml( 1, 7) = ml( 7, 1) =  m*54.0;
-        ml( 5, 5) = ml(11,11) =  m*4.0*L*L;
-        ml( 5,11) = ml(11, 5) = -m*3.0*L*L;
-        ml( 1, 5) = ml( 5, 1) =  m*22.0*L;
-        ml( 7,11) = ml(11, 7) = -ml(1,5);
-        ml( 1,11) = ml(11, 1) = -m*13.0*L;
-        ml( 5, 7) = ml( 7, 5) = -ml(1,11);
-
-        // transform local mass matrix to global system
-        return theCoordTransf->getGlobalMatrixFromLocal(ml);
-    }
-}
-
 /*
 const Matrix &
-ForceFrame3d::getInitialStiff()
+ForceFrame3d01::getInitialStiff()
 {
   // check for quick return
   if (Ki != 0)
@@ -422,7 +352,7 @@ ForceFrame3d::getInitialStiff()
   // calculate element stiffness matrix
   static Matrix kvInit(nq, nq);
   if (f.Invert(kvInit) < 0)
-    opserr << "ForceFrame3d::getInitialStiff -- could not invert flexibility";
+    opserr << "ForceFrame3d01::getInitialStiff -- could not invert flexibility";
 
   Ki = new Matrix(theCoordTransf->getInitialGlobalStiffMatrix(kvInit));
 
@@ -433,25 +363,21 @@ ForceFrame3d::getInitialStiff()
 
 
 void
-ForceFrame3d::initializeSectionHistoryVariables()
+ForceFrame3d01::initializeSectionHistoryVariables()
 {
-  for (int i = 0; i < points.size(); i++) {
-    points[i].fs.zero();
-    points[i].es.zero();
-    points[i].Ssr.zero();
-    points[i].es_save.zero();
+  for (int i = 0; i < numSections; i++) {
+
+    fs[i]      = MatrixND<nsr, nsr>{};
+    es[i]      = VectorND<nsr>{};
+    Ssr[i]     = VectorND<nsr>{};
+    es_save[i] = VectorND<nsr>{};
   }
 }
 
 /********* NEWTON , SUBDIVIDE AND INITIAL ITERATIONS *********************/
 int
-ForceFrame3d::update()
+ForceFrame3d01::update()
 {
-  // TODO: remove hard limit on sections
-  THREAD_LOCAL VectorND<nsr>     es_trial[maxNumSections]; //  strain
-  THREAD_LOCAL VectorND<nsr>     sr_trial[maxNumSections]; //  stress resultant
-  THREAD_LOCAL MatrixND<nsr,nsr> Fs_trial[maxNumSections]; //  flexibility
-
   this->BasicFrame3d::update();
 
   // if have completed a recvSelf() - do a revertToLastCommit
@@ -468,24 +394,23 @@ ForceFrame3d::update()
   // get basic displacements and increments
   const Vector& v = theCoordTransf->getBasicTrialDisp();
 
-  THREAD_LOCAL VectorND<nq> dv{0.0};
+  thread_local VectorND<nq> dv;
   dv = theCoordTransf->getBasicIncrDeltaDisp();
 
   if (initialFlag != 0 && (dv.norm() <= DBL_EPSILON) && (eleLoads.size()==0))
     return 0;
 
-  THREAD_LOCAL VectorND<nq> Dv;
+  static VectorND<nq> Dv;
   Dv  = v;
   Dv -= dv;
 
 
-  THREAD_LOCAL VectorND<nq> vr;      // element residual displacements
-  THREAD_LOCAL MatrixND<nq, nq> F;   // element flexibility matrix
-  THREAD_LOCAL VectorND<nq> dvToDo,
-                            dv_trial;
+  thread_local VectorND<nq> vr;        // element residual displacements
+  thread_local MatrixND<nq, nq> F;   // element flexibility matrix
+  thread_local VectorND<nq> dvToDo, dvTrial;
 
   dvToDo  = dv;
-  dv_trial = dvToDo;
+  dvTrial = dvToDo;
 
 
   int numSubdivide = 1;
@@ -507,52 +432,45 @@ ForceFrame3d::update()
   //   and deformations. if they work and we have subdivided we apply
   //   the remaining dV.
   //
-  enum class Strategy {
-    Newton, InitialIterations, InitialThenNewton
-  };
-  static constexpr std::array<Strategy,3> solve_strategy {
-    Strategy::Newton, Strategy::InitialIterations, Strategy::InitialThenNewton
-  };
-
   while (converged == false && numSubdivide <= maxSubdivisions) {
-//  opserr << getTag() << " dv_trial = " << Vector(dv_trial) << "\n";
 
-    for (Strategy strategy : solve_strategy ) {
+    // try regular Newton (if l==0), or
+    // initial tangent iterations (if l==1), or
+    // initial tangent on first iteration then regular Newton (if l==2)
 
-      // Allow 10 times more iterations for initial tangent strategy
-      const int numIters = (strategy==Strategy::InitialIterations) ? 10*maxIters : maxIters;
+    for (int l = 0; l < 3; l++) {
 
-      for (int i = 0; i < points.size(); i++) {
-        es_trial[i]  = points[i].es;
-        Fs_trial[i]  = points[i].fs;
-        sr_trial[i]  = points[i].Ssr;
+      for (int i = 0; i < numSections; i++) {
+        es_trial[i]  = es[i];
+        Fs_trial[i]  = fs[i];
+        sr_trial[i] = Ssr[i];
       }
 
       if (initialFlag == 2)
         continue;
 
-      VectorND<nq>     q_trial = q_pres;
+      VectorND<nq>       q_trial = q_pres;
       MatrixND<nq, nq> K_trial = kv;
 
       // calculate nodal force increments and update nodal forces
       VectorND<nq> dqe = kv * dv;
       q_trial += dqe;
 
+      // Allow 10 times more iterations for initial tangent strategy
+      int numIters = (l==1) ? 10*maxIters : maxIters;
 
       for (int j = 0; j < numIters; j++) {
         F.zero();
         vr.zero();
 
-        {
-          Matrix f(F);
-          if (beamIntegr->addElasticFlexibility(L, f) < 0) {
-            vr[0] += F(0, 0) * q_trial[0];
-            vr[1] += F(1, 1) * q_trial[1] + F(1, 2) * q_trial[2];
-            vr[2] += F(2, 1) * q_trial[1] + F(2, 2) * q_trial[2];
-            vr[3] += F(3, 3) * q_trial[3] + F(3, 4) * q_trial[4];
-            vr[4] += F(4, 3) * q_trial[3] + F(4, 4) * q_trial[4];
-            vr[5] += F(5, 5) * q_trial[5];
-          }
+        Matrix f(F);
+        if (beamIntegr->addElasticFlexibility(L, f) < 0) {
+          vr[0] += F(0, 0) * q_trial[0];
+          vr[1] += F(1, 1) * q_trial[1] + F(1, 2) * q_trial[2];
+          vr[2] += F(2, 1) * q_trial[1] + F(2, 2) * q_trial[2];
+          vr[3] += F(3, 3) * q_trial[3] + F(3, 4) * q_trial[4];
+          vr[4] += F(4, 3) * q_trial[3] + F(4, 4) * q_trial[4];
+          vr[5] += F(5, 5) * q_trial[5];
         }
 
 
@@ -571,14 +489,13 @@ ForceFrame3d::update()
         //
         // Gauss Loop
         //
-        for (int i = 0; i < points.size(); i++) {
-            double xL = points[i].point;
+        for (int i = 0; i < numSections; i++) {
+            double xL  = xi[i];
             double xL1 = xL - 1.0;
-            double wtL = points[i].weight * L;
+            double wtL = wt[i] * L;
 
             auto& Fs = Fs_trial[i];
             auto& sr = sr_trial[i];
-            FrameSection& section = *points[i].material;
 
             //
             // a. Calculate interpolated section force
@@ -587,8 +504,7 @@ ForceFrame3d::update()
 
             // Interpolation of q_trial
             //    b*q_trial
-            //
-            VectorND<6> si {  // use layout declared in this::scheme
+            VectorND<6> si {
                  q_trial[0],                           // N
                  oneOverL * (q_trial[1] + q_trial[2]), // VY
                  oneOverL * (q_trial[3] + q_trial[4]), // VZ
@@ -616,29 +532,25 @@ ForceFrame3d::update()
               ds = si;
               ds.addVector(1.0, sr, -1.0);
 
-              // Add strain correction
+              // Add strain increment
               //    es += Fs * ds;
-              switch (strategy) {
-                case Strategy::Newton:
+              if (l == 0) {
                   //  regular Newton
                   es_trial[i].addMatrixVector(1.0, Fs, ds, 1.0);
-                  break;
 
-                case Strategy::InitialThenNewton:
+              } else if (l == 2) {
                   //  Newton with initial tangent if first iteration
                   //  otherwise regular Newton
                   if (j == 0) {
-                    MatrixND<nsr,nsr> Fs0 = section.getFlexibility<nsr,scheme>(State::Init);
+                    MatrixND<nsr,nsr> Fs0 = sections[i]->getFlexibility<nsr,scheme>(State::Init);
                     es_trial[i].addMatrixVector(1.0, Fs0, ds, 1.0);
                   } else
                     es_trial[i].addMatrixVector(1.0, Fs, ds, 1.0);
-                  break;
 
-                case Strategy::InitialIterations:
+              } else {
                   //  Newton with initial tangent
-                  MatrixND<nsr,nsr> Fs0 = section.getFlexibility<nsr,scheme>(State::Init);
+                  MatrixND<nsr,nsr> Fs0 = sections[i]->getFlexibility<nsr,scheme>(State::Init);
                   es_trial[i].addMatrixVector(1.0, Fs0, ds, 1.0);
-                  break;
               }
             }
 
@@ -646,19 +558,18 @@ ForceFrame3d::update()
             //
             // c. Set trial section state and get response
             //
-            if (section.setTrialState<nsr,scheme>(es_trial[i]) < 0) {
-              opserr << "ForceFrame3d::update - section failed in setTrial\n";
+            if (sections[i]->setTrialState<nsr,scheme>(es_trial[i]) < 0) {
+              opserr << "ForceFrame3d01::update() - section failed in setTrial\n";
               return -1;
             }
 
-            sr_trial[i] = section.getResultant<nsr, scheme>();
-            Fs_trial[i] = section.getFlexibility<nsr, scheme>();
+            sr_trial[i] = sections[i]->getResultant<nsr, scheme>();
+            Fs_trial[i] = sections[i]->getFlexibility<nsr, scheme>();
 
             //
             // d. Integrate element flexibility matrix
             //
             //    F += (B' * Fs * B) * wi * L;
-            //
             {
               MatrixND<nsr,nq> FsB;
               FsB.zero();
@@ -719,7 +630,6 @@ ForceFrame3d::update()
             // e. Integrate residual deformations
             //
             //    vr += (B' * (es + des)) * wi * L;
-            //
             {
               VectorND<nsr> des, ds;
               // calculate section residual deformations
@@ -755,16 +665,16 @@ ForceFrame3d::update()
         //
         // Finalize trial element state 
         //
-        //    K_trial  = inv(F)
+        //    K_trial  = int(F)
         //    q_trial += K * (Dv + dv_trial - vr)
         //
         if (F.invert(K_trial) < 0)
-          opserr << "ForceFrame3d::update -- could not invert flexibility\n";
+          opserr << "ForceFrame3d01::update -- could not invert flexibility\n";
 
 
-        // dv = Dv + dv_trial  - vr
+        // dv = Dv + dvTrial  - vr
         dv = Dv;
-        dv += dv_trial;
+        dv += dvTrial;
         dv -= vr;
 
         // dqe = kv * dv;
@@ -778,22 +688,21 @@ ForceFrame3d::update()
 
 
         //
-        // Check for convergence of this interval
+        // check for convergence of this interval
         //
         if (fabs(dW) < tol) {
 
-          // Set the target displacement
-          dvToDo -= dv_trial;
-          Dv     += dv_trial;
+          // set the target displacement
+          dvToDo -= dvTrial;
+          Dv  += dvTrial;
 
-          // Check if we have got to where we wanted
+          // check if we have got to where we wanted
           if (dvToDo.norm() <= DBL_EPSILON) {
             converged = true;
 
-          } else {
-            // We converged but we have more to do
+          } else { // we convreged but we have more to do
             // reset variables for start of next subdivision
-            dv_trial      = dvToDo;
+            dvTrial      = dvToDo;
             // NOTE setting subdivide to 1 again maybe too much
             numSubdivide = 1; 
           }
@@ -802,38 +711,35 @@ ForceFrame3d::update()
           kv = K_trial;
           q_pres = q_trial;
 
-          for (int k = 0; k < points.size(); k++) {
-            points[k].es  = es_trial[k];
-            points[k].fs  = Fs_trial[k];
-            points[k].Ssr = sr_trial[k];
+          for (int k = 0; k < numSections; k++) {
+            es[k]  = es_trial[k];
+            fs[k]  = Fs_trial[k];
+            Ssr[k] = sr_trial[k];
           }
 
           // break out of j & l loops
-          goto iterations_completed;
+          j = numIters + 1;
+          l = 4;
 
         }
         else { //  if (fabs(dW) < tol) {
 
           // if we have failed to converge for all of our Newton schemes
           // - reduce step size by the factor specified
-          if (j == (numIters - 1) && (strategy == Strategy::InitialThenNewton)) {
-            opserr << "Subdividing element " << getTag() << "\n";
-            dv_trial /= factor;
+          if (j == (numIters - 1) && (l == 2)) {
+            dvTrial /= factor;
             numSubdivide++;
           }
 
         }
       } // for (int j=0; j < numIters; j++)
     }   // for (int l=0; l < 3; l++)
-iterations_completed:
-        ;
+  }     // while (converged == false)
 
-  } // while (converged == false)
-
-
+  // if fail to converge we return an error flag & print an error message
 
   if (converged == false) {
-    opserr << "WARNING - ForceFrame3d::update - failed to get compatible ";
+    opserr << "WARNING - ForceFrame3d01::update - failed to get compatible ";
     opserr << "element forces & deformations for element: ";
     opserr << this->getTag() << "; dW: << " << dW << ", dW0: " << dW0 << ")\n";
 
@@ -846,87 +752,13 @@ iterations_completed:
 }
 
 
-const Matrix &
-ForceFrame3d::getTangentStiff()
-{
-  VectorND<6>   q  = this->getBasicForce();
-  MatrixND<6,6> kb = this->getBasicTangent(State::Pres, 0);
-
-  double q0 = q[0];
-  double q1 = q[1];
-  double q2 = q[2];
-  double q3 = q[3];
-  double q4 = q[4];
-  double q5 = q[5];
-
-  double oneOverL = 1.0 / theCoordTransf->getInitialLength();
-
-  THREAD_LOCAL VectorND<12> pl{0.0};
-  pl[0]  = -q0;                    // Ni
-  pl[1]  =  oneOverL * (q1 + q2);  // Viy
-  pl[2]  = -oneOverL * (q3 + q4);  // Viz
-  pl[3]  = -q5;                    // Ti
-  pl[4]  =  q3;
-  pl[5]  =  q1;
-  pl[6]  =  q0;                    // Nj
-  pl[7]  = -pl[1];                 // Vjy
-  pl[8]  = -pl[2];                 // Vjz
-  pl[9]  =  q5;                    // Tj
-  pl[10] =  q4;
-  pl[11] =  q2;
-  
-
-  // Transform basic stiffness to local system
-  THREAD_LOCAL double tmp[12][12]{};  // Temporary storage
-  // First compute kb*T_{bl}
-  for (int i = 0; i < 6; i++) {
-    tmp[i][ 0] = -kb(i, 0);
-    tmp[i][ 1] =  oneOverL * (kb(i, 1) + kb(i, 2));
-    tmp[i][ 2] = -oneOverL * (kb(i, 3) + kb(i, 4));
-    tmp[i][ 3] = -kb(i, 5);
-    tmp[i][ 4] =  kb(i, 3);
-    tmp[i][ 5] =  kb(i, 1);
-    tmp[i][ 6] =  kb(i, 0);
-    tmp[i][ 7] = -tmp[i][1];
-    tmp[i][ 8] = -tmp[i][2];
-    tmp[i][ 9] =  kb(i, 5);
-    tmp[i][10] =  kb(i, 4);
-    tmp[i][11] =  kb(i, 2);
-  }
-
-  THREAD_LOCAL MatrixND<12,12> kl{0.0};  // Local stiffness
-  // Now compute T'_{bl}*(kb*T_{bl})
-  for (int i = 0; i < 12; i++) {
-    kl( 0, i) = -tmp[0][i];
-    kl( 1, i) =  oneOverL * (tmp[1][i] + tmp[2][i]);
-    kl( 2, i) = -oneOverL * (tmp[3][i] + tmp[4][i]);
-    kl( 3, i) = -tmp[5][i];
-    kl( 4, i) = tmp[3][i];
-    kl( 5, i) = tmp[1][i];
-    kl( 6, i) = tmp[0][i];
-    kl( 7, i) = -kl(1, i);
-    kl( 8, i) = -kl(2, i);
-    kl( 9, i) = tmp[5][i];
-    kl(10, i) = tmp[4][i];
-    kl(11, i) = tmp[2][i];
-  }
-
-
-  static MatrixND<12,12> Kg;
-  static Matrix Wrapper(Kg);
-  Kg = theCoordTransf->pushVariable(kl, pl);
-  return Wrapper;
-}
-
-
-
 void
-ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, int isec)
+ForceFrame3d01::addLoadAtSection(VectorND<nsr>& sp, int isec)
 {
 
   double L = theCoordTransf->getInitialLength();
 
-  double x = points[isec].point * L;
+  double x = xi[isec] * L;
 
   for (auto[load, loadFactor] : eleLoads) {
 
@@ -1033,30 +865,28 @@ ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, int isec)
         }
       }
     } else {
-      opserr << "ForceFrame3d::addLoad -- load type unknown for element with tag: "
+      opserr << "ForceFrame3d01::addLoad -- load type unknown for element with tag: "
              << this->getTag() << "\n";
     }
   }
 }
 
 void
-ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNumber)
+ForceFrame3d01::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNumber)
 {
   int type;
 
   double L    = theCoordTransf->getInitialLength();
   double dLdh = theCoordTransf->getdLdh();
 
-  int numSections = points.size();
-
   double dxidh[maxNumSections];
   beamIntegr->getLocationsDeriv(numSections, L, dLdh, dxidh);
 
-  double x    = points[isec].point * L;
-  double dxdh = points[isec].point * dLdh + dxidh[isec] * L;
+  double x    = xi[isec] * L;
+  double dxdh = xi[isec] * dLdh + dxidh[isec] * L;
 
-  int order      = points[isec].material->getOrder();
-  const ID& code = points[isec].material->getType();
+  int order      = sections[isec]->getOrder();
+  const ID& code = sections[isec]->getType();
 
   for (auto[load, loadFactor] : eleLoads) {
     const  Vector& data = load->getData(type, loadFactor);
@@ -1177,7 +1007,7 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
         }
       }
     } else {
-      opserr << "ForceFrame3d::computeSectionForceSensitivity -- load type unknown for element "
+      opserr << "ForceFrame3d01::computeSectionForceSensitivity -- load type unknown for element "
                 "with tag: "
              << this->getTag() << "\n";
     }
@@ -1185,18 +1015,18 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
 }
 
 int
-ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
+ForceFrame3d01::sendSelf(int commitTag, Channel& theChannel)
 {
   // place the integer data into an ID
   int dbTag = this->getDbTag();
   int i, j, k;
   int loc = 0;
 
-  ID idData(11);
+  static ID idData(11);
   idData(0) = this->getTag();
   idData(1) = connectedExternalNodes(0);
   idData(2) = connectedExternalNodes(1);
-  idData(3) = points.size();
+  idData(3) = numSections;
   idData(4) = maxIters;
   idData(5) = initialFlag;
 
@@ -1220,19 +1050,19 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   idData(10) = beamIntegrDbTag;
 
   if (theChannel.sendID(dbTag, commitTag, idData) < 0) {
-    opserr << "ForceFrame3d::sendSelf() - failed to send ID data\n";
+    opserr << "ForceFrame3d01::sendSelf() - failed to send ID data\n";
     return -1;
   }
 
   // send the coordinate transformation
 
   if (theCoordTransf->sendSelf(commitTag, theChannel) < 0) {
-    opserr << "ForceFrame3d::sendSelf() - failed to send crdTranf\n";
+    opserr << "ForceFrame3d01::sendSelf() - failed to send crdTranf\n";
     return -1;
   }
 
   if (beamIntegr->sendSelf(commitTag, theChannel) < 0) {
-    opserr << "ForceFrame3d::sendSelf() - failed to send beamIntegr\n";
+    opserr << "ForceFrame3d01::sendSelf() - failed to send beamIntegr\n";
     return -1;
   }
 
@@ -1241,15 +1071,14 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   // if section ha no dbTag get one and assign it
   //
 
-  const int numSections = points.size();
   ID idSections(2 * numSections);
   loc = 0;
   for (i = 0; i < numSections; i++) {
-    int sectClassTag = points[i].material->getClassTag();
-    int sectDbTag    = points[i].material->getDbTag();
+    int sectClassTag = sections[i]->getClassTag();
+    int sectDbTag    = sections[i]->getDbTag();
     if (sectDbTag == 0) {
       sectDbTag = theChannel.getDbTag();
-      points[i].material->setDbTag(sectDbTag);
+      sections[i]->setDbTag(sectDbTag);
     }
 
     idSections(loc)     = sectClassTag;
@@ -1258,7 +1087,7 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   }
 
   if (theChannel.sendID(dbTag, commitTag, idSections) < 0) {
-    opserr << "ForceFrame3d::sendSelf() - failed to send ID data\n";
+    opserr << "ForceFrame3d01::sendSelf() - failed to send ID data\n";
     return -1;
   }
 
@@ -1266,17 +1095,17 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   // send the sections
   //
 
-  for (int j = 0; j < numSections; j++) {
-    if (points[j].material->sendSelf(commitTag, theChannel) < 0) {
-      opserr << "ForceFrame3d::sendSelf() - section " << j << "failed to send itself\n";
+  for (j = 0; j < numSections; j++) {
+    if (sections[j]->sendSelf(commitTag, theChannel) < 0) {
+      opserr << "ForceFrame3d01::sendSelf() - section " << j << "failed to send itself\n";
       return -1;
     }
   }
 
   // into a vector place distrLoadCommit, rho, UeCommit, q_save and K_save
   int secDefSize = 0;
-  for (int i = 0; i < numSections; i++) {
-    int size = points[i].material->getOrder();
+  for (i = 0; i < numSections; i++) {
+    int size = sections[i]->getOrder();
     secDefSize += size;
   }
 
@@ -1292,18 +1121,18 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   //dData(loc++) = distrLoadcommit(i);
 
   // place K_save into vector
-  for (int i = 0; i < nq; i++)
+  for (i = 0; i < nq; i++)
     dData(loc++) = q_save[i];
 
   // place K_save into vector
-  for (int i = 0; i < nq; i++)
-    for (int j = 0; j < nq; j++)
+  for (i = 0; i < nq; i++)
+    for (j = 0; j < nq; j++)
       dData(loc++) = K_save(i, j);
 
   // place es_save into vector
-  for (int k = 0; k < numSections; k++)
-    for (int i = 0; i < nsr; i++)
-      dData(loc++) = points[k].es_save[i];
+  for (k = 0; k < numSections; k++)
+    for (i = 0; i < sections[k]->getOrder(); i++)
+      dData(loc++) = es_save[k][i];
 
   // send damping coefficients
   dData(loc++) = alphaM;
@@ -1312,7 +1141,7 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   dData(loc++) = betaKc;
 
   if (theChannel.sendVector(dbTag, commitTag, dData) < 0) {
-    opserr << "ForceFrame3d::sendSelf() - failed to send Vector data\n";
+    opserr << "ForceFrame3d01::sendSelf() - failed to send Vector data\n";
 
     return -1;
   }
@@ -1320,7 +1149,7 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
 }
 
 int
-ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& theBroker)
+ForceFrame3d01::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& theBroker)
 {
   //
   // receive the integer data containing tag, numSections and coord transformation info
@@ -1328,10 +1157,10 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   int dbTag = this->getDbTag();
   int i, j, k;
 
-  ID idData(11); // one bigger than needed
+  static ID idData(11); // one bigger than needed
 
   if (theChannel.recvID(dbTag, commitTag, idData) < 0) {
-    opserr << "ForceFrame3d::recvSelf() - failed to recv ID data\n";
+    opserr << "ForceFrame3d01::recvSelf() - failed to recv ID data\n";
 
     return -1;
   }
@@ -1357,7 +1186,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
     theCoordTransf = nullptr; // theBroker.getNewFrameTransform3d(crdTransfClassTag);
 
     if (theCoordTransf == nullptr) {
-      opserr << "ForceFrame3d::recvSelf() - failed to obtain a CrdTrans object with classTag"
+      opserr << "ForceFrame3d01::recvSelf() - failed to obtain a CrdTrans object with classTag"
              << crdTransfClassTag << "\n";
       return -2;
     }
@@ -1366,7 +1195,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   theCoordTransf->setDbTag(crdTransfDbTag);
   // invoke recvSelf on the crdTransf obkject
   if (theCoordTransf->recvSelf(commitTag, theChannel, theBroker) < 0) {
-    opserr << "ForceFrame3d::sendSelf() - failed to recv crdTranf\n";
+    opserr << "ForceFrame3d01::sendSelf() - failed to recv crdTranf\n";
     return -3;
   }
 
@@ -1379,7 +1208,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
 
     if (beamIntegr == 0) {
       opserr
-          << "ForceFrame3d::recvSelf() - failed to obtain the beam integration object with classTag"
+          << "ForceFrame3d01::recvSelf() - failed to obtain the beam integration object with classTag"
           << beamIntegrClassTag << "\n";
       return -1;
     }
@@ -1389,7 +1218,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
 
   // invoke recvSelf on the beamIntegr object
   if (beamIntegr->recvSelf(commitTag, theChannel, theBroker) < 0) {
-    opserr << "ForceFrame3d::sendSelf() - failed to recv beam integration\n";
+    opserr << "ForceFrame3d01::sendSelf() - failed to recv beam integration\n";
 
     return -3;
   }
@@ -1402,61 +1231,60 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   int loc = 0;
 
   if (theChannel.recvID(dbTag, commitTag, idSections) < 0) {
-    opserr << "ForceFrame3d::recvSelf() - failed to recv ID data\n";
+    opserr << "ForceFrame3d01::recvSelf() - failed to recv ID data\n";
     return -1;
   }
 
   //
   // now receive the sections
   //
-  const int numSections = points.size();
   if (numSections != idData(3)) {
 
     //
     // we do not have correct number of sections, must delete the old and create
     // new ones before can recvSelf on the sections
     //
-    // delete the old
-    if (points.size() != 0) {
-      for (int i = 0; i < points.size(); i++)
-        delete points[i].material;
-    }
-    points.clear();
 
+    // delete the old
+    if (numSections != 0) {
+      for (int i = 0; i < numSections; i++)
+        delete sections[i];
+      delete[] sections;
+    }
 
     // create a section and recvSelf on it
-//  numSections = idData(3);
+    numSections = idData(3);
 
     // Delete the old
-//  if (es_save != 0)
-//    delete[] es_save;
+    if (es_save != 0)
+      delete[] es_save;
 
-//  // Allocate
-//  es_save = new VectorND<nsr>[numSections]{};
+    // Allocate
+    es_save = new VectorND<nsr>[numSections]{};
 
-//  // Delete the old
-//  if (fs != 0)
-//    delete[] fs;
+    // Delete the old
+    if (fs != 0)
+      delete[] fs;
 
-//  fs = new MatrixND<nsr,nsr>[numSections]{};
+    fs = new MatrixND<nsr,nsr>[numSections]{};
 
-//  // Delete the old
-//  if (es != 0)
-//    delete[] es;
+    // Delete the old
+    if (es != 0)
+      delete[] es;
 
-//  // Allocate the right number
-//  es = new VectorND<nsr>[numSections]{};
+    // Allocate the right number
+    es = new VectorND<nsr>[numSections]{};
 
-//  // Delete the old
-//  if (Ssr != 0)
-//    delete[] Ssr;
+    // Delete the old
+    if (Ssr != 0)
+      delete[] Ssr;
 
-//  // Allocate
-//  Ssr = new VectorND<nsr>[numSections]{};
+    // Allocate
+    Ssr = new VectorND<nsr>[numSections]{};
 
 
-//  // create a new array to hold pointers
-//  sections = new FrameSection*[idData(3)];
+    // create a new array to hold pointers
+    sections = new FrameSection*[idData(3)];
 
     loc = 0;
 
@@ -1466,15 +1294,15 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
       loc += 2;
       // TODO(cmp) add FrameSection to broker
 //    sections[i] = theBroker.getNewSection(sectClassTag);
-//    if (sections[i] == 0) {
-//      opserr << "ForceFrame3d::recvSelf() - Broker could not create Section of class type"
-//             << sectClassTag << "\n";
-//      return -1;
-//    }
+      if (sections[i] == 0) {
+        opserr << "ForceFrame3d01::recvSelf() - Broker could not create Section of class type"
+               << sectClassTag << "\n";
+        return -1;
+      }
 
-      points[i].material->setDbTag(sectDbTag);
-      if (points[i].material->recvSelf(commitTag, theChannel, theBroker) < 0) {
-        opserr << "ForceFrame3d::recvSelf() - section " << i << " failed to recv itself\n";
+      sections[i]->setDbTag(sectDbTag);
+      if (sections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
+        opserr << "ForceFrame3d01::recvSelf() - section " << i << " failed to recv itself\n";
         return -1;
       }
     }
@@ -1489,41 +1317,45 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
     //
 
     loc = 0;
-    for (int i = 0; i < numSections; i++) {
+    for (i = 0; i < numSections; i++) {
       int sectClassTag = idSections(loc);
       int sectDbTag    = idSections(loc + 1);
       loc += 2;
 
       // check of correct type
-      if (points[i].material->getClassTag() != sectClassTag) {
-      // TODO(cmp) add FrameSection to broker
+      if (sections[i]->getClassTag() != sectClassTag) {
         // delete the old section[i] and create a new one
-//      delete sections[i];
+        delete sections[i];
+      // TODO(cmp) add FrameSection to broker
 //      sections[i] = theBroker.getNewSection(sectClassTag);
-//      if (sections[i] == 0) {
-//        opserr << "ForceFrame3d::recvSelf() - Broker could not create Section of class type "
-//               << sectClassTag << "\n";
-//        ;
-//        return -1;
-//      }
+        if (sections[i] == 0) {
+          opserr << "ForceFrame3d01::recvSelf() - Broker could not create Section of class type "
+                 << sectClassTag << "\n";
+          ;
+          return -1;
+        }
       }
 
       // recvvSelf on it
-      points[i].material->setDbTag(sectDbTag);
-      if (points[i].material->recvSelf(commitTag, theChannel, theBroker) < 0) {
-        opserr << "ForceFrame3d::recvSelf() - section " << i << " failed to recv itself\n";
+      sections[i]->setDbTag(sectDbTag);
+      if (sections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
+        opserr << "ForceFrame3d01::recvSelf() - section " << i << " failed to recv itself\n";
         return -1;
       }
     }
   }
 
   // into a vector place distrLoadCommit, rho, UeCommit, q_save and K_save
-  int secDefSize = nsr*points.size();
+  int secDefSize = 0;
+  for (int ii = 0; ii < numSections; ii++) {
+    int size = sections[ii]->getOrder();
+    secDefSize += size;
+  }
 
   Vector dData(1 + 1 + nq + nq * nq + secDefSize + 4);
 
   if (theChannel.recvVector(dbTag, commitTag, dData) < 0) {
-    opserr << "ForceFrame3d::recvSelf() - failed to send Vector data\n";
+    opserr << "ForceFrame3d01::recvSelf() - failed to send Vector data\n";
     return -1;
   }
 
@@ -1538,22 +1370,24 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   // distrLoad(i) = dData(loc++);
 
   // place q_save into vector
-  for (int i = 0; i < nq; i++)
+  for (i = 0; i < nq; i++)
     q_save[i] = dData(loc++);
 
   // place K_save into matrix
-  for (int i = 0; i < nq; i++)
-    for (int j = 0; j < nq; j++)
+  for (i = 0; i < nq; i++)
+    for (j = 0; j < nq; j++)
       K_save(i, j) = dData(loc++);
 
   kv = K_save;
   q_pres = q_save;
 
-  for (int k = 0; k < numSections; k++) {
+  for (k = 0; k < numSections; k++) {
+    int order = sections[k]->getOrder();
+
     // place es_save into vector
-    points[k].es_save.zero();
-    for (int i = 0; i < nsr; i++)
-      points[k].es_save[i] = dData(loc++);
+    es_save[k] = VectorND<nsr>{};
+    for (i = 0; i < order; i++)
+      es_save[k][i] = dData(loc++);
   }
 
   // set damping coefficients
@@ -1568,7 +1402,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
 
 // addBFsB(F, s, i)
 int
-ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
+ForceFrame3d01::getInitialFlexibility(MatrixND<nq,nq>& fe)
 {
   fe.zero();
 
@@ -1576,102 +1410,99 @@ ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
   double oneOverL = 1.0 / L;
 
   // Flexibility from elastic interior
-  {
-    Matrix wrapper(fe);
-    beamIntegr->addElasticFlexibility(L, wrapper);
-  }
+  Matrix Fe(fe);
+  beamIntegr->addElasticFlexibility(L, Fe);
 
-  const int numSections = points.size();
   for (int i = 0; i < numSections; i++) {
 
-    double xL  = points[i].point;
+
+    double xL  = xi[i];
     double xL1 = xL - 1.0;
-    double wtL = points[i].weight * L;
+    double wtL = wt[i] * L;
 
-    const MatrixND<nsr,nsr> fSec = points[i].material->getFlexibility<nsr, scheme>(State::Init);
+    const MatrixND<nsr,nsr> fSec = sections[i]->getFlexibility<nsr, scheme>(State::Init);
 
-    THREAD_LOCAL MatrixND<nsr, nq> FB;
+    static MatrixND<nsr, nq> FB;
     FB.zero();
     double tmp;
     int ii, jj;
-    for (int ii = 0; ii < nsr; ii++) {
+    for (ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (int jj = 0; jj < nsr; jj++)
+        for (jj = 0; jj < nsr; jj++)
           FB(jj, 0) += fSec(jj, ii) * wtL;
         break;
       case SECTION_RESPONSE_MZ:
-        for (int jj = 0; jj < nsr; jj++) {
+        for (jj = 0; jj < nsr; jj++) {
           tmp = fSec(jj, ii) * wtL;
           FB(jj, 1) += xL1 * tmp;
           FB(jj, 2) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (int jj = 0; jj < nsr; jj++) {
+        for (jj = 0; jj < nsr; jj++) {
           tmp = oneOverL * fSec(jj, ii) * wtL;
           FB(jj, 1) += tmp;
           FB(jj, 2) += tmp;
         }
         break;
       case SECTION_RESPONSE_MY:
-        for (int jj = 0; jj < nsr; jj++) {
+        for (jj = 0; jj < nsr; jj++) {
           tmp = fSec(jj, ii) * wtL;
           FB(jj, 3) += xL1 * tmp;
           FB(jj, 4) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VZ:
-        for (int jj = 0; jj < nsr; jj++) {
+        for (jj = 0; jj < nsr; jj++) {
           tmp = oneOverL * fSec(jj, ii) * wtL;
           FB(jj, 3) += tmp;
           FB(jj, 4) += tmp;
         }
         break;
       case SECTION_RESPONSE_T:
-        for (int jj = 0; jj < nsr; jj++)
+        for (jj = 0; jj < nsr; jj++)
           FB(jj, 5) += fSec(jj, ii) * wtL;
         break;
       default: break;
       }
     }
-    //
-    for (int ii = 0; ii < nsr; ii++) {
+    for (ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (int jj = 0; jj < nq; jj++)
+        for (jj = 0; jj < nq; jj++)
           fe(0, jj) += FB(ii, jj);
         break;
       case SECTION_RESPONSE_MZ:
-        for (int jj = 0; jj < nq; jj++) {
+        for (jj = 0; jj < nq; jj++) {
           tmp = FB(ii, jj);
           fe(1, jj) += xL1 * tmp;
           fe(2, jj) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (int jj = 0; jj < nq; jj++) {
+        for (jj = 0; jj < nq; jj++) {
           tmp = oneOverL * FB(ii, jj);
           fe(1, jj) += tmp;
           fe(2, jj) += tmp;
         }
         break;
       case SECTION_RESPONSE_MY:
-        for (int jj = 0; jj < nq; jj++) {
+        for (jj = 0; jj < nq; jj++) {
           tmp = FB(ii, jj);
           fe(3, jj) += xL1 * tmp;
           fe(4, jj) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VZ:
-        for (int jj = 0; jj < nq; jj++) {
+        for (jj = 0; jj < nq; jj++) {
           tmp = oneOverL * FB(ii, jj);
           fe(3, jj) += tmp;
           fe(4, jj) += tmp;
         }
         break;
       case SECTION_RESPONSE_T:
-        for (int jj = 0; jj < nq; jj++)
+        for (jj = 0; jj < nq; jj++)
           fe(5, jj) += FB(ii, jj);
         break;
       default: break;
@@ -1682,29 +1513,28 @@ ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
 }
 
 int
-ForceFrame3d::getInitialDeformations(Vector& v0)
+ForceFrame3d01::getInitialDeformations(Vector& v0)
 {
   v0.Zero();
   if (eleLoads.size() < 1 || (this->setState(State::Init) != 0))
     return 0;
 
-  double L = theCoordTransf->getInitialLength();
+  double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
 
-  const int numSections = points.size();
   for (int i = 0; i < numSections; i++) {
 
-    double xL  = points[i].point;
+    double xL  = xi[i];
     double xL1 = xL - 1.0;
-    double wtL = points[i].weight * L;
+    double wtL = wt[i] * L;
 
-    THREAD_LOCAL VectorND<nsr> sp;
+    static VectorND<nsr> sp;
     sp.zero();
 
     this->addLoadAtSection(sp, i);
 
-    MatrixND<nsr,nsr> fse = points[i].material->getFlexibility<nsr,scheme>(State::Init);
+    MatrixND<nsr,nsr> fse = sections[i]->getFlexibility<nsr,scheme>(State::Init);
 
     VectorND<nsr> e;
 
@@ -1742,7 +1572,7 @@ ForceFrame3d::getInitialDeformations(Vector& v0)
 }
 
 void
-ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
+ForceFrame3d01::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
 {
   // get basic displacements and increments
   static Vector ub(nq);
@@ -1752,16 +1582,9 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
 
   // setup Vandermode and CBDI influence matrices
 
-  const int numSections = points.size();
   // get CBDI influence matrix
   Matrix ls(numSections, numSections);
-
-  { // enclose xi in a scope
-    double *xi = new double[numSections];
-    beamIntegr->getSectionLocations(numSections, L, xi);
-    getCBDIinfluenceMatrix(numSections, xi, L, ls);
-    delete[] xi;
-  }
+  getCBDIinfluenceMatrix(numSections, xi, L, ls);
 
   // get section curvatures
   Vector kappa_y(numSections);
@@ -1769,7 +1592,7 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
 
   for (int i = 0; i < numSections; i++) {
     // get section deformations
-    VectorND<nsr> es = points[i].material->getDeformation<nsr,scheme>();
+    VectorND<nsr> es = sections[i]->getDeformation<nsr,scheme>();
 
     for (int j = 0; j < nsr; j++) {
       if (scheme[j] == SECTION_RESPONSE_MZ)
@@ -1779,10 +1602,9 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
     }
   }
 
-  Vector v(numSections),
-         w(numSections);
-  static VectorND<ndm> xl, uxb;
-  static VectorND<ndm> xg, uxg;
+  Vector v(numSections), w(numSections);
+  static Vector xl(ndm), uxb(ndm);
+  static Vector xg(ndm), uxg(ndm);
   // double theta;                             // angle of twist of the sections
 
   // v = ls * kappa_z;
@@ -1792,33 +1614,32 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
 
   for (int i = 0; i < numSections; i++) {
 
-    xl[0] = points[i].point * L;
-    xl[1] = 0;
-    xl[2] = 0;
+    xl(0) = xi[i] * L;
+    xl(1) = 0;
+    xl(2) = 0;
 
     // get section global coordinates
     sectionCoords[i] = theCoordTransf->getPointGlobalCoordFromLocal(xl);
 
     // compute section displacements
     //theta  = xi * ub(5); // consider linear variation for angle of twist. CHANGE LATER!!!!!!!!!!
-    uxb[0] = points[i].point * ub(0); // consider linear variation for axial displacement. CHANGE LATER!!!!!!!!!!
-    uxb[1] = v[i];
-    uxb[2] = w[i];
+    uxb(0) = xi[i] * ub(0); // consider linear variation for axial displacement. CHANGE LATER!!!!!!!!!!
+    uxb(1) = v[i];
+    uxb(2) = w[i];
 
     // get section displacements in global system
-    sectionDispls[i] = theCoordTransf->getPointGlobalDisplFromBasic(points[i].point, uxb);
+    sectionDispls[i] = theCoordTransf->getPointGlobalDisplFromBasic(xi[i], uxb);
   }
   return;
 }
 
 void
-ForceFrame3d::Print(OPS_Stream& s, int flag)
+ForceFrame3d01::Print(OPS_Stream& s, int flag)
 {
-  int numSections = points.size();
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << OPS_PRINT_JSON_ELEM_INDENT << "{";
     s << "\"name\": " << this->getTag() << ", ";
-    s << "\"type\": \"ForceFrame3d\", ";
+    s << "\"type\": \"ForceFrame3d01\", ";
     s << "\"nodes\": [" << connectedExternalNodes(0) << ", " 
                         << connectedExternalNodes(1) << "], ";
 
@@ -1828,12 +1649,11 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
       s << ", \"mass\": " << mass << ", ";
     else
       s << ", \"massperlength\": " << density << ", ";
-    s << "\"mass_flag\": "<< mass_flag << ", ";
 
     s << "\"sections\": [";
     for (int i = 0; i < numSections - 1; i++)
-      s << points[i].material->getTag() << ", ";
-    s << points[numSections - 1].material->getTag() << "], ";
+      s << sections[i]->getTag() << ", ";
+    s << sections[numSections - 1]->getTag() << "], ";
     s << "\"crdTransformation\": " << theCoordTransf->getTag()  << ", ";
     s << "\"integration\": ";
     beamIntegr->Print(s, flag);
@@ -1844,7 +1664,7 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
   if (flag == -1) {
     int eleTag = this->getTag();
     s << "EL_BEAM\t" << eleTag << "\t";
-    s << points[0].material->getTag() << "\t" << points[numSections - 1].material->getTag();
+    s << sections[0]->getTag() << "\t" << sections[numSections - 1]->getTag();
     s << "\t" << connectedExternalNodes(0) << "\t" << connectedExternalNodes(1);
     s << "\t0\t0.0000000\n";
   }
@@ -1966,12 +1786,12 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
     for (int i = 0; i < numSections; i++) {
       s << "#SECTION " << (coords[i])(0) << " " << (coords[i])(1) << " " << (coords[i])(2);
       s << " " << (displs[i])(0) << " " << (displs[i])(1) << " " << (displs[i])(2) << "\n";
-      points[i].material->Print(s, flag);
+      sections[i]->Print(s, flag);
     }
   }
 
   if (flag == OPS_PRINT_CURRENTSTATE) {
-    s << "\nElement: " << this->getTag() << " Type: ForceFrame3d ";
+    s << "\nElement: " << this->getTag() << " Type: ForceFrame3d01 ";
     s << "\tConnected Nodes: " << connectedExternalNodes;
     s << "\tNumber of Sections: " << numSections;
     s << "\tMass density: " << density << "\n";
@@ -1999,12 +1819,12 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
       << " " << VZ + p0[4] << " " << -T << "\n";
 
     for (int i = 0; i < numSections; i++)
-      points[i].material->Print(s, flag);
+      sections[i]->Print(s, flag);
   }
 }
 
 OPS_Stream&
-operator<<(OPS_Stream& s, ForceFrame3d& E)
+operator<<(OPS_Stream& s, ForceFrame3d01& E)
 {
   E.Print(s);
   return s;
@@ -2012,12 +1832,12 @@ operator<<(OPS_Stream& s, ForceFrame3d& E)
 
 
 Response*
-ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
+ForceFrame3d01::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
   Response* theResponse = 0;
 
   output.tag("ElementOutput");
-  output.attr("eleType", "ForceFrame3d");
+  output.attr("eleType", "ForceFrame3d01");
   output.attr("eleTag", this->getTag());
   output.attr("node1", connectedExternalNodes[0]);
   output.attr("node2", connectedExternalNodes[1]);
@@ -2133,24 +1953,19 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     theResponse = new ElementResponse(this, 12, theVector);
 
   } else if (strcmp(argv[0], "sections") == 0) {
-    if (this->setState(State::Init) != 0)
-      return nullptr;
-
     CompositeResponse* theCResponse = new CompositeResponse();
     int numResponse                 = 0;
-    const int numSections = points.size();
-    double L = theCoordTransf->getInitialLength();
-    // TODO: maxNumSections
     double xi[maxNumSections];
+    double L = theCoordTransf->getInitialLength();
     beamIntegr->getSectionLocations(numSections, L, xi);
 
     for (int i = 0; i < numSections; i++) {
 
       output.tag("GaussPointOutput");
       output.attr("number", i + 1);
-      output.attr("eta", points[i].point * L);
+      output.attr("eta", xi[i] * L);
 
-      Response* theSectionResponse = points[i].material->setResponse(&argv[1], argc - 1, output);
+      Response* theSectionResponse = sections[i]->setResponse(&argv[1], argc - 1, output);
 
       if (theSectionResponse != 0) {
         numResponse = theCResponse->addResponse(theSectionResponse);
@@ -2164,19 +1979,19 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
   }
 
   else if (strcmp(argv[0], "integrationPoints") == 0)
-    theResponse = new ElementResponse(this, 10, Vector(points.size()));
+    theResponse = new ElementResponse(this, 10, Vector(numSections));
 
   else if (strcmp(argv[0], "integrationWeights") == 0)
-    theResponse = new ElementResponse(this, 11, Vector(points.size()));
+    theResponse = new ElementResponse(this, 11, Vector(numSections));
 
   else if (strcmp(argv[0], "sectionTags") == 0)
-    theResponse = new ElementResponse(this, 110, ID(points.size()));
+    theResponse = new ElementResponse(this, 110, ID(numSections));
 
   else if (strcmp(argv[0], "sectionDisplacements") == 0) {
     if (argc > 1 && strcmp(argv[1], "local") == 0)
-      theResponse = new ElementResponse(this, 1111, Matrix(points.size(), 3));
+      theResponse = new ElementResponse(this, 1111, Matrix(numSections, 3));
     else
-      theResponse = new ElementResponse(this, 111, Matrix(points.size(), 3));
+      theResponse = new ElementResponse(this, 111, Matrix(numSections, 3));
   }
 
   else if (strcmp(argv[0], "cbdiDisplacements") == 0)
@@ -2189,12 +2004,9 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
       int sectionNum = atoi(argv[1]);
 
-      if (sectionNum > 0 && sectionNum <= points.size() && argc > 2) {
-        if (this->setState(State::Init) != 0)
-          return nullptr;
+      if (sectionNum > 0 && sectionNum <= numSections && argc > 2) {
         double xi[maxNumSections];
         double L = theCoordTransf->getInitialLength();
-        const int numSections = points.size();
         beamIntegr->getSectionLocations(numSections, L, xi);
 
         output.tag("GaussPointOutput");
@@ -2202,9 +2014,9 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
         output.attr("eta", 2.0 * xi[sectionNum - 1] - 1.0);
 
         if (strcmp(argv[2], "dsdh") != 0) {
-          theResponse = points[sectionNum - 1].material->setResponse(&argv[2], argc - 2, output);
+          theResponse = sections[sectionNum - 1]->setResponse(&argv[2], argc - 2, output);
         } else {
-          int order         = points[sectionNum - 1].material->getOrder();
+          int order         = sections[sectionNum - 1]->getOrder();
           theResponse       = new ElementResponse(this, 76, Vector(order));
           Information& info = theResponse->getInformation();
           info.theInt       = sectionNum;
@@ -2218,16 +2030,15 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
         int numResponse                 = 0;
         double xi[maxNumSections];
         double L = theCoordTransf->getInitialLength();
-        const int numSections = points.size();
         beamIntegr->getSectionLocations(numSections, L, xi);
 
         for (int i = 0; i < numSections; i++) {
 
           output.tag("GaussPointOutput");
           output.attr("number", i + 1);
-          output.attr("eta", points[i].point * L);
+          output.attr("eta", xi[i] * L);
 
-          Response* theSectionResponse = points[i].material->setResponse(&argv[1], argc - 1, output);
+          Response* theSectionResponse = sections[i]->setResponse(&argv[1], argc - 1, output);
 
           if (theSectionResponse != 0) {
             numResponse = theCResponse->addResponse(theSectionResponse);
@@ -2256,7 +2067,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 }
 
 int
-ForceFrame3d::getResponse(int responseID, Information& eleInfo)
+ForceFrame3d01::getResponse(int responseID, Information& eleInfo)
 {
   static Vector vp(6);
   static MatrixND<nq,nq> fe;
@@ -2328,7 +2139,6 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
   else if (responseID == 10) {
     double L = theCoordTransf->getInitialLength();
     double pts[maxNumSections];
-    const int numSections = points.size();
     beamIntegr->getSectionLocations(numSections, L, pts);
     Vector locs(numSections);
     for (int i = 0; i < numSections; i++)
@@ -2339,7 +2149,6 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
   else if (responseID == 11) {
     double L = theCoordTransf->getInitialLength();
     double wts[maxNumSections];
-    const int numSections = points.size();
     beamIntegr->getSectionWeights(numSections, L, wts);
     Vector weights(numSections);
     for (int i = 0; i < numSections; i++)
@@ -2348,17 +2157,15 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
   }
 
   else if (responseID == 110) {
-    const int numSections = points.size();
     ID tags(numSections);
     for (int i = 0; i < numSections; i++)
-      tags(i) = points[i].material->getTag();
+      tags(i) = sections[i]->getTag();
     return eleInfo.setID(tags);
   }
 
   else if (responseID == 111 || responseID == 1111) {
     double L = theCoordTransf->getInitialLength();
     double pts[maxNumSections];
-    const int numSections = points.size();
     beamIntegr->getSectionLocations(numSections, L, pts);
     // CBDI influence matrix
     Matrix ls(numSections, numSections);
@@ -2367,9 +2174,9 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     Vector kappaz(numSections); // about section z
     Vector kappay(numSections); // about section y
     for (int i = 0; i < numSections; i++) {
-      const ID& code  = points[i].material->getType();
-      const Vector& e = points[i].material->getSectionDeformation();
-      int order       = points[i].material->getOrder();
+      const ID& code  = sections[i]->getType();
+      const Vector& e = sections[i]->getSectionDeformation();
+      int order       = sections[i]->getOrder();
       for (int j = 0; j < order; j++) {
         if (code(j) == SECTION_RESPONSE_MZ)
           kappaz(i) += e(j);
@@ -2405,7 +2212,6 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
   else if (responseID == 112) {
     double L = theCoordTransf->getInitialLength();
     double ipts[maxNumSections];
-    const int numSections = points.size();
     beamIntegr->getSectionLocations(numSections, L, ipts);
     // CBDI influence matrix
     double pts[20];
@@ -2417,9 +2223,9 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     Vector kappaz(numSections); // about section z
     Vector kappay(numSections); // about section y
     for (int i = 0; i < numSections; i++) {
-      const ID& code  = points[i].material->getType();
-      const Vector& e = points[i].material->getSectionDeformation();
-      int order       = points[i].material->getOrder();
+      const ID& code  = sections[i]->getType();
+      const Vector& e = sections[i]->getSectionDeformation();
+      int order       = sections[i]->getOrder();
       for (int j = 0; j < order; j++) {
         if (code(j) == SECTION_RESPONSE_MZ)
           kappaz(i) += e(j);
@@ -2478,7 +2284,6 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     double L = theCoordTransf->getInitialLength();
 
     double wts[maxNumSections];
-    const int numSections = points.size();
     beamIntegr->getSectionWeights(numSections, L, wts);
 
     double pts[maxNumSections];
@@ -2494,14 +2299,14 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
       LIy = q_pres[3] / (q_pres[3] + q_pres[4]) * L;
 
     for (int i = 0; i < numSections; i++) {
-      double x       = points[i].point * L;
-      const ID& type = points[i].material->getType();
-      int order      = points[i].material->getOrder();
+      double x       = pts[i] * L;
+      const ID& type = sections[i]->getType();
+      int order      = sections[i]->getOrder();
       double kappa   = 0.0;
       if (x < LIz) {
         for (int j = 0; j < order; j++)
           if (type(j) == SECTION_RESPONSE_MZ)
-            kappa += points[i].es[j];
+            kappa += es[i][j];
         double b = -LIz + x;
         d2z += (wts[i] * L) * kappa * b;
       }
@@ -2509,7 +2314,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
       if (x < LIy) {
         for (int j = 0; j < order; j++)
           if (type(j) == SECTION_RESPONSE_MY)
-            kappa += points[i].es[j];
+            kappa += es[i][j];
         double b = -LIy + x;
         d2y += (wts[i] * L) * kappa * b;
       }
@@ -2520,13 +2325,13 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
 
     for (int i = numSections - 1; i >= 0; i--) {
       double x       = pts[i] * L;
-      const ID& type = points[i].material->getType();
-      int order      = points[i].material->getOrder();
+      const ID& type = sections[i]->getType();
+      int order      = sections[i]->getOrder();
       double kappa   = 0.0;
       if (x > LIz) {
         for (int j = 0; j < order; j++)
           if (type(j) == SECTION_RESPONSE_MZ)
-            kappa += points[i].es[j];
+            kappa += es[i][j];
         double b = x - LIz;
         d3z += (wts[i] * L) * kappa * b;
       }
@@ -2534,7 +2339,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
       if (x > LIy) {
         for (int j = 0; j < order; j++)
           if (type(j) == SECTION_RESPONSE_MY)
-            kappa += points[i].es[j];
+            kappa += es[i][j];
         double b = x - LIy;
         d3y += (wts[i] * L) * kappa * b;
       }
@@ -2637,7 +2442,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
         //
         indata.open(filenamewall); // opens the file
         if (!indata) {             // file couldn't be opened
-          opserr << "ForceFrame3d::getResponse"
+          opserr << "ForceFrame3d01::getResponse"
                  << " file for infill wall (" << filenamewall << " could not be opened" << "\n";
           return -1;
         }
@@ -2676,13 +2481,12 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
   }
   //by SAJalali
   else if (responseID == 2000) {
-    const int numSections = points.size();
     double xi[maxNumSections];
     double L = theCoordTransf->getInitialLength();
     beamIntegr->getSectionWeights(numSections, L, xi);
     double energy = 0;
     for (int i = 0; i < numSections; i++) {
-      energy += points[i].material->getEnergy() * points[i].point * L;
+      energy += sections[i]->getEnergy() * xi[i] * L;
     }
     return eleInfo.setDouble(energy);
   }
@@ -2691,7 +2495,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
 }
 
 int
-ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information& eleInfo)
+ForceFrame3d01::getResponseSensitivity(int responseID, int gradNumber, Information& eleInfo)
 {
   // Basic deformation sensitivity
   if (responseID == 3) {
@@ -2716,9 +2520,9 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
   else if (responseID == 76) {
 
     int sectionNum = eleInfo.theInt;
-    int order      = points[sectionNum - 1].material->getOrder();
+    int order      = sections[sectionNum - 1]->getOrder();
 
-    Vector dsdh(nsr);
+    Vector dsdh(order);
     dsdh.Zero();
 
     if (eleLoads.size() > 0) {
@@ -2733,18 +2537,19 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
 
     dqdh.addVector(1.0, this->computedqdh(gradNumber), 1.0);
 
-    const int numSections = points.size();
+    //opserr << "FBC3d::getRespSens dqdh: " << dqdh;
+
     double L        = theCoordTransf->getInitialLength();
     double oneOverL = 1.0 / L;
     double pts[maxNumSections];
     beamIntegr->getSectionLocations(numSections, L, pts);
 
-    const ID& code = points[sectionNum - 1].material->getType();
+    const ID& code = sections[sectionNum - 1]->getType();
 
     double xL  = pts[sectionNum - 1];
     double xL1 = xL - 1.0;
 
-    for (int ii = 0; ii < nsr; ii++) {
+    for (int ii = 0; ii < order; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:  dsdh(ii) += dqdh(0); break;
       case SECTION_RESPONSE_MZ: dsdh(ii) += xL1 * dqdh(1) + xL * dqdh(2); break;
@@ -2808,7 +2613,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
 }
 
 int
-ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
+ForceFrame3d01::setParameter(const char** argv, int argc, Parameter& param)
 {
   if (argc < 1)
     return -1;
@@ -2827,7 +2632,6 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
     if (argc > 2) {
       float sectionLoc = atof(argv[1]);
 
-      const int numSections = points.size();
       double xi[maxNumSections];
       double L = theCoordTransf->getInitialLength();
       beamIntegr->getSectionLocations(numSections, L, xi);
@@ -2837,13 +2641,13 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
       float minDistance = fabs(xi[0] - sectionLoc);
       int sectionNum    = 0;
       for (int i = 1; i < numSections; i++) {
-        if (fabs(points[i].point - sectionLoc) < minDistance) {
-          minDistance = fabs(points[i].point - sectionLoc);
+        if (fabs(xi[i] - sectionLoc) < minDistance) {
+          minDistance = fabs(xi[i] - sectionLoc);
           sectionNum  = i;
         }
       }
 
-      return points[sectionNum].material->setParameter(&argv[2], argc - 2, param);
+      return sections[sectionNum]->setParameter(&argv[2], argc - 2, param);
     }
   }
 
@@ -2856,8 +2660,8 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
     // Get section number
     int sectionNum = atoi(argv[1]);
 
-    if (sectionNum > 0 && sectionNum <= points.size())
-      return points[sectionNum - 1].material->setParameter(&argv[2], argc - 2, param);
+    if (sectionNum > 0 && sectionNum <= numSections)
+      return sections[sectionNum - 1]->setParameter(&argv[2], argc - 2, param);
 
     else
       return -1;
@@ -2869,8 +2673,9 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
     if (argc < 2)
       return -1;
 
-    for (GaussPoint& point : points) {
-      int ok = point.material->setParameter(&argv[1], argc - 1, param);
+    int ok;
+    for (int i = 0; i < numSections; i++) {
+      ok = sections[i]->setParameter(&argv[1], argc - 1, param);
       if (ok != -1)
         result = ok;
     }
@@ -2887,14 +2692,15 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
   }
 
   // Default, send to everything
+  int ok;
 
-  for (GaussPoint& point : points) {
-    int ok = point.material->setParameter(argv, argc, param);
+  for (int i = 0; i < numSections; i++) {
+    ok = sections[i]->setParameter(argv, argc, param);
     if (ok != -1)
       result = ok;
   }
 
-  int ok = beamIntegr->setParameter(argv, argc, param);
+  ok = beamIntegr->setParameter(argv, argc, param);
   if (ok != -1)
     result = ok;
 
@@ -2902,7 +2708,7 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
 }
 
 int
-ForceFrame3d::updateParameter(int parameterID, Information& info)
+ForceFrame3d01::updateParameter(int parameterID, Information& info)
 {
   if (parameterID == 1) {
     this->density = info.theDouble;
@@ -2912,7 +2718,7 @@ ForceFrame3d::updateParameter(int parameterID, Information& info)
 }
 
 int
-ForceFrame3d::activateParameter(int passedParameterID)
+ForceFrame3d01::activateParameter(int passedParameterID)
 {
   parameterID = passedParameterID;
 
@@ -2920,14 +2726,14 @@ ForceFrame3d::activateParameter(int passedParameterID)
 }
 
 const Matrix&
-ForceFrame3d::getKiSensitivity(int gradNumber)
+ForceFrame3d01::getKiSensitivity(int gradNumber)
 {
   theMatrix.Zero();
   return theMatrix;
 }
 
 const Matrix&
-ForceFrame3d::getMassSensitivity(int gradNumber)
+ForceFrame3d01::getMassSensitivity(int gradNumber)
 {
   theMatrix.Zero();
 
@@ -2940,7 +2746,7 @@ ForceFrame3d::getMassSensitivity(int gradNumber)
 }
 
 const Vector&
-ForceFrame3d::getResistingForceSensitivity(int gradNumber)
+ForceFrame3d01::getResistingForceSensitivity(int gradNumber)
 {
   static Vector dqdh(6);
   dqdh = this->computedqdh(gradNumber);
@@ -2974,14 +2780,13 @@ ForceFrame3d::getResistingForceSensitivity(int gradNumber)
 }
 
 int
-ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
+ForceFrame3d01::commitSensitivity(int gradNumber, int numGrads)
 {
   int err = 0;
 
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
-  const int numSections = points.size();
   double pts[maxNumSections];
   beamIntegr->getSectionLocations(numSections, L, pts);
 
@@ -3010,8 +2815,8 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
   // Loop over integration points
   for (int i = 0; i < numSections; i++) {
 
-    int order      = points[i].material->getOrder();
-    const ID& code = points[i].material->getType();
+    int order      = sections[i]->getOrder();
+    const ID& code = sections[i]->getType();
 
     double xL  = pts[i];
     double xL1 = xL - 1.0;
@@ -3022,11 +2827,12 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
     ds.Zero();
 
     // Add sensitivity wrt element loads
-    if (eleLoads.size() > 0)
+    if (eleLoads.size() > 0) {
       this->computeSectionForceSensitivity(ds, i, gradNumber);
+    }
 
-
-    for (int j = 0; j < order; j++) {
+    int j;
+    for (j = 0; j < order; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_P:  ds(j) += dqdh(0); break;
       case SECTION_RESPONSE_VY: ds(j) += oneOverL * (dqdh(1) + dqdh(2)); break;
@@ -3038,10 +2844,10 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
       }
     }
 
-    const Vector& dsdh = points[i].material->getStressResultantSensitivity(gradNumber, true);
+    const Vector& dsdh = sections[i]->getStressResultantSensitivity(gradNumber, true);
     ds -= dsdh;
 
-    for (int j = 0; j < order; j++) {
+    for (j = 0; j < order; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_MZ: ds(j) += dxLdh  * (q_pres[1] + q_pres[2]); break;
       case SECTION_RESPONSE_VY: ds(j) += d1oLdh * (q_pres[1] + q_pres[2]); break;
@@ -3052,23 +2858,22 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
     }
 
     Vector de(order);
-    const Matrix& fs = points[i].material->getSectionFlexibility();
+    const Matrix& fs = sections[i]->getSectionFlexibility();
     de.addMatrixVector(0.0, fs, ds, 1.0);
 
-    err += points[i].material->commitSensitivity(de, gradNumber, numGrads);
+    err += sections[i]->commitSensitivity(de, gradNumber, numGrads);
   }
 
   return err;
 }
 
 const Vector&
-ForceFrame3d::computedqdh(int gradNumber)
+ForceFrame3d01::computedqdh(int gradNumber)
 {
 
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
-  const int numSections = points.size();
   double wts[maxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wts);
 
@@ -3088,20 +2893,20 @@ ForceFrame3d::computedqdh(int gradNumber)
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
 
-    int order      = points[i].material->getOrder();
-    const ID& code = points[i].material->getType();
+    int order      = sections[i]->getOrder();
+    const ID& code = sections[i]->getType();
 
-    double xL  = points[i].point;
+    double xL  = xi[i];
     double xL1 = xL - 1.0;
-    double wtL = points[i].weight * L;
+    double wtL = wt[i] * L;
 
     double dxLdh  = dptsdh[i]; // - xL/L*dLdh;
-    double dwtLdh = points[i].weight * dLdh + dwtsdh[i] * L;
+    double dwtLdh = wt[i] * dLdh + dwtsdh[i] * L;
 
 
     // Get section stress resultant gradient
     Vector dsdh(order);
-    dsdh = points[i].material->getStressResultantSensitivity(gradNumber, true);
+    dsdh = sections[i]->getStressResultantSensitivity(gradNumber, true);
 
     Vector dspdh(order);
     dspdh.Zero();
@@ -3123,7 +2928,7 @@ ForceFrame3d::computedqdh(int gradNumber)
     }
 
     Vector dedh(order);
-    const Matrix& fs = points[i].material->getSectionFlexibility();
+    const Matrix& fs = sections[i]->getSectionFlexibility();
     dedh.addMatrixVector(0.0, fs, dsdh, 1.0);
 
     for (j = 0; j < order; j++) {
@@ -3153,8 +2958,8 @@ ForceFrame3d::computedqdh(int gradNumber)
       }
     }
 
-    const VectorND<nsr>& e = points[i].es;
-    for (j = 0; j < nsr; j++) {
+    const Vector& e = es[i];
+    for (j = 0; j < order; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_P: dvdh(0) -= e(j) * dwtLdh; break;
       case SECTION_RESPONSE_MZ:
@@ -3206,7 +3011,7 @@ ForceFrame3d::computedqdh(int gradNumber)
 }
 
 const Matrix&
-ForceFrame3d::computedfedh(int gradNumber)
+ForceFrame3d01::computedfedh(int gradNumber)
 {
   static Matrix dfedh(6, 6);
 
@@ -3215,7 +3020,6 @@ ForceFrame3d::computedfedh(int gradNumber)
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
-  const int numSections = points.size();
   double dLdh   = theCoordTransf->getdLdh();
   double d1oLdh = theCoordTransf->getd1overLdh();
 
@@ -3229,21 +3033,21 @@ ForceFrame3d::computedfedh(int gradNumber)
 
   for (int i = 0; i < numSections; i++) {
 
-    int order      = points[i].material->getOrder();
-    const ID& code = points[i].material->getType();
+    int order      = sections[i]->getOrder();
+    const ID& code = sections[i]->getType();
 
     Matrix fb(order, nq);
     Matrix fb2(order, nq);
 
-    double xL  = points[i].point;
+    double xL  = xi[i];
     double xL1 = xL - 1.0;
-    double wtL = points[i].weight * L;
+    double wtL = wt[i] * L;
 
     double dxLdh  = dptsdh[i];
-    double dwtLdh = points[i].weight * dLdh + dwtsdh[i] * L;
+    double dwtLdh = wt[i] * dLdh + dwtsdh[i] * L;
 
-    const Matrix& fs    = points[i].material->getInitialFlexibility();
-    const Matrix& dfsdh = points[i].material->getInitialFlexibilitySensitivity(gradNumber);
+    const Matrix& fs    = sections[i]->getInitialFlexibility();
+    const Matrix& dfsdh = sections[i]->getInitialFlexibilitySensitivity(gradNumber);
     fb.Zero();
     fb2.Zero();
 
@@ -3324,70 +3128,70 @@ ForceFrame3d::computedfedh(int gradNumber)
   return dfedh;
 }
 
-int
-ForceFrame3d::setSectionPointers(std::vector<FrameSection*>& new_sections)
+void
+ForceFrame3d01::setSectionPointers(int numSec, FrameSection** secPtrs)
 {
-  // Return value of 0 indicates success
+  // TODO: change to assert and make sure its enforced by consrtructor
+  if (numSec > maxNumSections) {
+    opserr << "Error: ForceFrame3d01::setSectionPointers -- max number of sections exceeded";
+  }
 
-  points.clear();
-//sections = new FrameSection*[numSections];
+  numSections = numSec;
 
-  for (FrameSection* section : new_sections) {
-    assert(section != nullptr);
+  if (secPtrs == nullptr) {
+    opserr << "Error: ForceFrame3d01::setSectionPointers -- invalid section pointer";
+  }
 
-    points.push_back({
-        .point=0,
-        .weight=0,
-        .material=section->getFrameCopy(scheme)
-    });
-    // sections[i] = section->getFrameCopy(scheme);
+  sections = new FrameSection*[numSections];
+
+  for (int i = 0; i < numSections; i++) {
+
+    if (secPtrs[i] == 0) {
+      opserr << "Error: ForceFrame3d01::setSectionPointers -- null section pointer " << i << "\n";
+    }
+
+    sections[i] = secPtrs[i]->getFrameCopy(scheme);
 
     // Check sections
+    // TODO: return int, dont exit
     int sectionKey1 = -1;
     int sectionKey2 = -1;
-    const ID& code = section->getType();
+    const ID& code = sections[i]->getType();
     for (int j = 0; j < code.Size(); j++) {
       if (code(j) == SECTION_RESPONSE_MZ)
         sectionKey1 = j;
       if (code(j) == SECTION_RESPONSE_MY)
         sectionKey2 = j;
     }
-    if (sectionKey1 == -1) {
-      opserr << "FATAL ForceFrame3d::compSectionResponse - section does not provide Mz response\n";
-      return -1;
+    if (sectionKey1 == 0) {
+      opserr << "FATAL ForceFrame3d01::compSectionResponse - section does not provide Mz response\n";
+      exit(-1);
     }
-    if (sectionKey2 == -1) {
-      opserr << "FATAL ForceFrame3d::compSectionResponse - section does not provide My response\n";
-      return -1;
+    if (sectionKey2 == 0) {
+      opserr << "FATAL ForceFrame3d01::compSectionResponse - section does not provide My response\n";
+      exit(-1);
     }
   }
-  return 0;
+
+
+  // allocate section flexibility matrices and section deformation vectors
+  fs       = new MatrixND<nsr,nsr>[numSections]{};
+  es       = new VectorND<nsr>[numSections]{};
+  Ssr      = new VectorND<nsr>[numSections]{};
+  es_save  = new VectorND<nsr>[numSections]{};
 }
 
 #if 0
 const Vector &
-ForceFrame3d::getResistingForce()
+ForceFrame3d01::getResistingForce()
 {
+  // Will remove once we clean up the corotational 3d transformation -- MHS
+  // theCoordTransf->update();
+
   double p0[5];
   Vector p0Vec(p0, 5);
   p0Vec.Zero();
   
-  if (eleLoads.size() > 0)
-    this->computeReactions(p0);
-  
-  P = theCoordTransf->getGlobalResistingForce(Vector(q_pres), p0Vec);
-  
-  if (total_mass != 0.0)
-    P.addVector(1.0, p_iner, -1.0);
-
-  return P;
-//
-// ----------------------------------------------------------
-//
-  double p0[5];
-  Vector p0Vec(p0, 5);
-  p0Vec.Zero();
-
   if (eleLoads.size() > 0)
     this->computeReactions(p0);
   
@@ -3401,7 +3205,7 @@ ForceFrame3d::getResistingForce()
 
 
 void 
-ForceFrame3d::zeroLoad()
+ForceFrame3d01::zeroLoad()
 {
   // This is a semi-hack -- MHS
   numEleLoads = 0;
@@ -3410,7 +3214,7 @@ ForceFrame3d::zeroLoad()
 }
 
 void
-ForceFrame3d::getDistrLoadInterpolatMatrix(double xi, Matrix& bp, const ID& code)
+ForceFrame3d01::getDistrLoadInterpolatMatrix(double xi, Matrix& bp, const ID& code)
 {
   bp.Zero();
 
@@ -3440,7 +3244,7 @@ ForceFrame3d::getDistrLoadInterpolatMatrix(double xi, Matrix& bp, const ID& code
 }
 
 void
-ForceFrame3d::getForceInterpolatMatrix(double xi, Matrix& b, const ID& code)
+ForceFrame3d01::getForceInterpolatMatrix(double xi, Matrix& b, const ID& code)
 {
   b.Zero();
 

@@ -12,6 +12,7 @@
 #define DisplEulerFrame3d_h
 
 #include <array>
+#include <vector>
 #include <Frame/FiniteElement.h>
 #include <Matrix.h>
 #include <Vector.h>
@@ -28,9 +29,9 @@ class DisplEulerFrame3d : public FiniteElement<2, 3, 6>
 {
   public:
     DisplEulerFrame3d(int tag, std::array<int,2>& nodes,
-             int numSections, FrameSection **s,
+             std::vector<FrameSection*> &secs,
              BeamIntegration &bi, FrameTransform3d &coordTransf,
-             double rho = 0.0, int cMass = 0);
+             double rho, int mass_flag, bool use_mass);
 
     DisplEulerFrame3d();
     ~DisplEulerFrame3d();
@@ -46,13 +47,13 @@ class DisplEulerFrame3d : public FiniteElement<2, 3, 6>
     int update();
 
     // public methods to obtain stiffness, mass, damping and residual information    
+    const Vector &getResistingForce();
     const Matrix &getTangentStiff();
     const Matrix &getInitialStiff();
 
     void zeroLoad();
     int addLoad(ElementalLoad *theLoad, double loadFactor);
 
-    const Vector &getResistingForce();
 
     // public methods for element output
     int sendSelf(int commitTag, Channel &theChannel);
@@ -81,7 +82,28 @@ class DisplEulerFrame3d : public FiniteElement<2, 3, 6>
       nsr = 4,
       maxNumSections = 20; // TODO: remove
 
-    int cMass;
+    int mass_flag;
+    bool use_density;
+
+    struct ShapeBasis {
+      double eval,
+             grad,
+             hess;
+    };
+    ShapeBasis getBasis(int, double);
+
+    struct GaussPoint {
+      double point,
+             weight;
+      FrameSection* material;
+
+      MatrixND<nsr,nsr> fs;         // flexibility matrix
+      VectorND<nsr>     es;         // deformations
+      VectorND<nsr>     Ssr;        // stress resultants
+      VectorND<nsr> es_save;        // committed section deformations
+    };
+
+    std::vector<GaussPoint> points;
 
     int numSections;
     FrameSection **sections;               // vector of Sections

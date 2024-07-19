@@ -43,7 +43,7 @@ class PrismFrame3d : public BasicFrame3d
     PrismFrame3d(int tag, std::array<int,2>& nodes,
       FrameSection &section, 
 		  FrameTransform3d &theTransf,
-      double density, int mass_flag,
+      double density, int mass_flag, bool use_mass,
 		  int releasez, int releasey);
 
 //  ~PrismFrame3d();
@@ -90,6 +90,7 @@ class PrismFrame3d : public BasicFrame3d
            twist_mass,
            density;
 
+    int section_tag;
     int geom_flag = 0; 
     int releasez; // moment release for bending about z-axis 0=none, 1=I, 2=J, 3=I,J
     int releasey; // same for y-axis

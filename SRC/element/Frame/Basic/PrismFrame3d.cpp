@@ -42,7 +42,8 @@ PrismFrame3d::PrismFrame3d(int tag, std::array<int, 2>& nodes,
   :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
    A(a), E(e), G(g), Jx(jx), Iy(iy), Iz(iz), 
    mass_flag(cm), density(r),
-   releasez(rz), releasey(ry)
+   releasez(rz), releasey(ry),
+   section_tag(-1)
 {
   q.zero();
 }
@@ -50,7 +51,7 @@ PrismFrame3d::PrismFrame3d(int tag, std::array<int, 2>& nodes,
 PrismFrame3d::PrismFrame3d(int tag, std::array<int,2>& nodes,
                            FrameSection &section,  
                            FrameTransform3d &coordTransf, 
-                           double rho_, int cMass, int rz, int ry)
+                           double rho_, int cMass, bool use_mass, int rz, int ry)
   :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
    mass_flag(cMass), density(rho_),
    releasez(rz), releasey(ry)
@@ -62,6 +63,8 @@ PrismFrame3d::PrismFrame3d(int tag, std::array<int,2>& nodes,
   section.getIntegral(Field::Unit,   State::Init, A);
   section.getIntegral(Field::UnitZZ, State::Init, Iy);
   section.getIntegral(Field::UnitYY, State::Init, Iz);
+
+  section_tag = section.getTag();
 
   const Matrix &sectTangent = section.getInitialTangent();
   const ID &sectCode = section.getType();
@@ -80,7 +83,6 @@ PrismFrame3d::PrismFrame3d(int tag, std::array<int,2>& nodes,
   }
 
   // TODO
-  bool use_mass = false;
   if (!use_mass) {
     if (section.getIntegral(Field::Density, State::Init, density) == 0) {
       ;
@@ -233,7 +235,7 @@ PrismFrame3d::update()
   }
 
   q = ke*v;
-//q += q0;
+  q += q0;
 
   return ok;
 }
@@ -449,12 +451,16 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
         s << "\"releasey\": "<< releasey << ", ";                
         s << "\"crdTransformation\": " << theCoordTransf->getTag()  << ", ";
         // 
-        s << "\"E\": "  << E  << ", ";
-        s << "\"G\": "  << G  << ", ";
-        s << "\"A\": "  << A  << ", ";
-        s << "\"Jx\": " << Jx << ", ";
-        s << "\"Iy\": " << Iy << ", ";
-        s << "\"Iz\": " << Iz;
+        if (section_tag > 0) {
+          s << "\"section\": " << section_tag ; // << ", ";
+        } else {
+          s << "\"E\": "  << E  << ", ";
+          s << "\"G\": "  << G  << ", ";
+          s << "\"A\": "  << A  << ", ";
+          s << "\"Jx\": " << Jx << ", ";
+          s << "\"Iy\": " << Iy << ", ";
+          s << "\"Iz\": " << Iz;
+        }
         // 
         s << "}";
     }

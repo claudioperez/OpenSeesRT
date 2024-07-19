@@ -330,6 +330,8 @@ CubicFrame3d::getBasicTangent(State state, int rate)
       q[5] += s[3]*wt[i];
     }  
   }
+
+  q += q0;
   
   return kb;
 }

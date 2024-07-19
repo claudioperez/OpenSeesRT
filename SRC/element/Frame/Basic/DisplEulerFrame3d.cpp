@@ -98,25 +98,25 @@ getStrainMatrix(double xi, double L, const Vector& v, MatrixND<8,12>&B, MatrixND
     return 0;
 }
 
-DisplEulerFrame3d::DisplEulerFrame3d(int tag, std::array<int,2>& nodes, int numSec,
-                                     FrameSection **s,
+DisplEulerFrame3d::DisplEulerFrame3d(int tag, std::array<int,2>& nodes,
+                                     std::vector<FrameSection*> &secs,
                                      BeamIntegration &bi,
                                      FrameTransform3d &coordTransf,
-                                     double r, int cm)
+                                     double r, int cm, bool use_mass_)
 
     : FiniteElement(tag, ELE_TAG_DisplEulerFrame3d, nodes),
-      numSections(numSec), 
-      sections(nullptr),
-      theCoordTransf(nullptr), beamInt(nullptr), 
-      density(r), cMass(cm), parameterID(0)
+      numSections(secs.size()),  sections(nullptr),
+      theCoordTransf(nullptr),   beamInt(nullptr), 
+      density(r), mass_flag(cm), use_density(use_mass_),
+      parameterID(0)
 
 {
   // Allocate arrays of pointers to FrameSections
-  sections = new FrameSection *[numSections];
+  sections = new FrameSection *[secs.size()];
 
-  for (int i = 0; i < numSections; i++) {
+  for (int i = 0; i < secs.size(); i++) {
     // Get copies of the material model for each integration point
-    sections[i] = s[i]->getFrameCopy();
+    sections[i] = secs[i]->getFrameCopy(scheme);
   }
 
   beamInt = bi.getCopy();
@@ -128,9 +128,9 @@ DisplEulerFrame3d::DisplEulerFrame3d(int tag, std::array<int,2>& nodes, int numS
 
 DisplEulerFrame3d::DisplEulerFrame3d()
     : FiniteElement(0, ELE_TAG_DisplEulerFrame3d),
-      numSections(0), sections(0),
-      beamInt(0),
-      density(0.0), cMass(0), parameterID(0)
+      numSections(0), sections(nullptr),
+      beamInt(nullptr),
+      density(0.0), mass_flag(0), parameterID(0)
 {
   q0.zero();
 }
@@ -322,6 +322,13 @@ DisplEulerFrame3d::getIntegral(Field field, State state, double& total)
   }
 }
 
+const Vector &
+DisplEulerFrame3d::getResistingForce()
+{
+  static Vector wrap(p);
+  return wrap;
+}
+
 const Matrix &
 DisplEulerFrame3d::getTangentStiff()
 {
@@ -384,6 +391,12 @@ DisplEulerFrame3d::getTangentStiff()
   return kb;
 }
 
+const Matrix &
+DisplEulerFrame3d::getInitialStiff()
+{
+  return this->getTangentStiff();
+}
+
 
 void
 DisplEulerFrame3d::zeroLoad()
@@ -436,7 +449,7 @@ DisplEulerFrame3d::Print(OPS_Stream &s, int flag)
     s << "\nDisplEulerFrame3d, element id:  " << this->getTag() << "\n";
     s << "\tConnected external nodes:  " << connectedExternalNodes;
     s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
-    s << "\tmass density:  " << density << ", cMass: " << cMass << "\n";
+    s << "\tmass density:  " << density << ", mass_flag: " << mass_flag << "\n";
 
     beamInt->Print(s, flag);
 
@@ -533,7 +546,7 @@ DisplEulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
   } else if (strcmp(argv[0], "RayleighForces") == 0 ||
              strcmp(argv[0], "rayleighForces") == 0) {
 
-    theResponse = new ElementResponse(this, 12, P);
+    theResponse = new ElementResponse(this, 12, Vector(12));
 
   } else if (strcmp(argv[0], "integrationPoints") == 0)
     theResponse = new ElementResponse(this, 10, Vector(numSections));
@@ -642,8 +655,9 @@ DisplEulerFrame3d::getResponse(int responseID, Information &eleInfo)
 
   else if (responseID == 2) {
     // TODO(cmp)
-    P.Zero();
-    return eleInfo.setVector(P);
+//  P.Zero();
+//  return eleInfo.setVector(P);
+    return -1;
   }
 
   // Chord rotation
@@ -811,7 +825,7 @@ DisplEulerFrame3d::sendSelf(int commitTag, Channel &theChannel)
   }
   data(7)  = beamIntDbTag;
   data(8)  = density;
-  data(9)  = cMass;
+  data(9)  = mass_flag;
   data(10) = alphaM;
   data(11) = betaK;
   data(12) = betaK0;
@@ -902,7 +916,7 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
   int beamIntDbTag    = (int)data(7);
 
   density   = data(8);
-  cMass = (int)data(9);
+  mass_flag = (int)data(9);
 
   alphaM = data(10);
   betaK  = data(11);

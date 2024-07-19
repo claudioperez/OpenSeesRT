@@ -28,6 +28,7 @@
 #define ForceFrame3d_h
 //
 #include <array>
+#include <vector>
 #include <element/Frame/BasicFrame3d.h>
 #include <Vector.h>
 #include <VectorND.h>
@@ -47,10 +48,12 @@ class ForceFrame3d: public BasicFrame3d
  public:
   ForceFrame3d();
   ForceFrame3d(int tag, std::array<int,2>& nodes,
-		    int numSections, FrameSection **sec,
+        std::vector<FrameSection*>& sec,
 		    BeamIntegration &beamIntegr,
-		    FrameTransform3d &coordTransf, double rho = 0.0, 
-		    int maxNumIters = 10, double tolerance = 1.0e-12, int cMass=0);
+		    FrameTransform3d &coordTransf, double density, 
+		    int maxNumIters, double tolerance,
+        int cMass, bool use_density
+        );
   
   ~ForceFrame3d();
 
@@ -61,10 +64,11 @@ class ForceFrame3d: public BasicFrame3d
   int revertToLastCommit();        
   int revertToStart();
   int update();    
-  
+
   virtual const Matrix &getMass() final;
+  virtual const Matrix &getTangentStiff() final;
+
   /*
-  const Matrix &getTangentStiff();
   const Matrix &getInitialStiff();
   const Matrix &getMass();    
 
@@ -113,17 +117,21 @@ class ForceFrame3d: public BasicFrame3d
         maxNumSections = 20,
         maxSubdivisions= 10;
   
-
-  void setSectionPointers(int numSections, FrameSection **secPtrs);
+  int setSectionPointers(std::vector<FrameSection*>&);
   int getInitialFlexibility(MatrixND<nq,nq> &fe);
   int getInitialDeformations(Vector &v0);
 
   void compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const;
   void initializeSectionHistoryVariables ();
   
-
   // Add section forces due to element loads
   void addLoadAtSection(VectorND<nsr> &sp, int isec);
+
+  // Sensitivity
+  int parameterID;
+  const Vector &computedqdh(int gradNumber);
+  const Matrix &computedfedh(int gradNumber);
+  void computeSectionForceSensitivity(Vector &dspdh, int isec, int gradNumber);
 
  
   //
@@ -135,6 +143,9 @@ class ForceFrame3d: public BasicFrame3d
   double total_mass;
   int  mass_flag;
   bool mass_initialized;
+  bool use_density;
+
+  Matrix *Ki;
 
   int    maxIters;               // maximum number of local iterations
   double tol;	                   // tolerance for relative energy norm for local iterations
@@ -146,7 +157,6 @@ class ForceFrame3d: public BasicFrame3d
   
   int    initialFlag;            // indicates if the element has been initialized
 
-  Matrix *Ki;
 
   static constexpr BasicForceLayout force_layout = {
   };
@@ -155,21 +165,29 @@ class ForceFrame3d: public BasicFrame3d
   //
   // Section State
   //
-  double wt[maxNumSections];
-  double xi[maxNumSections];
+//double wt[maxNumSections];
+//double xi[maxNumSections];
+
+  struct GaussPoint {
+    double point,
+           weight;
+    FrameSection* material;
+
+    MatrixND<nsr,nsr> fs;         // flexibility matrix
+    VectorND<nsr>     es;         // deformations
+    VectorND<nsr>     Ssr;        // stress resultants
+    VectorND<nsr> es_save;        // committed section deformations
+  };
+
+  std::vector<GaussPoint> points;
   BeamIntegration* beamIntegr;
-  int numSections;
-  FrameSection** sections;          // array of pointers to sections
+//FrameSection** sections;          // array of pointers to sections
+//int numSections;
   
-  MatrixND<nsr,nsr> *fs;         // array of section flexibility matrices
-  VectorND<nsr>     *es;         // array of section deformations
-  VectorND<nsr>     *Ssr;        // array of section stress resultants
-  VectorND<nsr> *es_save;        // array of committed section deformation vectors
 
-  static VectorND<nsr>      es_trial[maxNumSections]; //  strain
-  static VectorND<nsr>      sr_trial[maxNumSections]; //  stress resultant
-  static MatrixND<nsr,nsr>  Fs_trial[maxNumSections]; //  flexibility
-
+  //
+  // Other
+  //
   static constexpr FrameStressLayout scheme = {
     FrameStress::N,
     FrameStress::Vy,
@@ -179,18 +197,8 @@ class ForceFrame3d: public BasicFrame3d
     FrameStress::Mz,
   };
 
-  //
-  // Other
-  //
   static Matrix theMatrix;
   static Vector theVector;
-
-  // AddingSensitivity:BEGIN //////////////////////////////////////////
-  int parameterID;
-  const Vector &computedqdh(int gradNumber);
-  const Matrix &computedfedh(int gradNumber);
-  void computeSectionForceSensitivity(Vector &dspdh, int isec, int gradNumber);
-  // AddingSensitivity:END ///////////////////////////////////////////
 
 //void getForceInterpolatMatrix(double xi, Matrix &b, const ID &code);
 //void getDistrLoadInterpolatMatrix(double xi, Matrix &bp, const ID &code);

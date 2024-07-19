@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 /*
  * References
@@ -229,14 +230,14 @@ int
 ForceDeltaFrame3d::setNodes()
 {
   double L = this->getLength(State::Init);
-  double xi[maxNumSections];
   beamIntegr->getSectionLocations(numSections, L, xi);
 
-  double wt[maxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wt);
 
   if (initialFlag == 0)
     this->initializeSectionHistoryVariables();
+
+  return 0;
 }
 
 int
@@ -2673,7 +2674,7 @@ ForceDeltaFrame3d::Print(OPS_Stream& s, int flag)
   }
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\t{";
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
     s << "\"name\": " << this->getTag() << ", ";
     s << "\"type\": \"ForceDeltaFrame3d\", ";
     s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";

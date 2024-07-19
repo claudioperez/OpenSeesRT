@@ -24,6 +24,7 @@
 //
 // Description: This file contains the function to parse the TCL input
 // for the flatSliderBearing element.
+//
 #include <assert.h>
 #include <BasicModelBuilder.h>
 #include <tcl.h>
