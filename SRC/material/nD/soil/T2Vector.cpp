@@ -1,13 +1,10 @@
-// $Revision: 1.11 $
-// $Date: 2009-07-23 23:57:27 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/soil/T2Vector.cpp,v $
-                                                                        
+//
 // Written: ZHY
 // Created: August 2000
 
 //
 // T2Vector.cpp
-// ----------
+// ------------
 //
 
 #include <math.h>
@@ -98,14 +95,14 @@ void tensorProduct(Matrix & c, const Vector & a, const Vector & b)
 
 // T2Vector class methods
 T2Vector::T2Vector() 
-:theT2Vector(6), theDeviator(6), theVolume(0.0)
+: theT2Vector(6), theDeviator(6), theVolume(0.0)
 {
 	
 }
 
 
 T2Vector::T2Vector(const Vector &init, int isEngrgStrain)
-:theT2Vector(6), theDeviator(6), theVolume(0)
+: theT2Vector(6), theDeviator(6), theVolume(0)
 {
   assert(init.Size() == 6);
 
@@ -154,7 +151,7 @@ T2Vector::setData(const Vector &init, int isEngrgStrain)
 
   theT2Vector = init;
 
-  theVolume = (theT2Vector[0]+theT2Vector[1]+theT2Vector[2])/3.0;
+  theVolume = (theT2Vector[0] + theT2Vector[1]+theT2Vector[2])/3.0;
   for(int i=0; i<3; i++){
     theDeviator[i] = theT2Vector[i] - theVolume;
     theDeviator[i+3] = theT2Vector[i+3];
@@ -198,7 +195,8 @@ T2Vector::t2Vector(int isEngrgStrain) const
 
 const Vector & T2Vector::deviator(int isEngrgStrain) const
 {
-  if (isEngrgStrain==0) return theDeviator;
+  if (isEngrgStrain==0)
+    return theDeviator;
 
   engrgStrain = theDeviator;
   for(int i=0; i<3; i++){
@@ -309,51 +307,21 @@ T2Vector::operator == (const T2Vector & a) const
 }
 
 int 
-T2Vector::isZero(void) const
+T2Vector::isZero() const
 {
   for(int i=0; i<6; i++)
-    if(theT2Vector[i] != 0.0) return 0;
+    if(theT2Vector[i] != 0.0)
+      return 0;
 
   return 1;
 }
-int T2Vector::Zero(void)
+
+int
+T2Vector::Zero()
 {
   theT2Vector.Zero();
   theDeviator.Zero();
   theVolume=0.0;
 return 1;
 }
-
-
-/*********************
-ostream & operator<< (ostream & os, const T2Vector & a)
-{
-  os.precision(16);
-  os.setf(ios::showpoint);
-
-  os << "theT2Vector = " << a.t2Vector() << endln;
-  os << "theDeviator = " << a.deviator() << endln;
-  os << "theVolume = " << a.volume() << endln;
-
-  return os;
-}
-
-
-istream & operator>> (istream & is, T2Vector & a)
-{
-  Vector temp;
-
-  is >> temp;
-  a = T2Vector(temp);
-
-  return is;
-}
-*/
-
-
-
-
-
-
-
 
