@@ -669,7 +669,7 @@ void ASDShellT3::setDomain(Domain* theDomain)
         Vector3Type e1;
         if (m_local_x) {
             // user-defined (already normalized in c-tor)
-            e1 = Vector3Type(*m_local_x);
+            e1 = *m_local_x;
             // make sure it's on the reference x-y plane
             Vector3Type e3 = reference_cs.Vz();
             Vector3Type e2 = e3.cross(e1);
@@ -683,9 +683,9 @@ void ASDShellT3::setDomain(Domain* theDomain)
         }
         else {
             // default one
-            Vector3Type P1(m_transformation->getNodes()[0]->getCrds());
-            Vector3Type P2(m_transformation->getNodes()[1]->getCrds());
-            Vector3Type e1 = (P2 - P1) / 2.0;
+            const Vector& P1 = m_transformation->getNodes()[0]->getCrds();
+            const Vector& P2 = m_transformation->getNodes()[1]->getCrds();
+            e1 = (P2 - P1) / 2.0;
             e1.normalize();
         }
         m_angle = std::acos(std::max(-1.0, std::min(1.0, e1.dot(e1_local))));
