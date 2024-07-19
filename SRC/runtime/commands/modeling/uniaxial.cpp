@@ -13,7 +13,7 @@
 
 #include <G3_Logging.h>
 #include <iostream>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include "uniaxial.hpp"
 #include <packages.h>
 
