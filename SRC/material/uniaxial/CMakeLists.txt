@@ -258,6 +258,7 @@ target_link_libraries(OPS_Material PUBLIC OPS_Material_f)
 
 add_subdirectory(BoucWen)
 add_subdirectory(AxialSpring)
+add_subdirectory(AlgebraicHysteresis)
 add_subdirectory(backbone)
 add_subdirectory(bearing)
 add_subdirectory(stiffness)

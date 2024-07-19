@@ -19,7 +19,7 @@ set(OPS_SRC_DIR       "${CMAKE_CURRENT_LIST_DIR}/SRC/")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
                       "${CMAKE_CURRENT_LIST_DIR}/BuildTools/cmake")
 
-include(OpenSeesFunctions)
+# include(OpenSeesFunctions)
 
 enable_testing()
 
@@ -151,7 +151,6 @@ elseif (WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
   message(STATUS ":: WIN32")
 endif()
 
-
 # Check for IPO and maybe use it; this can significantly slow down linking 
 # and can be problematic on slow or memory constrained machines (e.g., my laptop)
 include(CheckIPOSupported)
@@ -210,6 +209,9 @@ include_directories(
 
   ${OPS_SRC_DIR}/api
 
+  ${OPS_SRC_DIR}/tagged
+  ${OPS_SRC_DIR}/tagged/storage
+
   ${OPS_SRC_DIR}/database
 
   ${OPS_SRC_DIR}/domain/constraints
@@ -224,6 +226,9 @@ include_directories(
   ${OPS_SRC_DIR}/domain/region
   ${OPS_SRC_DIR}/domain/subdomain
 
+  ${OPS_SRC_DIR}/recorder
+  ${OPS_SRC_DIR}/recorder/response
+
   ${OPS_SRC_DIR}/element
   ${OPS_SRC_DIR}/graph/graph
   ${OPS_SRC_DIR}/graph/numberer
@@ -235,29 +240,18 @@ include_directories(
   ${OPS_SRC_DIR}/material/section/yieldSurface
   ${OPS_SRC_DIR}/material/uniaxial
   ${OPS_SRC_DIR}/matrix
-  ${OPS_SRC_DIR}/recorder
-  ${OPS_SRC_DIR}/recorder/response
   ${OPS_SRC_DIR}/system_of_eqn
   ${OPS_SRC_DIR}/system_of_eqn/linearSOE
   ${OPS_SRC_DIR}/system_of_eqn/eigenSOE
-  ${OPS_SRC_DIR}/tagged
-  ${OPS_SRC_DIR}/tagged/storage
-  ${OPS_SRC_DIR}/utility
 
   ${OPS_SRC_DIR}/analysis/algorithm
-  ${OPS_SRC_DIR}/analysis/algorithm/domainDecompAlgo
-  ${OPS_SRC_DIR}/analysis/algorithm/eigenAlgo
-  ${OPS_SRC_DIR}/analysis/algorithm/equiSolnAlgo
-  ${OPS_SRC_DIR}/analysis/algorithm/equiSolnAlgo/accelerator
   ${OPS_SRC_DIR}/analysis/analysis
   ${OPS_SRC_DIR}/analysis/dof_grp
   ${OPS_SRC_DIR}/analysis/fe_ele
   ${OPS_SRC_DIR}/analysis/handler
   ${OPS_SRC_DIR}/analysis/numberer
   ${OPS_SRC_DIR}/analysis/integrator
-  ${OPS_SRC_DIR}/analysis/model
-
-  ${OPS_SRC_DIR}/runtime
+  ${OPS_SRC_DIR}/runtime/runtime/Renderer
 
 )
 
@@ -360,7 +354,8 @@ target_link_libraries(OPS_Material     PRIVATE ${TCL_STUB_LIBRARY})
 
 # G3
 #----------------------------
-target_link_libraries(G3 PUBLIC
+target_link_libraries(G3
+  PUBLIC
     OPS_Database
     OPS_Matrix
     OPS_Actor
@@ -396,8 +391,6 @@ target_link_libraries(G3 PUBLIC
 #
 #==============================================================================
 
-
-
 # Extensions
 #----------------------------
 message(":: Configuring OpenSees extensions")
@@ -424,7 +417,7 @@ endif()
 
 # HDF5
 #----------------------------
-if(FALSE)
+if (FALSE)
    find_package(HDF5)
     if(HDF5_FOUND)
         include_directories(${HDF5_INCLUDE_DIR})
