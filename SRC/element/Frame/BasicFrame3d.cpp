@@ -27,14 +27,6 @@ BasicFrame3d::update()
 }
 
 
-VectorND<12>
-BasicFrame3d::getForce(State state, int rate)
-{
-  // TODO: Implement getForce?
-  VectorND<12> p;
-  return p;
-}
-
 double
 BasicFrame3d::getLength(State state)
 {
@@ -62,9 +54,8 @@ BasicFrame3d::setNodes()
 const Vector &
 BasicFrame3d::getResistingForce()
 {
+#if 1
   VectorND<6> q  = this->getBasicForce();
-
-//    q += q0; // TODO!!! move this into PrismFrame and maybe DisplFrame 
 
   double q0 = q[0];
   double q1 = q[1];
@@ -107,13 +98,17 @@ BasicFrame3d::getResistingForce()
     P.addVector(1.0, p_iner, -1.0);
 
   return P;
+#endif
 }
 
 const Matrix &
 BasicFrame3d::getTangentStiff()
 {
+
   VectorND<6>   q  = this->getBasicForce();
   MatrixND<6,6> kb = this->getBasicTangent(State::Pres, 0);
+
+  return theCoordTransf->getGlobalStiffMatrix(Matrix(kb), Vector(q));
 //    q += q0; // TODO!!! move this into PrismFrame and maybe DisplFrame
 
   double q0 = q[0];
@@ -353,6 +348,15 @@ int
 BasicFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
 {
   //
+  // TODO:
+  //
+  // maintain map: {theLoad->getTag() : (theLoad, p0, q0, factor)}
+  // if load not already in map, then integrate to get the shape;
+  // otherwise just set the load factor
+  //
+
+
+  //
   // a. Store the load for computeReactions()
   //
   eleLoads.push_back({theLoad, loadFactor});
@@ -410,47 +414,48 @@ BasicFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
       q0[3] += wz*L*L/8;
     }
   }
+
   else if (type == LOAD_TAG_Beam3dPartialUniformLoad) {
-          double wa = data(2) * loadFactor;  // Axial
-          double wy = data(0) * loadFactor;  // Transverse
-          double wz = data(1) * loadFactor;  // Transverse
-          double a = data(3) * L;
-          double b = data(4) * L;
-          double c = 0.5 * (b + a);
-          double cOverL = c / L;
+      double wa = data(2) * loadFactor;  // Axial
+      double wy = data(0) * loadFactor;  // Transverse
+      double wz = data(1) * loadFactor;  // Transverse
+      double a = data(3) * L;
+      double b = data(4) * L;
+      double c = 0.5 * (b + a);
+      double cOverL = c / L;
 
-          double P = wa * (b - a);
-          double Fy = wy * (b - a);
-          double Fz = wz * (b - a);
+      double P = wa * (b - a);
+      double Fy = wy * (b - a);
+      double Fz = wz * (b - a);
 
-          // Reactions in basic system
-          p0[0] -= P;
-          double V1, V2;
-          V1 = Fy * (1.0 - cOverL);
-          V2 = Fy * cOverL;
-          p0[1] -= V1;
-          p0[2] -= V2;
-          V1 = Fz * (1.0 - cOverL);
-          V2 = Fz * cOverL;
-          p0[3] -= V1;
-          p0[4] -= V2;
+      // Reactions in basic system
+      p0[0] -= P;
+      double V1, V2;
+      V1 = Fy * (1.0 - cOverL);
+      V2 = Fy * cOverL;
+      p0[1] -= V1;
+      p0[2] -= V2;
+      V1 = Fz * (1.0 - cOverL);
+      V2 = Fz * cOverL;
+      p0[3] -= V1;
+      p0[4] -= V2;
 
-          // Fixed end forces in basic system
-          q0[0] -= P * cOverL;
-          double beta2 = (1 - cOverL) * (1 - cOverL);
-          double alfa2 = (cOverL) * (cOverL);
-          double gamma2 = (b - a) / L;
-          gamma2 *= gamma2;
+      // Fixed end forces in basic system
+      q0[0] -= P * cOverL;
+      double beta2 = (1 - cOverL) * (1 - cOverL);
+      double alfa2 = (cOverL) * (cOverL);
+      double gamma2 = (b - a) / L;
+      gamma2 *= gamma2;
 
-          double M1, M2;
-          M1 = -wy * (b - a) * (c * beta2 + gamma2 / 12.0 * (L - 3 * (L - c)));
-          M2 = wy * (b - a) * ((L - c) * alfa2 + gamma2 / 12.0 * (L - 3 * c));
-          q0[1] += M1;
-          q0[2] += M2;
-          M1 = -wz * (b - a) * (c * beta2 + gamma2 / 12.0 * (L - 3 * (L - c)));
-          M2 = wz * (b - a) * ((L - c) * alfa2 + gamma2 / 12.0 * (L - 3 * c));
-          q0[3] -= M1;
-          q0[4] -= M2;
+      double M1, M2;
+      M1 = -wy * (b - a) * (c * beta2 + gamma2 / 12.0 * (L - 3 * (L - c)));
+      M2 = wy * (b - a) * ((L - c) * alfa2 + gamma2 / 12.0 * (L - 3 * c));
+      q0[1] += M1;
+      q0[2] += M2;
+      M1 = -wz * (b - a) * (c * beta2 + gamma2 / 12.0 * (L - 3 * (L - c)));
+      M2 = wz * (b - a) * ((L - c) * alfa2 + gamma2 / 12.0 * (L - 3 * c));
+      q0[3] -= M1;
+      q0[4] -= M2;
   }
 
   else if (type == LOAD_TAG_Beam3dPointLoad) {

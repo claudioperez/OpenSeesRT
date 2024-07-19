@@ -59,17 +59,24 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
     // For FiniteElement
     //
     virtual int             setNodes();
-    virtual VectorND<12>    getForce(State state, int rate) override final;
+#ifdef FEFT
+    virtual VectorND<12>    getForce(State state, int rate) override final {
+      // TODO: Implement getForce?
+      VectorND<12> p;
+      return p;
+    }
     virtual MatrixND<12,12> getTangent(State state, int rate) override final {
       MatrixND<12,12> K;
       return K;
     }
+#endif
 
     //
     // For Element
     //
     virtual int   update();
-    virtual const Matrix &getTangentStiff() final;
+    virtual const Matrix &getTangentStiff();
+    virtual const Matrix &getMass();
     virtual const Vector &getResistingForce() final;
 
     virtual void  zeroLoad() final;
@@ -78,7 +85,6 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
     virtual int   addInertiaLoadToUnbalance(const Vector &accel) final;
     virtual const Vector &getResistingForceIncInertia() final;
     virtual const Matrix &getInitialStiff() final;
-    virtual const Matrix &getMass();
 
     // Sensitivity
     const Matrix & getMassSensitivity(int gradNumber);
@@ -118,6 +124,7 @@ protected:
    double wz;
 
    std::vector<std::pair<ElementalLoad*,double>> eleLoads;
+
 
 
   private:
