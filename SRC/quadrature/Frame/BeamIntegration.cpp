@@ -22,33 +22,6 @@
 #include <Matrix.h>
 
 
-#if 0
-#include <MapOfTaggedObjects.h>
-static MapOfTaggedObjects theBeamIntegrationRuleObjects;
-
-bool OPS_addBeamIntegrationRule(BeamIntegrationRule *newComponent) {
-  return theBeamIntegrationRuleObjects.addComponent(newComponent);
-}
-BeamIntegrationRule *
-OPS_getBeamIntegrationRule(int tag) {
-
-  TaggedObject *theResult = theBeamIntegrationRuleObjects.getComponentPtr(tag);
-  if (theResult == 0) {
-    opserr << "BeamIntegrationRule - none found with tag: " << tag << endln;
-    return 0;
-  }
-  BeamIntegrationRule *theMat = (BeamIntegrationRule *)theResult;
-
-  return theMat;
-}
-
-void
-OPS_ADD_RUNTIME_VXV(OPS_clearAllBeamIntegrationRule)
-{
-  theBeamIntegrationRuleObjects.clearAll();
-}
-#endif
-
 BeamIntegration::BeamIntegration(int classTag):
   MovableObject(classTag)
 {
