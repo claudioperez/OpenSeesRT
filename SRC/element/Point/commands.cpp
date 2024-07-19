@@ -26,6 +26,7 @@
 #include <Domain.h>
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
+#include <FrameSection.h>
 #include <SectionForceDeformation.h>
 
 
