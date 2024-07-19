@@ -22,7 +22,7 @@
 // Modified:  Nov.    2002,  Zhaohui  Yang and Boris Jeremic added Plastic Bowl
 // loading (aka Domain Reduction Method) commands
 //
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #include <runtimeAPI.h>
 #include <Domain.h>

@@ -136,6 +136,7 @@ Matrix::Matrix(Matrix &&other)
   other.dataSize = 0;
   other.data     = nullptr;
   other.fromFree = 1;
+  throw std::runtime_error("error");
 }
 #endif
 
@@ -505,6 +506,10 @@ Matrix::addMatrix(const Matrix &other, double factOther)
     assert(other.numRows == numRows);
     assert(other.numCols == numCols);
 
+    if (factOther == 0.0)
+      return 0;
+
+
     // want: this += other * factOther
     if (factOther == 1.0) {
       double *dataPtr = data;
@@ -521,6 +526,8 @@ Matrix::addMatrix(const Matrix &other, double factOther)
     return 0;
 }
 
+#include <stdexcept>
+
 int
 Matrix::addMatrix(double factThis, const Matrix &other, double factOther)
 {
@@ -529,6 +536,9 @@ Matrix::addMatrix(double factThis, const Matrix &other, double factOther)
 
     if (factThis == 1.0 && factOther == 0.0)
       return 0;
+
+    if (other.data == nullptr)
+      throw std::runtime_error("error");
 
     if (factThis == 1.0) {
       // want: this += other * factOther
@@ -1036,11 +1046,6 @@ Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact)
         (*this)(pos_Rows,pos_Cols) += V(j,i)*fact;
      }
   }  
-//else {
-//   opserr << "WARNING: Matrix::Assemble(const Matrix &V, int init_row, int init_col, double fact): ";
-//   opserr << "position outside bounds \n";
-//   res = -1;
-//}
 
   return res;
 }
@@ -1185,7 +1190,7 @@ Matrix::operator=(const Matrix &other)
     return *this;
 
   if ((numCols != other.numCols) || (numRows != other.numRows)) {
-#ifdef _G3DEBUG    
+#ifdef _G3DEBUG
       opserr << "Matrix::operator=() - matrix dimensions do not match\n";
 #endif
 
@@ -1222,7 +1227,6 @@ Matrix::operator=( Matrix &&other)
   // first check we are not trying other = other
   if (this == &other) 
     return *this;
-
 
   if (this->data != 0 && fromFree == 0){
     delete [] this->data;
@@ -1452,6 +1456,7 @@ Matrix::operator^(const Matrix &M) const
 #ifdef MATRIX_BLAS
   result.addMatrixTransposeProduct(0.0, *this, M, 1.0);
 #else
+
   if (numRows != M.numRows || result.numRows != numCols) {
     opserr << "Matrix::operator*(Matrix): incompatable sizes\n";
     return result;
@@ -1549,10 +1554,6 @@ Vector Matrix::diagonal() const
 {
   
   assert(numRows == numCols);
-/*{
-    opserr << "Matrix::diagonal() - Matrix is not square numRows = " << numRows 
-           << " numCols = " << numCols << " returning truncated diagonal." << endln;
-  }*/
 
   int size = numRows < numCols ? numRows : numCols;
   Vector diagonal(size);

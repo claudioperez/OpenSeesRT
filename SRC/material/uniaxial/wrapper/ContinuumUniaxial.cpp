@@ -27,7 +27,7 @@
 // Created: June 2002
 //
 #include <ContinuumUniaxial.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <NDMaterial.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>

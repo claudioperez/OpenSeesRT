@@ -42,8 +42,8 @@ namespace OpenSees {
   template<int n, typename T> struct VectorND;
   template<int, int, typename T> struct MatrixND;
 };
-class Vector3D;
-
+// struct Vector3D;
+using Vector3D = OpenSees::VectorND<3,double>;
 
 class Matrix
 {
@@ -157,8 +157,8 @@ class Matrix
     Matrix operator/(double fact) const;
     
     // Matrix-vector operations
-    Vector operator^(const Vector           &V) const;
-    Vector operator*(const Vector           &V) const;
+    Vector operator^(const Vector &V) const;
+    Vector operator*(const Vector &V) const;
     Vector operator*(const Vector3D &V) const;
 
     

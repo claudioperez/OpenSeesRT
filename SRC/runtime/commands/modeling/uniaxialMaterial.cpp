@@ -14,7 +14,7 @@
 #include <tcl.h>
 #include <runtimeAPI.h>
 #include <elementAPI.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include <Elastic2Material.h>   // ZHY
 #include <HardeningMaterial.h>  // MHS
 #include <HardeningMaterial2.h> // MHS
@@ -81,7 +81,6 @@ extern OPS_Routine OPS_FRPConfinedConcrete;
 extern OPS_Routine OPS_FRPConfinedConcrete02;
 extern OPS_Routine OPS_UVCuniaxial;
 extern OPS_Routine OPS_Steel01Thermal;
-extern OPS_Routine OPS_Steel02Thermal;
 extern OPS_Routine OPS_Concrete02Thermal;
 extern OPS_Routine OPS_StainlessECThermal;     // L.Jiang [SIF]
 extern OPS_Routine OPS_SteelECThermal;         // L.Jiang [SIF]

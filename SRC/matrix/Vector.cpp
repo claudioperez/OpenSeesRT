@@ -41,7 +41,7 @@
 //        Standard constructor, sets size = 0;
 
 Vector::Vector()
-: sz(0), theData(0), fromFree(0)
+: sz(0), theData(nullptr), fromFree(0)
 {
 
 }
@@ -50,18 +50,17 @@ Vector::Vector()
 //        Constructor used to allocate a vector of size size.
 
 Vector::Vector(int size)
-: sz(size), theData(0), fromFree(0)
+: sz(size), theData(nullptr), fromFree(0)
 {
   assert(size >= 0);
 
   // get some space for the vector
-  //  theData = (double *)malloc(size*sizeof(double));
   if (size > 0)
     theData = new double [size]{};
 }
 
 Vector::Vector(std::shared_ptr<double[]> data, int size)
-: sz(size), theData(0), fromFree(0)
+: sz(size), theData(nullptr), fromFree(0)
 {
   if (size > 0) {
     theData = new double [size];
@@ -72,17 +71,10 @@ Vector::Vector(std::shared_ptr<double[]> data, int size)
 }
 
 
-// Vector::Vector(double *data, int size)
-
 Vector::Vector(double *data, int size)
 : sz(size),theData(data),fromFree(1)
 {
-#ifdef _G3DEBUG
-  if (sz <= 0) {
-    opserr << "Vector::Vector(double *, size) - size " << size << " specified <= 0\n";
-    sz = 0;
-  }
-#endif
+  assert(sz >= 0);
 }
  
 
@@ -112,8 +104,6 @@ Vector::Vector(Vector &&other)
 #endif
 
 
-// ~Vector():
-//         destructor, deletes the [] data
 
 Vector::~Vector()
 {
@@ -124,16 +114,9 @@ Vector::~Vector()
 
 
 int 
-Vector::setData(double *newData, int size){
-//assert(size >= 0);
+Vector::setData(double *newData, int size)
+{
   assert(size >  0);
-#if 0
-  if (size <= 0) {
-    opserr << " Vector::Vector(double *, size) - size specified: " << size << " <= 0\n";
-    size = 0;
-  }
-#endif
-
 
   if (theData != nullptr && fromFree == 0) {
     delete [] theData;      
@@ -147,9 +130,19 @@ Vector::setData(double *newData, int size){
 }
 
 
+Vector
+Vector::view(int start, int end) const
+{
+  assert(end < sz);
+  assert(start < sz);
+
+  return Vector (&(this->theData[start]), end-start);
+}
+ 
 
 int 
-Vector::resize(int newSize){
+Vector::resize(int newSize)
+{
   // first check that newSize is valid
   assert(newSize >= 0);
   
@@ -207,7 +200,7 @@ Vector::Assemble(const Vector &V, const ID &l, double fact )
     
 
 int
-Vector::Normalize(void) 
+Vector::Normalize() 
 {
   double length = Norm();
   /*
@@ -635,14 +628,11 @@ Vector::addMatrixTransposeVector(double thisFact,
 }
         
         
-
-
-
 // double Norm();
-//        Method to return the norm of  vector. (non-const as may save norm for later)
+//  return the norm of  vector. (non-const as may save norm for later)
 
 double
-Vector::Norm(void) const
+Vector::Norm() const
 {
   double value = 0;
   for (int i=0; i<sz; i++) {
@@ -702,7 +692,7 @@ Vector::operator[](int x)
 
 
 // operator()(const ID &rows) const
-//        Method to return a vector whose components are the components of the
+//  return a vector whose components are the components of the
 //        current vector located in positions given by the ID rows.
 Vector 
 Vector::operator()(const ID &rows) const
@@ -953,7 +943,7 @@ Vector::operator-(const Vector &b) const
 
 
 // double operator^(const Vector &V) const;
-//        Method to perform (Vector)transposed * vector.
+//  perform (Vector)transposed * vector.
 double
 Vector::operator^(const Vector &V) const
 {
@@ -970,7 +960,7 @@ Vector::operator^(const Vector &V) const
 
 
 // Vector operator/(const Matrix &M) const;    
-//        Method to return inv(M)*this
+//  return inv(M)*this
 #if 1
 Vector
 Vector::operator/(const Matrix &M) const
@@ -990,8 +980,8 @@ Vector::operator/(const Matrix &M) const
     
         
 // Vector operator==(const Vector &V):
-//        The == operator checks the two vectors are of the same size if VECTOR_CHECK is defined.
-//         Then returns 1 if all the components of the two vectors are equal and 0 otherwise.
+//    The == operator checks the two vectors are of the same size if VECTOR_CHECK is defined.
+//    Then returns 1 if all the components of the two vectors are equal and 0 otherwise.
 
 int 
 Vector::operator==(const Vector &V) const
@@ -1023,8 +1013,8 @@ Vector::operator==(double value) const
 
 
 // Vector operator!=(const Vector &V):
-//        The != operator checks the two vectors are of the same size if VECTOR_CHECK is defined.
-//         Then returns 1 if any of the components of the two vectors are unequal and 0 otherwise.
+//  The != operator checks the two vectors are of the same size if VECTOR_CHECK is defined.
+//  Then returns 1 if any of the components of the two vectors are unequal and 0 otherwise.
 
 int
 Vector::operator!=(const Vector &V) const

@@ -84,6 +84,7 @@ struct MatrixND {
     addMatrixTripleProduct(double thisFact, const MatrixND<nk, NR, T> &, const MatrixND<nk, nk, T>&, double scale);
 
   int invert(MatrixND<NR, NC> &) const;
+  int invert() {return Matrix(*this).Invert();};
 
 //template<class VecT>
 //void addSpinAtRow(const VecT& V, size_t row_index);
@@ -227,19 +228,6 @@ struct MatrixND {
   }
 
 #if 0
-  int invert(MatrixND<NR,NC> &res) const
-  {
-    return 0;
-  }
-  int invert(Matrix &res) const
-  {
-    return 0;
-  }
-  int invert()
-  {
-    return 0;
-  }
-
   int addMatrix(double alpha, const MatrixND &other, double beta) {
   }
 
@@ -501,6 +489,18 @@ struct MatrixND {
     return out << "}\n";
   }
 }; // class MatrixND
+
+#if 0
+template<int n>
+inline int
+MatrixND<n,n>::invert(MatrixND<n,n>& M) const
+//requires(n > 6)
+{
+  const Matrix A(*this);
+  Matrix B(M);
+  return A.Invert(B);
+}
+#endif
 
 template<> inline int
 MatrixND<6,6>::invert(MatrixND<6,6> &M) const

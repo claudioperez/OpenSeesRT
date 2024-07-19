@@ -37,7 +37,6 @@ class Channel;
 class Information;
 class CrdTransf;
 class Response;
-class Renderer;
 class UniaxialMaterial;
 
 class ComponentElement2d : public Element
@@ -83,7 +82,6 @@ class ComponentElement2d : public Element
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
     
     void Print(OPS_Stream &s, int flag = 0);    
-    int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes = 0, int numModes = 0);
 
     Response *setResponse (const char **argv, int argc, OPS_Stream &s);
     int getResponse (int responseID, Information &info);

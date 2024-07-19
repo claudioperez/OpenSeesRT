@@ -1,3 +1,8 @@
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Claudio Perez
 //
@@ -19,8 +24,6 @@ public:
   template<class VecT> void addSpinProduct(const VecT& a, const Vector3D& b, const double scale);
   template<class VecT> void addMatrixSpinProduct(const Matrix3D& A, const VecT& b, const double scale);
   template<class MatT> void addSpinMatrixProduct(const Vector3D& a, const MatT& B, const double scale);
-  // inline void addEye(Vector3D& v, double scale);
-  // void addDev;
 
   Vector3D operator*(const Vector3D&v);
 
@@ -38,7 +41,7 @@ public:
       { A(0,2)+B(0,2), A(1,2)+B(1,2), A(2,2)+B(2,2) }
     }}};
   }
-#if 0
+
   Matrix3D bun(const Vector3D& a, const Vector3D &b)
   {
     return Matrix3D {{{
@@ -47,17 +50,17 @@ public:
       {a[0]*b[2], a[1]*b[2], a[2]*b[2]}
     }}};
   }
-#endif
+
 };
 
 inline Vector3D
 Matrix3D::operator*(const Vector3D&v)
 {
-  return Vector3D {
+  return Vector3D {{
     (*this)(0,0)*v[0] + (*this)(0,1)*v[1] + (*this)(0,2)*v[2],
     (*this)(1,0)*v[0] + (*this)(1,1)*v[1] + (*this)(1,2)*v[2],
     (*this)(2,0)*v[0] + (*this)(2,1)*v[1] + (*this)(2,2)*v[2]
-  };
+  }};
 }
 
 

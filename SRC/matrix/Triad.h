@@ -1,3 +1,11 @@
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
+//
+//
+//
 #ifndef Triad_H
 #define Triad_H
 #include <Matrix.h>
