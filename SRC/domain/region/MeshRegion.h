@@ -17,26 +17,20 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2003-02-14 23:01:02 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/region/MeshRegion.h,v $
-                                                                        
-                                                                        
-// Written: fmk 
 //
 // Description: This file contains the class definition for MeshRegion.
 // A Region is a part of the domain which is defined by a set of
 // Elements and Nodes (all the end nodes of the elements are in the region, 
 // as are all elements whose end nodes are in the region)
 //
-// What: "@(#) Region.h, revA"
-
+// Written: fmk 
+//
 #ifndef MeshRegion_h
 #define MeshRegion_h
 
 #include <DomainComponent.h>
 #include <ID.h>
+#include <vector>
 
 class Element;
 class Node;
@@ -51,27 +45,28 @@ class MeshRegion : public DomainComponent
     virtual ~MeshRegion();
 
     // methods dealing with setting up the region
-    virtual int setNodes(const ID &theNodes);
-    virtual int setNodesOnly(const ID &theNodes);
-    virtual int setElements(const ID &theEles);
+    virtual int setNodes(const ID &theNodes) final;
+    virtual int setNodesOnly(const ID &theNodes) final;
+    virtual int setElements(const ID &theEles) final;
+    virtual int setElements(const std::vector<int> &theEles);
     virtual int setElementsOnly(const ID &theEles);
     virtual void setExtraEles(const ID& theEles) {xEles=theEles;}
 
     // methods getting the ID's of nodes & ele
-    virtual const ID &getNodes(void);
-    virtual const ID &getElements(void);
+    virtual const ID &getNodes();
+    virtual const ID &getElements();
     virtual const ID &getExtraEles() const {return xEles;}
 
     // methods dealing with setting parameters in the region
     virtual int setRayleighDampingFactors(double alphaM, 
-					  double betaK, 
-					  double betaK0,
-					  double betaKc);
+                                          double betaK, 
+                                          double betaK0,
+                                          double betaKc);
 
     // methods to send & recv data for database/parallel applications
     virtual int sendSelf(int commitTag, Channel &theChannel);
     virtual int recvSelf(int commitTag, Channel &theChannel, 
-			 FEM_ObjectBroker &theBroker);
+                         FEM_ObjectBroker &theBroker);
     virtual void Print(OPS_Stream &s, int flag =0);       
 
   protected:
@@ -83,8 +78,8 @@ class MeshRegion : public DomainComponent
     ID *theElements;
     ID xEles;
 
-    int	   currentGeoTag;
-    int    lastGeoSendTag;
+    int currentGeoTag;
+    int lastGeoSendTag;
     int dbNod;
     int dbEle;
 };
