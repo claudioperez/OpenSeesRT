@@ -470,20 +470,12 @@ TclCommand_addZeroLengthSection(ClientData clientData, Tcl_Interp *interp,
   //
   // now we create the element and add it to the domain
   //
-
-  SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(secTag);
-
-  if (theSection == 0) {
-    opserr << "zeroLengthSection -- no section with tag " << secTag
-           << " exists in Domain\n";
+  SectionForceDeformation *theSection = builder->getTypedObject<FrameSection>(secTag);
+  if (theSection == nullptr)
     return TCL_ERROR;
-  }
 
   Element *theEle = new ZeroLengthSection(eleTag, ndm, iNode, jNode, x, y,
                                           *theSection, doRayleighDamping);
-
-  if (theEle == 0)
-    return TCL_ERROR;
 
   if (domain->addElement(theEle) == false)
     return TCL_ERROR;
