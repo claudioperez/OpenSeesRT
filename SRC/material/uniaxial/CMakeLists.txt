@@ -265,6 +265,7 @@ add_subdirectory(stiffness)
 add_subdirectory(strength)
 add_subdirectory(unloading)
 add_subdirectory(limitState)
+add_subdirectory(Parallel)
 add_subdirectory(concrete)
 add_subdirectory(steel)
 

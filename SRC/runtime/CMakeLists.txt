@@ -81,3 +81,7 @@ if (FALSE) # (MPI_FOUND)
   target_sources(OpenSeesRT_Parallel PRIVATE OpenSeesPRT.cpp)
 endif()
 
+
+if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/packages/UCSD_CompGeoMech/CMakeLists.txt)
+  add_subdirectory(packages/UCSD_CompGeoMech)
+endif ()
