@@ -139,9 +139,9 @@ public:
         // the reference coordinate system in the underformed configuration
         // using the default alignment to the first column of the jacobian at center
         return ASDShellT3LocalCoordinateSystem(
-            Vector3Type(m_nodes[0]->getCrds()),
-            Vector3Type(m_nodes[1]->getCrds()),
-            Vector3Type(m_nodes[2]->getCrds())
+            m_nodes[0]->getCrds(),
+            m_nodes[1]->getCrds(),
+            m_nodes[2]->getCrds()
         );
     }
 
