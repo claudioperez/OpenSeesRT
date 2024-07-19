@@ -15,6 +15,7 @@
 #include <Domain.h>
 #include <assert.h>
 #include <stdio.h>
+#include <unordered_map>
 
 #include <G3_Logging.h>
 // Abstract classes
@@ -55,6 +56,14 @@
 #include <PlainHandler.h>
 #include <TransformationConstraintHandler.h>
 
+
+static std::unordered_map<int, std::string> SolveFailedMessage {
+   {SolutionAlgorithm::BadFormResidual, "Failed to form residual\n"},
+   {SolutionAlgorithm::BadFormTangent,  "Failed to form tangent\n"},
+   {SolutionAlgorithm::BadLinearSolve,  "Failed to solve system, tangent may be singular\n"},
+// {SolutionAlgorithm::TestFailed,      ""},// no output; information will have been printed by the test
+   {SolutionAlgorithm::BadTestStart,    "Failed to initialize the convergence test\n"},
+};
 
 BasicAnalysisBuilder::BasicAnalysisBuilder(Domain* domain)
 :
@@ -367,26 +376,9 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
 
       result = theAlgorithm->solveCurrentStep();
       if (result < 0) {
-        switch (result) {
-          case SolutionAlgorithm::BadFormResidual:
-            opserr << OpenSees::PromptAnalysisFailure
-                   << "Failed to form residual\n";
-            break;
-          case SolutionAlgorithm::BadFormTangent:
-            opserr << OpenSees::PromptAnalysisFailure
-                   << "Failed to form tangent\n";
-            break;
-          case SolutionAlgorithm::BadLinearSolve:
-            opserr << OpenSees::PromptAnalysisFailure
-                   << "Failed to solve system, tangent may be singular\n";
-            break;
-          case SolutionAlgorithm::TestFailed:
-            // no output; information will have been printed 
-            // by the test
-            break;
-          case SolutionAlgorithm::BadTestStart:
-            opserr << "Failed to initialize the convergence test\n";
-            break;
+        // Print error message if we have one
+        if (SolveFailedMessage.find(result) != SolveFailedMessage.end()) {
+            opserr << OpenSees::PromptAnalysisFailure << SolveFailedMessage[result];
         }
         theDomain->revertToLastCommit();
         theStaticIntegrator->revertToLastStep();
@@ -482,8 +474,9 @@ BasicAnalysisBuilder::analyzeStep(double dT)
 
   result = theAlgorithm->solveCurrentStep();
   if (result < 0) {
-//  opserr << "DirectIntegrationAnalysis::analyze() - the Algorithm failed";
-//  opserr << " at time " << theDomain->getCurrentTime() << endln;
+    if (SolveFailedMessage.find(result) != SolveFailedMessage.end()) {
+        opserr << OpenSees::PromptAnalysisFailure << SolveFailedMessage[result];
+    }
     theDomain->revertToLastCommit();
     theTransientIntegrator->revertToLastStep();
     return -3;
