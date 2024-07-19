@@ -4,7 +4,7 @@
 
 #include "Isotropic2D01.h"
 #include <math.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 #define evolDebug 0
 #define ISOTROPIC2D01_CLASSTAG 1

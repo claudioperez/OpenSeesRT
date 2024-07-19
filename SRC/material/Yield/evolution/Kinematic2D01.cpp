@@ -6,7 +6,7 @@
 #include <math.h>
 #include <TaggedObject.h>
 #include <OPS_Stream.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 #define evolDebug 0
 #define KINEMATIC2D01_CLASSTAG -1
