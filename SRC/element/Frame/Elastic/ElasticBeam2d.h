@@ -31,6 +31,8 @@
 #include <Node.h>
 #include <Matrix.h>
 #include <Vector.h>
+#include <MatrixND.h>
+#include <VectorND.h>
 
 class Channel;
 class Information;
@@ -55,31 +57,31 @@ class ElasticBeam2d : public Element
 
     ~ElasticBeam2d();
 
-    const char *getClassType(void) const {return "ElasticBeam2d";};
+    const char *getClassType() const {return "ElasticBeam2d";};
     static constexpr const char* class_name = "ElasticBeam2d";
 
-    int getNumExternalNodes(void) const;
-    const ID &getExternalNodes(void);
-    Node **getNodePtrs(void);
+    int getNumExternalNodes() const;
+    const ID &getExternalNodes();
+    Node **getNodePtrs();
 
-    int getNumDOF(void);
+    int getNumDOF();
     void setDomain(Domain *theDomain);
     
-    int commitState(void);
-    int revertToLastCommit(void);        
-    int revertToStart(void);
+    int commitState();
+    int revertToLastCommit();        
+    int revertToStart();
     
-    int update(void);
-    const Matrix &getTangentStiff(void);
-    const Matrix &getInitialStiff(void);
-    const Matrix &getMass(void);    
+    int update();
+    const Matrix &getTangentStiff();
+    const Matrix &getInitialStiff();
+    const Matrix &getMass();    
 
-    void zeroLoad(void);	
+    void zeroLoad();	
     int addLoad(ElementalLoad *theLoad, double loadFactor);
     int addInertiaLoadToUnbalance(const Vector &accel);
 
-    const Vector &getResistingForce(void);
-    const Vector &getResistingForceIncInertia(void);            
+    const Vector &getResistingForce();
+    const Vector &getResistingForceIncInertia();            
     
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
@@ -94,26 +96,29 @@ class ElasticBeam2d : public Element
 
   private:
     double A,E,I;     // area, elastic modulus, moment of inertia
-    double alpha, d;  // coeff. of thermal expansion, depth
+    double alpha,     // coeff. of thermal expansion,
+           depth;     // depth
     double rho;       // mass per unit length
     int cMass;        // consistent mass flag
 
     int release;      // moment release 0=none, 1=I, 2=J, 3=I,J
-    
-    static Matrix K;
-    static Vector P;
-    Vector Q;
-    
-    static Matrix kb;
-    Vector q;
-    double q0[3];  // Fixed end forces in basic system
-    double p0[3];  // Reactions in basic system
+                      //
+    Vector Q;    
+    OpenSees::MatrixND<3,3> kb;
+    OpenSees::MatrixND<6,6> M;   // mass matrix
+
+    OpenSees::VectorND<3>   q;
+    OpenSees::VectorND<3>   q0;  // Fixed end forces in basic system
+    OpenSees::VectorND<3>   p0;  // Reactions in basic system
     
     Node *theNodes[2];
     
     ID  connectedExternalNodes;    
 
     CrdTransf *theCoordTransf;
+    
+    static Matrix K;
+    static Vector P;
 };
 
 #endif
