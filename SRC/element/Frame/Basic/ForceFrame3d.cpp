@@ -408,27 +408,29 @@ ForceFrame3d::getMass()
     }
 }
 
-/*
+
 const Matrix &
 ForceFrame3d::getInitialStiff()
 {
   // check for quick return
-  if (Ki != 0)
+  if (Ki != nullptr)
     return *Ki;
 
-  static Matrix f(nq,nq);   // element flexibility matrix  
-  this->getInitialFlexibility(f);
+//static Matrix f(nq,nq);   // element flexibility matrix  
+  THREAD_LOCAL MatrixND<nq,nq> F_init;
+  this->getInitialFlexibility(F_init);
     
   // calculate element stiffness matrix
-  static Matrix kvInit(nq, nq);
-  if (f.Invert(kvInit) < 0)
+  THREAD_LOCAL MatrixND<nq, nq> K_init;
+  if (F_init.invert(K_init) < 0)
     opserr << "ForceFrame3d::getInitialStiff -- could not invert flexibility";
 
-  Ki = new Matrix(theCoordTransf->getInitialGlobalStiffMatrix(kvInit));
+  Matrix wrapper(K_init);
+  Ki = new Matrix(theCoordTransf->getInitialGlobalStiffMatrix(wrapper));
 
   return *Ki;
 }
-*/
+
 
 
 
@@ -515,7 +517,6 @@ ForceFrame3d::update()
   };
 
   while (converged == false && numSubdivide <= maxSubdivisions) {
-//  opserr << getTag() << " dv_trial = " << Vector(dv_trial) << "\n";
 
     for (Strategy strategy : solve_strategy ) {
 
@@ -817,7 +818,6 @@ ForceFrame3d::update()
           // if we have failed to converge for all of our Newton schemes
           // - reduce step size by the factor specified
           if (j == (numIters - 1) && (strategy == Strategy::InitialThenNewton)) {
-            opserr << "Subdividing element " << getTag() << "\n";
             dv_trial /= factor;
             numSubdivide++;
           }
@@ -3364,10 +3364,10 @@ ForceFrame3d::setSectionPointers(std::vector<FrameSection*>& new_sections)
   return 0;
 }
 
-#if 0
 const Vector &
 ForceFrame3d::getResistingForce()
 {
+#if 1
   double p0[5];
   Vector p0Vec(p0, 5);
   p0Vec.Zero();
@@ -3384,6 +3384,7 @@ ForceFrame3d::getResistingForce()
 //
 // ----------------------------------------------------------
 //
+#else
   double p0[5];
   Vector p0Vec(p0, 5);
   p0Vec.Zero();
@@ -3397,7 +3398,9 @@ ForceFrame3d::getResistingForce()
     theVector.addVector(1.0, load, -1.0);
   
   return theVector;
+#endif
 }
+#if 0
 
 
 void 

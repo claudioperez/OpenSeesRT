@@ -67,16 +67,14 @@ class ForceFrame3d: public BasicFrame3d
 
   virtual const Matrix &getMass() final;
   virtual const Matrix &getTangentStiff() final;
+  const Matrix &getInitialStiff() final;
+  const Vector &getResistingForce();
 
   /*
-  const Matrix &getInitialStiff();
-  const Matrix &getMass();    
-
   void zeroLoad();	
   int addLoad(ElementalLoad *theLoad, double loadFactor);
-  int addInertiaLoadToUnbalance(const Vector &accel); 
-  const Vector &getResistingForce();
   const Vector &getResistingForceIncInertia();
+  int addInertiaLoadToUnbalance(const Vector &accel); 
   */
   
   int sendSelf(int cTag, Channel &theChannel);
@@ -113,7 +111,6 @@ class ForceFrame3d: public BasicFrame3d
         nsr = 6,              // number of section resultants
         ndm = 3,              // dimension of the problem (3D)
         nq = 6,               // number of element dof's in the basic system
-        maxNumEleLoads = 100,
         maxNumSections = 20,
         maxSubdivisions= 10;
   
