@@ -29,8 +29,6 @@ class StaticIntegrator;
 class TransientIntegrator;
 
 
-// #define G3_Builder G3_Runtime
-
 class G3_Runtime {
 public:
 
