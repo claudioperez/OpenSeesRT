@@ -40,12 +40,13 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string>
-#include <elementAPI.h>
 
 Matrix ElasticBeam3d::K(12,12);
 Vector ElasticBeam3d::P(12);
 Matrix ElasticBeam3d::kb(6,6);
 
+#if 0
+#include <elementAPI.h>
 void * OPS_ADD_RUNTIME_VPV(OPS_ElasticBeam3d)
 {
     int numArgs = OPS_GetNumRemainingInputArgs();
@@ -138,6 +139,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticBeam3d)
 				 data[5],iData[1],iData[2],*theTrans, mass,cMass,releasez,releasey);
     }
 }
+#endif
 
 
 ElasticBeam3d::ElasticBeam3d()
@@ -879,7 +881,7 @@ ElasticBeam3d::getResistingForce()
   q(2) += q0[2];
   q(3) += q0[3];
   q(4) += q0[4];
-  
+
   Vector p0Vec(p0, 5);
   
   //  opserr << q;
