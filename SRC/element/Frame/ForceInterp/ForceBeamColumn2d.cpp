@@ -17,43 +17,39 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.42 $
-// $Date: 2010-05-13 00:16:33 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/forceBeamColumn/ForceBeamColumn2d.cpp,v $
 
 /*
  * References
  *
 
-State Determination Algorithm
----
-Neuenhofer, A. and F. C. Filippou (1997). "Evaluation of Nonlinear Frame Finite
-Element Models." Journal of Structural Engineering, 123(7):958-966.
+    State Determination Algorithm
+    ---
+    Neuenhofer, A. and F. C. Filippou (1997). "Evaluation of Nonlinear Frame Finite
+    Element Models." Journal of Structural Engineering, 123(7):958-966.
 
-Spacone, E., V. Ciampi, and F. C. Filippou (1996). "Mixed Formulation of
-Nonlinear Beam Finite Element." Computers and Structures, 58(1):71-83.
-
-
-Plastic Hinge Integration
----
-Scott, M. H. and G. L. Fenves (2006). "Plastic Hinge Integration Methods for
-Force-Based Beam-Column Elements." Journal of Structural Engineering,
-132(2):244-252.
+    Spacone, E., V. Ciampi, and F. C. Filippou (1996). "Mixed Formulation of
+    Nonlinear Beam Finite Element." Computers and Structures, 58(1):71-83.
 
 
-Analytical Response Sensitivity (DDM)
----
-Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
-"Response Sensitivity for Nonlinear Beam-Column Elements."
-Journal of Structural Engineering, 130(9):1281-1288.
+    Plastic Hinge Integration
+    ---
+    Scott, M. H. and G. L. Fenves (2006). "Plastic Hinge Integration Methods for
+    Force-Based Beam-Column Elements." Journal of Structural Engineering,
+    132(2):244-252.
 
 
-Software Design
----
-Scott, M. H., G. L. Fenves, F. T. McKenna, and F. C. Filippou (2007).
-"Software Patterns for Nonlinear Beam-Column Models."
-Journal of Structural Engineering, Approved for publication, February 2007.
+    Analytical Response Sensitivity (DDM)
+    ---
+    Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
+    "Response Sensitivity for Nonlinear Beam-Column Elements."
+    Journal of Structural Engineering, 130(9):1281-1288.
+
+
+    Software Design
+    ---
+    Scott, M. H., G. L. Fenves, F. T. McKenna, and F. C. Filippou (2007).
+    "Software Patterns for Nonlinear Beam-Column Models."
+    Journal of Structural Engineering, Approved for publication, February 2007.
 
  *
  */
@@ -2447,17 +2443,6 @@ ForceBeamColumn2d::setSectionPointers(int numSec, SectionForceDeformation **secP
   
 }
 
-int
-ForceBeamColumn2d::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **displayModes, int numModes)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}
 
 Response*
 ForceBeamColumn2d::setResponse(const char **argv, int argc, OPS_Stream &output)
@@ -3073,7 +3058,6 @@ ForceBeamColumn2d::getResponseSensitivity(int responseID, int gradNumber,
     const Vector &dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
 
     dvpdh = dvdh;
-    //opserr << dvpdh;
 
     static Matrix fe(3,3);
     this->getInitialFlexibility(fe);
@@ -3081,21 +3065,15 @@ ForceBeamColumn2d::getResponseSensitivity(int responseID, int gradNumber,
     const Vector &dqdh = this->computedqdh(gradNumber);
 
     dvpdh.addMatrixVector(1.0, fe, dqdh, -1.0);
-    //opserr << dvpdh;
 
     static Matrix fek(3,3);
     fek.addMatrixProduct(0.0, fe, kv, 1.0);
 
     dvpdh.addMatrixVector(1.0, fek, dvdh, -1.0);
-    //opserr << dvpdh;
 
     const Matrix &dfedh = this->computedfedh(gradNumber);
 
     dvpdh.addMatrixVector(1.0, dfedh, Se, -1.0);
-    //opserr << dvpdh << endln;
-    //opserr << dfedh << endln;
-
-    //opserr << dqdh + kv*dvdh << endln;
 
     return eleInfo.setVector(dvpdh);
   }
