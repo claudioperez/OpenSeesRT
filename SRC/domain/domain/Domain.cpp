@@ -412,7 +412,6 @@ Domain::addElement(Element *element)
 
 
 
-// void addNode(Node *);
 //	Method to add a Node to the model.
 //
 bool
@@ -883,16 +882,17 @@ Domain::addElementalLoad(ElementalLoad *load, int pattern)
     // now add it to the pattern
     TaggedObject *thePattern = theLoadPatterns->getComponentPtr(pattern);
     if (thePattern == nullptr) {
-      opserr << "Domain::addElementalLoad() - no pattern with tag " << pattern << 
-	"exits in  the model, not adding the ele load " << *load << endln;
+      opserr << "Domain::addElementalLoad() - no pattern with tag " << pattern
+             << "exits in  the model, not adding the ele load " << *load << endln;
 
-	return false;
+      return false;
     }
     LoadPattern *theLoadPattern = (LoadPattern *)thePattern;
+
     bool result = theLoadPattern->addElementalLoad(load);
     if (result == false) {
       opserr << "Domain::addElementalLoad() - no pattern with tag " << 
-	pattern << "in  the model, not adding the ele load" << *load << endln;
+      pattern << "in  the model, not adding the ele load" << *load << endln;
       return false;
     }
 
