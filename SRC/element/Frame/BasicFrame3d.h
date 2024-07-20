@@ -77,14 +77,14 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
     virtual int   update();
     virtual const Matrix &getTangentStiff();
     virtual const Matrix &getMass();
-    virtual const Vector &getResistingForce() final;
+    virtual const Vector &getResistingForce();
 
     virtual void  zeroLoad() final;
     virtual int   addLoad(ElementalLoad *theLoad, double loadFactor) final;
 
     virtual int   addInertiaLoadToUnbalance(const Vector &accel) final;
     virtual const Vector &getResistingForceIncInertia() final;
-    virtual const Matrix &getInitialStiff() final;
+    virtual const Matrix &getInitialStiff();
 
     // Sensitivity
     const Matrix & getMassSensitivity(int gradNumber);
@@ -126,13 +126,12 @@ protected:
    std::vector<std::pair<ElementalLoad*,double>> eleLoads;
 
 
-
+   Vector p_iner;
   private:
    int cMass;
    double rho;
 
    VectorND<12> pg;
-   Vector p_iner;
    double total_mass,
           twist_mass;
 
