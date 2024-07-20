@@ -4,9 +4,8 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Written: cmp
+// Written: mhs, rms, fmk, cmp
 //
-// Adapted from work by fms rms mhs
 //
 // Created: Feb 2023
 //

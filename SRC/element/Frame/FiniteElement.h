@@ -129,9 +129,11 @@ public:
 
 protected:
 
+#ifdef FEFT
     // Implemented by children
     virtual MatrixND<ndf*nen,ndf*nen> getTangent(State state, int rate) =0;
     virtual VectorND<ndf*nen>         getForce(State state, int rate) =0;
+#endif
     virtual                       int setNodes() = 0;
 
     // Supplied for children
@@ -170,12 +172,10 @@ protected:
 
     ID  connectedExternalNodes;    
 
-    static Vector P;
 
 private:
     State  e_state;
 
-    static Matrix K;
 
 };
 
