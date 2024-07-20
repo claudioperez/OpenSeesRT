@@ -31,7 +31,7 @@
 #include <Channel.h>
 #include <EquiSolnAlgo.h>
 #include <LinearSOE.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 
 CTestEnergyIncr::CTestEnergyIncr()
