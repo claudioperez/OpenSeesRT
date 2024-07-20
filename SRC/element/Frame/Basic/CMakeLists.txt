@@ -8,6 +8,7 @@
 
 target_sources(OPS_Element
     PRIVATE
+      PrismFrame2d.cpp
       PrismFrame3d.cpp
       CubicFrame3d.cpp
       ForceFrame3d.cpp
@@ -16,6 +17,7 @@ target_sources(OPS_Element
       DisplEulerFrame3d.cpp
     PUBLIC
       PrismFrame3d.h
+      PrismFrame2d.h
       CubicFrame3d.h
 )
 
