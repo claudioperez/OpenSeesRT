@@ -912,8 +912,8 @@ ForceFrame3d::getTangentStiff()
   }
 
 
-  static MatrixND<12,12> Kg;
-  static Matrix Wrapper(Kg);
+  THREAD_LOCAL MatrixND<12,12> Kg;
+  THREAD_LOCAL Matrix Wrapper(Kg);
   Kg = theCoordTransf->pushVariable(kl, pl);
   return Wrapper;
 }
