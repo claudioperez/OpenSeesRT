@@ -46,17 +46,20 @@
 #include <Vector3D.h>
 #include <MatrixND.h>
 #include <Matrix3D.h>
+#include <Rotations.hpp>
 #include "blk3x12x3.h"
-#include "RotationLibrary.h"
 using namespace OpenSees;
+
+// initialize static variables
+Matrix CorotFrameTransf3d::Tp(6,7);
+MatrixND<12,3> CorotFrameTransf3d::Lr2{};
+MatrixND<12,3> CorotFrameTransf3d::Lr3{};
 
 #undef OPS_STATIC
 #define OPS_STATIC // static 
-// initialize static variables
-Matrix CorotFrameTransf3d::Tp(6,7);
-// Matrix CorotFrameTransf3d::kg(12,12);
-MatrixND<12,3> CorotFrameTransf3d::Lr2{};
-MatrixND<12,3> CorotFrameTransf3d::Lr3{};
+#ifndef THREAD_LOCAL
+# define THREAD_LOCAL static
+#endif
 
 
 // Permutation matrix (to renumber basic dof's)
@@ -769,14 +772,14 @@ CorotFrameTransf3d::update()
 
       // update the nodal triads TI and RJ using quaternions
 
-      const VectorND<4> dAlphaIq = getQuaternionFromPseudoRotVector(dAlphaI);
-      const VectorND<4> dAlphaJq = getQuaternionFromPseudoRotVector(dAlphaJ);
+      const VectorND<4> dAlphaIq = VersorFromVector(dAlphaI);
+      const VectorND<4> dAlphaJq = VersorFromVector(dAlphaJ);
 
-      alphaIq = quaternionProduct(alphaIq, dAlphaIq);
-      alphaJq = quaternionProduct(alphaJq, dAlphaJq);
+      alphaIq = VersorProduct(alphaIq, dAlphaIq);
+      alphaJq = VersorProduct(alphaJq, dAlphaJq);
 
-      getRotationMatrixFromQuaternion(alphaIq, this->RI);
-      getRotationMatrixFromQuaternion(alphaJq, this->RJ);
+      this->RI = MatrixFromVersor(alphaIq);
+      this->RJ = MatrixFromVersor(alphaJq);
     }
 
     //
@@ -795,7 +798,7 @@ CorotFrameTransf3d::update()
       VectorND<4> gammaq = VersorFromMatrix(dRgamma);
 
       OPS_STATIC Vector3D gammaw;
-      getTangScaledPseudoVectorFromQuaternion(gammaq, gammaw);
+      gammaw = CayleyFromVersor(gammaq);
 
       gammaw *= 0.5;
 
@@ -1270,7 +1273,7 @@ CorotFrameTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
     // Transform kl from local to global system
     //
 
-    static MatrixND<12,12> kg;
+    THREAD_LOCAL MatrixND<12,12> kg;
     static Matrix Wrapper(kg);
 //  Wrapper.addMatrixTripleProduct(0.0, Matrix(T), Kl, 1.0);
     kg.addMatrixTripleProduct(0.0, T, kl, 1.0);

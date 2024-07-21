@@ -22,13 +22,13 @@
 #include <Matrix3D.h>
 
 class Triad;
-namespace OpenSees {class Matrix3D;}
 
 class CorotFrameTransf3d: public FrameTransform3d
 {
 public:
     CorotFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
-                       const Vector &rigJntOffsetI, const Vector &rigJntOffsetJ);
+                       const Vector &rigJntOffsetI, 
+                       const Vector &rigJntOffsetJ);
 
     CorotFrameTransf3d();
     ~CorotFrameTransf3d();
@@ -73,9 +73,11 @@ public:
     
     int  getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
 
+    // Movable Object
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
+    // Tagged Object
     void Print(OPS_Stream &s, int flag = 0);
 
 protected:
@@ -152,12 +154,12 @@ private:
     OpenSees::Matrix3D R0;         // rotation matrix from local to global coordinates
     OpenSees::Matrix3D e, RI, RJ, Rbar;
     
-    double *nodeIInitialDisp, *nodeJInitialDisp;
+    double *nodeIInitialDisp,
+           *nodeJInitialDisp;
     bool initialDispChecked;
 
     // Static workspace variables
     static Matrix Tp;                 // transformation matrix to renumber dofs
-//  static Matrix kg;                 // global stiffness matrix
     static MatrixND<12,3> Lr2, Lr3;   // auxiliary matrices
 };
 
