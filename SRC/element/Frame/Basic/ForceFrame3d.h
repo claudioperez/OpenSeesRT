@@ -57,6 +57,8 @@ class ForceFrame3d: public BasicFrame3d
   
   ~ForceFrame3d();
 
+
+
   const char *getClassType() const {return "ForceFrame3d";};
 
   int setNodes();
@@ -77,12 +79,6 @@ class ForceFrame3d: public BasicFrame3d
   int addInertiaLoadToUnbalance(const Vector &accel); 
   */
   
-  int sendSelf(int cTag, Channel &theChannel);
-  int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
-  
-  friend OPS_Stream &operator<<(OPS_Stream &s, ForceFrame3d &E);        
-  void Print(OPS_Stream &s, int flag =0);    
-  
   Response *setResponse(const char **argv, int argc, OPS_Stream &s);
   int getResponse(int responseID, Information &eleInformation);
   
@@ -99,6 +95,14 @@ class ForceFrame3d: public BasicFrame3d
 
   virtual int getIntegral(Field field, State state, double& total);
 
+
+  // MovableObject
+  int sendSelf(int cTag, Channel &theChannel);
+  int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+  
+  // TaggedObject
+  void Print(OPS_Stream &s, int flag =0);    
+  
  protected:
 
   // For BasicFrame3d
@@ -107,22 +111,26 @@ class ForceFrame3d: public BasicFrame3d
   
  private:
   constexpr static int 
-//      ndf  = 6,             // number of nodal dofs
         nsr = 6,              // number of section resultants
         ndm = 3,              // dimension of the problem (3D)
         nq = 6,               // number of element dof's in the basic system
         maxNumSections = 20,
         maxSubdivisions= 10;
+
+  enum Respond: int {
+    LocalForce = 2,
+    BasicStiff =19,
+  };
   
   int setSectionPointers(std::vector<FrameSection*>&);
   int getInitialFlexibility(MatrixND<nq,nq> &fe);
   int getInitialDeformations(Vector &v0);
-
-  void compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const;
-  void initializeSectionHistoryVariables ();
   
   // Add section forces due to element loads
   void addLoadAtSection(VectorND<nsr> &sp, int isec);
+
+  void compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const;
+  void initializeSectionHistoryVariables();
 
   // Sensitivity
   int parameterID;
@@ -144,27 +152,20 @@ class ForceFrame3d: public BasicFrame3d
 
   Matrix *Ki;
 
-  int    maxIters;               // maximum number of local iterations
+  int    max_iter;               // maximum number of local iterations
   double tol;	                   // tolerance for relative energy norm for local iterations
   // State
-  MatrixND<6,6> kv,              // stiffness matrix in the basic system 
+  MatrixND<6,6> K_pres,          // stiffness matrix in the basic system 
                 K_save;          // committed stiffness matrix in the basic system
   VectorND<6>   q_pres,          // element resisting forces in the basic system
                 q_save;          // committed element end forces in the basic system
   
-  int    initialFlag;            // indicates if the element has been initialized
-
-
-  static constexpr BasicForceLayout force_layout = {
-  };
+  int    state_flag;             // indicate if the element has been initialized
 
 
   //
   // Section State
   //
-//double wt[maxNumSections];
-//double xi[maxNumSections];
-
   struct GaussPoint {
     double point,
            weight;
@@ -177,9 +178,7 @@ class ForceFrame3d: public BasicFrame3d
   };
 
   std::vector<GaussPoint> points;
-  BeamIntegration* beamIntegr;
-//FrameSection** sections;          // array of pointers to sections
-//int numSections;
+  BeamIntegration*        stencil;
   
 
   //
@@ -193,9 +192,6 @@ class ForceFrame3d: public BasicFrame3d
     FrameStress::My,
     FrameStress::Mz,
   };
-
-  static Matrix theMatrix;
-  static Vector theVector;
 
 //void getForceInterpolatMatrix(double xi, Matrix &b, const ID &code);
 //void getDistrLoadInterpolatMatrix(double xi, Matrix &bp, const ID &code);

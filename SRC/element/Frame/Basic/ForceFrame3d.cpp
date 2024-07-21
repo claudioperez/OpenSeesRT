@@ -50,22 +50,19 @@
 
 #define THREAD_LOCAL static
 
-Matrix ForceFrame3d::theMatrix(12, 12);
-Vector ForceFrame3d::theVector(12);
-
 
 // Constructor invoked by a FEM_ObjectBroker; recvSelf() needs to be invoked on this object.
 ForceFrame3d::ForceFrame3d()
  : BasicFrame3d(0, ELE_TAG_ForceFrame3d),
-   beamIntegr(nullptr),
-   maxIters(0), tol(0.0),
-   initialFlag(0),
+   stencil(nullptr),
+   max_iter(0), tol(0.0),
+   state_flag(0),
    density(0.0), mass_flag(0), use_density(false),
    mass_initialized(false),
    Ki(nullptr),
    parameterID(0)
 {
-  kv.zero();
+  K_pres.zero();
   K_save.zero();
   q_save.zero();
   q_pres.zero();
@@ -81,20 +78,20 @@ ForceFrame3d::ForceFrame3d(int tag, std::array<int, 2>& nodes,
                            double massDensPerUnitLength, int maxNumIters,
                            double tolerance, int mass_flag_, bool use_density_)
  : BasicFrame3d(tag, ELE_TAG_ForceFrame3d, nodes, coordTransf),
-   beamIntegr(nullptr),
-   maxIters(maxNumIters), tol(tolerance),
-   initialFlag(0),
+   stencil(nullptr),
+   max_iter(maxNumIters), tol(tolerance),
+   state_flag(0),
    Ki(nullptr),
    density(massDensPerUnitLength), mass_flag(mass_flag_), use_density(use_density_),
    mass_initialized(false),
    parameterID(0)
 {
-  kv.zero();
+  K_pres.zero();
   K_save.zero();
   q_save.zero();
   q_pres.zero();
 
-  beamIntegr = bi.getCopy();
+  stencil = bi.getCopy();
 
   this->setSectionPointers(sec);
 }
@@ -126,8 +123,8 @@ ForceFrame3d::~ForceFrame3d()
 //if (es_save != nullptr)
 //  delete[] es_save;
 
-  if (beamIntegr != nullptr)
-    delete beamIntegr;
+  if (stencil != nullptr)
+    delete stencil;
 
   if (Ki != nullptr)
     delete Ki;
@@ -148,8 +145,8 @@ ForceFrame3d::setNodes()
   int numSections = points.size();
   double *xi = new double[numSections];
   double *wt = new double[numSections];
-  beamIntegr->getSectionLocations(numSections, L, xi);
-  beamIntegr->getSectionWeights(numSections, L, wt);
+  stencil->getSectionLocations(numSections, L, xi);
+  stencil->getSectionWeights(numSections, L, wt);
   for (int i=0; i<numSections; i++) {
     points[i].point  = xi[i];
     points[i].weight = wt[i];
@@ -158,7 +155,7 @@ ForceFrame3d::setNodes()
   delete[] wt;
 
 
-  if (initialFlag == 0)
+  if (state_flag == 0)
     this->initializeSectionHistoryVariables();
 
 //this->revertToStart();
@@ -251,10 +248,10 @@ ForceFrame3d::commitState()
     return err;
 
   // commit the element variables state
-  K_save = kv;
+  K_save = K_pres;
   q_save = q_pres;
 
-  //   initialFlag = 0;  fmk - commented out, see what happens to Example3.1.tcl if uncommented
+  //   state_flag = 0;  fmk - commented out, see what happens to Example3.1.tcl if uncommented
   //                         - i have not a clue why, ask remo if he ever gets in contact with us again!
 
   return err;
@@ -285,9 +282,9 @@ ForceFrame3d::revertToLastCommit()
 
   // Revert the element state to last commit
   q_pres = q_save;
-  kv = K_save;
+  K_pres = K_save;
 
-  initialFlag = 0;
+  state_flag = 0;
 
   return err;
 }
@@ -317,9 +314,9 @@ ForceFrame3d::revertToStart()
   K_save.zero();
 
   q_pres.zero();
-  kv.zero();
+  K_pres.zero();
 
-  initialFlag = 0;
+  state_flag = 0;
   // this->update();
   return err;
 }
@@ -333,7 +330,7 @@ ForceFrame3d::getBasicForce()
 MatrixND<6, 6>&
 ForceFrame3d::getBasicTangent(State state, int rate)
 {
-  return kv;
+  return K_pres;
 }
 
 const Matrix &
@@ -458,7 +455,7 @@ ForceFrame3d::update()
 
   // if have completed a recvSelf() - do a revertToLastCommit
   // to get Ssr, etc. set correctly
-  if (initialFlag == 2)
+  if (state_flag == 2)
     this->revertToLastCommit();
 
   // update the transformation
@@ -473,7 +470,7 @@ ForceFrame3d::update()
   THREAD_LOCAL VectorND<nq> dv{0.0};
   dv = theCoordTransf->getBasicIncrDeltaDisp();
 
-  if (initialFlag != 0 && (dv.norm() <= DBL_EPSILON) && (eleLoads.size()==0))
+  if (state_flag != 0 && (dv.norm() <= DBL_EPSILON) && (eleLoads.size()==0))
     return 0;
 
   THREAD_LOCAL VectorND<nq> Dv;
@@ -521,7 +518,7 @@ ForceFrame3d::update()
     for (Strategy strategy : solve_strategy ) {
 
       // Allow 10 times more iterations for initial tangent strategy
-      const int numIters = (strategy==Strategy::InitialIterations) ? 10*maxIters : maxIters;
+      const int numIters = (strategy==Strategy::InitialIterations) ? 10*max_iter : max_iter;
 
       for (int i = 0; i < points.size(); i++) {
         es_trial[i]  = points[i].es;
@@ -529,14 +526,14 @@ ForceFrame3d::update()
         sr_trial[i]  = points[i].Ssr;
       }
 
-      if (initialFlag == 2)
+      if (state_flag == 2)
         continue;
 
       VectorND<nq>     q_trial = q_pres;
-      MatrixND<nq, nq> K_trial = kv;
+      MatrixND<nq, nq> K_trial = K_pres;
 
       // calculate nodal force increments and update nodal forces
-      VectorND<nq> dqe = kv * dv;
+      VectorND<nq> dqe = K_pres * dv;
       q_trial += dqe;
 
 
@@ -546,7 +543,7 @@ ForceFrame3d::update()
 
         {
           Matrix f(F);
-          if (beamIntegr->addElasticFlexibility(L, f) < 0) {
+          if (stencil->addElasticFlexibility(L, f) < 0) {
             vr[0] += F(0, 0) * q_trial[0];
             vr[1] += F(1, 1) * q_trial[1] + F(1, 2) * q_trial[2];
             vr[2] += F(2, 1) * q_trial[1] + F(2, 2) * q_trial[2];
@@ -561,7 +558,7 @@ ForceFrame3d::update()
         double v0[5];
         v0[0] = v0[1] = v0[2] = v0[3] = v0[4] = 0.0;
         for (auto[load, factor] : eleLoads)
-          beamIntegr->addElasticDeformations(load, factor, L, v0);
+          stencil->addElasticDeformations(load, factor, L, v0);
 
         vr[0] += v0[0];
         vr[1] += v0[1];
@@ -608,7 +605,7 @@ ForceFrame3d::update()
             //
             //    es += Fs * ( si - sr(e) );
             //
-            if (initialFlag != 0) {
+            if (state_flag != 0) {
 
               VectorND<nsr> ds; //, des;
 
@@ -768,7 +765,7 @@ ForceFrame3d::update()
         dv += dv_trial;
         dv -= vr;
 
-        // dqe = kv * dv;
+        // dqe = K_pres * dv;
         dqe.addMatrixVector(0.0, K_trial, dv, 1.0);
 
         dW = dqe.dot(dv);
@@ -799,8 +796,8 @@ ForceFrame3d::update()
             numSubdivide = 1; 
           }
 
-          // set kv, es and q_pres values
-          kv = K_trial;
+          // set K_pres, es and q_pres values
+          K_pres = K_trial;
           q_pres = q_trial;
 
           for (int k = 0; k < points.size(); k++) {
@@ -840,7 +837,7 @@ iterations_completed:
     return -1;
   }
 
-  initialFlag = 1;
+  state_flag = 1;
 
   return 0;
 }
@@ -1050,7 +1047,7 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
   int numSections = points.size();
 
   double dxidh[maxNumSections];
-  beamIntegr->getLocationsDeriv(numSections, L, dLdh, dxidh);
+  stencil->getLocationsDeriv(numSections, L, dLdh, dxidh);
 
   double x    = points[isec].point * L;
   double dxdh = points[isec].point * dLdh + dxidh[isec] * L;
@@ -1074,7 +1071,6 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
       double dwadh       = sens(2);
 
       for (int ii = 0; ii < order; ii++) {
-
         switch (scheme[ii]) {
         case SECTION_RESPONSE_P:
           //sp(ii) += wa*(L-x);
@@ -1197,8 +1193,8 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   idData(1) = connectedExternalNodes(0);
   idData(2) = connectedExternalNodes(1);
   idData(3) = points.size();
-  idData(4) = maxIters;
-  idData(5) = initialFlag;
+  idData(4) = max_iter;
+  idData(5) = state_flag;
 
   idData(7)          = theCoordTransf->getClassTag();
   int crdTransfDbTag = theCoordTransf->getDbTag();
@@ -1210,14 +1206,14 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   idData(8) = crdTransfDbTag;
 
 
-  idData(9)           = beamIntegr->getClassTag();
-  int beamIntegrDbTag = beamIntegr->getDbTag();
-  if (beamIntegrDbTag == 0) {
-    beamIntegrDbTag = theChannel.getDbTag();
-    if (beamIntegrDbTag != 0)
-      beamIntegr->setDbTag(beamIntegrDbTag);
+  idData(9)           = stencil->getClassTag();
+  int stencilDbTag = stencil->getDbTag();
+  if (stencilDbTag == 0) {
+    stencilDbTag = theChannel.getDbTag();
+    if (stencilDbTag != 0)
+      stencil->setDbTag(stencilDbTag);
   }
-  idData(10) = beamIntegrDbTag;
+  idData(10) = stencilDbTag;
 
   if (theChannel.sendID(dbTag, commitTag, idData) < 0) {
     opserr << "ForceFrame3d::sendSelf() - failed to send ID data\n";
@@ -1231,8 +1227,8 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
     return -1;
   }
 
-  if (beamIntegr->sendSelf(commitTag, theChannel) < 0) {
-    opserr << "ForceFrame3d::sendSelf() - failed to send beamIntegr\n";
+  if (stencil->sendSelf(commitTag, theChannel) < 0) {
+    opserr << "ForceFrame3d::sendSelf() - failed to send stencil\n";
     return -1;
   }
 
@@ -1339,14 +1335,14 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   this->setTag(idData(0));
   connectedExternalNodes(0) = idData(1);
   connectedExternalNodes(1) = idData(2);
-  maxIters                  = idData(4);
-  initialFlag               = idData(5);
+  max_iter                  = idData(4);
+  state_flag                = idData(5);
 
   int crdTransfClassTag = idData(7);
   int crdTransfDbTag    = idData(8);
 
-  int beamIntegrClassTag = idData(9);
-  int beamIntegrDbTag    = idData(10);
+  int stencilClassTag = idData(9);
+  int stencilDbTag    = idData(10);
 
   // create a new crdTransf object if one needed
   if (theCoordTransf == 0 || theCoordTransf->getClassTag() != crdTransfClassTag) {
@@ -1370,25 +1366,25 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
     return -3;
   }
 
-  // create a new beamIntegr object if one needed
-  if (beamIntegr == 0 || beamIntegr->getClassTag() != beamIntegrClassTag) {
-    if (beamIntegr != 0)
-      delete beamIntegr;
+  // create a new stencil object if one needed
+  if (stencil == 0 || stencil->getClassTag() != stencilClassTag) {
+    if (stencil != 0)
+      delete stencil;
 
-    beamIntegr = theBroker.getNewBeamIntegration(beamIntegrClassTag);
+    stencil = theBroker.getNewBeamIntegration(stencilClassTag);
 
-    if (beamIntegr == 0) {
+    if (stencil == 0) {
       opserr
           << "ForceFrame3d::recvSelf() - failed to obtain the beam integration object with classTag"
-          << beamIntegrClassTag << "\n";
+          << stencilClassTag << "\n";
       return -1;
     }
   }
 
-  beamIntegr->setDbTag(beamIntegrDbTag);
+  stencil->setDbTag(stencilDbTag);
 
-  // invoke recvSelf on the beamIntegr object
-  if (beamIntegr->recvSelf(commitTag, theChannel, theBroker) < 0) {
+  // invoke recvSelf on the stencil object
+  if (stencil->recvSelf(commitTag, theChannel, theBroker) < 0) {
     opserr << "ForceFrame3d::sendSelf() - failed to recv beam integration\n";
 
     return -3;
@@ -1546,7 +1542,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
     for (int j = 0; j < nq; j++)
       K_save(i, j) = dData(loc++);
 
-  kv = K_save;
+  K_pres = K_save;
   q_pres = q_save;
 
   for (int k = 0; k < numSections; k++) {
@@ -1562,7 +1558,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   betaK0 = dData(loc++);
   betaKc = dData(loc++);
 
-  initialFlag = 2;
+  state_flag = 2;
   return 0;
 }
 
@@ -1578,7 +1574,7 @@ ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
   // Flexibility from elastic interior
   {
     Matrix wrapper(fe);
-    beamIntegr->addElasticFlexibility(L, wrapper);
+    stencil->addElasticFlexibility(L, wrapper);
   }
 
   const int numSections = points.size();
@@ -1758,7 +1754,7 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
 
   { // enclose xi in a scope
     double *xi = new double[numSections];
-    beamIntegr->getSectionLocations(numSections, L, xi);
+    stencil->getSectionLocations(numSections, L, xi);
     getCBDIinfluenceMatrix(numSections, xi, L, ls);
     delete[] xi;
   }
@@ -1836,7 +1832,7 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
     s << points[numSections - 1].material->getTag() << "], ";
     s << "\"crdTransformation\": " << theCoordTransf->getTag()  << ", ";
     s << "\"integration\": ";
-    beamIntegr->Print(s, flag);
+    stencil->Print(s, flag);
     s << "}";
   }
 
@@ -1860,8 +1856,6 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
     double MY2   = q_save[4];
     double L     = theCoordTransf->getInitialLength();
     double VY    = (MZ1 + MZ2) / L;
-    theVector(1) = VY;
-    theVector(4) = -VY;
     double VZ    = (MY1 + MY2) / L;
     double T     = q_save[5];
 
@@ -1913,8 +1907,6 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
     double MY2   = q_save[4];
     double L     = theCoordTransf->getInitialLength();
     double VY    = (MZ1 + MZ2) / L;
-    theVector(1) = VY;
-    theVector(4) = -VY;
     double VZ    = (MY1 + MY2) / L;
     double T     = q_save[5];
 
@@ -1975,7 +1967,7 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
     s << "\tConnected Nodes: " << connectedExternalNodes;
     s << "\tNumber of Sections: " << numSections;
     s << "\tMass density: " << density << "\n";
-    beamIntegr->Print(s, flag);
+    stencil->Print(s, flag);
     double P     = q_save[0];
     double MZ1   = q_save[1];
     double MZ2   = q_save[2];
@@ -1983,8 +1975,6 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
     double MY2   = q_save[4];
     double L     = theCoordTransf->getInitialLength();
     double VY    = (MZ1 + MZ2) / L;
-    theVector[1] = VY;
-    theVector[4] = -VY;
     double VZ    = (MY1 + MY2) / L;
     double T     = q_save[5];
 
@@ -2044,10 +2034,11 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "Mz_2");
 
 
-    theResponse = new ElementResponse(this, 1, theVector);
+    theResponse = new ElementResponse(this, 1, Vector(12));
 
     // local force -
-  } else if (strcmp(argv[0], "localForce") == 0 || strcmp(argv[0], "localForces") == 0) {
+  } else if (strcmp(argv[0], "localForce") == 0 || 
+             strcmp(argv[0], "localForces") == 0) {
 
     output.tag("ResponseType", "N_1");
     output.tag("ResponseType", "Vy_1");
@@ -2062,7 +2053,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "My_2");
     output.tag("ResponseType", "Mz_2");
 
-    theResponse = new ElementResponse(this, 2, theVector);
+    theResponse = new ElementResponse(this, Respond::LocalForce, Vector(12));
 
     // basic force -
   } else if (strcmp(argv[0], "basicForce") == 0 || strcmp(argv[0], "basicForces") == 0) {
@@ -2086,7 +2077,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "My_2");
     output.tag("ResponseType", "T");
 
-    theResponse = new ElementResponse(this, 19, Matrix(6, 6));
+    theResponse = new ElementResponse(this, Respond::BasicStiff, Matrix(6, 6));
 
     // chord rotation -
   } else if (strcmp(argv[0], "chordRotation") == 0 || strcmp(argv[0], "chordDeformation") == 0 ||
@@ -2130,7 +2121,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
   } else if (strcmp(argv[0], "RayleighForces") == 0 || strcmp(argv[0], "rayleighForces") == 0) {
 
-    theResponse = new ElementResponse(this, 12, theVector);
+    theResponse = new ElementResponse(this, 12, Vector(12));
 
   } else if (strcmp(argv[0], "sections") == 0) {
     if (this->setState(State::Init) != 0)
@@ -2142,7 +2133,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     double L = theCoordTransf->getInitialLength();
     // TODO: maxNumSections
     double xi[maxNumSections];
-    beamIntegr->getSectionLocations(numSections, L, xi);
+    stencil->getSectionLocations(numSections, L, xi);
 
     for (int i = 0; i < numSections; i++) {
 
@@ -2195,7 +2186,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
         double xi[maxNumSections];
         double L = theCoordTransf->getInitialLength();
         const int numSections = points.size();
-        beamIntegr->getSectionLocations(numSections, L, xi);
+        stencil->getSectionLocations(numSections, L, xi);
 
         output.tag("GaussPointOutput");
         output.attr("number", sectionNum);
@@ -2219,7 +2210,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
         double xi[maxNumSections];
         double L = theCoordTransf->getInitialLength();
         const int numSections = points.size();
-        beamIntegr->getSectionLocations(numSections, L, xi);
+        stencil->getSectionLocations(numSections, L, xi);
 
         for (int i = 0; i < numSections; i++) {
 
@@ -2258,47 +2249,50 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 int
 ForceFrame3d::getResponse(int responseID, Information& eleInfo)
 {
-  static Vector vp(6);
-  static MatrixND<nq,nq> fe;
+  THREAD_LOCAL Vector vp(6);
+  THREAD_LOCAL MatrixND<nq,nq> fe;
 
   if (responseID == 1)
     return eleInfo.setVector(this->getResistingForce());
 
-  else if (responseID == 2) {
+  else if (responseID == Respond::LocalForce) {
+    THREAD_LOCAL VectorND<12> v_resp{0.0};
+    THREAD_LOCAL Vector v_wrap(v_resp);
+
     double p0[5];
     p0[0] = p0[1] = p0[2] = p0[3] = p0[4] = 0.0;
     if (eleLoads.size() > 0)
       this->computeReactions(p0);
     // Axial
     double N     = q_pres[0];
-    theVector(6) =  N;
-    theVector(0) = -N + p0[0];
+    v_resp(6) =  N;
+    v_resp(0) = -N + p0[0];
 
     // Torsion
     double T     = q_pres[5];
-    theVector(9) =  T;
-    theVector(3) = -T;
+    v_resp(9) =  T;
+    v_resp(3) = -T;
 
     // Moments about z and shears along y
     double M1     = q_pres[1];
     double M2     = q_pres[2];
-    theVector(5)  = M1;
-    theVector(11) = M2;
+    v_resp(5)  = M1;
+    v_resp(11) = M2;
     double L      = theCoordTransf->getInitialLength();
     double V      = (M1 + M2) / L;
-    theVector(1)  =  V + p0[1];
-    theVector(7)  = -V + p0[2];
+    v_resp(1)  =  V + p0[1];
+    v_resp(7)  = -V + p0[2];
 
     // Moments about y and shears along z
     M1            = q_pres[3];
     M2            = q_pres[4];
-    theVector(4)  = M1;
-    theVector(10) = M2;
+    v_resp(4)  = M1;
+    v_resp(10) = M2;
     V             = (M1 + M2) / L;
-    theVector(2)  = -V + p0[3];
-    theVector(8)  =  V + p0[4];
+    v_resp(2)  = -V + p0[3];
+    v_resp(8)  =  V + p0[4];
 
-    return eleInfo.setVector(theVector);
+    return eleInfo.setVector(v_wrap);
 
   }
 
@@ -2312,7 +2306,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     return eleInfo.setVector(q_pres);
 
   else if (responseID == 19)
-    return eleInfo.setMatrix(kv);
+    return eleInfo.setMatrix(K_pres);
 
   // Plastic rotation
   else if (responseID == 4) {
@@ -2329,7 +2323,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     double L = theCoordTransf->getInitialLength();
     double pts[maxNumSections];
     const int numSections = points.size();
-    beamIntegr->getSectionLocations(numSections, L, pts);
+    stencil->getSectionLocations(numSections, L, pts);
     Vector locs(numSections);
     for (int i = 0; i < numSections; i++)
       locs(i) = pts[i] * L;
@@ -2340,7 +2334,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     double L = theCoordTransf->getInitialLength();
     double wts[maxNumSections];
     const int numSections = points.size();
-    beamIntegr->getSectionWeights(numSections, L, wts);
+    stencil->getSectionWeights(numSections, L, wts);
     Vector weights(numSections);
     for (int i = 0; i < numSections; i++)
       weights(i) = wts[i] * L;
@@ -2359,7 +2353,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     double L = theCoordTransf->getInitialLength();
     double pts[maxNumSections];
     const int numSections = points.size();
-    beamIntegr->getSectionLocations(numSections, L, pts);
+    stencil->getSectionLocations(numSections, L, pts);
     // CBDI influence matrix
     Matrix ls(numSections, numSections);
     getCBDIinfluenceMatrix(numSections, pts, L, ls);
@@ -2382,7 +2376,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     Vector dispsz(numSections); // along local z
     dispsy.addMatrixVector(0.0, ls, kappaz, 1.0);
     dispsz.addMatrixVector(0.0, ls, kappay, -1.0);
-    beamIntegr->getSectionLocations(numSections, L, pts);
+    stencil->getSectionLocations(numSections, L, pts);
     static Vector uxb(3);
     static Vector uxg(3);
     Matrix disps(numSections, 3);
@@ -2406,7 +2400,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     double L = theCoordTransf->getInitialLength();
     double ipts[maxNumSections];
     const int numSections = points.size();
-    beamIntegr->getSectionLocations(numSections, L, ipts);
+    stencil->getSectionLocations(numSections, L, ipts);
     // CBDI influence matrix
     double pts[20];
     for (int i = 0; i < 20; i++)
@@ -2479,10 +2473,10 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
 
     double wts[maxNumSections];
     const int numSections = points.size();
-    beamIntegr->getSectionWeights(numSections, L, wts);
+    stencil->getSectionWeights(numSections, L, wts);
 
     double pts[maxNumSections];
-    beamIntegr->getSectionLocations(numSections, L, pts);
+    stencil->getSectionLocations(numSections, L, pts);
 
     // Location of inflection point from node I
     double LIz = 0.0;
@@ -2515,8 +2509,8 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
       }
     }
 
-    d2z += beamIntegr->getTangentDriftI(L, LIz, q_pres[1], q_pres[2]);
-    d2y += beamIntegr->getTangentDriftI(L, LIy, q_pres[3], q_pres[4], true);
+    d2z += stencil->getTangentDriftI(L, LIz, q_pres[1], q_pres[2]);
+    d2y += stencil->getTangentDriftI(L, LIy, q_pres[3], q_pres[4], true);
 
     for (int i = numSections - 1; i >= 0; i--) {
       double x       = pts[i] * L;
@@ -2540,8 +2534,8 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
       }
     }
 
-    d3z += beamIntegr->getTangentDriftJ(L, LIz, q_pres[1], q_pres[2]);
-    d3y += beamIntegr->getTangentDriftJ(L, LIy, q_pres[3], q_pres[4], true);
+    d3z += stencil->getTangentDriftJ(L, LIz, q_pres[1], q_pres[2]);
+    d3y += stencil->getTangentDriftJ(L, LIy, q_pres[3], q_pres[4], true);
 
     static Vector d(4);
     d(0) = d2z;
@@ -2679,7 +2673,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     const int numSections = points.size();
     double xi[maxNumSections];
     double L = theCoordTransf->getInitialLength();
-    beamIntegr->getSectionWeights(numSections, L, xi);
+    stencil->getSectionWeights(numSections, L, xi);
     double energy = 0;
     for (int i = 0; i < numSections; i++) {
       energy += points[i].material->getEnergy() * points[i].point * L;
@@ -2705,7 +2699,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
 
     const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
 
-    dqdh.addMatrixVector(0.0, kv, dvdh, 1.0);
+    dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
 
     dqdh.addVector(1.0, this->computedqdh(gradNumber), 1.0);
 
@@ -2729,7 +2723,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
 
     const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
 
-    dqdh.addMatrixVector(0.0, kv, dvdh, 1.0);
+    dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
 
     dqdh.addVector(1.0, this->computedqdh(gradNumber), 1.0);
 
@@ -2737,7 +2731,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
     double L        = theCoordTransf->getInitialLength();
     double oneOverL = 1.0 / L;
     double pts[maxNumSections];
-    beamIntegr->getSectionLocations(numSections, L, pts);
+    stencil->getSectionLocations(numSections, L, pts);
 
     const ID& code = points[sectionNum - 1].material->getType();
 
@@ -2760,7 +2754,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
     double d1oLdh = theCoordTransf->getd1overLdh();
 
     double dptsdh[maxNumSections];
-    beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
+    stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
     double dxLdh = dptsdh[sectionNum - 1]; // - xL/L*dLdh;
 
     for (int j = 0; j < order; j++) {
@@ -2794,7 +2788,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
 
     dvpdh.addMatrixVector(1.0, fe, dqdh, -1.0);
 
-    dvpdh.addMatrixVector(1.0, fe*kv, dvdh, -1.0);
+    dvpdh.addMatrixVector(1.0, fe*K_pres, dvdh, -1.0);
 
     const Matrix& dfedh = this->computedfedh(gradNumber);
 
@@ -2830,7 +2824,7 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
       const int numSections = points.size();
       double xi[maxNumSections];
       double L = theCoordTransf->getInitialLength();
-      beamIntegr->getSectionLocations(numSections, L, xi);
+      stencil->getSectionLocations(numSections, L, xi);
 
       sectionLoc /= L;
 
@@ -2883,7 +2877,7 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
     if (argc < 2)
       return -1;
 
-    return beamIntegr->setParameter(&argv[1], argc - 1, param);
+    return stencil->setParameter(&argv[1], argc - 1, param);
   }
 
   // Default, send to everything
@@ -2894,7 +2888,7 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
       result = ok;
   }
 
-  int ok = beamIntegr->setParameter(argv, argc, param);
+  int ok = stencil->setParameter(argv, argc, param);
   if (ok != -1)
     result = ok;
 
@@ -2922,21 +2916,25 @@ ForceFrame3d::activateParameter(int passedParameterID)
 const Matrix&
 ForceFrame3d::getKiSensitivity(int gradNumber)
 {
-  theMatrix.Zero();
-  return theMatrix;
+  THREAD_LOCAL MatrixND<12,12> Ksen{0.0};
+  THREAD_LOCAL Matrix wrapper(Ksen);
+  return wrapper;
 }
 
 const Matrix&
 ForceFrame3d::getMassSensitivity(int gradNumber)
 {
-  theMatrix.Zero();
+  THREAD_LOCAL MatrixND<12,12> Msen{0.0};
+  THREAD_LOCAL Matrix wrapper(Msen);
 
   double L = theCoordTransf->getInitialLength();
-  if (density != 0.0 && parameterID == 1)
-    theMatrix(0, 0) = theMatrix(1, 1) = theMatrix(2, 2) = theMatrix(6, 6) = theMatrix(7, 7) =
-        theMatrix(8, 8)                                                   = 0.5 * L;
+  if (parameterID == 1)
+    // TODO: handle consistent mass
+    if (density != 0.0)
+      Msen(0, 0) = Msen(1, 1) = Msen(2, 2) = 
+      Msen(6, 6) = Msen(7, 7) = Msen(8, 8) = 0.5 * L;
 
-  return theMatrix;
+  return wrapper;
 }
 
 const Vector&
@@ -2964,7 +2962,7 @@ ForceFrame3d::getResistingForceSensitivity(int gradNumber)
     P = theCoordTransf->getGlobalResistingForceShapeSensitivity(q_pres, dp0dhVec, gradNumber);
     // k dAdh u
     const Vector& dAdh_u = theCoordTransf->getBasicTrialDispShapeSensitivity();
-    dqdh.addMatrixVector(1.0, kv, dAdh_u, 1.0);
+    dqdh.addMatrixVector(1.0, K_pres, dAdh_u, 1.0);
   }
 
   // A^T (dqdh + k dAdh u)
@@ -2982,16 +2980,16 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
   double oneOverL = 1.0 / L;
 
   const int numSections = points.size();
-  double pts[maxNumSections];
-  beamIntegr->getSectionLocations(numSections, L, pts);
 
+  double pts[maxNumSections];
   double wts[maxNumSections];
-  beamIntegr->getSectionWeights(numSections, L, wts);
+  stencil->getSectionLocations(numSections, L, pts);
+  stencil->getSectionWeights(numSections, L, wts);
 
   double dLdh = theCoordTransf->getdLdh();
 
   double dptsdh[maxNumSections];
-  beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
+  stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
 
   double d1oLdh = theCoordTransf->getd1overLdh();
 
@@ -3000,11 +2998,11 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
 
   // dvdh = A dudh + dAdh u
   const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
-  dqdh.addMatrixVector(1.0, kv, dvdh, 1.0); // A dudh
+  dqdh.addMatrixVector(1.0, K_pres, dvdh, 1.0); // A dudh
 
   if (theCoordTransf->isShapeSensitivity()) {
     //const Vector &dAdh_u = theCoordTransf->getBasicTrialDispShapeSensitivity(gradNumber);
-    //dqdh.addMatrixVector(1.0, kv, dAdh_u, 1.0);  // dAdh u
+    //dqdh.addMatrixVector(1.0, K_pres, dAdh_u, 1.0);  // dAdh u
   }
 
   // Loop over integration points
@@ -3070,15 +3068,15 @@ ForceFrame3d::computedqdh(int gradNumber)
 
   const int numSections = points.size();
   double wts[maxNumSections];
-  beamIntegr->getSectionWeights(numSections, L, wts);
+  stencil->getSectionWeights(numSections, L, wts);
 
   double dLdh = theCoordTransf->getdLdh();
 
   double dptsdh[maxNumSections];
-  beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
+  stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
 
   double dwtsdh[maxNumSections];
-  beamIntegr->getWeightsDeriv(numSections, L, dLdh, dwtsdh);
+  stencil->getWeightsDeriv(numSections, L, dLdh, dwtsdh);
 
   double d1oLdh = theCoordTransf->getd1overLdh();
 
@@ -3194,12 +3192,12 @@ ForceFrame3d::computedqdh(int gradNumber)
   static Matrix dfedh(6, 6);
   dfedh.Zero();
 
-  if (beamIntegr->addElasticFlexDeriv(L, dfedh, dLdh) < 0)
+  if (stencil->addElasticFlexDeriv(L, dfedh, dLdh) < 0)
     dvdh.addMatrixVector(1.0, dfedh, q_pres, -1.0);
 
 
   static Vector dqdh(6);
-  dqdh.addMatrixVector(0.0, kv, dvdh, 1.0);
+  dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
 
 
   return dqdh;
@@ -3219,13 +3217,12 @@ ForceFrame3d::computedfedh(int gradNumber)
   double dLdh   = theCoordTransf->getdLdh();
   double d1oLdh = theCoordTransf->getd1overLdh();
 
-  beamIntegr->addElasticFlexDeriv(L, dfedh, dLdh);
+  stencil->addElasticFlexDeriv(L, dfedh, dLdh);
 
   double dptsdh[maxNumSections];
-  beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
-
   double dwtsdh[maxNumSections];
-  beamIntegr->getWeightsDeriv(numSections, L, dLdh, dwtsdh);
+  stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
+  stencil->getWeightsDeriv(numSections, L, dLdh, dwtsdh);
 
   for (int i = 0; i < numSections; i++) {
 
