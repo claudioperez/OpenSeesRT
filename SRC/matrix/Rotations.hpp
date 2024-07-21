@@ -308,8 +308,52 @@ VersorFromMatrix(const Matrix3D &R)
 //
 
 Matrix3D
+TanSO3(const Vector3D &vec, char repr='L')
+{
+//
+//  Compute right differential of the exponential.
+//
+// =========================================================================================
+// function by Claudio Perez                                                            2023
+// -----------------------------------------------------------------------------------------
+
+    double angle2 = vec.dot(vec);
+    double a1, a2, a3;
+
+//  Check for angle near 0
+    if (angle2 < 1e-08) {
+      a1  = 1.0     - angle2*(1.0/6.0   - angle2*(1.0/120.0  - angle2/5040.0));
+      a2  = 0.5     - angle2*(1.0/24.0  - angle2*(1.0/720.0  - angle2/40320.0));
+      a3  = 1.0/6.0 - angle2/(1.0/120.0 - angle2/(1.0/5040.0 - angle2/362880.0));
+
+    } else {
+      double angle = sqrt (angle2);
+      a1  = sin(angle)        /angle; 
+      a2  = (1.0 - cos(angle))/angle2;
+      a3  = (1.0 - a1        )/angle2;
+    }
+
+    //  Assemble differential
+    Matrix3D T;
+    T(0,0)  =         a1 + a3*vec[0]*vec[0];
+    T(0,1)  = -vec[2]*a2 + a3*vec[0]*vec[1];
+    T(0,2)  =  vec[1]*a2 + a3*vec[0]*vec[2];
+    T(1,0)  =  vec[2]*a2 + a3*vec[1]*vec[0];
+    T(1,1)  =         a1 + a3*vec[1]*vec[1];
+    T(1,2)  = -vec[0]*a2 + a3*vec[1]*vec[2];
+    T(2,0)  = -vec[1]*a2 + a3*vec[2]*vec[0];
+    T(2,1)  =  vec[0]*a2 + a3*vec[2]*vec[1];
+    T(2,2)  =         a1 + a3*vec[2]*vec[2];
+    return T;
+}
+
+
+Matrix3D
 dExpSO3(const Vector3D &v)
 {
+//
+// return a[1]*Eye3 + a[2]*v.hat() + a[3]*v.bun(v);
+//
 // [1] Perez, C.M., and Filippou F. C.. "On Nonlinear Geometric 
 //     Transformations of Finite Elements" 
 //     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
@@ -329,16 +373,12 @@ dExpSO3(const Vector3D &v)
 
   return T;
 
-//return a[1]*Eye3 + a[2]*Th + a[3]*v.bun(v);
 }
 
 
 Matrix3D
 ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
 {
-// [1] Perez, C.M., and Filippou F. C.. "On Nonlinear Geometric 
-//     Transformations of Finite Elements" 
-//     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
 //
 //    return a[3]*psq + b[1]*p.dot(q)*Eye3
 //         + b[2]*(pxq.bun(v) + v.bun(pxq) + vxp.dot(q)*Eye3)
@@ -347,6 +387,10 @@ ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
 //              + v.dot(p)*v.dot(q)*Eye3) 
 //         + vov*(c[1]*p.dot(q) + c[2]*(vxp.dot(q)) + c[3]*v.dot(p)*v.dot(q));
 //    
+// [1] Perez, C.M., and Filippou F. C.. "On Nonlinear Geometric 
+//     Transformations of Finite Elements" 
+//     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
+//
 // =========================================================================================
 // function by Claudio Perez                                                            2023
 // -----------------------------------------------------------------------------------------
@@ -558,6 +602,7 @@ LogSO3(const Matrix3D &R)
 static inline Vector3D
 LogC90(const Matrix3D &R)
 {
+  // Crisfield's approximation to the logarithm on SO(3)
   return Vector3D {
     std::asin(0.5*(R(1,2) - R(2,1))),
     std::asin(0.5*(R(0,1) - R(1,0))),
@@ -566,44 +611,4 @@ LogC90(const Matrix3D &R)
 }
 
 
-
-Matrix3D
-TanSO3(const Vector3D &vec, char repr='L')
-{
-//
-//  Compute right differential of the exponential.
-//
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
-
-    double angle2 = vec.dot(vec);
-    double a1, a2, a3;
-
-//  Check for angle near 0
-    if (angle2 < 1e-08) {
-      a1  = 1.0     - angle2*(1.0/6.0   - angle2*(1.0/120.0  - angle2/5040.0));
-      a2  = 0.5     - angle2*(1.0/24.0  - angle2*(1.0/720.0  - angle2/40320.0));
-      a3  = 1.0/6.0 - angle2/(1.0/120.0 - angle2/(1.0/5040.0 - angle2/362880.0));
-
-    } else {
-      double angle = sqrt (angle2);
-      a1  = sin(angle)        /angle; 
-      a2  = (1.0 - cos(angle))/angle2;
-      a3  = (1.0 - a1        )/angle2;
-    }
-
-    //  Assemble differential
-    Matrix3D T;
-    T(1,1)  =         a1 + a3*vec[1]*vec[1];
-    T(1,2)  = -vec[3]*a2 + a3*vec[1]*vec[2];
-    T(1,3)  =  vec[2]*a2 + a3*vec[1]*vec[3];
-    T(2,1)  =  vec[3]*a2 + a3*vec[2]*vec[1];
-    T(2,2)  =         a1 + a3*vec[2]*vec[2];
-    T(2,3)  = -vec[1]*a2 + a3*vec[2]*vec[3];
-    T(3,1)  = -vec[2]*a2 + a3*vec[3]*vec[1];
-    T(3,2)  =  vec[1]*a2 + a3*vec[3]*vec[2];
-    T(3,3)  =         a1 + a3*vec[3]*vec[3];
-    return T;
-}
 
