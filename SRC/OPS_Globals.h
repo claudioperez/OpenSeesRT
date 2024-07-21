@@ -28,7 +28,7 @@
 #define _OPS_Globals_h
 
 #define _USING_OpenSees_STREAMS
-#include <OPS_Stream.h>
+#include <handler/OPS_Stream.h>
 extern OPS_Stream *opserrPtr;
 #define opserr (*opserrPtr)
 #define endln "\n"
