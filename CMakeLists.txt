@@ -19,8 +19,6 @@ set(OPS_SRC_DIR       "${CMAKE_CURRENT_LIST_DIR}/SRC/")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
                       "${CMAKE_CURRENT_LIST_DIR}/BuildTools/cmake")
 
-# include(OpenSeesFunctions)
-
 enable_testing()
 
 #==============================================================================
@@ -198,7 +196,6 @@ add_compile_definitions(
 #----------------------------------------------------------------
 # Global Includes
 #---------------------------------------------------------------- 
-
 include_directories(
   ${OPS_SRC_DIR}
   ${OPS_SRC_DIR}/handler
