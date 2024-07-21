@@ -43,6 +43,7 @@
 #include "Vector.h"
 #include "blasdecl.h"
 #include "routines/cmx.h"
+#include "routines/SY3.h"
 
 #if __cplusplus < 202000L
 #define consteval
@@ -66,6 +67,23 @@ struct MatrixND {
 
   MatrixND<NR,NC,T>& addDiagonal(const double vol) requires(NR == NC);
 
+
+  MatrixND<NR,NC,T> bun(const VectorND<NR,T>& a, const VectorND<NC,T> &b)
+    requires(NR == NC == 3)
+  {
+    return MatrixND<NR,NC,T> {{{
+      {a[0]*b[0], a[1]*b[0], a[2]*b[0]},
+      {a[0]*b[1], a[1]*b[1], a[2]*b[1]},
+      {a[0]*b[2], a[1]*b[2], a[2]*b[2]}
+    }}};
+  }
+
+  int symeig(VectorND<NR>& vals) requires(NR == NC == 3) {
+    double work[3][3];
+    cmx_eigSY3(values, work, vals.values);
+    return 0;
+  }
+
   template <class MatT>
     void addMatrix(const MatT& A, const double scale);
 
@@ -85,6 +103,13 @@ struct MatrixND {
 
   int invert(MatrixND<NR, NC> &) const;
   int invert() {return Matrix(*this).Invert();};
+
+  template<class VecT> MatrixND<NR,NC,T>& addSpin(const VecT& V);
+  template<class VecT> MatrixND<NR,NC,T>& addSpin(const VecT& V, double scale);
+  template<class VecT> MatrixND<NR,NC,T>& addSpinSquare(const VecT& V, const double scale);
+  template<class VecT> void addSpinProduct(const VecT& a, const VectorND<NR,T>& b, const double scale);
+  template<class VecT> void addMatrixSpinProduct(const MatrixND<NR,NC,T>& A, const VecT& b, const double scale);
+  template<class MatT> void addSpinMatrixProduct(const VectorND<NR,T>& a, const MatT& B, const double scale);
 
 //template<class VecT>
 //void addSpinAtRow(const VecT& V, size_t row_index);
@@ -529,7 +554,7 @@ void MatrixND<nr, nc, T>::addMatrix(const MatT& A, const double scale)
       (*this)(i,j) += A(i,j)*scale;
 }
 
-template <index_t nr, index_t nc, class T> 
+template <index_t nr, index_t nc, typename T> 
 template <class VecA, class VecB> inline
 MatrixND<nr, nc, T>&
 MatrixND<nr, nc, T>::addTensorProduct(const VecA& a, const VecB& b, const double scale)
@@ -541,7 +566,7 @@ MatrixND<nr, nc, T>::addTensorProduct(const VecA& a, const VecB& b, const double
   return *this;
 }
 
-template <index_t nr, index_t nc, class T> 
+template <index_t nr, index_t nc, typename T> 
 template <class MatT, int nk> inline
 void
 MatrixND<nr, nc, T>::addMatrixProduct(const MatrixND<nr, nk, T>& A, const MatT& B, const double scale)
@@ -553,7 +578,7 @@ MatrixND<nr, nc, T>::addMatrixProduct(const MatrixND<nr, nk, T>& A, const MatT& 
 }
 
 // B'*C
-template <index_t nr, index_t nc, class T> 
+template <index_t nr, index_t nc, typename T> 
 template <class MatT, int nk> inline
 void
 MatrixND<nr, nc, T>::addMatrixTransposeProduct(double thisFact,
@@ -669,6 +694,119 @@ MatrixND<nr,nc,scalar_t>::addMatrixTripleProduct(
 
 template <int nr, int nc, typename T=double>
 MatrixND(const T (&)[nc][nr])->MatrixND<nr, nc, T>;
+
+
+//
+// 3D
+//
+
+template<int NR, int NC, typename T>
+template<class VecT>
+inline MatrixND<NR,NC,T>& 
+MatrixND<NR,NC,T>::addSpin(const VecT& v)  requires(NR == 3)
+{
+   const double v0 = v[0],
+                v1 = v[1],
+                v2 = v[2];
+
+  (*this)(0, 0) += 0.0;   (*this)(0, 1) += -v2;     (*this)(0, 2) +=  v1;
+  (*this)(1, 0) +=  v2;   (*this)(1, 1) +=  0.0;    (*this)(1, 2) += -v0;
+  (*this)(2, 0) += -v1;   (*this)(2, 1) +=  v0;     (*this)(2, 2) += 0.0;
+
+  return *this;
+}
+
+
+template<int NR, int NC, typename T>
+template<class VecT>
+inline MatrixND<NR,NC,T>&
+MatrixND<NR,NC,T>::addSpin(const VecT& v, double mult)
+{
+   const double v0 = mult*v[0],
+                v1 = mult*v[1],
+                v2 = mult*v[2];
+
+  (*this)(0, 0) += 0.0;   (*this)(0, 1) += -v2;     (*this)(0, 2) +=  v1;
+  (*this)(1, 0) +=  v2;   (*this)(1, 1) += 0.00;    (*this)(1, 2) += -v0;
+  (*this)(2, 0) += -v1;   (*this)(2, 1) +=  v0;     (*this)(2, 2) += 0.0;
+  return *this;
+}
+
+
+template<int NR, int NC, typename T>
+template <class VecT> inline
+MatrixND<NR,NC,T>& 
+MatrixND<NR,NC,T>::addSpinSquare(const VecT& v, const double scale)
+  requires(NR == NC == 3)
+{
+  const double v1 = v[0],
+               v2 = v[1],
+               v3 = v[2];
+
+  (*this)(0,0) += scale*( -v2*v2 - v3*v3 );
+  (*this)(1,1) += scale*( -v1*v1 - v3*v3 );
+  (*this)(2,2) += scale*( -v1*v1 - v2*v2 );
+
+  (*this)(0,1) += scale*(  v1*v2 );
+  (*this)(1,0) += scale*(  v1*v2 );
+  (*this)(2,0) += scale*(  v1*v3 );
+  (*this)(0,2) += scale*(  v1*v3 );
+  (*this)(1,2) += scale*(  v2*v3 );
+  (*this)(2,1) += scale*(  v2*v3 );
+  return *this;
+}
+
+
+template<int NR, int NC, typename T>
+template<class VecT> inline
+void MatrixND<NR,NC,T>::addSpinProduct(const VecT& a, const VectorND<NR,T>& b, const double scale)
+  requires(NR == NC == 3)
+{
+  // a^b^ = boa - a.b 1
+  // where 'o' denotes the tensor product and '.' the dot product
+  //
+  this->addTensorProduct(b, a, scale);
+  this->addDiagonal(-b.dot(a)*scale);
+}
+
+template<int NR, int NC, typename T>
+template<class VecT> inline
+void MatrixND<NR,NC,T>::addMatrixSpinProduct(const MatrixND<NR,NC,T>& A, const VecT& b, const double scale)
+{
+  // this += s*A*[b^]
+  // where b^ is the skew-symmetric representation of the three-vector b, s is a scalar,
+  // and A a 3x3 matrix.
+  //
+  (*this)(0, 0) += scale*( A(0,1)*b[2] - A(0,2)*b[1]);
+  (*this)(0, 1) += scale*(-A(0,0)*b[2] + A(0,2)*b[0]);
+  (*this)(0, 2) += scale*( A(0,0)*b[1] - A(0,1)*b[0]);
+  (*this)(1, 0) += scale*( A(1,1)*b[2] - A(1,2)*b[1]);
+  (*this)(1, 1) += scale*(-A(1,0)*b[2] + A(1,2)*b[0]);
+  (*this)(1, 2) += scale*( A(1,0)*b[1] - A(1,1)*b[0]);
+  (*this)(2, 0) += scale*( A(2,1)*b[2] - A(2,2)*b[1]);
+  (*this)(2, 1) += scale*(-A(2,0)*b[2] + A(2,2)*b[0]);
+  (*this)(2, 2) += scale*( A(2,0)*b[1] - A(2,1)*b[0]);
+}
+
+template<int NR, int NC, typename T>
+template<class MatT> inline
+void MatrixND<NR,NC,T>::addSpinMatrixProduct(const VectorND<NR,T>& a, const MatT& B, const double scale)
+  requires(NR == NC == 3)
+{
+  // this += s*[a^]*B
+  // where a^ is the skew-symmetric representation of the three-vector a, s is a scalar,
+  // and B a 3x3 matrix.
+  //
+  (*this)(0, 0) += scale*( -B(1,0)*a[2] + B(2,0)*a[1]);
+  (*this)(0, 1) += scale*( -B(1,1)*a[2] + B(2,1)*a[1]);
+  (*this)(0, 2) += scale*( -B(1,2)*a[2] + B(2,2)*a[1]);
+  (*this)(1, 0) += scale*(  B(0,0)*a[2] - B(2,0)*a[0]);
+  (*this)(1, 1) += scale*(  B(0,1)*a[2] - B(2,1)*a[0]);
+  (*this)(1, 2) += scale*(  B(0,2)*a[2] - B(2,2)*a[0]);
+  (*this)(2, 0) += scale*( -B(0,0)*a[1] + B(1,0)*a[0]);
+  (*this)(2, 1) += scale*( -B(0,1)*a[1] + B(1,1)*a[0]);
+  (*this)(2, 2) += scale*( -B(0,2)*a[1] + B(1,2)*a[0]);
+}
 
 } // namespace OpenSees
 

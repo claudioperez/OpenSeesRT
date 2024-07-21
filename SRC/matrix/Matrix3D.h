@@ -15,9 +15,14 @@
 
 namespace OpenSees {
 
+
+using Matrix3D = MatrixND<3,3,double>;
+
+#if 0
 class  Matrix3D: public MatrixND<3,3,double> {
 
 public:
+
   template<class VecT> Matrix3D& addSpin(const VecT& V);
   template<class VecT> Matrix3D& addSpin(const VecT& V, double scale);
   template<class VecT> Matrix3D& addSpinSquare(const VecT& V, const double scale);
@@ -25,13 +30,8 @@ public:
   template<class VecT> void addMatrixSpinProduct(const Matrix3D& A, const VecT& b, const double scale);
   template<class MatT> void addSpinMatrixProduct(const Vector3D& a, const MatT& B, const double scale);
 
-  Vector3D operator*(const Vector3D&v);
 
-  int symeig(Vector3D& vals) {
-    double work[3][3];
-    cmx_eigSY3(values, work, vals.values);
-    return 0;
-  }
+  Vector3D operator*(const Vector3D&v);
 
   Matrix3D operator+(const Matrix3D &B) const {
     const Matrix3D &A = *this;
@@ -42,17 +42,10 @@ public:
     }}};
   }
 
-  Matrix3D bun(const Vector3D& a, const Vector3D &b)
-  {
-    return Matrix3D {{{
-      {a[0]*b[0], a[1]*b[0], a[2]*b[0]},
-      {a[0]*b[1], a[1]*b[1], a[2]*b[1]},
-      {a[0]*b[2], a[1]*b[2], a[2]*b[2]}
-    }}};
-  }
-
 };
+#endif
 
+#if 0
 inline Vector3D
 Matrix3D::operator*(const Vector3D&v)
 {
@@ -162,6 +155,7 @@ void Matrix3D::addSpinMatrixProduct(const Vector3D& a, const MatT& B, const doub
   (*this)(2, 1) += scale*( -B(0,1)*a[1] + B(1,1)*a[0]);
   (*this)(2, 2) += scale*( -B(0,2)*a[1] + B(1,2)*a[0]);
 }
+#endif
 
 } // namespace OpenSees
 

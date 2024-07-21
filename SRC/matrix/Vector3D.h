@@ -18,7 +18,7 @@
 #endif
 
 
-namespace OpenSees {class Matrix3D;};
+// namespace OpenSees {struct Matrix3D;};
 
 using Vector3D = OpenSees::VectorND<3, double>;
 
