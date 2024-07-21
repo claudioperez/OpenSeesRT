@@ -13,12 +13,7 @@
 #include "Quaternion.h"
 using OpenSees::Matrix3D;
 
-// typedef ASDQuaternion<double> Versor;
 using Versor = OpenSees::VectorND<4,double>;
-
-// Vector3D VectorFromVersor(Versor);
-// Versor   VersorFromMatrix(Matrix3D);
-// matrix_to_versor
 
 #define cot(x) cos(x)/sin(x)
 
@@ -28,42 +23,30 @@ static constexpr Matrix3D Eye3 {{
   {0, 0, 1}
 }};
 
-Vector3D Axial(const Matrix3D &X)
+
+Vector3D
+Axial(const Matrix3D &X)
 {
 // Return the axial vector x of the given skew-symmetric 3x3 matrix X.
 // =========================================================================================
 // function by Claudio Perez                                                            2023
 // -----------------------------------------------------------------------------------------
-
   return {X(3,2), X(1,3), X(2,1)};
 }
 
-Matrix3D Spin(const Vector3D &u)
+Matrix3D
+Spin(const Vector3D &u)
 {
-//SPIN determine the spin tensor of a vector
-// S = SPIN (U)
-// the function determines the spin tensor S of a vector U with three components
- 
-// =========================================================================================
-// FEDEASLab - Release 5.2, July 2021
-// Matlab Finite Elements for Design, Evaluation and Analysis of Structures
-// Professor Filip C. Filippou (filippou@berkeley.edu)
-// Department of Civil and Environmental Engineering, UC Berkeley
-// Copyright(c) 1998-2021. The Regents of the University of California. All Rights Reserved.
-// =========================================================================================
-// function by Veronique LeCorvec                                                    08-2008
-// refactored by Claudio M. Perez                                                       2023
-// -----------------------------------------------------------------------------------------
-
   return Matrix3D {{{  0  ,  u(3), -u(2)},
                     {-u(3),   0  ,  u(1)},
                     { u(2), -u(1),   0  }}};
 }
 
-void GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr)
+void
+GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr)
 {
 //
-//Compute coefficients of the Rodrigues formula and their derivatives.
+// Compute coefficients of the Rodrigues formula and their differentials.
 //
 //                       [1,2]     | [3]
 //                       ----------+-------
@@ -78,7 +61,7 @@ void GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr
 //
 // [1] Perez, C. M., and Filippou F. C. (2024) "On Nonlinear Geometric 
 //     Transformations of Finite Elements" 
-//     Int. J. Numer. Meth. Engrg. 2024 (Expected)
+//     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
 //
 // [2] Ritto-Corrêa, M. and Camotim, D. (2002) "On the differentiation of the
 //     Rodrigues formula and its significance for the vector-like parameterization
@@ -149,6 +132,10 @@ void GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr
   }
 }
 
+//
+// Rotation Conversions
+//
+
 static inline Vector3D
 CayleyFromVersor(const Versor &q)
 {
@@ -163,7 +150,6 @@ CayleyFromVersor(const Versor &q)
 }
 
 
-// VersorFromVector
 static inline Versor
 VersorFromVector(const Vector  &theta)
 {
@@ -254,7 +240,7 @@ VectorFromVersor(const Versor& q)
   const double* const qv = &q[0];
 
 
-  // Return zero
+  // Return zero-vector
   if (qn == 0)
      return theta;
 
@@ -317,16 +303,54 @@ VersorFromMatrix(const Matrix3D &R)
 }
 
 
+//
+// Tangent map
+//
 
-Matrix3D ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
+Matrix3D
+dExpSO3(const Vector3D &v)
 {
 // [1] Perez, C.M., and Filippou F. C.. "On Nonlinear Geometric 
 //     Transformations of Finite Elements" 
-//     Int. J. Numer. Meth. Engrg. 2024 (Expected)
+//     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
 //
 // =========================================================================================
 // function by Claudio Perez                                                            2023
 // -----------------------------------------------------------------------------------------
+
+  // Form first Gib coefficients
+  double a[4];
+  GibSO3(v, a);
+
+  Matrix3D T{0.0};
+  T.addDiagonal(a[1])
+   .addSpin(v, a[2])
+   .addTensorProduct(v, v, a[3]);
+
+  return T;
+
+//return a[1]*Eye3 + a[2]*Th + a[3]*v.bun(v);
+}
+
+
+Matrix3D
+ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
+{
+// [1] Perez, C.M., and Filippou F. C.. "On Nonlinear Geometric 
+//     Transformations of Finite Elements" 
+//     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
+//
+//    return a[3]*psq + b[1]*p.dot(q)*Eye3
+//         + b[2]*(pxq.bun(v) + v.bun(pxq) + vxp.dot(q)*Eye3)
+//         + b[3]*( v.dot(p)*(q.bun(v) + v.bun(q)) 
+//              + v.dot(q)*(p.bun(v) + v.bun(p)) 
+//              + v.dot(p)*v.dot(q)*Eye3) 
+//         + vov*(c[1]*p.dot(q) + c[2]*(vxp.dot(q)) + c[3]*v.dot(p)*v.dot(q));
+//    
+// =========================================================================================
+// function by Claudio Perez                                                            2023
+// -----------------------------------------------------------------------------------------
+//
   double a[4], b[4], c[4];
   GibSO3(v, a, b, c);
 
@@ -354,41 +378,13 @@ Matrix3D ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
     .addTensorProduct(v, v, c[1]*p.dot(q) + c[2]*(vxp.dot(q)) + c[3]*v.dot(p)*v.dot(q));
 
   return dT;
-
-//return a[3]*psq + b[1]*p.dot(q)*Eye3
-//     + b[2]*(pxq.bun(v) + v.bun(pxq) + vxp.dot(q)*Eye3)
-//     + b[3]*( v.dot(p)*(q.bun(v) + v.bun(q)) 
-//          + v.dot(q)*(p.bun(v) + v.bun(p)) 
-//          + v.dot(p)*v.dot(q)*Eye3) 
-//     + vov*(c[1]*p.dot(q) + c[2]*(vxp.dot(q)) + c[3]*v.dot(p)*v.dot(q));
 }
 
-Matrix3D dExpSO3(const Vector3D &v)
+
+Matrix3D
+dLogSO3(const Vector3D &v)
 {
-// [1] Perez, C.M., and Filippou F. C.. "On Nonlinear Geometric 
-//     Transformations of Finite Elements" 
-//     Int. J. Numer. Meth. Engrg. 2024 (Expected)
 //
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
-
-  // Form first Gib coefficients
-  double a[4];
-  GibSO3(v, a);
-
-  Matrix3D T{0.0};
-  T.addDiagonal(a[1])
-   .addSpin(v, a[2])
-   .addTensorProduct(v, v, a[3]);
-
-  return T;
-
-//return a[1]*Eye3 + a[2]*Th + a[3]*v.bun(v);
-}
-
-Matrix3D dLogSO3(const Vector3D &v)
-{
 // =========================================================================================
 // function by Claudio Perez                                                            2023
 // -----------------------------------------------------------------------------------------
@@ -506,12 +502,12 @@ Matrix3D ExpSO3(const Vector3D &theta)
 
 
 static inline Matrix3D
-CaySO3(const Vector3D &w)
+CaySO3(const Vector3D &cayley)
 {
-  // Cayley map: for a rotation matrix given the tangent-scaled pseudo-vector
+  // Cayley map: for a rotation matrix given the "tangent-scaled pseudo-vector"
 
   // R = I + (S + S*S/2)/(1 + w' * w / 4);
-  const double c = 1.0/(1 + w.dot(w)/4.0);
+  const double c = 1.0/(1 + cayley.dot(cayley)/4.0);
 
   Matrix3D R;
   R.zero();
@@ -524,30 +520,25 @@ CaySO3(const Vector3D &w)
 
 
 
-Vector3D LogSO3(const Matrix3D &R)
+Vector3D
+LogSO3(const Matrix3D &R)
 {
-//LOGSO3 Inverse of the exponential map on SO(3).
-// vect = LogSO3(R)
-// vect = LogSO3(R,option)
+// Inverse of the exponential map on SO(3).
+//
 // Returns the axial parameters associated with the rotation `R`. The result
 // should satisfy the following equality for any 3-vector, `v`:
 //
-//       LogSO3(expm(spin(v))) == v
+//       LogSO3(expm(Hat(v))) == v
 //
-// where `expm` is the Matlab built-in matrix exponential, and `spin` is a function
+// where `expm` is matrix exponential, and `Hat` is a function
 // which produces the skew-symmetric 3x3 matrix associated with vector `v`.
 //
 // Parameters
-//   R       (3x3)   Rotation matrix.
-//   option  string  Algorithm option; default is 'Quat'. See reference below.
-//                   All other options are for internal use.
+//   R       (3x3)   Rotation (proper orthogonal) matrix.
 //
 // Remarks
 //
-// - Does not check if input is really a rotation. If you arent sure, use
-//   Matlab's `logm`. This is slower, but more general. Note however that`logm`
-//   may not be as accurate in corner cases and sometimes returns complex-valued
-//   results.
+// - Does not check if input is really a rotation.
 // - The angle corresponding to the returned vector is always in the interval [0,pi].
 //
 //
@@ -576,8 +567,10 @@ LogC90(const Matrix3D &R)
 
 
 
-Matrix3D TanSO3(const Vector3D &vec)
+Matrix3D
+TanSO3(const Vector3D &vec, char repr='L')
 {
+//
 //  Compute right differential of the exponential.
 //
 // =========================================================================================
@@ -600,7 +593,7 @@ Matrix3D TanSO3(const Vector3D &vec)
       a3  = (1.0 - a1        )/angle2;
     }
 
-//  Assemble differential
+    //  Assemble differential
     Matrix3D T;
     T(1,1)  =         a1 + a3*vec[1]*vec[1];
     T(1,2)  = -vec[3]*a2 + a3*vec[1]*vec[2];
@@ -613,5 +606,4 @@ Matrix3D TanSO3(const Vector3D &vec)
     T(3,3)  =         a1 + a3*vec[3]*vec[3];
     return T;
 }
-
 
