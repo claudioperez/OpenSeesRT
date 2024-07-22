@@ -7,7 +7,7 @@
 #ifndef FiberSection2dInt_h
 #define FiberSection2dInt_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
 
@@ -15,7 +15,7 @@ class UniaxialMaterial;
 class Fiber;
 
 
-class FiberSection2dInt : public SectionForceDeformation
+class FiberSection2dInt : public FrameSection
 {
   public:
     FiberSection2dInt(); 
@@ -65,7 +65,7 @@ class FiberSection2dInt : public SectionForceDeformation
     int   revertToLastCommit(void);    
     int   revertToStart(void);
 
-    SectionForceDeformation *getCopy(void);
+    FrameSection *getFrameCopy();
     const ID &getType();
     int getOrder (void) const;
 

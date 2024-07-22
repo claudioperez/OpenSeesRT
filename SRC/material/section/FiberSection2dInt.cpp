@@ -20,7 +20,7 @@
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
 #include <SensitiveResponse.h>
-typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
+typedef SensitiveResponse<FrameSection> SectionResponse;
 #include <UniaxialMaterial.h>
 
 #include <float.h>
@@ -35,7 +35,7 @@ ID FiberSection2dInt::code(2);
 #include <UniaxialFiber2d.h>
 // constructors:
 FiberSection2dInt::FiberSection2dInt(int tag, int num, Fiber **fibers, int Hnum, Fiber **Hfibers, int strip1, double t1, int strip2, double t2, int strip3, double t3): 
-  SectionForceDeformation(tag, SEC_TAG_FiberSection2dInt),
+  FrameSection(tag, SEC_TAG_FiberSection2dInt),
   numFibers(num), theMaterials1(0), theMaterials2(0), matData(0),
   numHFibers(Hnum), theHMaterials(0), matHData(0), 
   NStrip(strip1+strip2+strip3), NStrip1(strip1), tavg1(t1), NStrip2(strip2), tavg2(t2), NStrip3(strip3), tavg3(t3), 
@@ -193,7 +193,7 @@ FiberSection2dInt::FiberSection2dInt(int tag, int num, Fiber **fibers, int Hnum,
 
 // constructor for blank object that recvSelf needs to be invoked upon
 FiberSection2dInt::FiberSection2dInt():
-  SectionForceDeformation(0, SEC_TAG_FiberSection2dInt),
+  FrameSection(0, SEC_TAG_FiberSection2dInt),
   numFibers(0), theMaterials1(0), theMaterials2(0), matData(0),
   numHFibers(0), theHMaterials(0), matHData(0), NStrip1(0), tavg1(0.0), NStrip2(0), tavg2(0.0), NStrip3(0), tavg3(0.0), StripCenterLoc(100), StripLoc(100,1000), FiberLoc(1000),
   yBar(0.0), ymax(0.0), ymin(0.0), e(3), eCommit(3), s(0), ks(0), sigmaY(0), tau(0), alpha(0), alphaCommit(0), iterFile(0), exf(0), e1f(0),e2f(0),eyf(0), sxf(0), s1f(0),s2f(0),syf(0)
@@ -1013,8 +1013,8 @@ FiberSection2dInt::getStressResultant(void)
   return *s;
 }
 
-SectionForceDeformation*
-FiberSection2dInt::getCopy(void)
+FrameSection*
+FiberSection2dInt::getFrameCopy(void)
 {
   FiberSection2dInt *theCopy = new FiberSection2dInt ();
   theCopy->setTag(this->getTag());
@@ -1026,14 +1026,14 @@ FiberSection2dInt::getCopy(void)
     theCopy->theMaterials2 = new UniaxialMaterial *[numFibers];
 
     if (theCopy->theMaterials1 == 0) {
-      opserr <<"FiberSection2dInt::getCopy -- failed to allocate Material pointers\n";
+      opserr <<"FiberSection2dInt::getFrameCopy -- failed to allocate Material pointers\n";
       exit(-1);
     }
 
     theCopy->matData = new double [numFibers*2];
 
     if (theCopy->matData == 0) {
-      opserr << "FiberSection2dInt::getCopy -- failed to allocate double array for material data\n";
+      opserr << "FiberSection2dInt::getFrameCopy -- failed to allocate double array for material data\n";
       exit(-1);
     }
 
@@ -1044,7 +1044,7 @@ FiberSection2dInt::getCopy(void)
       theCopy->theMaterials2[i] = theMaterials2[i]->getCopy();
 
       if (theCopy->theMaterials1[i] == 0) {
-    opserr <<"FiberSection2dInt::getCopy -- failed to get copy of a Material";
+    opserr <<"FiberSection2dInt::getFrameCopy -- failed to get copy of a Material";
     exit(-1);
       }
     }  
@@ -1057,14 +1057,14 @@ FiberSection2dInt::getCopy(void)
     theCopy->theHMaterials = new UniaxialMaterial *[numHFibers * NStrip];
 
     if (theCopy->theHMaterials == 0) {
-      opserr <<"FiberSection2dInt::getCopy -- failed to allocate HMaterial pointers\n";
+      opserr <<"FiberSection2dInt::getFrameCopy -- failed to allocate HMaterial pointers\n";
       exit(-1);
     }
 
     theCopy->matHData = new double [numHFibers*2];
 
     if (theCopy->matHData == 0) {
-      opserr << "FiberSection2dInt::getCopy -- failed to allocate double array for Hmaterial data\n";
+      opserr << "FiberSection2dInt::getFrameCopy -- failed to allocate double array for Hmaterial data\n";
       exit(-1);
     }
 
@@ -1075,7 +1075,7 @@ FiberSection2dInt::getCopy(void)
     theCopy->theHMaterials[i * numHFibers + jj] = theHMaterials[i * numHFibers + jj]->getCopy();
 
     if (theCopy->theHMaterials[i * numHFibers + jj] == 0) {
-      opserr <<"FiberSection2dInt::getCopy -- failed to get copy of a HMaterial";
+      opserr <<"FiberSection2dInt::getFrameCopy -- failed to get copy of a HMaterial";
       exit(-1);
     }
       }

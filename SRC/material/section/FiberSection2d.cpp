@@ -36,7 +36,7 @@
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
 #include <SensitiveResponse.h>
-typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
+typedef SensitiveResponse<FrameSection> SectionResponse;
 #include <UniaxialMaterial.h>
 
 #include "FiberResponse.h"
@@ -46,7 +46,7 @@ ID FiberSection2d::code(2);
 
 // allocate memory for fibers
 FiberSection2d::FiberSection2d(int tag, int num, bool compCentroid): 
-  SectionForceDeformation(tag, SEC_TAG_FiberSection2d),
+  FrameSection(tag, SEC_TAG_FiberSection2d),
   numFibers(0), sizeFibers(num), theMaterials(0), matData(new double [num*2]{}),
   QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(compCentroid),
   e(2), s(0), ks(0), dedh(2)
@@ -75,7 +75,7 @@ FiberSection2d::FiberSection2d(int tag, int num, bool compCentroid):
 
 // constructor for blank object that recvSelf needs to be invoked upon
 FiberSection2d::FiberSection2d():
-  SectionForceDeformation(0, SEC_TAG_FiberSection2d),
+  FrameSection(0, SEC_TAG_FiberSection2d),
   numFibers(0), sizeFibers(0), theMaterials(0), matData(0),
   QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(true),
   e(2), s(0), ks(0), dedh(2)
@@ -259,8 +259,8 @@ FiberSection2d::getStressResultant(void)
   return *s;
 }
 
-SectionForceDeformation*
-FiberSection2d::getCopy(void)
+FrameSection*
+FiberSection2d::getFrameCopy(void)
 {
   FiberSection2d *theCopy = new FiberSection2d();
   theCopy->setTag(this->getTag());
@@ -277,7 +277,7 @@ FiberSection2d::getCopy(void)
       theCopy->theMaterials[i] = theMaterials[i]->getCopy();
 
       if (theCopy->theMaterials[i] == 0) {
-	opserr <<"FiberSection2d::getCopy -- failed to get copy of a Material";
+	opserr <<"FiberSection2d::getFrameCopy -- failed to get copy of a Material";
         delete theCopy;
         return nullptr;
       }
@@ -748,7 +748,7 @@ FiberSection2d::setResponse(const char **argv, int argc,
   }
 
   if (theResponse == 0)
-    return SectionForceDeformation::setResponse(argv, argc, output);
+    return FrameSection::setResponse(argv, argc, output);
 
   return theResponse;
 }
@@ -820,7 +820,7 @@ FiberSection2d::getResponse(int responseID, Information &sectInfo)
 	  return sectInfo.setDouble(getEnergy());
   }
 
-  return SectionForceDeformation::getResponse(responseID, sectInfo);
+  return FrameSection::getResponse(responseID, sectInfo);
 }
 
 

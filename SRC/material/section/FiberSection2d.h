@@ -29,7 +29,7 @@
 #ifndef FiberSection2d_h
 #define FiberSection2d_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
 #include <memory>
@@ -37,7 +37,7 @@
 class UniaxialMaterial;
 class Response;
 
-class FiberSection2d : public SectionForceDeformation
+class FiberSection2d : public FrameSection
 {
   public:
     FiberSection2d(); 
@@ -62,7 +62,7 @@ class FiberSection2d : public SectionForceDeformation
     int   revertToLastCommit(void);    
     int   revertToStart(void);
  
-    SectionForceDeformation *getCopy(void);
+    FrameSection *getFrameCopy();
     const ID &getType(void);
     int getOrder (void) const;
     
