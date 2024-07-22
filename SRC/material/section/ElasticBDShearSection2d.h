@@ -17,55 +17,53 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2008-08-26 16:49:19 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/ElasticShearSection3d.h,v $
+//
+// NOTE[cmp] : The only difference between this and ElasticShearSection2d
+// is that it is constructed from dimensions b and d???
+//
+#ifndef ElasticBDShearSection2d_h
+#define ElasticBDShearSection2d_h
 
-#ifndef ElasticShearSection3d_h
-#define ElasticShearSection3d_h
-
-#include <FrameSection.h>
+#include <SectionForceDeformation.h>
 #include <Matrix.h>
 #include <Vector.h>
 
 class Channel;
 class FEM_ObjectBroker;
 class Information;
-class Parameter;
 
-class ElasticShearSection3d : public FrameSection
+class ElasticBDShearSection2d: public SectionForceDeformation
 {
  public:
-  ElasticShearSection3d(int tag, double E, double A, double Iz, 
-			double Iy, double G, double J, double alphaY, double alphaZ);
-  ElasticShearSection3d(void);
-  ~ElasticShearSection3d(void);
+  ElasticBDShearSection2d(int tag, double E, double b, double d,
+			double G, double alpha);
+  ElasticBDShearSection2d();    
+  ~ElasticBDShearSection2d();
   
-  const char *getClassType(void) const {return "ElasticShearSection3d";};
+  int commitState();
+  int revertToLastCommit();
+  int revertToStart();
   
-  int commitState(void);
-  int revertToLastCommit(void);
-  int revertToStart(void);
+  const char *getClassType() const {return "ElasticBDShearSection2d";};
   
   int setTrialSectionDeformation(const Vector&);
-  const Vector &getSectionDeformation(void);
+  const Vector &getSectionDeformation();
   
-  const Vector &getStressResultant(void);
-  const Matrix &getSectionTangent(void);
-  const Matrix &getInitialTangent(void);
-  const Matrix &getSectionFlexibility(void);
-  const Matrix &getInitialFlexibility(void);
+  const Vector &getStressResultant();
+  const Matrix &getSectionTangent();
+  const Matrix &getInitialTangent();
+  const Matrix &getSectionFlexibility();
+  const Matrix &getInitialFlexibility();
   
-  FrameSection *getFrameCopy();
+  SectionForceDeformation *getCopy();
   const ID &getType();
-  int getOrder(void) const;
+  int getOrder() const;
   
   int sendSelf(int commitTag, Channel &theChannel);
   int recvSelf(int commitTag, Channel &theChannel,
 	       FEM_ObjectBroker &theBroker);
   
-  void Print(OPS_Stream &s, int flag = 0);
+  void Print(OPS_Stream &s, int flag =0);
   
   int setParameter(const char **argv, int argc, Parameter &param);
   int updateParameter(int parameterID, Information &info);
@@ -73,19 +71,19 @@ class ElasticShearSection3d : public FrameSection
   const Vector& getStressResultantSensitivity(int gradIndex,
 					      bool conditional);
   const Matrix& getInitialTangentSensitivity(int gradIndex);
-
+  
  protected:
   
  private:
   
-  double E, A, Iz, Iy, G, J, alphaY, alphaZ;
+  double E, b, d, G, alpha;
   
   Vector e;			// section trial deformations
   
   static Vector s;
   static Matrix ks;
   static ID code;
-
+  
   int parameterID;
 };
 

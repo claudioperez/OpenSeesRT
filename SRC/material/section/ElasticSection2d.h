@@ -22,7 +22,7 @@
 #ifndef ElasticSection2d_h
 #define ElasticSection2d_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Matrix.h>
 #include <Vector.h>
 
@@ -30,7 +30,7 @@ class Channel;
 class FEM_ObjectBroker;
 class Information;
 
-class ElasticSection2d: public SectionForceDeformation
+class ElasticSection2d: public FrameSection
 {
  public:
   ElasticSection2d(int tag, double E, double A, double I);
@@ -52,7 +52,7 @@ class ElasticSection2d: public SectionForceDeformation
   const Matrix &getSectionFlexibility(void);
   const Matrix &getInitialFlexibility(void);
   
-  SectionForceDeformation *getCopy(void);
+  FrameSection *getFrameCopy();
   const ID &getType();
   int getOrder(void) const;
   
