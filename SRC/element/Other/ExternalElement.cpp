@@ -17,16 +17,10 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 6049 $
-// $Date: 2019-01-29 $
-// $URL: svn://peera.berkeley.edu/usr/local/svn/OpenSees/trunk/SRC/element/truss/ExternalElement.h $
-
-
+//
 // Written: M. Salehi 
 // Created: Jan 2019
 //
-
 #include <ExternalElement.h>
 #include <Information.h>
 
@@ -249,6 +243,5 @@ ExternalElement::setParameter(const char **argv, int argc, Parameter &param)
 int
 ExternalElement::updateParameter(int parameterID, Information &info)
 {
-  return 0;
-    
+  return 0;    
 }
