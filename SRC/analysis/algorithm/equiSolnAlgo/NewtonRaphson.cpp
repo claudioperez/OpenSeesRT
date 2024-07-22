@@ -39,7 +39,6 @@
 #include <ConvergenceTest.h>
 #include <ID.h>
 #include <elementAPI.h>
-#include <string>
 
 
 void *
