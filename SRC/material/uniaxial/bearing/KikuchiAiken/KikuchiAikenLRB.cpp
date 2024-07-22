@@ -29,7 +29,7 @@
 
 #include <string.h>
 #include <ID.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include "KikuchiAikenLRB.h"
 #include <Channel.h>
 #define _USE_MATH_DEFINES
