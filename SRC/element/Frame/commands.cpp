@@ -67,7 +67,6 @@
 
 #include <element/Frame/Basic/CubicFrame3d.h>
 #include <element/Frame/Basic/ForceFrame3d.h>
-#include <element/Frame/Basic/ForceFrame3d01.h>
 #include <element/Frame/Basic/DisplEulerFrame3d.h>
 
 #include <DispBeamColumn2dWithSensitivity.h>
@@ -640,14 +639,9 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
       else if (strcmp(argv[1], "ForceFrame") == 0) {
         std::array<int, 2> nodes {iNode, jNode};
-
-        if (getenv("ELE"))
-          theElement = new ForceFrame3d01(eleTag, nodes, nIP, sections.data(),
-                                          *beamIntegr, *theTransf3d, mass, numIter, tol);
-        else
-          theElement = new ForceFrame3d(eleTag, nodes, sections,
-                                        *beamIntegr, *theTransf3d, mass, numIter, tol,
-                                        cMass, use_mass);
+        theElement = new ForceFrame3d(eleTag, nodes, sections,
+                                      *beamIntegr, *theTransf3d, mass, numIter, tol,
+                                      cMass, use_mass);
       }
 
       else if (strcmp(argv[1], "DisplFrame") == 0) {
