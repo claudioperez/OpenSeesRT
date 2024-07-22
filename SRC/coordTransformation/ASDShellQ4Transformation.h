@@ -30,7 +30,7 @@
 #include <ASDShellQ4LocalCoordinateSystem.h>
 #include <Node.h>
 #include <Domain.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 /** \brief ASDShellQ4Transformation
 *
@@ -131,19 +131,19 @@ public:
     {
     }
 
-    virtual ASDShellQ4LocalCoordinateSystem createReferenceCoordinateSystem()const
+    virtual ASDShellQ4LocalCoordinateSystem createReferenceCoordinateSystem() const
     {
         // the reference coordinate system in the underformed configuration
         // using the default alignment to the first column of the jacobian at center
         return ASDShellQ4LocalCoordinateSystem(
-            Vector3Type(m_nodes[0]->getCrds()),
-            Vector3Type(m_nodes[1]->getCrds()),
-            Vector3Type(m_nodes[2]->getCrds()),
-            Vector3Type(m_nodes[3]->getCrds())
+            m_nodes[0]->getCrds(),
+            m_nodes[1]->getCrds(),
+            m_nodes[2]->getCrds(),
+            m_nodes[3]->getCrds()
         );
     }
 
-    virtual ASDShellQ4LocalCoordinateSystem createLocalCoordinateSystem(const VectorType& globalDisplacements)const
+    virtual ASDShellQ4LocalCoordinateSystem createLocalCoordinateSystem(const VectorType& globalDisplacements) const
     {
         // same as reference
         return createReferenceCoordinateSystem();

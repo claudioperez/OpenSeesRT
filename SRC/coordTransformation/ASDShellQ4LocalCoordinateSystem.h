@@ -54,11 +54,12 @@ public:
 
 public:
 
+  template<class Vec3T>
 	ASDShellQ4LocalCoordinateSystem(
-		const Vector3Type& P1global,
-		const Vector3Type& P2global,
-		const Vector3Type& P3global,
-		const Vector3Type& P4global,
+		const Vec3T& P1global,
+		const Vec3T& P2global,
+		const Vec3T& P3global,
+		const Vec3T& P4global,
 		double alpha = 0.0)
 		: m_P(4)
 		, m_orientation(3, 3)
@@ -149,9 +150,9 @@ public:
 
 	inline const MatrixType& Orientation()const { return m_orientation; }
 
-	inline Vector3Type Vx() const { return Vector3Type( m_orientation(0, 0), m_orientation(0, 1), m_orientation(0, 2)) ; }
-	inline Vector3Type Vy() const { return Vector3Type( m_orientation(1, 0), m_orientation(1, 1), m_orientation(1, 2)) ; }
-	inline Vector3Type Vz() const { return Vector3Type( m_orientation(2, 0), m_orientation(2, 1), m_orientation(2, 2)) ; }
+	inline Vector3Type Vx() const { return Vector3Type{{m_orientation(0, 0), m_orientation(0, 1), m_orientation(0, 2)}} ; }
+	inline Vector3Type Vy() const { return Vector3Type{{m_orientation(1, 0), m_orientation(1, 1), m_orientation(1, 2)}} ; }
+	inline Vector3Type Vz() const { return Vector3Type{{m_orientation(2, 0), m_orientation(2, 1), m_orientation(2, 2)}} ; }
 
 	inline double WarpageFactor()const { return Z1(); }
 	inline bool IsWarped()const { return std::abs(WarpageFactor()) > 0.0; }

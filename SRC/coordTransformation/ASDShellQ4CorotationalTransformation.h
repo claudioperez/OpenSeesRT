@@ -107,7 +107,7 @@ public:
         // save initial rotations, no need to take current rotation
         // since we will remove the initial ones (themselves)...
         for (int i = 0; i < 4; i++) {
-            m_RV[i] = Vector3Type(0.0, 0.0, 0.0);
+            m_RV[i] = Vector3Type{{0.0, 0.0, 0.0}};
             m_QN[i] = QuaternionType::FromRotationVector(m_RV[i]);
 
             m_RV_converged[i] = m_RV[i];
@@ -150,7 +150,7 @@ public:
     {
         for (int i = 0; i < 4; i++) {
             // compute current rotation vector removing initial rotations if any
-            Vector3Type currentRotVec;
+            Vector3Type currentRotVec{0.0};
             int index = i * 6;
             currentRotVec(0) = globalDisplacements(index + 3) - m_U0(index + 3);
             currentRotVec(1) = globalDisplacements(index + 4) - m_U0(index + 4);
@@ -176,15 +176,12 @@ public:
         ASDShellQ4LocalCoordinateSystem a = createReferenceCoordinateSystem();
 
         // compute nodal positions at current configuration removing intial displacements if any
-        std::array<Vector3Type, 4> def = {
-            Vector3Type(m_nodes[0]->getCrds()),
-            Vector3Type(m_nodes[1]->getCrds()),
-            Vector3Type(m_nodes[2]->getCrds()),
-            Vector3Type(m_nodes[3]->getCrds())
-        };
+        std::array<Vector3Type, 4> def;
+
         for (int i = 0; i < 4; i++) {
             int index = i * 6;
             Vector3Type& iP = def[i];
+            iP = m_nodes[i]->getCrds();
             iP(0) += globalDisplacements(index) - m_U0(index);
             iP(1) += globalDisplacements(index + 1) - m_U0(index + 1);
             iP(2) += globalDisplacements(index + 2) - m_U0(index + 2);
@@ -246,11 +243,13 @@ public:
             int index = i * 6;
 
             // centered undeformed position
-            Vector3Type X0 = Vector3Type(m_nodes[i]->getCrds());
+            Vector3Type X0;
+            X0 = m_nodes[i]->getCrds();
             X0 -= m_C0;
 
             // centered deformed position
-            Vector3Type X = X0 + Vector3Type(globalDisplacements, index);
+            Vector3Type X;
+            X  = X0 + globalDisplacements.view(index, index+3);
             X -= C;
 
             // get deformational displacements
@@ -453,7 +452,7 @@ public:
 
         // 9*3 -> 9 3d vectors +
         auto lamv = [&v, &pos](Vector3Type& x) {
-            x = Vector3Type(v(pos++), v(pos++), v(pos++));
+            x = Vector3Type{{v(pos++), v(pos++), v(pos++)}};
         };
         lamv(m_C0);
         for (int i = 0; i < 4; i++)
