@@ -41,7 +41,7 @@
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
 
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <stdlib.h> // TODO: remove use of std::exit
 
 Shadow::Shadow(Channel &theChan, 

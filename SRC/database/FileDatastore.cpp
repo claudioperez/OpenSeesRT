@@ -28,7 +28,7 @@
 // Created: 10/98
 //
 #include "FileDatastore.h"
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 #include <string.h>
 #include <stdlib.h>
