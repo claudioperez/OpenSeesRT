@@ -38,14 +38,14 @@
 #ifndef FiberSectionAsym3d_h
 #define FiberSectionAsym3d_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
 
 class UniaxialMaterial;
 class Response;
 
-class FiberSectionAsym3d : public SectionForceDeformation
+class FiberSectionAsym3d : public FrameSection
 {
   public:
     FiberSectionAsym3d(); 
@@ -72,7 +72,7 @@ class FiberSectionAsym3d : public SectionForceDeformation
     int   revertToLastCommit(void);    
     int   revertToStart(void);
  
-    SectionForceDeformation *getCopy(void);
+    FrameSection *getFrameCopy();
     const ID &getType();
     int getOrder (void) const;
     
