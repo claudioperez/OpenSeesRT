@@ -37,7 +37,7 @@
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
 #include <SensitiveResponse.h>
-typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
+typedef SensitiveResponse<FrameSection> SectionResponse;
 #include <UniaxialMaterial.h>
 #include <ElasticMaterial.h>
 
@@ -53,7 +53,7 @@ ID FiberSection3d::code(4);
 // constructors:
 FiberSection3d::FiberSection3d(int tag, int num, Fiber **fibers,
                          UniaxialMaterial &torsion, bool compCentroid): 
-  SectionForceDeformation(tag, SEC_TAG_FiberSection3d),
+  FrameSection(tag, SEC_TAG_FiberSection3d),
   numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
   QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
 #ifdef N_FIBER_THREADS
@@ -109,8 +109,9 @@ FiberSection3d::FiberSection3d(int tag, int num, Fiber **fibers,
 }
 #endif
 
+
 FiberSection3d::FiberSection3d(int tag, int num, UniaxialMaterial &torsion, bool compCentroid): 
-    SectionForceDeformation(tag, SEC_TAG_FiberSection3d),
+    FrameSection(tag, SEC_TAG_FiberSection3d),
     numFibers(0), sizeFibers(num), theMaterials(nullptr), matData(new double [num*3]{}),
     QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
     theTorsion(0),
@@ -142,7 +143,7 @@ FiberSection3d::FiberSection3d(int tag, int num, UniaxialMaterial &torsion, bool
 FiberSection3d::FiberSection3d(int tag, int num, UniaxialMaterial **mats,
                          SectionIntegration &si, UniaxialMaterial &torsion,
                          bool compCentroid):
-  SectionForceDeformation(tag, SEC_TAG_FiberSection3d),
+  FrameSection(tag, SEC_TAG_FiberSection3d),
   numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
   QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
   e(4), s(0), ks(0), theTorsion(0)
@@ -203,7 +204,7 @@ FiberSection3d::FiberSection3d(int tag, int num, UniaxialMaterial **mats,
 
 // constructor for blank object that recvSelf needs to be invoked upon
 FiberSection3d::FiberSection3d():
-  SectionForceDeformation(0, SEC_TAG_FiberSection3d),
+  FrameSection(0, SEC_TAG_FiberSection3d),
   numFibers(0), sizeFibers(0), theMaterials(0), matData(0),
   QzBar(0.0), QyBar(0.0), Abar(0.0), yBar(0.0), zBar(0.0), computeCentroid(true), 
 #ifdef N_FIBER_THREADS
@@ -241,13 +242,61 @@ FiberSection3d::~FiberSection3d()
     delete theTorsion;
 }
 
+
+int
+FiberSection3d::getIntegral(Field field, State state, double& value) const
+{
+  value = 0.0;
+  switch (field) {
+    case Field::Unit:
+      for (int i=0; i<numFibers; i++) {
+        const double A  = matData[3*i+2];
+        value += A;
+      }
+      return 0;
+
+
+    case Field::Density:
+      for (int i=0; i<numFibers; i++) {
+        const double A  = theMaterials[i]->getRho();
+        value += A;
+      }
+      return 0;
+
+
+    case Field::UnitYY:
+    case Field::UnitCentroidYY:
+      for (int i=0; i<numFibers; i++) {
+        const double A  = matData[3*i+2];
+        const double y  = matData[3*i]
+                        - yBar*(Field::UnitCentroidYY == field);
+        value += A*y*y;
+      }
+      return 0;
+
+    case Field::UnitZZ:
+    case Field::UnitCentroidZZ:
+      for (int i=0; i<numFibers; i++) {
+        const double A  = matData[3*i+2];
+        const double z  = matData[3*i+1] 
+                        - zBar*(Field::UnitCentroidZZ == field);
+        value += A*z*z;
+      }
+
+    default:
+      return -1;
+  }
+  return -1;
+}
+
+
 int
 FiberSection3d::addFiber(UniaxialMaterial &theMat, const double Area, const double yLoc, const double zLoc)
 {
   // need to create a larger array
   if (numFibers == sizeFibers) {
       int newSize = 2*sizeFibers;
-      if (newSize == 0) 
+      if (newSize == 0)
         newSize = 30;
       UniaxialMaterial **newArray = new UniaxialMaterial *[newSize]; 
       std::shared_ptr<double[]> newMatData(new double [3 * newSize]);
@@ -486,8 +535,8 @@ FiberSection3d::getStressResultant(void)
   return s;
 }
 
-SectionForceDeformation*
-FiberSection3d::getCopy(void)
+FrameSection*
+FiberSection3d::getFrameCopy(void)
 {
   FiberSection3d *theCopy = new FiberSection3d();
   theCopy->setTag(this->getTag());
@@ -540,21 +589,23 @@ FiberSection3d::getType()
   return code;
 }
 
+#if 0
 unsigned long
 FiberSection3d::getScheme() const
 {
   // using enum FrameKeys;
   return N|Mz|My|T;
 }
+#endif
 
 int
-FiberSection3d::getOrder () const
+FiberSection3d::getOrder() const
 {
   return 4;
 }
 
 int
-FiberSection3d::commitState(void)
+FiberSection3d::commitState()
 {
   int err = 0;
   for (int i = 0; i < numFibers; i++)
@@ -1081,7 +1132,7 @@ FiberSection3d::setResponse(const char **argv, int argc, OPS_Stream &output)
   }
 
   if (theResponse == nullptr)
-    return SectionForceDeformation::setResponse(argv, argc, output);
+    return FrameSection::setResponse(argv, argc, output);
 
   return theResponse;
 }
@@ -1148,7 +1199,7 @@ FiberSection3d::getResponse(int responseID, Information &sectInfo)
     return sectInfo.setDouble(getEnergy());
   }
 
-  return SectionForceDeformation::getResponse(responseID, sectInfo);
+  return FrameSection::getResponse(responseID, sectInfo);
 }
 
 int
