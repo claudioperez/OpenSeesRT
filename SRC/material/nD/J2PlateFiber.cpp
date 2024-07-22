@@ -44,7 +44,7 @@
 //
 // Written: Ed "C++" Love
 //
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <J2PlateFiber.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
