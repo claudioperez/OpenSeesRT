@@ -243,9 +243,6 @@ RemoveRecorder::~RemoveRecorder()
       theFile.close();
   }
 
-#ifdef MMTDEBUG
-  opserr << "RemoveRecorder, destructor finished" << endln;
-#endif
 }
 
 int
@@ -253,9 +250,7 @@ int
 RemoveRecorder::record(int commitTag, double timeStamp)
 {
   //    currentTime = timeStamp;    // store so that elimElem() and elimNode() can write to the
-#ifdef MMTDEBUG
-  opserr << "entering record()" << endln;
-#endif
+
   int result = 0;
   if (deltaT == 0.0 || timeStamp >= nextTimeStampToRecord) {
 
@@ -269,18 +264,11 @@ RemoveRecorder::record(int commitTag, double timeStamp)
       for (int m = 0; m < RemoveRecorder::numRemNodes; m++) {
         if (nodeTag == RemoveRecorder::remNodeList[m]) {
           remFlag = 1;
-#ifdef MMTDEBUG
-          opserr << " node " << nodeTag << " already removed " << endln;
-#endif
         }
       }
 
       if (remFlag == 0) {
-
         // go over connected elements to check connectivity
-#ifdef MMTDEBUG
-        opserr << " checking node " << nodeTag << endln;
-#endif
         int numConEles = numEles;
         for (int j = 0; j < numEles; j++) {
           for (int m = 0; m < RemoveRecorder::numRemEles; m++) {
@@ -355,10 +343,7 @@ RemoveRecorder::record(int commitTag, double timeStamp)
       }
 
       // now check if the secondary elements need to be removed
-#ifdef MMTDEBUG
-      opserr << "eleCount = " << eleCount << " numEles = " << numEles
-             << " secondaryFlag = " << int(secondaryFlag) << endln;
-#endif
+
       if (eleCount == numEles && secondaryFlag == true) {
         if (this->elimSecondaries(timeStamp) != 0) {
           opserr << "Error: Collapse Recorder - failed to remove secondary "

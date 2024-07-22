@@ -32,7 +32,7 @@
 #include <Vector.h>
 #include <ID.h>
 #include <Matrix.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 GSA_Recorder::GSA_Recorder(Domain &theDom, 
 			   const char *fileName, 

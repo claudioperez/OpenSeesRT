@@ -52,13 +52,14 @@
 #include <math.h>
 
 NodeRecorder::NodeRecorder()
-:Recorder(RECORDER_TAGS_NodeRecorder),
- theDofs(0), theNodalTags(0), theNodes(0), response(0),
- theDomain(0), theOutputHandler(0),
- echoTimeFlag(true), dataFlag(NodeData::DisplTrial), 
- deltaT(0), nextTimeStampToRecord(0.0), 
- gradIndex(-1),
- initializationDone(false), numValidNodes(0), addColumnInfo(0), theTimeSeries(0), timeSeriesValues(0)
+: Recorder(RECORDER_TAGS_NodeRecorder),
+  theDofs(0), theNodalTags(0), theNodes(0), response(0),
+  theDomain(0), theOutputHandler(0),
+  echoTimeFlag(true), dataFlag(NodeData::DisplTrial), 
+  deltaT(0), nextTimeStampToRecord(0.0), 
+  gradIndex(-1),
+  initializationDone(false), numValidNodes(0), 
+  addColumnInfo(0), theTimeSeries(nullptr), timeSeriesValues(0)
 {
 
 }
@@ -826,8 +827,8 @@ NodeRecorder::initialize(void)
   // need to create the data description, i.e. what each column of data is
   //
   
-  char outputData[128];
-  char dataType[128];
+  char outputData[256];
+  char dataType[256];
 
   if (dataFlag == NodeData::DisplTrial) {
     strcpy(dataType,"D");
