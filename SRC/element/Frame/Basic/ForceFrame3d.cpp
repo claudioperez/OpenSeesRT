@@ -104,25 +104,6 @@ ForceFrame3d::~ForceFrame3d()
     if (point.material != nullptr)
       delete point.material;
 
-//if (sections != nullptr) {
-//  for (int i = 0; i < numSections; i++)
-//    if (sections[i] != 0)
-//      delete sections[i];
-//  delete[] sections;
-//}
-
-//if (fs != nullptr)
-//  delete[] fs;
-
-//if (es != nullptr)
-//  delete[] es;
-
-//if (Ssr != nullptr)
-//  delete[] Ssr;
-
-//if (es_save != nullptr)
-//  delete[] es_save;
-
   if (stencil != nullptr)
     delete stencil;
 
@@ -251,8 +232,8 @@ ForceFrame3d::commitState()
   K_save = K_pres;
   q_save = q_pres;
 
-  //   state_flag = 0;  fmk - commented out, see what happens to Example3.1.tcl if uncommented
-  //                         - i have not a clue why, ask remo if he ever gets in contact with us again!
+  // state_flag = 0;  fmk - commented out, see what happens to Example3.1.tcl if uncommented
+  //                       - i have not a clue why, ask remo if he ever gets in contact with us again!
 
   return err;
 }
@@ -301,11 +282,10 @@ ForceFrame3d::revertToStart()
     if (point.material->revertToStart() != 0)
       return -1;
   }
-  // while (err == 0 && i < numSections);
 
 
-  int err;
   // revert the transformation to start
+  int err;
   if ((err = theCoordTransf->revertToStart()) != 0)
     return err;
 
@@ -335,74 +315,73 @@ ForceFrame3d::getBasicTangent(State state, int rate)
 
 const Matrix &
 ForceFrame3d::getMass()
-{
-    
-    if (!mass_initialized) {
+{    
+  if (!mass_initialized) {
+    total_mass = 0.0;
+    if (this->getIntegral(Field::Density, State::Init, total_mass) != 0)
       total_mass = 0.0;
-      if (this->getIntegral(Field::Density, State::Init, total_mass) != 0)
-        total_mass = 0.0;
+    twist_mass = 0.0;
+    if (this->getIntegral(Field::PolarInertia, State::Init, twist_mass) != 0)
       twist_mass = 0.0;
-      if (this->getIntegral(Field::PolarInertia, State::Init, twist_mass) != 0)
-        twist_mass = 0.0;
 
-      mass_initialized = true;
-    }
+    mass_initialized = true;
+  }
 
-    if (total_mass == 0.0) {
+  if (total_mass == 0.0) {
 
-        THREAD_LOCAL MatrixND<12,12> M{0.0};
-        THREAD_LOCAL Matrix Wrapper{M};
-        return Wrapper;
+      THREAD_LOCAL MatrixND<12,12> M{0.0};
+      THREAD_LOCAL Matrix Wrapper{M};
+      return Wrapper;
 
-    } else if (mass_flag == 0)  {
+  } else if (mass_flag == 0)  {
 
-        THREAD_LOCAL MatrixND<12,12> M{0.0};
-        THREAD_LOCAL Matrix Wrapper{M};
-        // lumped mass matrix
-        double m = 0.5*total_mass;
-        M(0,0) = m;
-        M(1,1) = m;
-        M(2,2) = m;
-        M(6,6) = m;
-        M(7,7) = m;
-        M(8,8) = m;
-        return Wrapper;
+      THREAD_LOCAL MatrixND<12,12> M{0.0};
+      THREAD_LOCAL Matrix Wrapper{M};
+      // lumped mass matrix
+      double m = 0.5*total_mass;
+      M(0,0) = m;
+      M(1,1) = m;
+      M(2,2) = m;
+      M(6,6) = m;
+      M(7,7) = m;
+      M(8,8) = m;
+      return Wrapper;
 
-    } else {
-        // consistent (cubic, prismatic) mass matrix
+  } else {
+      // consistent (cubic, prismatic) mass matrix
 
-        double L  = this->getLength(State::Init);
-        double m  = total_mass/420.0;
-        double mx = twist_mass;
-        THREAD_LOCAL MatrixND<12,12> ml{0.0};
+      double L  = this->getLength(State::Init);
+      double m  = total_mass/420.0;
+      double mx = twist_mass;
+      THREAD_LOCAL MatrixND<12,12> ml{0.0};
 
-        ml(0,0) = ml(6,6) = m*140.0;
-        ml(0,6) = ml(6,0) = m*70.0;
+      ml(0,0) = ml(6,6) = m*140.0;
+      ml(0,6) = ml(6,0) = m*70.0;
 
-        ml(3,3) = ml(9,9) = mx/3.0; // Twisting
-        ml(3,9) = ml(9,3) = mx/6.0;
+      ml(3,3) = ml(9,9) = mx/3.0; // Twisting
+      ml(3,9) = ml(9,3) = mx/6.0;
 
-        ml( 2, 2) = ml( 8, 8) =  m*156.0;
-        ml( 2, 8) = ml( 8, 2) =  m*54.0;
-        ml( 4, 4) = ml(10,10) =  m*4.0*L*L;
-        ml( 4,10) = ml(10, 4) = -m*3.0*L*L;
-        ml( 2, 4) = ml( 4, 2) = -m*22.0*L;
-        ml( 8,10) = ml(10, 8) = -ml(2,4);
-        ml( 2,10) = ml(10, 2) =  m*13.0*L;
-        ml( 4, 8) = ml( 8, 4) = -ml(2,10);
+      ml( 2, 2) = ml( 8, 8) =  m*156.0;
+      ml( 2, 8) = ml( 8, 2) =  m*54.0;
+      ml( 4, 4) = ml(10,10) =  m*4.0*L*L;
+      ml( 4,10) = ml(10, 4) = -m*3.0*L*L;
+      ml( 2, 4) = ml( 4, 2) = -m*22.0*L;
+      ml( 8,10) = ml(10, 8) = -ml(2,4);
+      ml( 2,10) = ml(10, 2) =  m*13.0*L;
+      ml( 4, 8) = ml( 8, 4) = -ml(2,10);
 
-        ml( 1, 1) = ml( 7, 7) =  m*156.0;
-        ml( 1, 7) = ml( 7, 1) =  m*54.0;
-        ml( 5, 5) = ml(11,11) =  m*4.0*L*L;
-        ml( 5,11) = ml(11, 5) = -m*3.0*L*L;
-        ml( 1, 5) = ml( 5, 1) =  m*22.0*L;
-        ml( 7,11) = ml(11, 7) = -ml(1,5);
-        ml( 1,11) = ml(11, 1) = -m*13.0*L;
-        ml( 5, 7) = ml( 7, 5) = -ml(1,11);
+      ml( 1, 1) = ml( 7, 7) =  m*156.0;
+      ml( 1, 7) = ml( 7, 1) =  m*54.0;
+      ml( 5, 5) = ml(11,11) =  m*4.0*L*L;
+      ml( 5,11) = ml(11, 5) = -m*3.0*L*L;
+      ml( 1, 5) = ml( 5, 1) =  m*22.0*L;
+      ml( 7,11) = ml(11, 7) = -ml(1,5);
+      ml( 1,11) = ml(11, 1) = -m*13.0*L;
+      ml( 5, 7) = ml( 7, 5) = -ml(1,11);
 
-        // transform local mass matrix to global system
-        return theCoordTransf->getGlobalMatrixFromLocal(ml);
-    }
+      // transform local mass matrix to global system
+      return theCoordTransf->getGlobalMatrixFromLocal(ml);
+  }
 }
 
 
@@ -413,7 +392,6 @@ ForceFrame3d::getInitialStiff()
   if (Ki != nullptr)
     return *Ki;
 
-//static Matrix f(nq,nq);   // element flexibility matrix  
   THREAD_LOCAL MatrixND<nq,nq> F_init;
   this->getInitialFlexibility(F_init);
     
@@ -427,8 +405,6 @@ ForceFrame3d::getInitialStiff()
 
   return *Ki;
 }
-
-
 
 
 void
@@ -446,12 +422,13 @@ ForceFrame3d::initializeSectionHistoryVariables()
 int
 ForceFrame3d::update()
 {
+  this->BasicFrame3d::update();
+
   // TODO: remove hard limit on sections
   THREAD_LOCAL VectorND<nsr>     es_trial[maxNumSections]; //  strain
   THREAD_LOCAL VectorND<nsr>     sr_trial[maxNumSections]; //  stress resultant
   THREAD_LOCAL MatrixND<nsr,nsr> Fs_trial[maxNumSections]; //  flexibility
 
-  this->BasicFrame3d::update();
 
   // if have completed a recvSelf() - do a revertToLastCommit
   // to get Ssr, etc. set correctly
@@ -540,7 +517,6 @@ ForceFrame3d::update()
       for (int j = 0; j < numIters; j++) {
         F.zero();
         vr.zero();
-
         {
           Matrix f(F);
           if (stencil->addElasticFlexibility(L, f) < 0) {
@@ -744,7 +720,6 @@ ForceFrame3d::update()
               // SECTION_RESPONSE_MZ:
               vr[1] += xL1 * des[5]*wtL;
               vr[2] += xL * des[5]*wtL;
-
             }
 
         } // Gauss loop
@@ -791,7 +766,7 @@ ForceFrame3d::update()
           } else {
             // We converged but we have more to do
             // reset variables for start of next subdivision
-            dv_trial      = dvToDo;
+            dv_trial = dvToDo;
             // NOTE setting subdivide to 1 again maybe too much
             numSubdivide = 1; 
           }
@@ -2247,13 +2222,13 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 }
 
 int
-ForceFrame3d::getResponse(int responseID, Information& eleInfo)
+ForceFrame3d::getResponse(int responseID, Information& info)
 {
   THREAD_LOCAL Vector vp(6);
   THREAD_LOCAL MatrixND<nq,nq> fe;
 
   if (responseID == 1)
-    return eleInfo.setVector(this->getResistingForce());
+    return info.setVector(this->getResistingForce());
 
   else if (responseID == Respond::LocalForce) {
     THREAD_LOCAL VectorND<12> v_resp{0.0};
@@ -2292,21 +2267,21 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     v_resp(2)  = -V + p0[3];
     v_resp(8)  =  V + p0[4];
 
-    return eleInfo.setVector(v_wrap);
+    return info.setVector(v_wrap);
 
   }
 
   // Chord rotation
   else if (responseID == 3) {
     vp = theCoordTransf->getBasicTrialDisp();
-    return eleInfo.setVector(vp);
+    return info.setVector(vp);
   }
 
   else if (responseID == 7)
-    return eleInfo.setVector(q_pres);
+    return info.setVector(q_pres);
 
   else if (responseID == 19)
-    return eleInfo.setMatrix(K_pres);
+    return info.setMatrix(K_pres);
 
   // Plastic rotation
   else if (responseID == 4) {
@@ -2316,7 +2291,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     Vector v0(6);
     this->getInitialDeformations(v0);
     vp.addVector(1.0, v0, -1.0);
-    return eleInfo.setVector(vp);
+    return info.setVector(vp);
   }
 
   else if (responseID == 10) {
@@ -2327,7 +2302,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     Vector locs(numSections);
     for (int i = 0; i < numSections; i++)
       locs(i) = pts[i] * L;
-    return eleInfo.setVector(locs);
+    return info.setVector(locs);
   }
 
   else if (responseID == 11) {
@@ -2338,7 +2313,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     Vector weights(numSections);
     for (int i = 0; i < numSections; i++)
       weights(i) = wts[i] * L;
-    return eleInfo.setVector(weights);
+    return info.setVector(weights);
   }
 
   else if (responseID == 110) {
@@ -2346,7 +2321,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     ID tags(numSections);
     for (int i = 0; i < numSections; i++)
       tags(i) = points[i].material->getTag();
-    return eleInfo.setID(tags);
+    return info.setID(tags);
   }
 
   else if (responseID == 111 || responseID == 1111) {
@@ -2393,7 +2368,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
       disps(i, 1) = uxg(1);
       disps(i, 2) = uxg(2);
     }
-    return eleInfo.setMatrix(disps);
+    return info.setMatrix(disps);
   }
 
   else if (responseID == 112) {
@@ -2439,11 +2414,11 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
       disps(i, 1) = uxg(1);
       disps(i, 2) = uxg(2);
     }
-    return eleInfo.setMatrix(disps);
+    return info.setMatrix(disps);
   }
 
   else if (responseID == 12)
-    return eleInfo.setVector(this->getRayleighDampingForces());
+    return info.setVector(this->getRayleighDampingForces());
 
   // Point of inflection
   else if (responseID == 5) {
@@ -2459,7 +2434,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     if (fabs(q_pres[3] + q_pres[4]) > DBL_EPSILON)
       LI(1) = q_pres[3] / (q_pres[3] + q_pres[4]) * L;
 
-    return eleInfo.setVector(LI);
+    return info.setVector(LI);
   }
 
   // Tangent drift
@@ -2543,23 +2518,23 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     d(2) = d2y;
     d(3) = d3y;
 
-    return eleInfo.setVector(d);
+    return info.setVector(d);
 
   } else if (responseID == 77) { // Why is this here?
     return -1;
 
   } else if (responseID == 8) {
 
-    ID* eleInfoID = eleInfo.theID;
+    ID* infoID = info.theID;
 
-    int compID     = (*eleInfoID)(0);
-    int critID     = (*eleInfoID)(1);
-    int nTagbotn11 = (*eleInfoID)(2);
-    int nTagmidn11 = (*eleInfoID)(3);
-    int nTagtopn11 = (*eleInfoID)(4);
-    int globgrav11 = (*eleInfoID)(5);
+    int compID     = (*infoID)(0);
+    int critID     = (*infoID)(1);
+    int nTagbotn11 = (*infoID)(2);
+    int nTagmidn11 = (*infoID)(3);
+    int nTagtopn11 = (*infoID)(4);
+    int globgrav11 = (*infoID)(5);
 
-    const char* filenamewall = eleInfo.theString;
+    const char* filenamewall = info.theString;
 
     // int returns
     double value       = 0.0;
@@ -2663,7 +2638,7 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
       result8(0) = value;
       result8(1) = checkvalue1;
 
-      return eleInfo.setVector(result8);
+      return info.setVector(result8);
     }
 
     return -1;
@@ -2678,19 +2653,19 @@ ForceFrame3d::getResponse(int responseID, Information& eleInfo)
     for (int i = 0; i < numSections; i++) {
       energy += points[i].material->getEnergy() * points[i].point * L;
     }
-    return eleInfo.setDouble(energy);
+    return info.setDouble(energy);
   }
 
   return -1;
 }
 
 int
-ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information& eleInfo)
+ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information& info)
 {
   // Basic deformation sensitivity
   if (responseID == 3) {
     const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
-    return eleInfo.setVector(dvdh);
+    return info.setVector(dvdh);
   }
 
   // Basic force sensitivity
@@ -2703,22 +2678,21 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
 
     dqdh.addVector(1.0, this->computedqdh(gradNumber), 1.0);
 
-    return eleInfo.setVector(dqdh);
+    return info.setVector(dqdh);
   }
 
   // dsdh
   else if (responseID == 76) {
 
-    int sectionNum = eleInfo.theInt;
+    int sectionNum = info.theInt;
     int order      = points[sectionNum - 1].material->getOrder();
 
     Vector dsdh(nsr);
     dsdh.Zero();
 
-    if (eleLoads.size() > 0) {
+    if (eleLoads.size() > 0)
       this->computeSectionForceSensitivity(dsdh, sectionNum - 1, gradNumber);
-    }
-    //opserr << "FBC3d::getRespSens dspdh: " << dsdh;
+
     static Vector dqdh(6);
 
     const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
@@ -2770,7 +2744,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
       }
     }
 
-    return eleInfo.setVector(dsdh);
+    return info.setVector(dsdh);
   }
 
   // Plastic deformation sensitivity
@@ -2794,7 +2768,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
 
     dvpdh.addMatrixVector(1.0, dfedh, q_pres, -1.0);
 
-    return eleInfo.setVector(dvpdh);
+    return info.setVector(dvpdh);
   }
 
   else
@@ -3364,7 +3338,6 @@ ForceFrame3d::setSectionPointers(std::vector<FrameSection*>& new_sections)
 const Vector &
 ForceFrame3d::getResistingForce()
 {
-#if 1
   double p0[5];
   Vector p0Vec(p0, 5);
   p0Vec.Zero();
@@ -3378,28 +3351,9 @@ ForceFrame3d::getResistingForce()
     P.addVector(1.0, p_iner, -1.0);
 
   return P;
-//
-// ----------------------------------------------------------
-//
-#else
-  double p0[5];
-  Vector p0Vec(p0, 5);
-  p0Vec.Zero();
-
-  if (eleLoads.size() > 0)
-    this->computeReactions(p0);
-  
-  theVector =  theCoordTransf->getGlobalResistingForce(Se, p0Vec);
-  
-  if (density != 0)
-    theVector.addVector(1.0, load, -1.0);
-  
-  return theVector;
-#endif
 }
+
 #if 0
-
-
 void 
 ForceFrame3d::zeroLoad()
 {

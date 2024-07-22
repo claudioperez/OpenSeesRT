@@ -1,8 +1,8 @@
-/* ****************************************************************** **
-**    Openers - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Purpose: This file contains the class definition for PrismFrame2d.
 // PrismFrame2d is a 3d beam element. As such it can only
@@ -36,7 +36,8 @@ PrismFrame2d::PrismFrame2d()
   :Element(0,ELE_TAG_ElasticBeam2d), 
    A(0.0), E(0.0), I(0.0), alpha(0.0), depth(0.0), rho(0.0), 
    cMass(0), release(0),
-   Q(6), connectedExternalNodes(2), theCoordTransf(0)
+   Q(6),
+   connectedExternalNodes(2), theCoordTransf(0)
 {
   q.zero();
   q0.zero();
@@ -170,18 +171,7 @@ PrismFrame2d::setDomain(Domain *theDomain)
 
   int dofNd1 = theNodes[0]->getNumberDOF();
   int dofNd2 = theNodes[1]->getNumberDOF();    
-  
-  if (dofNd1 != 3) {
-    opserr << "PrismFrame2d::setDomain -- Node 1: " << connectedExternalNodes(0) 
-           << " has incorrect number of DOF\n";
-    exit(-1);
-  }
-  
-  if (dofNd2 != 3) {
-    opserr << "PrismFrame2d::setDomain -- Node 2: " << connectedExternalNodes(1) 
-           << " has incorrect number of DOF\n";
-    exit(-1);
-  }
+
       
   this->DomainComponent::setDomain(theDomain);
   

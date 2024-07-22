@@ -25,17 +25,18 @@ static constexpr Matrix3D Eye3 {{
 
 
 Vector3D
-Axial(const Matrix3D &X)
+Vee(const Matrix3D &X)
 {
+//===----------------------------------------------------------------------===//
 // Return the axial vector x of the given skew-symmetric 3x3 matrix X.
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Written: cmp                                                           2023
+//===----------------------------------------------------------------------===//
   return {X(3,2), X(1,3), X(2,1)};
 }
 
 Matrix3D
-Spin(const Vector3D &u)
+Hat(const Vector3D &u)
 {
   return Matrix3D {{{  0  ,  u(3), -u(2)},
                     {-u(3),   0  ,  u(1)},
@@ -76,9 +77,9 @@ GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr)
 //     Journal of Applied Mechanics, 65(3), pp. 758–763. 
 //     Available at: https://doi.org/10.1115/1.2789120.
 //
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Written: cmp                                                           2023
+//===----------------------------------------------------------------------===//
 //
   double angle2 =  vec.dot(vec);
 
@@ -234,7 +235,7 @@ VectorFromVersor(const Versor& q)
   // Scalar part of quaternion
   double q0 = q[3];
 
-  // qn norm(qv);  % Norm of the vector part
+  // qn = norm(qv);  % Norm of the vector part
   double qn = sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
 
   const double* const qv = &q[0];
@@ -263,23 +264,26 @@ VectorFromVersor(const Versor& q)
 
 }
 
-// Form a normalised quaternion (Versor) from a proper orthogonal matrix
-// using Spurrier's algorithm
 static inline Versor
 VersorFromMatrix(const Matrix3D &R)
 {
-  Versor q;
+  //===--------------------------------------------------------------------===//
+  // Form a normalised quaternion (Versor) from a proper orthogonal matrix
+  // using Spurrier's algorithm
+  //===--------------------------------------------------------------------===//
+    Versor q;
 
+    // Trace of the rotation matrix R
     const double trR = R(0,0) + R(1,1) + R(2,2);
 
-    // a = max ([trR R(0,0) R(1,1) R(2,2)]);
+    // a = max([trR R(0,0) R(1,1) R(2,2)]);
     double a = trR;
     for (int i = 0; i < 3; i++)
       if (R(i,i) > a)
         a = R(i,i);
 
     if (a == trR) {
-      q[3] = sqrt(1+a)*0.5;
+      q[3] = sqrt(1 + a)*0.5;
 
       for (int i = 0; i < 3; i++) {
         int j = (i+1)%3;
@@ -303,8 +307,49 @@ VersorFromMatrix(const Matrix3D &R)
 }
 
 
+// 
+// Exponential Map
 //
-// Tangent map
+
+static inline Matrix3D
+ExpSO3(const Vector3D &theta)
+{
+  //===--------------------------------------------------------------------===//
+
+  // Form the first Gib coefficients
+  double a[4];
+  GibSO3(theta, a);
+
+  // Form 3x3 skew-symmetric matrix Th from axial vector th
+  Matrix3D Theta = Hat(theta);
+
+  return Eye3 + a[1]*Theta + a[2]*Theta*Theta;
+
+}
+
+
+static inline Matrix3D
+CaySO3(const Vector3D &cayley)
+{
+  // Cayley map for a rotation matrix given the "tangent-scaled pseudo-vector"
+  //===--------------------------------------------------------------------===//
+
+  // R = I + (S + S*S/2)/(1 + w' * w / 4);
+  const double c = 1.0/(1 + cayley.dot(cayley)/4.0);
+
+  Matrix3D R;
+  R.zero();
+  R.addDiagonal(1.0);
+  R.addSpin(cayley, c);
+  R.addSpinSquare(cayley, 0.5*c);
+
+  return R;
+}
+
+
+
+//
+// Exponential Differentials
 //
 
 Matrix3D
@@ -320,7 +365,7 @@ TanSO3(const Vector3D &vec, char repr='L')
     double angle2 = vec.dot(vec);
     double a1, a2, a3;
 
-//  Check for angle near 0
+    //  Check for angle near 0
     if (angle2 < 1e-08) {
       a1  = 1.0     - angle2*(1.0/6.0   - angle2*(1.0/120.0  - angle2/5040.0));
       a2  = 0.5     - angle2*(1.0/24.0  - angle2*(1.0/720.0  - angle2/40320.0));
@@ -379,22 +424,22 @@ dExpSO3(const Vector3D &v)
 Matrix3D
 ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
 {
-//
-//    return a[3]*psq + b[1]*p.dot(q)*Eye3
-//         + b[2]*(pxq.bun(v) + v.bun(pxq) + vxp.dot(q)*Eye3)
-//         + b[3]*( v.dot(p)*(q.bun(v) + v.bun(q)) 
-//              + v.dot(q)*(p.bun(v) + v.bun(p)) 
-//              + v.dot(p)*v.dot(q)*Eye3) 
-//         + vov*(c[1]*p.dot(q) + c[2]*(vxp.dot(q)) + c[3]*v.dot(p)*v.dot(q));
-//    
-// [1] Perez, C.M., and Filippou F. C.. "On Nonlinear Geometric 
-//     Transformations of Finite Elements" 
-//     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
-//
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
-//
+  //
+  //    return a[3]*psq + b[1]*p.dot(q)*Eye3
+  //         + b[2]*(pxq.bun(v) + v.bun(pxq) + vxp.dot(q)*Eye3)
+  //         + b[3]*( v.dot(p)*(q.bun(v) + v.bun(q)) 
+  //              + v.dot(q)*(p.bun(v) + v.bun(p)) 
+  //              + v.dot(p)*v.dot(q)*Eye3) 
+  //         + vov*(c[1]*p.dot(q) + c[2]*(vxp.dot(q)) + c[3]*v.dot(p)*v.dot(q));
+  //    
+  // [1] Perez, C.M., and Filippou F. C.. "On Nonlinear Geometric 
+  //     Transformations of Finite Elements" 
+  //     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
+  //
+  // =========================================================================================
+  // function by Claudio Perez                                                            2023
+  // -----------------------------------------------------------------------------------------
+  //
   double a[4], b[4], c[4];
   GibSO3(v, a, b, c);
 
@@ -425,6 +470,84 @@ ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
 }
 
 
+
+Matrix3D
+dTanSO3(const Vector3D &v, const Vector3D &p, char repr='L')
+{
+//
+// repr     'L' or 'R' indicating left or right representation, 
+//          respectively, for the tangent space of SO(3)
+// =========================================================================================
+// function by Claudio Perez                                                            2023
+// -----------------------------------------------------------------------------------------
+
+
+  double a[4], b[4];
+  GibSO3(v, a, b);
+
+  Matrix3D vxpov = v.cross(p).bun(v);
+
+  Matrix3D Xi;
+  switch (repr) {
+    case 'R':
+      Xi = - a[2]*Hat(p) + a[3]*v.dot(p)*Eye3 + a[3]*v.bun(p)
+           + b[1]*p.bun(v) + b[2]*vxpov + b[3]*v.dot(p)*v.bun(v);
+    case 'L':
+      Xi =   a[2]*Hat(p) + a[3]*v.dot(p)*Eye3 + a[3]*v.bun(p)
+           + b[1]*p.bun(v) - b[2]*vxpov + b[3]*v.dot(p)*v.bun(v);
+  }
+  return Xi;
+}
+
+
+Vector3D
+LogSO3(const Matrix3D &R)
+{
+//
+// Inverse of the exponential map on SO(3).
+//
+// Returns the axial parameters associated with the rotation `R`. The result
+// should satisfy the following equality for any 3-vector, `v`:
+//
+//       LogSO3(expm(Hat(v))) == v
+//
+// where `expm` is matrix exponential, and `Hat` is a function
+// which produces the skew-symmetric 3x3 matrix associated with vector `v`.
+//
+// Parameters
+//   R       (3x3)   Rotation (proper orthogonal) matrix.
+//
+// Remarks
+//
+// - Does not check if input is really a rotation.
+// - The angle corresponding to the returned vector is always in the interval [0,pi].
+//
+//
+// References
+// 1. Nurlanov Z (2021) Exploring SO(3) logarithmic map: degeneracies and 
+//    derivatives.
+//
+// =========================================================================================
+// function by Claudio Perez                                                            2023
+// -----------------------------------------------------------------------------------------
+
+  return VectorFromVersor(VersorFromMatrix(R));
+
+}
+
+
+static inline Vector3D
+LogC90(const Matrix3D &R)
+{
+  // Crisfield's approximation to the logarithm on SO(3)
+  return Vector3D {
+    std::asin(0.5*(R(1,2) - R(2,1))),
+    std::asin(0.5*(R(0,1) - R(1,0))),
+    std::asin(0.5*(R(0,2) - R(2,0))),
+  };
+}
+
+
 Matrix3D
 dLogSO3(const Vector3D &v)
 {
@@ -435,7 +558,7 @@ dLogSO3(const Vector3D &v)
 //
   constexpr double tol = 1/20;
 
-  Matrix3D Sv = Spin(v);
+  Matrix3D Sv = Hat(v);
 
   double angle = v.norm();
 //if (abs(angle) > M_PI/1.01) {
@@ -493,122 +616,10 @@ Matrix3D ddLogSO3(const Vector3D& th, const Vector3D& v)
     mu  = (angle*(angle + 2*sn*cs) - 8*sn*sn)/(4*angle4*sn*sn);
   }
 
-  Matrix3D St2 = Spin(th);
+  Matrix3D St2 = Hat(th);
   St2 = St2*St2;
-  Matrix3D dH  = -0.5*Spin(v) + eta*(Eye3*th.dot(v) + th.bun(v) - 2*v.bun(th)) + mu*St2*v.bun(th);
+  Matrix3D dH  = -0.5*Hat(v) + eta*(Eye3*th.dot(v) + th.bun(v) - 2*v.bun(th)) + mu*St2*v.bun(th);
 
   return dH*dLogSO3(th);
 }
-
-Matrix3D dTanSO3(const Vector3D &v, const Vector3D &p, char repr='L')
-{
-//
-// repr     'L' or 'R' indicating left or right representation, 
-//          respectively, for the tangent space of SO(3)
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
-
-
-  double a[4], b[4];
-  GibSO3(v, a, b);
-
-  Matrix3D vxpov = v.cross(p).bun(v);
-
-  Matrix3D Xi;
-  switch (repr) {
-    case 'R':
-      Xi = - a[2]*Spin(p) + a[3]*v.dot(p)*Eye3 + a[3]*v.bun(p)
-           + b[1]*p.bun(v) + b[2]*vxpov + b[3]*v.dot(p)*v.bun(v);
-    case 'L':
-      Xi =   a[2]*Spin(p) + a[3]*v.dot(p)*Eye3 + a[3]*v.bun(p)
-           + b[1]*p.bun(v) - b[2]*vxpov + b[3]*v.dot(p)*v.bun(v);
-  }
-  return Xi;
-}
-
-Matrix3D ExpSO3(const Vector3D &theta)
-{
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
-
-  //Form the first Gib coefficients
-  double a[4];
-  GibSO3(theta, a);
-
-  //Form 3x3 skew-symmetric matrix Th from axial vector th
-  Matrix3D Theta = Spin(theta);
-
-  return Eye3 + a[1]*Theta + a[2]*Theta*Theta;
-
-}
-
-
-static inline Matrix3D
-CaySO3(const Vector3D &cayley)
-{
-  // Cayley map: for a rotation matrix given the "tangent-scaled pseudo-vector"
-
-  // R = I + (S + S*S/2)/(1 + w' * w / 4);
-  const double c = 1.0/(1 + cayley.dot(cayley)/4.0);
-
-  Matrix3D R;
-  R.zero();
-  R.addDiagonal(1.0);
-  R.addSpin(w, c);
-  R.addSpinSquare(w, 0.5*c);
-
-  return R;
-}
-
-
-
-Vector3D
-LogSO3(const Matrix3D &R)
-{
-// Inverse of the exponential map on SO(3).
-//
-// Returns the axial parameters associated with the rotation `R`. The result
-// should satisfy the following equality for any 3-vector, `v`:
-//
-//       LogSO3(expm(Hat(v))) == v
-//
-// where `expm` is matrix exponential, and `Hat` is a function
-// which produces the skew-symmetric 3x3 matrix associated with vector `v`.
-//
-// Parameters
-//   R       (3x3)   Rotation (proper orthogonal) matrix.
-//
-// Remarks
-//
-// - Does not check if input is really a rotation.
-// - The angle corresponding to the returned vector is always in the interval [0,pi].
-//
-//
-// References
-// 1. Nurlanov Z (2021) Exploring SO(3) logarithmic map: degeneracies and 
-//    derivatives.
-//
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
-
-  return VectorFromVersor(VersorFromMatrix(R));
-
-}
-
-
-static inline Vector3D
-LogC90(const Matrix3D &R)
-{
-  // Crisfield's approximation to the logarithm on SO(3)
-  return Vector3D {
-    std::asin(0.5*(R(1,2) - R(2,1))),
-    std::asin(0.5*(R(0,1) - R(1,0))),
-    std::asin(0.5*(R(0,2) - R(2,0))),
-  };
-}
-
-
 
