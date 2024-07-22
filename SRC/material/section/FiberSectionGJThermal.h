@@ -29,7 +29,7 @@
 #ifndef FiberSectionGJThermal_h
 #define FiberSectionGJThermal_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
 
@@ -37,7 +37,7 @@ class UniaxialMaterial;
 class Fiber;
 class Response;
 
-class FiberSectionGJThermal : public SectionForceDeformation
+class FiberSectionGJThermal : public FrameSection
 {
  public:
   FiberSectionGJThermal();
@@ -64,7 +64,7 @@ class FiberSectionGJThermal : public SectionForceDeformation
   int   revertToLastCommit(void);
   int   revertToStart(void);
 
-  SectionForceDeformation *getCopy(void);
+  FrameSection *getFrameCopy();
   const ID &getType();
   int getOrder (void) const;
 
