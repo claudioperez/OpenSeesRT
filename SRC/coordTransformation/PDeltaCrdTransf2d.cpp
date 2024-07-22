@@ -33,14 +33,18 @@
 #include <Matrix.h>
 #include <Node.h>
 #include <Channel.h>
-#include <elementAPI.h>
+#include <Logging.h>
 #include <string>
 #include <PDeltaCrdTransf2d.h>
+#include <Logging.h>
 
 // initialize static variables
 Matrix PDeltaCrdTransf2d::Tlg(6, 6);
 Matrix PDeltaCrdTransf2d::kg(6, 6);
 
+
+#if 0
+#include <elementAPI.h>
 void *
 OPS_ADD_RUNTIME_VPV(OPS_PDeltaCrdTransf2d)
 {
@@ -71,10 +75,11 @@ OPS_ADD_RUNTIME_VPV(OPS_PDeltaCrdTransf2d)
 
   return new PDeltaCrdTransf2d(tag, jntOffsetI, jntOffsetJ);
 }
+#endif
 
 // constructor:
 PDeltaCrdTransf2d::PDeltaCrdTransf2d(int tag)
-    : FrameTransform(tag, CRDTR_TAG_PDeltaCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform2d(tag, CRDTR_TAG_PDeltaCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), cosTheta(0), sinTheta(0), L(0), ul14(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -84,7 +89,7 @@ PDeltaCrdTransf2d::PDeltaCrdTransf2d(int tag)
 // constructor:
 PDeltaCrdTransf2d::PDeltaCrdTransf2d(int tag, const Vector &rigJntOffset1,
                                      const Vector &rigJntOffset2)
-    : FrameTransform(tag, CRDTR_TAG_PDeltaCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform2d(tag, CRDTR_TAG_PDeltaCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), cosTheta(0), sinTheta(0), L(0), ul14(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -114,7 +119,7 @@ PDeltaCrdTransf2d::PDeltaCrdTransf2d(int tag, const Vector &rigJntOffset1,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 PDeltaCrdTransf2d::PDeltaCrdTransf2d()
-    : FrameTransform(0, CRDTR_TAG_PDeltaCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform2d(0, CRDTR_TAG_PDeltaCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), cosTheta(0), sinTheta(0), L(0), ul14(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {

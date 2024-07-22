@@ -80,7 +80,7 @@ OPS_ADD_RUNTIME_VPV(OPS_PDeltaCrdTransf3d)
 
 // constructor:
 PDeltaCrdTransf3d::PDeltaCrdTransf3d(int tag, const Vector &vecInLocXZPlane)
-    : FrameTransform(tag, CRDTR_TAG_PDeltaCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform3d(tag, CRDTR_TAG_PDeltaCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), ul17(0), ul28(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -99,7 +99,7 @@ PDeltaCrdTransf3d::PDeltaCrdTransf3d(int tag, const Vector &vecInLocXZPlane)
 PDeltaCrdTransf3d::PDeltaCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
                                      const Vector &rigJntOffset1,
                                      const Vector &rigJntOffset2)
-    : FrameTransform(tag, CRDTR_TAG_PDeltaCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform3d(tag, CRDTR_TAG_PDeltaCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), ul17(0), ul28(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -139,7 +139,7 @@ PDeltaCrdTransf3d::PDeltaCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 PDeltaCrdTransf3d::PDeltaCrdTransf3d()
-    : FrameTransform(0, CRDTR_TAG_PDeltaCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform3d(0, CRDTR_TAG_PDeltaCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), ul17(0), ul28(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -1209,8 +1209,8 @@ PDeltaCrdTransf3d::getInitialGlobalStiffMatrix(const Matrix &KB)
   return kg;
 }
 
-CrdTransf *
-PDeltaCrdTransf3d::getCopy3d(void)
+FrameTransform3d *
+PDeltaCrdTransf3d::getCopy()
 {
   // create a new instance of PDeltaCrdTransf3d
 

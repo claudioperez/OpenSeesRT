@@ -88,7 +88,6 @@ private:
     double ul17;         // Transverse local displacement offsets of P-Delta
     double ul28;
 
-    static Matrix kg;   // global stiffness matrix
 
     double *nodeIInitialDisp,
            *nodeJInitialDisp;

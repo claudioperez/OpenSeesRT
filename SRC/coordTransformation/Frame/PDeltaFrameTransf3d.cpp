@@ -25,9 +25,7 @@
 
 using OpenSees::Matrix3D;
 
-// initialize static variables
-Matrix PDeltaFrameTransf3d::kg(12, 12);
-
+#define THREAD_LOCAL static
 
 // constructor:
 PDeltaFrameTransf3d::PDeltaFrameTransf3d(int tag, const Vector &vecInLocXZPlane)
@@ -902,12 +900,15 @@ PDeltaFrameTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
 MatrixND<12,12>
 PDeltaFrameTransf3d::pushVariable(MatrixND<12,12>& kl, const VectorND<12> &pl)
 {
-  // Include geometric stiffness effects in local system
+  // Include geometric stiffness effects in local system;
+  //
+  // Kl += [ ]
   double NoverL = pl[6] / L;
   kl(1, 1) += NoverL;
   kl(2, 2) += NoverL;
   kl(7, 7) += NoverL;
   kl(8, 8) += NoverL;
+
   kl(1, 7) -= NoverL;
   kl(7, 1) -= NoverL;
   kl(2, 8) -= NoverL;
@@ -938,7 +939,7 @@ PDeltaFrameTransf3d::pushConstant(const MatrixND<12,12>& kl)
     RWI[2][2] = -R[2][0] * nodeIOffset[1] + R[2][1] * nodeIOffset[0];
   }
 
-  static double RWJ[3][3];
+  THREAD_LOCAL double RWJ[3][3];
 
   if (nodeJOffset) {
     // Compute RWJ
@@ -957,7 +958,7 @@ PDeltaFrameTransf3d::pushConstant(const MatrixND<12,12>& kl)
 
   // Transform local stiffness to global system
   // First compute kl*T_{lg}
-  static double tmp[12][12];  // Temporary storage
+  THREAD_LOCAL double tmp[12][12];  // Temporary storage
   for (int m = 0; m < 12; m++) {
     tmp[m][0] = kl(m, 0) * R[0][0] + kl(m, 1) * R[1][0] + kl(m, 2) * R[2][0];
     tmp[m][1] = kl(m, 0) * R[0][1] + kl(m, 1) * R[1][1] + kl(m, 2) * R[2][1];
@@ -1268,12 +1269,14 @@ PDeltaFrameTransf3d::getGlobalMatrixFromLocal(const Matrix &ml)
     for (int j=0; j<3; j++)
       Rm(i,j) = R[j][i];
 
+//this->compTransfMatrixLocalGlobal(Tlg);
+//kg.addMatrixTripleProduct(0.0, Tlg, ml, 1.0);
+
+  THREAD_LOCAL MatrixND<12,12> kg;
+  THREAD_LOCAL Matrix wrapper(kg);
   blk3x12x3(Rm, ml, kg);
 
-//this->compTransfMatrixLocalGlobal(Tlg);       // OPTIMIZE LATER
-//kg.addMatrixTripleProduct(0.0, Tlg, ml, 1.0); // OPTIMIZE LATER
-
-  return kg;
+  return wrapper;
 }
 
 const Vector &
@@ -1363,10 +1366,10 @@ PDeltaFrameTransf3d::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
 
   // rotate displacements to global coordinates
   // uxg = Rlj'*uxl
-  //uxg.addMatrixTransposeVector(0.0, Rlj, uxl, 1.0);
-  uxg(0) = R[0][0] * uxl[0] + R[1][0] * uxl[1] + R[2][0] * uxl[2];
-  uxg(1) = R[0][1] * uxl[0] + R[1][1] * uxl[1] + R[2][1] * uxl[2];
-  uxg(2) = R[0][2] * uxl[0] + R[1][2] * uxl[1] + R[2][2] * uxl[2];
+
+  uxg[0] = R[0][0] * uxl[0] + R[1][0] * uxl[1] + R[2][0] * uxl[2];
+  uxg[1] = R[0][1] * uxl[0] + R[1][1] * uxl[1] + R[2][1] * uxl[2];
+  uxg[2] = R[0][2] * uxl[0] + R[1][2] * uxl[1] + R[2][2] * uxl[2];
 
   return uxg;
 }

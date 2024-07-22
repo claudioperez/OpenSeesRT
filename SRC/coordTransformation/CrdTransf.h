@@ -20,9 +20,7 @@
 //
 // Description: This file contains the class definition for 
 // CrdTransf.h. CrdTransf provides the abstraction of a frame 
-// coordinate transformation. It is an abstract base class and 
-// thus no objects of  it's type can be instatiated. It has pure 
-// virtual functions which  must be implemented in its derived classes.
+// coordinate transformation. It is an abstract base class.
 //
 // Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 // Created: 04/2000
@@ -33,6 +31,21 @@
 
 #include <MovableObject.h>
 #include <TaggedObject.h>
+
+typedef int BasicForceLayout[10];
+
+enum class BasicForce : int {
+    N,
+    Vyi,
+    Vzi,
+    Vyj,
+    Vzj,
+    T,
+    Myi,
+    Mzi,
+    Myj,
+    Mzj,
+};
 
 class Vector;
 class ID;
@@ -49,55 +62,57 @@ public:
     CrdTransf();
     virtual ~CrdTransf();
 
-    virtual CrdTransf *getCopy2d(void) {return 0;};
-    virtual CrdTransf *getCopy3d(void) {return 0;};
-  virtual int getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
-  virtual int getRigidOffsets(Vector &offsets);
+    virtual CrdTransf *getCopy2d() {return 0;};
+    virtual CrdTransf *getCopy3d() {return 0;};
+
+    virtual int getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
+    virtual int getRigidOffsets(Vector &offsets);
   
     virtual int    initialize(Node *node1Pointer, Node *node2Pointer) = 0;
-    virtual int    update(void) = 0;
-    virtual double getInitialLength(void) = 0;
-    virtual double getDeformedLength(void) = 0;
+    virtual int    update() = 0;
+    virtual double getInitialLength() = 0;
+    virtual double getDeformedLength() = 0;
     
-    virtual int commitState(void) = 0;
-    virtual int revertToLastCommit(void) = 0;
-    virtual int revertToStart(void) = 0;
-    
-    virtual const Vector &getBasicTrialDisp(void) = 0;
-    virtual const Vector &getBasicIncrDisp(void) = 0;
-    virtual const Vector &getBasicIncrDeltaDisp(void) = 0;
-    virtual const Vector &getBasicTrialVel(void) = 0;
-    virtual const Vector &getBasicTrialAccel(void) = 0;
-    
+    virtual int commitState() = 0;
+    virtual int revertToLastCommit() = 0;
+    virtual int revertToStart() = 0;
+
+    virtual const Vector &getBasicTrialDisp() = 0;
+    virtual const Vector &getBasicIncrDisp() = 0;
+    virtual const Vector &getBasicIncrDeltaDisp() = 0;
+    virtual const Vector &getBasicTrialVel() = 0;
+    virtual const Vector &getBasicTrialAccel() = 0;
+
+    virtual const Vector &getGlobalResistingForce(const Vector &basicForce, const Vector &uniformLoad) = 0;
+    virtual const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce) = 0;
+    virtual const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff) = 0;
+
+    // method used to rotate consistent mass matrix
+    virtual const Matrix &getGlobalMatrixFromLocal(const Matrix &local) = 0;
+
+
+    // method for obtaining information specific to a coordinate transformation
+    virtual Response *setResponse(const char **argv, int argc, 
+                                  OPS_Stream &theHandler);
+    virtual int getResponse(int responseID, Information &eleInformation);
+
+    // methods used in post-processing only
+    virtual const Vector &getPointGlobalCoordFromLocal(const Vector &localCoords) = 0;
+    virtual const Vector &getPointGlobalDisplFromBasic(double xi, const Vector &basicDisps) = 0;
+    virtual const Vector &getPointLocalDisplFromBasic(double xi, const Vector &basicDisps) = 0;
+
     // AddingSensitivity:BEGIN //////////////////////////////////
     virtual const Vector &getBasicDisplSensitivity(int gradNumber);
     virtual const Vector &getBasicDisplSensitivity(int gradNumber,int); // used by Quan 
     //virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &basicForce, const Vector &uniformLoad);
     virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &pb, const Vector &p0, int gradNumber);
     virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &pb, const Vector &p0);
-    virtual const Vector &getBasicTrialDispShapeSensitivity(void);
-    virtual bool isShapeSensitivity(void) {return false;}
-    virtual double getdLdh(void) {return 0.0;}
-    virtual double getd1overLdh(void) {return 0.0;}
+    virtual const Vector &getBasicTrialDispShapeSensitivity();
+    virtual bool   isShapeSensitivity() {return false;}
+    virtual double getdLdh() {return 0.0;}
+    virtual double getd1overLdh() {return 0.0;}
     // AddingSensitivity:END //////////////////////////////////
-    
-    virtual const Vector &getGlobalResistingForce(const Vector &basicForce, const Vector &uniformLoad) = 0;
-    virtual const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce) = 0;
-    virtual const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff) = 0;
-    
-    // method used to rotate consistent mass matrix
-    virtual const Matrix &getGlobalMatrixFromLocal(const Matrix &local) = 0;
-    
-    // methods used in post-processing only
-    virtual const Vector &getPointGlobalCoordFromLocal(const Vector &localCoords) = 0;
-    virtual const Vector &getPointGlobalDisplFromBasic(double xi, const Vector &basicDisps) = 0;
-    virtual const Vector &getPointLocalDisplFromBasic(double xi, const Vector &basicDisps) = 0;
-
-    // method for obtaining information specific to a coordinate transformation
-    virtual Response *setResponse(const char **argv, int argc, 
-				  OPS_Stream &theHandler);
-    virtual int getResponse(int responseID, Information &eleInformation);
-    
+    //
 protected:
     
 private:
@@ -109,7 +124,7 @@ extern bool       OPS_addCrdTransf(CrdTransf *newComponent);
 extern CrdTransf *OPS_getCrdTransf(int tag);
 #endif
 extern bool       OPS_removeCrdTransf(int tag);
-extern void       OPS_clearAllCrdTransf(void);
+extern void       OPS_clearAllCrdTransf();
 extern void       OPS_printCrdTransf(OPS_Stream &s, int flag=0);
 extern ID       OPS_getAllCrdTransfTags();
 

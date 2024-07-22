@@ -37,6 +37,7 @@
 #include <elementAPI.h>
 #include <string>
 #include <LinearCrdTransf3d.h>
+#include <TaggedObject.h>
 
 // initialize static variables
 Matrix LinearCrdTransf3d::Tlg(12, 12);
@@ -81,7 +82,7 @@ OPS_ADD_RUNTIME_VPV(OPS_LinearCrdTransf3d)
 
 // constructor:
 LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane)
-    : FrameTransform(tag, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform3d(tag, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -100,7 +101,7 @@ LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane)
 LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
                                      const Vector &rigJntOffset1,
                                      const Vector &rigJntOffset2)
-    : FrameTransform(tag, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform3d(tag, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -140,7 +141,7 @@ LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 LinearCrdTransf3d::LinearCrdTransf3d()
-    : FrameTransform(0, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform3d(0, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -1126,8 +1127,8 @@ LinearCrdTransf3d::getInitialGlobalStiffMatrix(const Matrix &KB)
   return kg;
 }
 
-CrdTransf *
-LinearCrdTransf3d::getCopy3d(void)
+FrameTransform3d *
+LinearCrdTransf3d::getCopy()
 {
   // create a new instance of LinearCrdTransf3d
 
@@ -1492,6 +1493,7 @@ LinearCrdTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
 void
 LinearCrdTransf3d::Print(OPS_Stream &s, int flag)
 {
+
   if (flag == OPS_PRINT_CURRENTSTATE) {
     s << "\nCrdTransf: " << this->getTag() << " Type: LinearCrdTransf3d";
     if (nodeIOffset)
@@ -1500,6 +1502,7 @@ LinearCrdTransf3d::Print(OPS_Stream &s, int flag)
     if (nodeJOffset)
       s << "\tNode J offset: " << nodeJOffset[0] << " " << nodeJOffset[1] << " "
         << nodeJOffset[2] << endln;
+    s << "\n\tOrientation: " << Matrix(&R[0][0], 3,3) << "\n";
   }
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {

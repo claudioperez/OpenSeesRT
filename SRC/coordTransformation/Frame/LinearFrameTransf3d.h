@@ -64,11 +64,6 @@ public:
     // method used to rotate consistent mass matrix
     const Matrix &getGlobalMatrixFromLocal(const Matrix &local);
     
-    virtual int sendSelf(int cTag, Channel &theChannel);
-    virtual int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
-    
-    void Print(OPS_Stream &s, int flag = 0);
-    
     // methods used in post-processing only
     const Vector &getPointGlobalCoordFromLocal(const Vector &localCoords);
     const Vector &getPointGlobalDisplFromBasic(double xi, const Vector &basicDisps);
@@ -78,6 +73,13 @@ public:
 
     const Vector & getBasicDisplSensitivity(int gradNumber);
 
+    
+    // MovableObject
+    virtual int sendSelf(int cTag, Channel &theChannel);
+    virtual int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+    
+    // TaggedObject
+    void Print(OPS_Stream &s, int flag = 0);
 
 protected:
     virtual const Layout& getNodeLayout() {

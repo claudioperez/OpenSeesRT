@@ -34,7 +34,7 @@
 #include <Vector.h>
 #include <Matrix.h>
 
-class PDeltaCrdTransf3d: public FrameTransform<3>
+class PDeltaCrdTransf3d: public FrameTransform3d
 {
 public:
     PDeltaCrdTransf3d(int tag, const Vector &vecInLocXZPlane);
@@ -66,7 +66,7 @@ public:
     const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce);
     const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff);
     
-    CrdTransf *getCopy3d(void);
+    FrameTransform3d *getCopy() final;
     
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
