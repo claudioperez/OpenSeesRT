@@ -365,6 +365,7 @@ CubicFrame3d::sendSelf(int commitTag, Channel &theChannel)
     if (beamIntDbTag  != 0) 
       beamInt->setDbTag(beamIntDbTag);
   }
+
   data( 7) = beamIntDbTag;
   data( 8) = density;
   data( 9) = mass_flag;

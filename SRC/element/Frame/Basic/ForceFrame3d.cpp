@@ -510,8 +510,7 @@ ForceFrame3d::update()
       MatrixND<nq, nq> K_trial = K_pres;
 
       // calculate nodal force increments and update nodal forces
-      VectorND<nq> dqe = K_pres * dv;
-      q_trial += dqe;
+      q_trial += K_pres*dv;
 
 
       for (int j = 0; j < numIters; j++) {
@@ -572,7 +571,7 @@ ForceFrame3d::update()
             // Add the effects of element loads
             // si += bp*w
             if (eleLoads.size() != 0)
-              this->addLoadAtSection(si, i);
+              this->addLoadAtSection(si, points[i].point * L);
 
 
             //
@@ -739,8 +738,8 @@ ForceFrame3d::update()
         dv += dv_trial;
         dv -= vr;
 
-        // dqe = K_pres * dv;
-        dqe.addMatrixVector(0.0, K_trial, dv, 1.0);
+        VectorND<nq> dqe = K_trial * dv;
+      //dqe.addMatrixVector(0.0, K_trial, dv, 1.0);
 
         dW = dqe.dot(dv);
         if (dW0 == 0.0)
@@ -796,6 +795,7 @@ ForceFrame3d::update()
         }
       } // for (int j=0; j < numIters; j++)
     }   // for (int l=0; l < 3; l++)
+
 iterations_completed:
         ;
 
@@ -892,12 +892,9 @@ ForceFrame3d::getTangentStiff()
 
 
 void
-ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, int isec)
+ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, double x)
 {
-
   double L = theCoordTransf->getInitialLength();
-
-  double x = points[isec].point * L;
 
   for (auto[load, loadFactor] : eleLoads) {
 
@@ -1032,8 +1029,6 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
   for (auto[load, loadFactor] : eleLoads) {
     const  Vector& data = load->getData(type, loadFactor);
 
-//  const Vector& data = eleLoads[i]->getData(type, 1.0);
-
     if (type == LOAD_TAG_Beam3dUniformLoad) {
       double wy = data(0) * 1.0; // Transverse
       double wz = data(1) * 1.0; // Transverse
@@ -1126,21 +1121,21 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
           }
         } else {
           switch (scheme[ii]) {
-          case SECTION_RESPONSE_MZ:
-            //sp(ii) -= (L-x)*Vy2;
-            dspdh(ii) -= (dLdh - dxdh) * Vy2 + (L - x) * dVy2dh;
-            break;
           case SECTION_RESPONSE_VY:
             //sp(ii) += Vy2;
             dspdh(ii) += dVy2dh;
+            break;
+          case SECTION_RESPONSE_VZ:
+            //sp(ii) += Vz2;
+            dspdh(ii) += dVz2dh;
             break;
           case SECTION_RESPONSE_MY:
             //sp(ii) += (L-x)*Vz2;
             dspdh(ii) += (dLdh - dxdh) * Vz2 + (L - x) * dVz2dh;
             break;
-          case SECTION_RESPONSE_VZ:
-            //sp(ii) += Vz2;
-            dspdh(ii) += dVz2dh;
+          case SECTION_RESPONSE_MZ:
+            //sp(ii) -= (L-x)*Vy2;
+            dspdh(ii) -= (dLdh - dxdh) * Vy2 + (L - x) * dVy2dh;
             break;
           default: break;
           }
@@ -1296,7 +1291,6 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   // receive the integer data containing tag, numSections and coord transformation info
   //
   int dbTag = this->getDbTag();
-  int i, j, k;
 
   ID idData(11); // one bigger than needed
 
@@ -1379,7 +1373,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   //
   // now receive the sections
   //
-  const int numSections = points.size();
+  int numSections = points.size();
   if (numSections != idData(3)) {
 
     //
@@ -1395,42 +1389,14 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
 
 
     // create a section and recvSelf on it
-//  numSections = idData(3);
-
-    // Delete the old
-//  if (es_save != 0)
-//    delete[] es_save;
-
-//  // Allocate
-//  es_save = new VectorND<nsr>[numSections]{};
-
-//  // Delete the old
-//  if (fs != 0)
-//    delete[] fs;
-
-//  fs = new MatrixND<nsr,nsr>[numSections]{};
-
-//  // Delete the old
-//  if (es != 0)
-//    delete[] es;
-
-//  // Allocate the right number
-//  es = new VectorND<nsr>[numSections]{};
-
-//  // Delete the old
-//  if (Ssr != 0)
-//    delete[] Ssr;
-
-//  // Allocate
-//  Ssr = new VectorND<nsr>[numSections]{};
-
+    numSections = idData(3);
 
 //  // create a new array to hold pointers
 //  sections = new FrameSection*[idData(3)];
 
     loc = 0;
 
-    for (i = 0; i < numSections; i++) {
+    for (int i = 0; i < numSections; i++) {
       int sectClassTag = idSections(loc);
       int sectDbTag    = idSections(loc + 1);
       loc += 2;
@@ -1672,17 +1638,15 @@ ForceFrame3d::getInitialDeformations(Vector& v0)
     THREAD_LOCAL VectorND<nsr> sp;
     sp.zero();
 
-    this->addLoadAtSection(sp, i);
+    this->addLoadAtSection(sp, points[i].point*L);
 
     MatrixND<nsr,nsr> fse = points[i].material->getFlexibility<nsr,scheme>(State::Init);
 
-    VectorND<nsr> e;
+    VectorND<nsr> e = fse*sp;
 
-    e.addMatrixVector(0.0, fse, sp, 1.0);
-
-    double dei, tmp;
+    double tmp;
     for (int ii = 0; ii < nsr; ii++) {
-      dei = e[ii] * wtL;
+      double dei = e[ii] * wtL;
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P: v0(0) += dei; break;
       case SECTION_RESPONSE_MZ:

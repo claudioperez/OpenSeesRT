@@ -57,8 +57,6 @@ class ForceFrame3d: public BasicFrame3d
   
   ~ForceFrame3d();
 
-
-
   const char *getClassType() const {return "ForceFrame3d";};
 
   int setNodes();
@@ -130,7 +128,7 @@ class ForceFrame3d: public BasicFrame3d
   int getInitialDeformations(Vector &v0);
   
   // Add section forces due to element loads
-  void addLoadAtSection(VectorND<nsr> &sp, int isec);
+  void addLoadAtSection(VectorND<nsr> &sp, double x);
 
   void compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const;
   void initializeSectionHistoryVariables();

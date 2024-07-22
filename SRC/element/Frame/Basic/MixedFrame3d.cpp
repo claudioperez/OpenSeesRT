@@ -47,9 +47,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
-#include <iomanip>
-#include <iostream>
-#include <fstream>
 
 #include <Information.h>
 #include <interpolate/cbdi.h>
