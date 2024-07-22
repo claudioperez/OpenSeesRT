@@ -36,7 +36,7 @@
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
 #include <SensitiveResponse.h>
-typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
+typedef SensitiveResponse<FrameSection> SectionResponse;
 #include <NDMaterial.h>
 #include <Parameter.h>
 #include <elementAPI.h>
@@ -69,7 +69,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_NDFiberSection3d)
 #if 0
 // constructors:
 NDFiberSection3d::NDFiberSection3d(int tag, int num, Fiber **fibers, double a, bool compCentroid): 
-  SectionForceDeformation(tag, SEC_TAG_NDFiberSection3d),
+  FrameSection(tag, SEC_TAG_NDFiberSection3d),
   numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
   Abar(0.0), QyBar(0.0), QzBar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
   alpha(a), e(6), s(0), ks(0), 
@@ -124,7 +124,7 @@ NDFiberSection3d::NDFiberSection3d(int tag, int num, Fiber **fibers, double a, b
 #endif
 
 NDFiberSection3d::NDFiberSection3d(int tag, int num, double a, bool compCentroid): 
-    SectionForceDeformation(tag, SEC_TAG_NDFiberSection3d),
+    FrameSection(tag, SEC_TAG_NDFiberSection3d),
     numFibers(0), sizeFibers(num), theMaterials(0), matData(0),
     Abar(0.0), QyBar(0.0), QzBar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
     alpha(a), e(6), s(0), ks(0), 
@@ -154,7 +154,7 @@ NDFiberSection3d::NDFiberSection3d(int tag, int num, double a, bool compCentroid
 
 // constructor for blank object that recvSelf needs to be invoked upon
 NDFiberSection3d::NDFiberSection3d():
-  SectionForceDeformation(0, SEC_TAG_NDFiberSection3d),
+  FrameSection(0, SEC_TAG_NDFiberSection3d),
   numFibers(0), sizeFibers(0), theMaterials(0), matData(0),
   Abar(0.0), QyBar(0.0), QzBar(0.0), yBar(0.0), zBar(0.0), computeCentroid(true),
   alpha(1.0), e(6), s(0), ks(0),
@@ -523,8 +523,8 @@ NDFiberSection3d::getStressResultant(void)
   return *s;
 }
 
-SectionForceDeformation*
-NDFiberSection3d::getCopy(void)
+FrameSection*
+NDFiberSection3d::getFrameCopy(void)
 {
   NDFiberSection3d *theCopy = new NDFiberSection3d ();
   theCopy->setTag(this->getTag());
@@ -543,7 +543,7 @@ NDFiberSection3d::getCopy(void)
       theCopy->theMaterials[i] = theMaterials[i]->getCopy("BeamFiber");
 
       if (theCopy->theMaterials[i] == 0) {
-	opserr <<"NDFiberSection3d::getCopy -- failed to get copy of a Material";
+	opserr <<"NDFiberSection3d::getFrameCopy -- failed to get copy of a Material";
 	exit(-1);
       }
     }  
@@ -1132,7 +1132,7 @@ NDFiberSection3d::setResponse(const char **argv, int argc,
   }
 
   if (theResponse == 0)
-    return SectionForceDeformation::setResponse(argv, argc, output);
+    return FrameSection::setResponse(argv, argc, output);
 
   return theResponse;
 }
@@ -1143,7 +1143,7 @@ NDFiberSection3d::getResponse(int responseID, Information &sectInfo)
 {
   // Just call the base class method ... don't need to define
   // this function, but keeping it here just for clarity
-  return SectionForceDeformation::getResponse(responseID, sectInfo);
+  return FrameSection::getResponse(responseID, sectInfo);
 }
 
 

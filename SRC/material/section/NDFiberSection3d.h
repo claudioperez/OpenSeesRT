@@ -29,14 +29,14 @@
 #ifndef NDFiberSection3d_h
 #define NDFiberSection3d_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
 
 class NDMaterial;
 class Response;
 
-class NDFiberSection3d : public SectionForceDeformation
+class NDFiberSection3d : public FrameSection
 {
   public:
     NDFiberSection3d(); 
@@ -56,7 +56,7 @@ class NDFiberSection3d : public SectionForceDeformation
     int   revertToLastCommit(void);    
     int   revertToStart(void);
  
-    SectionForceDeformation *getCopy(void);
+    FrameSection *getFrameCopy();
     const ID &getType();
     int getOrder (void) const;
     
