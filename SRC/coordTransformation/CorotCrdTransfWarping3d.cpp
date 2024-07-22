@@ -39,13 +39,10 @@
 #include <Channel.h>
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <stdlib.h>
-#include <elementAPI.h>
+#include <Logging.h>
 
 #include <CorotCrdTransfWarping3d.h>
-using std::string;
-using namespace std;
 
 // initialize static variables
 Matrix CorotCrdTransfWarping3d::RI(3, 3);
@@ -53,19 +50,17 @@ Matrix CorotCrdTransfWarping3d::RJ(3, 3);
 Matrix CorotCrdTransfWarping3d::Rbar(3, 3);
 Matrix CorotCrdTransfWarping3d::e(3, 3);
 Matrix CorotCrdTransfWarping3d::Tp(6, 7);
-Matrix CorotCrdTransfWarping3d::T(
-    9, 14); // chagne dimension of the matrix to suit for warping degrees
-Matrix CorotCrdTransfWarping3d::Tlg(
-    14, 14); // chagne dimension of the matrix to suit for warping degrees
-Matrix CorotCrdTransfWarping3d::TlgInv(
-    14, 14); // chagne dimension of the matrix to suit for warping degrees
+Matrix CorotCrdTransfWarping3d::T(9, 14); // chagne dimension of the matrix to suit for warping degrees
+Matrix CorotCrdTransfWarping3d::Tlg(14, 14); // chagne dimension of the matrix to suit for warping degrees
+Matrix CorotCrdTransfWarping3d::TlgInv(14, 14); // chagne dimension of the matrix to suit for warping degrees
 Matrix CorotCrdTransfWarping3d::kg(14, 14);
-Matrix CorotCrdTransfWarping3d::Lr2(
-    14, 3); // chagne dimension of the matrix to suit for warping degrees
-Matrix CorotCrdTransfWarping3d::Lr3(
-    14, 3); // chagne dimension of the matrix to suit for warping degrees
+Matrix CorotCrdTransfWarping3d::Lr2(14, 3); // chagne dimension of the matrix to suit for warping degrees
+Matrix CorotCrdTransfWarping3d::Lr3(14, 3); // chagne dimension of the matrix to suit for warping degrees
 Matrix CorotCrdTransfWarping3d::A(3, 3);
 
+
+#if 0
+#include <elementAPI.h>
 void *
 OPS_ADD_RUNTIME_VPV(OPS_CorotCrdTransfWarping3d)
 {
@@ -102,20 +97,21 @@ OPS_ADD_RUNTIME_VPV(OPS_CorotCrdTransfWarping3d)
 
   return new CorotCrdTransfWarping3d(tag, vec, jntOffsetI, jntOffsetJ);
 }
+#endif
 
 // constructor:
 CorotCrdTransfWarping3d::CorotCrdTransfWarping3d(int tag,
                                                  const Vector &vecInLocXZPlane,
                                                  const Vector &rigJntOffsetI,
                                                  const Vector &rigJntOffsetJ)
-    : FrameTransform(tag, CRDTR_TAG_CorotCrdTransfWarping3d), vAxis(3),
+    : FrameTransform3d(tag, CRDTR_TAG_CorotCrdTransfWarping3d), vAxis(3),
       nodeIOffset(3), nodeJOffset(3), xAxis(3), nodeIPtr(0), nodeJPtr(0),
       R0(3, 3), L(0), Ln(0), alphaIq(4), alphaJq(4), alphaIqcommit(4),
       alphaJqcommit(4), alphaI(3), alphaJ(3), ulcommit(9), ul(9), ulpr(9),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
   // check vector that defines local xz plane
-  if (&vecInLocXZPlane == 0 || vecInLocXZPlane.Size() != 3) {
+  if (vecInLocXZPlane.Size() != 3) {
     opserr << "CorotCrdTransfWarping3d::CorotCrdTransfWarping3d:  Vector that "
               "defines local xz plane is invalid\n";
     opserr << "Size must be 3\n. Using (0,0,1)";
@@ -180,7 +176,7 @@ CorotCrdTransfWarping3d::CorotCrdTransfWarping3d(int tag,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 CorotCrdTransfWarping3d::CorotCrdTransfWarping3d()
-    : FrameTransform(0, CRDTR_TAG_CorotCrdTransfWarping3d), vAxis(3), nodeIOffset(3),
+    : FrameTransform3d(0, CRDTR_TAG_CorotCrdTransfWarping3d), vAxis(3), nodeIOffset(3),
       nodeJOffset(3), xAxis(3), nodeIPtr(0), nodeJPtr(0), R0(3, 3), L(0), Ln(0),
       alphaIq(4), alphaJq(4), alphaIqcommit(4), alphaJqcommit(4), alphaI(3),
       alphaJ(3), ulcommit(9), ul(9), ulpr(9), nodeIInitialDisp(0),
@@ -1030,7 +1026,7 @@ CorotCrdTransfWarping3d::getGlobalStiffMatrix(const Matrix &kb,
 
   this->update();
 
-  int i, j, k;
+  int j, k;
   // transform tangent stiffness matrix from the basic system to local coordinates
   static Matrix kl(9, 9);
   // do not transform, basic equals to local
