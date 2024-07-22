@@ -59,6 +59,7 @@ public:
     static VectorND<12> empty{};
     return empty;
   }
+
   virtual VectorND<12>    pushConstant(const VectorND<12>&pl) const {
     static VectorND<12> empty{};
 //  throw std::runtime_error("");

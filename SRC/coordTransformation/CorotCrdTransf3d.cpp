@@ -94,7 +94,7 @@ OPS_CorotCrdTransf3d()
 CorotCrdTransf3d::CorotCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
                                        const Vector &rigJntOffsetI,
                                        const Vector &rigJntOffsetJ)
-    : FrameTransform(tag, CRDTR_TAG_CorotCrdTransf3d), vAxis(3), nodeIOffset(3),
+    : FrameTransform3d(tag, CRDTR_TAG_CorotCrdTransf3d), vAxis(3), nodeIOffset(3),
       nodeJOffset(3), xAxis(3), nodeIPtr(0), nodeJPtr(0), R0(3, 3), L(0), Ln(0),
       alphaIq(4), alphaJq(4), alphaIqcommit(4), alphaJqcommit(4), alphaI(3), alphaJ(3),
       ulcommit(7), ul(7), ulpr(7), nodeIInitialDisp(0), nodeJInitialDisp(0),
@@ -171,7 +171,7 @@ CorotCrdTransf3d::CorotCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 CorotCrdTransf3d::CorotCrdTransf3d()
-    : FrameTransform(0, CRDTR_TAG_CorotCrdTransf3d), vAxis(3), nodeIOffset(3), nodeJOffset(3),
+    : FrameTransform3d(0, CRDTR_TAG_CorotCrdTransf3d), vAxis(3), nodeIOffset(3), nodeJOffset(3),
       xAxis(3), nodeIPtr(0), nodeJPtr(0), R0(3, 3), L(0), Ln(0), alphaIq(4), alphaJq(4),
       alphaIqcommit(4), alphaJqcommit(4), alphaI(3), alphaJ(3), ulcommit(7), ul(7),
       ulpr(7), nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
@@ -312,18 +312,9 @@ CorotCrdTransf3d::initialize(Node *nodeIPointer, Node *nodeJPointer)
     return error;
 
   // compute initial pseudo-vectors for nodal triads
-  //opserr << setiosflags(ios::scientific);
-  //opserr << setiosflags(ios::showpos);
-  //opserr << setprecision(16);
-
-  //opserr << "L: " << L;
-  //opserr << "R0: " << R0;
 
   alphaIq = this->getQuaternionFromRotMatrix(R0); // pseudo-vector for node I
   alphaJq = this->getQuaternionFromRotMatrix(R0); // pseudo-vector for node J
-
-  //opserr << "alphaIq: " << alphaIq;
-  //opserr << "alphaJq: " << alphaJq;
 
   this->commitState();
 
@@ -414,9 +405,6 @@ CorotCrdTransf3d::update(void)
   gammaq = this->getQuaternionFromRotMatrix(dRgamma); // pseudo-vector for node J
   gammaw = this->getTangScaledPseudoVectorFromQuaternion(gammaq);
 
-  // opserr << "dRgamma: " << dRgamma;
-  // opserr << "gammaq: " << gammaq << endln;
-  // opserr << "gammaw: " << gammaw << endln;
 
   dRgamma = this->getRotMatrixFromTangScaledPseudoVector(gammaw / 2);
 
@@ -538,7 +526,6 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobal(void)
   // extract columns of rotation matrices
   int i, j, k;
 
-  //opserr << "comprTransfMatrixBasicGlobal: *****************************\n";
   static Vector r1(3), r2(3), r3(3);
   static Vector e1(3), e2(3), e3(3);
   static Vector rI1(3), rI2(3), rI3(3);
@@ -730,7 +717,6 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobalNew(void)
   // extract columns of rotation matrices
   int i, j, k;
 
-  //opserr << "comprTransfMatrixBasicGlobal: *****************************\n";
   static Vector r1(3), r2(3), r3(3);
   static Vector e1(3), e2(3), e3(3);
   static Vector rI1(3), rI2(3), rI3(3);
@@ -766,27 +752,8 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobalNew(void)
     for (j = 0; j < 3; j++)
       A(i, j) = (I(i, j) - e1(i) * e1(j)) / Ln;
 
-  /*
-            opserr << "r1: " << r1;
-            opserr << "r2: " << r2;
-            opserr << "r3: " << r3;
-            opserr << "e1: " << e1;
-            opserr << "e2: " << e2;
-            opserr << "e3: " << e3;
-            opserr << "rI1: " << rI1;
-            opserr << "rI2: " << rI2;
-            opserr << "rI3: " << rI3;
-            opserr << "rJ1: " << rJ1;
-            opserr << "rJ2: " << rJ2;
-            opserr << "rJ3: " << rJ3;
-            opserr << "A: " << A;
-        */
-
   Lr2 = this->getLMatrix(r2);
   Lr3 = this->getLMatrix(r3);
-
-  // opserr << "Lr2: " << Lr2;
-  // opserr << "Lr3: " << Lr3;
 
   static Matrix Sr1(3, 3), Sr2(3, 3), Sr3(3, 3);
   static Vector Se(3), At(3);
@@ -870,14 +837,6 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobalNew(void)
     hJ3(i + 9) = Se(i);
   }
 
-  /*
-        opserr << "hI1: " << hI1;
-        opserr << "hI2: " << hI2;
-        opserr << "hI3: " << hI3;
-        opserr << "hj1: " << hJ1;
-        opserr << "hj2: " << hJ2;
-        opserr << "hj3: " << hJ3;
-        */
 
   // f1 =  [-e1' O' e1' O'];
   // f2  = ( Lr2*rI1 + hI3)'./(2*(cos(thetalI(3))));
@@ -915,8 +874,6 @@ CorotCrdTransf3d::compTransfMatrixBasicGlobalNew(void)
   thetaJ(1) = -ul(5);
   thetaJ(2) = ul(4);
 
-  opserr << "thetaI: " << thetaI;
-  opserr << "thetaJ: " << thetaJ;
 
   double c;
 
@@ -1138,8 +1095,6 @@ CorotCrdTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
   static Matrix kl(7, 7);
   kl.addMatrixTripleProduct(0.0, Tp, kb, 1.0); // kl = Tp ^ kb * Tp;
 
-  //    opserr << "kb: " << kb;
-  //    opserr << "Tp: " << Tp;
 
   // transform resisting forces from the basic system to local coordinates
   static Vector pl(7);
@@ -1216,7 +1171,6 @@ CorotCrdTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
   kg.Assemble(A, 6, 0, -pl(6));
   kg.Assemble(A, 6, 6, pl(6));
 
-  //opserr << "kg += ksigma1: " << kg;
 
   // ksigma3 -------------------------------
   //  kbar2 = -Lr2*(m(3)*S(rI3) + m(1)*S(rI1)) + ...
@@ -1256,7 +1210,6 @@ CorotCrdTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
   kg.Assemble(kbar, 0, 9, 1.0);
   kg.AssembleTranspose(kbar, 9, 0, 1.0);
 
-  //opserr << "kg += ksigma3: " << kg;
 
   // Ksigma4 -------------------------------
   // Ks4_22 =  m(3)*( S(e2)*S(rI3) - S(e3)*S(rI2)) + ...
@@ -1296,7 +1249,6 @@ CorotCrdTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
 
   kg.Assemble(ks33, 9, 9, 1.0);
 
-  //opserr << "kg += ksigma4: " << kg;
 
   // Ksigma5 -------------------------------
   //
@@ -1362,30 +1314,22 @@ CorotCrdTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
   kg.AssembleTranspose(ks33, 9, 0, 1.0);
   kg.AssembleTranspose(ks33, 9, 6, -1.0);
 
-  //opserr << "kg += ksigma5: " << kg;
 
   // Ksigma -------------------------------
   static Vector rm(3);
 
   rm = rI3;
   rm.addVector(1.0, rJ3, -1.0);
-  //opserr << "ks2(r2,rI3-rJ3):\n ";
   kg.addMatrix(1.0, this->getKs2Matrix(r2, rm), m(3));
 
   rm = rJ2;
   rm.addVector(1.0, rI2, -1.0);
-  //opserr << "ks2(r3,rJ2-rI2):\n ";
   kg.addMatrix(1.0, this->getKs2Matrix(r3, rm), m(3));
-  //opserr << "ks2(r2,rI1):\n ";
   kg.addMatrix(1.0, this->getKs2Matrix(r2, rI1), m(1));
-  //opserr << "ks2(r3,rI1):\n ";
   kg.addMatrix(1.0, this->getKs2Matrix(r3, rI1), m(2));
-  //opserr << "ks2(r2,rJ1):\n ";
   kg.addMatrix(1.0, this->getKs2Matrix(r2, rJ1), m(4));
-  //opserr << "ks2(r3,rJ1):\n ";
   kg.addMatrix(1.0, this->getKs2Matrix(r3, rJ1), m(5));
 
-  //opserr << "kg += ksigma2: " << kg;
 
   //  T * diag (M .* tan(thetal))*T'
 
@@ -1395,9 +1339,7 @@ CorotCrdTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
       for (j = 0; j < 12; j++)
         kg(i, j) += T(k, i) * factor * T(k, j);
   }
-
-  //            opserr << "COROATIONAL 3d: kg final: " << kg;
-
+  
   return kg;
 }
 
@@ -1922,18 +1864,13 @@ CorotCrdTransf3d::getKs2Matrix(const Vector &ri, const Vector &z) const
   return ks2;
 }
 
-CrdTransf *
-CorotCrdTransf3d::getCopy3d(void)
+FrameTransform3d *
+CorotCrdTransf3d::getCopy()
 {
   // create a new instance of CorotCrdTransf3d
 
   CorotCrdTransf3d *theCopy =
       new CorotCrdTransf3d(this->getTag(), vAxis, nodeIOffset, nodeJOffset);
-
-  if (!theCopy) {
-    opserr << "CorotCrdTransf3d::getCopy() - out of memory creating copy\n";
-    return 0;
-  }
 
   theCopy->nodeIPtr      = nodeIPtr;
   theCopy->nodeJPtr      = nodeJPtr;
