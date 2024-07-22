@@ -5,7 +5,7 @@
 #include "ExponReducing.h"
 #include <stdlib.h>
 #include <TaggedObject.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 #define MAT_TAG_EXPON -1
 #define DEBG 0
