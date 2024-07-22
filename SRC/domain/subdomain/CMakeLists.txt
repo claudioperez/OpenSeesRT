@@ -23,4 +23,6 @@ target_sources(OPS_Domain
     ShadowSubdomain.h 
 )
 
+target_link_libraries(OPS_Domain PRIVATE OPS_Algorithm)
+
 target_include_directories(OPS_Domain PUBLIC ${CMAKE_CURRENT_LIST_DIR})
