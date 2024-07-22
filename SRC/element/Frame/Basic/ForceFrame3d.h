@@ -118,8 +118,11 @@ class ForceFrame3d: public BasicFrame3d
         maxSubdivisions= 10;
 
   enum Respond: int {
-    LocalForce = 2,
-    BasicStiff =19,
+    GlobalForce = 1,
+    BasicPlasticDeformation = 4,
+    LocalForce  = 2,
+    BasicForce  = 7,
+    BasicStiff  =19,
   };
   
   int setSectionPointers(std::vector<FrameSection*>&);

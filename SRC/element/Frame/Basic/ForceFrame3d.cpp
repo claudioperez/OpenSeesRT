@@ -529,7 +529,6 @@ ForceFrame3d::update()
           }
         }
 
-
         // Add effects of element loads
         double v0[5];
         v0[0] = v0[1] = v0[2] = v0[3] = v0[4] = 0.0;
@@ -1988,12 +1987,14 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
   output.attr("node2", connectedExternalNodes[1]);
 
   //
-  // we compare argv[0] for known response types
+  // compare argv[0] for known response types
   //
 
-  // global force -
-  if (strcmp(argv[0], "forces") == 0 || strcmp(argv[0], "force") == 0 ||
-      strcmp(argv[0], "globalForce") == 0 || strcmp(argv[0], "globalForces") == 0) {
+  // global force
+  if (strcmp(argv[0], "forces") == 0 || 
+      strcmp(argv[0], "force") == 0 ||
+      strcmp(argv[0], "globalForce") == 0 ||
+      strcmp(argv[0], "globalForces") == 0) {
 
     output.tag("ResponseType", "Px_1");
     output.tag("ResponseType", "Py_1");
@@ -2008,10 +2009,9 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "My_2");
     output.tag("ResponseType", "Mz_2");
 
+    theResponse = new ElementResponse(this, Respond::GlobalForce, Vector(12));
 
-    theResponse = new ElementResponse(this, 1, Vector(12));
-
-    // local force -
+  // local force
   } else if (strcmp(argv[0], "localForce") == 0 || 
              strcmp(argv[0], "localForces") == 0) {
 
@@ -2031,7 +2031,8 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     theResponse = new ElementResponse(this, Respond::LocalForce, Vector(12));
 
     // basic force -
-  } else if (strcmp(argv[0], "basicForce") == 0 || strcmp(argv[0], "basicForces") == 0) {
+  } else if (strcmp(argv[0], "basicForce") == 0 || 
+             strcmp(argv[0], "basicForces") == 0) {
 
     output.tag("ResponseType", "N");
     output.tag("ResponseType", "Mz_1");
@@ -2040,7 +2041,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "My_2");
     output.tag("ResponseType", "T");
 
-    theResponse = new ElementResponse(this, 7, Vector(6));
+    theResponse = new ElementResponse(this, Respond::BasicForce, Vector(6));
 
     // basic stiffness -
   } else if (strcmp(argv[0], "basicStiffness") == 0) {
@@ -2054,8 +2055,9 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
     theResponse = new ElementResponse(this, Respond::BasicStiff, Matrix(6, 6));
 
-    // chord rotation -
-  } else if (strcmp(argv[0], "chordRotation") == 0 || strcmp(argv[0], "chordDeformation") == 0 ||
+  // chord rotation
+  } else if (strcmp(argv[0], "chordRotation") == 0 || 
+             strcmp(argv[0], "chordDeformation") == 0 ||
              strcmp(argv[0], "basicDeformation") == 0) {
 
     output.tag("ResponseType", "eps");
@@ -2067,7 +2069,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
     theResponse = new ElementResponse(this, 3, Vector(6));
 
-    // plastic rotation -
+  // plastic rotation
   } else if (strcmp(argv[0], "plasticRotation") == 0 ||
              strcmp(argv[0], "plasticDeformation") == 0) {
 
@@ -2078,7 +2080,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "thetaYP_2");
     output.tag("ResponseType", "thetaXP");
 
-    theResponse = new ElementResponse(this, 4, Vector(6));
+    theResponse = new ElementResponse(this, Respond::BasicPlasticDeformation, Vector(6));
 
     // point of inflection
   } else if (strcmp(argv[0], "inflectionPoint") == 0) {
@@ -2118,9 +2120,8 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
       Response* theSectionResponse = points[i].material->setResponse(&argv[1], argc - 1, output);
 
-      if (theSectionResponse != 0) {
+      if (theSectionResponse != 0)
         numResponse = theCResponse->addResponse(theSectionResponse);
-      }
     }
 
     if (numResponse == 0) // no valid responses found
@@ -2277,7 +2278,7 @@ ForceFrame3d::getResponse(int responseID, Information& info)
     return info.setVector(vp);
   }
 
-  else if (responseID == 7)
+  else if (responseID == Respond::BasicForce)
     return info.setVector(q_pres);
 
   else if (responseID == 19)

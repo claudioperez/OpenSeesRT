@@ -925,22 +925,22 @@ CubicFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 }
 
 int 
-CubicFrame3d::getResponse(int responseID, Information &eleInfo)
+CubicFrame3d::getResponse(int responseID, Information &info)
 {
 
   if (responseID == 1)
-    return eleInfo.setVector(this->getResistingForce());
+    return info.setVector(this->getResistingForce());
 
   else if (responseID == 12)
-    return eleInfo.setVector(this->getRayleighDampingForces());
+    return info.setVector(this->getRayleighDampingForces());
     
   else if (responseID == 2) {
-    double N, V, M1, M2, T;
+    double V, M1, M2, T;
     double L = theCoordTransf->getInitialLength();
     double oneOverL = 1.0/L;
 
     // Axial
-    N = q[0];
+    double N = q[0];
     P(6) =  N;
     P(0) = -N+p0[0];
     
@@ -967,12 +967,12 @@ CubicFrame3d::getResponse(int responseID, Information &eleInfo)
     P(2) = -V+p0[3];
     P(8) =  V+p0[4];
 
-    return eleInfo.setVector(P);
+    return info.setVector(P);
   }
 
   // Chord rotation
   else if (responseID == 3)
-    return eleInfo.setVector(theCoordTransf->getBasicTrialDisp());
+    return info.setVector(theCoordTransf->getBasicTrialDisp());
 
   // Plastic rotation
   else if (responseID == 4) {
@@ -982,7 +982,7 @@ CubicFrame3d::getResponse(int responseID, Information &eleInfo)
     kb.solve(q, ve);
     vp = theCoordTransf->getBasicTrialDisp();
     vp -= ve;
-    return eleInfo.setVector(vp);
+    return info.setVector(vp);
   }
 
   else if (responseID == 10) {
@@ -991,7 +991,7 @@ CubicFrame3d::getResponse(int responseID, Information &eleInfo)
       Vector locs(numSections);
       for (int i = 0; i < numSections; i++)
         locs(i) = wt[i]*L;
-      return eleInfo.setVector(locs);
+      return info.setVector(locs);
     }
   }
 
@@ -1001,7 +1001,7 @@ CubicFrame3d::getResponse(int responseID, Information &eleInfo)
       Vector weights(numSections);
       for (int i = 0; i < numSections; i++)
         weights(i) = wt[i]*L;
-      return eleInfo.setVector(weights);
+      return info.setVector(weights);
     }
   }
 
@@ -1009,7 +1009,7 @@ CubicFrame3d::getResponse(int responseID, Information &eleInfo)
     ID tags(numSections);
     for (int i = 0; i < numSections; i++)
       tags(i) = sections[i]->getTag();
-    return eleInfo.setID(tags);
+    return info.setID(tags);
   }
 
   //by SAJalali
@@ -1020,7 +1020,7 @@ CubicFrame3d::getResponse(int responseID, Information &eleInfo)
       for (int i = 0; i < numSections; i++)
           energy += sections[i]->getEnergy()*xi[i] * L;
 
-      return eleInfo.setDouble(energy);
+      return info.setDouble(energy);
     }
   }
 
