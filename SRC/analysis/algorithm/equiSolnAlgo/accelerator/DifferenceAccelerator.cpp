@@ -25,7 +25,7 @@
 // Created: April 2002
 //
 #include <DifferenceAccelerator.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <Matrix.h>
 #include <Vector.h>
 #include <LinearSOE.h>
