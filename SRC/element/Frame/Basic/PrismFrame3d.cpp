@@ -142,8 +142,8 @@ PrismFrame3d::formBasicStiffness(OpenSees::MatrixND<6,6>& kb) const
     }
 
     if (releasey == 0) {
-      double EIyoverL2 = 2.0*Iy*EoverL;                // 2EIy/L
-      double EIyoverL4 = 2.0*EIyoverL2;                // 4EIy/L
+      double EIyoverL2 = 2.0*Iy*EoverL;            // 2EIy/L
+      double EIyoverL4 = 2.0*EIyoverL2;            // 4EIy/L
       kb(3,3) = kb(4,4) = EIyoverL4;
       kb(4,3) = kb(3,4) = EIyoverL2;
     }
@@ -683,9 +683,8 @@ PrismFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 }
 
 int
-PrismFrame3d::getResponse (int responseID, Information &eleInfo)
+PrismFrame3d::getResponse(int responseID, Information &info)
 {
-  double N, V, M1, M2, T;
   double L = theCoordTransf->getInitialLength();
   double oneOverL = 1.0/L;
   static Vector Res(12);
@@ -694,12 +693,13 @@ PrismFrame3d::getResponse (int responseID, Information &eleInfo)
   
   switch (responseID) {
   case 1: // stiffness
-    return eleInfo.setMatrix(this->getTangentStiff());
+    return info.setMatrix(this->getTangentStiff());
     
   case 2: // global forces
-    return eleInfo.setVector(Res);
+    return info.setVector(Res);
     
-  case 3: // local forces
+  case 3: { // local forces
+    double N, V, Mi, Mj, T;
     // Axial
     N = q[0];
     P(6) =  N;
@@ -710,34 +710,34 @@ PrismFrame3d::getResponse (int responseID, Information &eleInfo)
     P(9) =  T;
     P(3) = -T;
     
-    // Moments about z and shears along y
-    M1    = q[1];
-    M2    = q[2];
-    P(5)  = M1;
-    P(11) = M2;
-    V     = (M1+M2)*oneOverL;
+    // Moments about z and shear along y
+    Mi    = q[1];
+    Mj    = q[2];
+    P(5)  = Mi;
+    P(11) = Mj;
+    V     = (Mi + Mj)*oneOverL;
     P(1)  =  V+p0[1];
     P(7)  = -V+p0[2];
     
-    // Moments about y and shears along z
-    M1    = q[3];
-    M2    = q[4];
-    P(4)  = M1;
-    P(10) = M2;
-    V     = (M1 + M2)*oneOverL;
+    // Moments about y and shear along z
+    Mi    = q[3];
+    Mj    = q[4];
+    P(4)  = Mi;
+    P(10) = Mj;
+    V     = (Mi + Mj)*oneOverL;
     P(2)  = -V + p0[3];
     P(8)  =  V + p0[4];
 
-    return eleInfo.setVector(P);
-    
+    return info.setVector(P);
+  } 
   case 4: // basic forces
-    return eleInfo.setVector(q);
+    return info.setVector(q);
 
   case 5:
-    return eleInfo.setVector(theCoordTransf->getBasicTrialDisp());
+    return info.setVector(theCoordTransf->getBasicTrialDisp());
 
   case 6: {
-    double xL = eleInfo.theDouble;
+    double xL = info.theDouble;
     double x = xL*L;
     
     s(0) = q[0] + wx*(L-x);
@@ -747,12 +747,11 @@ PrismFrame3d::getResponse (int responseID, Information &eleInfo)
     s(4) = (q[3] + q[4])/L - wz*(x-0.5*L);
     s(5) = q[5];
 
-    return eleInfo.setVector(s);
+    return info.setVector(s);
   }
   default:
     break;
   }
-
   return -1;
 }
 
@@ -768,33 +767,31 @@ PrismFrame3d::setParameter(const char **argv, int argc, Parameter &param)
   if (argc < 1)
     return -1;
 
-
-  // E of the beam interior
   if (strcmp(argv[0],"E") == 0) {
     param.setValue(E);
     return param.addObject(11, this);
   }
-  // A of the beam interior
+
   if (strcmp(argv[0],"A") == 0) {
     param.setValue(A);
     return param.addObject(12, this);
   }
-  // Iz of the beam interior
+
   if (strcmp(argv[0],"Iz") == 0) {
     param.setValue(Iz);
     return param.addObject(13, this);
   }
-  // Iy of the beam interior
+
   if (strcmp(argv[0],"Iy") == 0) {
     param.setValue(Iy);
     return param.addObject(14, this);
   }
-  // G of the beam interior
+
   if (strcmp(argv[0],"G") == 0) {
     param.setValue(G);
     return param.addObject(15, this);
   }
-  // J of the beam interior
+
   if (strcmp(argv[0],"J") == 0) {
     param.setValue(Jx);
     return param.addObject(16, this);
