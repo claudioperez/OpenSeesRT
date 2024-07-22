@@ -4,7 +4,12 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-target_sources(OPS_Analysis
+add_library(OPS_Algorithm OBJECT)
+target_link_libraries(OPS_Algorithm PRIVATE OPS_Logging)
+target_include_directories(OPS_Analysis  PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Algorithm PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+
+target_sources(OPS_Algorithm
     PRIVATE
       EquiSolnAlgo.cpp 
       ExpressNewton.cpp
@@ -15,7 +20,7 @@ target_sources(OPS_Analysis
       Broyden.cpp 
       BFGS.cpp
       KrylovNewton.cpp 
-      PeriodicNewton.cpp 
+      PeriodicNewton.cpp
       AcceleratedNewton.cpp
       NewtonHallM.cpp
     PUBLIC
@@ -32,8 +37,6 @@ target_sources(OPS_Analysis
       AcceleratedNewton.h
       NewtonHallM.h
 )
-
-target_include_directories(OPS_Analysis PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 add_subdirectory(accelerator)
 add_subdirectory(search)

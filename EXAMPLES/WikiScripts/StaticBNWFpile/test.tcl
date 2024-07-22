@@ -1,1 +1,0 @@
-source StaticBNWFpile.tcl

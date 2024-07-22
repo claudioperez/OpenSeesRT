@@ -4,7 +4,7 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-target_sources(OPS_Analysis
+target_sources(OPS_Algorithm
     PRIVATE
       LineSearch.cpp 
       SecantLineSearch.cpp 
@@ -18,4 +18,4 @@ target_sources(OPS_Analysis
       RegulaFalsiLineSearch.h 
       BisectionLineSearch.h
 )
-target_include_directories(OPS_Analysis PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Algorithm PUBLIC ${CMAKE_CURRENT_LIST_DIR})

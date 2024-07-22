@@ -1,1 +1,0 @@
-source ConventionalColumn_Cyclic.tcl

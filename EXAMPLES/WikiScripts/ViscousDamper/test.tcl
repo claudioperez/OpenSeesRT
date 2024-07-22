@@ -1,1 +1,0 @@
-source ShearFrameVD.tcl
