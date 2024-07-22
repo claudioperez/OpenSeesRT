@@ -41,7 +41,7 @@
 #include <Matrix.h>
 
 
-class LinearCrdTransf2dInt: public FrameTransform<2>
+class LinearCrdTransf2dInt: public FrameTransform2d
 {
  public:
   LinearCrdTransf2dInt (int tag);
