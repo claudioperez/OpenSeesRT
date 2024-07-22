@@ -40,6 +40,8 @@
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
+
+#if 0
 #include <string.h>
 
 #include <elementAPI.h>
@@ -218,6 +220,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_RJWatsonEQS2d)
         kInit, mats, y, x, sDistI, doRayleigh, mass, maxIter, tol,
         kFactUplift);
 }
+#endif
 
 
 // initialize the class wide variables
@@ -1169,3 +1172,4 @@ void RJWatsonEQS2d::setUp()
     Tlb(1,2) = -shearDistI*L;
     Tlb(1,5) = -(1.0 - shearDistI)*L;
 }
+
