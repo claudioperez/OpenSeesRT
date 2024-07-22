@@ -34,7 +34,6 @@
 #include <Matrix.h>
 #include <Vector.h>
 #include <DomainDecompositionAnalysis.h>
-#include <PartitionedModelBuilder.h>
 #include <analysis/criteria/ConvergenceTest.h>
 
 #include <EquiSolnAlgo.h>
