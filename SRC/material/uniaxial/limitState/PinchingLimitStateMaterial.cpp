@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                            
-// $Revision: 1.0 $
-// $Date: 2012/05/01 01:00:00 $
-// $Source: /usr/local/cvs/OpenSees/PACKAGES/NewMaterial/cpp/PinchingLimitStateMaterial.cpp,v $
-                                                                        
+//
+// Date: 2012/05/01
+//                                                                        
 // Written: MRL 
 //
 // Description: This file contains the class implementation for PinchingLimitStateMaterial.
 //
-// What: "@(#) PinchingLimitStateMaterial.C, revN/C"
-
 #include <stdlib.h>
 
 #include <elementAPI.h>
@@ -467,25 +463,25 @@ PinchingLimitStateMaterial::setTrialStrain(double strain, double strainRate)
 }
 
 double 
-PinchingLimitStateMaterial::getStrain(void)
+PinchingLimitStateMaterial::getStrain()
 {
   return Tstrain;
 }
 
 double 
-PinchingLimitStateMaterial::getStress(void)
+PinchingLimitStateMaterial::getStress()
 {
   return Tstress;
 }
 
 double 
-PinchingLimitStateMaterial::getTangent(void)
+PinchingLimitStateMaterial::getTangent()
 {
   return Ttangent;
 }
 
 int 
-PinchingLimitStateMaterial::commitState(void)
+PinchingLimitStateMaterial::commitState()
 {
 	if((TstateFlag == 2 || TstateFlag == -2) && countGlobalEnv < 2)
 	{
@@ -609,7 +605,7 @@ PinchingLimitStateMaterial::commitState(void)
 }	
 
 int 
-PinchingLimitStateMaterial::revertToLastCommit(void)
+PinchingLimitStateMaterial::revertToLastCommit()
 {
 	Tstress = Cstress;
 	Tstrain = Cstrain;
@@ -651,7 +647,7 @@ PinchingLimitStateMaterial::revertToLastCommit(void)
 }
 
 int 
-PinchingLimitStateMaterial::revertToStart(void)
+PinchingLimitStateMaterial::revertToStart()
 {
 	// Zero Commit Variables
     Cstress = 0.0;
@@ -723,7 +719,7 @@ PinchingLimitStateMaterial::revertToStart(void)
 }
 
 
-UniaxialMaterial* PinchingLimitStateMaterial::getCopy(void)
+UniaxialMaterial* PinchingLimitStateMaterial::getCopy()
 {
 	PinchingLimitStateMaterial *theCopy = new PinchingLimitStateMaterial (this->getTag(),
 	nodeTop, nodeBot, driftAxis, E1, curveType, curveTag,
@@ -919,7 +915,7 @@ PinchingLimitStateMaterial::Print(OPS_Stream &s, int flag)
 }
 
 void 
-PinchingLimitStateMaterial::updateDamageE(void)	
+PinchingLimitStateMaterial::updateDamageE()	
 {
 	double strainLimE = dmgStressLimE/TdmgElasticE;
 	double DispRatio = fmax(fabs(TstrainMax/strainLimE), fabs(TstrainMin/strainLimE));
@@ -936,7 +932,7 @@ PinchingLimitStateMaterial::updateDamageE(void)
 }
 
 void
-PinchingLimitStateMaterial::defineBackbone(void)
+PinchingLimitStateMaterial::defineBackbone()
 {
 	Kdeg = theCurve->getDegSlope();
 	Fres = theCurve->getResForce();
@@ -958,14 +954,14 @@ PinchingLimitStateMaterial::defineBackbone(void)
 }
 
 void
-PinchingLimitStateMaterial::updateEnergy(void)
+PinchingLimitStateMaterial::updateEnergy()
 {
 	if(TstateFlag == 2 || TstateFlag == 3 || TstateFlag == -2 || TstateFlag == -3 || TstateFlag == -10 || TstateFlag == -10)
 		Tenergy = Cenergy + Tdu*(Tstress + Cstress)/2;
 }
 
 void 
-PinchingLimitStateMaterial::updateDamageS(void)
+PinchingLimitStateMaterial::updateDamageS()
 {
 	double DispRatio = fmax((fabs(TstrainMax) - strainShearFailure)/dmgDeflMax,(fabs(TstrainMin) - strainShearFailure)/dmgDeflMax);
 	double EnergyRatio = Tenergy/InelastMonoEnergy;
@@ -976,7 +972,7 @@ PinchingLimitStateMaterial::updateDamageS(void)
 }
 
 void 
-PinchingLimitStateMaterial::updateDamageR(void)
+PinchingLimitStateMaterial::updateDamageR()
 {
 	double DispRatio = fmax((fabs(TstrainMax) - strainShearFailure)/dmgDeflMax,(fabs(TstrainMin) - strainShearFailure)/dmgDeflMax);
 	double EnergyRatio = Tenergy/InelastMonoEnergy;
@@ -992,7 +988,7 @@ PinchingLimitStateMaterial::updateDamageR(void)
 }
 
 int
-PinchingLimitStateMaterial::getStateFlag(void)
+PinchingLimitStateMaterial::getStateFlag()
 {
 	if((CstateFlag == 1 || CstateFlag == 2) && Tdu > 0.0 && Tstrain < TstrainFresKdegDmg)					
 		return 2;																					
@@ -1040,7 +1036,7 @@ PinchingLimitStateMaterial::getStateFlag(void)
 }
 
 void
-PinchingLimitStateMaterial::definePinchingPN(void)
+PinchingLimitStateMaterial::definePinchingPN()
 {
 	TpinchStressUnloadPN = Cstress*YpinchUnloadPN;
 	TpinchStrainUnloadPN = (TpinchStressUnloadPN-Cstress)/TdmgElasticE + Cstrain;
@@ -1056,7 +1052,7 @@ PinchingLimitStateMaterial::definePinchingPN(void)
 }
 
 void
-PinchingLimitStateMaterial::definePinchingNP(void)
+PinchingLimitStateMaterial::definePinchingNP()
 {
 	TpinchStressUnloadNP = Cstress*YpinchUnloadNP;
 	TpinchStrainUnloadNP = (TpinchStressUnloadNP-Cstress)/TdmgElasticE + Cstrain;
@@ -1072,7 +1068,7 @@ PinchingLimitStateMaterial::definePinchingNP(void)
 }
 
 double 
-PinchingLimitStateMaterial::getFlexDisp(void)
+PinchingLimitStateMaterial::getFlexDisp()
 {
 	const Vector &dispT = theNodeT->getTrialDisp();
 	const Vector &dispB = theNodeB->getTrialDisp();
@@ -1081,7 +1077,7 @@ PinchingLimitStateMaterial::getFlexDisp(void)
 }
 
 double
-PinchingLimitStateMaterial::getFlexShift(void)
+PinchingLimitStateMaterial::getFlexShift()
 {
 	double strainPred = (Tstress-interceptFlexPred)/slopeFlexPred;
 	double shift = Tstress/fabs(Tstress)*(strainPred - TstrainFlex);
@@ -1089,7 +1085,7 @@ PinchingLimitStateMaterial::getFlexShift(void)
 }
 
 void
-PinchingLimitStateMaterial::checkEnvelope(void)
+PinchingLimitStateMaterial::checkEnvelope()
 {
 	double shiftFlexRe = getFlexShift();
 	double KdegLim = slopeGlobalEnv*fabs(TstrainGlobal)+interceptGlobalEnv;
@@ -1126,7 +1122,7 @@ PinchingLimitStateMaterial::checkEnvelope(void)
 }
 
 void
-PinchingLimitStateMaterial::defineTargetVars(void)
+PinchingLimitStateMaterial::defineTargetVars()
 {
 	double Ag = b*h;
 	double V = fabs(Tstress);
@@ -1146,7 +1142,7 @@ PinchingLimitStateMaterial::defineTargetVars(void)
 }
 
 double
-PinchingLimitStateMaterial::getAxialForce(void)
+PinchingLimitStateMaterial::getAxialForce()
 {
 	int trash;	
 	const char *forceType2[1] = {"localForce"}; 
@@ -1165,7 +1161,7 @@ PinchingLimitStateMaterial::getAxialForce(void)
 }
 
 void
-PinchingLimitStateMaterial::defineE1(void)
+PinchingLimitStateMaterial::defineE1()
 {
 	double Ag = b*h; //in^2
 	double Ec = 57*sqrt(fc*1000); //ksi
