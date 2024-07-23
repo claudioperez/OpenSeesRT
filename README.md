@@ -1,7 +1,5 @@
 # `opensees`
 
-
-
 <!--
 <img align="center" src="https://raw.githubusercontent.com/BRACE2/OpenSeesRT/master/docs/figures/banner.png" width="150px" alt="OpenSees">
 -->
@@ -9,7 +7,7 @@
 <img align="left" src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/peer-black-300.png" width="150px" alt="PEER Logo">
 
 
-The fastest package for nonlinear finite element analysis in the west.
+The fastest platform for nonlinear finite element analysis in the west.
 
 <br>
 
@@ -35,8 +33,6 @@ The fastest package for nonlinear finite element analysis in the west.
 -->
 
 
-# OpenSees
-
 `opensees` is a Python package that provides an intuitive API for nonlinear
 finite element analysis, implemented in C++. The library features
 state-of-the-art finite element formulations and solution algorithms, including
@@ -44,8 +40,11 @@ mixed formulations for beams and solids, over 200 material models, and an
 extensive collection of continuation algorithms to solve highly nonlinear
 problems. 
 
+The package supports high quality interactive post processing via the
+[`sees`](https://pypi.org/project/sees) package.
 
-The package may be used as a drop-in replacement for both OpenSees.exe and
+
+The package may be used as a drop-in replacement for both `OpenSees.exe` and
 OpenSeesPy (see *Getting Started* below), and generally provides a substantial performance boost.
 
 ## Features
