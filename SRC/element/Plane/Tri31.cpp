@@ -29,7 +29,6 @@
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
-#include <Renderer.h>
 #include <Domain.h>
 #include <string.h>
 #include <Information.h>
@@ -95,12 +94,12 @@ OPS_DECL_RUNTIME(OPS_Tri31, const ID &info)
 
     numData = 1;
     if (OPS_GetDoubleInput(&numData, dData) != 0) {
-        opserr << "WARNING invalid thickness data: element Tri31 " << endln;
+        opserr << "WARNING invalid thickness data: element Tri31 " << "\n";
         return 0;
     }
 
     // if (OPS_GetStringCopy(&theType) != 0) {
-    //   opserr << "WARNING invalid type, want: ""PlaneStress"" or ""PlaneStrain""  element SSPquad " << iData[0] << endln;
+    //   opserr << "WARNING invalid type, want: ""PlaneStress"" or ""PlaneStrain""  element SSPquad " << iData[0] << "\n";
     //   return 0;
     // }
     theType = (char*)OPS_GetString();
@@ -114,7 +113,7 @@ OPS_DECL_RUNTIME(OPS_Tri31, const ID &info)
     if (OPS_GetNumRemainingInputArgs() == 4) {
         numData = 4;
         if (OPS_GetDoubleInput(&numData, &dData[1]) != 0) {
-        opserr << "WARNING invalid optional data: element Tri31 " << endln;
+        opserr << "WARNING invalid optional data: element Tri31 " << "\n";
         return 0;
         }
     }
@@ -172,7 +171,7 @@ OPS_DECL_RUNTIME(OPS_Tri31, const ID &info)
     int matID = iData[4];
     NDMaterial *theMaterial = OPS_getNDMaterial(matID);
     if (theMaterial == 0) {
-    opserr << "WARNING element Tri31 " << iData[0] << endln;
+    opserr << "WARNING element Tri31 " << iData[0] << "\n";
     opserr << " Material: " << matID << "not found\n";
     return 0;
     }
@@ -402,15 +401,15 @@ Tri31::setDomain(Domain *theDomain)
     int dofNd3 = theNodes[2]->getNumberDOF();
     
     if (dofNd1 != 2 && dofNd1 != 3) {
-      opserr << "WARNING Tri31::setDomain() element " << this->getTag() << " does not have 2 or 3 DOF at node " << theNodes[0]->getTag() << endln;
+      opserr << "WARNING Tri31::setDomain() element " << this->getTag() << " does not have 2 or 3 DOF at node " << theNodes[0]->getTag() << "\n";
       return;
     }
     if (dofNd2 != 2 && dofNd2 != 3) {
-      opserr << "WARNING Tri31::setDomain() element " << this->getTag() << " does not have 2 or 3 DOF at node " << theNodes[1]->getTag() << endln;
+      opserr << "WARNING Tri31::setDomain() element " << this->getTag() << " does not have 2 or 3 DOF at node " << theNodes[1]->getTag() << "\n";
       return;
     }
     if (dofNd3 != 2 && dofNd3 != 3) {
-      opserr << "WARNING Tri31::setDomain() element " << this->getTag() << " does not have 2 or 3 DOF at node " << theNodes[2]->getTag() << endln;
+      opserr << "WARNING Tri31::setDomain() element " << this->getTag() << " does not have 2 or 3 DOF at node " << theNodes[2]->getTag() << "\n";
       return;
     }
 
@@ -680,7 +679,7 @@ Tri31::addLoad(ElementalLoad *theLoad, double loadFactor)
         appliedB[1] += loadFactor*data(1)*b[1];
         return 0;
     } else {
-        opserr << "Tri31::addLoad - load type unknown for ele with tag: " << this->getTag() << endln;
+        opserr << "Tri31::addLoad - load type unknown for ele with tag: " << this->getTag() << "\n";
         return -1;
     }
 
@@ -964,7 +963,7 @@ Tri31::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
             // Allocate new material with the sent class tag
             theMaterial[i] = theBroker.getNewNDMaterial(matClassTag);
             if (theMaterial[i] == 0) {
-                opserr << "Tri31::recvSelf() - Broker could not create NDMaterial of class type " << matClassTag << endln;
+                opserr << "Tri31::recvSelf() - Broker could not create NDMaterial of class type " << matClassTag << "\n";
                 return -1;
             }
             // Now receive materials into the newly allocated space
@@ -1010,14 +1009,14 @@ void
 Tri31::Print(OPS_Stream &s, int flag)                                                                 
 {
     if (flag == OPS_PRINT_CURRENTSTATE) {
-        s << "\nTri31, element id:  " << this->getTag() << endln;
+        s << "\nTri31, element id:  " << this->getTag() << "\n";
         s << "\tConnected external nodes:  " << connectedExternalNodes;
-        s << "\tthickness:  " << thickness << endln;
-        s << "\tsurface pressure:  " << pressure << endln;
-        s << "\tmass density:  " << rho << endln;
-        s << "\tbody forces:  " << b[0] << " " << b[1] << endln;
+        s << "\tthickness:  " << thickness << "\n";
+        s << "\tsurface pressure:  " << pressure << "\n";
+        s << "\tmass density:  " << rho << "\n";
+        s << "\tbody forces:  " << b[0] << " " << b[1] << "\n";
         theMaterial[0]->Print(s, flag);
-        s << "\tStress (xx yy xy)" << endln;
+        s << "\tStress (xx yy xy)" << "\n";
         for (int i = 0; i<numgp; i++) s << "\t\tGauss point " << i + 1 << ": " << theMaterial[i]->getStress();
     }
 
@@ -1031,11 +1030,10 @@ Tri31::Print(OPS_Stream &s, int flag)
 
         for (i = 0; i < numNodes; i++) {
             const Vector &nodeCrd = theNodes[i]->getCrds();
-            // const Vector &nodeDisp = theNodes[i]->getDisp();
-            s << "#NODE " << nodeCrd(0) << " " << nodeCrd(1) << " " << endln;
+            s << "#NODE " << nodeCrd(0) << " " << nodeCrd(1) << " " << "\n";
         }
 
-        // spit out the section location & invoke print on the scetion
+        // print the section location & invoke print on the scetion
         const int numMaterials = numgp;
 
         static Vector avgStress(nstress);
@@ -1050,18 +1048,20 @@ Tri31::Print(OPS_Stream &s, int flag)
         avgStrain /= numMaterials;
 
         s << "#AVERAGE_STRESS ";
-        for (i = 0; i < nstress; i++) s << avgStress(i) << " ";
-        s << endln;
+        for (i = 0; i < nstress; i++)
+          s << avgStress(i) << " ";
+        s << "\n";
 
         s << "#AVERAGE_STRAIN ";
-        for (i = 0; i < nstress; i++) s << avgStrain(i) << " ";
-        s << endln;
+        for (i = 0; i < nstress; i++)
+          s << avgStrain(i) << " ";
+        s << "\n";
     }
 
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\t{";
+        s << OPS_PRINT_JSON_ELEM_INDENT << "{";
         s << "\"name\": " << this->getTag() << ", ";
-        s << "\"type\": \"Tri31\", ";
+        s << "\"type\": \"" << this->getClassType() << "\", ";
         s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
         s << connectedExternalNodes(1) << ", ";
         s << connectedExternalNodes(2) << "], ";
@@ -1073,42 +1073,6 @@ Tri31::Print(OPS_Stream &s, int flag)
     }
 }
 
-int
-Tri31::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-    theNodes[2]->getDisplayCrds(v3, fact, displayMode);
-
-    // place values in coords matrix
-    static Matrix coords(3, 3);
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v2(i);
-        coords(2, i) = v3(i);
-    }
-
-    // set the quantity to be displayed at the nodes;
-    // if displayMode is 1 through 3 we will plot material stresses otherwise 0.0
-    static Vector values(numgp);
-    if (displayMode < numgp && displayMode > 0) {
-        for (int i = 0; i < numgp; i++) {
-            const Vector& stress = theMaterial[i]->getStress();
-            values(i) = stress(displayMode - 1);
-        }
-    }
-    else {
-        for (int i = 0; i < numgp; i++)
-            values(i) = 0.0;
-    }
-
-    // draw the polygon
-    return theViewer.drawPolygon(coords, values, this->getTag());
-}
 
 Response*
 Tri31::setResponse(const char **argv, int argc, OPS_Stream &output)                                         
