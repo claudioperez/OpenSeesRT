@@ -54,14 +54,14 @@ OpenSeesPy (see *Getting Started* below), and generally provides a substantial p
 
 ## Features
 
+- **Performance** Switching Python scripts to use `opensees` typically results in a 4x to 5x performance boost.
+- **Interactive Tasks**: Easily return stiffness, mass, and damping matrices as NumPy arrays and join meshes without duplicate nodes and constraints.
+- **Extensive Modeling Library**: State-of-the-art element formulations with over 200 material models to choose from.
+- **Continuation Algorithms**: Robust algorithms for solving highly nonlinear problems.
 - **Intuitive and Reliable** The core OpenSees runtime has been redesigned so that all program 
   state is encapsulated in user-instantiated classes,
   and global variables/singletons are avoided. 
   This eliminates several preexisting vulnerabilities to inadvertent state corruption.
-- **Interactive Tasks**: Easily return stiffness, mass, and damping matrices as NumPy arrays and join meshes without duplicate nodes and constraints.
-- **Extensive Modeling Library**: State-of-the-art element formulations with over 200 material models to choose from.
-- **Continuation Algorithms**: Robust algorithms for solving highly nonlinear problems.
-- **Performance** Switching Python scripts to use `opensees` typically results in a 4x to 5x performance boost.
 
 
 <!-- 
