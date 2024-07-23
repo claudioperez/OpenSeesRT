@@ -34,9 +34,20 @@ The fastest package for nonlinear finite element analysis in the west.
 -------------------------------------------------------------------- 
 -->
 
-This is an experimental package that provides an *optimized* OpenSees Tcl interpreter,
-as well as a new set of Python bindings that is both idiomatic, and free
-of global state.
+
+# OpenSees
+
+`opensees` is a Python package that provides an intuitive API for nonlinear finite element analysis, implemented in C++. The library features state-of-the-art finite element formulations and solution algorithms, including mixed formulations for beams and solids, over 200 material models, and an extensive collection of continuation algorithms to solve highly nonlinear problems. **Optimized for high performance**, OpenSees ensures fast and efficient computations.
+
+## Features
+
+- **Intuitive API**: Easy-to-use Python interface for complex finite element analysis.
+- **Advanced Formulations**: Mixed formulations for beams and solids.
+- **Extensive Material Models**: Over 200 material models to choose from.
+- **Continuation Algorithms**: Robust algorithms for solving highly nonlinear problems.
+- **High Performance**: Optimized C++ implementation ensures fast and efficient computations.
+- **Interactive Tasks**: Easily return stiffness, mass, and damping matrices as NumPy arrays and join meshes without duplicate nodes and constraints.
+
 
 The package may be used as a drop-in replacement for both OpenSees.exe and
 OpenSeesPy (see *Getting Started* below), and generally provides a substantial performance boost.
@@ -57,6 +68,25 @@ Project objectives include:
   state is encapsulated in user-instantiated classes,
   and global variables/singletons are avoided. 
   This eliminates several preexisting vulnerabilities to inadvertent state corruption.
+
+# OpenSees
+
+OpenSees is a Python package that provides an intuitive API for nonlinear finite element analysis, implemented in C++. The library features state-of-the-art finite element formulations and solution algorithms, including mixed formulations for beams and solids, over 200 material models, and an extensive collection of continuation algorithms to solve highly nonlinear problems. **Optimized for high performance**, OpenSees ensures fast and efficient computations.
+
+## Features
+
+- **Intuitive API**: Easy-to-use Python interface for complex finite element analysis.
+- **Advanced Formulations**: Mixed formulations for beams and solids.
+- **Extensive Material Models**: Over 200 material models to choose from.
+- **Continuation Algorithms**: Robust algorithms for solving highly nonlinear problems.
+- **High Performance**: Optimized C++ implementation ensures fast and efficient computations.
+- **Interactive Tasks**: Easily return stiffness, mass, and damping matrices as NumPy arrays and join meshes without duplicate nodes and constraints.
+
+## Installation
+
+```bash
+pip install opensees
+```
 
 <!-- 
 - **Semantics** Unlike interfaces which rely on global state, this package can be used 
