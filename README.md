@@ -49,27 +49,14 @@ OpenSeesPy (see *Getting Started* below), and generally provides a substantial p
 
 ## Features
 
-- **Interactive Tasks**: Easily return stiffness, mass, and damping matrices as NumPy arrays and join meshes without duplicate nodes and constraints.
-- **Intuitive API**: Easy-to-use Python interface for complex finite element analysis.
-- **Advanced Formulations**: Mixed formulations for beams and solids.
-- **Extensive Material Models**: Over 200 material models to choose from.
-- **Continuation Algorithms**: Robust algorithms for solving highly nonlinear problems.
-
-- **Performance** The `opensees` package uses the experimental 
-  [`OpenSeesRT`](https://github.com/claudioperez/OpenSeesRT) 
-  analysis kernel which
-  eliminates reliance on global variables for state and memory management. 
-  New template classes in [`matrix/`](https://github.com/STAIRLab/OpenSeesRT/tree/master/SRC/matrix/)
-  allow for stack-allocated
-  matrices and vectors and eliminate the need for static local variables 
-  which is leveraged to furnish substantial performance improvements. 
-  Switching Python scripts
-  to use `opensees` typically results in a 4x to 5x performance boost.
-
-- **Reliability** The core OpenSees runtime has been redesigned so that all program 
+- **Intuitive and Reliable** The core OpenSees runtime has been redesigned so that all program 
   state is encapsulated in user-instantiated classes,
   and global variables/singletons are avoided. 
   This eliminates several preexisting vulnerabilities to inadvertent state corruption.
+- **Interactive Tasks**: Easily return stiffness, mass, and damping matrices as NumPy arrays and join meshes without duplicate nodes and constraints.
+- **Extensive Modeling Library**: State-of-the-art element formulations with over 200 material models to choose from.
+- **Continuation Algorithms**: Robust algorithms for solving highly nonlinear problems.
+- **Performance** Switching Python scripts to use `opensees` typically results in a 4x to 5x performance boost.
 
 
 <!-- 
