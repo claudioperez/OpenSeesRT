@@ -9,7 +9,7 @@
 <img align="left" src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/peer-black-300.png" width="150px" alt="PEER Logo">
 
 
-**A *fast* and *stateless* interface to the OpenSees framework for finite element analysis.**
+The fastest package for nonlinear finite element analysis in the west.
 
 <br>
 
@@ -111,7 +111,7 @@ Additional features include:
 
 ## Compiling
 
-To compile the project see [help/compiling](./help/compiling.md)
+To compile the project see [help/compiling](https://github.com/claudioperez/opensees/blob/master/help/compiling.md)
 
 <!-- Badge links -->
 
@@ -161,7 +161,7 @@ For more projects by the STAIRlab, visit https://github.com/STAIRlab .
   <td>
     <a href="https://brace2.herokuapp.com">
     <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/stairlab.svg"
-         alt="BRACE2 Logo" width="200"/>
+         alt="STAIRlab Logo" width="200"/>
     </a>
   </td>
  
