@@ -124,7 +124,7 @@ To compile the project see [help/compiling](https://github.com/claudioperez/open
 [pypi-v-link]: https://pypi.org/project/opensees
 
 
-See also:
+## See also
 
 - [`osmg`](https://pypi.org/project/osmg) OpenSees Model Generator
 - [`sees`](https://pypi.org/project/sees) Modern rendering library
