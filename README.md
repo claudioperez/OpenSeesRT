@@ -157,7 +157,8 @@ For more projects by the STAIRlab, visit https://github.com/STAIRlab .
   </td>
 
   <td>
-    <a href="https://brace2.herokuapp.com">
+    <!-- <a href="https://brace2.herokuapp.com"> -->
+    <a href="https://stairlab.berkeley.edu">
     <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/stairlab.svg"
          alt="STAIRlab Logo" width="200"/>
     </a>
