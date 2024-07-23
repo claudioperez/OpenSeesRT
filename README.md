@@ -1,18 +1,12 @@
 # `opensees`
 
-
-
 <!--
 <img align="center" src="https://raw.githubusercontent.com/BRACE2/OpenSeesRT/master/docs/figures/banner.png" width="150px" alt="OpenSees">
 -->
 
 <img align="left" src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/peer-black-300.png" width="150px" alt="PEER Logo">
 
-
-**A *fast* and *stateless* interface to the OpenSees framework for finite element analysis.**
-
-<br>
-
+Fast nonlinear finite element analysis.
 
 <br>
 
@@ -34,29 +28,37 @@
 -------------------------------------------------------------------- 
 -->
 
-This is an experimental package that provides an *optimized* OpenSees Tcl interpreter,
-as well as a new set of Python bindings that is both idiomatic, and free
-of global state.
 
-The package may be used as a drop-in replacement for both OpenSees.exe and
+`opensees` is a Python package that provides an intuitive API for nonlinear
+finite element analysis, implemented in C++. The library features
+state-of-the-art finite element formulations and solution algorithms, including
+mixed formulations for beams and solids, over 200 material models, and an
+extensive collection of continuation algorithms to solve highly nonlinear
+problems. 
+
+The package supports high quality interactive post processing via the
+[`sees`](https://pypi.org/project/sees) package.
+
+
+The package may be used as a drop-in replacement for both `OpenSees.exe` and
 OpenSeesPy (see *Getting Started* below), and generally provides a substantial performance boost.
-Project objectives include:
 
-- **Performance** The `opensees` package uses the experimental 
-  [`OpenSeesRT`](https://github.com/claudioperez/OpenSeesRT) 
-  analysis kernel which
-  eliminates reliance on global variables for state and memory management. 
-  New template classes in [`matrix/`](https://github.com/STAIRLab/OpenSeesRT/tree/master/SRC/matrix/)
-  allow for stack-allocated
-  matrices and vectors and eliminate the need for static local variables 
-  which is leveraged to furnish substantial performance improvements. 
-  Switching Python scripts
-  to use `opensees` typically results in a 4x to 5x performance boost.
+<p style="text-align: center;">
+<b>This package is <i>experimental</i> and not yet intended for public use.</b>
+</p>
 
-- **Reliability** The core OpenSees runtime has been redesigned so that all program 
+
+## Features
+
+- **Performance** Switching Python scripts to use `opensees` typically results in a 4x to 5x performance boost.
+- **Interactive Tasks**: Easily return stiffness, mass, and damping matrices as NumPy arrays and join meshes without duplicate nodes and constraints.
+- **Extensive Modeling Library**: State-of-the-art element formulations with over 200 material models to choose from.
+- **Continuation Algorithms**: Robust algorithms for solving highly nonlinear problems.
+- **Intuitive and Reliable** The core OpenSees runtime has been redesigned so that all program 
   state is encapsulated in user-instantiated classes,
   and global variables/singletons are avoided. 
   This eliminates several preexisting vulnerabilities to inadvertent state corruption.
+
 
 <!-- 
 - **Semantics** Unlike interfaces which rely on global state, this package can be used 
@@ -81,10 +83,6 @@ Additional features include:
 > pip install opensees[py]
 > ```
 
-
-<p style="text-align: center;">
-<b>This package is <i>experimental</i> and not yet intended for public use.</b>
-</p>
 
 
 ### Getting Started
@@ -111,7 +109,7 @@ Additional features include:
 
 ## Compiling
 
-To compile the project see [help/compiling](./help/compiling.md)
+To compile the project see [help/compiling](https://github.com/claudioperez/opensees/blob/master/help/compiling.md)
 
 <!-- Badge links -->
 
@@ -122,7 +120,7 @@ To compile the project see [help/compiling](./help/compiling.md)
 [pypi-v-link]: https://pypi.org/project/opensees
 
 
-See also:
+## See also
 
 - [`osmg`](https://pypi.org/project/osmg) OpenSees Model Generator
 - [`sees`](https://pypi.org/project/sees) Modern rendering library
@@ -159,9 +157,10 @@ For more projects by the STAIRlab, visit https://github.com/STAIRlab .
   </td>
 
   <td>
-    <a href="https://brace2.herokuapp.com">
+    <!-- <a href="https://brace2.herokuapp.com"> -->
+    <a href="https://stairlab.berkeley.edu">
     <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/stairlab.svg"
-         alt="BRACE2 Logo" width="200"/>
+         alt="STAIRlab Logo" width="200"/>
     </a>
   </td>
  

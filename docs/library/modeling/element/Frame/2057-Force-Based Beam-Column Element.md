@@ -1,16 +1,15 @@
-# Force-Based Beam-Column
+# Force Formulation
 
-This command is used to construct a forceBeamColumn element object,
-which is based on the iterative force-based formulation. A variety of
-numerical integration options can be used in the element state
+The ForceBeamColumn element is based on the iterative force-based formulation. 
+A variety of numerical integration options can be used in the element state
 determination and encompass both distributed plasticity and plastic
 hinge integration. See <a href="image:IntegrationTypes.pdf"
 title="wikilink">image:IntegrationTypes.pdf</a> for more details on the
 available numerical integration options.
 
-:::{apidoc="opensees.element.forceBeamColumn"}
+:::{apidoc="opensees.element.ForceBeamColumn"}
 ```tcl
-element forceBeamColumn $eleTag $iNode $jNode $transfTag
+element ForceBeamColumn $eleTag $iNode $jNode $transfTag
   { IntegrationType arg1 arg2 ... }
   < -mass $massDens > < -iter  $maxIters $tol >
 ```
@@ -187,6 +186,6 @@ Research Center, College of Engineering, University of California,
 Berkeley. August 1992.</li>
 </ul>
 <hr />
-<p>Code maintained by: <a
-href="http://web.engr.oregonstate.edu/~mhscott">Michael H. Scott, Oregon
-State University</a></p>
+
+Code maintained by: <a>cmp</a>
+

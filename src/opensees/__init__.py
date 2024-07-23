@@ -1,4 +1,4 @@
-__version__  = "0.0.46"
+__version__  = "0.0.61"
 
 # Imports for this module
 import math
