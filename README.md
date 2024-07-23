@@ -6,11 +6,7 @@
 
 <img align="left" src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/peer-black-300.png" width="150px" alt="PEER Logo">
 
-
-The fastest platform for nonlinear finite element analysis in the west.
-
-<br>
-
+Fast nonlinear finite element analysis.
 
 <br>
 
