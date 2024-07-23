@@ -47,6 +47,11 @@ The package supports high quality interactive post processing via the
 The package may be used as a drop-in replacement for both `OpenSees.exe` and
 OpenSeesPy (see *Getting Started* below), and generally provides a substantial performance boost.
 
+<p style="text-align: center;">
+<b>This package is <i>experimental</i> and not yet intended for public use.</b>
+</p>
+
+
 ## Features
 
 - **Intuitive and Reliable** The core OpenSees runtime has been redesigned so that all program 
@@ -82,10 +87,6 @@ Additional features include:
 > pip install opensees[py]
 > ```
 
-
-<p style="text-align: center;">
-<b>This package is <i>experimental</i> and not yet intended for public use.</b>
-</p>
 
 
 ### Getting Started
