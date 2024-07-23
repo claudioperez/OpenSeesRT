@@ -41,6 +41,20 @@ integrator MinUnbalDispNorm 0.1;
 
 ## Theory
 
+### Continuation
+
+In this instance, the constraint equation involving $\Delta \lambda_i^j$ is
+$$
+\frac{\partial}{\partial \Delta \lambda_i^j}\left[\{\Delta u\}_i^{j} \cdot \{\Delta \delta\}_i^j\right]=0
+$$
+
+which guarantees a minimum value for the unbalanced displacement norm in each iteration. Expanding $\{\Delta \delta\}_i^j$ as defined in equation (9) and evaluating equation (28) furnishes
+$$
+\Delta \lambda_i^j=\frac{-\left\{\delta_1\right\}_i^{\mathrm{T}}\left\{\Delta \delta_{\mathrm{R}}\right\}_i^j}{\left\{\delta_1\right\}_i^{\mathrm{T}}\left\{\delta_{\mathrm{I}}\right\}_i}
+$$
+
+### Incrementation
+
 The load increment at iteration $i$, $d\lambda_{1,i}$ , is related to the load
 increment at $(i-1)$, $d\lambda_{1,i-1}$, and the number of iterations at
 $(i-1)$, $J_{i-1}$, by the following:

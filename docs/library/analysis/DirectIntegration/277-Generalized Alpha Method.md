@@ -1,9 +1,9 @@
-# Generalized Alpha Method
+# Generalized Alpha
 
 This command is used to construct a Generalized
 $\alpha$ integration object. This is an implicit
 method that like the HHT method allows for high frequency energy
-dissipation and second order accuracy, i.e. $\Delta t^2$.
+dissipation and second order accuracy.
 Depending on choices of input parameters, the method
 can be unconditionally stable.
 
@@ -75,7 +75,7 @@ are those used in the paper.</li>
 <dt></dt>
 <dd>
 
-$$\gamma = \tfrac{1}{2} + \gamma_M - \gamma_F$$
+$$\gamma = \frac{1}{2} + \alpha_M - \alpha_F$$
 
 </dd>
 </dl>
