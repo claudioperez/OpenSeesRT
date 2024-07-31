@@ -140,8 +140,10 @@ ElasticLinearFrameSection3d::getIntegral(Field field, State state, double& value
       return 0;
 
     case Field::Density:
-      if (this->FrameSection::getIntegral(field, state, value) == 0) 
-        return 0;
+      if (this->FrameSection::getIntegral(field, state, value) != 0) 
+        return -1;
+      else
+        return  0;
       // Density may be specified for the section
 
     case Field::UnitYY:

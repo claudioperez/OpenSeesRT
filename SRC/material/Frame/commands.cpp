@@ -63,63 +63,22 @@ validate(FrameSectionConstants& section, int ndm, int shear)
 //          {$A $Ay $Az}
 //    -Ay    $Ay
 //    -Az    $Az
-//
 //    -I/B   $Iz
 //          {$Iy $Iz}
 //          {$Iy $Iz $Iyz}
-//
 //    -J     $J
 //    -C     $Cw
 //          {$Cw $Ca}
-//
 //    -Q    {$Qy $Qz <$Qyx $Qyz>}
-//
 //    -R    {$Qy $Qz}
 //
-int
-TclCommand_newElasticFrame(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char ** const argv)
-{
-  FrameSectionConstants consts;
-
-  int ndm = 0;
-  int have_shear = 0;
-
-  for (int i=0; i<argc; i++) {
-
-    if (strcmp(argv[i], "-E") == 0) {
-    }
-
-    else if (strcmp(argv[i], "-A") == 0) {
-      ++i;
-      if (i >= argc) {
-        return TCL_ERROR;
-      }
-
-      int listc;
-      const char **list;
-      if (Tcl_GetDouble(interp, argv[i], &consts.A) == TCL_OK) {
-        continue;
-      } else if (Tcl_SplitList(interp, argv[i], &listc, &list) == TCL_OK) {
-      } else {
-      }
-    }
-  }
-
-  if (validate(consts, ndm, have_shear) != 0)
-    return TCL_ERROR;
-  
-  return TCL_OK;
-
-}
-
 int
 TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char ** const argv)
 {
     assert(clientData != nullptr);
     BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
-    FrameSectionConstants consts{};
+    FrameSectionConstants consts{0.0};
 
     enum class PositionalArgument : int {
       Tag, E, A, Iz, Iy, G, J, End
@@ -127,11 +86,12 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
     ArgumentTracker<PositionalArgument> tracker;
 
     FrameSection* theSection = nullptr;
+    bool construct_full = false;
 
     if (argc < 5) {
         opserr << OpenSees::PromptParseError << "insufficient arguments\n";
-      //opserr << "Want: section Elastic tag? EA? EIz? <EIy? GJ?>" << "\n";
-        opserr << "Want: section Elastic tag? E? A? Iz? <Iy? G? J?>" << "\n";
+      //opserr << "Want: section Elastic tag? EA? EIz? <EIy? GJ?>.\n";
+        opserr << "Want: section Elastic tag? E? A? Iz? <Iy? G? J?>.\n";
         return TCL_ERROR;
     }
 
@@ -142,12 +102,18 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
     double mass=0.0;
     std::set<int> positional;
 
+    if (builder->getNDM() == 2) {
+        tracker.consume(PositionalArgument::G);
+        tracker.consume(PositionalArgument::J);
+        tracker.consume(PositionalArgument::Iy);
+    }
+
     int i;
     for (i=2; i<argc; i++) {
 
       if (strcmp(argv[i], "-mass") == 0) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &mass) != TCL_OK) {
-          opserr << OpenSees::PromptParseError << "invalid mass" << "\n";
+          opserr << OpenSees::PromptParseError << "invalid mass.\n";
           return TCL_ERROR;
         }
         use_mass = true;
@@ -156,7 +122,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
       else if ((strcmp(argv[i], "-youngs-modulus") == 0) ||
                (strcmp(argv[i], "-E") == 0)) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &E) != TCL_OK) {
-          opserr << OpenSees::PromptParseError << "invalid Young's modulus." << "\n";
+          opserr << OpenSees::PromptParseError << "invalid Young's modulus..\n";
           return TCL_ERROR;
         }
         tracker.consume(PositionalArgument::E);
@@ -165,26 +131,49 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
       else if ((strcmp(argv[i], "-shear-modulus") == 0) ||
                (strcmp(argv[i], "-G") == 0)) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &G) != TCL_OK) {
-          opserr << OpenSees::PromptParseError << "invalid shear modulus." << "\n";
+          opserr << OpenSees::PromptParseError << "invalid shear modulus..\n";
           return TCL_ERROR;
         }
         tracker.consume(PositionalArgument::G);
       }
 
+
+      //
+      // Section constants
+      //
+
       else if ((strcmp(argv[i], "-area") == 0) ||
                (strcmp(argv[i], "-A") == 0)) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.A) != TCL_OK) {
-          opserr << OpenSees::PromptParseError << "invalid area." << "\n";
+          opserr << OpenSees::PromptParseError << "invalid area..\n";
           return TCL_ERROR;
         }
         tracker.consume(PositionalArgument::A);
+      }
+
+      else if ((strcmp(argv[i], "-shear-y") == 0) ||
+               (strcmp(argv[i], "-Ay") == 0)) {
+        if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.Ay) != TCL_OK) {
+          opserr << OpenSees::PromptParseError << "invalid shear area.\n";
+          return TCL_ERROR;
+        }
+        construct_full = true;
+      }
+
+      else if ((strcmp(argv[i], "-shear-z") == 0) ||
+               (strcmp(argv[i], "-Az") == 0)) {
+        if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.Az) != TCL_OK) {
+          opserr << OpenSees::PromptParseError << "invalid shear area.\n";
+          return TCL_ERROR;
+        }
+        construct_full = true;
       }
 
       else if ((strcmp(argv[i], "-inertia") == 0) ||
                (strcmp(argv[i], "-I") == 0) ||
                (strcmp(argv[i], "-Iz") == 0)) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.Iz) != TCL_OK) {
-          opserr << OpenSees::PromptParseError << "invalid inertia." << "\n";
+          opserr << OpenSees::PromptParseError << "invalid inertia..\n";
           return TCL_ERROR;
         }
         tracker.consume(PositionalArgument::Iz);
@@ -193,7 +182,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
       else if ((strcmp(argv[i], "-inertia-y") == 0) ||
                (strcmp(argv[i], "-Iy") == 0)) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.Iy) != TCL_OK) {
-          opserr << OpenSees::PromptParseError << "invalid inertia." << "\n";
+          opserr << OpenSees::PromptParseError << "invalid inertia..\n";
           return TCL_ERROR;
         }
         tracker.consume(PositionalArgument::Iy);
@@ -202,7 +191,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
       else if ((strcmp(argv[i], "-venant") == 0) ||
                (strcmp(argv[i], "-J") == 0)) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &J) != TCL_OK) {
-          opserr << OpenSees::PromptParseError << "invalid St. Venant constant." << "\n";
+          opserr << OpenSees::PromptParseError << "invalid St. Venant constant..\n";
           return TCL_ERROR;
         }
         tracker.consume(PositionalArgument::J);
@@ -213,12 +202,15 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
 
     }
 
-    // positional arguments
+
+    //
+    // Positional arguments
+    //
     for (int i : positional) {
       switch (tracker.current()) {
         case PositionalArgument::Tag :
           if (Tcl_GetInt(interp, argv[i], &tag) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid section Elastic tag" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid section Elastic tag.\n";
               return TCL_ERROR;           
           } else {
             tracker.increment();
@@ -227,7 +219,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
 
         case PositionalArgument::E:
           if (Tcl_GetDouble (interp, argv[i], &E) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid E" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid E.\n";
               return TCL_ERROR;
           } else {
             tracker.increment();
@@ -236,7 +228,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
 
         case PositionalArgument::A:
           if (Tcl_GetDouble (interp, argv[i], &consts.A) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid A" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid A.\n";
               return TCL_ERROR;
           } else {
             tracker.increment();
@@ -245,7 +237,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
 
         case PositionalArgument::Iz:
           if (Tcl_GetDouble (interp, argv[i], &consts.Iz) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid Iz" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid Iz.\n";
               return TCL_ERROR;
           } else {
             tracker.increment();
@@ -254,7 +246,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
 
         case PositionalArgument::Iy:
           if (Tcl_GetDouble (interp, argv[i], &consts.Iy) != TCL_OK || consts.Iy < 0) {
-              opserr << OpenSees::PromptParseError << "invalid Iy" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid Iy.\n";
               return TCL_ERROR;
           } else {
             tracker.increment();
@@ -263,7 +255,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
 
         case PositionalArgument::G:
           if (Tcl_GetDouble (interp, argv[i], &G) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid G" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid G.\n";
               return TCL_ERROR;
           } else {
             tracker.increment();
@@ -272,7 +264,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
 
         case PositionalArgument::J:
           if (Tcl_GetDouble (interp, argv[i], &J) != TCL_OK) {
-              opserr << OpenSees::PromptParseError << "invalid J" << "\n";
+              opserr << OpenSees::PromptParseError << "invalid J.\n";
               return TCL_ERROR;
           } else {
             tracker.increment();
@@ -280,22 +272,41 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
           }
 
         case PositionalArgument::End:
-          opserr << OpenSees::PromptParseError << "unexpected argument" << argv[i] << "\n";
+          opserr << OpenSees::PromptParseError << "unexpected argument" << argv[i] << ".\n";
           return TCL_ERROR;
       }
     }
 
     if (tracker.current() != PositionalArgument::End) {
       opserr << OpenSees::PromptParseError
-             << "missing required positional arguments\n";
+             << "missing required positional arguments.\n";
       return TCL_ERROR;
     }
 
-    if (argc > 8) {
-      theSection = new ElasticLinearFrameSection3d(tag, E, consts.A, consts.Iz, consts.Iy, G, J, mass, use_mass);
+
+
+    if (construct_full) {
+      consts.Ca =   consts.Iy + consts.Iz - J;
+      consts.Sa = -(consts.Iy + consts.Iz - J);
+      theSection = new ElasticLinearFrameSection3d(tag,
+          E, G,
+          consts.A,  consts.Ay, consts.Az,              // n-n
+          consts.Iy, consts.Iz, consts.Iyz,             // m-m
+          consts.Cw, consts.Ca,                         // w-w
+          consts.Qy, consts.Qz, consts.Qyx, consts.Qzx, // n-m
+          consts.Rw, consts.Ry, consts.Rz,              // n-w
+          consts.Sa, consts.Sy, consts.Sz,              // m-w
+          mass, use_mass                                // mass
+      );
+    }
+    else if (argc > 8) {
+      theSection = new ElasticLinearFrameSection3d(tag, E,  consts.A,
+                                                   consts.Iz, consts.Iy, 
+                                                   G, J, mass, use_mass);
     }
     else
-      theSection = new ElasticLinearFrameSection3d(tag, E, consts.A, consts.Iz, mass, use_mass);
+      theSection = new ElasticLinearFrameSection3d(tag, E, consts.A, 
+                                                   consts.Iz, mass, use_mass);
 
     if (theSection == nullptr || builder->addTaggedObject<FrameSection>(*theSection) < 0) {
       if (theSection != nullptr)
