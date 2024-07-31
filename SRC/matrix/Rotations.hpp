@@ -6,8 +6,14 @@
 //
 // Written: cmp
 //
+//
+// [1] Perez, C. M., and Filippou F. C. (2024) "On Nonlinear Geometric 
+//     Transformations of Finite Elements" 
+//     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
+//
 #pragma once
-#include <math.h>
+
+#include <cmath>
 #include "Matrix3D.h"
 #include "Vector3D.h"
 #include "Quaternion.h"
@@ -15,7 +21,7 @@ using OpenSees::Matrix3D;
 
 using Versor = OpenSees::VectorND<4,double>;
 
-#define cot(x) cos(x)/sin(x)
+#define cot(x) std::cos(x)/std::sin(x)
 
 static constexpr Matrix3D Eye3 {{
   {1, 0, 0},
@@ -35,7 +41,7 @@ Vee(const Matrix3D &X)
   return {X(3,2), X(1,3), X(2,1)};
 }
 
-Matrix3D
+constexpr Matrix3D
 Hat(const Vector3D &u)
 {
   return Matrix3D {{{  0  ,  u(3), -u(2)},
@@ -59,10 +65,6 @@ GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr)
 //                       b2        | c2 
 //                       b3        | c3
 //
-//
-// [1] Perez, C. M., and Filippou F. C. (2024) "On Nonlinear Geometric 
-//     Transformations of Finite Elements" 
-//     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
 //
 // [2] Ritto-Corrêa, M. and Camotim, D. (2002) "On the differentiation of the
 //     Rodrigues formula and its significance for the vector-like parameterization
@@ -105,8 +107,8 @@ GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr)
 
     double angle  = vec.norm();
 //  double angle  = sqrt(angle2);
-    double sn     = sin(angle);
-    double cs     = cos(angle);
+    double sn     = std::sin(angle);
+    double cs     = std::cos(angle);
     double angle3 = angle*angle2;
     double angle4 = angle*angle3;
     double angle5 = angle*angle4;
@@ -162,7 +164,7 @@ VersorFromVector(const Vector  &theta)
         q.zero();
 
     else {
-        const double factor = sin(t*0.5)/ t;
+        const double factor = std::sin(t*0.5)/ t;
         for (int i = 0; i < 3; i++)
             q[i] = theta[i] * factor;
     }
@@ -186,16 +188,16 @@ VersorProduct(const Versor &qa, const Versor &qb)
                  qb2 = qb[2],
                  qb3 = qb[3];
 
-    // calculate the dot product qa.qb
+    // Calculate the dot product qa.qb
     const double qaTqb = qa0*qb0 + qa1*qb1 + qa2*qb2;
 
-    // calculate the cross-product qa x qb
+    // Calculate the cross-product qa x qb
     const double
       qaxqb0 = qa1*qb2 - qa2*qb1,
       qaxqb1 = qa2*qb0 - qa0*qb2,
       qaxqb2 = qa0*qb1 - qa1*qb0;
 
-    // calculate the quaternion product
+    // Calculate the quaternion product
     Versor q12;
     q12[0] = qa3*qb0 + qb3*qa0 - qaxqb0;
     q12[1] = qa3*qb1 + qb3*qa1 - qaxqb1;
@@ -252,9 +254,9 @@ VectorFromVersor(const Versor& q)
   }
 
   if (qn < q0)
-     factor *= 2.0*asin(qn)/qn;
+     factor *= 2.0*std::asin(qn)/qn;
   else
-     factor *= 2.0*acos(q0)/qn;
+     factor *= 2.0*std::acos(q0)/qn;
 
 
   for (int i=0; i<3; i++)
@@ -271,39 +273,39 @@ VersorFromMatrix(const Matrix3D &R)
   // Form a normalised quaternion (Versor) from a proper orthogonal matrix
   // using Spurrier's algorithm
   //===--------------------------------------------------------------------===//
-    Versor q;
+  Versor q;
 
-    // Trace of the rotation matrix R
-    const double trR = R(0,0) + R(1,1) + R(2,2);
+  // Trace of the rotation matrix R
+  const double trR = R(0,0) + R(1,1) + R(2,2);
 
-    // a = max([trR R(0,0) R(1,1) R(2,2)]);
-    double a = trR;
+  // a = max([trR R(0,0) R(1,1) R(2,2)]);
+  double a = trR;
+  for (int i = 0; i < 3; i++)
+    if (R(i,i) > a)
+      a = R(i,i);
+
+  if (a == trR) {
+    q[3] = sqrt(1 + a)*0.5;
+
+    for (int i = 0; i < 3; i++) {
+      int j = (i+1)%3;
+      int k = (i+2)%3;
+      q[i] = (R(k,j) - R(j,k))/(4*q[3]);
+    }
+  }
+  else {
     for (int i = 0; i < 3; i++)
-      if (R(i,i) > a)
-        a = R(i,i);
-
-    if (a == trR) {
-      q[3] = sqrt(1 + a)*0.5;
-
-      for (int i = 0; i < 3; i++) {
+      if (a == R(i,i)) {
         int j = (i+1)%3;
         int k = (i+2)%3;
-        q[i] = (R(k,j) - R(j,k))/(4*q[3]);
-      }
-    }
-    else {
-      for (int i = 0; i < 3; i++)
-        if (a == R(i,i)) {
-          int j = (i+1)%3;
-          int k = (i+2)%3;
 
-          q[i] = sqrt(a*0.5 + (1 - trR)/4.0);
-          q[3] = (R(k,j) - R(j,k))/(4*q[i]);
-          q[j] = (R(j,i) + R(i,j))/(4*q[i]);
-          q[k] = (R(k,i) + R(i,k))/(4*q[i]);
-        }
-    }
-    return q;
+        q[i] = sqrt(a*0.5 + (1 - trR)/4.0);
+        q[3] = (R(k,j) - R(j,k))/(4*q[i]);
+        q[j] = (R(j,i) + R(i,j))/(4*q[i]);
+        q[k] = (R(k,i) + R(i,k))/(4*q[i]);
+      }
+  }
+  return q;
 }
 
 
@@ -321,7 +323,7 @@ ExpSO3(const Vector3D &theta)
   GibSO3(theta, a);
 
   // Form 3x3 skew-symmetric matrix Th from axial vector th
-  Matrix3D Theta = Hat(theta);
+  const Matrix3D Theta = Hat(theta);
 
   return Eye3 + a[1]*Theta + a[2]*Theta*Theta;
 
@@ -361,35 +363,38 @@ TanSO3(const Vector3D &vec, char repr='L')
 // =========================================================================================
 // function by Claudio Perez                                                            2023
 // -----------------------------------------------------------------------------------------
+    double a[4];
+    GibSO3(vec, a);
 
-    double angle2 = vec.dot(vec);
-    double a1, a2, a3;
-
-    //  Check for angle near 0
-    if (angle2 < 1e-08) {
-      a1  = 1.0     - angle2*(1.0/6.0   - angle2*(1.0/120.0  - angle2/5040.0));
-      a2  = 0.5     - angle2*(1.0/24.0  - angle2*(1.0/720.0  - angle2/40320.0));
-      a3  = 1.0/6.0 - angle2/(1.0/120.0 - angle2/(1.0/5040.0 - angle2/362880.0));
-
-    } else {
-      double angle = sqrt (angle2);
-      a1  = sin(angle)        /angle; 
-      a2  = (1.0 - cos(angle))/angle2;
-      a3  = (1.0 - a1        )/angle2;
-    }
-
-    //  Assemble differential
     Matrix3D T;
-    T(0,0)  =         a1 + a3*vec[0]*vec[0];
-    T(0,1)  = -vec[2]*a2 + a3*vec[0]*vec[1];
-    T(0,2)  =  vec[1]*a2 + a3*vec[0]*vec[2];
-    T(1,0)  =  vec[2]*a2 + a3*vec[1]*vec[0];
-    T(1,1)  =         a1 + a3*vec[1]*vec[1];
-    T(1,2)  = -vec[0]*a2 + a3*vec[1]*vec[2];
-    T(2,0)  = -vec[1]*a2 + a3*vec[2]*vec[0];
-    T(2,1)  =  vec[0]*a2 + a3*vec[2]*vec[1];
-    T(2,2)  =         a1 + a3*vec[2]*vec[2];
-    return T;
+
+    // Assemble differential
+    switch (repr) {
+      case 'R':
+        T(0,0)  =         a[1] + a[3]*vec[0]*vec[0];
+        T(0,1)  = -vec[2]*a[2] + a[3]*vec[0]*vec[1];
+        T(0,2)  =  vec[1]*a[2] + a[3]*vec[0]*vec[2];
+        T(1,0)  =  vec[2]*a[2] + a[3]*vec[1]*vec[0];
+        T(1,1)  =         a[1] + a[3]*vec[1]*vec[1];
+        T(1,2)  = -vec[0]*a[2] + a[3]*vec[1]*vec[2];
+        T(2,0)  = -vec[1]*a[2] + a[3]*vec[2]*vec[0];
+        T(2,1)  =  vec[0]*a[2] + a[3]*vec[2]*vec[1];
+        T(2,2)  =         a[1] + a[3]*vec[2]*vec[2];
+        return T;
+
+      case 'L':
+        T(0,0)  =         a[1] + a[3]*vec[0]*vec[0];
+        T(0,1)  =  vec[2]*a[2] + a[3]*vec[1]*vec[0];
+        T(0,2)  = -vec[1]*a[2] + a[3]*vec[2]*vec[0];
+        T(1,0)  = -vec[2]*a[2] + a[3]*vec[0]*vec[1];
+        T(1,1)  =         a[1] + a[3]*vec[1]*vec[1];
+        T(1,2)  =  vec[0]*a[2] + a[3]*vec[2]*vec[1];
+        T(2,0)  =  vec[1]*a[2] + a[3]*vec[0]*vec[2];
+        T(2,1)  = -vec[0]*a[2] + a[3]*vec[1]*vec[2];
+        T(2,2)  =         a[1] + a[3]*vec[2]*vec[2];
+        return T;
+
+    }
 }
 
 
@@ -398,10 +403,6 @@ dExpSO3(const Vector3D &v)
 {
 //
 // return a[1]*Eye3 + a[2]*v.hat() + a[3]*v.bun(v);
-//
-// [1] Perez, C.M., and Filippou F. C.. "On Nonlinear Geometric 
-//     Transformations of Finite Elements" 
-//     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
 //
 // =========================================================================================
 // function by Claudio Perez                                                            2023
@@ -432,10 +433,6 @@ ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
   //              + v.dot(p)*v.dot(q)*Eye3) 
   //         + vov*(c[1]*p.dot(q) + c[2]*(vxp.dot(q)) + c[3]*v.dot(p)*v.dot(q));
   //    
-  // [1] Perez, C.M., and Filippou F. C.. "On Nonlinear Geometric 
-  //     Transformations of Finite Elements" 
-  //     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
-  //
   // =========================================================================================
   // function by Claudio Perez                                                            2023
   // -----------------------------------------------------------------------------------------
@@ -445,9 +442,6 @@ ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
 
   const Vector3D pxq = p.cross(q);
   const Vector3D vxp = v.cross(p);
-
-  const Matrix3D psq { p.bun(q) + q.bun(p) };
-  const Matrix3D vov { v.bun(v) };
 
   Matrix3D dT{0.0};
 
@@ -573,11 +567,11 @@ dLogSO3(const Vector3D &v)
   double angle6 = angle*angle5;
 
   double eta;
-  if (angle > tol) {
+  if (angle > tol)
     eta = (1-0.5*angle*cot(0.5*angle))/angle2;
-  } else {
+  else
     eta = 1/12 + angle2/720 + angle4/30240 + angle6/1209600;
-  }
+
   return Eye3 - 0.5*Sv + eta*Sv*Sv;
 }
 
@@ -609,8 +603,8 @@ Matrix3D ddLogSO3(const Vector3D& th, const Vector3D& v)
 
   } else {
     double an2 = angle/2;
-    double sn  = sin(an2);
-    double cs  = cos(an2);
+    double sn  = std::sin(an2);
+    double cs  = std::cos(an2);
 
     eta = (sn - angle2*cs)/(angle2*sn);
     mu  = (angle*(angle + 2*sn*cs) - 8*sn*sn)/(4*angle4*sn*sn);
