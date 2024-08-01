@@ -24,7 +24,7 @@
 class Triad;
 namespace OpenSees {class Matrix3D;}
 
-class CorotCrdTransf3d02: public FrameTransform<3>
+class CorotCrdTransf3d02: public FrameTransform3d
 {
 public:
     CorotCrdTransf3d02(int tag, const Vector &vecInLocXZPlane,
@@ -36,25 +36,25 @@ public:
     const char *getClassType() const {return "CorotCrdTransf3d02";};
 
     int initialize(Node *nodeIPointer, Node *nodeJPointer);
-    int update(void);       // Set RI,RJ,Rbar, Ln, e and ul
-    int commitState(void);
-    int revertToLastCommit(void);        
-    int revertToStart(void);
+    int update();       // Set RI,RJ,Rbar, Ln, e and ul
+    int commitState();
+    int revertToLastCommit();        
+    int revertToStart();
 
-    double getInitialLength(void);
-//  double getCurrentLength(void);
-    double getDeformedLength(void);
-    const Vector &getBasicTrialDisp(void);
-    const Vector &getBasicIncrDisp(void);
-    const Vector &getBasicIncrDeltaDisp(void);
-    const Vector &getBasicTrialVel(void);
-    const Vector &getBasicTrialAccel(void);
+    double getInitialLength();
+//  double getCurrentLength();
+    double getDeformedLength();
+    const Vector &getBasicTrialDisp();
+    const Vector &getBasicIncrDisp();
+    const Vector &getBasicIncrDeltaDisp();
+    const Vector &getBasicTrialVel();
+    const Vector &getBasicTrialAccel();
 
     const Vector &getGlobalResistingForce(const Vector &basicForce, const Vector &p0);
     const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce);
     const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff);
 
-    CrdTransf *getCopy3d(void);
+    virtual FrameTransform3d *getCopy() final;
 
     // method used to rotate consistent mass matrix
     const Matrix &getGlobalMatrixFromLocal(const Matrix &local);

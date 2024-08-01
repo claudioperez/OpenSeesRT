@@ -42,48 +42,13 @@
 Matrix PDeltaCrdTransf2d::Tlg(6, 6);
 Matrix PDeltaCrdTransf2d::kg(6, 6);
 
-
-#if 0
-#include <elementAPI.h>
-void *
-OPS_ADD_RUNTIME_VPV(OPS_PDeltaCrdTransf2d)
-{
-  if (OPS_GetNumRemainingInputArgs() < 1) {
-    opserr << "insufficient arguments for PDeltaCrdTransf2d\n";
-    return 0;
-  }
-
-  // get tag
-  int tag;
-  int numData = 1;
-  if (OPS_GetIntInput(&numData, &tag) < 0)
-    return 0;
-
-  // get option
-  Vector jntOffsetI(2), jntOffsetJ(2);
-  double *iptr = &jntOffsetI(0), *jptr = &jntOffsetJ(0);
-  while (OPS_GetNumRemainingInputArgs() > 4) {
-    std::string type = OPS_GetString();
-    if (type == "-jntOffset") {
-      numData = 2;
-      if (OPS_GetDoubleInput(&numData, iptr) < 0)
-        return 0;
-      if (OPS_GetDoubleInput(&numData, jptr) < 0)
-        return 0;
-    }
-  }
-
-  return new PDeltaCrdTransf2d(tag, jntOffsetI, jntOffsetJ);
-}
-#endif
-
 // constructor:
 PDeltaCrdTransf2d::PDeltaCrdTransf2d(int tag)
     : FrameTransform2d(tag, CRDTR_TAG_PDeltaCrdTransf2d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), cosTheta(0), sinTheta(0), L(0), ul14(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
-  // Does nothing
+
 }
 
 // constructor:
@@ -98,6 +63,7 @@ PDeltaCrdTransf2d::PDeltaCrdTransf2d(int tag, const Vector &rigJntOffset1,
     opserr << "PDeltaCrdTransf2d::PDeltaCrdTransf2d:  Invalid rigid joint "
               "offset vector for node I\n";
     opserr << "Size must be 2\n";
+
   } else if (rigJntOffset1.Norm() > 0.0) {
     nodeIOffset    = new double[2];
     nodeIOffset[0] = rigJntOffset1(0);
@@ -123,6 +89,7 @@ PDeltaCrdTransf2d::PDeltaCrdTransf2d()
       nodeIOffset(0), nodeJOffset(0), cosTheta(0), sinTheta(0), L(0), ul14(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
+
 }
 
 // destructor:
@@ -139,19 +106,19 @@ PDeltaCrdTransf2d::~PDeltaCrdTransf2d()
 }
 
 int
-PDeltaCrdTransf2d::commitState(void)
+PDeltaCrdTransf2d::commitState()
 {
   return 0;
 }
 
 int
-PDeltaCrdTransf2d::revertToLastCommit(void)
+PDeltaCrdTransf2d::revertToLastCommit()
 {
   return 0;
 }
 
 int
-PDeltaCrdTransf2d::revertToStart(void)
+PDeltaCrdTransf2d::revertToStart()
 {
   return 0;
 }
@@ -201,7 +168,7 @@ PDeltaCrdTransf2d::initialize(Node *nodeIPointer, Node *nodeJPointer)
 }
 
 int
-PDeltaCrdTransf2d::update(void)
+PDeltaCrdTransf2d::update()
 {
   static Vector nodeIDisp(3);
   static Vector nodeJDisp(3);
@@ -301,19 +268,19 @@ PDeltaCrdTransf2d::compTransfMatrixLocalGlobal(Matrix &Tlg)
 }
 
 double
-PDeltaCrdTransf2d::getInitialLength(void)
+PDeltaCrdTransf2d::getInitialLength()
 {
   return L;
 }
 
 double
-PDeltaCrdTransf2d::getDeformedLength(void)
+PDeltaCrdTransf2d::getDeformedLength()
 {
   return L;
 }
 
 const Vector &
-PDeltaCrdTransf2d::getBasicTrialDisp(void)
+PDeltaCrdTransf2d::getBasicTrialDisp()
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getTrialDisp();
@@ -366,7 +333,7 @@ PDeltaCrdTransf2d::getBasicTrialDisp(void)
 }
 
 const Vector &
-PDeltaCrdTransf2d::getBasicIncrDisp(void)
+PDeltaCrdTransf2d::getBasicIncrDisp()
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getIncrDisp();
@@ -409,7 +376,7 @@ PDeltaCrdTransf2d::getBasicIncrDisp(void)
 }
 
 const Vector &
-PDeltaCrdTransf2d::getBasicIncrDeltaDisp(void)
+PDeltaCrdTransf2d::getBasicIncrDeltaDisp()
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getIncrDeltaDisp();
@@ -452,7 +419,7 @@ PDeltaCrdTransf2d::getBasicIncrDeltaDisp(void)
 }
 
 const Vector &
-PDeltaCrdTransf2d::getBasicTrialVel(void)
+PDeltaCrdTransf2d::getBasicTrialVel()
 {
   // determine global velocities
   const Vector &vel1 = nodeIPtr->getTrialVel();
@@ -495,7 +462,7 @@ PDeltaCrdTransf2d::getBasicTrialVel(void)
 }
 
 const Vector &
-PDeltaCrdTransf2d::getBasicTrialAccel(void)
+PDeltaCrdTransf2d::getBasicTrialAccel()
 {
   // determine global accelerations
   const Vector &accel1 = nodeIPtr->getTrialAccel();
@@ -932,7 +899,7 @@ PDeltaCrdTransf2d::getInitialGlobalStiffMatrix(const Matrix &kb)
 }
 
 CrdTransf *
-PDeltaCrdTransf2d::getCopy2d(void)
+PDeltaCrdTransf2d::getCopy2d()
 {
   // create a new instance of PDeltaCrdTransf2d
 
