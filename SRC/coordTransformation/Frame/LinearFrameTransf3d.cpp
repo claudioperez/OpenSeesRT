@@ -1021,7 +1021,7 @@ LinearFrameTransf3d::recvSelf(int cTag, Channel &theChannel,
   if (flag == 1) {
     if (nodeJOffset == 0)
       nodeJOffset = new double[3];
-    for (i = 5, j = 0; i <= 7; i++, j++)
+    for (int i = 5, j = 0; i <= 7; i++, j++)
       nodeJOffset[j] = data(i);
   }
 
@@ -1200,7 +1200,8 @@ LinearFrameTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
 
   //
   // transform global end displacements to local coordinates
-  //  ul = Tlg *  ug;
+  //  ul = Tlg * ug;
+  //
 
   static double ul[12];
 

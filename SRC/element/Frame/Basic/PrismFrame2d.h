@@ -22,7 +22,7 @@ class Node;
 class Channel;
 class Information;
 class CrdTransf;
-class SectionForceDeformation;
+class FrameSection;
 class Response;
 
 class PrismFrame2d : public Element
@@ -30,16 +30,18 @@ class PrismFrame2d : public Element
   public:
     PrismFrame2d();        
     PrismFrame2d(int tag, double A, double E, double I, 
-		  int Nd1, int Nd2, CrdTransf &theTransf,
-		  double alpha = 0.0, double d = 0.0,
-		  double rho = 0.0, int cMass = 0,
-		  int release = 0, int geom_flag=0);
+                  int Nd1, int Nd2, CrdTransf &theTransf,
+                  double alpha, double depth,
+                  double rho, int cMass,
+                  int release, int geom_flag);
 
-    PrismFrame2d(int tag, int Nd1, int Nd2, 
-		  SectionForceDeformation& theSection, CrdTransf &theTransf,
-		  double alpha = 0.0, double d = 0.0,
-		  double rho = 0.0, int cMass = 0,
-		  int release = 0);
+    PrismFrame2d(int tag, 
+                 int Nd1, int Nd2, 
+                  FrameSection& theSection, CrdTransf &theTransf,
+                  double alpha, double depth,
+                  double rho, int cMass, bool use_mass,
+                  int release,
+      int geom_flag);
 
     ~PrismFrame2d();
 
@@ -62,7 +64,7 @@ class PrismFrame2d : public Element
     const Matrix &getInitialStiff();
     const Matrix &getMass();    
 
-    void zeroLoad();	
+    void zeroLoad();        
     int addLoad(ElementalLoad *theLoad, double loadFactor);
     int addInertiaLoadToUnbalance(const Vector &accel);
 

@@ -1,15 +1,17 @@
+
+//
 // Created: 07/04 
 // Modified by: LMS 
-// Description: This file contains the class
-// implementation of TclBasicBuilder_addDispBeamColumnInt(). Based on
-// TclBasicBuilder_addDispBeamColumn().
+// Description: This file contains the 
+// implementation of TclBasicBuilder_addDispBeamColumnInt().
+// Based on TclBasicBuilder_addDispBeamColumn().
 //
 #include <tcl.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 
 #include "DispBeamColumn2dInt.h"
 #include <runtimeAPI.h>
@@ -144,7 +146,7 @@ TclBasicBuilder_addDispBeamColumnInt(ClientData clientData, Tcl_Interp *interp,
 
   if (ndm == 2) {
 
-    CrdTransf *theTransf = builder->getTypedObject<CrdTransf>(transfTag);
+    FrameTransform2d *theTransf = builder->getTypedObject<FrameTransform2d>(transfTag);
     if (theTransf == nullptr) {
       delete[] sections;
       return TCL_ERROR;

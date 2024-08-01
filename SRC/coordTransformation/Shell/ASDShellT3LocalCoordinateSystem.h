@@ -17,15 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2024/03
-
+//
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // Implementation of a local coordinate system for 3-node shells
 //
-
 #ifndef ASDShellT3LocalCoordinateSystem_h
 #define ASDShellT3LocalCoordinateSystem_h
 
@@ -80,11 +76,11 @@ public:
 		
 		// if user defined local rotation is included rotate the local X direction
 		if (std::abs(alpha) > 0.0)
-			QuaternionType::FromAxisAngle(e3(0), e3(1), e3(2), alpha).rotateVector(e1);
-		
+			QuaternionType::FromAxisAngle(e3[0], e3[1], e3[2], alpha).rotateVector(e1);
+
 		// finally compute the local Y direction to be orthogonal to both X and Z local directions
 		e2 = e3.cross(e1);
-		
+
 		// normalize all local direction, save the e3 norm for the area
 		e1.normalize();
 		e2.normalize();

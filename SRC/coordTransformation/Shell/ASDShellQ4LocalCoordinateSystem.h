@@ -17,15 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2020/05/18 22:51:21 $
-
+//
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // Implementation of a local coordinate system for 4-node shells
 //
-
 #ifndef ASDShellQ4LocalCoordinateSystem_h
 #define ASDShellQ4LocalCoordinateSystem_h
 
@@ -92,7 +88,7 @@ public:
 
 		// if user defined local rotation is included...
 		if (std::abs(alpha) > 0.0)
-		    QuaternionType::FromAxisAngle(e3(0), e3(1), e3(2), alpha).rotateVector(e1);
+		    QuaternionType::FromAxisAngle(e3[0], e3[1], e3[2], alpha).rotateVector(e1);
 
 		e1.normalize();
 
@@ -102,18 +98,25 @@ public:
 
 		// form the 3x3 transformation matrix (the transposed actually...)
 		for (int i = 0; i < 3; i++) {
-                    m_orientation(0, i) = e1(i);
-                    m_orientation(1, i) = e2(i);
-                    m_orientation(2, i) = e3(i);
+        m_orientation(0, i) = e1[i];
+        m_orientation(1, i) = e2[i];
+        m_orientation(2, i) = e3[i];
 		}
 
 		// transform global coordinates to the local coordinate system
-		for (int i = 0; i < 3; i++)
-		{
-			m_P[0](i) = m_orientation(i, 0) * (P1global(0) - m_center(0)) + m_orientation(i, 1) * (P1global(1) - m_center(1)) + m_orientation(i, 2) * (P1global(2) - m_center(2));
-			m_P[1](i) = m_orientation(i, 0) * (P2global(0) - m_center(0)) + m_orientation(i, 1) * (P2global(1) - m_center(1)) + m_orientation(i, 2) * (P2global(2) - m_center(2));
-			m_P[2](i) = m_orientation(i, 0) * (P3global(0) - m_center(0)) + m_orientation(i, 1) * (P3global(1) - m_center(1)) + m_orientation(i, 2) * (P3global(2) - m_center(2));
-			m_P[3](i) = m_orientation(i, 0) * (P4global(0) - m_center(0)) + m_orientation(i, 1) * (P4global(1) - m_center(1)) + m_orientation(i, 2) * (P4global(2) - m_center(2));
+		for (int i = 0; i < 3; i++) {
+			m_P[0][i] = m_orientation(i, 0) * (P1global[0] - m_center[0]) 
+                + m_orientation(i, 1) * (P1global[1] - m_center[1]) 
+                + m_orientation(i, 2) * (P1global[2] - m_center[2]);
+			m_P[1][i] = m_orientation(i, 0) * (P2global[0] - m_center[0]) 
+                + m_orientation(i, 1) * (P2global[1] - m_center[1])
+                + m_orientation(i, 2) * (P2global[2] - m_center[2]);
+			m_P[2][i] = m_orientation(i, 0) * (P3global[0] - m_center[0]) 
+                + m_orientation(i, 1) * (P3global[1] - m_center[1])
+                + m_orientation(i, 2) * (P3global[2] - m_center[2]);
+			m_P[3][i] = m_orientation(i, 0) * (P4global[0] - m_center[0]) 
+                + m_orientation(i, 1) * (P4global[1] - m_center[1]) 
+                + m_orientation(i, 2) * (P4global[2] - m_center[2]);
 		}
 	}
 
@@ -159,19 +162,18 @@ public:
 
 	inline void ComputeTotalRotationMatrix(MatrixType& R) const
 	{
-            constexpr size_t mat_size = 24;
-            if (R.noRows() != mat_size || R.noCols() != mat_size)
-                    R.resize(mat_size, mat_size);
+      constexpr size_t mat_size = 24;
+      if (R.noRows() != mat_size || R.noCols() != mat_size)
+            R.resize(mat_size, mat_size);
 
-            R.Zero();
+      R.Zero();
 
-            for (size_t k = 0; k < 8; k++)
-            {
-                    size_t i = k * 3;
-                    R(i, i) = m_orientation(0, 0);   R(i, i + 1) = m_orientation(0, 1);   R(i, i + 2) = m_orientation(0, 2);
-                    R(i + 1, i) = m_orientation(1, 0);   R(i + 1, i + 1) = m_orientation(1, 1);   R(i + 1, i + 2) = m_orientation(1, 2);
-                    R(i + 2, i) = m_orientation(2, 0);   R(i + 2, i + 1) = m_orientation(2, 1);   R(i + 2, i + 2) = m_orientation(2, 2);
-            }
+      for (size_t k = 0; k < 8; k++) {
+            size_t i = k * 3;
+            R(i, i) = m_orientation(0, 0);   R(i, i + 1) = m_orientation(0, 1);   R(i, i + 2) = m_orientation(0, 2);
+            R(i + 1, i) = m_orientation(1, 0);   R(i + 1, i + 1) = m_orientation(1, 1);   R(i + 1, i + 2) = m_orientation(1, 2);
+            R(i + 2, i) = m_orientation(2, 0);   R(i + 2, i + 1) = m_orientation(2, 1);   R(i + 2, i + 2) = m_orientation(2, 2);
+      }
 	}
 
 	inline void ComputeTotalWarpageMatrix(MatrixType& W, double wf) const
@@ -197,8 +199,7 @@ public:
 		W(19, 21) = -wf;
 	}
 
-	inline void ComputeTotalWarpageMatrix(MatrixType& W)const
-	{
+	inline void ComputeTotalWarpageMatrix(MatrixType& W) const {
 		ComputeTotalWarpageMatrix(W, WarpageFactor());
 	}
 

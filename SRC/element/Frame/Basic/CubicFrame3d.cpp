@@ -6,7 +6,6 @@
 //
 // Description: This file contains the class definition for CubicFrame3d.
 //
-//
 // Loading
 // 
 // Releases
@@ -16,11 +15,10 @@
 #include <CubicFrame3d.h>
 #include <Node.h>
 #include <FrameSection.h>
-#include <FrameTransform.h>
+#include <ID.h>
 #include <Matrix.h>
 #include <MatrixND.h>
 #include <Vector.h>
-#include <ID.h>
 #include <Domain.h>
 #include <Information.h>
 #include <Channel.h>
@@ -28,6 +26,7 @@
 #include <ElementResponse.h>
 #include <CompositeResponse.h>
 #include <ElementalLoad.h>
+#include <FrameTransform.h>
 #include <BeamIntegration.h>
 #include <Parameter.h>
 
@@ -47,9 +46,9 @@ CubicFrame3d::CubicFrame3d(int tag, std::array<int,2>& nodes,
                            BeamIntegration &bi,
                            FrameTransform3d &coordTransf, double r, int cm)
  : BasicFrame3d(tag, ELE_TAG_CubicFrame3d, nodes, coordTransf),
-   numSections(numSec), sections(nullptr), beamInt(nullptr),
-   mass_flag(cm), density(r),
-   mass_initialized(false)
+   numSections(numSec), sections(nullptr), 
+   beamInt(nullptr),
+   mass_flag(cm), density(r), mass_initialized(false)
 {
   q.zero();
 
@@ -418,8 +417,7 @@ CubicFrame3d::sendSelf(int commitTag, Channel &theChannel)
 
   //
   // send the sections
-  //
-  
+  // 
   for (int j = 0; j<numSections; j++) {
     if (sections[j]->sendSelf(commitTag, theChannel) < 0) {
       opserr << "CubicFrame3d::sendSelf() - section " << j << "failed to send itself\n";
@@ -785,7 +783,8 @@ CubicFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
       theResponse = new ElementResponse(this, 1, P);
 
     // local force -
-    }  else if (strcmp(argv[0],"localForce") == 0 || strcmp(argv[0],"localForces") == 0) {
+    }  else if (strcmp(argv[0],"localForce") == 0 || 
+                strcmp(argv[0],"localForces") == 0) {
 
       output.tag("ResponseType","N_1");
       output.tag("ResponseType","Vy_1");
@@ -803,8 +802,9 @@ CubicFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
       theResponse = new ElementResponse(this, 2, P);
 
     // chord rotation -
-    }  else if (strcmp(argv[0],"chordRotation") == 0 || strcmp(argv[0],"chordDeformation") == 0 
-              || strcmp(argv[0],"basicDeformation") == 0) {
+    }  else if (strcmp(argv[0],"chordRotation") == 0 || 
+                strcmp(argv[0],"chordDeformation") == 0 || 
+                strcmp(argv[0],"basicDeformation") == 0) {
 
       output.tag("ResponseType","eps");
       output.tag("ResponseType","thetaZ_1");
@@ -816,7 +816,8 @@ CubicFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
       theResponse = new ElementResponse(this, 3, Vector(6));
 
     // plastic rotation -
-    } else if (strcmp(argv[0],"plasticRotation") == 0 || strcmp(argv[0],"plasticDeformation") == 0) {
+    } else if (strcmp(argv[0],"plasticRotation") == 0 || 
+               strcmp(argv[0],"plasticDeformation") == 0) {
 
       output.tag("ResponseType","epsP");
       output.tag("ResponseType","thetaZP_1");
@@ -1071,7 +1072,7 @@ CubicFrame3d::setParameter(const char **argv, int argc, Parameter &param)
     
     // Get section number
     int sectionNum = atoi(argv[1]);
-    
+
     if (sectionNum > 0 && sectionNum <= numSections)
       return sections[sectionNum-1]->setParameter(&argv[2], argc-2, param);
     else

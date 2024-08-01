@@ -23,7 +23,7 @@
 #include <FEM_ObjectBroker.h>
 
 #include <CrdTransf.h>
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Information.h>
 #include <Parameter.h>
 #include <ElementResponse.h>
@@ -55,7 +55,8 @@ PrismFrame2d::PrismFrame2d(int tag, double a, double e, double i,
                            int rel, int geom_flag_)
   :Element(tag,ELE_TAG_ElasticBeam2d), 
    A(a), E(e), I(i), alpha(Alpha), depth(depth_), rho(r), 
-   cMass(cm), release(rel), geom_flag(geom_flag_),
+   cMass(cm), release(rel), 
+   geom_flag(geom_flag_),
    Q(6), connectedExternalNodes(2), theCoordTransf(nullptr)
 {
   connectedExternalNodes(0) = Nd1;
@@ -77,11 +78,17 @@ PrismFrame2d::PrismFrame2d(int tag, double a, double e, double i,
   theNodes[1] = nullptr;
 }
 
-PrismFrame2d::PrismFrame2d(int tag, int Nd1, int Nd2, SectionForceDeformation &section,  
-                           CrdTransf &coordTransf, double Alpha, double depth_, double r, int cm, int rel)
-  :Element(tag,ELE_TAG_ElasticBeam2d), alpha(Alpha), depth(depth_), rho(r),
-   cMass(cm), release(rel),
-  Q(6), connectedExternalNodes(2), theCoordTransf(nullptr)
+PrismFrame2d::PrismFrame2d(int tag, int Nd1, int Nd2, 
+                           FrameSection &section,  
+                           CrdTransf &coordTransf, 
+                           double Alpha, double depth_, 
+                           double r, int cm, bool use_mass, int rel,
+                           int geom_flag_)
+  : Element(tag,ELE_TAG_ElasticBeam2d), 
+    alpha(Alpha), depth(depth_), rho(r),
+    cMass(cm), release(rel),
+    geom_flag(geom_flag_),
+    Q(6), connectedExternalNodes(2), theCoordTransf(nullptr)
 {
   E = 1.0;
 

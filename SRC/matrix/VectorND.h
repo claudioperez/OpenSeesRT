@@ -42,8 +42,8 @@
 #include "blasdecl.h"
 
 #if __cplusplus < 202000L
-#define consteval
-#define requires(X)
+#  define consteval
+#  define requires(X)
 #endif
 
 namespace OpenSees {
@@ -62,20 +62,31 @@ struct VectorND {
   template<int n, int m, typename> friend struct MatrixND;
 
   inline constexpr T&
-  operator[](index_t index) {return values[index];}
-  inline constexpr const T&
-  operator[](index_t index) const {return values[index];}
-  inline constexpr T&
-  operator()(index_t index) {return values[index];}
-  inline constexpr const T&
-  operator()(index_t index) const {return values[index];}
+  operator[](index_t index) {
+    return values[index];
+  }
 
-  constexpr int
+  inline constexpr const T&
+  operator[](index_t index) const {
+    return values[index];
+  }
+
+  inline constexpr T&
+  operator()(index_t index) {
+    return values[index];
+  }
+
+  inline constexpr const T&
+  operator()(index_t index) const {
+    return values[index];
+  }
+
+  consteval int
   size() const {
     return N;
   }
 
-  inline void
+  consteval inline void
   zero() {
     for (T& item : values )
       item = 0.0;
@@ -163,10 +174,12 @@ struct VectorND {
         // want: this = other * otherFact
         double *dataPtr = values;
         const double *otherDataPtr = other.values;
-        if (otherFact == 1.0) { // no point doing a multiplication if otherFact == 1.0
+        if (otherFact == 1.0) {
+          // no point doing a multiplication if otherFact == 1.0
           for (int i=0; i<N; i++) 
             *dataPtr++ = *otherDataPtr++;
-        } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
+        } else if (otherFact == -1.0) {
+          // no point doing a multiplication if otherFact == 1.0
           for (int i=0; i<N; i++) 
             *dataPtr++ = -(*otherDataPtr++);
         } else 

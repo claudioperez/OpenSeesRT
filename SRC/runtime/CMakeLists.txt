@@ -27,7 +27,6 @@ target_link_libraries(OPS_Runtime PRIVATE G3 OPS_Algorithm)
 
 add_subdirectory(commands)
 add_subdirectory(runtime)
-# add_subdirectory(contrib)
 
 target_sources(OPS_Runtime PRIVATE
     "runtime/G3_Runtime.cpp"

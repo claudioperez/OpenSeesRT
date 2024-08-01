@@ -48,7 +48,8 @@
 
 #define ELE_TAG_ForceFrame3d 0 // TODO
 
-#define THREAD_LOCAL static
+#define THREAD_LOCAL  static
+#define ALWAYS_STATIC static // used when we need to do things like return a Matrix reference
 
 
 // Constructor invoked by a FEM_ObjectBroker; recvSelf() needs to be invoked on this object.
@@ -68,22 +69,20 @@ ForceFrame3d::ForceFrame3d()
   q_pres.zero();
 }
 
-// Constructor which takes the unique element tag, sections,
-// and the node ID's of its nodal end points.
-// allocates the necessary space needed by each object
 ForceFrame3d::ForceFrame3d(int tag, std::array<int, 2>& nodes, 
                            std::vector<FrameSection*>& sec,
                            BeamIntegration& bi,
                            FrameTransform3d& coordTransf, 
-                           double massDensPerUnitLength, int maxNumIters,
-                           double tolerance, int mass_flag_, bool use_density_)
+                           double dens, int mass_flag_, bool use_density_,
+                           int max_iter_, double tolerance
+                           )
  : BasicFrame3d(tag, ELE_TAG_ForceFrame3d, nodes, coordTransf),
    stencil(nullptr),
-   max_iter(maxNumIters), tol(tolerance),
    state_flag(0),
    Ki(nullptr),
-   density(massDensPerUnitLength), mass_flag(mass_flag_), use_density(use_density_),
+   density(dens), mass_flag(mass_flag_), use_density(use_density_),
    mass_initialized(false),
+   max_iter(max_iter_), tol(tolerance),
    parameterID(0)
 {
   K_pres.zero();
@@ -216,11 +215,9 @@ ForceFrame3d::commitState()
     opserr << "ForceFrame3d::commitState () - failed in base class";
 
   for (GaussPoint& point : points) {
-
     point.es_save = point.es;
     if (point.material->commitState() != 0)
       return -1;
-
   } 
 
 
@@ -252,8 +249,8 @@ ForceFrame3d::revertToLastCommit()
       return -1;
 
     section.setTrialState<nsr,scheme>(point.es);
-    point.Ssr = section.getResultant<nsr,scheme>();
-    point.fs  = section.getFlexibility<nsr,scheme>();
+    point.sr = section.getResultant<nsr,scheme>();
+    point.Fs = section.getFlexibility<nsr,scheme>();
 
   }
 
@@ -276,9 +273,9 @@ ForceFrame3d::revertToStart()
 {
   // revert the sections state to start
   for (GaussPoint& point : points) {
-    point.fs.zero();
+    point.Fs.zero();
     point.es.zero();
-    point.Ssr.zero();
+    point.sr.zero();
     if (point.material->revertToStart() != 0)
       return -1;
   }
@@ -320,6 +317,8 @@ ForceFrame3d::getMass()
     total_mass = 0.0;
     if (this->getIntegral(Field::Density, State::Init, total_mass) != 0)
       total_mass = 0.0;
+
+    // Twisting inertia
     twist_mass = 0.0;
     if (this->getIntegral(Field::PolarInertia, State::Init, twist_mass) != 0)
       twist_mass = 0.0;
@@ -329,14 +328,14 @@ ForceFrame3d::getMass()
 
   if (total_mass == 0.0) {
 
-      THREAD_LOCAL MatrixND<12,12> M{0.0};
-      THREAD_LOCAL Matrix Wrapper{M};
+      ALWAYS_STATIC MatrixND<12,12> M{0.0};
+      ALWAYS_STATIC Matrix Wrapper{M};
       return Wrapper;
 
   } else if (mass_flag == 0)  {
 
-      THREAD_LOCAL MatrixND<12,12> M{0.0};
-      THREAD_LOCAL Matrix Wrapper{M};
+      ALWAYS_STATIC MatrixND<12,12> M{0.0};
+      ALWAYS_STATIC Matrix Wrapper{M};
       // lumped mass matrix
       double m = 0.5*total_mass;
       M(0,0) = m;
@@ -353,7 +352,7 @@ ForceFrame3d::getMass()
       double L  = this->getLength(State::Init);
       double m  = total_mass/420.0;
       double mx = twist_mass;
-      THREAD_LOCAL MatrixND<12,12> ml{0.0};
+      ALWAYS_STATIC MatrixND<12,12> ml{0.0};
 
       ml(0,0) = ml(6,6) = m*140.0;
       ml(0,6) = ml(6,0) = m*70.0;
@@ -411,9 +410,9 @@ void
 ForceFrame3d::initializeSectionHistoryVariables()
 {
   for (int i = 0; i < points.size(); i++) {
-    points[i].fs.zero();
+    points[i].Fs.zero();
     points[i].es.zero();
-    points[i].Ssr.zero();
+    points[i].sr.zero();
     points[i].es_save.zero();
   }
 }
@@ -431,7 +430,7 @@ ForceFrame3d::update()
 
 
   // if have completed a recvSelf() - do a revertToLastCommit
-  // to get Ssr, etc. set correctly
+  // to get sr, etc. set correctly
   if (state_flag == 2)
     this->revertToLastCommit();
 
@@ -463,10 +462,6 @@ ForceFrame3d::update()
   dvToDo  = dv;
   dv_trial = dvToDo;
 
-
-  int numSubdivide = 1;
-  bool converged   = false;
-
   const double factor = 10.0;
   double dW;             // section strain energy (work) norm
   double dW0  = 0.0;
@@ -490,6 +485,9 @@ ForceFrame3d::update()
     Strategy::Newton, Strategy::InitialIterations, Strategy::InitialThenNewton
   };
 
+  int numSubdivide = 1;
+  bool converged   = false;
+
   while (converged == false && numSubdivide <= maxSubdivisions) {
 
     for (Strategy strategy : solve_strategy ) {
@@ -499,8 +497,8 @@ ForceFrame3d::update()
 
       for (int i = 0; i < points.size(); i++) {
         es_trial[i]  = points[i].es;
-        Fs_trial[i]  = points[i].fs;
-        sr_trial[i]  = points[i].Ssr;
+        Fs_trial[i]  = points[i].Fs;
+        sr_trial[i]  = points[i].sr;
       }
 
       if (state_flag == 2)
@@ -514,8 +512,10 @@ ForceFrame3d::update()
 
 
       for (int j = 0; j < numIters; j++) {
+        // initialize F and vr for integration
         F.zero();
         vr.zero();
+
         {
           Matrix f(F);
           if (stencil->addElasticFlexibility(L, f) < 0) {
@@ -529,8 +529,8 @@ ForceFrame3d::update()
         }
 
         // Add effects of element loads
-        double v0[5];
-        v0[0] = v0[1] = v0[2] = v0[3] = v0[4] = 0.0;
+        double v0[5]{0.0};
+
         for (auto[load, factor] : eleLoads)
           stencil->addElasticDeformations(load, factor, L, v0);
 
@@ -560,7 +560,7 @@ ForceFrame3d::update()
             // Interpolation of q_trial
             //    b*q_trial
             //
-            VectorND<6> si {  // use layout declared in this::scheme
+            VectorND<nsr> si {  // use layout declared in this::scheme
                  q_trial[0],                           // N
                  oneOverL * (q_trial[1] + q_trial[2]), // VY
                  oneOverL * (q_trial[3] + q_trial[4]), // VZ
@@ -775,8 +775,8 @@ ForceFrame3d::update()
 
           for (int k = 0; k < points.size(); k++) {
             points[k].es  = es_trial[k];
-            points[k].fs  = Fs_trial[k];
-            points[k].Ssr = sr_trial[k];
+            points[k].Fs  = Fs_trial[k];
+            points[k].sr  = sr_trial[k];
           }
 
           // break out of j & l loops
@@ -820,15 +820,14 @@ iterations_completed:
 const Matrix &
 ForceFrame3d::getTangentStiff()
 {
-  VectorND<6>   q  = this->getBasicForce();
   MatrixND<6,6> kb = this->getBasicTangent(State::Pres, 0);
 
-  double q0 = q[0];
-  double q1 = q[1];
-  double q2 = q[2];
-  double q3 = q[3];
-  double q4 = q[4];
-  double q5 = q[5];
+  double q0 = q_pres[0];
+  double q1 = q_pres[1];
+  double q2 = q_pres[2];
+  double q3 = q_pres[3];
+  double q4 = q_pres[4];
+  double q5 = q_pres[5];
 
   double oneOverL = 1.0 / theCoordTransf->getInitialLength();
 
@@ -885,7 +884,7 @@ ForceFrame3d::getTangentStiff()
 
   THREAD_LOCAL MatrixND<12,12> Kg;
   THREAD_LOCAL Matrix Wrapper(Kg);
-  Kg = theCoordTransf->pushVariable(kl, pl);
+  Kg = theCoordTransf->pushResponse(kl, pl);
   return Wrapper;
 }
 
@@ -1010,7 +1009,6 @@ ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, double x)
 void
 ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNumber)
 {
-  int type;
 
   double L    = theCoordTransf->getInitialLength();
   double dLdh = theCoordTransf->getdLdh();
@@ -1027,6 +1025,7 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
   const ID& code = points[isec].material->getType();
 
   for (auto[load, loadFactor] : eleLoads) {
+    int type;
     const  Vector& data = load->getData(type, loadFactor);
 
     if (type == LOAD_TAG_Beam3dUniformLoad) {
@@ -1679,7 +1678,7 @@ void
 ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
 {
   // get basic displacements and increments
-  static Vector ub(nq);
+  THREAD_LOCAL Vector ub(nq);
   ub = theCoordTransf->getBasicTrialDisp();
 
   double L = theCoordTransf->getInitialLength();
@@ -1715,8 +1714,8 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
 
   Vector v(numSections),
          w(numSections);
-  static VectorND<ndm> xl, uxb;
-  static VectorND<ndm> xg, uxg;
+  THREAD_LOCAL VectorND<ndm> xl, uxb;
+  THREAD_LOCAL VectorND<ndm> xg, uxg;
   // double theta;                             // angle of twist of the sections
 
   // v = ls * kappa_z;
@@ -2749,8 +2748,8 @@ ForceFrame3d::setParameter(const char** argv, int argc, Parameter& param)
   int result = -1;
 
   // If the parameter belongs to the element itself
-  if ((strcmp(argv[0], "rho") == 0) 
-     || (strcmp(argv[0], "density") == 0)) {
+  if ((strcmp(argv[0], "rho") == 0) ||
+      (strcmp(argv[0], "density") == 0)) {
     param.setValue(density);
     return param.addObject(1, this);
   }
@@ -3266,7 +3265,6 @@ ForceFrame3d::setSectionPointers(std::vector<FrameSection*>& new_sections)
   // Return value of 0 indicates success
 
   points.clear();
-//sections = new FrameSection*[numSections];
 
   for (FrameSection* section : new_sections) {
     assert(section != nullptr);
@@ -3276,7 +3274,6 @@ ForceFrame3d::setSectionPointers(std::vector<FrameSection*>& new_sections)
         .weight=0,
         .material=section->getFrameCopy(scheme)
     });
-    // sections[i] = section->getFrameCopy(scheme);
 
     // Check sections
     int sectionKey1 = -1;
@@ -3303,30 +3300,63 @@ ForceFrame3d::setSectionPointers(std::vector<FrameSection*>& new_sections)
 const Vector &
 ForceFrame3d::getResistingForce()
 {
-  double p0[5];
-  Vector p0Vec(p0, 5);
-  p0Vec.Zero();
+  double p0[5]{};
   
   if (eleLoads.size() > 0)
     this->computeReactions(p0);
-  
+ 
+#if 0
+  Vector p0Vec(p0, 5);
+  p0Vec.Zero();
   P = theCoordTransf->getGlobalResistingForce(Vector(q_pres), p0Vec);
   
   if (total_mass != 0.0)
     P.addVector(1.0, p_iner, -1.0);
+#else
+  double q0 = q_pres[0];
+  double q1 = q_pres[1];
+  double q2 = q_pres[2];
+  double q3 = q_pres[3];
+  double q4 = q_pres[4];
+  double q5 = q_pres[5];
 
-  return P;
+  double oneOverL = 1.0 / theCoordTransf->getInitialLength();
+
+  thread_local VectorND<12> pl;
+  pl[0]  = -q0;                    // Ni
+  pl[1]  =  oneOverL * (q1 + q2);  // Viy
+  pl[2]  = -oneOverL * (q3 + q4);  // Viz
+  pl[3]  = -q5;                    // Ti
+  pl[4]  =  q3;
+  pl[5]  =  q1;
+  pl[6]  =  q0;                    // Nj
+  pl[7]  = -pl[1];                 // Vjy
+  pl[8]  = -pl[2];                 // Vjz
+  pl[9]  = q5;                     // Tj
+  pl[10] = q4;
+  pl[11] = q2;
+
+  thread_local VectorND<12> pf{0.0};
+  pf[0] = p0[0];
+  pf[1] = p0[1];
+  pf[7] = p0[2];
+  pf[2] = p0[3];
+  pf[8] = p0[4];
+
+  thread_local VectorND<12> pg;
+  thread_local Vector wrapper(pg);
+
+  pg  = theCoordTransf->pushResponse(pl);
+  pg += theCoordTransf->pushConstant(pf);
+  if (total_mass != 0.0)
+    wrapper.addVector(1.0, p_iner, -1.0);
+#endif
+  return wrapper;
 }
+
+
 
 #if 0
-void 
-ForceFrame3d::zeroLoad()
-{
-  // This is a semi-hack -- MHS
-  numEleLoads = 0;
-  
-  return;
-}
 
 void
 ForceFrame3d::getDistrLoadInterpolatMatrix(double xi, Matrix& bp, const ID& code)
@@ -3366,25 +3396,25 @@ ForceFrame3d::getForceInterpolatMatrix(double xi, Matrix& b, const ID& code)
   double L = theCoordTransf->getInitialLength();
   for (int i = 0; i < code.Size(); i++) {
     switch (code(i)) {
-    case SECTION_RESPONSE_MZ: // Moment, Mz, interpolation
-      b(i, 1) = xi - 1.0;
-      b(i, 2) = xi;
-      break;
     case SECTION_RESPONSE_P: // Axial, P, interpolation
       b(i, 0) = 1.0;
       break;
     case SECTION_RESPONSE_VY: // Shear, Vy, interpolation
       b(i, 1) = b(i, 2) = 1.0 / L;
       break;
-    case SECTION_RESPONSE_MY: // Moment, My, interpolation
-      b(i, 3) = xi - 1.0;
-      b(i, 4) = xi;
-      break;
     case SECTION_RESPONSE_VZ: // Shear, Vz, interpolation
       b(i, 3) = b(i, 4) = 1.0 / L;
       break;
     case SECTION_RESPONSE_T: // Torque, T, interpolation
       b(i, 5) = 1.0;
+      break;
+    case SECTION_RESPONSE_MY: // Moment, My, interpolation
+      b(i, 3) = xi - 1.0;
+      b(i, 4) = xi;
+      break;
+    case SECTION_RESPONSE_MZ: // Moment, Mz, interpolation
+      b(i, 1) = xi - 1.0;
+      b(i, 2) = xi;
       break;
     default: break;
     }

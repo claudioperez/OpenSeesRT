@@ -48,12 +48,12 @@ class ForceFrame3d: public BasicFrame3d
  public:
   ForceFrame3d();
   ForceFrame3d(int tag, std::array<int,2>& nodes,
-        std::vector<FrameSection*>& sec,
+        std::vector<FrameSection*>& sections,
 		    BeamIntegration &beamIntegr,
-		    FrameTransform3d &coordTransf, double density, 
-		    int maxNumIters, double tolerance,
-        int cMass, bool use_density
-        );
+		    FrameTransform3d &coordTransf, 
+        double density, int cMass, bool use_density,
+		    int max_iter, double tolerance
+  );
   
   ~ForceFrame3d();
 
@@ -108,12 +108,24 @@ class ForceFrame3d: public BasicFrame3d
   virtual MatrixND<6,6>& getBasicTangent(State state, int rate);
   
  private:
+  //
+  // Constexpr
+  //
   constexpr static int 
         nsr = 6,              // number of section resultants
         ndm = 3,              // dimension of the problem (3D)
-        nq = 6,               // number of element dof's in the basic system
+        nq  = 6,              // number of element dof's in the basic system
         maxNumSections = 20,
         maxSubdivisions= 10;
+
+  static constexpr FrameStressLayout scheme = {
+    FrameStress::N,
+    FrameStress::Vy,
+    FrameStress::Vz,
+    FrameStress::T,
+    FrameStress::My,
+    FrameStress::Mz,
+  };
 
   enum Respond: int {
     GlobalForce = 1,
@@ -155,7 +167,12 @@ class ForceFrame3d: public BasicFrame3d
 
   int    max_iter;               // maximum number of local iterations
   double tol;	                   // tolerance for relative energy norm for local iterations
+
   // State
+  MatrixND<12,12> tangent;
+  VectorND<12>    residual,
+                  inertia;
+
   MatrixND<6,6> K_pres,          // stiffness matrix in the basic system 
                 K_save;          // committed stiffness matrix in the basic system
   VectorND<6>   q_pres,          // element resisting forces in the basic system
@@ -172,9 +189,9 @@ class ForceFrame3d: public BasicFrame3d
            weight;
     FrameSection* material;
 
-    MatrixND<nsr,nsr> fs;         // flexibility matrix
-    VectorND<nsr>     es;         // deformations
-    VectorND<nsr>     Ssr;        // stress resultants
+    MatrixND<nsr,nsr> Fs;         // section flexibility
+    VectorND<nsr>     es;         // section deformations
+    VectorND<nsr>     sr;         // section stress resultants
     VectorND<nsr> es_save;        // committed section deformations
   };
 
@@ -182,17 +199,6 @@ class ForceFrame3d: public BasicFrame3d
   BeamIntegration*        stencil;
   
 
-  //
-  // Other
-  //
-  static constexpr FrameStressLayout scheme = {
-    FrameStress::N,
-    FrameStress::Vy,
-    FrameStress::Vz,
-    FrameStress::T,
-    FrameStress::My,
-    FrameStress::Mz,
-  };
 
 //void getForceInterpolatMatrix(double xi, Matrix &b, const ID &code);
 //void getDistrLoadInterpolatMatrix(double xi, Matrix &bp, const ID &code);

@@ -89,7 +89,7 @@ BasicFrame3d::getResistingForce()
 
 //    const Vector p0Vec(p0);
 //    P = theCoordTransf->getGlobalResistingForce(q, p0Vec);
-  pg  = theCoordTransf->pushVariable(pl);
+  pg  = theCoordTransf->pushResponse(pl);
   pg += theCoordTransf->pushConstant(pf);
   P.setData(pg);
 
@@ -173,7 +173,7 @@ BasicFrame3d::getTangentStiff()
 
   static MatrixND<12,12> Kg;
   static Matrix Wrapper(Kg);
-  Kg = theCoordTransf->pushVariable(kl, pl);
+  Kg = theCoordTransf->pushResponse(kl, pl);
   return Wrapper;
 }
 
@@ -187,7 +187,7 @@ BasicFrame3d::addInertiaLoadToUnbalance(const Vector &accel)
   // get R * accel from the nodes
   const Vector &Raccel1 = theNodes[0]->getRV(accel);
   const Vector &Raccel2 = theNodes[1]->getRV(accel);
-        
+
   if (6 != Raccel1.Size() || 6 != Raccel2.Size()) {
     opserr << "BasicFrame3d::addInertiaLoadToUnbalance matrix and vector sizes are incompatible\n";
     return -1;
@@ -210,10 +210,10 @@ BasicFrame3d::addInertiaLoadToUnbalance(const Vector &accel)
     // TODO: Move this to FiniteElement::getAcceleration() ?
 
     // use matrix vector multip. for consistent mass matrix
-    static Vector Raccel(12);
+    static VectorND<12> Raccel;
     for (int i=0; i<6; i++)  {
-      Raccel(i)   = Raccel1(i);
-      Raccel(i+6) = Raccel2(i);
+      Raccel[i]   = Raccel1[i];
+      Raccel[i+6] = Raccel2[i];
     }
     p_iner.addMatrixVector(1.0, this->getMass(), Raccel, -1.0);
   }

@@ -41,6 +41,11 @@ target_sources(OPS_Transform
     ASDShellQ4Transformation.h
 )
 
-target_include_directories(OPS_Transform PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Transform 
+  PUBLIC 
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/Shell
+)
+
 add_subdirectory(Frame)
 

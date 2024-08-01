@@ -91,7 +91,7 @@ struct MatrixND {
     addTensorProduct(const VecA& V, const VecB& W, const double scale);
 
   template <class MatT, int nk> void 
-    addMatrixProduct(const MatrixND<NR, nk, T> &, const MatT&, const double scale);
+    addMatrixProduct(const MatrixND<NR, nk, T> &, const MatT&, double scale);
 
   // += A'B
   template <class MatT, int nk> void 
@@ -99,17 +99,27 @@ struct MatrixND {
 
   // += A'BA
   template <int nk> int 
-    addMatrixTripleProduct(double thisFact, const MatrixND<nk, NR, T> &, const MatrixND<nk, nk, T>&, double scale);
+    addMatrixTripleProduct(double thisFact, 
+                           const MatrixND<nk, NR, T> &, 
+                           const MatrixND<nk, nk, T>&, 
+                           double scale);
+
+  // += A'BC
+  template <int nk, int nl> int 
+    addMatrixTripleProduct(double thisFact, 
+                           const MatrixND<nk,NR> &A, 
+                           const MatrixND<nk,nl> &B, 
+                           const MatrixND<nl,NC> &C, double otherFact);
 
   int invert(MatrixND<NR, NC> &) const;
   int invert() {return Matrix(*this).Invert();};
 
   template<class VecT> MatrixND<NR,NC,T>& addSpin(const VecT& V);
   template<class VecT> MatrixND<NR,NC,T>& addSpin(const VecT& V, double scale);
-  template<class VecT> MatrixND<NR,NC,T>& addSpinSquare(const VecT& V, const double scale);
-  template<class VecT> void addSpinProduct(const VecT& a, const VectorND<NR,T>& b, const double scale);
-  template<class VecT> void addMatrixSpinProduct(const MatrixND<NR,NC,T>& A, const VecT& b, const double scale);
-  template<class MatT> void addSpinMatrixProduct(const VectorND<NR,T>& a, const MatT& B, const double scale);
+  template<class VecT> MatrixND<NR,NC,T>& addSpinSquare(const VecT& V, double scale);
+  template<class VecT> void addSpinProduct(const VecT& a, const VectorND<NR,T>& b, double scale);
+  template<class VecT> void addMatrixSpinProduct(const MatrixND<NR,NC,T>& A, const VecT& b, double scale);
+  template<class MatT> void addSpinMatrixProduct(const VectorND<NR,T>& a, const MatT& B, double scale);
 
 //template<class VecT>
 //void addSpinAtRow(const VecT& V, size_t row_index);
@@ -131,15 +141,15 @@ struct MatrixND {
   constexpr const std::array<T, NC> & // [i] indexing
   operator[](index_t index) const {return values[index];}
   
-  constexpr T & // (i,j) indexing
+  // (i,j) indexing
+  constexpr T &
   operator()(index_t index_r, index_t index_c) {
     assert(index_r >= 0 && index_c >= 0);
     assert(index_r < NR && index_c < NC);
-    // column-major
     return values[index_c][index_r];
   }
 
-  constexpr const T & // (i,j) indexing
+  inline constexpr const T & 
   operator()(index_t index_r, index_t index_c) const {
     assert(index_r >= 0 && index_c >= 0);
     assert(index_r < NR && index_c < NC);
@@ -166,6 +176,7 @@ struct MatrixND {
     return rw;
   }
 
+  // TODO: change to std::pair,array, or tuple.
   consteval VectorND<2,int>
   size() const {
     return {NR, NC};
@@ -174,7 +185,7 @@ struct MatrixND {
   //
   //
   //
-  void zero() {
+  consteval void zero() {
     for (index_t j = 0; j < NC; ++j) {
       for (index_t i = 0; i < NR; ++i) {
         values[j][i] = 0.0;
@@ -252,24 +263,8 @@ struct MatrixND {
     return -abs(info);
   }
 
-#if 0
-  int addMatrix(double alpha, const MatrixND &other, double beta) {
-  }
 
-  int addMatrixTranspose(double factThis, const Matrix &other, double factOther)
-  {
-  }
-  // AB
-  int addMatrixProduct(double factThis, const Matrix &A, const Matrix &B, double factOther)
-  {
-  }
-  //A'BC
-  int addMatrixTripleProduct(double factThis, const Matrix &A, const Matrix &B, const Matrix &C, double otherFact)
-  {
-  } 
-#endif 
-
-  template<int nr, int nc> void
+  template<int nr, int nc> inline void
   assemble(const MatrixND<nr, nc, double> &M, int init_row, int init_col, double fact) 
   {
  
@@ -316,6 +311,7 @@ struct MatrixND {
     }
     return *this;
   }
+
 /*
   constexpr MatrixND &
   operator=(const MatrixND<NR,NC> &other)
@@ -351,38 +347,34 @@ struct MatrixND {
   
   constexpr MatrixND &
   operator-=(const MatrixND &other) {
-    for (index_t j = 0; j < NC; ++j) {
-      for (index_t i = 0; i < NR; ++i) {
+    for (index_t j = 0; j < NC; ++j)
+      for (index_t i = 0; i < NR; ++i)
         values[j][i] -= other.values[j][i];
-      }
-    }
+
     return *this;
   }
 
   constexpr MatrixND &
   operator*=(T const scalar) {
-    for (index_t j = 0; j < NC; ++j){
-      for (index_t i = 0; i < NR; ++i) {
+    for (index_t j = 0; j < NC; ++j)
+      for (index_t i = 0; i < NR; ++i)
         values[j][i] *= scalar;
-      }
-    }
+
     return *this;
   }
 
   constexpr MatrixND &
   operator/=(T const scalar) {
-    for (index_t j = 0; j < NC; ++j) {
-      for (index_t i = 0; i < NR; ++i) {
+    for (index_t j = 0; j < NC; ++j)
+      for (index_t i = 0; i < NR; ++i)
         values[j][i] /= scalar;
-      }
-    }
+
     return *this;
   }
 
 
 // Notes on operators:
 // - define friend operators inside class for use as header-only library
-// - LHS is passed by (copied) value
   friend constexpr MatrixND
   operator+(MatrixND left, const MatrixND &right) {
     left += right; 
@@ -408,10 +400,9 @@ struct MatrixND {
   }
   
   template <index_t J>
-  constexpr friend MatrixND<NR, J>
+  inline constexpr friend MatrixND<NR, J>
   operator*(const MatrixND<NR, NC> &left, const MatrixND<NC, J> &right) {
     MatrixND<NR, J> prod;
-//  prod.zero();
     for (index_t i = 0; i < NR; ++i) {
       for (index_t j = 0; j < J; ++j) {
         prod(i, j) = 0.0;
@@ -424,10 +415,9 @@ struct MatrixND {
   }
 
   template <index_t J>
-  constexpr friend MatrixND<NR, J>
+  inline constexpr friend MatrixND<NR, J>
   operator^(const MatrixND<NR, NC> &left, const MatrixND<NC, J> &right) {
     MatrixND<NR, J> prod;
-//  prod.zero();
     for (index_t i = 0; i < NR; ++i) {
       for (index_t j = 0; j < J; ++j) {
         prod(i, j) = 0.0;
@@ -455,7 +445,7 @@ struct MatrixND {
   }
 
 
-  friend  VectorND<NR>
+  constexpr friend  VectorND<NR>
   operator*(const MatrixND<NR, NC> &left, const VectorND<NC> &right) {
     VectorND<NR> prod;
     for (index_t i = 0; i < NR; ++i) {
@@ -664,7 +654,6 @@ MatrixND<nr,nc,scalar_t>::addMatrixTripleProduct(
   if (otherFact == 0.0 && thisFact == 1.0)
     return 0;
 
-  // check work area can hold the temporary matrix
   MatrixND<ncB, nc> BT;
   BT.zero();
   BT.addMatrixProduct(B, T, otherFact);
@@ -691,6 +680,25 @@ MatrixND<nr,nc,scalar_t>::addMatrixTripleProduct(
 
   return 0;
 }
+
+
+template <int nr, int nc, class scalar_t> 
+template <int nk, int nl> inline int 
+MatrixND<nr,nc,scalar_t>::addMatrixTripleProduct(double thisFact, 
+                           const MatrixND<nk,nr> &A, 
+                           const MatrixND<nk,nl> &B, 
+                           const MatrixND<nl,nc> &C, double otherFact)
+{
+
+  if (otherFact == 0.0 && thisFact == 1.0)
+    return 0;
+
+  MatrixND<nk, nc> BC {0.0};
+  BC.addMatrixProduct(B, C, otherFact);
+  this->addMatrixTransposeProduct(thisFact, A, BC, 1.0);
+  return 0;
+}
+
 
 template <int nr, int nc, typename T=double>
 MatrixND(const T (&)[nc][nr])->MatrixND<nr, nc, T>;

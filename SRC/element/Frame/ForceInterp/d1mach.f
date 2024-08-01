@@ -1,3 +1,9 @@
+c ===----------------------------------------------------------------------===//
+c 
+c         OpenSees - Open System for Earthquake Engineering Simulation    
+c 
+c ===----------------------------------------------------------------------===//
+c
       DOUBLE PRECISION FUNCTION D1MACH(I)
       INTEGER I
 C

@@ -12,6 +12,12 @@ class Domain;
 class Response;
 class Rotation;
 
+#if 0
+template<int ndf, int nn, typename T, typename Vec, const Vec& (T::*method)()>
+VectorND<ndf> MapMethod(std::array<Node*, nn> nodes) 
+{
+}
+#endif
 
 //     Displacement
 //     Deformation
@@ -78,7 +84,8 @@ public:
         for (int i=0; i<nen; i++) {
           theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
           if (theNodes[i] == nullptr) {
-            opserr << "FiniteElement::setDomain  tag: " << this->getTag() << " -- Node 1: " << connectedExternalNodes(i) << " does not exist\n";
+            opserr << "FiniteElement::setDomain  tag: " << this->getTag() << " -- Node " 
+                   << connectedExternalNodes(i) << " does not exist\n";
             return;
           }
 
@@ -165,7 +172,7 @@ protected:
     const VectorND<ndm>& getNodePosition(int tag, State state);
     const Rotation&      getNodeRotation(int tag, State state);
     const VectorND<ndm>& getNodeVelocity(int tag);
-    const VectorND<ndm>& getNodeLocation(int tag);
+    const VectorND<ndm>& getNodeLocation(int tag, State state);
 
     //
     std::array<Node*, nen> theNodes;
@@ -178,4 +185,5 @@ private:
 
 
 };
+
 

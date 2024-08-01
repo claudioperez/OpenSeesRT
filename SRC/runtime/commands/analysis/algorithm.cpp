@@ -17,10 +17,11 @@
 #include <Parsing.h>
 #include "BasicAnalysisBuilder.h"
 
-// soln algorithms
+// Algorithms
 #include <Linear.h>
 #include <NewtonRaphson.h>
 #include <ModifiedNewton.h>
+#include <NewtonHallM.h>
 #include <Broyden.h>
 #include <BFGS.h>
 #include <KrylovNewton.h>
@@ -28,14 +29,14 @@
 #include <AcceleratedNewton.h>
 #include <ExpressNewton.h>
 
-// line search
+// LineSearch
 #include <NewtonLineSearch.h>
 #include <BisectionLineSearch.h>
 #include <InitialInterpolatedLineSearch.h>
 #include <RegulaFalsiLineSearch.h>
 #include <SecantLineSearch.h>
 
-// accelerators
+// Accelerators
 #include <RaphsonAccelerator.h>
 #include <PeriodicAccelerator.h>
 #include <KrylovAccelerator.h>
@@ -57,6 +58,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        TCL_Char ** const argv, Domain *domain);
 
 typedef EquiSolnAlgo *(TclEquiSolnAlgo)(ClientData, Tcl_Interp *, int, TCL_Char **);
+
 TclEquiSolnAlgo G3Parse_newEquiSolnAlgo;
 TclEquiSolnAlgo G3Parse_newSecantNewtonAlgorithm;
 TclEquiSolnAlgo G3Parse_newLinearAlgorithm;
@@ -99,49 +101,6 @@ TclCommand_specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
-int
-TclCommand_totalCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
-
-  if (algo == nullptr)
-    return TCL_ERROR;
-
-  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(algo->getTotalTimeCPU()));
-
-  return TCL_OK;
-}
-
-int
-TclCommand_solveCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
-
-
-  if (algo == nullptr)
-    return TCL_ERROR;
-
-  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(algo->getSolveTimeCPU()));
-
-  return TCL_OK;
-}
-
-
-int
-TclCommand_numIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
-
-  if (algo == nullptr)
-    return TCL_ERROR;
-
-  Tcl_SetObjResult(interp, Tcl_NewIntObj(algo->getNumIterations()));
-
-  return TCL_OK;
-}
 
 EquiSolnAlgo *
 G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -229,6 +188,152 @@ G3Parse_newLinearAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
   return new Linear(formTangent, factorOnce);
 }
 
+int
+TclCommand_newNewtonRaphson(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char**const argv)
+{
+    int formTangent = CURRENT_TANGENT;
+    double iFactor = 0;
+    double cFactor = 1;
+
+    for (int i=2; i<argc; i++) {
+      if (strcmp(argv[i],"-secant")==0 || 
+          strcmp(argv[i],"-Secant")==0) {
+        formTangent = CURRENT_SECANT;
+        iFactor = 0;
+        cFactor = 1.0;
+
+      } else if (strcmp(argv[i],"-initial")==0 || 
+                 strcmp(argv[i],"-Initial")==0) {
+        formTangent = INITIAL_TANGENT;
+        iFactor = 1.;
+        cFactor = 0;
+
+      } else if (strcmp(argv[i],"-intialThenCurrent")==0 || 
+                 strcmp(argv[i],"-intialCurrent")==0) {
+        formTangent = INITIAL_THEN_CURRENT_TANGENT;
+        iFactor = 0;
+        cFactor = 1.0;
+
+      } else if (strcmp(argv[i],"-hall")==0 || 
+                 strcmp(argv[i],"-Hall")==0) {
+
+        formTangent = HALL_TANGENT;
+        iFactor = 0.1;
+        cFactor = 0.9;
+        if (argc-i >= 2) {
+          if (Tcl_GetDouble(interp, argv[i+1], &iFactor) != TCL_OK) {
+            opserr << "WARNING invalid data reading ifactor\n";
+            return TCL_ERROR;
+          }
+          if (Tcl_GetDouble(interp, argv[i+2], &cFactor) != TCL_OK) {
+            opserr << "WARNING invalid data reading cfactor\n";
+            return TCL_ERROR;
+          }
+          i += 2;
+        }
+      }
+    }
+
+    auto algorithm = new NewtonRaphson(formTangent, iFactor, cFactor);
+
+    return TCL_OK;
+}
+
+
+int
+TclCommand_newModifiedNewton(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char**const argv)
+{
+    int formTangent = CURRENT_TANGENT;
+    double iFactor = 0;
+    double cFactor = 1;
+
+    for (int i=2; i<argc; i++) {
+      if (strcmp(argv[i],"-secant") == 0) {
+        formTangent = CURRENT_SECANT;
+
+      } else if (strcmp(argv[i],"-initial") == 0) {
+        formTangent = INITIAL_TANGENT;
+
+      } else if (strcmp(argv[i],"-hall")==0 || 
+                strcmp(argv[i],"-Hall")==0) {
+        formTangent = HALL_TANGENT;
+        iFactor = 0.1;
+        cFactor = 0.9;
+        if (argc-i >= 2) {
+          if (Tcl_GetDouble(interp, argv[i+1], &iFactor) != TCL_OK) {
+            opserr << "WARNING invalid data reading ifactor\n";
+            return TCL_ERROR;
+          }
+          if (Tcl_GetDouble(interp, argv[i+2], &cFactor) != TCL_OK) {
+            opserr << "WARNING invalid data reading cfactor\n";
+            return TCL_ERROR;
+          }
+          i += 2;
+        }
+      }
+    }
+
+    auto algorithm = new ModifiedNewton(formTangent, iFactor, cFactor);
+    return TCL_OK;
+
+}
+
+int
+TclCommand_newNewtonHallM(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char**const argv)
+{
+  int method = 0;
+  double iFactor = .1;
+  double alpha = .01;
+  double c = 100;
+  double data[2];
+  
+  int numData = 1;
+  if (OPS_GetDoubleInput(&numData,&data[0]) < 0) {
+    opserr << "WARNING invalid data reading 2 hall factors\n";
+    return 0;
+  }
+  iFactor = data[0];
+
+  for (int i=2; i<argc; i++) {
+
+      if (strcmp(argv[i], "-exp")==0 || 
+          strcmp(argv[i], "-Exp")==0) {
+        numData = 1;
+        if (OPS_GetDoubleInput(&numData,&data[0]) < 0) {
+          opserr << "WARNING invalid data reading 2 hall factors\n";
+          return 0;
+        } else 
+          alpha = data[0];
+      } else if (strcmp(argv[i], "-sigmoid")==0 || 
+                 strcmp(argv[i], "-Sigmoid")==0) {
+        method = 1;
+        int numData = 2;
+        if (OPS_GetDoubleInput(&numData,&data[0]) < 0) {
+          opserr << "WARNING invalid data reading 2 hall factors\n";
+          return 0;
+        } else {
+          alpha = data[0];
+          c = data[1];
+        }
+      } else if (strcmp(argv[i], "-constant")==0 || 
+                 strcmp(argv[i], "-Constant")==0) {
+        method = 2;
+        int numData = 1;
+        if (OPS_GetDoubleInput(&numData,&data[0]) < 0) {
+          opserr << "WARNING invalid data reading 2 hall factors\n";
+          return 0;
+        } else {
+          c = data[0];
+        }
+      }
+    }
+
+  auto algorithm = new NewtonHallM(iFactor, method, alpha, c);
+  return TCL_OK;
+}
+
+
+
 EquiSolnAlgo *
 G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
                                  int argc, TCL_Char ** const argv)
@@ -255,6 +360,7 @@ G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
         iterateTangent = INITIAL_TANGENT;
       if (strcmp(argv[i], "noTangent") == 0)
         iterateTangent = NO_TANGENT;
+
     } else if (strcmp(argv[i], "-increment") == 0 && i + 1 < argc) {
       i++;
       if (strcmp(argv[i], "current") == 0)
@@ -263,9 +369,11 @@ G3Parse_newSecantNewtonAlgorithm(ClientData clientData, Tcl_Interp *interp,
         incrementTangent = INITIAL_TANGENT;
       if (strcmp(argv[i], "noTangent") == 0)
         incrementTangent = NO_TANGENT;
+
     } else if (strcmp(argv[i], "-maxDim") == 0 && i + 1 < argc) {
       i++;
       maxDim = atoi(argv[i]);
+
     } else if (strcmp(argv[i], "-numTerms") == 0) {
       if (i+1 < argc)
         numTerms = atoi(argv[++i]);
@@ -432,6 +540,7 @@ G3_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
         iterateTangent = INITIAL_TANGENT;
       if (strcmp(argv[i], "noTangent") == 0)
         iterateTangent = NO_TANGENT;
+
     } else if (strcmp(argv[i], "-increment") == 0 && i + 1 < argc) {
       i++;
       if (strcmp(argv[i], "current") == 0)
@@ -720,5 +829,49 @@ TclCommand_algorithmRecorder(ClientData clientData, Tcl_Interp *interp, int argc
   Tcl_SetObjResult(interp, Tcl_NewIntObj(recorderTag));
   return TCL_OK;
 #endif
+}
+
+int
+TclCommand_totalCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
+
+  if (algo == nullptr)
+    return TCL_ERROR;
+
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(algo->getTotalTimeCPU()));
+
+  return TCL_OK;
+}
+
+int
+TclCommand_solveCPU(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
+
+
+  if (algo == nullptr)
+    return TCL_ERROR;
+
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(algo->getSolveTimeCPU()));
+
+  return TCL_OK;
+}
+
+
+int
+TclCommand_numIter(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  EquiSolnAlgo *algo = ((BasicAnalysisBuilder *)clientData)->getAlgorithm();
+
+  if (algo == nullptr)
+    return TCL_ERROR;
+
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(algo->getNumIterations()));
+
+  return TCL_OK;
 }
 

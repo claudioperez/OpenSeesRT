@@ -1,3 +1,9 @@
+c====----------------------------------------------------------------------===//
+c 
+c         OpenSees - Open System for Earthquake Engineering Simulation    
+c 
+c====----------------------------------------------------------------------===//
+c
 c  To get dgamma,  "send dgamma from fnlib".
 c  To get d1mach, mail netlib
 c       send d1mach from core
@@ -118,6 +124,7 @@ c
   105    w(i) = 0.0d0
 c
       call gausq2 (n, t, b, w, ierr)
+c
       do 110 i = 1, n
   110    w(i) = muzero * w(i) * w(i)
 c

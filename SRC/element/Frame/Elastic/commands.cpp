@@ -52,6 +52,7 @@ enum class Args3D : int {
 // element NAME 
 //    $tag $iNode $jNode
 //    $E $G $A $J $Iy $Iz $Avy $Avz
+//    -section $tag
 //    [$tag | -transform $tag | -vert $x $y $z]
 //    < -delta $delta >
 //    < -shear $Avy $Avz [$G] >
@@ -164,7 +165,9 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
 
       argi += 1;
-      while (tracker.current() != Position::Transform)
+      // Fast-forward through section parameters
+      while (tracker.current() != Position::Transform && 
+             tracker.current() != Position::End)
         tracker.increment();
     }
 
@@ -309,7 +312,8 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
 
       // Fast-forward through section parameters
-      while (tracker.current() != Position::Transform)
+      while (tracker.current() != Position::Transform && 
+             tracker.current() != Position::End)
         tracker.increment();
       i++;
     }
@@ -442,7 +446,21 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    if (strcmp(argv[1], "PrismFrame") == 0) {
+    if (theSection != nullptr) {
+      // now create the beam and add it to the Domain
+
+      std::array<int, 2> nodes {iNode, jNode};
+      theBeam = new PrismFrame2d(tag, iNode, jNode, 
+                                 *theSection, *theTrans2d, 
+                                 beam_data.thermal_coeff, beam_data.thermal_depth, 
+                                 mass,
+                                 options.mass_flag,
+                                 use_mass,
+                                 options.relz_flag,
+                                 options.geom_flag);
+    }
+
+    else if (strcmp(argv[1], "PrismFrame") == 0) {
 
       theBeam = new PrismFrame2d(tag, beam_data.A, beam_data.E, beam_data.Iz, 
                                  iNode, jNode, *theTrans2d,

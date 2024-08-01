@@ -4,8 +4,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Written: mhs, rms, fmk, cmp
-//
+// Written: cmp, mhs, rms, fmk
 //
 // Created: Feb 2023
 //
@@ -51,70 +50,59 @@
 
 
 // Elements
-#include <ForceBeamColumn2d.h>
-#include <ForceBeamColumn3d.h>
-#include <ForceBeamColumn2d.h>
-#include <ForceBeamColumn3d.h>
-#include <ForceBeamColumnWarping2d.h>
-#include <ElasticForceBeamColumnWarping2d.h>
-#include <TimoshenkoBeamColumn2d.h>
-#include <DispBeamColumn2d.h>
-#include <DispBeamColumn3d.h>
-#include <DispBeamColumnNL2d.h>
-#include <DispBeamColumn2dThermal.h>
-#include <DispBeamColumn3dThermal.h>  //L.Jiang [SIF]
-#include <ForceBeamColumn2dThermal.h> //L.Jiang [SIF]
 
 #include <element/Frame/Basic/CubicFrame3d.h>
 #include <element/Frame/Basic/ForceFrame3d.h>
+#include <element/Frame/Basic/ForceDeltaFrame3d.h>
 #include <element/Frame/Basic/DisplEulerFrame3d.h>
 
+#include <DispBeamColumn2d.h>
+#include <DispBeamColumn2dThermal.h>
 #include <DispBeamColumn2dWithSensitivity.h>
+#include <DispBeamColumn3d.h>
+#include <DispBeamColumn3dThermal.h>
 #include <DispBeamColumn3dWithSensitivity.h>
+#include <DispBeamColumnNL2d.h>
 
 #include <ElasticForceBeamColumn2d.h>
 #include <ElasticForceBeamColumn3d.h>
+#include <ElasticForceBeamColumnWarping2d.h>
 
+#include <ForceBeamColumn2d.h>
+#include <ForceBeamColumn2d.h>
+#include <ForceBeamColumn2dThermal.h>
+#include <ForceBeamColumn3d.h>
+#include <ForceBeamColumn3d.h>
 #include <ForceBeamColumnCBDI2d.h>
+#include <ForceBeamColumnCBDI3d.h>
+#include <ForceBeamColumnWarping2d.h>
+#include <TimoshenkoBeamColumn2d.h>
+
+// Sections
+#include <FrameSection.h>
+#include <ElasticSection2d.h>
+#include <ElasticSection3d.h>
+
 
 // Quadrature
 #include <BeamIntegration.h>
 #include <LobattoBeamIntegration.h>
 #include <LegendreBeamIntegration.h>
-#include <RadauBeamIntegration.h>
-#include <NewtonCotesBeamIntegration.h>
-#include <UserDefinedBeamIntegration.h>
 #include <HingeEndpointBeamIntegration.h>
 #include <HingeMidpointBeamIntegration.h>
 #include <HingeRadauBeamIntegration.h>
 #include <HingeRadauTwoBeamIntegration.h>
-#include <UserDefinedHingeIntegration.h>
-#include <DistHingeIntegration.h>
-#include <RegularizedHingeIntegration.h>
-#include <TrapezoidalBeamIntegration.h>
-#include <CompositeSimpsonBeamIntegration.h>
-#include <FixedLocationBeamIntegration.h>
-#include <LowOrderBeamIntegration.h>
-#include <MidDistanceBeamIntegration.h>
-//#include <GaussQBeamIntegration.h>
 
-#include <FrameSection.h>
-#include <ElasticSection2d.h>
-#include <ElasticSection3d.h>
 
 struct Options {
-  bool require_resultants[7] = {false};
-  int cmass_flag;
+  int mass_flag;
   int shear_flag;
-  int delta_flag;
+  int geom_flag;
 };
 
 
 extern BeamIntegration*     GetBeamIntegration(TCL_Char* type);
 extern BeamIntegrationRule* GetHingeStencil(int argc, TCL_Char ** const argv);
-extern int
-TclCommand_addBeamIntegration(ClientData clientData, Tcl_Interp *interp,
-                              int argc, TCL_Char ** const argv);
 
 //    // Check if we are being called from OpenSeesPy, in which case we need to parse 
 //    // things a little differently
@@ -130,8 +118,7 @@ CreateInelasticFrame(std::string, std::vector<int>& nodes,
                                   FrameTransform&,
                                   Options&);
 Element*
-CreatePrismaticFrame(std::string,
-);
+CreatePrismaticFrame(std::string);
 #endif
 
 // 0       1    2 3  4
@@ -204,7 +191,7 @@ CreatePrismaticFrame(std::string,
 //
 //
 //  2) 
-//     If pos[1] == "-section" then command is Form (d):
+//     If pos[1] == "-sections" then command is Form (d):
 //        nIP = pos[0]
 //        trn = pos[2+nIP]
 //
@@ -242,7 +229,12 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
   int status = TCL_OK;
 
-  struct Options options;
+  enum class GaussMethod {
+    None,
+    Rule, // Quadrature name + section locations; Hinge methods
+    Quad, // Quadrature name
+  } gauss_method = GaussMethod::None;
+
   //
   //
 
@@ -273,15 +265,14 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   if (argc < 6) {
     opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
     opserr << "Want: element " << argv[1]
-           << " eleTag? iNode? jNode? transfTag? ...\n";
+           << " tag? iNode? jNode? transfTag? ...\n";
     return TCL_ERROR;
   }
 
-  // Essential positional artuments
-  int eleTag, iNode, jNode;
-
-  if (Tcl_GetInt(interp, argv[2], &eleTag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "invalid " << " eleTag " << eleTag << "\n";
+  // Essential positional arguments
+  int tag, iNode, jNode;
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "invalid " << " tag " << tag << "\n";
     return TCL_ERROR;
   }
 
@@ -295,12 +286,17 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
+  struct Options opt {
+    .mass_flag  = 0,
+    .shear_flag = 1,
+    .geom_flag  = 0,
+  };
+  int cMass   = 0;
 
-  int numIter = 10;
+  int max_iter = 10;
   double tol  = 1.0e-12;
   double mass = 0.0;
   bool use_mass = false;
-  int cMass   = 0;
   int transfTag;
   std::vector<int> section_tags;
   BeamIntegration   *beamIntegr   = nullptr;
@@ -316,21 +312,30 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   {
     int argi = 5;
     while (argi < argc) {
-      // shear on
+      // Shear
       if (strcmp(argv[argi], "-shear") == 0) {
-        options.require_resultants[SECTION_RESPONSE_VY] = true;
-        if (ndm == 3)
-          options.require_resultants[SECTION_RESPONSE_VZ] = true;
-
-      // -iter $numIter $tol 
-      } else if (strcmp(argv[argi], "-iter") == 0) {
-        if (argc < argi + 3) {
-          opserr << G3_ERROR_PROMPT << "not enough -iter args need -iter numIter? tol?\n";
+        if (argc < argi + 2) {
+          opserr << G3_ERROR_PROMPT << "not enough arguments, expected -shear $flag\n";
           status = TCL_ERROR;
           goto clean_up;
         }
-        if (Tcl_GetInt(interp, argv[argi + 1], &numIter) != TCL_OK) {
-          opserr << G3_ERROR_PROMPT << "invalid numIter\n";
+        if (Tcl_GetInt(interp, argv[argi + 1], &opt.shear_flag) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "invalid shear_flag, expected integer\n";
+          status = TCL_ERROR;
+          goto clean_up;
+        }
+        argi += 2;
+      } 
+
+      // -iter $max_iter $tol 
+      else if (strcmp(argv[argi], "-iter") == 0) {
+        if (argc < argi + 3) {
+          opserr << G3_ERROR_PROMPT << "not enough -iter args need -iter max_iter? tol?\n";
+          status = TCL_ERROR;
+          goto clean_up;
+        }
+        if (Tcl_GetInt(interp, argv[argi + 1], &max_iter) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "invalid max_iter\n";
           status = TCL_ERROR;
           goto clean_up;
         }
@@ -370,6 +375,11 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
       // Quadrature
       else if (strcmp(argv[argi], "-integration") == 0) {
+        if (argc < argi + 2) {
+          opserr << G3_ERROR_PROMPT << "not enough arguments, expected -integration $integration\n";
+          status = TCL_ERROR;
+          goto clean_up;
+        }
 
         argi++;
         beamIntegr = GetBeamIntegration(argv[argi]);
@@ -381,6 +391,46 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         }
         argi++;
       }
+
+      // Transform
+      else if (strcmp(argv[argi], "-transform") == 0) {
+        if (argc < argi + 2) {
+          opserr << G3_ERROR_PROMPT << "not enough arguments, expected -transform $transform\n";
+          status = TCL_ERROR;
+          goto clean_up;
+        }
+
+        argi++;
+        if (Tcl_GetInt(interp, argv[argi], &transfTag) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "invalid transfTag\n";
+          status = TCL_ERROR;
+          goto clean_up;
+        }
+        argi++;
+      }
+
+
+      // Section
+      else if (strcmp(argv[argi], "-section") == 0) {
+        if (argc < argi + 2) {
+          opserr << G3_ERROR_PROMPT << "not enough arguments, expected -section $section\n";
+          status = TCL_ERROR;
+          goto clean_up;
+        }
+
+        argi++;
+        int sec_tag;
+        if (Tcl_GetInt(interp, argv[argi], &sec_tag) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "invalid sec_tag\n";
+          status = TCL_ERROR;
+          goto clean_up;
+        }
+
+        section_tags.push_back(sec_tag);
+
+        argi++;
+      }
+
 
     //else if (strcmp(argv[argi], "-sections") == 0) {
     // split possible lists present in argv
@@ -526,6 +576,14 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   }
 
   
+  // TODO
+  if (section_tags.size() == 1 && theRule == nullptr) {
+    if (strstr(argv[1], "isp") == 0) {
+      section_tags.resize(5, section_tags[0]);
+    } else {
+      section_tags.resize(3, section_tags[0]);
+    }
+  }
 
   // Finalize the quadrature
   if (beamIntegr == nullptr) {
@@ -584,93 +642,110 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     if (ndm == 2) {
       if (strcmp(argv[1], "elasticForceBeamColumn") == 0)
         theElement = new ElasticForceBeamColumn2d(
-            eleTag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
+            tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
       else if (strcmp(argv[1], "timoshenkoBeamColumn") == 0)
         theElement =
-            new TimoshenkoBeamColumn2d(eleTag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
+            new TimoshenkoBeamColumn2d(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
       else if (strcmp(argv[1], "dispBeamColumn") == 0)
         theElement =
-            new DispBeamColumn2d(eleTag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass, cMass);
+            new DispBeamColumn2d(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass, cMass);
       else if (strcmp(argv[1], "dispBeamColumnNL") == 0)
         theElement =
-            new DispBeamColumnNL2d(eleTag, iNode, jNode, nIP, secptrs,
+            new DispBeamColumnNL2d(tag, iNode, jNode, nIP, secptrs,
                                    *beamIntegr, *theTransf2d, mass);
 
       else if (strcmp(argv[1], "dispBeamColumnThermal") == 0)
-        theElement = new DispBeamColumn2dThermal(eleTag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
+        theElement = new DispBeamColumn2dThermal(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
 
       else if (strcmp(argv[1], "dispBeamColumnWithSensitivity") == 0)
-        theElement = new DispBeamColumn2dWithSensitivity(eleTag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
+        theElement = new DispBeamColumn2dWithSensitivity(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
 
 
       // Force formulations
       else if (strcmp(argv[1], "forceBeamColumnCBDI") == 0)
-        theElement = new ForceBeamColumnCBDI2d(eleTag, iNode, jNode, nIP, secptrs,
+        theElement = new ForceBeamColumnCBDI2d(tag, iNode, jNode, nIP, secptrs,
                                                *beamIntegr, *theTransf2d, mass, false);
 
       else if (strcmp(argv[1], "forceBeamColumnCSBDI") == 0)
-        theElement =  new ForceBeamColumnCBDI2d(eleTag, iNode, jNode, nIP, secptrs,
+        theElement =  new ForceBeamColumnCBDI2d(tag, iNode, jNode, nIP, secptrs,
                                                 *beamIntegr, *theTransf2d, mass, true);
 
       else if (strcmp(argv[1], "forceBeamColumnWarping") == 0)
         theElement =
-            new ForceBeamColumnWarping2d(eleTag, iNode, jNode, nIP,
+            new ForceBeamColumnWarping2d(tag, iNode, jNode, nIP,
                                          secptrs, *beamIntegr, *theTransf2d);
 
       else if (strcmp(argv[1], "forceBeamColumnThermal") == 0)
-        theElement = new ForceBeamColumn2dThermal(eleTag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
+        theElement = new ForceBeamColumn2dThermal(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
 
       else if (strcmp(argv[1], "elasticForceBeamColumnWarping") == 0)
         theElement = new ElasticForceBeamColumnWarping2d(
-            eleTag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d);
+            tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d);
       else
         theElement =
-            new ForceBeamColumn2d(eleTag, iNode, jNode, nIP, secptrs,
-                                  *beamIntegr, *theTransf2d, mass, numIter, tol);
+            new ForceBeamColumn2d(tag, iNode, jNode, nIP, secptrs,
+                                  *beamIntegr, *theTransf2d, mass, max_iter, tol);
 
 
     } else {
       if (strcmp(argv[1], "CubicFrame") == 0) {
         std::array<int, 2> nodes {iNode, jNode};
 
-        theElement = new CubicFrame3d(eleTag, nodes, nIP, sections.data(),
+        theElement = new CubicFrame3d(tag, nodes, nIP, sections.data(),
                                       *beamIntegr, *theTransf3d, mass, cMass);
       } 
 
       else if (strcmp(argv[1], "ForceFrame") == 0) {
         std::array<int, 2> nodes {iNode, jNode};
-        theElement = new ForceFrame3d(eleTag, nodes, sections,
-                                      *beamIntegr, *theTransf3d, mass, numIter, tol,
-                                      cMass, use_mass);
+        theElement = new ForceFrame3d(tag, nodes, sections,
+                                      *beamIntegr, *theTransf3d,
+                                      mass, cMass, use_mass,
+                                      max_iter, tol
+                                      );
+      }
+
+      else if (strcmp(argv[1], "ForceDeltaFrame") == 0) {
+        std::array<int, 2> nodes {iNode, jNode};
+        theElement = new ForceDeltaFrame3d(tag, nodes, sections,
+                                      *beamIntegr, *theTransf3d, 
+                                      mass, cMass, use_mass,
+                                      max_iter, tol,
+                                      opt.shear_flag
+                                      );
       }
 
       else if (strcmp(argv[1], "DisplFrame") == 0) {
         std::array<int, 2> nodes {iNode, jNode};
         theElement =
-            new DisplEulerFrame3d(eleTag, nodes, sections,
-                                 *beamIntegr, *theTransf3d, mass, cMass, use_mass);
+            new DisplEulerFrame3d(tag, nodes, sections,
+                                  *beamIntegr, *theTransf3d, 
+                                  mass, cMass, use_mass);
 
       }
 
       else if (strcmp(argv[1], "elasticForceBeamColumn") == 0)
-        theElement = new ElasticForceBeamColumn3d(eleTag, iNode, jNode, nIP, secptrs, 
+        theElement = new ElasticForceBeamColumn3d(tag, iNode, jNode, nIP, secptrs, 
                                                   *beamIntegr, *theTransf3d, mass);
 
       else if (strcmp(argv[1], "dispBeamColumn") == 0)
-        theElement = new DispBeamColumn3d(eleTag, iNode, jNode, nIP, secptrs,
+        theElement = new DispBeamColumn3d(tag, iNode, jNode, nIP, secptrs,
                                           *beamIntegr, *theTransf3d, mass, cMass);
 
       else if (strcmp(argv[1], "dispBeamColumnWithSensitivity") == 0)
         theElement = new DispBeamColumn3dWithSensitivity(
-            eleTag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf3d, mass);
+            tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf3d, mass);
 
       else if (strcmp(argv[1], "dispBeamColumnThermal") == 0)
         theElement = new DispBeamColumn3dThermal(
-            eleTag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf3d, mass);
+            tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf3d, mass);
 
+      else if (strcmp(argv[1], "forceBeamColumnCBDI") == 0)
+        theElement = new ForceBeamColumnCBDI3d(tag, iNode, jNode, nIP, secptrs,
+                                               *beamIntegr, *theTransf3d, 
+                                               mass, false, max_iter, tol);
       else
-        theElement = new ForceBeamColumn3d(eleTag, iNode, jNode, nIP, secptrs,
-                                           *beamIntegr, *theTransf3d, mass, numIter, tol);
+        theElement = new ForceBeamColumn3d(tag, iNode, jNode, nIP, secptrs,
+                                           *beamIntegr, *theTransf3d, mass, max_iter, tol);
     }
 
 
@@ -723,7 +798,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
     }
 
     double massDens = 0.0;
-    int numIters = 10;
+    int max_iters = 10;
     double tol = 1.0e-10;
     int tag, ndI, ndJ, secTagI, secTagJ, transfTag;
     double lenI, lenJ, E, A, I;
@@ -806,7 +881,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
         }
 
         if (strcmp(argv[i], "-iter") == 0 && i + 2 < argc) {
-          if (Tcl_GetInt(interp, argv[++i], &numIters) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[++i], &max_iters) != TCL_OK) {
             opserr << "WARNING invalid maxIters\n";
             opserr << "BeamWithHinges: " << tag << "\n";
             return TCL_ERROR;
@@ -901,7 +976,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
     theElement = new ForceBeamColumn2d(tag, ndI, ndJ, numSections, 
                                        sections,
                                        *theBeamIntegr, *theTransf, massDens,
-                                       numIters, tol);
+                                       max_iters, tol);
 
     delete theBeamIntegr;
 
@@ -925,7 +1000,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
     int tag, ndI, ndJ, secTagI, secTagJ, transfTag;
     double lenI, lenJ, E, A, Iz, Iy, G, J;
     double massDens = 0.0;
-    int numIters = 10;
+    int max_iters = 10;
     double tol = 1.0e-10;
     double shearLength = 1.0;
 
@@ -1018,7 +1093,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
         }
 
         if (strcmp(argv[i], "-iter") == 0 && i + 2 < argc) {
-          if (Tcl_GetInt(interp, argv[++i], &numIters) != TCL_OK) {
+          if (Tcl_GetInt(interp, argv[++i], &max_iters) != TCL_OK) {
             opserr << "WARNING invalid maxIters\n";
             return TCL_ERROR;
           }
@@ -1117,7 +1192,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
 
     theElement = new ForceBeamColumn3d(tag, ndI, ndJ, numSections, sections,
                                        *theBeamIntegr, *theTransf, massDens,
-                                       numIters, tol);
+                                       max_iters, tol);
 
     delete theBeamIntegr;
 

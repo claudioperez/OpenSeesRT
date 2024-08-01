@@ -16,8 +16,7 @@
 //      Date:   12/24/2020
 //      By:     Pearl Ranchal (ranchal@berkeley.edu)
 //      Notes:  In setUp(), get element length from theCoordTransf instead of computing from nodal coordinates.
-// 
-
+//
 #include <PrismShearFrame2d.h>
 
 #include <Domain.h>
