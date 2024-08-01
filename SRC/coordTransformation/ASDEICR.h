@@ -52,10 +52,7 @@
 namespace EICR
 {
 
-// public:
-
     typedef std::size_t size_t;
-
 
     typedef std::vector<Vector3D> NodeContainerType;
 
@@ -66,8 +63,6 @@ namespace EICR
     using OpenSees::Matrix3D;
 
     typedef ASDQuaternion<double> QuaternionType;
-
-// public:
 
 
     /**
