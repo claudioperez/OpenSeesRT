@@ -17,22 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2008-04-14 21:22:20 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/dispBeamColumnInt/LinearCrdTransf2dInt.h,v $
-                                                                        
-// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
-// Created: 04/2000
-// Revision: A
 //
 // Description: This file contains the class definition for
 // LinearCrdTransf2d.h. LinearCrdTransf2d provides the
 // abstraction of a linear transformation for a spatial frame
 // between the global and basic coordinate systems
-
-// What: "@(#) LinearCrdTransf2d.h, revA"
-
+//
+// Written: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
+// Created: 04/2000
+// Revision: A
+//
 #ifndef LinearCrdTransf2dInt_h
 #define LinearCrdTransf2dInt_h
 
