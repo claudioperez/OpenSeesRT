@@ -55,7 +55,28 @@ public:
     return getCopy();
   }
 
-  virtual VectorND<12>    pushVariable(VectorND<12>&pl) {
+
+  /*
+  virtual VectorND<ndf>  pullNodeUnknowns(int tag, int rate);
+  virtual VectorND<ndm>  pullNodePosition(int tag, State state);
+  virtual Rotation       pullNodeRotation(int tag, State state);
+  virtual VectorND<ndm>  pullNodeVelocity(int tag);
+  virtual VectorND<ndm>  pullNodeLocation(int tag, State state);
+  */
+
+//template <int n>
+//VectorND<n> pushResponse(const VectorND<n>& response) {
+//  VectorND<n> pushed;
+//  const Vector wrap(response);
+//  pushResponse(Vector(pushed), response);
+//  return pushed;
+//}
+
+  //
+  //
+  //
+
+  virtual VectorND<12>    pushResponse(VectorND<12>&pl) {
     static VectorND<12> empty{};
     return empty;
   }
@@ -65,7 +86,7 @@ public:
 //  throw std::runtime_error("");
     return empty;
   }
-  virtual MatrixND<12,12> pushVariable(MatrixND<12,12>& kl, const VectorND<12>& pl) {
+  virtual MatrixND<12,12> pushResponse(MatrixND<12,12>& kl, const VectorND<12>& pl) {
     static MatrixND<12,12> empty{};
     return empty;
   }
@@ -181,6 +202,5 @@ protected:
   }
 
 };
-
 
 #endif

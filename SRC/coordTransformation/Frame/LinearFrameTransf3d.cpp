@@ -558,13 +558,13 @@ LinearFrameTransf3d::getBasicTrialAccel()
 }
 
 VectorND<12>
-LinearFrameTransf3d::pushVariable(VectorND<12>&pl)
+LinearFrameTransf3d::pushResponse(VectorND<12>&pl)
 {
   return pushConstant(pl);
 }
 
 MatrixND<12,12>
-LinearFrameTransf3d::pushVariable(MatrixND<12,12>&kl, const VectorND<12>& pl)
+LinearFrameTransf3d::pushResponse(MatrixND<12,12>&kl, const VectorND<12>& pl)
 {
   return pushConstant(kl);
 }
@@ -754,7 +754,7 @@ LinearFrameTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
   static VectorND<12> pg;
   static Vector wrapper(pg);
 
-  pg  = pushVariable(pl);
+  pg  = pushResponse(pl);
 
   return wrapper;
 }

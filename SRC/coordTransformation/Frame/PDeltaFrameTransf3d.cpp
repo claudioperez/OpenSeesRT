@@ -760,7 +760,7 @@ PDeltaFrameTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
   pl[11] = q2;
 
   static VectorND<12> pg;
-  pg  = pushVariable(pl);
+  pg  = pushResponse(pl);
 
   pl.zero();
   pl[0] = p0[0]; // N
@@ -777,7 +777,7 @@ PDeltaFrameTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 }
 
 VectorND<12>
-PDeltaFrameTransf3d::pushVariable(VectorND<12>&pl)
+PDeltaFrameTransf3d::pushResponse(VectorND<12>&pl)
 {
   //
   //
@@ -884,21 +884,21 @@ PDeltaFrameTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
 
   // Create a vector that looks like the full 12-element
   // local force vector; we can do this because we know
-  // that pushVariable only uses pl[6].
+  // that pushResponse only uses pl[6].
   const VectorND<12> pl {
   // 0  1  2  3  4  5   6   , ...
      0, 0, 0, 0, 0, 0, pb[0], 0
   };
 
   static MatrixND<12,12> Kg;
-  Kg = pushVariable(kl, pl);
+  Kg = pushResponse(kl, pl);
 
   static Matrix Wrapper(Kg);
   return Wrapper;
 }
 
 MatrixND<12,12>
-PDeltaFrameTransf3d::pushVariable(MatrixND<12,12>& kl, const VectorND<12> &pl)
+PDeltaFrameTransf3d::pushResponse(MatrixND<12,12>& kl, const VectorND<12> &pl)
 {
   // Include geometric stiffness effects in local system;
   //
@@ -1294,7 +1294,6 @@ PDeltaFrameTransf3d::getPointGlobalCoordFromLocal(const Vector &xl)
   }
 
   // xg = xg + Rlj'*xl
-  //xg.addMatrixTransposeVector(1.0, Rlj, xl, 1.0);
   xg(0) += R[0][0] * xl(0) + R[1][0] * xl(1) + R[2][0] * xl(2);
   xg(1) += R[0][1] * xl(0) + R[1][1] * xl(1) + R[2][1] * xl(2);
   xg(2) += R[0][2] * xl(0) + R[1][2] * xl(1) + R[2][2] * xl(2);

@@ -51,10 +51,10 @@ public:
     virtual const Vector &getBasicTrialVel();
     virtual const Vector &getBasicTrialAccel();
 
-    virtual VectorND<12>    pushVariable(VectorND<12>&pl) override final;
+    virtual VectorND<12>    pushResponse(VectorND<12>&pl) override final;
     virtual VectorND<12>    pushConstant(const VectorND<12>&pl) const override final;
 
-    virtual MatrixND<12,12> pushVariable(MatrixND<12,12>& kl, const VectorND<12>& pl) override final;
+    virtual MatrixND<12,12> pushResponse(MatrixND<12,12>& kl, const VectorND<12>& pl) override final;
     virtual MatrixND<12,12> pushConstant(const MatrixND<12,12>& kl) override final;
 
     virtual const Vector &getGlobalResistingForce(const Vector &basicForce, const Vector &p0);

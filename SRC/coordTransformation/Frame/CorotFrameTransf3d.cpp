@@ -1002,7 +1002,7 @@ CorotFrameTransf3d::getBasicTrialAccel()
 
 
 inline VectorND<12>
-CorotFrameTransf3d::pushVariable(VectorND<12>&pl)
+CorotFrameTransf3d::pushResponse(VectorND<12>&pl)
 {
   // return ag'*pl
   return ag^pl;
@@ -1199,7 +1199,7 @@ CorotFrameTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
     pl[10] =  q4;
     pl[11] =  q2;
 
-    pg = pushVariable(pl);
+    pg = pushResponse(pl);
 #endif
 
     // if there are no element loads present, just return
@@ -1286,7 +1286,7 @@ CorotFrameTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
 // do 
 //    K = ag'*k*ag + kg
 MatrixND<12,12>
-CorotFrameTransf3d::pushVariable(MatrixND<12,12>& kl, const VectorND<12>& pl)
+CorotFrameTransf3d::pushResponse(MatrixND<12,12>& kl, const VectorND<12>& pl)
 {
     
     MatrixND<12,12> K;

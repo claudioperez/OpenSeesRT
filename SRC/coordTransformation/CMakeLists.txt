@@ -36,9 +36,9 @@ target_sources(OPS_Transform
 #   LinearCrdTransf3d02.h
 
     ASDEICR.h
-    ASDShellQ4CorotationalTransformation.h
-    ASDShellQ4LocalCoordinateSystem.h
-    ASDShellQ4Transformation.h
+    Shell/ASDShellQ4CorotationalTransformation.h
+    Shell/ASDShellQ4LocalCoordinateSystem.h
+    Shell/ASDShellQ4Transformation.h
 )
 
 target_include_directories(OPS_Transform 
