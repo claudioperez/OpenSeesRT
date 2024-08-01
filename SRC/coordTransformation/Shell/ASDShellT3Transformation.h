@@ -17,15 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2024/03
-
+//
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // Implementation of a linear coordinate transformation 3-node shells
 //
-
 #ifndef ASDShellT3Transformation_h
 #define ASDShellT3Transformation_h
 
