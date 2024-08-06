@@ -17,16 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.19 $
-// $Date: 2009-08-25 22:32:08 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/Element.h,v $
-
+//
 // Written: jaabell
 // Created: 06/2017
 // Revision: A
 //
 // What: "@(#) Element.h, revA"
+//
 /*
 
 Element is based on the following references by Carlos Felippa
@@ -210,10 +207,11 @@ int ShellANDeS::getNumDOF() { return 18; }
 
 void ShellANDeS::setDomain(Domain *theDomain)
 {
-  if (theDomain == 0) {
-    theNodes[0] = 0;
-    theNodes[1] = 0;
-    theNodes[2] = 0;
+  if (theDomain == nullptr) {
+    theNodes[0] = nullptr;
+    theNodes[1] = nullptr;
+    theNodes[2] = nullptr;
+
   } else {
     int Nd1 = connectedExternalNodes(0);
     int Nd2 = connectedExternalNodes(1);
