@@ -37,152 +37,8 @@
 #include <SP_Constraint.h>
 #include <elementAPI.h>
 
-void* OPS_ADD_RUNTIME_VPV(OPS_TimeSeriesIntegrator);
+// void* OPS_ADD_RUNTIME_VPV(OPS_TimeSeriesIntegrator);
 
-#if 0
-void *
-OPS_ADD_RUNTIME_VPV(OPS_UniformExcitationPattern)
-{
-    if (OPS_GetNumRemainingInputArgs() < 2) {
-	opserr << "WARNING insufficient args : pattern UniformExcitation tag dir\n";
-	return 0;
-    }
-    
-    int patternID;
-    int numdata = 1;
-    if (OPS_GetIntInput(&numdata, &patternID) < 0) {
-	opserr << "WARNING invalid patternID\n";
-	return 0;
-    }
-    
-    int dir;
-    if (OPS_GetIntInput(&numdata, &dir) < 0) {
-	opserr << "WARNING invalid dir \n";
-	return 0;
-    }
-    
-    dir--; // subtract 1 for c indexing
-    
-    TimeSeries *accelSeries = 0;
-    TimeSeries *velSeries = 0;
-    TimeSeries *dispSeries = 0;
-    TimeSeriesIntegrator *seriesIntegrator = 0;
-    double vel0 = 0.0;
-    double fact = 1.0;
-    
-    bool doneSeries = false;
-    while (OPS_GetNumRemainingInputArgs()>1 && doneSeries == false) {
-
-	const char* flag = OPS_GetString();
-      
-	if ((strcmp(flag,"-vel0") == 0) || (strcmp(flag,"-initialVel") == 0)) {
-	
-	    if (OPS_GetDoubleInput(&numdata, &vel0) < 0) {
-		opserr << "WARNING invalid vel0: pattern type UniformExcitation\n";
-		return 0;
-	    }
-	}
-      
-	else if ((strcmp(flag,"-fact") == 0) || (strcmp(flag,"-factor") == 0)) {
-	
-	    if (OPS_GetDoubleInput(&numdata, &fact) < 0) {
-		opserr << "WARNING invalid fact: pattern type UniformExcitation\n";
-		return 0;
-	    }
-	}
-      
-      
-	else if ((strcmp(flag,"-accel") == 0) || (strcmp(flag,"-acceleration") == 0)) {
-
-	    int tsTag;
-	    if (OPS_GetIntInput(&numdata, &tsTag) < 0) {
-		opserr << "WARNING invalid accel series tag\n";
-		return 0;
-	    }
-	
-	    accelSeries = OPS_getTimeSeries(tsTag);
-	
-	    if (accelSeries == 0) {
-		opserr << "WARNING invalid accel series: " << tsTag;
-		opserr << " pattern UniformExcitation -accel {series}\n";
-		return 0;
-	    }
-	    
-	} else if ((strcmp(flag,"-vel") == 0) || (strcmp(flag,"-velocity") == 0)) {
-
-	    int tsTag;
-	    if (OPS_GetIntInput(&numdata, &tsTag) < 0) {
-		opserr << "WARNING invalid vel series tag\n";
-		return 0;
-	    }
-	    velSeries = OPS_getTimeSeries(tsTag);
-	
-	    if (velSeries == 0) {
-		opserr << "WARNING invalid vel series: " << tsTag;
-		opserr << " pattern UniformExcitation -vel {series}\n";
-		return 0;
-	    }
-	
-	} else if ((strcmp(flag,"-disp") == 0) || (strcmp(flag,"-displacement") == 0)) {
-
-	    int tsTag;
-	    if (OPS_GetIntInput(&numdata, &tsTag) < 0) {
-		opserr << "WARNING invalid disp series tag\n";
-		return 0;
-	    }
-	
-	    dispSeries = OPS_getTimeSeries(tsTag);
-	
-	    if (dispSeries == 0) {
-		opserr << "WARNING invalid disp series: " << tsTag;
-		opserr << " pattern UniformExcitation -disp {series}\n";
-		return 0;
-	    }
-	
-	} else if ((strcmp(flag,"-int") == 0) || (strcmp(flag,"-integrator") == 0)) {
-
-	    seriesIntegrator = (TimeSeriesIntegrator*) OPS_CALL_RUNTIME_VPV(OPS_TimeSeriesIntegrator);
-	    if (seriesIntegrator == 0) return 0;
-	}
-    
-	else 
-	    doneSeries = true;
-    }
-    
-    if (dispSeries == 0 && velSeries == 0 && accelSeries == 0) {
-	opserr << "WARNING invalid series, want - pattern UniformExcitation";
-	opserr << "-disp {dispSeries} -vel {velSeries} -accel {accelSeries} ";
-	opserr << "-int {Series Integrator}\n";
-	return 0;
-    }
-    
-    GroundMotion *theMotion = new GroundMotion(dispSeries, velSeries,
-					       accelSeries, seriesIntegrator);
-    
-    if (theMotion == 0) {
-	opserr << "WARNING ran out of memory creating ground motion - pattern UniformExcitation ";
-	opserr << patternID << endln;
-      
-	return 0;
-    }
-    
-    // create the UniformExcitation Pattern
-    UniformExcitation* thePattern = new UniformExcitation(*theMotion, dir, patternID, vel0, fact);
-    
-    if (thePattern == 0) {
-	opserr << "WARNING ran out of memory creating load pattern - pattern UniformExcitation ";
-	opserr << patternID << endln;
-      
-	// clean up memory allocated up to this point and return an error
-	if (theMotion != 0)
-	    delete theMotion;
-      
-	return 0;
-    }
-
-    return thePattern;
-}
-#endif
 
 UniformExcitation::UniformExcitation()
 :EarthquakePattern(0, PATTERN_TAG_UniformExcitation), 
@@ -286,6 +142,7 @@ UniformExcitation::applyLoad(double time)
     Node *theNode;
     while ((theNode = theNodes()) != nullptr) {
         theNode->setNumColR(1);
+
         const Vector &crds=theNode->getCrds();
         int ndm = crds.Size();
         
@@ -302,34 +159,37 @@ UniformExcitation::applyLoad(double time)
                 double xCrd = crds(0);
                 double yCrd = crds(1);
                 theNode->setR(0, 0, -fact*yCrd);
-                theNode->setR(1, 0, fact*xCrd);
-                theNode->setR(2, 0, fact);
+                theNode->setR(1, 0,  fact*xCrd);
+                theNode->setR(2, 0,  fact);
             }
         }
         else if (ndm == 3) {
+            // Translational DOF
             if (theDof < 3) {
                 theNode->setR(theDof, 0, fact);
             }
+
+            // Rotational DOFs
             else if (theDof == 3) {
                 double yCrd = crds(1);
                 double zCrd = crds(2);
                 theNode->setR(1, 0, -fact*zCrd);
-                theNode->setR(2, 0, fact*yCrd);
-                theNode->setR(3, 0, fact);
+                theNode->setR(2, 0,  fact*yCrd);
+                theNode->setR(3, 0,  fact);
             }
             else if (theDof == 4) {
                 double xCrd = crds(0);
                 double zCrd = crds(2);
-                theNode->setR(0, 0, fact*zCrd);
+                theNode->setR(0, 0,  fact*zCrd);
                 theNode->setR(2, 0, -fact*xCrd);
-                theNode->setR(4, 0, fact);
+                theNode->setR(4, 0,  fact);
             }
             else if (theDof == 5) {
                 double xCrd = crds(0);
                 double yCrd = crds(1);
                 theNode->setR(0, 0, -fact*yCrd);
-                theNode->setR(1, 0, fact*xCrd);
-                theNode->setR(5, 0, fact);
+                theNode->setR(1, 0,  fact*xCrd);
+                theNode->setR(5, 0,  fact);
             }
         }
     }
