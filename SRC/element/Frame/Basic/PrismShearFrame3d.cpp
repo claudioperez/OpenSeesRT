@@ -308,50 +308,52 @@ int ElasticTimoshenkoBeam3d::revertToStart()
 }
 
 
-int ElasticTimoshenkoBeam3d::update()
+int
+ElasticTimoshenkoBeam3d::update()
 {
     return 0;
 }
 
 
-const Matrix& ElasticTimoshenkoBeam3d::getTangentStiff()
+const Matrix&
+ElasticTimoshenkoBeam3d::getTangentStiff()
 {
-    // zero the matrix
-    theMatrix.Zero();
-    
-    if (nlGeo == 0)  {
-        // transform from local to global system
-        theMatrix.addMatrixTripleProduct(0.0, Tgl, kl, 1.0);
-        return theMatrix;        
-    }
-
-    // initialize local stiffness matrix
-    static Matrix klTot(12,12);
-    klTot.addMatrix(0.0, kl, 1.0);
-
-    // get global trial displacements
-    const Vector &dsp1 = theNodes[0]->getTrialDisp();
-    const Vector &dsp2 = theNodes[1]->getTrialDisp();
-    static Vector ug(12);
-    for (int i=0; i<6; i++)  {
-        ug(i)   = dsp1(i);
-        ug(i+6) = dsp2(i);
-    }
-    
-    // transform response from the global to the local system
-    ul.addMatrixVector(0.0, Tgl, ug, 1.0);
-    
-    // get the resisting forces in local system
-    ql.addMatrixVector(0.0, kl, ul, 1.0);
-    
-    // add geometric stiffness to local stiffness
-    if (ql(6) != 0.0)
-        klTot.addMatrix(1.0, klgeo, ql(6));
-    
-    // transform from local to global system
-    theMatrix.addMatrixTripleProduct(0.0, Tgl, klTot, 1.0);
-    return theMatrix;
+  // Zero the matrix
+  theMatrix.Zero();
   
+  if (nlGeo == 0)  {
+      // transform from local to global system
+      theMatrix.addMatrixTripleProduct(0.0, Tgl, kl, 1.0);
+      return theMatrix;        
+  }
+
+  // initialize local stiffness matrix
+  static Matrix klTot(12,12);
+  klTot.addMatrix(0.0, kl, 1.0);
+
+  // get global trial displacements
+  const Vector &dsp1 = theNodes[0]->getTrialDisp();
+  const Vector &dsp2 = theNodes[1]->getTrialDisp();
+  static Vector ug(12);
+  for (int i=0; i<6; i++)  {
+      ug(i)   = dsp1(i);
+      ug(i+6) = dsp2(i);
+  }
+  
+  // transform response from the global to the local system
+  ul.addMatrixVector(0.0, Tgl, ug, 1.0);
+  
+  // get the resisting forces in local system
+  ql.addMatrixVector(0.0, kl, ul, 1.0);
+  
+  // add geometric stiffness to local stiffness
+  if (ql(6) != 0.0)
+      klTot.addMatrix(1.0, klgeo, ql(6));
+  
+  // transform from local to global system
+  theMatrix.addMatrixTripleProduct(0.0, Tgl, klTot, 1.0);
+  return theMatrix;
+
 }
 
 
