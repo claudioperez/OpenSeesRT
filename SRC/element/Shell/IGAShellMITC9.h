@@ -7,18 +7,13 @@
 // Written: Leopoldo Tesser, Diego Talledo
 // 9-node lagrandian shell element with membrane and drill
 //
-
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <math.h> 
-
 #include <ID.h> 
 #include <Vector.h>
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
-#include <R3vectors.h>
+
 
 class IGAShellMITC9 : public Element
 {

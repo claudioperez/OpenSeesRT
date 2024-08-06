@@ -43,15 +43,16 @@
 #include <Domain.h>
 #include <ErrorHandler.h>
 #include <IGAKLShell_BendingStrip.h>
-#include <R3vectors.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <elementAPI.h>
+
+#include <quadrature/GaussNURBS.h>
 #include <map>
+#include <set>
 
 #define min(a,b) ( (a)<(b) ? (a):(b) )
 #define max(a,b) ( (a)>(b) ? (a):(b) )
@@ -60,10 +61,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#include <quadrature/GaussNURBS.h>
-#include "R3vectors.h"
-
-#include <set>
 
 template<typename T>
 std::vector<T> arange(T start, T stop, T step = 1) {
@@ -2937,21 +2934,9 @@ int  IGAKLShell_BendingStrip::recvSelf (int commitTag,
                            FEM_ObjectBroker &theBroker)
 {
   int res = 0;
-
-
-
   return res;
 }
 //**************************************************************************
-
-int
-IGAKLShell_BendingStrip::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-
-  int error = 0;
-
-  return error;
-}
 
 
 bool IGAKLShell_BendingStrip::pointInElement(double xi, double eta) const

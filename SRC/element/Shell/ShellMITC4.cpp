@@ -29,8 +29,6 @@
 // $Date: 2011/03/10 22:51:21 $
 //
 #include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 
 #include <ID.h>

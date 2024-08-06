@@ -25,11 +25,9 @@
 // Ref: Dvorkin,Bathe, A continuum mechanics based four node shell
 //      element for general nonlinear analysis,
 //      Eng.Comput.,1,77-88,1984
-
+//
 #ifndef ShellMITC4_h
 #define ShellMITC4_h
-
-#include <math.h> 
 
 #include <ID.h> 
 #include <Vector.h>

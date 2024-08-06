@@ -25,17 +25,12 @@
 //
 // Written: Leopoldo Tesser, Diego A. Talledo, Véronique Le Corvec
 //
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <math.h> 
-
 #include <ID.h> 
 #include <Vector.h>
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
-#include <R3vectors.h>
 #include <ElementalLoad.h>//J.Jiang
 
 class ShellMITC4Thermal : public Element {

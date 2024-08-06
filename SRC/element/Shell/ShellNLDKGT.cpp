@@ -36,6 +36,7 @@
 #include <Domain.h>
 #include <ErrorHandler.h>
 #include <ShellNLDKGT.h>
+#include <R3vectors.h>
 #include <ElementResponse.h>
 
 #include <Channel.h>
