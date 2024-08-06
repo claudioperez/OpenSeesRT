@@ -807,9 +807,9 @@ LinearFrameTransf3d::getGlobalStiffMatrix(const Matrix &KB, const Vector &pb)
 
 
   static MatrixND<12,12> Kg;
-  static Matrix M(Kg);
+  static Matrix wrapper(Kg);
   Kg = pushConstant(kl);
-  return M;
+  return wrapper;
 
 }
 
