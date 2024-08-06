@@ -77,9 +77,9 @@ IncrementalIntegrator::formTangent(int statFlag)
     statusFlag = statFlag;
 
     if (theAnalysisModel == nullptr || theSOE == nullptr) {
-	opserr << "WARNING IncrementalIntegrator::formTangent() -";
-	opserr << " no AnalysisModel or LinearSOE have been set\n";
-	return -1;
+        opserr << "WARNING IncrementalIntegrator::formTangent() -";
+        opserr << " no AnalysisModel or LinearSOE have been set\n";
+        return -1;
     }
 
     // zero the A matrix of the linearSOE
@@ -92,11 +92,11 @@ IncrementalIntegrator::formTangent(int statFlag)
     FE_Element *elePtr;
     FE_EleIter &theEles2 = theAnalysisModel->getFEs();    
     while((elePtr = theEles2()) != nullptr)
-	if (theSOE->addA(elePtr->getTangent(this), elePtr->getID()) < 0) {
-	    opserr << "WARNING IncrementalIntegrator::formTangent -";
-	    opserr << " failed in addA for ID " << elePtr->getID();	    
-	    result = -3;
-	}
+        if (theSOE->addA(elePtr->getTangent(this), elePtr->getID()) < 0) {
+            opserr << "WARNING IncrementalIntegrator::formTangent -";
+            opserr << " failed in addA for ID " << elePtr->getID();            
+            result = -3;
+        }
 
     return result;
 }
@@ -120,28 +120,28 @@ int
 IncrementalIntegrator::getLastResponse(Vector &result, const ID &id)
 {  
     if (theSOE == 0) {
-	opserr << "WARNING IncrementalIntegrator::getLastResponse() -";
-	opserr << "no LineaerSOE object associated with this object\n";	
-	return -1;
+        opserr << "WARNING IncrementalIntegrator::getLastResponse() -";
+        opserr << "no LineaerSOE object associated with this object\n";        
+        return -1;
     }
 
     int res = 0; 
     int size = theSOE->getNumEqn() -1;
     const Vector &X = theSOE->getX();
     for (int i=0; i<id.Size(); i++) {
-	int loc = id(i);
-	if (loc < 0 )
-	  result(i) = 0.0;
-	else if (loc <= size) {
-	  result(i) = X(loc);	
-	}
-	else {
-	    opserr << "WARNING IncrementalIntegrator::getLastResponse() -";
-	    opserr << "location " << loc << "in ID outside bounds ";
-	    opserr << size << "\n";	
-	    res = -2;
-	}
-    }	    
+        int loc = id(i);
+        if (loc < 0)
+          result(i) = 0.0;
+        else if (loc <= size) {
+          result(i) = X(loc);        
+        }
+        else {
+            opserr << "WARNING IncrementalIntegrator::getLastResponse() -";
+            opserr << "location " << loc << "in ID outside bounds ";
+            opserr << size << "\n";        
+            res = -2;
+        }
+    }            
     return res;
 }
 
@@ -156,9 +156,9 @@ int
 IncrementalIntegrator::commit(void) 
 {
     if (theAnalysisModel == 0) {
-	opserr << "WARNING IncrementalIntegrator::commit() -";
-	opserr << "no AnalysisModel object associated with this object\n";	
-	return -1;
+        opserr << "WARNING IncrementalIntegrator::commit() -";
+        opserr << "no AnalysisModel object associated with this object\n";        
+        return -1;
     }    
 
     return theAnalysisModel->commitDomain();
@@ -175,7 +175,7 @@ int
 IncrementalIntegrator::revertToStart()
 {
   opserr << "ERROR: revertToStart() method not yet implemented " << endln
-	 << " for the chosen type of integrator. " << endln;
+         << " for the chosen type of integrator. " << endln;
   
   return 0;
 }    
@@ -213,7 +213,7 @@ IncrementalIntegrator::formNodalUnbalance(void)
           res = -2;
       }
     }
-	
+        
     return res;
 }
 
@@ -227,14 +227,14 @@ IncrementalIntegrator::formElementResidual(void)
 
     FE_EleIter &theEles2 = theAnalysisModel->getFEs();    
     while((elePtr = theEles2()) != nullptr) {
-	if (theSOE->addB(elePtr->getResidual(this),elePtr->getID()) < 0) {
-	    opserr << "WARNING IncrementalIntegrator::formElementResidual -";
-	    opserr << " failed in addB for ID " << elePtr->getID();
-	    res = -2;
-	}
+        if (theSOE->addB(elePtr->getResidual(this),elePtr->getID()) < 0) {
+            opserr << "WARNING IncrementalIntegrator::formElementResidual -";
+            opserr << " failed in addB for ID " << elePtr->getID();
+            res = -2;
+        }
     }
 
-    return res;	    
+    return res;            
 }
 
 /*
@@ -289,8 +289,8 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
     DOF_GrpIter &theDOFs2 = theAnalysisModel->getDOFs();
     while ((dofPtr = theDOFs2()) != 0) { 
       if (theSOE->addB(dofPtr->getDampingBetaForce(i, beta),dofPtr->getID()) <0) {
-	opserr << "WARNING IncrementalIntegrator::failed in dofPtr";
-	res = -1;
+        opserr << "WARNING IncrementalIntegrator::failed in dofPtr";
+        res = -1;
       }    
     }
   }
@@ -340,11 +340,11 @@ IncrementalIntegrator::setupModal(const Vector *modalDampingValues)
       const Matrix &dofEigenvectors =dofPtr->getEigenvectors();
       const ID &dofID = dofPtr->getID();
       for (int j=0; j<numModes; j++) {
-	for (int i=0; i<dofID.Size(); i++) {
-	  int id = dofID(i);
-	  if (id >= 0) 
-	    eigenVectors[j*numDOF + id] = dofEigenvectors(i,j);
-	}
+        for (int i=0; i<dofID.Size(); i++) {
+          int id = dofID(i);
+          if (id >= 0) 
+            eigenVectors[j*numDOF + id] = dofEigenvectors(i,j);
+        }
       }
     }
 
@@ -383,7 +383,8 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
 
   if (numEigen < numModes) {
     numModes = numEigen;
-    opserr << "WARNING: HAving to reset numModes to : " << numModes << "as not enough eigenvalues. NOTE if 0 you have done something to require new analysis or have not issued eigen command\n";
+    opserr << "WARNING: Having to reset numModes to : " << numModes 
+           << "as not enough eigenvalues. NOTE if you have done something to require new analysis or have not issued eigen command\n";
   }
 
   int numDOF = theSOE->getNumEqn();
@@ -407,22 +408,24 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
       double beta = 0.0;
       
       for (int j=0; j<numDOF; j++) {
-	double eij = eigenVectorI[j];
-	if (eij != 0) {
-	  beta += eij * vel(j);
-	}
+        double eij = eigenVectorI[j];
+        if (eij != 0) {
+          beta += eij * vel(j);
+        }
       }
 
       beta = -2.0 * modalDampingValue * wn * beta;
 
+      // Fdamp[j] = e[i][j] 
       for (int j=0; j<numDOF; j++) {
-	double eij = eigenVectorI[j];
-	if (eij != 0)
-	  (*dampingForces)(j) += beta * eij;
+        double eij = eigenVectorI[j];
+        if (eij != 0)
+          (*dampingForces)(j) += beta * eij;
       }
     }
   }
 
+  // why setB, not addB?
   theSOE->setB(*dampingForces);
   
   return res;
@@ -432,12 +435,11 @@ IncrementalIntegrator::addModalDampingForce(const Vector *modalDampingValues)
 int
 IncrementalIntegrator::addModalDampingMatrix(const Vector *modalDampingValues) {
   int res = 0;
-  //    return 0;
 
   if (modalDampingValues == 0)
     return 0;
 
-  double cFactor=this->getCFactor();
+  double cFactor = this->getCFactor();
   if (cFactor == 0)
     return 0;
 
@@ -464,21 +466,21 @@ IncrementalIntegrator::addModalDampingMatrix(const Vector *modalDampingValues) {
       double eigenvalue = (*eigenValues)(i);
       double modalDampingValue = (*modalDampingValues)(i);      
       if (eigenvalue > 0 && modalDampingValue != 0.0) {
-	double wn = sqrt(eigenvalue);
-	double *eigenVectorI = &eigenVectors[numDOF*i];
-	double ei_dof = eigenVectors[numDOF*i+dof];
-	
-	if (ei_dof != 0.0) {
-	  zeroCol = false;
-	
-	  double beta = 2.0 * modalDampingValue * wn * ei_dof * cFactor;
-	  
-	  for (int j=0; j<numDOF; j++) {
-	    double eij = eigenVectorI[j];
-	    if (eij != 0)
-	      (*dampingForces)(j) += beta * eij;
-	  }
-	}
+        double wn = sqrt(eigenvalue);
+        double *eigenVectorI = &eigenVectors[numDOF*i];
+        double ei_dof = eigenVectors[numDOF*i+dof];
+        
+        if (ei_dof != 0.0) {
+          zeroCol = false;
+        
+          double beta = 2.0 * modalDampingValue * wn * ei_dof * cFactor;
+          
+          for (int j=0; j<numDOF; j++) {
+            double eij = eigenVectorI[j];
+            if (eij != 0)
+              (*dampingForces)(j) += beta * eij;
+          }
+        }
       }
     }
     
