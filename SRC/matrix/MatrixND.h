@@ -111,6 +111,9 @@ struct MatrixND {
                            const MatrixND<nk,nl> &B, 
                            const MatrixND<nl,NC> &C, double otherFact);
 
+  template <typename F> void map(F func) const;
+  template <typename F> void map(F func, MatrixND<NR,NC,T>& destination);
+
   int invert(MatrixND<NR, NC> &) const;
   int invert() {return Matrix(*this).Invert();};
 
@@ -250,7 +253,9 @@ struct MatrixND {
     return -abs(info);
   }
 
-  int solve(const Matrix &M, Matrix &res)
+//template <typename MatrixType> 
+  int
+  solve(const Matrix &M, Matrix &res)
   {
     MatrixND<NR,NC> work = *this;
     int pivot_ind[NR];
@@ -516,6 +521,25 @@ MatrixND<n,n>::invert(MatrixND<n,n>& M) const
   return A.Invert(B);
 }
 #endif
+
+template <index_t nr, index_t nc, typename T>
+template<typename F> inline void
+MatrixND<nr, nc, T>::map(F func) const
+{
+  for (int i=0; i<nr; i++)
+    for (int j = 0; j<nc; j++)
+      func((*this)(i,j));
+}
+
+
+template <index_t nr, index_t nc, typename T>
+template<typename F> inline void
+MatrixND<nr, nc, T>::map(F func, MatrixND<nr,nc,T>& destination)
+{
+  for (int i=0; i<nr; i++)
+    for (int j = 0; j<nc; j++)
+      destination(i,j) = func((*this)(i,j));
+}
 
 template<> inline int
 MatrixND<6,6>::invert(MatrixND<6,6> &M) const
