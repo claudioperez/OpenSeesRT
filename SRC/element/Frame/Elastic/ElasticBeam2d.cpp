@@ -314,9 +314,9 @@ int OPS_DECL_RUNTIME(OPS_ElasticBeam2d, Domain& theDomain, const ID& elenodes, I
 }
 
 ElasticBeam2d::ElasticBeam2d()
-  :Element(0,ELE_TAG_ElasticBeam2d), 
-   A(0.0), E(0.0), I(0.0), alpha(0.0), depth(0.0), rho(0.0), cMass(0), release(0),
-  Q(6), connectedExternalNodes(2), theCoordTransf(0)
+  : Element(0,ELE_TAG_ElasticBeam2d), 
+    A(0.0), E(0.0), I(0.0), alpha(0.0), depth(0.0), rho(0.0), cMass(0), release(0),
+    Q(6), connectedExternalNodes(2), theCoordTransf(0)
 {
   // does nothing
   q0[0] = 0.0;
