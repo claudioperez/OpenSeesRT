@@ -1,4 +1,3 @@
-// File: ~/system_of_eqn/pardiso/PARDISOLinSolver.h
 //
 // Written: M. Salehi opensees.net@gmail.com
 // website : http://opensees.net
@@ -10,9 +9,6 @@
 // some "C" functions. The solver used here is generalized sparse
 // solver. The user can choose three different ordering schema.
 //
-// What: "@(#) PARDISOLinSolver.h, revA"
-
-
 #ifndef PARDISOSymLinSolver_h
 #define PARDISOSymLinSolver_h
 
