@@ -10,24 +10,22 @@
 //              http://www.netlib.org/f2c/libf2c.zip
 
 #include <math.h>
-// #include "f2c.h"
+#define LINK_MAX 10
 
-// Subroutine
-int naccel_(int *n, int *itr, int *mvec, 
+
+int naccel_(int *n_, int *itr, int *mvec, 
         double *tol, double *u, double *f)
 {
     // System generated locals
-    int u_dim1, u_offset, i__1, i__2;
-    double d__1;
-
-    // Builtin functions
-    // double sqrt(double);
+    int u_offset;
 
     // Local variables
-    static double c__[10], h__[121];        // was [11][11]
-    static int i__, j, k;
+    static double c__[LINK_MAX],
+                  h__[(LINK_MAX+1)*(LINK_MAX+1)]; // was [11][11]
+    static int k;
     static double t;
-    static int tmp, head, nvec, link[11], last, next, jptr, kptr, km1ptr;
+    static int tmp, head, nvec, link[LINK_MAX+1], 
+               last, next, jptr, kptr, km1ptr;
 
 // ***********************************************************************
 
@@ -62,147 +60,139 @@ int naccel_(int *n, int *itr, int *mvec,
 //     ==================================================================
 //      First call: save f and the (unaccelerated) correction.
 //     ==================================================================
+    const int n = *n_;
     // Parameter adjustments
     --f;
-    u_dim1 = *n;
-    u_offset = 1 + u_dim1 * 3;
+    u_offset = 1 + n*3;
     u -= u_offset;
 
     // Function Body
     if (*itr == 1) {
         head = 1;
-        i__1 = *n;
-        for (j = 1; j <= i__1; ++j) {
-            u[j + ((head << 1) + 1) * u_dim1] = f[j];
-            u[j + ((head << 1) + 2) * u_dim1] = f[j];
-// L10:
+        for (int j = 1; j <= n; ++j) {
+            u[j + ((head << 1) + 1) * n] = f[j];
+            u[j + ((head << 1) + 2) * n] = f[j];
         }
         link[0] = 0;
         nvec = 1;
-//       Free storage linked list.
+//      Free storage linked list.
         next = 2;
-        for (k = 2; k <= 10; ++k) {
-// L20:
-            link[k - 1] = k + 1;
-        }
-        link[10] = 0;
+        for (k = 2; k <= LINK_MAX; ++k)
+          link[k - 1] = k + 1;
+
+        link[LINK_MAX] = 0;
         return 0;
     }
-//     ==================================================================
-//      Compute w_1.
-//     ==================================================================
-    i__1 = *n;
-    for (j = 1; j <= i__1; ++j) 
-        u[j + ((head << 1) + 2) * u_dim1] -= f[j];
+
+// ==================================================================
+//  Compute w_1.
+// ==================================================================
+
+    for (int j = 1; j <= n; ++j) 
+      u[j + ((head << 1) + 2) * n] -= f[j];
 
     t = 0.;
-    i__1 = *n;
-    for (j = 1; j <= i__1; ++j) {
-        // Computing 2nd power
-        d__1 = u[j + ((head << 1) + 2) * u_dim1];
+
+    for (int j = 1; j <= n; ++j) {
+        // Compute 2nd power
+        const double d__1 = u[j + ((head << 1) + 2) * n];
         t += d__1 * d__1;
     }
     t = 1. / sqrt(t);
-//  Normalize w_1 and apply same factor to z_1.
-    i__1 = *n;
-    for (j = 1; j <= i__1; ++j) {
-        u[j + ((head << 1) + 1) * u_dim1] = t * u[j + ((head << 1) + 1) * 
-                u_dim1];
-        u[j + ((head << 1) + 2) * u_dim1] = t * u[j + ((head << 1) + 2) * 
-                u_dim1];
-// L110:
-    }
-//     Update H.
-    kptr = link[head - 1];
-    i__1 = nvec;
-    for (k = 2; k <= i__1; ++k) {
-        h__[k * 11 - 11] = 0.;
-        i__2 = *n;
-        for (j = 1; j <= i__2; ++j) {
-            h__[k * 11 - 11] += u[j + ((head << 1) + 2) * u_dim1] * u[j + ((kptr << 1) + 2) * u_dim1];
-        }
-        kptr = link[kptr - 1];
 
+//  Normalize w_1 and apply same factor to z_1.
+    for (int j = 1; j <= n; ++j) {
+        u[j + ((head << 1) + 1) * n] = t * u[j + ((head << 1) + 1)*n];
+        u[j + ((head << 1) + 2) * n] = t * u[j + ((head << 1) + 2)*n];
     }
+
+//  Update H.
+    kptr = link[head - 1];
+    for (k = 2; k <= nvec; ++k) {
+        h__[k*11 - 11] = 0.;
+        for (int j = 1; j <= n; ++j)
+            h__[k * 11 - 11] += u[j + ((head << 1) + 2) * n] * u[j + ((kptr << 1) + 2) * n];
+
+        kptr = link[kptr - 1];
+    }
+
 //  ==================================================================
 //   Compute the Choleski factorization of H.
 //  ==================================================================
     k = 2;
-    h__[0] = 1.;
+    h__[0] = 1.0;
 L200:
-    if (k > fmin(nvec,*mvec)) {
+    if (k > fmin(nvec,*mvec))
         goto L250;
-    }
-    i__1 = k - 1;
-    for (j = 1; j <= i__1; ++j) {
-        h__[k + j * 11 - 12] = h__[j + k * 11 - 12];
-        i__2 = j - 1;
-        for (i__ = 1; i__ <= i__2; ++i__) {
-            h__[k + j * 11 - 12] -= h__[k + i__ * 11 - 12] * h__[j + i__ * 11 - 12];
-        }
-        h__[k + j * 11 - 12] /= h__[j + j * 11 - 12];
-// L210:
-    }
-    h__[k + k * 11 - 12] = 1.;
-    i__1 = k - 1;
-    for (j = 1; j <= i__1; ++j) {
-        // Computing 2nd power
-        d__1 = h__[k + j * 11 - 12];
-        h__[k + k * 11 - 12] -= d__1 * d__1;
-    }
-    // Computing 2nd power
-    d__1 = *tol;
-    if (h__[k + k * 11 - 12] < d__1 * d__1) {
-//       -----------------------------------------------
-//        w_k is nearly in span{w_1, ..., w_(k-1)}
-//       -----------------------------------------------
-//       Remove w_k from linked list.
-        km1ptr = head;
-        i__1 = k - 1;
-        for (j = 2; j <= i__1; ++j)
+
+    { // cmp
+
+      for (int j = 1; j <= k - 1; ++j) {
+          h__[k + j * 11 - 12] = h__[j + k * 11 - 12];
+          for (int i = 1; i <= j - 1; ++i)
+              h__[k + j * 11 - 12] -= h__[k + i * 11 - 12] * h__[j + i * 11 - 12];
+
+          h__[k + j*11 - 12] /= h__[j + j*11 - 12];
+  // L210:
+      }
+      h__[k + k*11 - 12] = 1.;
+      for (int j = 1; j <= k - 1; ++j) {
+          // Compute 2nd power
+          const double d__1 = h__[k + j*11 - 12];
+          h__[k + k*11 - 12] -= d__1 * d__1;
+      }
+
+      const double tol2 = (*tol) * (*tol);
+      if (h__[k + k*11 - 12] < tol2) {
+  //      -----------------------------------------------
+  //       w_k is nearly in span{w_1, ..., w_(k-1)}
+  //      -----------------------------------------------
+  //      Remove w_k from linked list.
+          km1ptr = head;
+          for (int j = 2; j <= k - 1; ++j)
             km1ptr = link[km1ptr - 1];
 
-        kptr = link[km1ptr - 1];
-        link[km1ptr - 1] = link[kptr - 1];
-        --nvec;
-//       Update free storage list.
-        link[kptr - 1] = next;
-        next = kptr;
-//       Update H.
-        i__1 = nvec;
-        for (int j = k; j <= i__1; ++j) {
-            i__2 = k - 1;
-            for (int i = 1; i <= i__2; ++i__)
-                h__[i + j * 11 - 12] = h__[i + (j + 1) * 11 - 12];
+          kptr = link[km1ptr - 1];
+          link[km1ptr - 1] = link[kptr - 1];
+          --nvec;
+  //      Update free storage list.
+          link[kptr - 1] = next;
+          next = kptr;
+  //      Update H.
+          for (int j = k; j <= nvec; ++j) {
+            for (int i = 1; i <= k - 1; ++i)
+                h__[i + j*11 - 12] = h__[i + (j + 1)*11 - 12];
 
-            i__2 = j - 1;
-            for (int i = k; i <= i__2; ++i__) 
-                h__[i + j * 11 - 12] = h__[i + 1 + (j + 1) * 11 - 12];
-        }
+            for (int i = k; i <= j - 1; ++i) 
+                h__[i + j*11 - 12] = h__[i + 1 + (j + 1)*11 - 12];
+          }
 
-        goto L200;
-    } else {
-        h__[k + k * 11 - 12] = sqrt(h__[k + k * 11 - 12]);
-        ++k;
-        goto L200;
+          goto L200;
+
+      } else {
+          h__[k + k*11 - 12] = sqrt(h__[k + k*11 - 12]);
+          ++k;
+          goto L200;
+      }
     }
-//     ------------------------------
-//      Retain at most MVEC vectors.
-//     ------------------------------
+
+// ---------------------------------------------------------------------------
+
+//  ------------------------------
+//   Retain at most MVEC vectors.
+//  ------------------------------
 L250:
     if (nvec > *mvec) {
-//       truncate the linked list.
+//      truncate the linked list.
         last = head;
-        i__1 = *mvec;
-        for (j = 2; j <= i__1; ++j)
+        for (int j = 2; j <= *mvec; ++j)
             last = link[last - 1];
 
-        tmp = link[last - 1];
+        tmp  = link[last - 1];
         link[last - 1] = 0;
         last = tmp;
-//       Update free storage list.
-        i__1 = nvec;
-        for (j = *mvec + 2; j <= i__1; ++j)
+//      Update free storage list.
+        for (int j = *mvec + 2; j <= nvec; ++j)
             last = link[last - 1];
 
         link[last - 1] = next;
@@ -213,73 +203,58 @@ L250:
 //      Compute the projection of f onto {w_1, ... , w_nvec}.
 //     ==================================================================
     jptr = head;
-    i__1 = nvec;
-    for (j = 1; j <= i__1; ++j) {
-        c__[j - 1] = 0.;
-        i__2 = *n;
-        for (i__ = 1; i__ <= i__2; ++i__) {
-// L301:
-            c__[j - 1] += f[i__] * u[i__ + ((jptr << 1) + 2) * u_dim1];
-        }
+    for (int j = 1; j <= nvec; ++j) {
+        c__[j - 1] = 0.0;
+        for (int i = 1; i <= n; ++i) // L301:
+            c__[j - 1] += f[i] * u[i + ((jptr << 1) + 2)*n];
+
         jptr = link[jptr - 1];
-        i__2 = j - 1;
-        for (i__ = 1; i__ <= i__2; ++i__) {
-// L310:
-            c__[j - 1] -= h__[j + i__ * 11 - 12] * c__[i__ - 1];
-        }
-        c__[j - 1] /= h__[j + j * 11 - 12];
+        for (int i = 1; i <= j - 1; ++i) // L310:
+            c__[j - 1] -= h__[j + i * 11 - 12] * c__[i - 1];
+
+        c__[j - 1] /= h__[j + j*11 - 12];
 // L300:
     }
-    for (j = nvec; j >= 1; --j) {
-        i__1 = nvec;
-        for (i__ = j + 1; i__ <= i__1; ++i__) {
-// L321:
-            c__[j - 1] -= h__[i__ + j * 11 - 12] * c__[i__ - 1];
-        }
-        c__[j - 1] /= h__[j + j * 11 - 12];
+    for (int j = nvec; j >= 1; --j) {
+        for (int i = j + 1; i <= nvec; ++i) // L321:
+            c__[j - 1] -= h__[i + j * 11 - 12] * c__[i - 1];
+
+        c__[j - 1] /= h__[j + j*11 - 12];
 // L320:
     }
-//     ==================================================================
-//      Compute the accelerated correction.
-//     ==================================================================
-//     Save f for the next call.
-    i__1 = *n;
-    for (j = 1; j <= i__1; ++j) {
-// L410:
-        u[j + ((next << 1) + 2) * u_dim1] = f[j];
-    }
+
+//  ==================================================================
+//   Compute the accelerated correction.
+//  ==================================================================
+//  Save f for the next call.
+    for (int j = 1; j <= n; ++j) // L410:
+        u[j + ((next << 1) + 2)*n] = f[j];
+
     kptr = head;
-    i__1 = nvec;
-    for (k = 1; k <= i__1; ++k) {
-        i__2 = *n;
-        for (j = 1; j <= i__2; ++j) {
-// L421:
-            f[j] = f[j] - c__[k - 1] * u[j + ((kptr << 1) + 2) * u_dim1] + 
-                    c__[k - 1] * u[j + ((kptr << 1) + 1) * u_dim1];
+    for (k = 1; k <= nvec; ++k) {
+        for (int j = 1; j <= n; ++j) { /* L421 */
+            f[j] = f[j] - c__[k - 1] * u[j + ((kptr << 1) + 2)*n] + 
+                    c__[k - 1] * u[j + ((kptr << 1) + 1)*n];
         }
         kptr = link[kptr - 1];
 // L420:
     }
-//     Save the correction for the next call.
-    i__1 = *n;
-    for (j = 1; j <= i__1; ++j) {
-// L430:
-        u[j + ((next << 1) + 1) * u_dim1] = f[j];
-    }
-//     ==================================================================
-//      Shift the vectors to the right.
-//     ==================================================================
+
+//  Save the correction for the next call.
+    for (int j = 1; j <= n; ++j) // L430:
+        u[j + ((next << 1) + 1) * n] = f[j];
+
+//  ==================================================================
+//   Shift the vectors to the right.
+//  ==================================================================
     tmp = next;
     next = link[tmp - 1];
     link[tmp - 1] = head;
     head = tmp;
-//     Update H.
-    for (j = nvec; j >= 1; --j) {
-        i__1 = j - 1;
-        for (i__ = 1; i__ <= i__1; ++i__) {
-// L500:
-            h__[i__ + 1 + (j + 1) * 11 - 12] = h__[i__ + j * 11 - 12];
-        }
+//  Update H.
+    for (int j = nvec; j >= 1; --j) {
+        for (int i = 1; i <= j - 1; ++i) // L500
+            h__[i + 1 + (j + 1)*11 - 12] = h__[i + j*11 - 12];
     }
     ++nvec;
     return 0;
