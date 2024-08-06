@@ -22,12 +22,12 @@
 //  considering geometric nonlinear, form nonlinear shell element
 //  using updated Lagrangian formula
 //
-// Ref: Plate Bending Part - DKQ, thin plate element
-//      Membrane Part - GQ12, a membrane element with drilling DOF
+//  Ref: Plate Bending Part - DKQ, thin plate element
+//       Membrane Part - GQ12, a membrane element with drilling DOF
 //
-// Modified for SIF modelling by Liming Jiang [http://openseesforfire.github.io]
+//  Modified for SIF modelling by Liming Jiang [http://openseesforfire.github.io]
 //
-// Written: Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
+//  Written: Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
 //
 #include <stdio.h>
 #include <stdlib.h>
