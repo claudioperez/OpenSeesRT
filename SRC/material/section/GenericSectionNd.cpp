@@ -18,8 +18,6 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// File: ~/material/GenericSectionNd.C
-//
 // Written: MHS 
 // Created: Apr 2000
 // Revision: A
