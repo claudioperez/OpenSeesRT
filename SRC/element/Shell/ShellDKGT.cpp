@@ -32,14 +32,13 @@
 
 #include <ID.h>
 #include <Vector.h>
+#include <Vector3D.h>
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
 #include <Domain.h>
 #include <ShellDKGT.h>
-#include <R3vectors.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 
 #include <Channel.h>
@@ -1229,9 +1228,7 @@ void ShellDKGT::computeBasis()
 
   static Vector temp(3);
 
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
+  Vector3D v1, v2, v3;
 
   //get two vectors (v1, v2) in plane of shell by
   // nodal coordinate differences
@@ -1242,57 +1239,56 @@ void ShellDKGT::computeBasis()
 
   const Vector &coor2 = nodePointers[2]->getCrds();
 
-  v1.Zero();
+  v1.zero();
   v1 = coor1;
   v1 -= coor0;
 
-  v2.Zero();
+  v2.zero();
   v2 = coor2;
   v2 -= coor0;
 
   //normalize v1
-  double length = v1.Norm();
+  double length = v1.norm();
   v1 /= length;
 
-  //Gram-Schmidt process for v2
+  // Gram-Schmidt process for v2
 
-  double alpha = v2 ^ v1;
+  double alpha = v2.dot(v1);
 
-  //v2 -= alpha*v1 ;
+  // v2 -= alpha*v1 ;
   temp = v1;
   temp *= alpha;
   v2 -= temp;
 
-  //normalize v2
-  length = v2.Norm();
+  // normalize v2
+  length = v2.norm();
   v2 /= length;
 
-  //cross product for v3
-  v3 = LovelyCrossProduct(v1, v2);
+  // cross product for v3
+  v3 = v1.cross(v2);
 
   //local nodal coordinates in plane of shell
 
-  int i;
-  for (i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
 
     const Vector &coorI = nodePointers[i]->getCrds();
     xl[0][i]            = coorI ^ v1;
     xl[1][i]            = coorI ^ v2;
 
-  } //end for i
+  }
 
-  //basis vectors stored as array of doubles
-  for (i = 0; i < 3; i++) {
+  // basis vectors stored as array of doubles
+  for (int i = 0; i < 3; i++) {
     g1[i] = v1(i);
     g2[i] = v2(i);
     g3[i] = v3(i);
-  } //end for i
+  }
 }
 
-//start Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 //************************************************************************
-//compute local coordinates and basis
-
+// compute local coordinates and basis
+// added by Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
+//
 void ShellDKGT::updateBasis()
 {
 
@@ -1303,9 +1299,7 @@ void ShellDKGT::updateBasis()
 
   static Vector temp(3);
 
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
+  Vector3D v1, v2, v3;
 
   //get two vectors (v1, v2)
   // min plane of shell by
@@ -1320,24 +1314,23 @@ void ShellDKGT::updateBasis()
   const Vector &coor2 =
       nodePointers[2]->getCrds() + nodePointers[2]->getTrialDisp();
 
-  v1.Zero();
+  v1.zero();
   //v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
   v1 = coor1;
   v1 -= coor0;
 
-  v2.Zero();
+  v2.zero();
   //v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
   v2 = coor2;
   v2 -= coor0;
 
   //normalize v1
-  double length = v1.Norm();
+  double length = v1.norm();
 
   v1 /= length;
 
-  //Gram-Schmidt process for v2
-
-  double alpha = v2 ^ v1;
+  // Gram-Schmidt process for v2
+  double alpha = v2.dot(v1);
 
   //v2 -= alpha*v1 ;
   temp = v1;
@@ -1345,32 +1338,29 @@ void ShellDKGT::updateBasis()
   v2 -= temp;
 
   //normalize v2
-  length = v2.Norm();
+  length = v2.norm();
   v2 /= length;
 
-  //cross product for v3
-  v3 = LovelyCrossProduct(v1, v2);
+  // cross product for v3
+  v3 = v1.cross(v2);
 
-  //local nodal coordinates in plane of shell
-
-  int i;
-  for (i = 0; i < 3; i++) {
+  // local nodal coordinates in plane of shell
+  for (int i = 0; i < 3; i++) {
 
     const Vector &coorI = nodePointers[i]->getCrds() +
                           nodePointers[i]->getDisp(); //modify by Lisha Wang
     xl[0][i] = coorI ^ v1;
     xl[1][i] = coorI ^ v2;
 
-  } //end for i
+  }
 
   //basis vectors stored as array of doubles
-  for (i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     g1[i] = v1(i);
     g2[i] = v2(i);
     g3[i] = v3(i);
-  } //end for i
+  }
 }
-//end Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 
 //**********************************************************************
 
@@ -1445,7 +1435,7 @@ int ShellDKGT::sendSelf(int commitTag, Channel &theChannel)
 }
 
 int ShellDKGT::recvSelf(int commitTag, Channel &theChannel,
-                        FEM_ObjectBroker &theBroker) //idData����ı����ʲô��˼
+                        FEM_ObjectBroker &theBroker)
 {
   int res = 0;
 
@@ -1535,43 +1525,6 @@ int ShellDKGT::recvSelf(int commitTag, Channel &theChannel,
   return res;
 }
 //**************************************************************************
-
-int ShellDKGT::displaySelf(Renderer &theViewer, int displayMode, float fact,
-                           const char **displayModes, int numModes)
-{
-  // get the end point display coords
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
-  nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-  nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-  nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-
-  // place values in coords matrix
-  static Matrix coords(3, 3);
-  for (int i = 0; i < 3; i++) {
-    coords(0, i) = v1(i);
-    coords(1, i) = v2(i);
-    coords(2, i) = v3(i);
-  }
-
-  // Display mode is positive:
-  // display mode = 0 -> plot no contour
-  // display mode = 1-8 -> plot 1-8 stress resultant
-  static Vector values(3);
-  if (displayMode < 8 && displayMode > 0) {
-    for (int i = 0; i < 3; i++) {
-      const Vector &stress = materialPointers[i]->getStressResultant();
-      values(i)            = stress(displayMode - 1);
-    }
-  } else {
-    for (int i = 0; i < 3; i++)
-      values(i) = 0.0;
-  }
-
-  // draw the polygon
-  return theViewer.drawPolygon(coords, values, this->getTag());
-}
 
 void ShellDKGT::shape2d(double ss, double tt, double qq, const double x[2][3],
                         double shp[3][3], double &xsj, double sx[2][2])
