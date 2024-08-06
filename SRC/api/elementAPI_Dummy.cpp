@@ -560,19 +560,6 @@ int OPS_ResetCurrentInputArg(int cArg)
     return 0;
 }
 
-int
-OPS_ResetInput(Domain *domain)
-{
-  return 0;
-}
-
-int
-OPS_ResetInputNoBuilder(Domain *domain)
-{
-  return 0;
-}
-	       
-			       
 int     
 OPS_GetNDF()
 {
