@@ -771,9 +771,8 @@ PDeltaFrameTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 
   pg += pushConstant(pl);
   
-  static Vector p;
-  p.setData(pg);
-  return p;
+  static Vector wrapper(pg);
+  return wrapper;
 }
 
 VectorND<12>
