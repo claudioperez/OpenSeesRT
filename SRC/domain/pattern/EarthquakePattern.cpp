@@ -53,7 +53,6 @@ EarthquakePattern::~EarthquakePattern()
       delete theMotions[i];
   
   if (theMotions != 0)
-    //    free ((void *)theMotions);
     delete [] theMotions;
 
   if (uDotG != 0)
