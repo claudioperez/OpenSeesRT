@@ -384,7 +384,7 @@ MinUnbalDispNorm::domainChanged(void)
     theLinSOE->zeroB();
     this->formNodalUnbalance();
     (*phat) = theLinSOE->getB();
-    theModel->setCurrentDomainTime(currentLambda);    
+    theModel->setCurrentDomainTime(currentLambda);
   }
 
   // check there is a reference load
