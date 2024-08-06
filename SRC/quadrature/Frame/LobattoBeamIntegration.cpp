@@ -194,8 +194,12 @@ LobattoBeamIntegration::getSectionLocations(int numSections,
     break;
 
   default:
-    opserr << "LobattoBeamIntegration -- max # integration points is 10\n";
-    break;
+    if (numSections > 10)
+      opserr << "LobattoBeamIntegration -- max # integration points is 10\n";
+    else
+      opserr << "LobattoBeamIntegration -- min # integration points is  2\n";
+
+    return;
   
   }
   
@@ -291,8 +295,12 @@ LobattoBeamIntegration::getSectionWeights(int numSections, double L,
     break;
 
   default:
-    opserr << "LobattoBeamIntegration -- max # integration points is 10\n";
-    break;
+    if (numSections > 10)
+      opserr << "LobattoBeamIntegration -- max # integration points is 10\n";
+    else
+      opserr << "LobattoBeamIntegration -- min # integration points is  2\n";
+
+    return;
 
   }
   
