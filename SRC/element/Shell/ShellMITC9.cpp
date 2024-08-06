@@ -22,12 +22,10 @@
 //
 // Written: Leopoldo Tesser, Diego Talledo
 //
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
-
 #include <ID.h>
 #include <Vector.h>
+#include <Vector3D.h>
 #include <Vector3D.h>
 #include <Matrix.h>
 #include <Matrix3D.h>
@@ -37,7 +35,6 @@
 #include <Domain.h>
 #include <ErrorHandler.h>
 #include <ShellMITC9.h>
-#include <R3vectors.h>
 #include <ElementResponse.h>
 
 #include <Channel.h>
@@ -1090,9 +1087,6 @@ void ShellMITC9::computeBasis()
   // and the shell is flat anyway.
 
   static Vector temp(3);
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
 
   // get two vectors (v1, v2) in plane of shell by
   // nodal coordinate differences
@@ -1102,7 +1096,8 @@ void ShellMITC9::computeBasis()
   const Vector &coor2 = nodePointers[2]->getCrds();
   const Vector &coor3 = nodePointers[3]->getCrds();
 
-  v1.Zero();
+  Vector3D v1, v2;
+  v1.zero();
   // v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
   v1 = coor2;
   v1 += coor1;
@@ -1110,7 +1105,7 @@ void ShellMITC9::computeBasis()
   v1 -= coor0;
   v1 *= 0.50;
 
-  v2.Zero();
+  v2.zero();
   // v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
   v2 = coor3;
   v2 += coor2;
@@ -1119,40 +1114,34 @@ void ShellMITC9::computeBasis()
   v2 *= 0.50;
 
   // normalize v1
-  double length = v1.Norm();
+  double length = v1.norm();
   v1 /= length;
 
-  //Gram-Schmidt process for v2
+  // Gram-Schmidt process for v2
 
-  double alpha = v2 ^ v1;
-
-  // v2 -= alpha*v1 ;
-  temp = v1;
-  temp *= alpha;
-  v2 -= temp;
+  v2 -= v2.dot(v1)*v1;
 
   // normalize v2
-  length = v2.Norm();
+  length = v2.norm();
   v2 /= length;
 
   // cross product for v3
-  v3 = LovelyCrossProduct(v1, v2);
+  Vector3D v3 = v1.cross(v2);
 
   // local nodal coordinates in plane of shell
 
-  int i;
-  for (i = 0; i < numnodes; i++) {
+  for (int i = 0; i < numnodes; i++) {
     const Vector &coorI = nodePointers[i]->getCrds();
     xl[0][i]            = coorI ^ v1;
     xl[1][i]            = coorI ^ v2;
-  } // end for i
+  }
 
   // basis vectors stored as array of doubles
-  for (i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     g1[i] = v1(i);
     g2[i] = v2(i);
     g3[i] = v3(i);
-  } // end for i
+  }
 }
 
 //*************************************************************************
