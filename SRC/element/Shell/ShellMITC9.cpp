@@ -144,22 +144,18 @@ ShellMITC9::~ShellMITC9()
 
   for (int i = 0; i < ngauss; i++) {
     delete materialPointers[i];
-    materialPointers[i] = 0;
-  } // end for i
+    materialPointers[i] = nullptr;
+  }
 
-  for (int i = 0; i < numnodes; i++) {
-    nodePointers[i] = 0;
-  } // end for i
-
-  if (load != 0)
+  if (load != nullptr)
     delete load;
 
-  if (Ki != 0)
+  if (Ki != nullptr)
     delete Ki;
 }
 //**************************************************************************
 
-// set domain
+
 void ShellMITC9::setDomain(Domain *theDomain)
 {
   Vector3D eig;
@@ -198,15 +194,27 @@ void ShellMITC9::setDomain(Domain *theDomain)
 }
 
 // get the number of external nodes
-int ShellMITC9::getNumExternalNodes() const { return 9; }
+int ShellMITC9::getNumExternalNodes() const 
+{
+  return 9;
+}
 
 // return connected external nodes
-const ID &ShellMITC9::getExternalNodes() { return connectedExternalNodes; }
+const ID &ShellMITC9::getExternalNodes()
+{
+  return connectedExternalNodes;
+}
 
-Node **ShellMITC9::getNodePtrs(void) { return nodePointers; }
+Node **ShellMITC9::getNodePtrs()
+{
+  return nodePointers;
+}
 
 // return number of dofs
-int ShellMITC9::getNumDOF() { return 54; }
+int ShellMITC9::getNumDOF()
+{
+  return 54;
+}
 
 // commit state
 int ShellMITC9::commitState()
@@ -239,10 +247,9 @@ int ShellMITC9::revertToLastCommit()
 // revert to start
 int ShellMITC9::revertToStart()
 {
-  int i;
   int success = 0;
 
-  for (i = 0; i < 9; i++)
+  for (int i = 0; i < 9; i++)
     success += materialPointers[i]->revertToStart();
 
   return success;
