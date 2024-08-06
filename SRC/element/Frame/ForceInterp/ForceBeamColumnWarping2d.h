@@ -163,7 +163,7 @@ class ForceBeamColumnWarping2d: public Element
   
   int    initialFlag;            // indicates if the element has been initialized
   
-  Node *theNodes[2];   // pointers to the nodes
+  Node *theNodes[2];             // pointers to the nodes
   
   Matrix kv;                     // stiffness matrix in the basic system 
   Vector Se;                     // element resisting forces in the basic system
@@ -180,8 +180,11 @@ class ForceBeamColumnWarping2d: public Element
   enum {maxNumEleLoads = 100};
   enum {NDM = 2};         // dimension of the problem (2d)
   enum {NND = 4};         // number of nodal dof's
-  enum {NEGD = 8};         // number of element global dof's
-  enum {NEBD = 5};         // number of element dof's in the basic system
+  enum {NEGD = 8};        // number of element global dof's
+  enum {NEBD = 5};        // number of element dof's in the basic system
+  
+  enum {maxNumSections = 20};
+  enum {maxSectionOrder = 5};
 
   int numEleLoads; // Number of element load objects
   int sizeEleLoads;
@@ -193,9 +196,6 @@ class ForceBeamColumnWarping2d: public Element
   static Matrix theMatrix;
   static Vector theVector;
   static double workArea[];
-  
-  enum {maxNumSections = 20};
-  enum {maxSectionOrder = 5};
 
   // following are added for subdivision of displacement increment
   int    maxSubdivisions;       // maximum number of subdivisons of dv for local iterations

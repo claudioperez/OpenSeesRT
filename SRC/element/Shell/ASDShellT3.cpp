@@ -49,7 +49,6 @@
 
 class Damping;
 
-
 void*
 OPS_ADD_RUNTIME_VPV(OPS_ASDShellT3)
 {
@@ -1603,19 +1602,19 @@ int ASDShellT3::calculateAll(Matrix& LHS, Vector& RHS, int options)
         m_transformation->createLocalCoordinateSystem(UG);
 
     // Some matrices/vectors
-    auto& N = ASDShellT3Globals::instance().N;
-    auto& dN = ASDShellT3Globals::instance().dN;
+    auto& N    = ASDShellT3Globals::instance().N;
+    auto& dN   = ASDShellT3Globals::instance().dN;
     auto& dNdX = ASDShellT3Globals::instance().dNdX;
-    auto& jac = ASDShellT3Globals::instance().jac;
-    auto& B = ASDShellT3Globals::instance().B;
-    auto& Bd = ASDShellT3Globals::instance().Bd;
-    auto& Bhx = ASDShellT3Globals::instance().Bhx;
-    auto& Bhy = ASDShellT3Globals::instance().Bhy;
-    auto& B1 = ASDShellT3Globals::instance().B1;
+    auto& jac  = ASDShellT3Globals::instance().jac;
+    auto& B    = ASDShellT3Globals::instance().B;
+    auto& Bd   = ASDShellT3Globals::instance().Bd;
+    auto& Bhx  = ASDShellT3Globals::instance().Bhx;
+    auto& Bhy  = ASDShellT3Globals::instance().Bhy;
+    auto& B1   = ASDShellT3Globals::instance().B1;
     auto& B1TD = ASDShellT3Globals::instance().B1TD;
-    auto& E = ASDShellT3Globals::instance().E;
-    auto& S = ASDShellT3Globals::instance().S;
-    auto& D = ASDShellT3Globals::instance().D;
+    auto& E    = ASDShellT3Globals::instance().E;
+    auto& S    = ASDShellT3Globals::instance().S;
+    auto& D    = ASDShellT3Globals::instance().D;
     auto& Dsection = ASDShellT3Globals::instance().Dsection;
 
     // matrices for orienting strains in section coordinate system
@@ -1660,7 +1659,8 @@ int ASDShellT3::calculateAll(Matrix& LHS, Vector& RHS, int options)
     const auto& gx = m_reduced_integration ? XI0 : XI;
     const auto& gy = m_reduced_integration ? ETA0 : ETA;
     const auto& gw = m_reduced_integration ? WTS0 : WTS;
-    for(int igauss = 0; igauss < gx.size(); ++igauss)
+
+    for (int igauss = 0; igauss < gx.size(); ++igauss)
     {
         // Current integration point data
         double xi = gx[igauss];
@@ -1856,6 +1856,7 @@ int ASDShellT3::calculateAll(Matrix& LHS, Vector& RHS, int options)
     return result;
 }
 
+
 double ASDShellT3::evaluateSectionThickness()
 {
     const Matrix& D = m_sections[0]->getInitialTangent();
@@ -1894,3 +1895,4 @@ ASDShellT3::displaySelf(Renderer& theViewer, int displayMode, float fact, const 
     // draw the polygon
     return theViewer.drawPolygon(coords, values, this->getTag());
 }
+

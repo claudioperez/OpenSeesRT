@@ -27,10 +27,6 @@ target_sources(OPS_Element
       ASDShellQ4.h
       ASDShellT3.h
 
-      ASDShellT3CorotationalTransformation.h
-      ASDShellT3LocalCoordinateSystem.h
-      ASDShellT3Transformation.h
-
       ShellANDeS.h
       ShellDKGQ.h
       ShellDKGT.h
