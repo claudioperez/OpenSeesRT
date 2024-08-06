@@ -13,7 +13,7 @@ namespace py = pybind11;
 
 #include <G3_Runtime.h>
 #include <elementAPI.h> // G3_getRuntime/SafeBuilder
-#include "runtime/BasicModelBuilder.h"
+#include <runtime/runtime/BasicModelBuilder.h>
 
 #include <Domain.h>
 #include <Vector.h>
@@ -35,7 +35,6 @@ namespace py = pybind11;
 
 #include <LoadPattern.h>
 #include <EarthquakePattern.h>
-#include <GroundMotion.h>
 #include <UniformExcitation.h>
 #include <TimeSeries.h>
 #include <PathTimeSeries.h>
@@ -244,7 +243,6 @@ quake2sees_motion(
     groundMotion = new GroundMotion(0, 0, accelSeries, 0);
     return groundMotion;
     // TimeSeries -> Pattern:UniformExcitation
-
 }
 
 GroundMotion*
