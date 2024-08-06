@@ -38,9 +38,8 @@ c	Fill in previous state information
 	tangP = stateP(3)
 	
 	end
-	
-	
-	
+
+
 	subroutine get00 (hstv)
 	
 c .....................................................................
