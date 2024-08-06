@@ -1648,13 +1648,16 @@ const Vector *
 Domain::getElementResponse(int eleTag, const char **argv, int argc)
 {
   Element *theEle = this->getElement(eleTag);
-  if (theEle == 0)
+
+  if (theEle == nullptr)
     return NULL;
+
   else  {
 
     if (argc == 1) {
       if (strcmp(argv[0],"forces") == 0) {
-              return &(theEle->getResistingForce());
+        return &(theEle->getResistingForce());
+
       } else if (strcmp(argv[0],"nodeTags") == 0) {
         const ID&theNodes = theEle->getExternalNodes();
         int size = theNodes.Size();
