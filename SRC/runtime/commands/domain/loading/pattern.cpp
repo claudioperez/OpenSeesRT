@@ -58,9 +58,6 @@
 
 
 
-LoadPattern *theTclLoadPattern = nullptr;
-// MultiSupportPattern *theTclMultiSupportPattern = 0;
-
 Tcl_CmdProc TclCommand_addSP;
 Tcl_CmdProc TclCommand_addNodalLoad;
 
@@ -71,15 +68,7 @@ extern TimeSeriesIntegrator *TclDispatch_newSeriesIntegrator(ClientData clientDa
 extern TimeSeries *TclSeriesCommand(ClientData clientData, Tcl_Interp *interp,
                                     TCL_Char * const arg);
 
-static void
-printCommand(int argc, TCL_Char ** const argv)
-{
-  opserr << "Input command: ";
-  for (int i = 0; i < argc; ++i)
-    opserr << argv[i] << " ";
-  opserr << endln;
-}
-
+//
 // This command creates a scope where the following commands
 // behave differently:
 // - load
@@ -755,13 +744,12 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-//theTclLoadPattern = thePattern;
 
   builder->setEnclosingPattern(thePattern);
 
   // use TCL_Eval to evaluate the list of load and single point constraint
   // commands
-//opserr << commandEndMarker << " / " << argc << "\n";
+
   if (commandEndMarker < argc) {
     // Set the Pattern for "sp" command
 //  Tcl_CmdInfo info;
@@ -779,12 +767,12 @@ TclCommand_addPattern(ClientData clientData, Tcl_Interp *interp, int argc,
 //    Tcl_Exit(TCL_ERROR);
       return TCL_ERROR;
     }
+
     Tcl_SetAssocData(interp,"theTclMultiSupportPattern", NULL, (ClientData)0);
 //  info.clientData = (ClientData)builder;
 //  Tcl_SetCommandInfo(interp, "sp", &info);
 
     Tcl_Eval(interp, "rename load nodalLoad;");
-//  Tcl_DeleteCommand(interp, "nodalLoad");
     Tcl_Eval(interp, "rename opensees::import load;");
   }
 
@@ -813,7 +801,6 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
     // make sure at least one other argument to contain type
     if (argc < (2 + ndf)) {
       opserr << OpenSees::PromptValueError << "bad command - want: load nodeId " << ndf << " forces\n";
-      printCommand(argc, argv);
       return TCL_ERROR;
     }
 
@@ -875,7 +862,6 @@ TclCommand_addNodalLoad(ClientData clientData, Tcl_Interp *interp, int argc, TCL
   // add the load to the domain
   if (builder->getDomain()->addNodalLoad(theLoad, loadPatternTag) == false) {
     opserr << OpenSees::PromptValueError << "BasicModelBuilder - could not add load to domain\n";
-    printCommand(argc, argv);
     delete theLoad;
     return TCL_ERROR;
   }
