@@ -112,11 +112,11 @@ private:
 
   Node *theNodes[2];
 
-  static Matrix K; // Element stiffness, damping, and mass Matrix
-  static Vector P; // Element resisting force vector
+  static Matrix K;           // Element stiffness, damping, and mass Matrix
+  static Vector P;           // Element resisting force vector
 
-  Vector Q; // Applied nodal loads
-  Vector q; // Basic force
+  Vector Q;                  // Applied nodal loads
+  Vector q;                  // Basic force
   double q0[6];
   double p0[6];
 
