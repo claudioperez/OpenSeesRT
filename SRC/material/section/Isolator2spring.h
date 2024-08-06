@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2006-01-17 20:44:32 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/Isolator2spring.h,v $
-                                                                        
-                                                                        
+//
 // Written: K. Ryan
 // Created: September 2003
 // Updates: November 2005
@@ -32,7 +27,7 @@
 // Koh and Kelly to represent the buckling behavior of an elastomeric bearing.  The 
 // material model has been modified to include material nonlinearity and optional 
 // strength degradation.
-
+//
 #ifndef Isolator2spring_h
 #define Isolator2spring_h
 #include <SectionForceDeformation.h>
@@ -50,22 +45,22 @@ class Isolator2spring : public SectionForceDeformation
     ~Isolator2spring();
 
     int setTrialSectionDeformation(const Vector &v);
-    const Matrix &getSectionTangent(void);
-    const Matrix &getInitialTangent(void);
-    const Vector &getStressResultant(void);
-    const Vector &getSectionDeformation(void);
+    const Matrix &getSectionTangent();
+    const Matrix &getInitialTangent();
+    const Vector &getStressResultant();
+    const Vector &getSectionDeformation();
 
-    int commitState(void);
-    int revertToLastCommit(void);
-    int revertToStart(void);
+    int commitState();
+    int revertToLastCommit();
+    int revertToStart();
     
-    SectionForceDeformation *getCopy(void);
+    SectionForceDeformation *getCopy();
     const ID &getType();
-    int getOrder(void) const;
+    int getOrder() const;
     
     int sendSelf(int commitTag, Channel &theChannel);  
     int recvSelf(int commitTag, Channel &theChannel, 
-		 FEM_ObjectBroker &theBroker);
+		             FEM_ObjectBroker &theBroker);
 
     void Print(OPS_Stream &s, int flag = 0);
 

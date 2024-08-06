@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2005-12-14 23:49:48 $
-// $Source: /usr/local/cvs/OpenSees/SRC/matrix/main.cpp,v $
-                                                                        
-                                                                        
+//
 #include "Vector.h"
 #include "ID.h"
 #include "Matrix.h"

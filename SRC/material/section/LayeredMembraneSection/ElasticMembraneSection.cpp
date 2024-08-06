@@ -1,10 +1,12 @@
+//
 // Code written/implemented by: Maria Jose Nunez
 //
 // Created: 03/2024
 // 
 // Description: This file contains the ElasticMembraneSection class definition
-// A ElasticMembraneSection is a subclass of the sectionForceDeformation class and corresponds to the abstract representation
-// for the stress-strain behavior for a elastic membrane section in the Finite Element Method or Structural Analysis. 
+// A ElasticMembraneSection is a subclass of the sectionForceDeformation class 
+// and corresponds to the abstract representation
+// for the stress-strain behavior for a elastic membrane section.
 //
 // Reference:
 // 1. Rojas, F., Anderson, J. C., Massone, L. M. (2016). A nonlinear quadrilateral layered membrane element with drilling degrees of freedom for 
@@ -13,7 +15,7 @@
 // Source: \OpenSees\SRC\material\section\LayeredMembraneSection
 //
 // Rev: 1.0
-
+//
 #include <ElasticMembraneSection.h>
 #include <Vector.h>
 #include <Matrix.h>

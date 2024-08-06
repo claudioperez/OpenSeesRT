@@ -34,7 +34,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 ********************************************************************************* */
 
-// we specify what header files we need
 #include "AxEqDispBeamColumn2d.h"
 #include <elementAPI.h>
 #include <OPS_Globals.h>

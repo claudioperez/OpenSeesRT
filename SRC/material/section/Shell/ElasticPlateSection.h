@@ -17,16 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2003-02-14 23:01:33 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/ElasticPlateSection.h,v $
-
-// Ed "C++" Love
 //
 //  Elastic Plate Section
 //
-
+// Ed "C++" Love
+//
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
@@ -114,6 +109,5 @@ class ElasticPlateSection : public SectionForceDeformation {
 
     static ID array ;  
 
-} ; //end of ElasticPlateSection declarations
-
+};
 

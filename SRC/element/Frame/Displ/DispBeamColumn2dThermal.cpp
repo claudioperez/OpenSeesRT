@@ -404,7 +404,6 @@ DispBeamColumn2dThermal::revertToStart()
 int
 DispBeamColumn2dThermal::update(void)
 {
-  //opserr<<"**Now Update: Ele "<< this->getTag()<<" **"<<endln;
   int err = 0;
 
   // Update the transformation
@@ -419,12 +418,7 @@ DispBeamColumn2dThermal::update(void)
   double xi[maxNumSections];
   beamInt->getSectionLocations(numSections, L, xi);
 
-//opserr<< "Basic Deformation: "<<v<<endln;
-// Loop over the integration points
-#ifdef _DEBUG
-//opserr << "BeamNUT_" << this->getTag() << " ,  v  " << v << endln;
-//<<" , Average epsT "<<AverageThermalElong<<endln;
-#endif
+  // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
 
     int order = theSections[i]->getOrder(); // return 2
@@ -433,10 +427,10 @@ DispBeamColumn2dThermal::update(void)
 
     Vector e(workArea, order);
 
-    //double xi6 = 6.0*pts(i,0);
+
     double xi6 = 6.0 * xi[i];
-    int j;
-    for (j = 0; j < order; j++) {
+
+    for (int j = 0; j < order; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_P:
         e(j) = oneOverL * v(0) - AverageThermalElong + SectionThermalElong[i];
@@ -455,9 +449,7 @@ DispBeamColumn2dThermal::update(void)
     //J.Z
 
     //FMK err += theSections[i]->setTrialSectionDeformationTemperature(e,dataMix);
-#ifdef _BDEBUG
-    //opserr << "Beam_" << this->getTag() << " Section " << i << endln;
-#endif
+
     Vector dataMixV(dataMix, 27);
     err += theSections[i]->setTrialSectionDeformation(e);
   }
@@ -499,15 +491,12 @@ DispBeamColumn2dThermal::getTangentStiff()
     Matrix ka(workArea, order, 3);
     ka.Zero();
 
-    //double xi6 = 6.0*pts(i,0);
     double xi6 = 6.0 * xi[i];
 
     // Get the section tangent stiffness and stress resultant
 
     const Matrix &ks = theSections[i]->getSectionTangent();
-#ifdef _DEBUG
-    // opserr<<"Beam_"<<this->getTag()<<" Section "<<i<<endln<<" ,  K  "<<ks<<endln;
-#endif
+
     const Vector &s = theSections[i]->getStressResultant();
     // Perform numerical integration
     //kb.addMatrixTripleProduct(1.0, *B, ks, wts(i)/L);

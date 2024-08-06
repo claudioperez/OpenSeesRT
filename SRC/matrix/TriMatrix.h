@@ -4,9 +4,8 @@
 //
 //===----------------------------------------------------------------------===//
 //
+#pragma once
 
-#ifndef _OPS_TriDiagonalMatrixF
-#define _OPS_TriDiagonalMatrixF
 class TriDiagonalMatrixF
 {    
   public: 
@@ -29,5 +28,5 @@ class TriDiagonalMatrixF
     // The values for the super-diagonal. C[C.Length-1] is never used.
     double *C;
 };
-#endif
+
 

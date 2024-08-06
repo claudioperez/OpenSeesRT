@@ -107,7 +107,7 @@ Vector::Vector(Vector &&other)
 
 Vector::~Vector()
 {
-  if (theData != nullptr && fromFree == 0)
+  if (fromFree == 0 && theData != nullptr)
     delete [] theData;
   theData = nullptr;
 }
@@ -119,8 +119,8 @@ Vector::setData(double *newData, int size)
   assert(size >  0);
 
   if (theData != nullptr && fromFree == 0) {
-    delete [] theData;      
-    theData = 0;
+    delete [] theData;
+    theData = nullptr;
   }
   sz = size;
   theData = newData;

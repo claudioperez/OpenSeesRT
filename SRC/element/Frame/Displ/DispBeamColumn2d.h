@@ -28,7 +28,6 @@
 #ifndef DispBeamColumn2d_h
 #define DispBeamColumn2d_h
 
-// #include <element/Frame/FrameElement.h>
 #include <Element.h>
 #include <Matrix.h>
 #include <Vector.h>
