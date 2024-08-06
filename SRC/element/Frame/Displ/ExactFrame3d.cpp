@@ -8,8 +8,8 @@
 #include <VectorND.h>
 
 #include <BeamIntegration.h>
+#include <Rotations.hpp>
 #if 0
-#include <Rotation.h>
 
 class ID;
 class Domain;
@@ -51,7 +51,11 @@ class SimoFrame:
         dtheta += shape[i][1][j]*nodes[i]->getIncrDeltaDispl();
       }
 
-      rotation[j]->incr(dx);
+      auto gib = GibSO3(theta.norm());
+
+      MatrixND<3,3> dR = ExpSO3(theta, gib);
+      rotation[j] = dR*rotation[j];
+
    // curvature[j]->incr(rotations[j]->
 #endif
     }
@@ -90,7 +94,7 @@ class SimoFrame:
   private:
     int                      conn[nen];
     SectionForceDeformation *sections[nip];
-    Rotation                 rotation[nip];
+    MatrixND<3,3>            rotation[nip];
 
     Node                    *nodes[nen];
     GaussLegendre<1, nip>    gauss;
