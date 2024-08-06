@@ -60,6 +60,7 @@ class PrismFrame3d : public BasicFrame3d
     int commitState();
     int revertToLastCommit();        
     int revertToStart();
+    virtual const Vector &getResistingForce() final;
 
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
@@ -67,7 +68,7 @@ class PrismFrame3d : public BasicFrame3d
     void Print(OPS_Stream &s, int flag =0);
 
     Response *setResponse(const char **argv, int argc, OPS_Stream &s) final;
-    int getResponse(int responseID, Information &info) final;
+    virtual int getResponse(int responseID, Information &info) final;
  
     virtual int setParameter(const char **argv, int argc, Parameter &param) final;
     virtual int updateParameter(int parameterID, Information &info) final;

@@ -77,7 +77,9 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
     virtual int   update();
     virtual const Matrix &getTangentStiff();
     virtual const Matrix &getMass();
+#if 0
     virtual const Vector &getResistingForce();
+#endif
 
     virtual void  zeroLoad() final;
     virtual int   addLoad(ElementalLoad *theLoad, double loadFactor) final;

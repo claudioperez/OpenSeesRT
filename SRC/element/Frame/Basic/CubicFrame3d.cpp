@@ -258,6 +258,55 @@ CubicFrame3d::getBasicForce()
   return q;
 }
 
+
+const Vector &
+CubicFrame3d::getResistingForce()
+{
+  double q0 = q[0];
+  double q1 = q[1];
+  double q2 = q[2];
+  double q3 = q[3];
+  double q4 = q[4];
+  double q5 = q[5];
+
+  double oneOverL = 1.0 / theCoordTransf->getInitialLength();
+
+  thread_local VectorND<12> pl;
+  pl[0]  = -q0;                    // Ni
+  pl[1]  =  oneOverL * (q1 + q2);  // Viy
+  pl[2]  = -oneOverL * (q3 + q4);  // Viz
+  pl[3]  = -q5;                    // Ti
+  pl[4]  =  q3;
+  pl[5]  =  q1;
+  pl[6]  =  q0;                    // Nj
+  pl[7]  = -pl[1];                 // Vjy
+  pl[8]  = -pl[2];                 // Vjz
+  pl[9]  = q5;                     // Tj
+  pl[10] = q4;
+  pl[11] = q2;
+
+  thread_local VectorND<12> pf{0.0};
+  pf[0] = p0[0];
+  pf[1] = p0[1];
+  pf[7] = p0[2];
+  pf[2] = p0[3];
+  pf[8] = p0[4];
+
+
+  thread_local VectorND<12> pg;
+  thread_local Vector wrapper(pg);
+//    const Vector p0Vec(p0);
+//    P = theCoordTransf->getGlobalResistingForce(q, p0Vec);
+  pg  = theCoordTransf->pushResponse(pl);
+  pg += theCoordTransf->pushConstant(pf);
+
+  // Subtract other external nodal loads ... P_res = P_int - P_ext
+  if (total_mass != 0.0)
+    wrapper.addVector(1.0, p_iner, -1.0);
+
+  return wrapper;
+}
+
 MatrixND<6,6>&
 CubicFrame3d::getBasicTangent(State state, int rate)
 {

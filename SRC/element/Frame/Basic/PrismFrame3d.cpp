@@ -247,6 +247,54 @@ PrismFrame3d::getBasicForce()
   return q;
 }
 
+const Vector &
+PrismFrame3d::getResistingForce()
+{
+  double q0 = q[0];
+  double q1 = q[1];
+  double q2 = q[2];
+  double q3 = q[3];
+  double q4 = q[4];
+  double q5 = q[5];
+
+  double oneOverL = 1.0 / theCoordTransf->getInitialLength();
+
+  thread_local VectorND<12> pl;
+  pl[0]  = -q0;                    // Ni
+  pl[1]  =  oneOverL * (q1 + q2);  // Viy
+  pl[2]  = -oneOverL * (q3 + q4);  // Viz
+  pl[3]  = -q5;                    // Ti
+  pl[4]  =  q3;
+  pl[5]  =  q1;
+  pl[6]  =  q0;                    // Nj
+  pl[7]  = -pl[1];                 // Vjy
+  pl[8]  = -pl[2];                 // Vjz
+  pl[9]  = q5;                     // Tj
+  pl[10] = q4;
+  pl[11] = q2;
+
+  thread_local VectorND<12> pf{0.0};
+  pf[0] = p0[0];
+  pf[1] = p0[1];
+  pf[7] = p0[2];
+  pf[2] = p0[3];
+  pf[8] = p0[4];
+
+
+  thread_local VectorND<12> pg;
+  thread_local Vector wrapper(pg);
+//    const Vector p0Vec(p0);
+//    P = theCoordTransf->getGlobalResistingForce(q, p0Vec);
+  pg  = theCoordTransf->pushResponse(pl);
+  pg += theCoordTransf->pushConstant(pf);
+
+  // Subtract other external nodal loads ... P_res = P_int - P_ext
+  if (total_mass != 0.0)
+    wrapper.addVector(1.0, p_iner, -1.0);
+
+  return wrapper;
+}
+
 OpenSees::MatrixND<6,6>&
 PrismFrame3d::getBasicTangent(State flag, int rate)
 {
@@ -308,7 +356,7 @@ PrismFrame3d::getMass()
         ml( 1,11) = ml(11, 1) = -m*13.0*L;
         ml( 5, 7) = ml( 7, 5) = -ml(1,11);
 
-        // transform local mass matrix to global system
+        // Transform local mass matrix to global system
         return theCoordTransf->getGlobalMatrixFromLocal(ml);
     }
 }
@@ -503,55 +551,55 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
     }
 
     else if (flag == 2) {
-            this->getResistingForce(); // in case linear algo
+        this->getResistingForce(); // in case linear algo
 
-            static Vector xAxis(3);
-            static Vector yAxis(3);
-            static Vector zAxis(3);
+        static Vector xAxis(3);
+        static Vector yAxis(3);
+        static Vector zAxis(3);
 
-            theCoordTransf->getLocalAxes(xAxis, yAxis, zAxis);
+        theCoordTransf->getLocalAxes(xAxis, yAxis, zAxis);
 
-            s << "#ElasticBeamColumn3D\n";
-            s << "#LocalAxis " << xAxis(0) << " " << xAxis(1) << " " << xAxis(2);
-            s << " " << yAxis(0) << " " << yAxis(1) << " " << yAxis(2) << " ";
-            s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << "\n";
+        s << "#ElasticBeamColumn3D\n";
+        s << "#LocalAxis " << xAxis(0) << " " << xAxis(1) << " " << xAxis(2);
+        s << " " << yAxis(0) << " " << yAxis(1) << " " << yAxis(2) << " ";
+        s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << "\n";
 
-            const Vector &node1Crd = theNodes[0]->getCrds();
-            const Vector &node2Crd = theNodes[1]->getCrds();
-            const Vector &node1Disp = theNodes[0]->getDisp();
-            const Vector &node2Disp = theNodes[1]->getDisp();
+        const Vector &node1Crd = theNodes[0]->getCrds();
+        const Vector &node2Crd = theNodes[1]->getCrds();
+        const Vector &node1Disp = theNodes[0]->getDisp();
+        const Vector &node2Disp = theNodes[1]->getDisp();
 
-            s << "#NODE " << node1Crd(0) << " " << node1Crd(1) << " " << node1Crd(2)
-                    << " " << node1Disp(0) << " " << node1Disp(1) << " " << node1Disp(2)
-                    << " " << node1Disp(3) << " " << node1Disp(4) << " " << node1Disp(5) << "\n";
+        s << "#NODE " << node1Crd(0) << " " << node1Crd(1) << " " << node1Crd(2)
+                << " " << node1Disp(0) << " " << node1Disp(1) << " " << node1Disp(2)
+                << " " << node1Disp(3) << " " << node1Disp(4) << " " << node1Disp(5) << "\n";
 
-            s << "#NODE " << node2Crd(0) << " " << node2Crd(1) << " " << node2Crd(2)
-                    << " " << node2Disp(0) << " " << node2Disp(1) << " " << node2Disp(2)
-                    << " " << node2Disp(3) << " " << node2Disp(4) << " " << node2Disp(5) << "\n";
+        s << "#NODE " << node2Crd(0) << " " << node2Crd(1) << " " << node2Crd(2)
+                << " " << node2Disp(0) << " " << node2Disp(1) << " " << node2Disp(2)
+                << " " << node2Disp(3) << " " << node2Disp(4) << " " << node2Disp(5) << "\n";
 
-            double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
-            double L = theCoordTransf->getInitialLength();
-            double oneOverL = 1.0 / L;
+        double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
+        double L = theCoordTransf->getInitialLength();
+        double oneOverL = 1.0 / L;
 
-            N = q[0];
-            Mz1 = q[1];
-            Mz2 = q[2];
-            Vy = (Mz1 + Mz2)*oneOverL;
-            My1 = q[3];
-            My2 = q[4];
-            Vz = -(My1 + My2)*oneOverL;
-            T = q[5];
+        N = q[0];
+        Mz1 = q[1];
+        Mz2 = q[2];
+        Vy = (Mz1 + Mz2)*oneOverL;
+        My1 = q[3];
+        My2 = q[4];
+        Vz = -(My1 + My2)*oneOverL;
+        T = q[5];
 
-            s << "#END_FORCES " << -N + p0[0] << ' ' << Vy + p0[1] << ' ' << Vz + p0[3] << ' '
-                                << -T << ' ' 
-                                << My1 << ' ' 
-                                << Mz1 << "\n";
-            s << "#END_FORCES " << N << ' ' 
-                                << -Vy + p0[2] << ' ' 
-                                << -Vz + p0[4] << ' '
-                                << T << ' ' 
-                                << My2 << ' ' 
-                                << Mz2 << "\n";
+        s << "#END_FORCES " << -N + p0[0] << ' ' << Vy + p0[1] << ' ' << Vz + p0[3] << ' '
+                            << -T << ' ' 
+                            << My1 << ' ' 
+                            << Mz1 << "\n";
+        s << "#END_FORCES " << N << ' ' 
+                            << -Vy + p0[2] << ' ' 
+                            << -Vz + p0[4] << ' '
+                            << T << ' ' 
+                            << My2 << ' ' 
+                            << Mz2 << "\n";
     }
     
     if (flag == OPS_PRINT_CURRENTSTATE) {
@@ -589,7 +637,7 @@ Response*
 PrismFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 {
 
-  Response *theResponse = 0;
+  Response *theResponse = nullptr;
 
   output.tag("ElementOutput");
   output.attr("eleType","PrismFrame3d");
@@ -615,10 +663,11 @@ PrismFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
     output.tag("ResponseType","My_2");
     output.tag("ResponseType","Mz_2");
 
-    theResponse =  new ElementResponse(this, 2, P);
+    theResponse =  new ElementResponse(this, 2, Vector(12));
 
-        // local forces
-  } else if (strcmp(argv[0],"localForce") == 0 || strcmp(argv[0],"localForces") == 0) {
+  // local forces
+  } else if (strcmp(argv[0],"localForce") == 0 || 
+             strcmp(argv[0],"localForces") == 0) {
 
     output.tag("ResponseType","N_1");
     output.tag("ResponseType","Vy_1");
@@ -633,10 +682,11 @@ PrismFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
     output.tag("ResponseType","My_2");
     output.tag("ResponseType","Mz_2");
 
-    theResponse =  new ElementResponse(this, 3, P);
+    theResponse =  new ElementResponse(this, 3, Vector(12));
 
   // basic forces
-  } else if (strcmp(argv[0],"basicForce") == 0 || strcmp(argv[0],"basicForces") == 0) {
+  } else if (strcmp(argv[0],"basicForce") == 0 || 
+             strcmp(argv[0],"basicForces") == 0) {
 
     output.tag("ResponseType","N");
     output.tag("ResponseType","Mz_1");
@@ -689,6 +739,7 @@ PrismFrame3d::getResponse(int responseID, Information &info)
   double oneOverL = 1.0/L;
   static Vector Res(12);
   Res = this->getResistingForce();
+  opserr << Res << "\n";
   static Vector s(6);
   
   switch (responseID) {
@@ -699,11 +750,11 @@ PrismFrame3d::getResponse(int responseID, Information &info)
     return info.setVector(Res);
     
   case 3: { // local forces
-    double N, V, Mi, Mj, T;
+    double V, Mi, Mj, T;
     // Axial
-    N = q[0];
+    double N = q[0];
     P(6) =  N;
-    P(0) = -N+p0[0];
+    P(0) = -N + p0[0];
     
     // Torsion
     T = q[5];

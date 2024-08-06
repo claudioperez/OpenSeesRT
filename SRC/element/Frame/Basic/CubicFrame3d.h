@@ -44,6 +44,7 @@ class CubicFrame3d : public BasicFrame3d
 
     // public methods to obtain stiffness, mass, damping and residual information    
     int update();
+    virtual const Vector &getResistingForce() final;
     virtual const Matrix &getMass() final;
 //  const Matrix &getTangentStiff();
 //  const Matrix &getInitialStiff();

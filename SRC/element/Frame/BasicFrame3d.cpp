@@ -51,10 +51,10 @@ BasicFrame3d::setNodes()
   return 0;
 }
 
+#if 0
 const Vector &
 BasicFrame3d::getResistingForce()
 {
-#if 1
   VectorND<6> q  = this->getBasicForce();
 
   double q0 = q[0];
@@ -87,19 +87,21 @@ BasicFrame3d::getResistingForce()
   pf[2] = p0[3];
   pf[8] = p0[4];
 
+
+  thread_local VectorND<12> pg;
+  thread_local Vector wrapper(pg);
 //    const Vector p0Vec(p0);
 //    P = theCoordTransf->getGlobalResistingForce(q, p0Vec);
   pg  = theCoordTransf->pushResponse(pl);
   pg += theCoordTransf->pushConstant(pf);
-  P.setData(pg);
 
   // Subtract other external nodal loads ... P_res = P_int - P_ext
   if (total_mass != 0.0)
-    P.addVector(1.0, p_iner, -1.0);
+    wrapper.addVector(1.0, p_iner, -1.0);
 
-  return P;
-#endif
+  return wrapper;
 }
+#endif
 
 const Matrix &
 BasicFrame3d::getTangentStiff()

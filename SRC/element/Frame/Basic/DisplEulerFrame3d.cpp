@@ -513,8 +513,7 @@ DisplEulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
     output.tag("ResponseType", "My_2");
     output.tag("ResponseType", "Mz_2");
 
-// TODO(cmp)
-//  theResponse = new ElementResponse(this, 2, P);
+    theResponse = new ElementResponse(this, 2, Vector(12));
 
     // chord rotation -
   } else if (strcmp(argv[0], "chordRotation") == 0 ||

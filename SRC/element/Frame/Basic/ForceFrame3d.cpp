@@ -3305,14 +3305,6 @@ ForceFrame3d::getResistingForce()
   if (eleLoads.size() > 0)
     this->computeReactions(p0);
  
-#if 0
-  Vector p0Vec(p0, 5);
-  p0Vec.Zero();
-  P = theCoordTransf->getGlobalResistingForce(Vector(q_pres), p0Vec);
-  
-  if (total_mass != 0.0)
-    P.addVector(1.0, p_iner, -1.0);
-#else
   double q0 = q_pres[0];
   double q1 = q_pres[1];
   double q2 = q_pres[2];
@@ -3350,7 +3342,7 @@ ForceFrame3d::getResistingForce()
   pg += theCoordTransf->pushConstant(pf);
   if (total_mass != 0.0)
     wrapper.addVector(1.0, p_iner, -1.0);
-#endif
+
   return wrapper;
 }
 
