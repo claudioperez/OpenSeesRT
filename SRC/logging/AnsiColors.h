@@ -1,10 +1,18 @@
-/*
- * This is free and unencumbered software released into the public domain.
- *
- * For more information, please refer to <https://unlicense.org>
- */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
+//
+// Description: This file defines macros that expand into ANSI escape sequences
+// for colored output 
+//
+// References:
+//
+//  ANSI X3.64 (ISO/IEC 6429).
+//
 
-//Regular text
+// Regular text
 #define BLK "\033[0;30m"
 #define RED "\033[0;31m"
 #define GRN "\033[0;32m"
@@ -14,7 +22,7 @@
 #define CYN "\033[0;36m"
 #define WHT "\033[0;37m"
 
-//Regular bold text
+// Regular bold text
 #define BBLK "\033[1;30m"
 #define BRED "\033[1;31m"
 #define BGRN "\033[1;32m"
@@ -24,7 +32,7 @@
 #define BCYN "\033[1;36m"
 #define BWHT "\033[1;37m"
 
-//Regular underline text
+// Regular underline text
 #define UBLK "\033[4;30m"
 #define URED "\033[4;31m"
 #define UGRN "\033[4;32m"

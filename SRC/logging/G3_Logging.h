@@ -1,3 +1,4 @@
+#pragma once
 #include "AnsiColors.h"
 #include <OPS_Stream.h>
 #define opserr (*opserrPtr)
