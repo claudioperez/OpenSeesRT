@@ -87,15 +87,23 @@ Additional features include:
 
 ### Getting Started
 
-- To start a Tcl interpreter run the shell command:
+- To execute Tcl procedures from a Python script, just create an instance
+  of the `opensees.tcl.Interpreter` class:
+  ```
+  interp = opensees.tcl.Interpreter()
+  interp.eval("model Basic -ndm 2; print -json")
+  ```
+
+- To start an interactive interpreter run the shell command:
 
   ```bash
   python -m opensees
   ```
 
 - The `opensees` package exposes a compatibility layer that exactly reproduces
-  the original *OpenSeesPy* functions, but does so without mandating a single
+  the *OpenSeesPy* functions, but does so without mandating a single
   global program state. To run OpenSeesPy scripts, just change the import:
+
   ```python
   import openseespy.opensees
   ```
