@@ -30,6 +30,7 @@ options = {
             "-DCMAKE_BUILD_TYPE=DEBUG",
             "-DCMAKE_INTERPROCEDURAL_OPTIMIZATION:BOOL=FALSE",
         ],
+        "no-build": []
 }
 
 if os.name == "nt":
@@ -68,13 +69,14 @@ if __name__ == "__main__":
        data_files=[('bin', [*map(str,Path("win32/").glob("*.*"))]),
        ] if os.name == "nt" else [],
        cmdclass = {"build_ext": amoeba.BuildExtension,
-                   "cmake": amoeba.CMakeCommand},
+                   "cmake": amoeba.CMakeCommand} if build_type != "no-build" else {},
        ext_modules = [
            amoeba.CMakeExtension(
                name = build_type,
                install_prefix="opensees",
+               cmake_build_type=options[build_type][0].split("=")[-1],
                cmake_configure_options = [
-                   "-G", "Unix Makefiles",
+#                  "-G", "Unix Makefiles",
                    *EnvArgs,
                    *options[build_type],
                    f"-DOPENSEESRT_VERSION={version}",
@@ -86,6 +88,6 @@ if __name__ == "__main__":
                    *OpenSeesPyRT_Target
                ]
            )
-       ]
+       ] if build_type != "no-build" else []
     )
 

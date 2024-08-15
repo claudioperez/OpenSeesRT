@@ -47,7 +47,7 @@ int DirectIntegrationAnalysis::analyzeStep(double dT)
 
             // now loop over load patterns, invoking applyLoad on them
             LoadPatternIter &thePatterns = this->getLoadPatterns();
-            while((thePattern = thePatterns()) != 0)
+            while ((thePattern = thePatterns()) != 0)
               thePattern->(UniformExcitation::)applyLoad(newTime) {
                   while ((theNode = (theDomain->...)theNodes()) != 0) {
                       theNode->setNumColR(1);
@@ -71,7 +71,8 @@ int DirectIntegrationAnalysis::analyzeStep(double dT)
                               theNode->setR(5, 0,  fact);
                           }
                       }
-                  } 
+                  }
+
                   this->EarthquakePattern::applyLoad(time) {
                     currentTime = time;
                     for (int i=0; i<numMotions; i++)

@@ -43,7 +43,7 @@ $$
 \boldsymbol{u}_{n} - \boldsymbol{u}_{n}^{(i)}  \\ 
 \lambda_n - \lambda_n^{(i)} 
 \end{array} \right\}
-\label{staticFormTaylor}
+%\label{staticFormTaylor}
 $$
 
 which a system of of $N$ equations with ($N+1$) unknowns. Two solve
@@ -88,3 +88,24 @@ The following are the aggregates of such an analysis type:
    $Ax = b$, where $A$ is a matrix and $x$ and $b$ are vectors.
 
 
+
+|                | `-det`   |  `-iterScale` |  `-exp`  |  `phat`  | `-min/max` |
+|----------------|----------|---------------|----------|----------|------|
+| `MinUnbalDisp` | Fix      | 
+| `ArcLength`    | Add      | Add           |   Add    |
+| `LoadControl`  | Add      | 
+| `DispControl`  | Add      | 
+
+
+
+|              | `-det`  |
+|--------------|---------|
+| `Umfpack`    | 
+| `FullGen`    |
+| `BandGen`    |
+| `ProfileSPD` |
+| `Band SPD`   |
+| `SparseGen`  |
+| `SparseSym`  |
+| `UmfGen`     |
+| `Conjugate Gradient`

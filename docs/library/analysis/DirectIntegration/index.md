@@ -76,21 +76,25 @@ $\operatorname{I}_1$ and $\operatorname{I}_2$, to relate the velocity and accele
 step as a function of the displacement at the time step and the response
 at previous time steps:
 
-$$\dot {\boldsymbol{u}}_{t} = {\I}_1 ({\boldsymbol{u}}_t, {\boldsymbol{u}}_{t-\Delta t}, \dot {\boldsymbol{u}}_{t-\Delta t},
+$$\dot {\boldsymbol{u}}_{t} = {\mathrm{I}}_1 ({\boldsymbol{u}}_t, {\boldsymbol{u}}_{t-\Delta t}, \dot {\boldsymbol{u}}_{t-\Delta t},
 \ddot {\boldsymbol{u}}_{t - \Delta t}, {\boldsymbol{u}}_{t - 2\Delta t}, \dot {\boldsymbol{u}}_{t - 2 \Delta t}. ..., )
-\label{I1}$$
+%\label{I1}
+$$
 
-$$\ddot {\boldsymbol{u}}_{t} = {\I}_2 ({\boldsymbol{u}}_t, {\boldsymbol{u}}_{t-\Delta t}, \dot {\boldsymbol{u}}_{t-\Delta t},
-\ddot {\boldsymbol{u}}_{t - \Delta t}, {\boldsymbol{u}}_{t - 2\Delta t}, \dot {\boldsymbol{u}}_{t - 2 \Delta t}. ..., )
-\label{I2}$$
+$$\ddot {\boldsymbol{u}}_{t} = {\mathrm{I}}_2 ({\boldsymbol{u}}_t, {\boldsymbol{u}}_{t-\Delta t}, \dot{\boldsymbol{u}}_{t-\Delta t},
+\ddot{\boldsymbol{u}}_{t - \Delta t}, {\boldsymbol{u}}_{t - 2\Delta t}, \dot{\boldsymbol{u}}_{t - 2 \Delta t}. ..., )
+%\label{I2}
+$$
 
 These allow us to rewrite
 equation [\[fullTimeForm](#fullTimeForm){reference-type="ref"
 reference="fullTimeForm"}, in terms of a single response quantity,
 typically the displacement:
 
-$$\boldsymbol{r}({\boldsymbol{u}}_t) = \boldsymbol{p}_f(t) - \boldsymbol{p}_{\mathrm{i}}(\ddot{\boldsymbol{u}}_t) - \boldsymbol{p}_{\sigma}({\boldsymbol{u}}_t, \dot{\boldsymbol{u}}_t)
-\label{genForm}$$
+$$
+\boldsymbol{r}({\boldsymbol{u}}_t) = \boldsymbol{p}_f(t) - \boldsymbol{p}_{\mathrm{i}}(\ddot{\boldsymbol{u}}_t) - \boldsymbol{p}_{\sigma}({\boldsymbol{u}}_t, \dot{\boldsymbol{u}}_t)
+%\label{genForm}
+$$
 
 The solution of this equation is typically obtained using an iterative
 procedure, i.e. making an initial prediction for ${\boldsymbol{u}}_{t}$, denoted
@@ -98,8 +102,7 @@ ${\boldsymbol{u}}_{t}^{(0)}$ a sequence of approximations ${\boldsymbol{u}}_{t}^
 is obtained which converges (we hope) to the solution ${\boldsymbol{u}}_{t}$. The most
 frequently used iterative schemes, such as Newton-Raphson, modified
 Newton, and quasi Newton schemes, are based on a Taylor expansion of
-equation [\[genForm](#genForm){reference-type="ref"
-reference="genForm"} about ${\boldsymbol{u}}_{t}$:
+equation [genForm](#genForm) about ${\boldsymbol{u}}_{t}$:
 
 $$\boldsymbol{r}({\boldsymbol{u}}_{t}) = 
 \boldsymbol{r}({\boldsymbol{u}}_{t}^{(i)}) +
@@ -108,11 +111,12 @@ $$\boldsymbol{r}({\boldsymbol{u}}_{t}) =
 
 $$
 \boldsymbol{r}({\boldsymbol{u}}_{t}) = \boldsymbol{p}_f (t) - \boldsymbol{p}_{\mathrm{i}} \left( \ddot {\boldsymbol{u}}_{t}^{(i)} \right) - \boldsymbol{p}_{\sigma} \left( \dot {\boldsymbol{u}}_{t}^{(i)}, {\boldsymbol{u}}_{t}^{(i)} \right)- \left[
-  \boldsymbol{M}^{(i)} {\I}_2'
-+ \boldsymbol{C}^{(i)} {\I}_1'
+  \boldsymbol{M}^{(i)} {\mathrm{I}}_2'
++ \boldsymbol{C}^{(i)} {\mathrm{I}}_1'
 + \boldsymbol{K}^{(i)}  \right]
  \left( {\boldsymbol{u}}_{t} - {\boldsymbol{u}}_{t}^{(i)} \right)
-\label{femGenFormTaylor}$$
+%\label{femGenFormTaylor}
+$$
 
 To start the iteration scheme, trial values for ${\boldsymbol{u}}_{t}$, $\dot
 {\boldsymbol{u}}_{t}$ and $\ddot {\boldsymbol{u}}_{t}$ are required. These are obtained by assuming

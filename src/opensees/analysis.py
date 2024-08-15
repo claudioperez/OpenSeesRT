@@ -132,11 +132,3 @@ class DirectIntegrationAnalysis(Analysis):
             return self._analysis.analyze(steps, time_step)
 
 
-
-
-def eigen(model, num):
-    pass
-
-def modes(model, num):
-    pass
-
