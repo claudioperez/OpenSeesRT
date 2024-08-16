@@ -48,17 +48,6 @@
 #include <DOF_Numberer.h>
 #include "analysis.h"
 
-// extern StaticIntegrator *theStaticIntegrator;
-// extern TransientIntegrator *theTransientIntegrator;
-// extern DirectIntegrationAnalysis *theTransientAnalysis;
-// extern VariableTimeStepDirectIntegrationAnalysis
-//            *theVariableTimeStepTransientAnalysis;
-
-// extern ConvergenceTest   *theTest;
-// extern DOF_Numberer      *theGlobalNumberer ;
-// extern EigenSOE          *theEigenSOE;
-// extern LinearSOE         *theSOE;
-// extern ConstraintHandler *theHandler ;
 
 // for response spectrum analysis
 extern void OPS_DomainModalProperties(G3_Runtime*);
@@ -692,7 +681,6 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
       }
     } else {
       *output << b;
-      // close the output file
       outputFile.close();
     }
   }
@@ -743,16 +731,20 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
   
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
-  // make sure at least one other argument to contain numberer
+  // make sure at least one other argument to contain type name
   if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "need to specify a Nemberer type \n";
+    opserr << G3_ERROR_PROMPT << "need to specify a constraint type \n";
     return TCL_ERROR;
   }
 
   ConstraintHandler *theHandler = nullptr;
-  // check argv[1] for type of Numberer and create the object
+  // check argv[1] for type of handler and create the object
   if (strcmp(argv[1], "Plain") == 0)
     theHandler = new PlainHandler();
+
+  else if (strcmp(argv[1], "Transformation") == 0) {
+    theHandler = new TransformationConstraintHandler();
+  }
 
   else if (strcmp(argv[1], "Penalty") == 0) {
     if (argc < 4) {
@@ -767,21 +759,6 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
     theHandler = new PenaltyConstraintHandler(alpha1, alpha2);
   }
 
-#if 0
-  // ***** adding later
-  else if (strcmp(argv[1],"PenaltyNoHomoSPMultipliers") == 0) {
-    if (argc < 4) {
-      opserr << "WARNING: need to specify alpha: handler Penalty alpha \n";
-      return TCL_ERROR;
-    }
-    double alpha1, alpha2;
-    if (Tcl_GetDouble(interp, argv[2], &alpha1) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetDouble(interp, argv[3], &alpha2) != TCL_OK)
-      return TCL_ERROR;
-    theHandler = new PenaltyHandlerNoHomoSPMultipliers(alpha1, alpha2);
-  } // **********************
-#endif
   else if (strcmp(argv[1], "Lagrange") == 0) {
     double alpha1 = 1.0;
     double alpha2 = 1.0;
@@ -792,10 +769,6 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
     }
     theHandler = new LagrangeConstraintHandler(alpha1, alpha2);
-  }
-
-  else if (strcmp(argv[1], "Transformation") == 0) {
-    theHandler = new TransformationConstraintHandler();
   }
 
   else {
