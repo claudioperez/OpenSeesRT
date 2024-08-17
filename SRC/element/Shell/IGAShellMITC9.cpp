@@ -52,7 +52,7 @@ OPS_ADD_RUNTIME_VPV(OPS_IGAShellMITC9)
   
   if (numArgs < 11) {
     opserr << "Want: element IGAShellMITC9 $tag $node1 $node2 .... $node9 $secTag";
-    return 0;	
+    return 0;    
   }
   
   int iData[11];
@@ -70,8 +70,8 @@ OPS_ADD_RUNTIME_VPV(OPS_IGAShellMITC9)
   }
   
   theElement = new IGAShellMITC9(iData[0], iData[1], iData[2], iData[3],
-			   iData[4], iData[5], iData[6], iData[7],
-			   iData[8], iData[9], *theSection);
+               iData[4], iData[5], iData[6], iData[7],
+               iData[8], iData[9], *theSection);
 
   return theElement;
 }
@@ -223,25 +223,25 @@ IGAShellMITC9::IGAShellMITC9(int tag,
 //******************************************************************
 
 //destructor 
-IGAShellMITC9::~IGAShellMITC9( )
+IGAShellMITC9::~IGAShellMITC9()
 {
-  int i ;
-  
-  for ( i = 0 ;  i < 9; i++ ) {
-
+  for (int i = 0 ;  i < 9; i++ ) {
     delete materialPointers[i] ;
     materialPointers[i] = 0 ;
-  } //end for i
+  }
+
   delete[] nodePointers;
   delete[] N0nx;
   delete[] N0ny;
-  for (i = 0;i < 3;i++) {
-      delete[] shp[i];
-  }
+
+  for (int i = 0; i < 3; i++)
+    delete[] shp[i];
+
   delete[] shp;
-  for ( i = 0 ;  i < 9; i++ ) {
+
+  for (int i = 0 ;  i < 9; i++ )
     nodePointers[i] = 0 ;
-  } //end for i
+
 
   if (load != 0)
     delete load;
@@ -273,11 +273,11 @@ void  IGAShellMITC9::setDomain( Domain *theDomain )
   const Matrix &dd = materialPointers[0]->getInitialTangent( ) ;
 
   //assemble ddMembrane ;
-  for ( i = 0; i < 3; i++ ) {
-      for ( j = 0; j < 3; j++ ){
-         ddMembrane(i,j) = dd(i,j) ;
-	  } //end for j
-  } //end for i 
+  for (int i = 0; i < 3; i++ ) {
+    for (int j = 0; j < 3; j++ ){
+       ddMembrane(i,j) = dd(i,j) ;
+    }
+  }
 
   //eigenvalues of ddMembrane
 //TODO
@@ -308,20 +308,22 @@ const ID&  IGAShellMITC9::getExternalNodes( )
 
 
 Node **
-IGAShellMITC9::getNodePtrs(void) 
+IGAShellMITC9::getNodePtrs() 
 {
   return nodePointers;
 } 
 
 //return number of dofs
-int  IGAShellMITC9::getNumDOF( ) 
+int
+IGAShellMITC9::getNumDOF()
 {
   return 54 ;
 }
 
 
 //commit state
-int  IGAShellMITC9::commitState( )
+int 
+IGAShellMITC9::commitState()
 {
   int success = 0 ;
 
@@ -339,12 +341,12 @@ int  IGAShellMITC9::commitState( )
 
 
 //revert to last commit 
-int  IGAShellMITC9::revertToLastCommit( ) 
+int
+IGAShellMITC9::revertToLastCommit()
 {
-  int i ;
   int success = 0 ;
 
-  for ( i = 0; i < 9; i++ )
+  for (int i = 0; i < 9; i++ )
     success += materialPointers[i]->revertToLastCommit( ) ;
   
   return success ;
@@ -352,12 +354,12 @@ int  IGAShellMITC9::revertToLastCommit( )
     
 
 //revert to start 
-int  IGAShellMITC9::revertToStart( ) 
+int
+IGAShellMITC9::revertToStart()
 {
-  int i ;
   int success = 0 ;
 
-  for ( i = 0; i < 9; i++ )
+  for (int i = 0; i < 9; i++ )
     success += materialPointers[i]->revertToStart( ) ;
   
   return success ;
@@ -420,11 +422,16 @@ void  IGAShellMITC9::Print( OPS_Stream &s, int flag )
         s << "\t\t\t{";
         s << "\"name\": " << this->getTag() << ", ";
         s << "\"type\": \"ShellMITC9\", ";
-        s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << ", ";
-        s << connectedExternalNodes(2) << ", " << connectedExternalNodes(3) << ", ";
-        s << connectedExternalNodes(4) << ", " << connectedExternalNodes(5) << ", ";
-        s << connectedExternalNodes(6) << ", " << connectedExternalNodes(7) << ", ";
-        s << connectedExternalNodes(8) << "], ";
+        s << "\"nodes\": [" 
+          << connectedExternalNodes(0) << ", " 
+          << connectedExternalNodes(1) << ", "
+          << connectedExternalNodes(2) << ", "
+          << connectedExternalNodes(3) << ", "
+          << connectedExternalNodes(4) << ", " 
+          << connectedExternalNodes(5) << ", "
+          << connectedExternalNodes(6) << ", " 
+          << connectedExternalNodes(7) << ", "
+          << connectedExternalNodes(8) << "], ";
         s << "\"section\": \"" << materialPointers[0]->getTag() << "\"}";
     }
 }
@@ -477,7 +484,7 @@ IGAShellMITC9::setResponse(const char **argv, int argc, OPS_Stream &output)
 
   } else if (strcmp(argv[0],"stresses") ==0) {
 
-	  for (int i=0; i<9; i++) {
+      for (int i=0; i<9; i++) {
       output.tag("GaussPoint");
       output.attr("number",i+1);
       output.attr("eta",sg[i]);
@@ -504,7 +511,7 @@ IGAShellMITC9::setResponse(const char **argv, int argc, OPS_Stream &output)
 
   } else if (strcmp(argv[0],"strains") ==0) {
 
-	  for (int i=0; i<9; i++) {
+      for (int i=0; i<9; i++) {
       output.tag("GaussPoint");
       output.attr("number",i+1);
       output.attr("eta",sg[i]);
@@ -565,7 +572,7 @@ IGAShellMITC9::getResponse(int responseID, Information &eleInfo)
     return eleInfo.setVector(stresses);
     break;
 
-	case 3: // strains
+    case 3: // strains
     for (i = 0; i < 9; i++) {
 
       // Get material stress response
@@ -946,8 +953,8 @@ IGAShellMITC9::formInertiaTerms( int tangFlag )
     for ( j = 0; j < numberNodes; j++ ) 
       //momentum += ( shp[massIndex][j] * nodePointers[j]->getTrialAccel() ) ;
       momentum.addVector(1.0,  
-			             nodePointers[j]->getTrialAccel(),
-			             shp[massIndex][j] ) ;
+                         nodePointers[j]->getTrialAccel(),
+                         shp[massIndex][j] ) ;
       
     //density
     rhoH = materialPointers[i]->getRho() ;
@@ -966,17 +973,17 @@ IGAShellMITC9::formInertiaTerms( int tangFlag )
       
       if ( tangFlag == 1 && rhoH != 0.0) {
 
-	    //multiply by density
-	    temp *= rhoH ;
+        //multiply by density
+        temp *= rhoH ;
 
-	    //node-node translational mass
+        //node-node translational mass
         //kk = 0 ;
         for ( k=0, kk=0; k<numberNodes; k++, kk+=ndf ) {
 
-	       massJK = temp * shp[massIndex][k] ;
+           massJK = temp * shp[massIndex][k] ;
 
-	       for ( p = 0; p < 3; p++ ) 
-	          mass( jj+p, kk+p ) +=  massJK ;
+           for ( p = 0; p < 3; p++ ) 
+              mass( jj+p, kk+p ) +=  massJK ;
             
         } // end for k loop
       } // end if tang_flag 
@@ -1115,7 +1122,7 @@ IGAShellMITC9::formResidAndTangent( int tang_flag )
 
     //volume element to also be saved
     dvol[i] = wg[i] * xsj ;
-	volume += dvol[i] ;
+    volume += dvol[i] ;
 
     //zero the strains
     strain.Zero( ) ;
@@ -1130,16 +1137,16 @@ IGAShellMITC9::formResidAndTangent( int tang_flag )
 
       Bbend = computeBbend( j, shp ) ;
 
-	  Bshear = computeBshear( j, shp ) ;
-	  
+      Bshear = computeBshear( j, shp ) ;
+      
       BJ = assembleB( Bmembrane, Bbend, Bshear ) ;
 
-	  //save the B-matrix
-	  for (p=0; p<nstress; p++) {
-		for (q=0; q<ndf; q++ ) {
-		  saveB[p][q][j] = BJ(p,q) ;
-		}//end for q
-	  }//end for p
+      //save the B-matrix
+      for (p=0; p<nstress; p++) {
+        for (q=0; q<ndf; q++ ) {
+          saveB[p][q][j] = BJ(p,q) ;
+        }//end for q
+      }//end for p
 
       //nodal "displacements" 
       const Vector &ul = nodePointers[j]->getTrialDisp( ) ;
@@ -1151,15 +1158,15 @@ IGAShellMITC9::formResidAndTangent( int tang_flag )
       //drilling B matrix
       drillPointer = computeBdrill( j, shp ) ;
       for (p=0; p<ndf; p++ ) {
-	    //BdrillJ[p] = *drillPointer++ ;
-	    BdrillJ[p] = *drillPointer ; //set p-th component
-	    drillPointer++ ;             //pointer arithmetic
+        //BdrillJ[p] = *drillPointer++ ;
+        BdrillJ[p] = *drillPointer ; //set p-th component
+        drillPointer++ ;             //pointer arithmetic
       }//end for p
 
       //drilling "strain" 
       for ( p = 0; p < ndf; p++ )
-	    epsDrill +=  BdrillJ[p]*ul(p) ;
-	} // end for j
+        epsDrill +=  BdrillJ[p]*ul(p) ;
+    } // end for j
   
 
     //send the strain to the material 
@@ -1187,22 +1194,22 @@ IGAShellMITC9::formResidAndTangent( int tang_flag )
 
       //extract BJ
       for (p=0; p<nstress; p++) {
-	    for (q=0; q<ndf; q++ )
-	      BJ(p,q) = saveB[p][q][j]   ;
+        for (q=0; q<ndf; q++ )
+          BJ(p,q) = saveB[p][q][j]   ;
       }//end for p
 
       //multiply bending terms by (-1.0) for correct statement
       // of equilibrium  
       for ( p = 3; p < 6; p++ ) {
-	    for ( q = 3; q < 6; q++ ) 
-	      BJ(p,q) *= (-1.0) ;
+        for ( q = 3; q < 6; q++ ) 
+          BJ(p,q) *= (-1.0) ;
       } //end for p
 
       //transpose 
       //BJtran = transpose( 8, ndf, BJ ) ;
       for (p=0; p<ndf; p++) {
-	    for (q=0; q<nstress; q++) 
-	      BJtran(p,q) = BJ(q,p) ;
+        for (q=0; q<nstress; q++) 
+          BJtran(p,q) = BJ(q,p) ;
       }//end for p
 
       //residJ = BJtran * stress ;
@@ -1211,8 +1218,8 @@ IGAShellMITC9::formResidAndTangent( int tang_flag )
       //drilling B matrix
       drillPointer = computeBdrill( j, shp ) ;
       for (p=0; p<ndf; p++ ) {
-	    BdrillJ[p] = *drillPointer ;
-	    drillPointer++ ;
+        BdrillJ[p] = *drillPointer ;
+        drillPointer++ ;
       }//end for p
 
       //residual including drill
@@ -1222,42 +1229,42 @@ IGAShellMITC9::formResidAndTangent( int tang_flag )
       if ( tang_flag == 1 ) {
 
         //BJtranD = BJtran * dd ;
-	    BJtranD.addMatrixProduct(0.0, BJtran,dd,1.0 ) ;
+        BJtranD.addMatrixProduct(0.0, BJtran,dd,1.0 ) ;
         
-	    for (p=0; p<ndf; p++) {
-	      BdrillJ[p] *= ( Ktt*dvol[i] ) ;
+        for (p=0; p<ndf; p++) {
+          BdrillJ[p] *= ( Ktt*dvol[i] ) ;
         }//end for p
 
         kk = 0 ;
         for ( k = 0; k < numnodes; k++ ) {
           //extract BK
-	      for (p=0; p<nstress; p++) {
-	        for (q=0; q<ndf; q++ ){
-	          BK(p,q) = saveB[p][q][k];
+          for (p=0; p<nstress; p++) {
+            for (q=0; q<ndf; q++ ){
+              BK(p,q) = saveB[p][q][k];
               
-			}//end for q
-		  }//end for p
-	  
-    	  //drilling B matrix
-	      drillPointer = computeBdrill( k, shp ) ;
-	      for (p=0; p<ndf; p++ ) {
-	        BdrillK[p] = *drillPointer ;
-	        drillPointer++ ;
-		  }//end for p
+            }//end for q
+          }//end for p
+      
+          //drilling B matrix
+          drillPointer = computeBdrill( k, shp ) ;
+          for (p=0; p<ndf; p++ ) {
+            BdrillK[p] = *drillPointer ;
+            drillPointer++ ;
+          }//end for p
   
           //stiffJK = BJtranD * BK  ;
-	      // +  transpose( 1,ndf,BdrillJ ) * BdrillK ; 
-	      stiffJK.addMatrixProduct(0.0, BJtranD,BK,1.0 ) ;
+          // +  transpose( 1,ndf,BdrillJ ) * BdrillK ; 
+          stiffJK.addMatrixProduct(0.0, BJtranD,BK,1.0 ) ;
 
           for ( p = 0; p < ndf; p++ )  {
-	        for ( q = 0; q < ndf; q++ ) {
-	           stiff( jj+p, kk+q ) += stiffJK(p,q)
-		                 + ( BdrillJ[p]*BdrillK[q] ) ;
-			}//end for q
-		  }//end for p
+            for ( q = 0; q < ndf; q++ ) {
+               stiff( jj+p, kk+q ) += stiffJK(p,q)
+                         + ( BdrillJ[p]*BdrillK[q] ) ;
+            }//end for q
+          }//end for p
           kk += ndf ;
-		} // end for k loop
-	  } // end if tang_flag 
+        } // end for k loop
+      } // end if tang_flag 
       jj += ndf ;
     } // end for j loop
   } //end for i gauss loop
@@ -1278,9 +1285,6 @@ IGAShellMITC9::computeBasis( )
   //and the shell is flat anyway.
 
   static Vector temp(3) ;
-  static Vector v1(3) ;
-  static Vector v2(3) ;
-  static Vector v3(3) ;
 
   //get two vectors (v1, v2) in plane of shell by 
   // nodal coordinate differences
@@ -1290,7 +1294,8 @@ IGAShellMITC9::computeBasis( )
   const Vector &coor2 = nodePointers[8]->getCrds( ) ;
   const Vector &coor3 = nodePointers[6]->getCrds( ) ;
 
-  v1.Zero( ) ;
+  Vector3D v1, v2;
+  v1.zero( ) ;
   //v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
   v1  = coor2 ;
   v1 += coor1 ;
@@ -1298,7 +1303,7 @@ IGAShellMITC9::computeBasis( )
   v1 -= coor0 ;
   v1 *= 0.50 ;
   
-  v2.Zero( ) ;
+  v2.zero( ) ;
   //v2 = 0.5 * ( coor3 + coor2 - coor1 - coor0 ) ;
   v2  = coor3 ;
   v2 += coor2 ;
@@ -1307,12 +1312,12 @@ IGAShellMITC9::computeBasis( )
   v2 *= 0.50 ;
  
   //normalize v1 
-  double length = v1.Norm( ) ;
+  double length = v1.norm() ;
   v1 /= length ;
 
   //Gram-Schmidt process for v2 
 
-  double alpha = v2^v1 ;
+  double alpha = v2.dot(v1);
 
   //v2 -= alpha*v1 ;
   temp = v1 ;
@@ -1320,12 +1325,12 @@ IGAShellMITC9::computeBasis( )
   v2 -= temp ;
 
   //normalize v2 
-  length = v2.Norm( ) ;
+  length = v2.norm( ) ;
   v2 /= length ;
 
   //cross product for v3  
 //TODO
-//  v3 = LovelyCrossProduct( v1, v2 ) ;
+  Vector3D v3 = v1.cross(v2);
   
   //local nodal coordinates in plane of shell
 
@@ -1333,14 +1338,14 @@ IGAShellMITC9::computeBasis( )
        const Vector &coorI = nodePointers[i]->getCrds( ) ;
        xl[0][i] = coorI^v1 ;  
        xl[1][i] = coorI^v2 ;
-  }  //end for i 
+  }
 
-  //basis vectors stored as array of doubles
+  // basis vectors stored as array of doubles
   for (int i = 0; i < 3; i++ ) {
       g1[i] = v1(i) ;
       g2[i] = v2(i) ;
       g3[i] = v3(i) ;
-  }  //end for i
+  }
 }
 
 //*************************************************************************
@@ -1865,7 +1870,7 @@ double IGAQuad::shape2d(int qx, int qy, ID eleIdInfo, Vector KnotVect_x, Vector 
     return DataJ;
 }
 void
-	   
+       
 //**********************************************************************
 Matrix  
 IGAShellMITC9::transpose( int dim1,int dim2,const Matrix &M ) 
@@ -1901,8 +1906,8 @@ int  IGAShellMITC9::sendSelf (int commitTag,Channel &theChannel)
     // tag if we are sending to a database channel.
     if (matDbTag == 0) {
       matDbTag = theChannel.getDbTag();
-			if (matDbTag != 0)
-			  materialPointers[i]->setDbTag(matDbTag);
+            if (matDbTag != 0)
+              materialPointers[i]->setDbTag(matDbTag);
     }
     idData(i+9) = matDbTag;
   }
@@ -1948,7 +1953,7 @@ int  IGAShellMITC9::sendSelf (int commitTag,Channel &theChannel)
 }
     
 int  IGAShellMITC9::recvSelf (int commitTag,Channel &theChannel, 
-		       FEM_ObjectBroker &theBroker)
+               FEM_ObjectBroker &theBroker)
 {
   int res = 0;
   int dataTag = this->getDbTag();
@@ -1992,15 +1997,15 @@ int  IGAShellMITC9::recvSelf (int commitTag,Channel &theChannel,
       // Allocate new material with the sent class tag
       materialPointers[i] = theBroker.getNewSection(matClassTag);
       if (materialPointers[i] == 0) {
-	     opserr << "ShellMITC9::recvSelf() - Broker could not create NDMaterial of class type" << matClassTag << endln;;
-	     return -1;
+         opserr << "ShellMITC9::recvSelf() - Broker could not create NDMaterial of class type" << matClassTag << endln;;
+         return -1;
       }
       // Now receive materials into the newly allocated space
       materialPointers[i]->setDbTag(matDbTag);
       res += materialPointers[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
-	     opserr << "ShellMITC9::recvSelf() - material " << i << "failed to recv itself\n";
-	     return res;
+         opserr << "ShellMITC9::recvSelf() - material " << i << "failed to recv itself\n";
+         return res;
       }
     }
   }
@@ -2012,13 +2017,13 @@ int  IGAShellMITC9::recvSelf (int commitTag,Channel &theChannel,
       // Check that material is of the right type; if not,
       // delete it and create a new one of the right type
       if (materialPointers[i]->getClassTag() != matClassTag) {
-	    delete materialPointers[i];
-	    materialPointers[i] = theBroker.getNewSection(matClassTag);
-	    if (materialPointers[i] == 0) {
-	      opserr << "ShellMITC9::recvSelf() - Broker could not create NDMaterial of class type" << matClassTag << endln;
-	      exit(-1);
-		}
-	  }
+        delete materialPointers[i];
+        materialPointers[i] = theBroker.getNewSection(matClassTag);
+        if (materialPointers[i] == 0) {
+          opserr << "ShellMITC9::recvSelf() - Broker could not create NDMaterial of class type" << matClassTag << endln;
+          exit(-1);
+        }
+      }
       // Receive the material
       materialPointers[i]->setDbTag(matDbTag);
       res += materialPointers[i]->recvSelf(commitTag, theChannel, theBroker);
