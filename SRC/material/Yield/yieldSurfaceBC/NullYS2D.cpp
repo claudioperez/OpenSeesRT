@@ -1,7 +1,7 @@
 // NullYS2D.cpp: implementation of the YieldSurfaceBC class.
 //
 //////////////////////////////////////////////////////////////////////
-
+#include <Logging.h>
 #include "NullYS2D.h"
 #include <math.h>
 #include <NullEvolution.h>
