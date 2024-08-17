@@ -264,7 +264,7 @@ struct MatrixND {
     int nc = NC;
     int info = 0;
     res = M; // M will be overwritten with the solution
-    DGESV(&nr, &nrhs, &work(0,0), &nr, &pivot_ind, &res(0,0), &nc, &info);
+    DGESV(&nr, &nrhs, &work(0,0), &nr, &pivot_ind[0], &res(0,0), &nc, &info);
     return -abs(info);
   }
 
