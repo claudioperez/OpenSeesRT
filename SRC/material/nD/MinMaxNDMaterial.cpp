@@ -34,8 +34,7 @@
 
 #include <elementAPI.h>
 
-void*
-OPS_MinMaxNDMaterial(void)
+void* OPS_ADD_RUNTIME_VPV(OPS_MinMaxNDMaterial)
 {
   // Pointer to an ND material that will be returned
   NDMaterial* theMaterial = 0;
@@ -201,7 +200,7 @@ MinMaxNDMaterial::setTrialStrainIncr(const Vector& strain, const Vector& /*strai
 }
 
 const Vector&
-MinMaxNDMaterial::getStress(void)
+MinMaxNDMaterial::getStress()
 {
   if (Tfailed) {
     static Vector zeroStress(6);
@@ -212,7 +211,7 @@ MinMaxNDMaterial::getStress(void)
 }
 
 const Matrix&
-MinMaxNDMaterial::getTangent(void)
+MinMaxNDMaterial::getTangent()
 {
   if (Tfailed) {
     static Matrix zeroTangent(6,6);
@@ -225,19 +224,19 @@ MinMaxNDMaterial::getTangent(void)
 }
 
 const Matrix&
-MinMaxNDMaterial::getInitialTangent(void)
+MinMaxNDMaterial::getInitialTangent()
 {
   return theMaterial->getInitialTangent();
 }
 
 const Vector&
-MinMaxNDMaterial::getStrain(void)
+MinMaxNDMaterial::getStrain()
 {
   return theMaterial->getStrain();
 }
 
 int
-MinMaxNDMaterial::commitState(void)
+MinMaxNDMaterial::commitState()
 {
   Cfailed = Tfailed;
 
@@ -248,7 +247,7 @@ MinMaxNDMaterial::commitState(void)
 }
 
 int
-MinMaxNDMaterial::revertToLastCommit(void)
+MinMaxNDMaterial::revertToLastCommit()
 {
   // Check if failed at last step
   if (Cfailed)
@@ -258,7 +257,7 @@ MinMaxNDMaterial::revertToLastCommit(void)
 }
 
 int
-MinMaxNDMaterial::revertToStart(void)
+MinMaxNDMaterial::revertToStart()
 {
   Cfailed = false;
   Tfailed = false;
@@ -267,13 +266,13 @@ MinMaxNDMaterial::revertToStart(void)
 }
 
 double
-MinMaxNDMaterial::getRho(void)
+MinMaxNDMaterial::getRho()
 {
   return theMaterial->getRho();
 }
 
 NDMaterial*
-MinMaxNDMaterial::getCopy(void)
+MinMaxNDMaterial::getCopy()
 {
   MinMaxNDMaterial* theCopy = new MinMaxNDMaterial(this->getTag(), *theMaterial, minStrain, maxStrain);
 
@@ -314,12 +313,12 @@ MinMaxNDMaterial::getCopy(const char *type)
 }
 
 const char*
-MinMaxNDMaterial::getType(void) const
+MinMaxNDMaterial::getType() const
 {
   return theMaterial->getType();
 }
 
-int MinMaxNDMaterial::getOrder(void) const
+int MinMaxNDMaterial::getOrder() const
 {
   return theMaterial->getOrder();
 }
@@ -327,7 +326,7 @@ int MinMaxNDMaterial::getOrder(void) const
 int
 MinMaxNDMaterial::sendSelf(int cTag, Channel& theChannel)
 {
-  if (theMaterial == 0) {
+  if (theMaterial == nullptr) {
     opserr << "MinMaxNDMaterial::sendSelf() - theMaterial is null, nothing to send" << endln;
     return -1;
   }
