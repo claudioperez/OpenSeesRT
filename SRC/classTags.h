@@ -359,6 +359,7 @@
 #define SEC_TAG_BiaxialHysteretic 36
 #define SEC_TAG_ElasticTube3d 37
 #define SEC_TAG_CreepSection 38
+#define SEC_TAG_ASDCoupledHinge3D 39
 
 #define SEC_TAG_MCFTFiberSection2d 7601
 
@@ -533,6 +534,7 @@
 #define ND_TAG_PlateFromPlaneStressMaterialThermal 7008   //L.Jiang[SIF]
 
 #define ND_TAG_InitStressNDMaterial 7009
+#define ND_TAG_MinMaxNDMaterial 70091
 
 #define ND_TAG_IncrementalElasticIsotropicThreeDimensional 7010 //Chile
 
@@ -980,6 +982,7 @@ enum {
 #define HANDLER_TAG_PenaltyConstraintHandler    	3
 #define HANDLER_TAG_TransformationConstraintHandler    	4
 #define HANDLER_TAG_PenaltyHandlerNoHomoSPMultipliers   5
+#define HANDLER_TAG_AutoConstraintHandler    6
 
 #define NUMBERER_TAG_DOF_Numberer      	1
 #define NUMBERER_TAG_PlainNumberer 	2
