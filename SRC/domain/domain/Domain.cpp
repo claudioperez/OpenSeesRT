@@ -301,6 +301,9 @@ Domain::~Domain()
 
   if (theParameters != nullptr)
     delete theParameters;
+
+  if (paramIndex != nullptr)
+    delete [] paramIndex;
   
   if (theEleIter != nullptr)
     delete theEleIter;
