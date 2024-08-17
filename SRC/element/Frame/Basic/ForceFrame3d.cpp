@@ -4,6 +4,8 @@
 //
 //===----------------------------------------------------------------------===//
 //
+//  TODO:
+//    how should a dense mass matrix be formed when shear is present?
 //
 /*
  * References
@@ -30,6 +32,7 @@
 #include <float.h>
 #include <array>
 
+#include <Matrix.h>
 #include <Information.h>
 #include <Parameter.h>
 #include <ForceFrame3d.h>
@@ -44,7 +47,6 @@
 #include <CompositeResponse.h>
 #include <ElementalLoad.h>
 #include <ElementIter.h>
-#include <Matrix.h>
 
 #define ELE_TAG_ForceFrame3d 0 // TODO
 
@@ -52,7 +54,8 @@
 #define ALWAYS_STATIC static // used when we need to do things like return a Matrix reference
 
 
-// Constructor invoked by a FEM_ObjectBroker; recvSelf() needs to be invoked on this object.
+// Constructor invoked by FEM_ObjectBroker; 
+// recvSelf() needs to be invoked on this object.
 ForceFrame3d::ForceFrame3d()
  : BasicFrame3d(0, ELE_TAG_ForceFrame3d),
    stencil(nullptr),
@@ -114,7 +117,7 @@ ForceFrame3d::~ForceFrame3d()
 int
 ForceFrame3d::setNodes()
 {
-  // call the DomainComponent class method
+  // call the parent class method
   this->BasicFrame3d::setNodes();
 
   double L = this->getLength(State::Init);
@@ -208,22 +211,22 @@ ForceFrame3d::getIntegral(Field field, State state, double& total)
 int
 ForceFrame3d::commitState()
 {
-  int err = 0;
+  int status = 0;
 
   // Call element commitState to do any base class stuff
-  if ((err = this->Element::commitState()) != 0)
+  if ((status = this->Element::commitState()) != 0)
     opserr << "ForceFrame3d::commitState () - failed in base class";
 
   for (GaussPoint& point : points) {
     point.es_save = point.es;
     if (point.material->commitState() != 0)
       return -1;
-  } 
+  }
 
 
   // commit the transformation between coord. systems
-  if ((err = theCoordTransf->commitState()) != 0)
-    return err;
+  if ((status = theCoordTransf->commitState()) != 0)
+    return status;
 
   // commit the element variables state
   K_save = K_pres;
@@ -232,20 +235,17 @@ ForceFrame3d::commitState()
   // state_flag = 0;  fmk - commented out, see what happens to Example3.1.tcl if uncommented
   //                       - i have not a clue why, ask remo if he ever gets in contact with us again!
 
-  return err;
+  return status;
 }
 
 int
 ForceFrame3d::revertToLastCommit()
 {
-  int err;
-  int i = 0;
-
   for (GaussPoint& point : points) {
     FrameSection& section = *point.material;
 
     point.es = point.es_save;
-    if ((err = section.revertToLastCommit()) != 0)
+    if (section.revertToLastCommit() != 0)
       return -1;
 
     section.setTrialState<nsr,scheme>(point.es);
@@ -255,8 +255,8 @@ ForceFrame3d::revertToLastCommit()
   }
 
   // Revert the transformation to last commit
-  if ((err = theCoordTransf->revertToLastCommit()) != 0)
-    return err;
+  if (theCoordTransf->revertToLastCommit() != 0)
+    return -2;
 
   // Revert the element state to last commit
   q_pres = q_save;
@@ -264,7 +264,7 @@ ForceFrame3d::revertToLastCommit()
 
   state_flag = 0;
 
-  return err;
+  return 0;
 }
 
 
@@ -282,9 +282,8 @@ ForceFrame3d::revertToStart()
 
 
   // revert the transformation to start
-  int err;
-  if ((err = theCoordTransf->revertToStart()) != 0)
-    return err;
+  if (theCoordTransf->revertToStart() != 0)
+    return -2;
 
   // revert the element state to start
   q_save.zero();
@@ -295,7 +294,7 @@ ForceFrame3d::revertToStart()
 
   state_flag = 0;
   // this->update();
-  return err;
+  return 0;
 }
 
 VectorND<6>&
@@ -312,7 +311,7 @@ ForceFrame3d::getBasicTangent(State state, int rate)
 
 const Matrix &
 ForceFrame3d::getMass()
-{    
+{
   if (!mass_initialized) {
     total_mass = 0.0;
     if (this->getIntegral(Field::Density, State::Init, total_mass) != 0)
@@ -429,7 +428,7 @@ ForceFrame3d::update()
   THREAD_LOCAL MatrixND<nsr,nsr> Fs_trial[maxNumSections]; //  flexibility
 
 
-  // if have completed a recvSelf() - do a revertToLastCommit
+  // If we have completed a recvSelf() do a revertToLastCommit()
   // to get sr, etc. set correctly
   if (state_flag == 2)
     this->revertToLastCommit();
@@ -1153,7 +1152,7 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
 {
   // place the integer data into an ID
   int dbTag = this->getDbTag();
-  int i, j, k;
+  int k;
   int loc = 0;
 
   ID idData(11);
@@ -1188,27 +1187,28 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
     return -1;
   }
 
-  // send the coordinate transformation
+  // Send the coordinate transformation
 
   if (theCoordTransf->sendSelf(commitTag, theChannel) < 0) {
     opserr << "ForceFrame3d::sendSelf() - failed to send crdTranf\n";
     return -1;
   }
 
+  // Send the beam integration
   if (stencil->sendSelf(commitTag, theChannel) < 0) {
     opserr << "ForceFrame3d::sendSelf() - failed to send stencil\n";
     return -1;
   }
 
   //
-  // send an ID for the sections containing each sections dbTag and classTag
+  // Send an ID for the sections containing each sections dbTag and classTag
   // if section ha no dbTag get one and assign it
   //
 
   const int numSections = points.size();
   ID idSections(2 * numSections);
   loc = 0;
-  for (i = 0; i < numSections; i++) {
+  for (int i = 0; i < numSections; i++) {
     int sectClassTag = points[i].material->getClassTag();
     int sectDbTag    = points[i].material->getDbTag();
     if (sectDbTag == 0) {
@@ -1227,7 +1227,7 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   }
 
   //
-  // send the sections
+  // Send the sections
   //
 
   for (int j = 0; j < numSections; j++) {
@@ -1748,6 +1748,7 @@ void
 ForceFrame3d::Print(OPS_Stream& s, int flag)
 {
   int numSections = points.size();
+
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << OPS_PRINT_JSON_ELEM_INDENT << "{";
     s << "\"name\": " << this->getTag() << ", ";
@@ -1941,7 +1942,7 @@ operator<<(OPS_Stream& s, ForceFrame3d& E)
 Response*
 ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
-  Response* theResponse = 0;
+  Response* theResponse = nullptr;
 
   output.tag("ElementOutput");
   output.attr("eleType", "ForceFrame3d");
@@ -2071,12 +2072,8 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     int numResponse                 = 0;
     const int numSections = points.size();
     double L = theCoordTransf->getInitialLength();
-    // TODO: maxNumSections
-    double xi[maxNumSections];
-    stencil->getSectionLocations(numSections, L, xi);
 
     for (int i = 0; i < numSections; i++) {
-
       output.tag("GaussPointOutput");
       output.attr("number", i + 1);
       output.attr("eta", points[i].point * L);
@@ -2142,7 +2139,8 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
         output.endTag();
 
-      } else if (sectionNum == 0) { // argv[1] was not an int, we want all sections,
+      } else if (sectionNum == 0) { 
+        // argv[1] was not an int, we want all sections,
 
         CompositeResponse* theCResponse = new CompositeResponse();
         int numResponse                 = 0;
@@ -2259,25 +2257,31 @@ ForceFrame3d::getResponse(int responseID, Information& info)
   }
 
   else if (responseID == 10) {
+    // ensure we have L, xi[] and wt[]
+    if (this->setState(State::Init) != 0)
+      return nullptr;
+
     double L = theCoordTransf->getInitialLength();
-    double pts[maxNumSections];
-    const int numSections = points.size();
-    stencil->getSectionLocations(numSections, L, pts);
+
     Vector locs(numSections);
-    for (int i = 0; i < numSections; i++)
-      locs(i) = pts[i] * L;
-    return info.setVector(locs);
+    for (int i = 0; i < points.size(); i++)
+      locs[i] = xi[i] * L;
+
+    return eleInfo.setVector(locs);
   }
 
   else if (responseID == 11) {
+    // ensure we have L, xi[] and wt[]
+    if (this->setState(State::Init) != 0)
+      return nullptr;
+
     double L = theCoordTransf->getInitialLength();
-    double wts[maxNumSections];
-    const int numSections = points.size();
-    stencil->getSectionWeights(numSections, L, wts);
+
     Vector weights(numSections);
-    for (int i = 0; i < numSections; i++)
+    for (int i = 0; i < points.size(); i++)
       weights(i) = wts[i] * L;
-    return info.setVector(weights);
+
+    return eleInfo.setVector(weights);
   }
 
   else if (responseID == 110) {
@@ -2370,7 +2374,7 @@ ForceFrame3d::getResponse(int responseID, Information& info)
     Matrix disps(20, 3);
     vp = theCoordTransf->getBasicTrialDisp();
     for (int i = 0; i < 20; i++) {
-      uxb(0)      = pts[i] * vp(0); // linear shape function
+      uxb(0)      = pts[i] * vp[0]; // linear shape function
       uxb(1)      = dispsy(i);
       uxb(2)      = dispsz(i);
       uxg         = theCoordTransf->getPointGlobalDisplFromBasic(pts[i], uxb);
@@ -3274,6 +3278,7 @@ ForceFrame3d::setSectionPointers(std::vector<FrameSection*>& new_sections)
         .weight=0,
         .material=section->getFrameCopy(scheme)
     });
+
 
     // Check sections
     int sectionKey1 = -1;

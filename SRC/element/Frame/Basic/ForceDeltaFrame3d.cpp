@@ -29,7 +29,6 @@
  *  "Response Sensitivity for Nonlinear Beam-Column Elements."
  *  Journal of Structural Engineering, 130(9):1281-1288.
  *
- *
  */
 #include <array>
 #include <vector>
@@ -53,7 +52,6 @@
 #define THREAD_LOCAL static
 #define ELE_TAG_ForceDeltaFrame3d 0 // TODO
 
-Matrix ForceDeltaFrame3d::theMatrix(12, 12);
 Vector ForceDeltaFrame3d::theVector(12);
 
 
@@ -1061,19 +1059,20 @@ ForceDeltaFrame3d::computew(Vector& w, Vector& wp, double xi[], const Vector& ka
   int numSections = points.size();
   double L = theCoordTransf->getInitialLength();
 
-  Matrix ls(numSections, numSections);
 
   Matrix Ginv(numSections, numSections);
   vandermonde_inverse(numSections, xi, Ginv);
 
-  Matrix H(numSections, numSections);
 
   bool isGamma = false;
   for (int i = 0; i < numSections; i++) {
-    if (gamma(i) != 0.0)
+    if (gamma[i] != 0.0)
       isGamma = true;
   }
   isGamma = shear_flag && isGamma;
+
+  Matrix H(numSections, numSections);
+  Matrix ls(numSections, numSections);
 
   this->getHk(numSections, xi, H);
   ls.addMatrixProduct(0.0, H, Ginv, 1.0);
@@ -1105,8 +1104,8 @@ ForceDeltaFrame3d::computedwdq(Matrix& dwidq,
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
-  double xi[maxNumSections];
-  stencil->getSectionLocations(numSections, L, xi);
+//double xi[maxNumSections];
+//stencil->getSectionLocations(numSections, L, xi);
 
   Matrix A(2 * numSections, 2 * numSections);
   Matrix b(2 * numSections, nq);
@@ -2577,15 +2576,9 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
     if (fabs(q_pres[1] + q_pres[2]) > DBL_EPSILON)
       LI = q_pres[1] / (q_pres[1] + q_pres[2]) * L;
 
-    double wts[maxNumSections];
-    stencil->getSectionWeights(numSections, L, wts);
-
-    double pts[maxNumSections];
-    stencil->getSectionLocations(numSections, L, pts);
-
     int i;
-    for (i = 0; i < numSections; i++) {
-      double x = pts[i] * L;
+    for (int i = 0; i < numSections; i++) {
+      double x = xi[i] * L;
       if (x > LI)
         continue;
       const ID& type = points[i].material->getType();
@@ -2595,13 +2588,13 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
         if (type(j) == SECTION_RESPONSE_MZ)
           kappa += points[i].es[j];
       double b = -LI + x;
-      d2 += (wts[i] * L) * kappa * b;
+      d2 += (wt[i] * L) * kappa * b;
     }
 
     d2 += stencil->getTangentDriftI(L, LI, q_pres[1], q_pres[2]);
 
-    for (i = numSections - 1; i >= 0; i--) {
-      double x = pts[i] * L;
+    for (int i = numSections - 1; i >= 0; i--) {
+      double x = xi[i] * L;
       if (x < LI)
         continue;
       const ID& type = points[i].material->getType();
@@ -2610,7 +2603,7 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
         if (type(j) == SECTION_RESPONSE_MZ)
           kappa += points[i].es[j];
       double b = x - LI;
-      d3 += (wts[i] * L) * kappa * b;
+      d3 += (wt[i] * L) * kappa * b;
     }
 
     d3 += stencil->getTangentDriftJ(L, LI, q_pres[1], q_pres[2]);
@@ -2643,24 +2636,30 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
   */
 
   else if (responseID == 10) {
-    int numSections = points.size();
+    // ensure we have L, xi[] and wt[]
+    if (this->setState(State::Init) != 0)
+      return nullptr;
+
     double L = theCoordTransf->getInitialLength();
-    double pts[maxNumSections];
-    stencil->getSectionLocations(numSections, L, pts);
+
     Vector locs(numSections);
-    for (int i = 0; i < numSections; i++)
-      locs(i) = pts[i] * L;
+    for (int i = 0; i < points.size(); i++)
+      locs[i] = xi[i] * L;
+
     return eleInfo.setVector(locs);
   }
 
   else if (responseID == 11) {
-    int numSections = points.size();
+    // ensure we have L, xi[] and wt[]
+    if (this->setState(State::Init) != 0)
+      return nullptr;
+
     double L = theCoordTransf->getInitialLength();
-    double wts[maxNumSections];
-    stencil->getSectionWeights(numSections, L, wts);
+
     Vector weights(numSections);
-    for (int i = 0; i < numSections; i++)
+    for (int i = 0; i < points.size(); i++)
       weights(i) = wts[i] * L;
+
     return eleInfo.setVector(weights);
   }
 
@@ -3078,15 +3077,17 @@ ForceDeltaFrame3d::activateParameter(int passedParameterID)
 const Matrix&
 ForceDeltaFrame3d::getKiSensitivity(int gradNumber)
 {
-  theMatrix.Zero();
-  return theMatrix;
+  static MatrixND<12,12> dKi{};
+  static Matrix wrapper(dKi);
+  return wrapper;
 }
 
 const Matrix&
 ForceDeltaFrame3d::getMassSensitivity(int gradNumber)
 {
-  theMatrix.Zero();
-  return theMatrix;
+  static MatrixND<12,12> dM{};
+  static Matrix wrapper(dM);
+  return wrapper;
 }
 
 const Vector&
@@ -4115,14 +4116,74 @@ ForceDeltaFrame3d::getMass()
 const Matrix &
 ForceDeltaFrame3d::getMass()
 {
-  theMatrix.Zero();
-  
-  double L = theCoordTransf->getInitialLength();
-  if (density != 0.0)
-    theMatrix(0,0) = theMatrix(1,1) = theMatrix(2,2) =
-      theMatrix(6,6) = theMatrix(7,7) = theMatrix(8,8) = 0.5*L*density;
-  
-  return theMatrix;
+  if (!mass_initialized) {
+    total_mass = 0.0;
+    if (this->getIntegral(Field::Density, State::Init, total_mass) != 0)
+      total_mass = 0.0;
+
+    // Twisting inertia
+    twist_mass = 0.0;
+    if (this->getIntegral(Field::PolarInertia, State::Init, twist_mass) != 0)
+      twist_mass = 0.0;
+
+    mass_initialized = true;
+  }
+
+  if (total_mass == 0.0) {
+
+      ALWAYS_STATIC MatrixND<12,12> M{0.0};
+      ALWAYS_STATIC Matrix Wrapper{M};
+      return Wrapper;
+
+  } else if (mass_flag == 0)  {
+
+      ALWAYS_STATIC MatrixND<12,12> M{0.0};
+      ALWAYS_STATIC Matrix Wrapper{M};
+      // lumped mass matrix
+      double m = 0.5*total_mass;
+      M(0,0) = m;
+      M(1,1) = m;
+      M(2,2) = m;
+      M(6,6) = m;
+      M(7,7) = m;
+      M(8,8) = m;
+      return Wrapper;
+
+  } else {
+      // consistent (cubic, prismatic) mass matrix
+
+      double L  = this->getLength(State::Init);
+      double m  = total_mass/420.0;
+      double mx = twist_mass;
+      ALWAYS_STATIC MatrixND<12,12> ml{0.0};
+
+      ml(0,0) = ml(6,6) = m*140.0;
+      ml(0,6) = ml(6,0) = m*70.0;
+
+      ml(3,3) = ml(9,9) = mx/3.0; // Twisting
+      ml(3,9) = ml(9,3) = mx/6.0;
+
+      ml( 2, 2) = ml( 8, 8) =  m*156.0;
+      ml( 2, 8) = ml( 8, 2) =  m*54.0;
+      ml( 4, 4) = ml(10,10) =  m*4.0*L*L;
+      ml( 4,10) = ml(10, 4) = -m*3.0*L*L;
+      ml( 2, 4) = ml( 4, 2) = -m*22.0*L;
+      ml( 8,10) = ml(10, 8) = -ml(2,4);
+      ml( 2,10) = ml(10, 2) =  m*13.0*L;
+      ml( 4, 8) = ml( 8, 4) = -ml(2,10);
+
+      ml( 1, 1) = ml( 7, 7) =  m*156.0;
+      ml( 1, 7) = ml( 7, 1) =  m*54.0;
+      ml( 5, 5) = ml(11,11) =  m*4.0*L*L;
+      ml( 5,11) = ml(11, 5) = -m*3.0*L*L;
+      ml( 1, 5) = ml( 5, 1) =  m*22.0*L;
+      ml( 7,11) = ml(11, 7) = -ml(1,5);
+      ml( 1,11) = ml(11, 1) = -m*13.0*L;
+      ml( 5, 7) = ml( 7, 5) = -ml(1,11);
+
+      // transform local mass matrix to global system
+      return theCoordTransf->getGlobalMatrixFromLocal(ml);
+  }
 }
 
 void 
@@ -4253,22 +4314,6 @@ const Matrix &
 ForceDeltaFrame3d::getTangentStiff()
 {
   return theCoordTransf->getGlobalStiffMatrix(K_pres, q_pres);
-}
-
-const Vector &
-ForceDeltaFrame3d::getResistingForce()
-{
-  // Will remove once we clean up the corotational 2d transformation -- MHS
-  theCoordTransf->update();
-  
-  double p0[6];
-  Vector p0Vec(p0, 6);
-  p0Vec.Zero();
-
-  if (eleLoads.size() > 0)
-    this->computeReactions(p0);
-
-  return theCoordTransf->getGlobalResistingForce(q_pres, p0Vec);
 }
 
 #endif
