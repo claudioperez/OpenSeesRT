@@ -527,6 +527,10 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     if ((strcmp(argv[currentArg], "file") == 0) ||
         (strcmp(argv[currentArg], "-file") == 0)) {
       currentArg++;
+      if (currentArg == argc) {
+        opserr << G3_WARN_PROMPT << "-file missing argument\n";
+        return TCL_ERROR;
+      }
 
       if (outputFile.setFile(argv[currentArg]) != 0) {
         opserr << "printA <filename> .. - failed to open file: "
@@ -601,24 +605,35 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
   if (ret) {
     int n = A->noRows();
     int m = A->noCols();
-    if (n == 0) {
+    if (n*m == 0) {
       opserr << OpenSees::PromptValueError 
              << "linear system is empty\n";
       return TCL_ERROR;
     }
-    if (n * m > 0) {
-      for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < m; j++) {
-          char buffer[40];
-          sprintf(buffer, "%.10e ", (*A)(i, j));
-          Tcl_AppendResult(interp, buffer, NULL);
-        }
+
+    // Create an empty list with space preallocated for
+    // n*m elements. This is not formally documented, but
+    // it is mentioned here 
+    //   https://wiki.tcl-lang.org/page/Tcl_NewListObj
+    //
+    // and evident from the source code here:
+    //   https://github.com/enthought/tcl/blob/master/generic/tclListObj.c
+    //
+    Tcl_Obj* list = Tcl_NewListObj(n*m, nullptr);
+
+
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < m; j++) {
+//        char buffer[40];
+//        sprintf(buffer, "%.10e ", (*A)(i, j));
+//        Tcl_AppendResult(interp, buffer, NULL);
+        Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj((*A)(i, j)));
       }
     }
+    Tcl_SetObjResult(interp, list);
 
   } else {
     *output << *A;
-    // close the output file
     outputFile.close();
   }
 
@@ -649,6 +664,10 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     if ((strcmp(argv[currentArg], "file") == 0) ||
         (strcmp(argv[currentArg], "-file") == 0)) {
       currentArg++;
+      if (currentArg == argc) {
+        opserr << G3_WARN_PROMPT << "-file missing argument\n";
+        return TCL_ERROR;
+      }
 
       if (outputFile.setFile(argv[currentArg]) != 0) {
         opserr << "print <filename> .. - failed to open file: "
@@ -669,16 +688,23 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     // TODO
     builder->formUnbalance();
 
+    if (theSOE->getNumEqn() == 0) {
+      opserr << OpenSees::PromptValueError << "System of equations is empty\n";
+      return TCL_ERROR;
+    }
+
     const Vector &b = theSOE->getB();
+
     if (ret) {
-      int n = b.Size();
-      if (n > 0) {
-        for (int i = 0; i < n; ++i) {
-          char buffer[40];
-          sprintf(buffer, "%.10e ", b(i));
-          Tcl_AppendResult(interp, buffer, NULL);
-        }
+      const int size = b.Size();
+      Tcl_Obj* list = Tcl_NewListObj(size, nullptr);
+      for (int i = 0; i < size; ++i) {
+//        char buffer[40];
+//        sprintf(buffer, "%.10e ", b(i));
+//        Tcl_AppendResult(interp, buffer, NULL);
+        Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(b[i]));
       }
+      Tcl_SetObjResult(interp, list);
     } else {
       *output << b;
       outputFile.close();
