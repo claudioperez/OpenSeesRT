@@ -25,6 +25,9 @@ def Yld(nature="strength", about=None, **kwds):
 def Area(**kwds):
     return Num("A", field="area", about="cross-sectional area", **kwds)
 
+def Izz(**kwds):
+    return Num("Iz", field="izz", about="area moment of inertia", **kwds)
+
 Rho = lambda: None
 class ConstitutiveData:
     _args = [Yng(), Yld(), Rho()]
@@ -616,8 +619,6 @@ class uniaxial:
     # ])
 
 class element:
-    Iyc = lambda: Num("iyc", field="iyc",  about="Centroidal moment of inertia", alt="section")
-    Ixc = lambda: Num("ixc", field="ixc",  about="", alt="section")
 
     ZeroLength = ZeroLength3D = Ele("ZeroLength3D",
         "zeroLength",
@@ -711,7 +712,7 @@ class element:
         def init(self):
             pass
 
-    DisplBeamColumn = dispBeamColumn = Ele("DispBeamColumn", "dispBeamColumn",
+    DisplBeamColumn = Ele("DispBeamColumn", "dispBeamColumn",
         #, eleTag, *eleNodes, transfTag, integrationTag, '-cMass', '-mass', mass=0.0)
         about="Create a dispBeamColumn element.",
         args=[
@@ -729,65 +730,6 @@ class element:
         ],
         refs=["transform"],
     )
-
-    ElasticBeam2D = Ele("ElasticBeam2D",
-        "elasticBeamColumn",
-        args = [
-            Tag(),
-            Grp("nodes", args=[
-              Ref("iNode", type=Node,  attr="name", about=""),
-              Ref("jNode", type=Node,  attr="name", about=""),
-            ]),
-            Area(alt="section"),
-            Yng( alt="material"),
-            Iyc(),
-            Ixc(),
-            Ref("geom",  field="transform",    type=Trf, attr="name", default=LinearTransform()),
-            Num("mass",field="mass_density", flag="-mass", default=0.0, reqd=False,
-                about="element mass per unit length"),
-            Flg("-cMass", field="consistent_mass",
-                about="Flag indicating whether to use consistent mass matrix.")
-        ],
-        refs=["transform"],
-        alts=[
-            Ref("material", type="Material"),
-            Ref("section",  type=Sec)
-        ],
-        inherit=[_LineElement],
-    )
-
-    ElasticBeamColumn3D = Ele("ElasticBeamColumn3D",
-        "elasticBeamColumn",
-        args = [
-            Tag(),
-            Grp("nodes", args=[
-              Ref("iNode", type=Node,  attr="name", about=""),
-              Ref("jNode", type=Node,  attr="name", about=""),
-            ]),
-            Area(alt="section"),
-            Yng( alt="material"),
-            Num("G",    field="shear_modulus",   about="", alt="material"),
-            Num("J",    field="torsion_modulus", about="", alt="section"),
-            #Grp("moi", ctype="struct", args=[
-              #Num("iyc", field="iyc",  about="Centroidal moment of inertia", alt="section"),
-              #Num("ixc", field="ixc",  about="", alt="section"),
-              Iyc(),
-              Ixc(),
-            #]),
-            Ref("geom",  field="transform",    type=Trf, attr="name"),
-            Num("mass",field="mass_density", flag="-mass", default=0.0, reqd=False, 
-                about="element mass per unit length"),
-            Flg("-cMass", field="consistent_mass",
-                about="Flag indicating whether to use consistent mass matrix.")
-        ],
-        refs=["transform"],
-        alts=[
-            Ref("material", type="Material"),
-            Ref("section",  type=Sec)
-        ],
-        inherit=[_LineElement],
-    )
-
 
 
 class constraint:

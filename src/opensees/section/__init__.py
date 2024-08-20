@@ -1,13 +1,19 @@
 from .section import (
       patch,
-      layer,
       FiberSection,
+      ElasticSection
+)
+layer = patch.layer
+
+from .shapes import (
       ConfinedPolygon,
       ConfiningPolygon,
-      PolygonRing
+      PolygonRing,
+      sect2gmsh
 )
 
 SectionGeometry = FiberSection
+PlaneShape      = FiberSection
 
 def _WideFlange(aisc_data, mesh_data, material, tag=None, ndm=None)->SectionGeometry:
 
@@ -69,6 +75,7 @@ def _WideFlange(aisc_data, mesh_data, material, tag=None, ndm=None)->SectionGeom
             patch.rect(corners=[[-zoff-bi/4,-yoff-tf/2],[-zoff+bi/4, -yoff+tf/2]], material=material, divs=(nfl, nft), rule=int_typ),
             patch.rect(corners=[[ zoff-bi/4,-yoff-tf/2],[ zoff+bi/4, -yoff+tf/2]], material=material, divs=(nfl, nft), rule=int_typ),
         ])
+
 
 def from_shape(type, identifier: str, material=None, mesh=None, units=None, ndm=None, tag=None, **kwds):
     if identifier == "WF":

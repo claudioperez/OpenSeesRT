@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+"""
+This file implements the primary command line interface for
+the package which is invoked by running:
+
+    python -m opensees
+
+"""
 import os
 import sys
 
@@ -163,13 +170,15 @@ if __name__ == "__main__":
         for cmd in opts["commands"]:
             tcl.eval(cmd)
 
+    # Store the exit code of the Tcl script
     code = 0
 
+    #
     if script is not None:
         try:
             code = tcl.eval(script)
 
-        except opensees.tcl.tkinter._tkinter.TclError as e:
+        except opensees.tcl.TclError as e:
             print(e, file=sys.stderr)
             if not opts["interact"]:
                 sys.exit(-1)
