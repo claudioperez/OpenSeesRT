@@ -7,28 +7,34 @@ class Parameter:
         return f"${self.name}"
 
 class Arg:
-    __slots__ = ["name", "flag", "value", "field", "default", "type", "reqd", "namespace", "kwds", "about"]#, "group"]
+    __slots__ = ["name", "flag", "value", "field", "default", "type", 
+                 "reqd", "ndm_reqd", "ndm_only",
+                 "namespace", "kwds", "about"]#, "group"]
     def __init__(self,
         name = None,
         #help = None,
-        flag = None,
-        reqd = True,
-        type = None,
-        field= None,
-        about= "",
-        default = None,
-        # group = None,
+        flag: str  = None,
+        reqd: bool = True,
+        ndm_reqd   = (),
+        ndm_only   = (),
+        type       = None,
+        field: str = None,
+        about      = "",
+        default    = None,
+        # group    = None,
         **kwds
     ):
         if name and name[0] == "-":
             flag = name
             name = name[1:]
-        self.name  = name
-        self.flag  = flag if flag is not None else ""
-        self.value = None
-        self.field = field if field is not None  else name
-        self.type  = type
-        self.reqd  = reqd
+        self.name      = name
+        self.flag      = flag if flag is not None else ""
+        self.value     = None
+        self.field     = field if field is not None  else name
+        self.type      = type
+        self.reqd      = reqd
+        self.ndm_reqd  = ndm_reqd
+        self.ndm_only  = ndm_only
         self.default = default
         self.kwds = kwds
         self.about = about
@@ -65,7 +71,8 @@ class Arg:
                 return []
             else:
                 value = f"${value.name}"
-        return [self.flag] + [value] 
+
+        return [self.flag] + [value]
 
     def m_src(self, value=None):
         value = self._get_value(None,value)

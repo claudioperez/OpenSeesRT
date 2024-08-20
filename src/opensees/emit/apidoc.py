@@ -4,7 +4,6 @@ import inspect
 import textwrap
 import importlib
 
-from opensees.emit.writer import ModelWriter
 from opensees.emit.emitter import Emitter, ScriptBuilder
 from opensees.library import ast
 from opensees.library.ast import Arg
@@ -13,7 +12,10 @@ def write_grp(a):
     args = (write_grp(i) if isinstance(i, ast.Grp) else (i.name if i.name else "") for i in a.args)
     return "["+",".join(args)+"]"
 
-def write_obj(v, w, qual=None):
+def write_obj(v, w, qual=None, ndm=None):
+
+    args = v._args if ndm is None else filter(lambda arg: arg.reqd or ndm in arg.ndm_reqd, v._args)
+
     name = v.__name__
     if qual is not None:
         #qual = qual + "."
@@ -21,11 +23,13 @@ def write_obj(v, w, qual=None):
     else:
         qual = ""
 #   s = "(" + ", ".join(arg.name for arg in v._args if arg.reqd) + ", **kwds)"
-    s = "\", " + ", ".join(arg.name for arg in v._args if arg.reqd) + ")" #", **kwds)"
+    s = "\", " + ", ".join(arg.name for arg in args) + ", **extra)"
 
     #s = str(inspect.signature(v)).replace('=None','')
+
+    # if the signature is too long, add in line breaks
     if len(s) > 45:
-        s = s.replace(", ", ",<br>&emsp;&emsp;&emsp;")
+        s = s.replace(", ", ",<br>&emsp;&emsp;&emsp;&emsp;")
 
     w.write(textwrap.dedent(f"""
     <span style="font-feature-settings: kern; color: var(--md-code-fg-color) !important; font-family: var(--md-code-font-family);">
@@ -150,11 +154,18 @@ class ApiDocWriter(ScriptBuilder):
     def __init__(self):
         ScriptBuilder.__init__(self, ApiEmitter)
 
-    def send(self, obj, idnt=None, qual=None):
+    def send(self, obj, idnt=None, qual=None, ndm=None):
         w = self.streams[0]
 
-        write_obj(obj, w, qual=qual)
-        w.endln();
+        if ndm is not None:
+            for dm in ndm:
+                write_obj(obj, w, qual=qual, ndm=dm)
+                w.endln();
+
+        else:
+            write_obj(obj, w, qual=qual)
+            w.endln();
+
 
         for arg in obj._args:
             w.write("<tr>")
@@ -179,12 +190,16 @@ class ApiDocWriter(ScriptBuilder):
 if __name__ == "__main__":
     import opensees
 
-    _, *module, obj = sys.argv[1].split(".")
+    _, *module, name = sys.argv[1].split(".")
     module = ".".join(module)
 
-    print(ApiDocWriter().send(
-        getattr(getattr(opensees, module), obj), qual="Model."+module
-    ))
+    obj = getattr(getattr(opensees, module), name)
+
+    ndm = getattr(obj, "_ndms", None)
+
+    print(ApiDocWriter().send(obj, qual="Model."+module, ndm=ndm))
+
+
 
 
 
