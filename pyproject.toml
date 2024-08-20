@@ -1,6 +1,6 @@
 [project]
 name = "opensees"
-version = "0.0.62"
+version = "0.0.64"
 authors = [
   {name="Claudio M. Perez"}
   # <50180406+claudioperez@users.noreply.github.com>"
