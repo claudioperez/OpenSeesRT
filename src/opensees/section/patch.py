@@ -201,7 +201,7 @@ class rect(_Polygon):
 @_patch
 class quad(_Polygon):
     """A quadrilateral shaped patch.
-    The geometry of the patch is defined by four vertices: I J K L. 
+    The geometry of the patch is defined by four vertices: I J K L.
     The coordinates of each of the four vertices is specified in *counter clockwise* sequence
     """
     _img  = "quadPatch.svg"
