@@ -30,7 +30,7 @@ static constexpr Matrix3D Eye3 {{
 }};
 
 
-Vector3D
+static inline Vector3D
 Vee(const Matrix3D &X)
 {
 //===----------------------------------------------------------------------===//
@@ -38,18 +38,19 @@ Vee(const Matrix3D &X)
 // ---------------------------------------------------------------------------
 // Written: cmp                                                           2023
 //===----------------------------------------------------------------------===//
-  return {X(3,2), X(1,3), X(2,1)};
+  return {X(2,1), X(0,2), X(1,0)};
 }
 
-constexpr Matrix3D
-Hat(const Vector3D &u)
+template <typename Vec3Type>
+inline constexpr Matrix3D
+Hat(const Vec3Type &u)
 {
-  return Matrix3D {{{  0  ,  u(3), -u(2)},
-                    {-u(3),   0  ,  u(1)},
-                    { u(2), -u(1),   0  }}};
+  return Matrix3D {{{  0  ,  u[2], -u[1]},
+                    {-u[2],   0  ,  u[0]},
+                    { u[1], -u[0],   0  }}};
 }
 
-void
+static inline void
 GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr)
 {
 //
@@ -112,7 +113,7 @@ GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr)
     double angle3 = angle*angle2;
     double angle4 = angle*angle3;
     double angle5 = angle*angle4;
-    double angle6 = angle*angle5;
+//  double angle6 = angle*angle5;
                                                     
     if (a != nullptr) {
       a[0] = cs;
@@ -170,7 +171,7 @@ VersorFromVector(const Vector  &theta)
     }
 
     // Scalar part
-    q[3] = cos(t*0.5);
+    q[3] = std::cos(t*0.5);
 
     return q;
 }
@@ -354,7 +355,7 @@ CaySO3(const Vector3D &cayley)
 // Exponential Differentials
 //
 
-Matrix3D
+inline Matrix3D
 TanSO3(const Vector3D &vec, char repr='L')
 {
 //
@@ -398,7 +399,7 @@ TanSO3(const Vector3D &vec, char repr='L')
 }
 
 
-Matrix3D
+inline Matrix3D
 dExpSO3(const Vector3D &v)
 {
 //
@@ -422,7 +423,7 @@ dExpSO3(const Vector3D &v)
 }
 
 
-Matrix3D
+inline Matrix3D
 ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
 {
   //
@@ -465,7 +466,7 @@ ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
 
 
 
-Matrix3D
+inline Matrix3D
 dTanSO3(const Vector3D &v, const Vector3D &p, char repr='L')
 {
 //
@@ -494,7 +495,7 @@ dTanSO3(const Vector3D &v, const Vector3D &p, char repr='L')
 }
 
 
-Vector3D
+inline Vector3D
 LogSO3(const Matrix3D &R)
 {
 //
@@ -542,7 +543,7 @@ LogC90(const Matrix3D &R)
 }
 
 
-Matrix3D
+inline Matrix3D
 dLogSO3(const Vector3D &v)
 {
 //
@@ -575,7 +576,8 @@ dLogSO3(const Vector3D &v)
   return Eye3 - 0.5*Sv + eta*Sv*Sv;
 }
 
-Matrix3D ddLogSO3(const Vector3D& th, const Vector3D& v)
+inline Matrix3D 
+ddLogSO3(const Vector3D& th, const Vector3D& v)
 {
 // =========================================================================================
 // function by Claudio Perez                                                            2023
