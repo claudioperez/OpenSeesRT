@@ -30,13 +30,13 @@ Fast nonlinear finite element analysis.
 
 
 `opensees` is a Python package that provides an intuitive API for nonlinear
-finite element analysis, implemented in C++. The library features
-state-of-the-art finite element formulations and solution algorithms, including
-mixed formulations for beams and solids, over 200 material models, and an
+finite element analysis, implemented in C++ through the OpenSees framework. 
+OpenSees features state-of-the-art finite element formulations and solution 
+algorithms, including mixed formulations for beams and solids, over 200 material models, and an
 extensive collection of continuation algorithms to solve highly nonlinear
 problems. 
 
-The package supports high quality interactive post processing via the
+The `opensees` package supports high quality interactive post processing via the
 [`sees`](https://pypi.org/project/sees) package.
 
 
@@ -87,17 +87,31 @@ Additional features include:
 
 ### Getting Started
 
+The `opensees` package can be installed into a Python environment
+in the standard manner. For example, using `pip`:
+
+```shell
+pip install opensees
+```
+
+There are several ways to use the `opensees` package:
+
 - To execute Tcl procedures from a Python script, just create an instance
-  of the `opensees.tcl.Interpreter` class:
-  ```
+  of the `opensees.tcl.Interpreter` class and call its `eval()` method:
+  ```python
   interp = opensees.tcl.Interpreter()
-  interp.eval("model Basic -ndm 2; print -json")
+  interp.eval("model Basic -ndm 2")
+  interp.eval("print -json")
   ```
 
 - To start an interactive interpreter run the shell command:
 
   ```bash
   python -m opensees
+  ```
+  To quit the interpreter, just run `exit`:
+  ```tcl
+  opensees > exit
   ```
 
 - The `opensees` package exposes a compatibility layer that exactly reproduces
@@ -115,7 +129,7 @@ Additional features include:
   `model` function; documentation is under development.
 
 
-## Compiling
+## Development
 
 To compile the project see [help/compiling](https://github.com/claudioperez/opensees/blob/master/help/compiling.md)
 

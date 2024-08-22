@@ -103,8 +103,6 @@ class ModelBuilder:
                 Ref(f"Node{1+i}", type=Node,  attr="name", about="")
                 for i in range(4)
         ])
-        arg_spec = [Tag(), nodes]+[Str(f"a{i+1}") for i in range(len(args))]
-        elem_class = Ele(type, type, args=arg_spec)
 
         if len(self.m_nodes) > 0:
             join = dict(nodes={int(v.name): v.crd for k,v in self.m_nodes.items()}, cells=self.m_elems.keys())
@@ -113,19 +111,22 @@ class ModelBuilder:
             join = None
 
 
-        nodes, elems = shps.block.block(divs, block_type, points=points,
+        nodes, cells = shps.block.block(divs, block_type, points=points,
                                         append=False, join=join, **kwds)
-
 
         for tag, coord in nodes.items():
             self.node(tag, *coord)
 
-        for tag, nodes in elems.items():
+        arg_spec = [Tag(), nodes]+[Str(f"a{i+1}") for i in range(len(args))]
+        elem_class = Ele(type, type, args=arg_spec)
+        for tag, nodes in cells.items():
             elem = elem_class([], *args, name=tag)
 #           for node in nodes:
 #               print(node, self.get_node(node))
 #           print("")
             self.elem(elem, list(map(int,nodes)), tag=tag)
+
+
 
     def apply(self, prototypes=None, **kwds):
         if prototypes is None:

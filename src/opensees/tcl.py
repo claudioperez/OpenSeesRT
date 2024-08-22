@@ -15,6 +15,8 @@ except:
 
 from opensees.library.obj import Component
 
+class TclError(Exception):
+    pass
 
 def exec(script: str, silent=False, analysis=True)->dict:
     """
@@ -146,8 +148,9 @@ class Interpreter:
             return self._tcl.tk.eval(string)
 
         except tkinter._tkinter.TclError as e:
-            print(self._tcl.getvar("errorInfo"), file=sys.stderr)
-            raise e
+            raise TclError(self._tcl.getvar("errorInfo"))
+#           print(self._tcl.getvar("errorInfo"), file=sys.stderr)
+#           raise e
 
     def serialize(self)->dict:
         import tempfile

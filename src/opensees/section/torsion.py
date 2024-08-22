@@ -9,38 +9,77 @@
 # https://civil-terje.sites.olt.ubc.ca/files/2020/02/Screenshot-Solid-Cross-section.pdf
 #
 import numpy as np
+from functools import partial
 
 class TorsionAnalysis:
     pass
 
-def assembleStiffnessMatrix(Ka, Kg, nodeList, nde, ndf):
-    nne = len(nodeList)
+def assemble_matrix(Ka, ke, conn, nde, ndf):
+    nne = len(conn)
     for j in range(nne):
         for k in range(j + 1):
             for m in range(nde):
                 for n in range(nde):
-                    Ka[(nodeList[j] - 1)*ndf + m, (nodeList[k] - 1)*ndf + n] += Kg[j*nde + m, k*nde + n]
+                    Ka[(conn[j] - 1)*ndf + m, (conn[k] - 1)*ndf + n] += ke[j*nde + m, k*nde + n]
 
                     if j != k:
-                        Ka[(nodeList[k] - 1)*ndf + n, (nodeList[j] - 1)*ndf + m] += Kg[j*nde + m, k*nde + n]
-
-
-    # This could have been done, less efficiently, by using Tga, like this:
-    # Tga = np.zeros((numDOFsInElement, nf))
-    # for j in range(nodeList.size):
-    #     for k in range(nde):
-    #         Tga[j * nde + k, (nodeList[j] - 1) * ndf + k] = 1
-    # Ka += (np.transpose(Tga).dot(Kg)).dot(Tga)
+                        Ka[(conn[k] - 1)*ndf + n, (conn[j] - 1)*ndf + m] += ke[j*nde + m, k*nde + n]
 
     return Ka
 
 
-def assembleLoadVector(Fa, Fg, nodes, nde, ndf):
-    nne = len(nodes)
-    for j in range(nne):
+def assemble_vector(Fa, fe, nodes, nde, ndf):
+    nen = len(nodes)
+    for j in range(nen):
         for m in range(nde):
-            Fa[(nodes[j]-1) * ndf + m] += Fg[j * nde + m]
+            Fa[(nodes[j]-1) * ndf + m] += fe[j * nde + m]
     return Fa
+
+
+class TorsionTriangle:
+    _class_mass = 1/12*(np.eye(3) + np.ones((3,3)))
+
+    def __init__(self, xyz):
+        ((y1, y2, y3), (z1, z2, z3)) = xyz
+        self.xyz = xyz
+        self.area = area = 0.5 * ((y2 - y1) * (z3 - z1) - (y3 - y1) * (z2 - z1))
+
+        z12 = z1 - z2
+        z23 = z2 - z3
+        z31 = z3 - z1
+        y32 = y3 - y2
+        y13 = y1 - y3
+        y21 = y2 - y1
+
+        area = 0.5 * ((y2 - y1) * (z3 - z1) - (y3 - y1) * (z2 - z1))
+
+        k11 = ( y32**2 +  z23**2)
+        k12 = (y13*y32 + z23*z31)
+        k13 = (y21*y32 + z12*z23)
+        k22 = ( y13**2 +  z31**2)
+        k23 = (y13*y21 + z12*z31)
+        k33 = ( y21**2 +  z12**2)
+        ke = 1/(4.0*area)*np.array([[k11, k12, k13],
+                                    [k12, k22, k23],
+                                    [k13, k23, k33]])
+
+        fe = -1/6.*np.array([
+             ((y1*y32 - z1*z23) + (y2*y32 - z2*z23) + (y3*y32 - z3*z23)),
+             ((y1*y13 - z1*z31) + (y2*y13 - z2*z31) + (y3*y13 - z3*z31)),
+             ((y1*y21 - z1*z12) + (y2*y21 - z2*z12) + (y3*y21 - z3*z12))])
+
+        self.load = fe
+        self.stiffness = ke
+
+    def getMass(self):
+        rho = 1.0
+        return rho*self.area*self._class_mass
+
+    def getStiffness(self):
+        return self.stiffness
+
+    def getLoad(self):
+        return self.load
 
 def torsion_element(xyz):
     ((y1, y2, y3), (z1, z2, z3)) = xyz
@@ -60,6 +99,9 @@ def torsion_element(xyz):
     k22 = ( y13**2 +  z31**2)
     k23 = (y13*y21 + z12*z31)
     k33 = ( y21**2 +  z12**2)
+
+    me = area/12*(np.eye(3) + np.ones((3,3)))
+
     ke = 1/(4.0*area)*np.array([[k11, k12, k13],
                                 [k12, k22, k23],
                                 [k13, k23, k33]])
@@ -69,23 +111,42 @@ def torsion_element(xyz):
          ((y1*y13 - z1*z31) + (y2*y13 - z2*z31) + (y3*y13 - z3*z31)),
          ((y1*y21 - z1*z12) + (y2*y21 - z2*z12) + (y3*y21 - z3*z12))])
 
-    return ke, fe
+    return me, ke, fe
 
+def _wrap_elem(centroid, nodes, conn):
+    return conn, torsion_element((nodes[conn] - centroid).T)
+
+import multiprocessing
 def solve_torsion(section, mesh):
     ndf = 1
     nde = 1
     nodes = mesh.points
     nf = ndf*len(nodes)
     Ka = np.zeros((nf, nf))
+    Ma = np.zeros((nf, nf))
     Fa = np.zeros(nf)
 
     connectivity = mesh.cells[1].data
-    for conn in connectivity:
-        ((y1, y2, y3), (z1, z2, z3)) = (nodes[conn] - section.centroid).T
-        ke, fe = torsion_element((nodes[conn] - section.centroid).T)
-        nodeList = conn + 1
-        Ka  = assembleStiffnessMatrix(Ka, ke, nodeList, nde, ndf)
-        Fa  = assembleLoadVector(Fa, fe, nodeList, nde, ndf)
+
+    threads = 6
+    chunk = 200
+    with multiprocessing.Pool(threads) as pool:
+        for conn, (me, ke, fe) in pool.imap_unordered(
+                    partial(_wrap_elem, section.centroid, nodes),
+                    mesh.cells[1].data,
+                    chunk
+            ):
+            Ka  = assemble_matrix(Ka, ke, conn+1, nde, ndf)
+            Ma  = assemble_matrix(Ma, me, conn+1, nde, ndf)
+            Fa  = assemble_vector(Fa, fe, conn+1, nde, ndf)
+
+#   queue = ((conn, torsion_element((nodes[conn] - section.centroid).T))
+#            for conn in connectivity)
+
+#   for conn, (me, ke, fe) in queue:
+#       Ka  = assemble_matrix(Ka, ke, conn+1, nde, ndf)
+#       Ma  = assemble_matrix(Ma, me, conn+1, nde, ndf)
+#       Fa  = assemble_vector(Fa, fe, conn+1, nde, ndf)
 
     # Lock the solution at one node and solve for the others
     Pf = Fa[:nf-1]
@@ -98,8 +159,8 @@ def solve_torsion(section, mesh):
     #return ua
 
 
-#def shear_centre(section, mesh, ua):
-    # Determine shear centre coordinates
+#def shear_center(section, mesh, ua):
+    # Determine shear center coordinates
     A  = section.area
     Iy = section.iyc
     Iz = section.ixc
@@ -118,7 +179,7 @@ def solve_torsion(section, mesh):
 
 #def normalize_shear():
     thetaPrincipal = 0.0
-    # Normalizing constant and shear centre coordinates
+    # Normalizing constant and shear center coordinates
     # normalizingConstant = -warpIntegral / A
     if np.abs(thetaPrincipal) > 1e-3:
         ysc = -yscIntegral / IyRotated
@@ -243,11 +304,11 @@ def torsion_constant(section, mesh, warp, sc):
 #      print('\n'"Product of inertia Iyz: %.2f" % Iyz)
 #      print('\n'"New principal moment of inertia Iy: %.2f" % IyRotated)
 #      print('\n'"New principal moment of inertia Iz: %.2f" % IzRotated)
-#      print('\n'"Shear centre y-coordinate in original coordinate system: %.2f" % ysc)
-#      print('\n'"Shear centre z-coordinate in original coordinate system: %.2f" % zsc)
+#      print('\n'"Shear center y-coordinate in original coordinate system: %.2f" % ysc)
+#      print('\n'"Shear center z-coordinate in original coordinate system: %.2f" % zsc)
 #  else:
-#      print('\n'"Shear centre y-coordinate: %.2f" % ysc)
-#      print('\n'"Shear centre z-coordinate: %.2f" % zsc)
+#      print('\n'"Shear center y-coordinate: %.2f" % ysc)
+#      print('\n'"Shear center z-coordinate: %.2f" % zsc)
 #  print('\n'"St. Venant torsion constant J: %.2f" % J)
 #  print('\n'"Warping torsion constant Cw: %.2f" % Cw)
 #  
