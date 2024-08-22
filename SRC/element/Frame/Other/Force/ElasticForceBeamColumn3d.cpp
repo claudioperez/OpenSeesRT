@@ -67,7 +67,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <math.h>
-#include <elementAPI.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
@@ -75,71 +74,74 @@ Matrix ElasticForceBeamColumn3d::theMatrix(12,12);
 Vector ElasticForceBeamColumn3d::theVector(12);
 double ElasticForceBeamColumn3d::workArea[200];
 
+#if 0
+#include <elementAPI.h>
 void * OPS_ADD_RUNTIME_VPV(OPS_ElasticForceBeamColumn3d)
 {
     if(OPS_GetNumRemainingInputArgs() < 5) {
-	opserr<<"insufficient arguments:eleTag,iNode,jNode,transfTag,integrationTag <-mass mass> <-cmass>\n";
-	return 0;
+        opserr<<"insufficient arguments:eleTag,iNode,jNode,transfTag,integrationTag <-mass mass> <-cmass>\n";
+        return 0;
     }
 
     // inputs: 
     int iData[5];
     int numData = 5;
     if(OPS_GetIntInput(&numData,&iData[0]) < 0) {
-	opserr<<"WARNING: invalid integer inputs\n";
-	return 0;
+        opserr<<"WARNING: invalid integer inputs\n";
+        return 0;
     }
 
     // options
     double mass = 0.0;
     numData = 1;
     while(OPS_GetNumRemainingInputArgs() > 0) {
-	const char* type = OPS_GetString();
-	if(strcmp(type,"-mass") == 0) {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
-		if(OPS_GetDoubleInput(&numData,&mass) < 0) {
-		    opserr<<"WARNING: invalid mass\n";
-		    return 0;
-		}
-	    }
-	}
+        const char* type = OPS_GetString();
+        if(strcmp(type,"-mass") == 0) {
+            if(OPS_GetNumRemainingInputArgs() > 0) {
+                if(OPS_GetDoubleInput(&numData,&mass) < 0) {
+                    opserr<<"WARNING: invalid mass\n";
+                    return 0;
+                }
+            }
+        }
     }
 
     // check transf
     CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(iData[3]);
     if(theTransf == 0) {
-	opserr<<"coord transfomration not found\n";
-	return 0;
+        opserr<<"coord transfomration not found\n";
+        return 0;
     }
 
     // check beam integrataion
     BeamIntegrationRule* theRule = G3_getSafeBuilder(rt)->getTypedObject<BeamIntegrationRule>(iData[4]);
     if(theRule == 0) {
-	opserr<<"beam integration not found\n";
-	return 0;
+        opserr<<"beam integration not found\n";
+        return 0;
     }
     BeamIntegration* bi = theRule->getBeamIntegration();
     if(bi == 0) {
-	opserr<<"beam integration is null\n";
-	return 0;
+        opserr<<"beam integration is null\n";
+        return 0;
     }
 
     // check sections
     const ID& secTags = theRule->getSectionTags();
     SectionForceDeformation** sections = new SectionForceDeformation *[secTags.Size()];
     for(int i=0; i<secTags.Size(); i++) {
-	sections[i] = OPS_getSectionForceDeformation(secTags(i));
-	if(sections[i] == 0) {
-	    opserr<<"section "<<secTags(i)<<"not found\n";
-		delete [] sections;
-	    return 0;
-	}
+        sections[i] = OPS_getSectionForceDeformation(secTags(i));
+        if(sections[i] == 0) {
+            opserr<<"section "<<secTags(i)<<"not found\n";
+                delete [] sections;
+            return 0;
+        }
     }
     
     Element *theEle =  new ElasticForceBeamColumn3d(iData[0],iData[1],iData[2],secTags.Size(),sections,*bi,*theTransf,mass);
     delete [] sections;
     return theEle;
 }
+#endif
 
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
@@ -161,12 +163,12 @@ ElasticForceBeamColumn3d::ElasticForceBeamColumn3d():
 // and the node ID's of it's nodal end points. 
 // allocates the necessary space needed by each object
 ElasticForceBeamColumn3d::ElasticForceBeamColumn3d (int tag, 
-						    int nodeI, int nodeJ,
-						    int numSec, 
-						    SectionForceDeformation **sec,
-						    BeamIntegration &bi,
-						    CrdTransf &coordTransf,
-						    double massDensPerUnitLength):
+                                                    int nodeI, int nodeJ,
+                                                    int numSec, 
+                                                    SectionForceDeformation **sec,
+                                                    BeamIntegration &bi,
+                                                    CrdTransf &coordTransf,
+                                                    double massDensPerUnitLength):
   Element(tag,ELE_TAG_ElasticForceBeamColumn3d), connectedExternalNodes(2),
   beamIntegr(0), numSections(numSec), crdTransf(0),
   rho(massDensPerUnitLength),
@@ -208,7 +210,7 @@ ElasticForceBeamColumn3d::ElasticForceBeamColumn3d (int tag,
 }
 
 // ~ElasticForceBeamColumn3d():
-// 	destructor
+//         destructor
 //      delete must be invoked on any objects created by the object
 ElasticForceBeamColumn3d::~ElasticForceBeamColumn3d()
 {
@@ -355,7 +357,7 @@ ElasticForceBeamColumn3d::getInitialStiff(void)
 const Matrix &
 ElasticForceBeamColumn3d::getTangentStiff(void)
 {
-  crdTransf->update();	// Will remove once we clean up the corotational 2d transformation -- MHS
+  crdTransf->update();        // Will remove once we clean up the corotational 2d transformation -- MHS
   return this->getInitialStiff();
 }
     
@@ -409,7 +411,7 @@ const Vector &
 ElasticForceBeamColumn3d::getResistingForce(void)
 {
   // Will remove once we clean up the corotational 2d transformation -- MHS
-  crdTransf->update();
+//crdTransf->update();
   
   double p0[NEBD];
   Vector p0Vec(p0, NEBD);
@@ -442,73 +444,72 @@ ElasticForceBeamColumn3d::computeBasicForces(Vector &q)
   f.Solve(v, q);
 }
 
-/********* NEWTON , SUBDIVIDE AND INITIAL ITERATIONS ********************
- */
+
 int
 ElasticForceBeamColumn3d::update()
 {
-	int ok = crdTransf->update();
-	
-	static Vector q(NEBD);
-	q.Zero();
-	this->computeBasicForces(q);
+  int ok = crdTransf->update();
+  
+  static Vector q(NEBD);
+  q.Zero();
+  this->computeBasicForces(q);
 
-	double L = crdTransf->getInitialLength();
-	double oneOverL = 1.0/L;
+  double L = crdTransf->getInitialLength();
+  double oneOverL = 1.0/L;
 
-	double xi[maxNumSections];
-	beamIntegr->getSectionLocations(numSections, L, xi);
+  double xi[maxNumSections];
+  beamIntegr->getSectionLocations(numSections, L, xi);
 
-	for (int i = 0; i < numSections; i++) {
+  for (int i = 0; i < numSections; i++) {
 
-		int order      = sections[i]->getOrder();
-	    const ID &code = sections[i]->getType();
+      int order      = sections[i]->getOrder();
+      const ID &code = sections[i]->getType();
 
-		double xL  = xi[i];
-	    double xL1 = xL-1.0;
-	    
-	    static Vector s;
-	    s.setData(workArea, order);
-		static Vector e;
-		e.setData(&workArea[order], order);
+      double xL  = xi[i];
+      double xL1 = xL-1.0;
+      
+      static Vector s;
+      s.setData(workArea, order);
+      static Vector e;
+      e.setData(&workArea[order], order);
 
-	    int ii;
-	    for (ii = 0; ii < order; ii++) {
-	      switch(code(ii)) {
-	      case SECTION_RESPONSE_P:
-		s(ii) = q(0);
-		break;
-	      case SECTION_RESPONSE_MZ:
-		s(ii) =  xL1*q(1) + xL*q(2);
-		break;
-	      case SECTION_RESPONSE_VY:
-		s(ii) = oneOverL*(q(1)+q(2));
-		break;
-	      case SECTION_RESPONSE_MY:
-		s(ii) =  xL1*q(3) + xL*q(4);
-		break;
-	      case SECTION_RESPONSE_VZ:
-		s(ii) = oneOverL*(q(3)+q(4));
-		break;	      
-		  case SECTION_RESPONSE_T:
-			  s(ii) = q(5);
-			  break;
-		  default:
-		s(ii) = 0.0;
-		break;
-	      }
-	    }
-	    
-	    // Add the effects of element loads, if present
-	    // s = b*q + sp
-	    if (numEleLoads > 0)
-	      this->computeSectionForces(s, i);
+      int ii;
+      for (ii = 0; ii < order; ii++) {
+        switch(code(ii)) {
+        case SECTION_RESPONSE_P:
+          s(ii) = q(0);
+          break;
+        case SECTION_RESPONSE_MZ:
+          s(ii) =  xL1*q(1) + xL*q(2);
+          break;
+        case SECTION_RESPONSE_VY:
+          s(ii) = oneOverL*(q(1)+q(2));
+          break;
+        case SECTION_RESPONSE_MY:
+          s(ii) =  xL1*q(3) + xL*q(4);
+          break;
+        case SECTION_RESPONSE_VZ:
+          s(ii) = oneOverL*(q(3)+q(4));
+          break;              
+            case SECTION_RESPONSE_T:
+                    s(ii) = q(5);
+                    break;
+            default:
+          s(ii) = 0.0;
+          break;
+        }
+      }
+      
+      // Add the effects of element loads, if present
+      // s = b*q + sp
+      if (numEleLoads > 0)
+        this->computeSectionForces(s, i);
 
-		const Matrix &fs = sections[i]->getInitialFlexibility();
-		e.addMatrixVector(0.0, fs, s, 1.0);
+      const Matrix &fs = sections[i]->getInitialFlexibility();
+      e.addMatrixVector(0.0, fs, s, 1.0);
 
-		ok += sections[i]->setTrialSectionDeformation(e);
-	}
+      ok += sections[i]->setTrialSectionDeformation(e);
+  }
 
   return ok;
 }
@@ -550,6 +551,7 @@ ElasticForceBeamColumn3d::addLoad(ElementalLoad *theLoad, double loadFactor)
             theNextEleLoads[i] = eleLoads[i];
             theNextEleLoadFactors[i] = eleLoadFactors[i];
         }
+
         delete[] eleLoads;
         delete[] eleLoadFactors;
         eleLoads = theNextEleLoads;
@@ -710,7 +712,7 @@ ElasticForceBeamColumn3d::addInertiaLoadToUnbalance(const Vector &accel)
 
 const Vector &
 ElasticForceBeamColumn3d::getResistingForceIncInertia()
-{	
+{        
   // Compute the current resisting force
   theVector = this->getResistingForce();
 
@@ -724,7 +726,7 @@ ElasticForceBeamColumn3d::getResistingForceIncInertia()
     
     theVector(0) += m*accel1(0);
     theVector(1) += m*accel1(1);
-	theVector(2) += m*accel1(2);
+        theVector(2) += m*accel1(2);
     theVector(6) += m*accel2(0);
     theVector(7) += m*accel2(1);
     theVector(8) += m*accel2(2);
@@ -789,85 +791,85 @@ ElasticForceBeamColumn3d::getInitialFlexibility(Matrix &fe)
     for (ii = 0; ii < order; ii++) {
       switch(code(ii)) {
       case SECTION_RESPONSE_P:
-	for (jj = 0; jj < order; jj++)
-	  fb(jj,0) += fSec(jj,ii)*wtL;
-	break;
+        for (jj = 0; jj < order; jj++)
+          fb(jj,0) += fSec(jj,ii)*wtL;
+        break;
       case SECTION_RESPONSE_MZ:
-	for (jj = 0; jj < order; jj++) {
-	  tmp = fSec(jj,ii)*wtL;
-	  fb(jj,1) += xL1*tmp;
-	  fb(jj,2) += xL*tmp;
-	}
-	break;
+        for (jj = 0; jj < order; jj++) {
+          tmp = fSec(jj,ii)*wtL;
+          fb(jj,1) += xL1*tmp;
+          fb(jj,2) += xL*tmp;
+        }
+        break;
       case SECTION_RESPONSE_VY:
-	for (jj = 0; jj < order; jj++) {
-	  tmp = oneOverL*fSec(jj,ii)*wtL;
-	  fb(jj,1) += tmp;
-	  fb(jj,2) += tmp;
-	}
-	break;
+        for (jj = 0; jj < order; jj++) {
+          tmp = oneOverL*fSec(jj,ii)*wtL;
+          fb(jj,1) += tmp;
+          fb(jj,2) += tmp;
+        }
+        break;
       case SECTION_RESPONSE_MY:
-	for (jj = 0; jj < order; jj++) {
-	  tmp = fSec(jj,ii)*wtL;
-	  fb(jj,3) += xL1*tmp;
-	  fb(jj,4) += xL*tmp;
-	}
-	break;
+        for (jj = 0; jj < order; jj++) {
+          tmp = fSec(jj,ii)*wtL;
+          fb(jj,3) += xL1*tmp;
+          fb(jj,4) += xL*tmp;
+        }
+        break;
       case SECTION_RESPONSE_VZ:
-	for (jj = 0; jj < order; jj++) {
-	  tmp = oneOverL*fSec(jj,ii)*wtL;
-	  fb(jj,3) += tmp;
-	  fb(jj,4) += tmp;
-	}
-	break;
-	  case SECTION_RESPONSE_T:
-	for (jj = 0; jj < order; jj++)
-	  fb(jj,5) += fSec(jj,ii)*wtL;
-	break;
+        for (jj = 0; jj < order; jj++) {
+          tmp = oneOverL*fSec(jj,ii)*wtL;
+          fb(jj,3) += tmp;
+          fb(jj,4) += tmp;
+        }
+        break;
+          case SECTION_RESPONSE_T:
+        for (jj = 0; jj < order; jj++)
+          fb(jj,5) += fSec(jj,ii)*wtL;
+        break;
       default:
-	break;
+        break;
       }
     }
     for (ii = 0; ii < order; ii++) {
       switch (code(ii)) {
       case SECTION_RESPONSE_P:
-	for (jj = 0; jj < NEBD; jj++)
-	  fe(0,jj) += fb(ii,jj);
-	break;
+        for (jj = 0; jj < NEBD; jj++)
+          fe(0,jj) += fb(ii,jj);
+        break;
       case SECTION_RESPONSE_MZ:
-	for (jj = 0; jj < NEBD; jj++) {
-	  tmp = fb(ii,jj);
-	  fe(1,jj) += xL1*tmp;
-	  fe(2,jj) += xL*tmp;
-	}
-	break;
+        for (jj = 0; jj < NEBD; jj++) {
+          tmp = fb(ii,jj);
+          fe(1,jj) += xL1*tmp;
+          fe(2,jj) += xL*tmp;
+        }
+        break;
       case SECTION_RESPONSE_VY:
-	for (jj = 0; jj < NEBD; jj++) {
-	  tmp = oneOverL*fb(ii,jj);
-	  fe(1,jj) += tmp;
-	  fe(2,jj) += tmp;
-	}
-	break;
+        for (jj = 0; jj < NEBD; jj++) {
+          tmp = oneOverL*fb(ii,jj);
+          fe(1,jj) += tmp;
+          fe(2,jj) += tmp;
+        }
+        break;
       case SECTION_RESPONSE_MY:
-	for (jj = 0; jj < NEBD; jj++) {
-	  tmp = fb(ii,jj);
-	  fe(3,jj) += xL1*tmp;
-	  fe(4,jj) += xL*tmp;
-	}
-	break;
+        for (jj = 0; jj < NEBD; jj++) {
+          tmp = fb(ii,jj);
+          fe(3,jj) += xL1*tmp;
+          fe(4,jj) += xL*tmp;
+        }
+        break;
       case SECTION_RESPONSE_VZ:
-	for (jj = 0; jj < NEBD; jj++) {
-	  tmp = oneOverL*fb(ii,jj);
-	  fe(3,jj) += tmp;
-	  fe(4,jj) += tmp;
-	}
-	break;
+        for (jj = 0; jj < NEBD; jj++) {
+          tmp = oneOverL*fb(ii,jj);
+          fe(3,jj) += tmp;
+          fe(4,jj) += tmp;
+        }
+        break;
       case SECTION_RESPONSE_T:
-	for (jj = 0; jj < NEBD; jj++)
-	  fe(5,jj) += fb(ii,jj);
-	break;
+        for (jj = 0; jj < NEBD; jj++)
+          fe(5,jj) += fb(ii,jj);
+        break;
       default:
-	break;
+        break;
       }
     }
   }
@@ -875,97 +877,6 @@ ElasticForceBeamColumn3d::getInitialFlexibility(Matrix &fe)
   return 0;
 }
 
-void
-ElasticForceBeamColumn3d::compSectionDisplacements(Vector sectionCoords[],
-					      Vector sectionDispls[]) const
-  {
-     // get basic displacements and increments
-     static Vector ub(NEBD);
-     ub = crdTransf->getBasicTrialDisp();    
-
-     double L = crdTransf->getInitialLength();
-
-     // get integration point positions and weights
-     static double pts[maxNumSections];
-     beamIntegr->getSectionLocations(numSections, L, pts);
-
-     // setup Vandermode and CBDI influence matrices
-     int i;
-     double xi;
-
-     // get CBDI influence matrix
-     Matrix ls(numSections, numSections);
-     getCBDIinfluenceMatrix(numSections, pts, L, ls);
-
-     // get section curvatures
-     Vector kappa_y(numSections);  // curvature
-     Vector kappa_z(numSections);  // curvature
-     static Vector vs;                // section deformations 
-
-     for (i=0; i<numSections; i++) {
-	 // THIS IS VERY INEFFICIENT ... CAN CHANGE IF RUNS TOO SLOW
-	 int sectionKey1 = 0;
-	 int sectionKey2 = 0;
-	 const ID &code = sections[i]->getType();
-	 int j;
-	 for (j = 0; j < code.Size(); j++)
-	 {
-	     if (code(j) == SECTION_RESPONSE_MZ)
-		 sectionKey1 = j;
-	     if (code(j) == SECTION_RESPONSE_MY)
-		 sectionKey2 = j;
-	 }
-	 if (sectionKey1 == 0) {
-	   opserr << "FATAL ForceBeamColumn3d::compSectionResponse - section does not provide Mz response\n";
-	   exit(-1);
-	 }
-	 if (sectionKey2 == 0) {
-	   opserr << "FATAL ForceBeamColumn3d::compSectionResponse - section does not provide My response\n";
-	   exit(-1);
-	 }
-
-	 // get section deformations
-	 vs = sections[i]->getSectionDeformation();
-
-	 kappa_z(i) = vs(sectionKey1);
-	 kappa_y(i) = vs(sectionKey2); 
-     }
-
-     //cout << "kappa_y: " << kappa_y;   
-     //cout << "kappa_z: " << kappa_z;   
-
-     Vector v(numSections), w(numSections);
-     static Vector xl(NDM), uxb(NDM);
-     static Vector xg(NDM), uxg(NDM); 
-     // double theta;                             // angle of twist of the sections
-
-     // v = ls * kappa_z;  
-     v.addMatrixVector (0.0, ls, kappa_z, 1.0);  
-     // w = ls * kappa_y *  (-1);  
-     w.addMatrixVector (0.0, ls, kappa_y, -1.0);
-
-     for (i=0; i<numSections; i++)
-     {
-	xi = pts[i];
-
-	xl(0) = xi * L;
-	xl(1) = 0;
-	xl(2) = 0;
-
-	// get section global coordinates
-	sectionCoords[i] = crdTransf->getPointGlobalCoordFromLocal(xl);
-
-	// compute section displacements
-	//theta  = xi * ub(5); // consider linear variation for angle of twist. CHANGE LATER!!!!!!!!!!
-	uxb(0) = xi * ub(0); // consider linear variation for axial displacement. CHANGE LATER!!!!!!!!!!
-	uxb(1) = v(i);
-	uxb(2) = w(i);
-
-	// get section displacements in global system 
-	sectionDispls[i] = crdTransf->getPointGlobalDisplFromBasic(xi, uxb);
-     }	       
-    return;	       
-  }
 
 void
 ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
@@ -990,7 +901,7 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
     else if (flag < -1) {
       int eleTag = this->getTag();
       int counter = (flag +1) * -1;
-	  this->computeBasicForces(Se);
+          this->computeBasicForces(Se);
       double P  = Se(0);
       double MZ1 = Se(1);
       double MZ2 = Se(2);
@@ -1027,19 +938,19 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
        s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << endln;
 
        const Vector &node1Crd = theNodes[0]->getCrds();
-       const Vector &node2Crd = theNodes[1]->getCrds();	
+       const Vector &node2Crd = theNodes[1]->getCrds();        
        const Vector &node1Disp = theNodes[0]->getDisp();
        const Vector &node2Disp = theNodes[1]->getDisp();    
 
        s << "#NODE " << node1Crd(0) << " " << node1Crd(1) << " " << node1Crd(2)
-	 << " " << node1Disp(0) << " " << node1Disp(1) << " " << node1Disp(2)
-	 << " " << node1Disp(3) << " " << node1Disp(4) << " " << node1Disp(5) << endln;
+         << " " << node1Disp(0) << " " << node1Disp(1) << " " << node1Disp(2)
+         << " " << node1Disp(3) << " " << node1Disp(4) << " " << node1Disp(5) << endln;
 
        s << "#NODE " << node2Crd(0) << " " << node2Crd(1) << " " << node2Crd(2)
-	 << " " << node2Disp(0) << " " << node2Disp(1) << " " << node2Disp(2)
-	 << " " << node2Disp(3) << " " << node2Disp(4) << " " << node2Disp(5) << endln;
+         << " " << node2Disp(0) << " " << node2Disp(1) << " " << node2Disp(2)
+         << " " << node2Disp(3) << " " << node2Disp(4) << " " << node2Disp(5) << endln;
 
-	   this->computeBasicForces(Se);
+           this->computeBasicForces(Se);
        double P  = Se(0);
        double MZ1 = Se(1);
        double MZ2 = Se(2);
@@ -1052,48 +963,48 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
        double VZ = (MY1+MY2)/L;
        double T  = Se(5);
        s << "#END_FORCES " << -P+p0[0] << ' '  <<  VY+p0[1] << ' '  << -VZ+p0[3] << ' ' 
-	 << -T << ' '  << MY1 << ' ' << MZ1 << endln;
+         << -T << ' '  << MY1 << ' ' << MZ1 << endln;
        s << "#END_FORCES "  << P  << ' '  << -VY+p0[2] << ' ' << VZ+p0[4] << ' '  
-	 << T << ' ' << MY2 << ' '  <<  MZ2 << endln;
+         << T << ' ' << MY2 << ' '  <<  MZ2 << endln;
 
        // plastic hinge rotation
        this->getInitialFlexibility(fe);
        vp = crdTransf->getBasicTrialDisp();
        vp.addMatrixVector(1.0, fe, Se, -1.0);
        s << "#PLASTIC_HINGE_ROTATION " << vp[1] << " " << vp[2] << " " << vp[3] << " " << vp[4] 
-	 << " " << 0.1*L << " " << 0.1*L << endln;
+         << " " << 0.1*L << " " << 0.1*L << endln;
 /*
        // allocate array of vectors to store section coordinates and displacements
        static int maxNumSections = 0;
        static Vector *coords = 0;
        static Vector *displs = 0;
        if (maxNumSections < numSections) {
-	 if (coords != 0) 
-	   delete [] coords;
-	 if (displs != 0)
-	   delete [] displs;
+         if (coords != 0) 
+           delete [] coords;
+         if (displs != 0)
+           delete [] displs;
 
-	 coords = new Vector [numSections];
-	 displs = new Vector [numSections];
+         coords = new Vector [numSections];
+         displs = new Vector [numSections];
 
-	 if (!coords) {
-	   opserr << "ForceBeamColumn3d::Print() -- failed to allocate coords array";   
-	   exit(-1);
-	 }
+         if (!coords) {
+           opserr << "ForceBeamColumn3d::Print() -- failed to allocate coords array";   
+           exit(-1);
+         }
 
-	 int i;
-	 for (i = 0; i < numSections; i++)
-	   coords[i] = Vector(NDM);
+         int i;
+         for (i = 0; i < numSections; i++)
+           coords[i] = Vector(NDM);
 
-	 if (!displs) {
-	   opserr << "ForceBeamColumn3d::Print() -- failed to allocate coords array";   
-	   exit(-1);
-	 }
+         if (!displs) {
+           opserr << "ForceBeamColumn3d::Print() -- failed to allocate coords array";   
+           exit(-1);
+         }
 
-	 for (i = 0; i < numSections; i++)
-	   displs[i] = Vector(NDM);
+         for (i = 0; i < numSections; i++)
+           displs[i] = Vector(NDM);
 
-	 maxNumSections = numSections;
+         maxNumSections = numSections;
        }
 
        // compute section location & displacements
@@ -1101,20 +1012,20 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
 
        // spit out the section location & invoke print on the scetion
        for (int i=0; i<numSections; i++) {
-	 s << "#SECTION " << (coords[i])(0) << " " << (coords[i])(1) << " " << (coords[i])(2);       
-	 s << " " << (displs[i])(0) << " " << (displs[i])(1) << " " << (displs[i])(2) << endln;
-	 sections[i]->Print(s, flag); 
+         s << "#SECTION " << (coords[i])(0) << " " << (coords[i])(1) << " " << (coords[i])(2);       
+         s << " " << (displs[i])(0) << " " << (displs[i])(1) << " " << (displs[i])(2) << endln;
+         sections[i]->Print(s, flag); 
        }
-	   */
+           */
     }
 
-	if (flag == OPS_PRINT_CURRENTSTATE) {
+        if (flag == OPS_PRINT_CURRENTSTATE) {
        s << "\nElement: " << this->getTag() << " Type: ElasticForceBeamColumn3d ";
        s << "\tConnected Nodes: " << connectedExternalNodes ;
        s << "\tNumber of Sections: " << numSections;
        s << "\tMass density: " << rho << endln;
        beamIntegr->Print(s, flag);
-	   this->computeBasicForces(Se);
+           this->computeBasicForces(Se);
        double P  = Se(0);
        double MZ1 = Se(1);
        double MZ2 = Se(2);
@@ -1127,32 +1038,32 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
        double VZ = (MY1+MY2)/L;
        double T  = Se(5);
        s << "\tEnd 1 Forces (P MZ VY MY VZ T): "
-	 << -P+p0[0] << " " << MZ1 << " " <<  VY+p0[1] << " " 
-	 << MY1 << " " << -VZ+p0[3] << " " << T << endln;
+         << -P+p0[0] << " " << MZ1 << " " <<  VY+p0[1] << " " 
+         << MY1 << " " << -VZ+p0[3] << " " << T << endln;
        s << "\tEnd 2 Forces (P MZ VY MY VZ T): "
-	 << P        << " " << MZ2 << " " << -VY+p0[2] << " " 
-	 << MY2 << " " <<  VZ+p0[4] << " " << -T << endln;
+         << P        << " " << MZ2 << " " << -VY+p0[2] << " " 
+         << MY2 << " " <<  VZ+p0[4] << " " << -T << endln;
 
        if (flag == 1) { 
-	 for (int i = 0; i < numSections; i++)
-	   s << "\numSections "<<i<<" :" << *sections[i];
+         for (int i = 0; i < numSections; i++)
+           s << "\numSections "<<i<<" :" << *sections[i];
        }
     }
-	
-	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-		s << "\t\t\t{";
-		s << "\"name\": " << this->getTag() << ", ";
-		s << "\"type\": \"ElasticForceBeamColumn3d\", ";
-		s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
-		s << "\"sections\": [";
-		for (int i = 0; i < numSections - 1; i++)
-			s << "\"" << sections[i]->getTag() << "\", ";
-		s << "\"" << sections[numSections - 1]->getTag() << "\"], ";
-		s << "\"integration\": ";
-		beamIntegr->Print(s, flag);
-		s << ", \"massperlength\": " << rho << ", ";
-		s << "\"crdTransformation\": \"" << crdTransf->getTag() << "\"}";
-	}
+        
+        if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+                s << "\t\t\t{";
+                s << "\"name\": " << this->getTag() << ", ";
+                s << "\"type\": \"ElasticForceBeamColumn3d\", ";
+                s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
+                s << "\"sections\": [";
+                for (int i = 0; i < numSections - 1; i++)
+                        s << "\"" << sections[i]->getTag() << "\", ";
+                s << "\"" << sections[numSections - 1]->getTag() << "\"], ";
+                s << "\"integration\": ";
+                beamIntegr->Print(s, flag);
+                s << ", \"massperlength\": " << rho << ", ";
+                s << "\"crdTransformation\": \"" << crdTransf->getTag() << "\"}";
+        }
   }
 
   OPS_Stream &operator<<(OPS_Stream &s, ElasticForceBeamColumn3d &E)
@@ -1179,7 +1090,7 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
 
     // global force - 
     if (strcmp(argv[0],"forces") == 0 || strcmp(argv[0],"force") == 0
-	|| strcmp(argv[0],"globalForce") == 0 || strcmp(argv[0],"globalForces") == 0) {
+        || strcmp(argv[0],"globalForce") == 0 || strcmp(argv[0],"globalForces") == 0) {
 
       output.tag("ResponseType","Px_1");
       output.tag("ResponseType","Py_1");
@@ -1217,7 +1128,7 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
 
     // chord rotation -
     }  else if (strcmp(argv[0],"chordRotation") == 0 || strcmp(argv[0],"chordDeformation") == 0 
-	      || strcmp(argv[0],"basicDeformation") == 0) {
+              || strcmp(argv[0],"basicDeformation") == 0) {
 
       output.tag("ResponseType","eps");
       output.tag("ResponseType","thetaZ_1");
@@ -1262,10 +1173,10 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
       float minDistance = fabs(xi[0]-sectionLoc);
       int sectionNum = 0;
       for (int i = 1; i < numSections; i++) {
-	if (fabs(xi[i]-sectionLoc) < minDistance) {
-	  minDistance = fabs(xi[i]-sectionLoc);
-	  sectionNum = i;
-	}
+        if (fabs(xi[i]-sectionLoc) < minDistance) {
+          minDistance = fabs(xi[i]-sectionLoc);
+          sectionNum = i;
+        }
       }
 
       output.tag("GaussPointOutput");
@@ -1273,13 +1184,13 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
       output.attr("eta",xi[sectionNum]*L);
       
       if (strcmp(argv[2],"dsdh") != 0) {
-	theResponse = sections[sectionNum]->setResponse(&argv[2], argc-2, output);
+        theResponse = sections[sectionNum]->setResponse(&argv[2], argc-2, output);
       } else {
-	int order = sections[sectionNum]->getOrder();
-	theResponse = new ElementResponse(this, 76, Vector(order));
-	Information &info = theResponse->getInformation();
-	info.theInt = sectionNum;
-	  }
+        int order = sections[sectionNum]->getOrder();
+        theResponse = new ElementResponse(this, 76, Vector(order));
+        Information &info = theResponse->getInformation();
+        info.theInt = sectionNum;
+          }
 
     }
   }
@@ -1290,23 +1201,23 @@ ElasticForceBeamColumn3d::Print(OPS_Stream &s, int flag)
     
       int sectionNum = atoi(argv[1]);
       if (sectionNum > 0 && sectionNum <= numSections) {
-	double xi[maxNumSections];
-	double L = crdTransf->getInitialLength();
-	beamIntegr->getSectionLocations(numSections, L, xi);
-	
-	output.tag("GaussPointOutput");
-	output.attr("number",sectionNum);
-	output.attr("eta",2.0*xi[sectionNum-1]-1.0);
-	theResponse =  sections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
-	
-	if (strcmp(argv[2],"dsdh") != 0) {
-	  theResponse = sections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
-	} else {
-	  int order = sections[sectionNum-1]->getOrder();
-	  theResponse = new ElementResponse(this, 76, Vector(order));
-	  Information &info = theResponse->getInformation();
-	  info.theInt = sectionNum;
-	}
+        double xi[maxNumSections];
+        double L = crdTransf->getInitialLength();
+        beamIntegr->getSectionLocations(numSections, L, xi);
+        
+        output.tag("GaussPointOutput");
+        output.attr("number",sectionNum);
+        output.attr("eta",2.0*xi[sectionNum-1]-1.0);
+        theResponse =  sections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
+        
+        if (strcmp(argv[2],"dsdh") != 0) {
+          theResponse = sections[sectionNum-1]->setResponse(&argv[2], argc-2, output);
+        } else {
+          int order = sections[sectionNum-1]->getOrder();
+          theResponse = new ElementResponse(this, 76, Vector(order));
+          Information &info = theResponse->getInformation();
+          info.theInt = sectionNum;
+        }
 
       }
     }
@@ -1427,19 +1338,19 @@ ElasticForceBeamColumn3d::getResponse(int responseID, Information &eleInfo)
       int order = sections[i]->getOrder();
       double kappa = 0.0;
       if (x < LIz) {
-	for (int j = 0; j < order; j++)
-	  if (type(j) == SECTION_RESPONSE_MZ)
-	    kappa += vs[i](j);
-	double b = -LIz+x;
-	d2z += (wts[i]*L)*kappa*b;
+        for (int j = 0; j < order; j++)
+          if (type(j) == SECTION_RESPONSE_MZ)
+            kappa += vs[i](j);
+        double b = -LIz+x;
+        d2z += (wts[i]*L)*kappa*b;
       }
       kappa = 0.0;
       if (x < LIy) {
-	for (int j = 0; j < order; j++)
-	  if (type(j) == SECTION_RESPONSE_MY)
-	    kappa += vs[i](j);
-	double b = -LIy+x;
-	d2y += (wts[i]*L)*kappa*b;
+        for (int j = 0; j < order; j++)
+          if (type(j) == SECTION_RESPONSE_MY)
+            kappa += vs[i](j);
+        double b = -LIy+x;
+        d2y += (wts[i]*L)*kappa*b;
       }
     }
 
@@ -1452,19 +1363,19 @@ ElasticForceBeamColumn3d::getResponse(int responseID, Information &eleInfo)
       int order = sections[i]->getOrder();
       double kappa = 0.0;
       if (x > LIz) {
-	for (int j = 0; j < order; j++)
-	  if (type(j) == SECTION_RESPONSE_MZ)
-	    kappa += vs[i](j);
-	double b = x-LIz;
-	d3z += (wts[i]*L)*kappa*b;
+        for (int j = 0; j < order; j++)
+          if (type(j) == SECTION_RESPONSE_MZ)
+            kappa += vs[i](j);
+        double b = x-LIz;
+        d3z += (wts[i]*L)*kappa*b;
       }
       kappa = 0.0;
       if (x > LIy) {
-	for (int j = 0; j < order; j++)
-	  if (type(j) == SECTION_RESPONSE_MY)
-	    kappa += vs[i](j);
-	double b = x-LIy;
-	d3y += (wts[i]*L)*kappa*b;
+        for (int j = 0; j < order; j++)
+          if (type(j) == SECTION_RESPONSE_MY)
+            kappa += vs[i](j);
+        double b = x-LIy;
+        d3y += (wts[i]*L)*kappa*b;
       }
     }
 
@@ -1508,10 +1419,10 @@ ElasticForceBeamColumn3d::setParameter(const char **argv, int argc, Parameter &p
       float minDistance = fabs(xi[0]-sectionLoc);
       int sectionNum = 0;
       for (int i = 1; i < numSections; i++) {
-	if (fabs(xi[i]-sectionLoc) < minDistance) {
-	  minDistance = fabs(xi[i]-sectionLoc);
-	  sectionNum = i;
-	}
+        if (fabs(xi[i]-sectionLoc) < minDistance) {
+          minDistance = fabs(xi[i]-sectionLoc);
+          sectionNum = i;
+        }
       }
 
       return sections[sectionNum]->setParameter(&argv[2], argc-2, param);
@@ -1538,7 +1449,7 @@ ElasticForceBeamColumn3d::setParameter(const char **argv, int argc, Parameter &p
     int ok = 0;
     for (int i = 0; i < numSections; i++)
       if (paramSectionTag == sections[i]->getTag())
-	ok += sections[i]->setParameter(&argv[2], argc-2, param);
+        ok += sections[i]->setParameter(&argv[2], argc-2, param);
 
     return ok;
     */

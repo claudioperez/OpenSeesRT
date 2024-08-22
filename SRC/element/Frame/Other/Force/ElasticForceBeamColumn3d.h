@@ -126,7 +126,6 @@ class ElasticForceBeamColumn3d: public Element
   int getInitialFlexibility(Matrix &fe);
   
  private:
-  void compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const;
   
   // Reactions of basic system due to element loads
   void computeReactions(double *p0);

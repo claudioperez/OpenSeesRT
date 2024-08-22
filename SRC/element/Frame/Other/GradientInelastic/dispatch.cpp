@@ -30,8 +30,8 @@
 
 #include <BasicModelBuilder.h>
 
-#include "Frame/GradientInelastic/GradientInelasticBeamColumn2d.h"
-#include "Frame/GradientInelastic/GradientInelasticBeamColumn3d.h"
+#include "Frame/Other/GradientInelastic/GradientInelasticBeamColumn2d.h"
+#include "Frame/Other/GradientInelastic/GradientInelasticBeamColumn3d.h"
 
 #include <NewtonCotesBeamIntegration.h>
 #include <TrapezoidalBeamIntegration.h>
