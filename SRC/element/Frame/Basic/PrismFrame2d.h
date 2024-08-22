@@ -1,13 +1,10 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
 //
-// Purpose: This file contains the class definition for PrismFrame2d.
-// PrismFrame2d is a plane frame member.
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Written: cmp 05/2024
-// Revised:
 //
 #ifndef PrismFrame2d_h
 #define PrismFrame2d_h
@@ -41,7 +38,7 @@ class PrismFrame2d : public Element
                   double alpha, double depth,
                   double rho, int cMass, bool use_mass,
                   int release,
-      int geom_flag);
+                  int geom_flag);
 
     ~PrismFrame2d();
 

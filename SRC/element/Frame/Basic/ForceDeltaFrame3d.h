@@ -5,36 +5,6 @@
 //===----------------------------------------------------------------------===//
 //
 //
-// Adapted by CMP
-//
-/*
- * References
- *
-
-    State Determination Algorithm
-    ---
-
-    de Souza, R.M. (2000) 
-      "Force-based finite element for large displacement inelastic analysis of frames". University of California, Berkeley. Available at: https://www.proquest.com/docview/304624959/D8D738C3AC49427EPQ/1?accountid=14496.
-
-    Neuenhofer, A. and Filippou, F.C. (1998) 
-      "Geometrically Nonlinear Flexibility-Based Frame Finite Element", 
-      Journal of Structural Engineering, 124(6), pp. 704–711. Available at: https://doi.org/10/d8jvb5.
- 
-    Spacone, E., V. Ciampi, and F. C. Filippou (1996). 
-       "Mixed Formulation of Nonlinear Beam Finite Element."
-       Computers and Structures, 58(1):71-83.
-    
-
-    Response Sensitivity
-    ---
-    Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
-      "Response Sensitivity for Nonlinear Beam-Column Elements."
-      Journal of Structural Engineering, 130(9):1281-1288.
-
- *
- */
-
 #ifndef ForceDeltaFrame3d_h
 #define ForceDeltaFrame3d_h
 
@@ -52,15 +22,17 @@ class ElementalLoad;
 
 class ForceDeltaFrame3d : public BasicFrame3d {
 public:
-  ForceDeltaFrame3d();
   ForceDeltaFrame3d(int tag, 
                std::array<int,2>& nodes,
                std::vector<FrameSection*>& sec,
-               BeamIntegration& stencil, FrameTransform3d& coordTransf, 
+               BeamIntegration&  stencil,
+               FrameTransform3d& coordTransf, 
                double rho, int mass_type, bool use_mass,
                int maxNumIters, double tolerance,
                bool includeShear
-               );
+  );
+
+  ForceDeltaFrame3d();
 
   ~ForceDeltaFrame3d();
 
@@ -68,7 +40,7 @@ public:
   getClassType() const
   {
     return "ForceDeltaFrame3d";
-  };
+  }
 
   int setNodes();
 
@@ -87,25 +59,26 @@ public:
   const Vector &getResistingForce();
 //const Vector &getResistingForceIncInertia();
 
-  int sendSelf(int cTag, Channel& theChannel);
-  int recvSelf(int cTag, Channel& theChannel, FEM_ObjectBroker& theBroker);
+  int sendSelf(int cTag, Channel&);
+  int recvSelf(int cTag, Channel&, FEM_ObjectBroker&);
 
-  friend OPS_Stream& operator<<(OPS_Stream& s, ForceDeltaFrame3d& E);
   void Print(OPS_Stream& s, int flag = 0);
 
   Response* setResponse(const char** argv, int argc, OPS_Stream& s);
-  int getResponse(int responseID, Information& eleInformation);
-  int getResponseSensitivity(int responseID, int gradNumber, Information& eleInformation);
+  int getResponse(int responseID, Information& information);
+  int getResponseSensitivity(int responseID, int gradNumber, Information& information);
 
-  // AddingSensitivity:BEGIN //////////////////////////////////////////
-  int setParameter(const char** argv, int argc, Parameter& param);
-  int updateParameter(int parameterID, Information& info);
+  // Parameters
+  int setParameter(const char** argv, int argc, Parameter&);
+  int updateParameter(int parameterID, Information&);
   int activateParameter(int parameterID);
+
+  // Sensitivity
   const Vector& getResistingForceSensitivity(int gradNumber);
   const Matrix& getKiSensitivity(int gradNumber);
   const Matrix& getMassSensitivity(int gradNumber);
   int commitSensitivity(int gradNumber, int numGrads);
-  // AddingSensitivity:END ///////////////////////////////////////////
+
 
 protected:
   virtual VectorND<6>&   getBasicForce();
@@ -118,12 +91,11 @@ protected:
 private:
   constexpr static int
          nsr = 6,
-         maxNumEleLoads = 100 ,
-         NDM = 3 ,               // dimension of the problem (2d)
-         NND = 6 ,               // number of nodal dof's
-         NEGD = 12 ,             // number of element global dof's
-         nq = 6 ;              // number of element dof's in the basic system
-
+         nen = 2,               // number of element nodes
+         ndm = 3 ,              // dimension of the problem (2d)
+         ndf = 6 ,              // dofs per node
+         nq = 6 ,               // number of element dof's in the basic system
+         maxNumEleLoads = 100;
   enum { maxNumSections = 20 };
 
   static constexpr FrameStressLayout scheme = {
@@ -140,8 +112,8 @@ private:
   double xi[maxNumSections];
 
 
-  void getForceInterpolatMatrix(double xi, Matrix& b, const ID& code);
-  void getDistrLoadInterpolatMatrix(double xi, Matrix& bp, const ID& code);
+//void getForceInterpolatMatrix(double xi, Matrix& b, const ID& code);
+//void getDistrLoadInterpolatMatrix(double xi, Matrix& bp, const ID& code);
   void computew(Vector& w, Vector& wp, double xi[], const Vector& kappa, const Vector& gamma);
   void computedwdq(Matrix& dwidq, const Vector& q, const Vector& w, const Vector& wp,
                    const Matrix& lsk, const Matrix& lsg, const Matrix& lskp, const Matrix& lsgp);
@@ -200,11 +172,8 @@ private:
 
   Matrix* Ki;
 
-  static Matrix theMatrix;
   static Vector theVector;
 
-  // following are added for subdivision of displacement increment
-  int maxSubdivisions; // maximum number of subdivisons of dv for local iterations
 
 
   //

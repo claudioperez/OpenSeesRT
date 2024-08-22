@@ -4,9 +4,6 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Purpose: This file contains the class definition for PrismFrame2d.
-// PrismFrame2d is a 3d beam element. As such it can only
-// connect to a node with 6-dof. 
 //
 // TODO:
 //  - Move formation of km from setDomain; it needs to be re-formed
@@ -867,17 +864,17 @@ PrismFrame2d::setResponse(const char **argv, int argc, OPS_Stream &output)
 }
 
 int
-PrismFrame2d::getResponse (int responseID, Information &eleInfo)
+PrismFrame2d::getResponse (int responseID, Information &info)
 {
   double N, M1, M2, V;
   this->getResistingForce();
 
   switch (responseID) {
   case 1: // stiffness
-    return eleInfo.setMatrix(this->getTangentStiff());
+    return info.setMatrix(this->getTangentStiff());
     
   case 2: // global forces
-    return eleInfo.setVector(this->getResistingForce());
+    return info.setVector(this->getResistingForce());
     
   case 3: // local forces
     // Axial
@@ -893,13 +890,13 @@ PrismFrame2d::getResponse (int responseID, Information &eleInfo)
     V = (M1+M2)/L;
     P(1) =  V + p0[1];
     P(4) = -V + p0[2];
-    return eleInfo.setVector(P);
+    return info.setVector(P);
     
   case 4: // basic forces
-    return eleInfo.setVector(q);
+    return info.setVector(q);
 
   case 5:
-    return eleInfo.setVector(theCoordTransf->getBasicTrialDisp());
+    return info.setVector(theCoordTransf->getBasicTrialDisp());
 
   default:
     return -1;

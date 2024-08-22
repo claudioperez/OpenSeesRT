@@ -4,27 +4,26 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Purpose: This file contains the class definition for PrismFrame3d.
-// PrismFrame3d is a 3d prismatic beam element. 
+// 3D prismatic frame element. 
 //
 // Written: cmp 2024
 //
-#include <element/Frame/BasicFrame3d.h>
+#include <Frame/BasicFrame3d.h>
 #include <PrismFrame3d.h>
 #include <Domain.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
-#include <FrameTransform.h>
 #include <Information.h>
 #include <Parameter.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 #include <FrameSection.h>
+#include <FrameTransform.h>
 #include <ID.h>
 #include <math.h>
 #include <stdlib.h>
-
+#include <Exponential.h>
 
 PrismFrame3d::PrismFrame3d()
   :BasicFrame3d(0,ELE_TAG_ElasticBeam3d),
@@ -48,10 +47,13 @@ PrismFrame3d::PrismFrame3d(int tag, std::array<int, 2>& nodes,
   q.zero();
 }
 
-PrismFrame3d::PrismFrame3d(int tag, std::array<int,2>& nodes,
+PrismFrame3d::PrismFrame3d(int tag, 
+                           std::array<int,2>& nodes,
                            FrameSection &section,  
                            FrameTransform3d &coordTransf, 
-                           double rho_, int cMass, bool use_mass, int rz, int ry)
+                           double rho_, int cMass, bool use_mass, 
+                           int rz, int ry
+                           )
   :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
    mass_flag(cMass), density(rho_),
    releasez(rz), releasey(ry)
@@ -161,7 +163,6 @@ int
 PrismFrame3d::commitState()
 {
   int retVal = 0;
-  // call element commitState to do any base class stuff
   if ((retVal = this->Element::commitState()) != 0) {
     opserr << "PrismFrame3d::commitState () - failed in base class";
   }    
@@ -564,12 +565,12 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
         s << " " << yAxis(0) << " " << yAxis(1) << " " << yAxis(2) << " ";
         s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << "\n";
 
-        const Vector &node1Crd = theNodes[0]->getCrds();
+        const Vector &xi = theNodes[0]->getCrds();
         const Vector &node2Crd = theNodes[1]->getCrds();
         const Vector &node1Disp = theNodes[0]->getDisp();
         const Vector &node2Disp = theNodes[1]->getDisp();
 
-        s << "#NODE " << node1Crd(0) << " " << node1Crd(1) << " " << node1Crd(2)
+        s << "#NODE " << xi(0) << " " << xi(1) << " " << xi(2)
                 << " " << node1Disp(0) << " " << node1Disp(1) << " " << node1Disp(2)
                 << " " << node1Disp(3) << " " << node1Disp(4) << " " << node1Disp(5) << "\n";
 

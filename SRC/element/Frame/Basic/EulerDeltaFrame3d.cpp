@@ -4,31 +4,15 @@
 //
 //===----------------------------------------------------------------------===//
 //
-//  RESPONSE
-//  [ ] Force
-//  [ ] Mass (Lumped)
-//  [ ] Mass (Consistent)
-//  [ ] Tangent
+// Higher-order Euler frame formulation with C1 displacement interpolation
 //
-//  GEOMETRY
-//  [ ] Linear
-//  [ ] P-delta
-//
-//  TRANSFORMS
-//  [ ]
-//
-//  RELEASES
-//
-//  LOADING
-//  [ ] Beam3dUniformLoad
-//  [ ] Beam3dPointLoad
-//  [ ] Beam3dPartialUniformLoad
+// Adapted from DispBeamColumnAsym? or NL
 //
 #include <array>
 #include <math.h>
 #include <string.h>
 
-#include <DisplEulerFrame3d.h>
+#include <EulerDeltaFrame3d.h>
 
 #include <ID.h>
 #include <Matrix.h>
@@ -47,18 +31,18 @@
 #include <ElementalLoad.h>
 #include <BeamIntegration.h>
 
-#define ELE_TAG_DisplEulerFrame3d 0 // TODO
+#define ELE_TAG_EulerDeltaFrame3d 0 // TODO
 
 
-int
+static int
 getStrainMatrix(double xi, double L, const Vector& v, MatrixND<8,12>&B, MatrixND<4,8>&A)
 {
-    double oneOverL = 1/L;
+    double jsx = 1/L;
 
     double dshp_v1  = 1.0 + 3.0 * xi * xi - 4.0 * xi;
-    double ddshp_v1 = 6.0 * xi * oneOverL - 4.0 * oneOverL;
+    double ddshp_v1 = 6.0 * xi * jsx - 4.0 * jsx;
     double dshp_v2  = 3.0 * xi * xi - 2.0 * xi;
-    double ddshp_v2 = 6.0 * xi * oneOverL - 2.0 * oneOverL;
+    double ddshp_v2 = 6.0 * xi * jsx - 2.0 * jsx;
     double dshp_w1  = -dshp_v1;
     double ddshp_w1 = -ddshp_v1;
     double dshp_w2  = -dshp_v2;
@@ -70,7 +54,7 @@ getStrainMatrix(double xi, double L, const Vector& v, MatrixND<8,12>&B, MatrixND
     double dw  =  dshp_w1*v[3] +  dshp_w2*v[4]; // w'
     double ddw = ddshp_w1*v[3] + ddshp_w2*v[4]; // w"
     double alpha   = shp_alpha1*v[5];           // phi
-    double dalpha  = oneOverL*v[5];             // phi'
+    double dalpha  = jsx*v[5];                  // phi'
 
     A(0, 0)  = 1.0;
     A(0, 1)  = (4.0 * v[1] - v[2]) / 30.0;
@@ -79,7 +63,7 @@ getStrainMatrix(double xi, double L, const Vector& v, MatrixND<8,12>&B, MatrixND
     A(0, 4)  = (4.0 * v[4] - v[3]) / 30.0;
     A(1, 7)  = 1.0;
 
-    B( 0, 0)  = oneOverL;
+    B( 0, 0)  = jsx;
     B( 1, 1)  = 1.0;
     B( 2, 3)  = 1.0;
     B( 3, 2)  = 1.0;
@@ -93,18 +77,18 @@ getStrainMatrix(double xi, double L, const Vector& v, MatrixND<8,12>&B, MatrixND
     B( 8, 3)  = ddshp_w1;
     B( 8, 4)  = ddshp_w2;
     B( 9, 5)  = shp_alpha1;
-    B(10, 5)  = oneOverL;
+    B(10, 5)  = jsx;
 
     return 0;
 }
 
-DisplEulerFrame3d::DisplEulerFrame3d(int tag, std::array<int,2>& nodes,
+EulerDeltaFrame3d::EulerDeltaFrame3d(int tag, std::array<int,2>& nodes,
                                      std::vector<FrameSection*> &secs,
                                      BeamIntegration &bi,
                                      FrameTransform3d &coordTransf,
                                      double r, int cm, bool use_mass_)
 
-    : FiniteElement(tag, ELE_TAG_DisplEulerFrame3d, nodes),
+    : FiniteElement(tag, ELE_TAG_EulerDeltaFrame3d, nodes),
       numSections(secs.size()),  sections(nullptr),
       theCoordTransf(nullptr),   beamInt(nullptr), 
       density(r), mass_flag(cm), use_density(use_mass_),
@@ -126,8 +110,8 @@ DisplEulerFrame3d::DisplEulerFrame3d(int tag, std::array<int,2>& nodes,
   q0.zero();
 }
 
-DisplEulerFrame3d::DisplEulerFrame3d()
-    : FiniteElement(0, ELE_TAG_DisplEulerFrame3d),
+EulerDeltaFrame3d::EulerDeltaFrame3d()
+    : FiniteElement(0, ELE_TAG_EulerDeltaFrame3d),
       numSections(0), sections(nullptr),
       beamInt(nullptr),
       density(0.0), mass_flag(0), parameterID(0)
@@ -135,7 +119,7 @@ DisplEulerFrame3d::DisplEulerFrame3d()
   q0.zero();
 }
 
-DisplEulerFrame3d::~DisplEulerFrame3d()
+EulerDeltaFrame3d::~EulerDeltaFrame3d()
 {
   for (int i = 0; i < numSections; i++) {
     if (sections[i])
@@ -155,43 +139,52 @@ DisplEulerFrame3d::~DisplEulerFrame3d()
 
 
 int
-DisplEulerFrame3d::commitState()
+EulerDeltaFrame3d::commitState()
 {
-  int retVal = this->Element::commitState();
+  int status = this->Element::commitState();
 
   // Loop over the integration points and commit the material states
   for (int i = 0; i < numSections; i++)
-    retVal += sections[i]->commitState();
+    status += sections[i]->commitState();
 
-  return retVal;
+  // NOTE: This was not done in original element
+  status += theCoordTransf->commitState();
+
+  return status;
 }
 
 int
-DisplEulerFrame3d::revertToLastCommit()
+EulerDeltaFrame3d::revertToLastCommit()
 {
-  int retVal = 0;
+  int status = 0;
 
   // Loop over the integration points and revert to last committed state
   for (int i = 0; i < numSections; i++)
-    retVal += sections[i]->revertToLastCommit();
+    status += sections[i]->revertToLastCommit();
 
-  return retVal;
+  // NOTE: This was not done in original element
+  status += theCoordTransf->revertToLastCommit();
+
+  return status;
 }
 
 int
-DisplEulerFrame3d::revertToStart()
+EulerDeltaFrame3d::revertToStart()
 {
-  int retVal = 0;
+  int status = 0;
 
   // Loop over the integration points and revert states to start
   for (int i = 0; i < numSections; i++)
-    retVal += sections[i]->revertToStart();
+    status += sections[i]->revertToStart();
 
-  return retVal;
+  // NOTE: This was not done in original element
+  status += theCoordTransf->revertToStart();
+
+  return status;
 }
 
 int
-DisplEulerFrame3d::update()
+EulerDeltaFrame3d::update()
 {
   int err = 0;
 
@@ -202,34 +195,34 @@ DisplEulerFrame3d::update()
   const Vector &v = theCoordTransf->getBasicTrialDisp();
 
   double L        = theCoordTransf->getInitialLength();
-  double oneOverL = 1.0 / L;
-
-  //const Matrix &pts = quadRule.getIntegrPointCoords(numSections);
-  double xi[maxNumSections];
-  beamInt->getSectionLocations(numSections, L, xi);
+  double jsx = 1.0 / L;
 
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
 
     double xi1   = xi[i];
-    double dNv1  = 1.0 + 3.0*xi1*xi1 - 4.0*xi1;
-    double dNv2  = 3.0 * xi1 * xi1 - 2.0 * xi1;
-    double ddNv1 = 6.0 * xi1 * oneOverL - 4.0 * oneOverL;
-    double ddNv2 = 6.0 * xi1 * oneOverL - 2.0 * oneOverL;
-    double dNw1  = -dNv1;
-    double dNw2  = -dNv2;
-    double ddNw1 = -ddNv1;
-    double ddNw2 = -ddNv2;
+    double dNv[] = {
+                   1.0 + 3.0*xi1*xi1 - 4.0*xi1,
+                   3.0*xi1*xi1 - 2.0*xi1 
+    };
+    double ddNv[] = {
+                   6.0*xi1*jsx - 4.0*jsx,
+                   6.0*xi1*jsx - 2.0*jsx 
+    };
+    double dNw1  = -dNv[0];
+    double dNw2  = -dNv[1];
+    double ddNw1 = -ddNv[0];
+    double ddNw2 = -ddNv[1];
     double Nf1   =  xi1;
 
-    double dx   = oneOverL*v(0);            // u'
-    double dy   =  dNw1*v(3) +  dNw2*v(4);  // y'
-    double dz   =  dNv1*v(1) +  dNv2*v(2);  // z'
+    double dx   = jsx*v[0];                // u'
+    double dy   =  dNw1*v(3) +  dNw2*v(4);      // y'
+    double dz   =  dNv[0]*v(1) +  dNv[1]*v(2);  // z'
     double phi  = Nf1*v(5);                 // phi
                                             //
     double ddy  = ddNw1*v(3) + ddNw2*v(4);  // y"
-    double ddz  = ddNv1*v(1) + ddNv2*v(2);  // z"
-    double dphi = oneOverL*v(5);            // phi'
+    double ddz  = ddNv[0]*v(1) + ddNv[1]*v(2);  // z"
+    double dphi = jsx*v[5];            // phi'
 
     VectorND<4> e {
             dx,
@@ -243,14 +236,14 @@ DisplEulerFrame3d::update()
   }
 
   if (err != 0) {
-    opserr << "DisplEulerFrame3d::update() - failed setTrialSectionDeformations()\n";
+    opserr << "EulerDeltaFrame3d::update() - failed setTrialSectionDeformations()\n";
     return err;
   }
   return 0;
 }
 
 int
-DisplEulerFrame3d::setNodes()
+EulerDeltaFrame3d::setNodes()
 {
   double L  = theCoordTransf->getInitialLength();
   beamInt->getSectionLocations(numSections, L, xi);
@@ -259,7 +252,7 @@ DisplEulerFrame3d::setNodes()
 }
 
 int
-DisplEulerFrame3d::getIntegral(Field field, State state, double& total)
+EulerDeltaFrame3d::getIntegral(Field field, State state, double& total)
 {
 
   if (this->setState(State::Init) != 0)
@@ -323,16 +316,16 @@ DisplEulerFrame3d::getIntegral(Field field, State state, double& total)
 }
 
 const Vector &
-DisplEulerFrame3d::getResistingForce()
+EulerDeltaFrame3d::getResistingForce()
 {
   static Vector wrap(p);
   return wrap;
 }
 
 const Matrix &
-DisplEulerFrame3d::getTangentStiff()
+EulerDeltaFrame3d::getTangentStiff()
 {
-  static Matrix kb(ndf*nen,  ndf*nen);
+  static MatrixND<ndf*nen,  ndf*nen> kb;
   static MatrixND<nsr,  8> A;
   static MatrixND<  8, 12> B;
   static MatrixND<  8,  8> ks;
@@ -340,11 +333,11 @@ DisplEulerFrame3d::getTangentStiff()
 
   const Vector &v = theCoordTransf->getBasicTrialDisp();
 
-  double L        = theCoordTransf->getInitialLength();
-  double oneOverL = 1.0 / L;
+  double L   = theCoordTransf->getInitialLength();
+  double jsx = 1.0 / L;
 
   // Zero for integral
-  kb.Zero();
+  kb.zero();
   p.zero();
 
   A.zero();
@@ -357,8 +350,8 @@ DisplEulerFrame3d::getTangentStiff()
     getStrainMatrix(xi[i], L, v, B, A);
 
     // Get the section tangent stiffness and stress resultant
-    MatrixND<4,4> Ks = sections[i]->getTangent<nsr,scheme>(State::Pres);
-    VectorND<4>   s  = sections[i]->getResultant<nsr,scheme>();
+    MatrixND<nsr,nsr> Ks = sections[i]->getTangent<nsr,scheme>(State::Pres);
+    VectorND<nsr>     s  = sections[i]->getResultant<nsr,scheme>();
 
 
     // Add material stiffness
@@ -374,7 +367,7 @@ DisplEulerFrame3d::getTangentStiff()
     Gm(10, 10)             =  s[3];                                    // W
 
     // Add geometric stiffness
-    kb.addMatrixTripleProduct(1.0, B, Gm, L*wt[i]);
+//  kb.addMatrixTripleProduct(B, Gm, L*wt[i]);
 
 
     // assemble internal force vector p
@@ -388,28 +381,31 @@ DisplEulerFrame3d::getTangentStiff()
 //q[3] += q0[3];
 //q[4] += q0[4];
 
-  return kb;
+
+  static Matrix wrapper(kb);
+
+  return wrapper;
 }
 
 const Matrix &
-DisplEulerFrame3d::getInitialStiff()
+EulerDeltaFrame3d::getInitialStiff()
 {
   return this->getTangentStiff();
 }
 
 
 void
-DisplEulerFrame3d::zeroLoad()
+EulerDeltaFrame3d::zeroLoad()
 {
   q0.zero();
   return;
 }
 
 int
-DisplEulerFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
+EulerDeltaFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
 {
   opserr
-      << "DisplEulerFrame3d::addLoad() -- load type unknown for element with tag: "
+      << "EulerDeltaFrame3d::addLoad() -- load type unknown for element with tag: "
       << this->getTag() << "\n";
   return -1;
 }
@@ -417,14 +413,16 @@ DisplEulerFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
 
 
 void
-DisplEulerFrame3d::Print(OPS_Stream &s, int flag)
+EulerDeltaFrame3d::Print(OPS_Stream &s, int flag)
 {
+  const ID& node_tags = this->getExternalNodes();
+
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << OPS_PRINT_JSON_ELEM_INDENT << "{";
     s << "\"name\": " << this->getTag() << ", ";
-    s << "\"type\": \"DisplEulerFrame3d\", ";
-    s << "\"nodes\": [" << connectedExternalNodes(0) << ", " 
-                        << connectedExternalNodes(1)
+    s << "\"type\": \"" << this->getClassType() << "\", ";
+    s << "\"nodes\": [" << node_tags(0) << ", " 
+                        << node_tags(1)
       << "], ";
 
     // Mass
@@ -446,10 +444,12 @@ DisplEulerFrame3d::Print(OPS_Stream &s, int flag)
   }
 
   if (flag == OPS_PRINT_CURRENTSTATE) {
-    s << "\nDisplEulerFrame3d, element id:  " << this->getTag() << "\n";
-    s << "\tConnected external nodes:  " << connectedExternalNodes;
+    s << "\nEulerDeltaFrame3d, element id:  " 
+      << this->getTag() << "\n";
+    s << "\tConnected external nodes:  " << node_tags;
     s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
-    s << "\tmass density:  " << density << ", mass_flag: " << mass_flag << "\n";
+    s << "\tmass density:  " << density 
+      << ", mass_flag: " << mass_flag << "\n";
 
     beamInt->Print(s, flag);
 
@@ -462,24 +462,26 @@ DisplEulerFrame3d::Print(OPS_Stream &s, int flag)
 
 
 Response *
-DisplEulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
+EulerDeltaFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 {
 
-  Response *theResponse = 0;
+  Response *theResponse = nullptr;
 
   output.tag("ElementOutput");
-  output.attr("eleType", "DisplEulerFrame3d");
+  output.attr("eleType", "EulerDeltaFrame3d");
   output.attr("eleTag", this->getTag());
   output.attr("node1", connectedExternalNodes[0]);
   output.attr("node2", connectedExternalNodes[1]);
 
   //
-  // we compare argv[0] for known response types
+  // Compare argv[0] for known response types
   //
 
-  // global force -
-  if (strcmp(argv[0], "forces") == 0 || strcmp(argv[0], "force") == 0 ||
-      strcmp(argv[0], "globalForce") == 0 || strcmp(argv[0], "globalForces") == 0) {
+  // global force
+    if (strcmp(argv[0],"forces") == 0 || 
+        strcmp(argv[0],"force") == 0  ||
+        strcmp(argv[0],"globalForce") == 0 ||
+        strcmp(argv[0],"globalForces") == 0) {
 
     output.tag("ResponseType", "Px_1");
     output.tag("ResponseType", "Py_1");
@@ -497,8 +499,9 @@ DisplEulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 // TODO(cmp)
 //  theResponse = new ElementResponse(this, 1, P);
 
-    // local force -
-  } else if (strcmp(argv[0], "localForce") == 0 || strcmp(argv[0], "localForces") == 0) {
+    // Local force
+    }  else if (strcmp(argv[0],"localForce") == 0 || 
+                strcmp(argv[0],"localForces") == 0) {
 
     output.tag("ResponseType", "N_1");
     output.tag("ResponseType", "Vy_1");
@@ -603,6 +606,7 @@ DisplEulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
             sections[sectionNum - 1]->setResponse(&argv[2], argc - 2, output);
 
         output.endTag();
+
       } else if (sectionNum == 0) { // argv[1] was not an int, we want all sections,
 
         CompositeResponse *theCResponse = new CompositeResponse();
@@ -640,28 +644,28 @@ DisplEulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 }
 
 int
-DisplEulerFrame3d::getResponse(int responseID, Information &eleInfo)
+EulerDeltaFrame3d::getResponse(int responseID, Information &info)
 {
   double N, V, M1, M2, T;
   double L        = theCoordTransf->getInitialLength();
-  double oneOverL = 1.0 / L;
+  double jsx = 1.0 / L;
 
   if (responseID == 1)
-    return eleInfo.setVector(this->getResistingForce());
+    return info.setVector(this->getResistingForce());
 
   else if (responseID == 12)
-    return eleInfo.setVector(this->getRayleighDampingForces());
+    return info.setVector(this->getRayleighDampingForces());
 
   else if (responseID == 2) {
     // TODO(cmp)
 //  P.Zero();
-//  return eleInfo.setVector(P);
+//  return info.setVector(P);
     return -1;
   }
 
   // Chord rotation
   else if (responseID == 3)
-    return eleInfo.setVector(theCoordTransf->getBasicTrialDisp());
+    return info.setVector(theCoordTransf->getBasicTrialDisp());
 
   // Plastic rotation
   else if (responseID == 4) {
@@ -672,7 +676,7 @@ DisplEulerFrame3d::getResponse(int responseID, Information &eleInfo)
 //  kb.Solve(q, ve);
 //  vp = theCoordTransf->getBasicTrialDisp();
 //  vp -= ve;
-    return eleInfo.setVector(vp);
+    return info.setVector(vp);
   }
 
   else if (responseID == 10) {
@@ -682,7 +686,7 @@ DisplEulerFrame3d::getResponse(int responseID, Information &eleInfo)
     Vector locs(numSections);
     for (int i = 0; i < numSections; i++)
       locs(i) = pts[i] * L;
-    return eleInfo.setVector(locs);
+    return info.setVector(locs);
   }
 
   else if (responseID == 11) {
@@ -692,14 +696,14 @@ DisplEulerFrame3d::getResponse(int responseID, Information &eleInfo)
     Vector weights(numSections);
     for (int i = 0; i < numSections; i++)
       weights(i) = wts[i] * L;
-    return eleInfo.setVector(weights);
+    return info.setVector(weights);
   }
 
   else if (responseID == 110) {
     ID tags(numSections);
     for (int i = 0; i < numSections; i++)
       tags(i) = sections[i]->getTag();
-    return eleInfo.setID(tags);
+    return info.setID(tags);
   }
 
   else
@@ -707,7 +711,7 @@ DisplEulerFrame3d::getResponse(int responseID, Information &eleInfo)
 }
 
 int
-DisplEulerFrame3d::setParameter(const char **argv, int argc, Parameter &param)
+EulerDeltaFrame3d::setParameter(const char **argv, int argc, Parameter &param)
 {
   if (argc < 1)
     return -1;
@@ -776,7 +780,7 @@ DisplEulerFrame3d::setParameter(const char **argv, int argc, Parameter &param)
 }
 
 int
-DisplEulerFrame3d::updateParameter(int parameterID, Information &info)
+EulerDeltaFrame3d::updateParameter(int parameterID, Information &info)
 {
   if (parameterID == 1) {
     density = info.theDouble;
@@ -786,7 +790,7 @@ DisplEulerFrame3d::updateParameter(int parameterID, Information &info)
 }
 
 int
-DisplEulerFrame3d::activateParameter(int passedParameterID)
+EulerDeltaFrame3d::activateParameter(int passedParameterID)
 {
   parameterID = passedParameterID;
   return 0;
@@ -794,7 +798,7 @@ DisplEulerFrame3d::activateParameter(int passedParameterID)
 
 
 int
-DisplEulerFrame3d::sendSelf(int commitTag, Channel &theChannel)
+EulerDeltaFrame3d::sendSelf(int commitTag, Channel &theChannel)
 {
   // place the integer data into an ID
 
@@ -831,19 +835,19 @@ DisplEulerFrame3d::sendSelf(int commitTag, Channel &theChannel)
   data(13) = betaKc;
 
   if (theChannel.sendVector(dbTag, commitTag, data) < 0) {
-    opserr << "DisplEulerFrame3d::sendSelf() - failed to send data Vector\n";
+    opserr << "EulerDeltaFrame3d::sendSelf() - failed to send data Vector\n";
     return -1;
   }
 
   // send the coordinate transformation
   if (theCoordTransf->sendSelf(commitTag, theChannel) < 0) {
-    opserr << "DisplEulerFrame3d::sendSelf() - failed to send crdTranf\n";
+    opserr << "EulerDeltaFrame3d::sendSelf() - failed to send crdTranf\n";
     return -1;
   }
 
   // send the beam integration
   if (beamInt->sendSelf(commitTag, theChannel) < 0) {
-    opserr << "DisplEulerFrame3d::sendSelf() - failed to send beamInt\n";
+    opserr << "EulerDeltaFrame3d::sendSelf() - failed to send beamInt\n";
     return -1;
   }
 
@@ -868,7 +872,7 @@ DisplEulerFrame3d::sendSelf(int commitTag, Channel &theChannel)
   }
 
   if (theChannel.sendID(dbTag, commitTag, idSections) < 0) {
-    opserr << "DisplEulerFrame3d::sendSelf() - failed to send ID data\n";
+    opserr << "EulerDeltaFrame3d::sendSelf() - failed to send ID data\n";
     return -1;
   }
 
@@ -878,7 +882,7 @@ DisplEulerFrame3d::sendSelf(int commitTag, Channel &theChannel)
 
   for (int j = 0; j < numSections; j++) {
     if (sections[j]->sendSelf(commitTag, theChannel) < 0) {
-      opserr << "DisplEulerFrame3d::sendSelf() - section " << j
+      opserr << "EulerDeltaFrame3d::sendSelf() - section " << j
              << "failed to send itself\n";
       return -1;
     }
@@ -888,7 +892,7 @@ DisplEulerFrame3d::sendSelf(int commitTag, Channel &theChannel)
 }
 
 int
-DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
+EulerDeltaFrame3d::recvSelf(int commitTag, Channel &theChannel,
                                FEM_ObjectBroker &theBroker)
 {
   //
@@ -900,7 +904,7 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
   static Vector data(16);
 
   if (theChannel.recvVector(dbTag, commitTag, data) < 0) {
-    opserr << "DisplEulerFrame3d::recvSelf() - failed to recv data Vector\n";
+    opserr << "EulerDeltaFrame3d::recvSelf() - failed to recv data Vector\n";
     return -1;
   }
 
@@ -931,7 +935,7 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
     theCoordTransf = nullptr; // theBroker.getNewFrameTransform3d(crdTransfClassTag);
 
     if (theCoordTransf == nullptr) {
-      opserr << "DisplEulerFrame3d::recvSelf() - "
+      opserr << "EulerDeltaFrame3d::recvSelf() - "
              << "failed to obtain a CrdTrans object with classTag" << crdTransfClassTag
              << "\n";
       return -2;
@@ -942,7 +946,7 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
 
   // invoke recvSelf on the crdTransf object
   if (theCoordTransf->recvSelf(commitTag, theChannel, theBroker) < 0) {
-    opserr << "DisplEulerFrame3d::sendSelf() - failed to recv crdTranf\n";
+    opserr << "EulerDeltaFrame3d::sendSelf() - failed to recv crdTranf\n";
     return -3;
   }
 
@@ -954,7 +958,7 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
     beamInt = theBroker.getNewBeamIntegration(beamIntClassTag);
 
     if (beamInt == 0) {
-      opserr << "DisplEulerFrame3d::recvSelf() - failed to obtain the beam "
+      opserr << "EulerDeltaFrame3d::recvSelf() - failed to obtain the beam "
                 "integration object with classTag"
              << beamIntClassTag << "\n";
       return -3;
@@ -965,7 +969,7 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
 
   // invoke recvSelf on the beamInt object
   if (beamInt->recvSelf(commitTag, theChannel, theBroker) < 0) {
-    opserr << "DisplEulerFrame3d::sendSelf() - failed to recv beam integration\n";
+    opserr << "EulerDeltaFrame3d::sendSelf() - failed to recv beam integration\n";
     return -3;
   }
 
@@ -977,7 +981,7 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
   int loc = 0;
 
   if (theChannel.recvID(dbTag, commitTag, idSections) < 0) {
-    opserr << "DisplEulerFrame3d::recvSelf() - failed to recv ID data\n";
+    opserr << "EulerDeltaFrame3d::recvSelf() - failed to recv ID data\n";
     return -1;
   }
 
@@ -1013,14 +1017,14 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
       // TODO(cmp) add FrameSection to broker
 //    sections[i] = theBroker.getNewSection(sectClassTag);
       if (sections[i] == nullptr) {
-        opserr << "DisplEulerFrame3d::recvSelf() - Broker could not create Section of "
+        opserr << "EulerDeltaFrame3d::recvSelf() - Broker could not create Section of "
                   "class type"
                << sectClassTag << "\n";
         return -1;
       }
       sections[i]->setDbTag(sectDbTag);
       if (sections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
-        opserr << "DisplEulerFrame3d::recvSelf() - section " << i
+        opserr << "EulerDeltaFrame3d::recvSelf() - section " << i
                << "failed to recv itself\n";
         return -1;
       }
@@ -1046,7 +1050,7 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
       // TODO(cmp) add FrameSection to broker
 //      sections[i] = theBroker.getNewSection(sectClassTag);
         if (sections[i] == nullptr) {
-          opserr << "DisplEulerFrame3d::recvSelf() - Broker could not create Section "
+          opserr << "EulerDeltaFrame3d::recvSelf() - Broker could not create Section "
                     "of class type"
                  << sectClassTag << "\n";
           return -1;
@@ -1056,7 +1060,7 @@ DisplEulerFrame3d::recvSelf(int commitTag, Channel &theChannel,
       // recvSelf on it
       sections[i]->setDbTag(sectDbTag);
       if (sections[i]->recvSelf(commitTag, theChannel, theBroker) < 0) {
-        opserr << "DisplEulerFrame3d::recvSelf() - section " << i
+        opserr << "EulerDeltaFrame3d::recvSelf() - section " << i
                << "failed to recv itself\n";
         return -1;
       }

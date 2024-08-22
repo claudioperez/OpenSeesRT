@@ -4,32 +4,37 @@
 //
 //===----------------------------------------------------------------------===//
 //
-/*
- * References
- *
- *  State Determination Algorithm
- *  ---
- *  Neuenhofer, A. and F. C. Filippou (1997). "Evaluation of Nonlinear Frame Finite
- *  Element Models." Journal of Structural Engineering, 123(7):958-966.
- *  
- *  Spacone, E., V. Ciampi, and F. C. Filippou (1996). "Mixed Formulation of
- *  Nonlinear Beam Finite Element." Computers and Structures, 58(1):71-83.
- *  
- *  
- *  Plastic Hinge Integration
- *  ---
- *  Scott, M. H. and G. L. Fenves (2006). "Plastic Hinge Integration Methods for
- *  Force-Based Beam-Column Elements." Journal of Structural Engineering,
- *  132(2):244-252.
- *  
- *  
- *  Analytical Response Sensitivity (DDM)
- *  ---
- *  Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
- *  "Response Sensitivity for Nonlinear Beam-Column Elements."
- *  Journal of Structural Engineering, 130(9):1281-1288.
- *
- */
+// Higher-order frame formulations (Shear/Euler) with force/curvature interpolation
+//
+// Primary References
+//
+//  de Souza, R.M. (2000) 
+//    "Force-based finite element for large displacement inelastic analysis of frames". 
+//    University of California, Berkeley. Available at: https://www.proquest.com/docview/304624959/D8D738C3AC49427EPQ/1?accountid=14496.
+//
+//  Neuenhofer, A. and Filippou, F.C. (1998) 
+//    "Geometrically Nonlinear Flexibility-Based Frame Finite Element", 
+//    Journal of Structural Engineering, 124(6), pp. 704–711. Available at: https://doi.org/10/d8jvb5.
+//
+//  Spacone, E., V. Ciampi, and F. C. Filippou (1996). 
+//    "Mixed Formulation of Nonlinear Beam Finite Element."
+//    Computers and Structures, 58(1):71-83.
+//  
+//  Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
+//    "Response Sensitivity for Nonlinear Beam-Column Elements."
+//    Journal of Structural Engineering, 130(9):1281-1288.
+//
+//
+// See also
+//
+//  Scott, M. H. and G. L. Fenves (2006). "Plastic Hinge Integration Methods for
+//    Force-Based Beam-Column Elements." Journal of Structural Engineering,
+//    132(2):244-252.
+//
+//===----------------------------------------------------------------------===//
+//
+// Claudio Perez
+//
 #include <array>
 #include <vector>
 #include <math.h>
@@ -56,10 +61,10 @@ Vector ForceDeltaFrame3d::theVector(12);
 
 
 void
-ForceDeltaFrame3d::getHk(int numSections, double xi[], Matrix& H)
+ForceDeltaFrame3d::getHk(int n, double xi[], Matrix& H)
 {
-  for (int i = 0; i < numSections; i++) {
-    for (int j = 0; j < numSections; j++)
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++)
       H(i, j) = (pow(xi[i], j + 2) - xi[i]) / (j + 1) / (j + 2);
   }
 
@@ -67,29 +72,29 @@ ForceDeltaFrame3d::getHk(int numSections, double xi[], Matrix& H)
 }
 
 void
-ForceDeltaFrame3d::getHkp(int numSections, double xi[], Matrix& H)
+ForceDeltaFrame3d::getHkp(int n, double xi[], Matrix& H)
 {
-  for (int i = 0; i < numSections; i++)
-    for (int j = 0; j < numSections; j++)
+  for (int i = 0; i < n; i++)
+    for (int j = 0; j < n; j++)
       H(i, j) = pow(xi[i], j + 1) / (j + 1) - 1.0 / (j + 1) / (j + 2);
 }
 
 void
-ForceDeltaFrame3d::getHg(int numSections, double xi[], Matrix& H)
+ForceDeltaFrame3d::getHg(int n, double xi[], Matrix& H)
 {
-  for (int i = 0; i < numSections; i++) {
+  for (int i = 0; i < n; i++) {
     H(i, 0) = 0;
-    for (int j = 1; j < numSections; j++)
+    for (int j = 1; j < n; j++)
       H(i, j) = (pow(xi[i], j + 1) - xi[i]) / (j + 1);
   }
 }
 
 void
-ForceDeltaFrame3d::getHgp(int numSections, double xi[], Matrix& H)
+ForceDeltaFrame3d::getHgp(int n, double xi[], Matrix& H)
 {
-  for (int i = 0; i < numSections; i++) {
+  for (int i = 0; i < n; i++) {
     H(i, 0) = 0;
-    for (int j = 1; j < numSections; j++)
+    for (int j = 1; j < n; j++)
       H(i, j) = pow(xi[i], j) - 1 / (j + 1);
   }
 }
@@ -217,14 +222,13 @@ ForceDeltaFrame3d::commitState()
 int
 ForceDeltaFrame3d::revertToLastCommit()
 {
-  int err;
 
   for (GaussPoint& point : points) {
     FrameSection& section = *point.material;
 
     point.es = point.es_save;
 
-    if ((err = section.revertToLastCommit()) != 0)
+    if (section.revertToLastCommit() != 0)
       return -1;
 
     section.setTrialState<nsr,scheme>(point.es);
@@ -233,9 +237,9 @@ ForceDeltaFrame3d::revertToLastCommit()
   }
 
 
-  // revert the transformation to last commit
-  if ((err = theCoordTransf->revertToLastCommit()) != 0)
-    return err;
+  // Revert the transformation to last commit
+  if (theCoordTransf->revertToLastCommit() != 0)
+    return -2;
 
   // revert the element state to last commit
   q_pres = q_past;
@@ -243,13 +247,17 @@ ForceDeltaFrame3d::revertToLastCommit()
 
   state_flag = 0;
 
-  return err;
+  return 0;
 }
 
 int
 ForceDeltaFrame3d::revertToStart()
 {
-  // revert the sections state to start
+  // Revert the transformation to start
+  if (theCoordTransf->revertToStart() != 0)
+    return -2;
+
+  // Loop over the integration points and revert states to start
   for (GaussPoint& point : points) {
     point.Fs.zero();
     point.es.zero();
@@ -258,11 +266,6 @@ ForceDeltaFrame3d::revertToStart()
     if (point.material->revertToStart() != 0)
       return -1;
   }
-
-  // revert the transformation to start
-  int err;
-  if ((err = theCoordTransf->revertToStart()) != 0)
-    return err;
 
   // revert the element state to start
   q_past.zero();
@@ -273,7 +276,7 @@ ForceDeltaFrame3d::revertToStart()
 
   state_flag = 0;
   // this->update();
-  return err;
+  return 0;
 }
 
 
@@ -294,9 +297,9 @@ ForceDeltaFrame3d::initializeSectionHistoryVariables()
 int
 ForceDeltaFrame3d::update()
 {
-  int numSections = points.size();
-  // TODO: remove hard limit on sections
+  const int nip = points.size();
 
+  // TODO: remove hard limit on sections
   THREAD_LOCAL VectorND<nsr>     es_trial[maxNumSections]; //  strain
   THREAD_LOCAL VectorND<nsr>     sr_trial[maxNumSections]; //  stress resultant
   THREAD_LOCAL MatrixND<nsr,nsr> Fs_trial[maxNumSections]; //  flexibility
@@ -349,36 +352,36 @@ ForceDeltaFrame3d::update()
   }
 
   // Get CBDI influence matrix
-  Matrix ls(numSections, numSections);
-  // getCBDIinfluenceMatrix(numSections, xi, L, ls);
-  Matrix lsgp(numSections, numSections);
-  Matrix lskp(numSections, numSections);
+  Matrix ls(nip, nip);
+  // getCBDIinfluenceMatrix(nip, xi, L, ls);
+  Matrix lsgp(nip, nip);
+  Matrix lskp(nip, nip);
 
-  Matrix G(numSections, numSections);
-  vandermonde(numSections, xi, G);
+  Matrix G(nip, nip);
+  vandermonde(nip, xi, G);
 
 
-  Matrix Hk(numSections, numSections);
+  Matrix Hk(nip, nip);
   Matrix& lsg = Hk;
 
   {
-    Matrix Ginv(numSections, numSections);
+    Matrix Ginv(nip, nip);
     G.Invert(Ginv);
 
-    this->getHk(numSections, xi, Hk);
+    this->getHk(nip, xi, Hk);
 
     ls.addMatrixProduct(0.0, Hk, Ginv, 1.0);
 
-    Matrix Hg(numSections, numSections);
-    this->getHg(numSections, xi, Hg);
+    Matrix Hg(nip, nip);
+    this->getHg(nip, xi, Hg);
 
     Hk.addMatrixProduct(0.0, Hg, Ginv, 1.0);
-    Matrix Hkp(numSections, numSections);
-    this->getHkp(numSections, xi, Hkp);
+    Matrix Hkp(nip, nip);
+    this->getHkp(nip, xi, Hkp);
     lskp.addMatrixProduct(0.0, Hkp, Ginv, 1.0);
 
-    Matrix Hgp(numSections, numSections);
-    this->getHgp(numSections, xi, Hgp);
+    Matrix Hgp(nip, nip);
+    this->getHgp(nip, xi, Hgp);
     lsgp.addMatrixProduct(0.0, Hgp, Ginv, 1.0);
   }
 
@@ -390,18 +393,18 @@ ForceDeltaFrame3d::update()
   // dq_trial = kv * dv;
   dq_trial.addMatrixVector(0.0, K_trial, dv_trial, 1.0);
 
-  Vector gamma(numSections);
-  Vector gammaz(numSections);
-  Vector kappa(numSections);
-  Vector kappay(numSections);
+  Vector gamma(nip);
+  Vector gammaz(nip);
+  Vector kappa(nip);
+  Vector kappay(nip);
 
-  Vector w(numSections);
-  Vector wp(numSections);
-  Vector wz(numSections);
-  Vector wpz(numSections);
-  Vector ds_tilde(nsr * numSections);
-  Matrix K_tilde(nsr * numSections, nsr * numSections);
-  Vector de_tilde(nsr * numSections);
+  Vector w(nip);
+  Vector wp(nip);
+  Vector wz(nip);
+  Vector wpz(nip);
+  Vector ds_tilde(nsr * nip);
+  Matrix K_tilde(nsr * nip, nsr * nip);
+  Vector de_tilde(nsr * nip);
 
 
   bool converged   = false;
@@ -441,7 +444,7 @@ ForceDeltaFrame3d::update()
     //
     // Preliminary Gauss Loop
     //
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < nip; i++) {
       kappa(i)  = 0.0;
       gamma(i)  = 0.0;
       kappay(i) = 0.0;
@@ -476,7 +479,7 @@ ForceDeltaFrame3d::update()
     //
     // Gauss Loop
     //
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < nip; i++) {
 
       int index = nsr * i;
       double xL = points[i].point;
@@ -516,12 +519,12 @@ ForceDeltaFrame3d::update()
     } // Section loop
 
     K_tilde.Zero();
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < nip; i++) {
       Fs_trial[i] = points[i].material->getFlexibility<nsr,scheme>();
       const MatrixND<nsr,nsr> Ks = points[i].material->getTangent<nsr,scheme>(State::Pres);
 
 
-      for (int j = 0; j < numSections; j++) {
+      for (int j = 0; j < nip; j++) {
         for (int k = 0; k < nsr; k++) {
           if (shear_flag && scheme[k] == SECTION_RESPONSE_VY) {
             K_tilde(nsr*i + k, nsr*j + k)     -= lsgp(i, j) * q_trial[0];
@@ -557,12 +560,12 @@ ForceDeltaFrame3d::update()
 
     K_tilde.Solve(ds_tilde, de_tilde);
 
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < nip; i++) {
       for (int k = 0; k < nsr; k++)
         es_trial[i][k] -= de_tilde(nsr*i + k);
     }
 
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < nip; i++) {
       kappa(i)  = 0.0;
       gamma(i)  = 0.0;
       kappay(i) = 0.0;
@@ -596,7 +599,7 @@ ForceDeltaFrame3d::update()
     //
     //
     K_tilde.Zero();
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < nip; i++) {
 
       points[i].material->setTrialState<nsr,scheme>(es_trial[i]);
 
@@ -636,7 +639,7 @@ ForceDeltaFrame3d::update()
         }
       }
 
-      for (int j = 0; j < numSections; j++) {
+      for (int j = 0; j < nip; j++) {
         for (int k = 0; k < nsr; k++) {
           if (shear_flag && scheme[k] == SECTION_RESPONSE_VY) {
             K_tilde(nsr*i + k, nsr*j + k)     -= lsgp(i, j) * q_trial[0];
@@ -676,12 +679,12 @@ ForceDeltaFrame3d::update()
     //
     K_tilde.Solve(ds_tilde, de_tilde);
 
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < nip; i++) {
       for (int j = 0; j < nsr; j++)
         es_trial[i][j] -= de_tilde(nsr*i + j);
     }
 
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < nip; i++) {
       kappa(i)  = 0.0;
       gamma(i)  = 0.0;
       kappay(i) = 0.0;
@@ -713,7 +716,7 @@ ForceDeltaFrame3d::update()
 
 
     // Form stilde
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < nip; i++) {
       int index = nsr * i;
       for (int j = 0; j < nsr; j++) {
         if (scheme[j] == SECTION_RESPONSE_P)
@@ -740,9 +743,9 @@ ForceDeltaFrame3d::update()
       }
     } // loop over sections
 
-    Matrix dwidq(2 * numSections, nq);
+    Matrix dwidq(2 * nip, nq);
     this->computedwdq(dwidq, q_trial, w, wp, ls, lsg, lskp, lsgp);
-    Matrix dwzidq(2 * numSections, nq);
+    Matrix dwzidq(2 * nip, nq);
     this->computedwzdq(dwzidq, q_trial, wz, wpz, ls, lsg, lskp, lsgp);
 
     //
@@ -750,7 +753,7 @@ ForceDeltaFrame3d::update()
     //
     MatrixND<nsr, nq> Bstr{0};
     MatrixND<nsr, nq> Bhat{0};
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < nip; i++) {
       double xL = points[i].point;
       double wtL = points[i].weight * L;
 
@@ -821,10 +824,10 @@ ForceDeltaFrame3d::update()
       for (int j = 0; j < nsr; j++) {
         if (scheme[j] == SECTION_RESPONSE_VY)
           for (int k = 0; k < nq; k++)
-            Bhat(j, k) = -q_trial[0] * dwidq(i + numSections, k);
+            Bhat(j, k) = -q_trial[0] * dwidq(i + nip, k);
         if (scheme[j] == SECTION_RESPONSE_VZ)
           for (int k = 0; k < nq; k++)
-            Bhat(j, k) = -q_trial[0] * dwzidq(i + numSections, k);
+            Bhat(j, k) = -q_trial[0] * dwzidq(i + nip, k);
       }
       F.addMatrixTripleProduct(1.0, Bstr, fSec, Bhat, wtL);
 
@@ -836,13 +839,13 @@ ForceDeltaFrame3d::update()
             F(0, k) += 0.5 * e[j] * dwidq(i, k) * wtL;
         if (scheme[j] == SECTION_RESPONSE_VY)
           for (int k = 0; k < nq; k++)
-            F(0, k) -= 0.5 * e[j] * dwidq(i + numSections, k) * wtL;
+            F(0, k) -= 0.5 * e[j] * dwidq(i + nip, k) * wtL;
         if (scheme[j] == SECTION_RESPONSE_MY)
           for (int k = 0; k < nq; k++)
             F(0, k) += 0.5 * e[j] * dwzidq(i, k) * wtL;
         if (scheme[j] == SECTION_RESPONSE_VZ)
           for (int k = 0; k < nq; k++)
-            F(0, k) -= 0.5 * e[j] * dwzidq(i + numSections, k) * wtL;
+            F(0, k) -= 0.5 * e[j] * dwzidq(i + nip, k) * wtL;
       }
 
 
@@ -916,7 +919,7 @@ ForceDeltaFrame3d::update()
 
   K_pres = K_trial;
   q_pres = q_trial;
-  for (int k = 0; k < numSections; k++) {
+  for (int k = 0; k < nip; k++) {
     points[k].es  = es_trial[k];
     points[k].Fs  = Fs_trial[k];
     points[k].sr  = sr_trial[k];
@@ -2047,8 +2050,6 @@ ForceDeltaFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector secti
   double L = theCoordTransf->getInitialLength();
 
   // get integration point positions and weights
-  //   const Matrix &xi_pt  = quadRule.getIntegrPointCoords(numSections);
-  // get integration point positions and weights
   static double xi_pts[maxNumSections];
   stencil->getSectionLocations(numSections, L, xi_pts);
 
@@ -2086,8 +2087,8 @@ ForceDeltaFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector secti
   }
 
   Vector w(numSections);
-  static Vector xl(NDM), uxb(NDM);
-  static Vector xg(NDM), uxg(NDM);
+  VectorND<ndm> xl, uxb;
+  VectorND<ndm> xg, uxg;
 
   // w = ls * kappa;
   w.addMatrixVector(0.0, ls, kappa, 1.0);
@@ -2141,16 +2142,16 @@ ForceDeltaFrame3d::Print(OPS_Stream& s, int flag)
 
     s << "#ForceDeltaFrame2D\n";
 
-    const Vector& node1Crd  = theNodes[0]->getCrds();
-    const Vector& node2Crd  = theNodes[1]->getCrds();
-    const Vector& node1Disp = theNodes[0]->getDisp();
-    const Vector& node2Disp = theNodes[1]->getDisp();
+    const Vector& xi  = theNodes[0]->getCrds();
+    const Vector& xj  = theNodes[1]->getCrds();
+    const Vector& ui = theNodes[0]->getDisp();
+    const Vector& uj = theNodes[1]->getDisp();
 
-    s << "#NODE " << node1Crd(0) << " " << node1Crd(1) << " " << node1Disp(0) << " " << node1Disp(1)
-      << " " << node1Disp(2) << "\n";
+    s << "#NODE " << xi(0) << " " << xi(1) << " " << ui(0) << " " << ui(1)
+      << " " << ui(2) << "\n";
 
-    s << "#NODE " << node2Crd(0) << " " << node2Crd(1) << " " << node2Disp(0) << " " << node2Disp(1)
-      << " " << node2Disp(2) << "\n";
+    s << "#NODE " << xj(0) << " " << xj(1) << " " << uj(0) << " " << uj(1)
+      << " " << uj(2) << "\n";
 
     double P  = q_past(0);
     double M1 = q_past(1);
@@ -2196,11 +2197,11 @@ ForceDeltaFrame3d::Print(OPS_Stream& s, int flag)
 
       int i;
       for (int i = 0; i < numSections; i++)
-        coords[i] = Vector(NDM);
+        coords[i] = Vector(ndm);
       
       
       for (i = 0; i < numSections; i++)
-        displs[i] = Vector(NDM);
+        displs[i] = Vector(ndm);
 
       maxNumSections = numSections;
     }
@@ -2251,13 +2252,6 @@ ForceDeltaFrame3d::Print(OPS_Stream& s, int flag)
 
 }
 
-OPS_Stream&
-operator<<(OPS_Stream& s, ForceDeltaFrame3d& E)
-{
-  E.Print(s);
-  return s;
-}
-
 
 void
 ForceDeltaFrame3d::setSectionPointers(int numSec, FrameSection** secPtrs)
@@ -2293,9 +2287,11 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
   output.attr("node1", connectedExternalNodes[0]);
   output.attr("node2", connectedExternalNodes[1]);
 
-  // global force -
-  if (strcmp(argv[0], "forces") == 0 || strcmp(argv[0], "force") == 0 ||
-      strcmp(argv[0], "globalForce") == 0 || strcmp(argv[0], "globalForces") == 0) {
+  // Global force
+  if (strcmp(argv[0],"forces") == 0 || 
+      strcmp(argv[0],"force") == 0  ||
+      strcmp(argv[0],"globalForce") == 0 ||
+      strcmp(argv[0],"globalForces") == 0) {
 
     output.tag("ResponseType", "Px_1");
     output.tag("ResponseType", "Py_1");
@@ -2307,8 +2303,9 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     theResponse = new ElementResponse(this, 1, Vector(12));
 
 
-    // local force -
-  } else if (strcmp(argv[0], "localForce") == 0 || strcmp(argv[0], "localForces") == 0) {
+  // Local force
+  }  else if (strcmp(argv[0],"localForce") == 0 || 
+              strcmp(argv[0],"localForces") == 0) {
 
     output.tag("ResponseType", "N_1");
     output.tag("ResponseType", "V_1");
@@ -2329,7 +2326,7 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
     theResponse = new ElementResponse(this, 7, Vector(6));
 
-    // chord rotation -
+  // chord rotation -
   } else if (strcmp(argv[0], "chordRotation") == 0 || strcmp(argv[0], "chordDeformation") == 0 ||
              strcmp(argv[0], "basicDeformation") == 0) {
 
@@ -2339,7 +2336,7 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
     theResponse = new ElementResponse(this, 3, Vector(6));
 
-    // plastic rotation -
+  // plastic rotation -
   } else if (strcmp(argv[0], "plasticRotation") == 0 ||
              strcmp(argv[0], "plasticDeformation") == 0) {
 
@@ -2349,7 +2346,7 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
     theResponse = new ElementResponse(this, 4, Vector(6));
 
-    // point of inflection
+  // point of inflection
   } else if (strcmp(argv[0], "inflectionPoint") == 0) {
 
     output.tag("ResponseType", "inflectionPoint");
@@ -2439,9 +2436,10 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
       int sectionNum = atoi(argv[1]);
 
+      double xi[maxNumSections];
+
       if (sectionNum > 0 && sectionNum <= numSections && argc > 2) {
         FrameSection* section = points[sectionNum - 1].material;
-        double xi[maxNumSections];
         double L = theCoordTransf->getInitialLength();
         stencil->getSectionLocations(numSections, L, xi);
 
@@ -2459,11 +2457,11 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
         output.endTag();
 
-      } else if (sectionNum == 0) { // argv[1] was not an int, we want all sections,
+      } else if (sectionNum == 0) { 
+        // argv[1] was not an int, we want all sections,
 
         CompositeResponse* theCResponse = new CompositeResponse();
         int numResponse                 = 0;
-        double xi[maxNumSections];
         double L = theCoordTransf->getInitialLength();
         stencil->getSectionLocations(numSections, L, xi);
 
@@ -2499,13 +2497,13 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 }
 
 int
-ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
+ForceDeltaFrame3d::getResponse(int responseID, Information& info)
 {
   static Vector vp(6);
   static Matrix fe(6, 6);
 
   if (responseID == 1)
-    return eleInfo.setVector(this->getResistingForce());
+    return info.setVector(this->getResistingForce());
 
   else if (responseID == 2) {
     double p0[6];
@@ -2525,18 +2523,18 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
     double V     = (q_pres[1] + q_pres[2]) / theCoordTransf->getInitialLength();
     theVector(1) = V + p0[1];
     theVector(4) = -V + p0[2];
-    return eleInfo.setVector(theVector);
+    return info.setVector(theVector);
   }
 
 
   else if (responseID == 7)
-    return eleInfo.setVector(q_pres);
+    return info.setVector(q_pres);
 
 
   // Chord rotation
   else if (responseID == 3) {
     vp = theCoordTransf->getBasicTrialDisp();
-    return eleInfo.setVector(vp);
+    return info.setVector(vp);
   }
 
   // Plastic rotation
@@ -2547,7 +2545,7 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
     static Vector v0(6);
     this->getInitialDeformations(v0);
     vp.addVector(1.0, v0, -1.0);
-    return eleInfo.setVector(vp);
+    return info.setVector(vp);
   }
 
   // Point of inflection
@@ -2560,7 +2558,7 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
       LI = q_pres[1] / (q_pres[1] + q_pres[2]) * L;
     }
 
-    return eleInfo.setDouble(LI);
+    return info.setDouble(LI);
   }
 
   // Tangent drift
@@ -2612,11 +2610,11 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
     d(0) = d2;
     d(1) = d3;
 
-    return eleInfo.setVector(d);
+    return info.setVector(d);
   }
 
   else if (responseID == 7)
-    return eleInfo.setVector(q_pres);
+    return info.setVector(q_pres);
 
   /*
   // Curvature sensitivity
@@ -2631,36 +2629,36 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
           curv(i) = dedh(j);
       }
     }
-    return eleInfo.setVector(curv);
+    return info.setVector(curv);
   }
   */
 
   else if (responseID == 10) {
     // ensure we have L, xi[] and wt[]
     if (this->setState(State::Init) != 0)
-      return nullptr;
+      return -1;
 
     double L = theCoordTransf->getInitialLength();
 
-    Vector locs(numSections);
+    Vector locs(points.size());
     for (int i = 0; i < points.size(); i++)
       locs[i] = xi[i] * L;
 
-    return eleInfo.setVector(locs);
+    return info.setVector(locs);
   }
 
   else if (responseID == 11) {
     // ensure we have L, xi[] and wt[]
     if (this->setState(State::Init) != 0)
-      return nullptr;
+      return -1;
 
     double L = theCoordTransf->getInitialLength();
 
-    Vector weights(numSections);
+    Vector weights(points.size());
     for (int i = 0; i < points.size(); i++)
-      weights(i) = wts[i] * L;
+      weights[i] = wt[i] * L;
 
-    return eleInfo.setVector(weights);
+    return info.setVector(weights);
   }
 
   else if (responseID == 110) {
@@ -2668,7 +2666,7 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
     ID tags(numSections);
     for (int i = 0; i < numSections; i++)
       tags(i) = points[i].material->getTag();
-    return eleInfo.setID(tags);
+    return info.setID(tags);
   }
 
   else if (responseID == 111) {
@@ -2712,7 +2710,7 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
       disps(i, 1) = uxg(1);
       disps(i, 2) = uxg(2);
     }
-    return eleInfo.setMatrix(disps);
+    return info.setMatrix(disps);
   }
 
   else if (responseID == 112) {
@@ -2758,19 +2756,19 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& eleInfo)
       disps(i, 1) = uxg(1);
       disps(i, 2) = uxg(2);
     }
-    return eleInfo.setMatrix(disps);
+    return info.setMatrix(disps);
   }
 
   return -1;
 }
 
 int
-ForceDeltaFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information& eleInfo)
+ForceDeltaFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information& info)
 {
   // Basic deformation sensitivity
   if (responseID == 3) {
     const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
-    return eleInfo.setVector(dvdh);
+    return info.setVector(dvdh);
   }
 
   // Basic force sensitivity
@@ -2783,14 +2781,14 @@ ForceDeltaFrame3d::getResponseSensitivity(int responseID, int gradNumber, Inform
 
     dqdh.addVector(1.0, this->computedqdh(gradNumber), 1.0);
 
-    return eleInfo.setVector(dqdh);
+    return info.setVector(dqdh);
   }
 
   // dsdh
   else if (responseID == 76) {
     int numSections = points.size();
 
-    int sectionNum = eleInfo.theInt;
+    int sectionNum = info.theInt;
 
     Vector dsdh(nsr);
     dsdh.Zero();
@@ -2928,7 +2926,7 @@ ForceDeltaFrame3d::getResponseSensitivity(int responseID, int gradNumber, Inform
     opserr << "FBC2d::getRespSens dsdh=b*dqdh+dspdh: " << dsdh;
     */
 
-    return eleInfo.setVector(dsdh);
+    return info.setVector(dsdh);
   }
 
   // Plastic deformation sensitivity
@@ -2938,7 +2936,6 @@ ForceDeltaFrame3d::getResponseSensitivity(int responseID, int gradNumber, Inform
     const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
 
     dvpdh = dvdh;
-    //opserr << dvpdh;
 
     static Matrix fe(6, 6);
     this->getInitialFlexibility(fe);
@@ -2946,23 +2943,17 @@ ForceDeltaFrame3d::getResponseSensitivity(int responseID, int gradNumber, Inform
     const Vector& dqdh = this->computedqdh(gradNumber);
 
     dvpdh.addMatrixVector(1.0, fe, dqdh, -1.0);
-    //opserr << dvpdh;
 
     static Matrix fek(6, 6);
     fek.addMatrixProduct(0.0, fe, K_pres, 1.0);
 
     dvpdh.addMatrixVector(1.0, fek, dvdh, -1.0);
-    //opserr << dvpdh;
 
     const Matrix& dfedh = this->computedfedh(gradNumber);
 
     dvpdh.addMatrixVector(1.0, dfedh, q_pres, -1.0);
-    //opserr << dvpdh << "\n";
-    //opserr << dfedh << "\n";
 
-    //opserr << dqdh + kv*dvdh << "\n";
-
-    return eleInfo.setVector(dvpdh);
+    return info.setVector(dvpdh);
   }
 
   else

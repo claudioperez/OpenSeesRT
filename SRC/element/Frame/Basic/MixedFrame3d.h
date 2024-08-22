@@ -4,11 +4,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-//
 // Written: Mark D. Denavit, University of Illinois at Urbana-Champaign
-//
-// Description: This file contains the interface for the MixedFrame3d class.
-// It defines the class interface and the class attributes.
 //
 #ifndef MixedFrame3d_h
 #define MixedFrame3d_h
@@ -26,25 +22,19 @@ class Response;
 class BeamIntegration;
 class FrameSection;
 
-// Constants that define the dimensionality
-#define NDM                      3  // dimension of the problem (3d)
-#define NND                      6  // number of nodal dof's
-#define NEGD                     12 // number of element global dof's
-#define NDM_SECTION              3  // number of section dof's without torsion
-#define NDM_NATURAL              5  // number of element dof's in the basic system without torsion
-#define NDM_NATURAL_WITH_TORSION 6  // number of element dof's in the basic system with torsion
-#define MAX_NUM_SECTIONS         10 // maximum number of sections allowed
-
-
 #define ELE_TAG_MixedFrame3d 0 // TODO
 
 class MixedFrame3d : public FiniteElement<2,3,6> {
 public:
   // constructors
-  MixedFrame3d(int tag, std::array<int, 2>& nodes, 
+  MixedFrame3d(int tag, 
+               std::array<int, 2>& nodes, 
                int numSections, FrameSection** sectionPtrs, 
-               BeamIntegration& bi, FrameTransform3d& coordTransf,
-               double density, int damp_flag, int geom_flag = true);
+               BeamIntegration& bi, 
+               FrameTransform3d& coordTransf,
+               double density, 
+               int damp_flag, 
+               int geom_flag = true);
   MixedFrame3d();
 
 
@@ -78,24 +68,32 @@ public:
   const Vector& getResistingForceIncInertia();
 
   // MovableObject
-  int sendSelf(int cTag, Channel& theChannel);
-  int recvSelf(int cTag, Channel& theChannel, FEM_ObjectBroker& theBroker);
+  int sendSelf(int cTag, Channel&);
+  int recvSelf(int cTag, Channel&, FEM_ObjectBroker&);
+
   // TaggedObject
   void Print(OPS_Stream& s, int flag = 0);
 
   Response* setResponse(const char** argv, int argc, OPS_Stream& output);
-  int getResponse(int responseID, Information& eleInfo);
+  int getResponse(int responseID, Information& info);
 
 
 private:
+
+// Constants that define the dimensionality
+#define NDM                      3  // dimension of the problem (3d)
+#define NND                      6  // number of nodal dof's
+#define NEGD                     12 // number of element global dof's
+#define NDM_SECTION              3  // number of section dof's without torsion
+#define NDM_NATURAL              5  // number of element dof's in the basic system without torsion
+#define NDM_NATURAL_WITH_TORSION 6  // number of element dof's in the basic system with torsion
+#define MAX_NUM_SECTIONS         10 // maximum number of sections allowed
+
   constexpr static int nsr = 3;
-  enum Geometry {
-    Linear = 1
-  };
-  enum Damping {
-    Rayleigh = 1
-  };
-  // Private Functions - Shape Functions
+
+  enum Geometry { Linear = 1};
+  enum Damping  { Rayleigh = 1};
+  // Shape Functions
   MatrixND<NDM_SECTION, NDM_NATURAL> getNld_hat(int sec, const Vector& v, double L, int geom_flag);
   Vector getd_hat(int sec, const Vector& v, double L, int geom_flag);
   Matrix getNd1(int sec, const Vector& v, double L, int geom_flag);
@@ -103,7 +101,7 @@ private:
   MatrixND<NDM_NATURAL, NDM_NATURAL> getKg(int sec, double P, double L);
   MatrixND<NDM_NATURAL, NDM_NATURAL> getMd(int sec, Vector& dShapeFcn, Vector& dFibers, double L);
 
-  // Private Functions - Interaction With The Sections
+  // Interaction With The Sections
   void getSectionTangent(int sec, int type, MatrixND<NDM_SECTION, NDM_SECTION>& Ks, double& GJ);
   void getSectionStress(int sec, Vector& fSection, double& torsion);
   void setSectionDeformation(int sec, Vector& defSection, double& twist);
@@ -155,7 +153,9 @@ private:
   Vector* es_past;
   MatrixND<NDM_SECTION, NDM_SECTION>* fs_past;
 
-  // static data - single copy for all objects of the class
+  //
+  // Static data
+  //
   static Matrix theMatrix;
   static Vector theVector;
   static Matrix transformNaturalCoords;

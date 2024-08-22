@@ -4,9 +4,12 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Documentation: Three Dimensional Mixed Beam Column Element
-// element MixedFrame3d $tag $iNode $jNode $numIntgrPts $secTag $transfTag <-mass $massDens>
-//   <-integration $intType> <-damp_flag $rFlag> <-geomNonlinear>
+// Three Dimensional Mixed Beam Column Element
+//
+//===----------------------------------------------------------------------===
+//
+// element MixedFrame3d $tag $iNode $jNode $numIntgrPts $secTag $transfTag 
+//   <-mass $massDens> <-integration $intType> <-damp_flag $rFlag> <-geomNonlinear>
 //
 // Required Input Parameters:
 //   $tag                   integer tag identifying the element
@@ -38,6 +41,10 @@
 //      Steel Tube Members and Frames," Report No. NSEL-023, Newmark Structural Laboratory Report Series
 //      (ISSN 1940-9826), Department of Civil and Environmental Engineering, University of Illinois at
 //      Urbana-Champaign, Urbana, Illinois, March.
+//
+//===----------------------------------------------------------------------===//
+//
+// Written: Mark D. Denavit, University of Illinois at Urbana-Champaign
 //
 #include <MixedFrame3d.h>
 #include <elementAPI.h>
@@ -402,6 +409,7 @@ MixedFrame3d::setNodes() // (Domain* theDomain)
   beamIntegr->getSectionWeights(numSections, L0, wt);
   beamIntegr->getSectionLocations(numSections, L0, xi);
 
+  return 0;
 }
 
 int
@@ -1487,10 +1495,10 @@ MixedFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 
 
 int
-MixedFrame3d::getResponse(int responseID, Information& eleInfo)
+MixedFrame3d::getResponse(int responseID, Information& info)
 {
   if (responseID == 1) { // global forces
-    return eleInfo.setVector(this->getResistingForce());
+    return info.setVector(this->getResistingForce());
 
   } else if (responseID == 2) { // local forces
     // Axial
@@ -1522,10 +1530,10 @@ MixedFrame3d::getResponse(int responseID, Information& eleInfo)
     theVector(2)  = -V + p0[3];
     theVector(8)  = V + p0[4];
 
-    return eleInfo.setVector(theVector);
+    return info.setVector(theVector);
 
   } else if (responseID == 3) { // basic forces
-    return eleInfo.setVector(qe_pres);
+    return info.setVector(qe_pres);
 
   } else if (responseID == 4) { // section deformation (from forces)
 
@@ -1538,7 +1546,7 @@ MixedFrame3d::getResponse(int responseID, Information& eleInfo)
       tempVector(3 * i + 2) = es_trial[i](2);
     }
 
-    return eleInfo.setVector(tempVector);
+    return info.setVector(tempVector);
 
   } else if (responseID == 5) { // plastic section deformation (from forces)
 
@@ -1564,7 +1572,7 @@ MixedFrame3d::getResponse(int responseID, Information& eleInfo)
       tempVector(3 * i + 2) = plasticSectionDef(2);
     }
 
-    return eleInfo.setVector(tempVector);
+    return info.setVector(tempVector);
 
   } else if (responseID == 100) { // integration points
 
@@ -1574,7 +1582,7 @@ MixedFrame3d::getResponse(int responseID, Information& eleInfo)
     Vector locs(numSections);
     for (int i = 0; i < numSections; i++)
       locs[i] = pts[i] * L;
-    return eleInfo.setVector(locs);
+    return info.setVector(locs);
 
   } else if (responseID == 101) { // integration weights
     double L = crdTransf->getInitialLength();
@@ -1583,24 +1591,24 @@ MixedFrame3d::getResponse(int responseID, Information& eleInfo)
     Vector weights(numSections);
     for (int i = 0; i < numSections; i++)
       weights[i] = wts[i] * L;
-    return eleInfo.setVector(weights);
+    return info.setVector(weights);
 
   } else if (responseID == 110) {
     ID tags(numSections);
     for (int i = 0; i < numSections; i++)
       tags(i) = sections[i]->getTag();
-    return eleInfo.setID(tags);
+    return info.setID(tags);
 
   } else if (responseID == 102) { // connected nodes
     Vector tempVector(2);
     tempVector(0) = connectedExternalNodes(0);
     tempVector(1) = connectedExternalNodes(1);
-    return eleInfo.setVector(tempVector);
+    return info.setVector(tempVector);
 
   } else if (responseID == 103) { // number of sections
     Vector tempVector(1);
     tempVector(0) = numSections;
-    return eleInfo.setVector(tempVector);
+    return info.setVector(tempVector);
 
   }
 
@@ -1648,7 +1656,7 @@ MixedFrame3d::getResponse(int responseID, Information& eleInfo)
       disps(i, 1) = uxg(1);
       disps(i, 2) = uxg(2);
     }
-    return eleInfo.setMatrix(disps);
+    return info.setMatrix(disps);
   }
 
   return -1;

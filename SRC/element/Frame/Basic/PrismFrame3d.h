@@ -4,24 +4,18 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Purpose: This file contains the class definition for PrismFrame3d.
-// PrismFrame3d is a plane frame member.
-//
-// RELEASES
-// [ ] 
-//
 // Written: cmp 2024
 //
 #ifndef PrismFrame3d_h
 #define PrismFrame3d_h
 
 #include <array>
-#include <element/Frame/BasicFrame3d.h>
 #include <Node.h>
 #include <Matrix.h>
 #include <Vector.h>
 #include <MatrixND.h>
 #include <VectorND.h>
+#include <Frame/BasicFrame3d.h>
 
 class Channel;
 class Information;
@@ -32,19 +26,22 @@ class FrameSection;
 class PrismFrame3d : public BasicFrame3d
 {
   public:
-    PrismFrame3d();
-    PrismFrame3d(int tag, std::array<int, 2>& nodes,
+    PrismFrame3d(int tag, 
+                 std::array<int, 2>& nodes,
                  double A, double E, double G, 
 		             double Jx, double Iy, double Iz,
                  FrameTransform3d &theTransf,
                  double density, int mass_flag,
 		             int releasez, int releasey);
 
-    PrismFrame3d(int tag, std::array<int,2>& nodes,
-      FrameSection &section, 
-		  FrameTransform3d &theTransf,
-      double density, int mass_flag, bool use_mass,
-		  int releasez, int releasey);
+    PrismFrame3d(int tag,
+                 std::array<int,2>& nodes,
+                 FrameSection &section, 
+		             FrameTransform3d &theTransf,
+                 double density, int mass_flag, bool use_mass,
+		             int releasez, int releasey);
+
+    PrismFrame3d();
 
 //  ~PrismFrame3d();
 
@@ -62,16 +59,17 @@ class PrismFrame3d : public BasicFrame3d
     int revertToStart();
     virtual const Vector &getResistingForce() final;
 
-    int sendSelf(int commitTag, Channel &theChannel);
-    int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+    int sendSelf(int commitTag, Channel &);
+    int recvSelf(int commitTag, Channel &, FEM_ObjectBroker &);
     
     void Print(OPS_Stream &s, int flag =0);
 
     Response *setResponse(const char **argv, int argc, OPS_Stream &s) final;
-    virtual int getResponse(int responseID, Information &info) final;
+    virtual int getResponse(int responseID, Information &) final;
  
-    virtual int setParameter(const char **argv, int argc, Parameter &param) final;
-    virtual int updateParameter(int parameterID, Information &info) final;
+    // Parameter
+    virtual int setParameter(const char **argv, int argc, Parameter &) final;
+    virtual int updateParameter(int parameterID, Information &) final;
 
   protected:
     // For BasicFrame3d
@@ -100,7 +98,6 @@ class PrismFrame3d : public BasicFrame3d
     OpenSees::MatrixND<6,6> km;
     OpenSees::MatrixND<6,6> kg;
     OpenSees::VectorND<6>   q;
-
 
 };
 

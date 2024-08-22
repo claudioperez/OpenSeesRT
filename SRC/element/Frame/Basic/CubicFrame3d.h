@@ -1,116 +1,138 @@
 //===----------------------------------------------------------------------===//
 //
-//        OpenSees - Open System for Earthquake Engineering Simulation    
+//        OpenSees - Open System for Earthquake Engineering Simulation
 //
 //===----------------------------------------------------------------------===//
-//
-// Description: This file contains the class definition for CubicFrame3d.
-// The element displacement field gives rise to constant axial strain,
-// linear curvature, and constant twist angle.
 //
 #ifndef CubicFrame3d_h
 #define CubicFrame3d_h
 
 #include <array>
-#include <Frame/BasicFrame3d.h>
+#include <vector>
+#include <Element.h>
 #include <Matrix.h>
 #include <Vector.h>
-#include <ID.h>
+#include <VectorND.h>
 #include <FrameSection.h>
+#include <ID.h>
 
 class Node;
 class FrameTransform3d;
 class BeamIntegration;
 class Response;
+using namespace OpenSees;
 
-class CubicFrame3d : public BasicFrame3d
-{
-  public:
-    CubicFrame3d(int tag, std::array<int,2>& nodes,
-                     int numSections, FrameSection **s,
-                     BeamIntegration &bi, FrameTransform3d &coordTransf,
-                     double rho, int mass_flag);
-    CubicFrame3d();
-    ~CubicFrame3d();
+class CubicFrame3d : public Element {
+public:
+  CubicFrame3d(int tag, 
+               std::array<int, 2>&,
+               std::vector<FrameSection*>&, BeamIntegration&,
+               FrameTransform3d&, 
+               double rho);
+  CubicFrame3d();
+  ~CubicFrame3d();
 
-    const char *getClassType() const {return "CubicFrame3d";};
-    static constexpr const char* class_name = "CubicFrame3d";
+  const char*
+  getClassType() const final
+  {
+    return "CubicFrame3d";
+  };
 
+  int getNumExternalNodes() const;
+  const ID& getExternalNodes();
+  Node** getNodePtrs();
 
-    // public methods to set the state of the element   
-    int commitState();
-    int revertToLastCommit();
-    int revertToStart();
+  int getNumDOF();
+  void setDomain(Domain* theDomain);
 
-    // public methods to obtain stiffness, mass, damping and residual information    
-    int update();
-    virtual const Vector &getResistingForce() final;
-    virtual const Matrix &getMass() final;
-//  const Matrix &getTangentStiff();
-//  const Matrix &getInitialStiff();
+  // public methods to set the state of the element
+  int commitState();
+  int revertToLastCommit();
+  int revertToStart();
 
-//  void zeroLoad();
-//  int addLoad(ElementalLoad *theLoad, double loadFactor);
-//  int addInertiaLoadToUnbalance(const Vector &accel);
-//  const Vector &getResistingForceIncInertia();
+  // public methods to obtain stiffness, mass, damping and residual information
+  int update();
+  const Matrix& getTangentStiff();
+  const Matrix& getInitialStiff();
+  const Matrix& getMass();
 
-    // public methods for element output
-    int sendSelf(int commitTag, Channel &theChannel);
-    int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker 
-                 &theBroker);
+  void zeroLoad();
+  int addLoad(ElementalLoad* theLoad, double loadFactor);
+  int addInertiaLoadToUnbalance(const Vector& accel);
 
-    void Print(OPS_Stream &s, int flag =0);
-
-    Response *setResponse(const char **argv, int argc, OPS_Stream &s);
-    int getResponse(int responseID, Information &eleInfo);
-
-
-    virtual int setParameter(const char **argv, int argc, Parameter &param) final;
-//  virtual int            updateParameter(int parameterID, Information &info);
-//  virtual int            activateParameter(int parameterID) final;
-    virtual const Vector & getResistingForceSensitivity(int gradNumber);
-    virtual const Matrix & getInitialStiffSensitivity(int gradNumber);
-//  virtual const Matrix & getMassSensitivity(int gradNumber);
-    virtual int            commitSensitivity(int gradNumber, int numGrads);
+  const Vector& getResistingForce();
+  const Vector& getResistingForceIncInertia();
 
 
-    virtual int getIntegral(Field field, State state, double& total);
+  Response* setResponse(const char** argv, int argc, OPS_Stream& s);
+  int getResponse(int responseID, Information& eleInfo);
+
+  // Element: Parameters
+  int setParameter(const char** argv, int argc, Parameter& param);
+  int updateParameter(int parameterID, Information& info);
+  int activateParameter(int parameterID);
+
+  // Element: Sensitivity
+  const Vector& getResistingForceSensitivity(int gradNumber);
+  const Matrix& getInitialStiffSensitivity(int gradNumber);
+  const Matrix& getMassSensitivity(int gradNumber);
+  int commitSensitivity(int gradNumber, int numGrads);
+
+  // MovableObject
+  int sendSelf(int commitTag, Channel&);
+  int recvSelf(int commitTag, Channel&, FEM_ObjectBroker&);
+
+  // TaggedObject
+  void Print(OPS_Stream& s, int flag = 0);
+
 protected:
-    // For BasicFrame3d
-    virtual  OpenSees::VectorND<6>&   getBasicForce() final;
-    virtual  OpenSees::MatrixND<6,6>& getBasicTangent(State state, int rate) final;
-    // For FiniteElement
-    virtual int setNodes() final;
-
 private:
-//  const Matrix &getInitialBasicStiff();
+  constexpr static int 
+        nsr = 6,              // number of section resultants
+        ndm = 3,              // dimension of the problem (3D)
+        nq  = 6,              // number of element dof's in the basic system
+        nen = 2,              // number of element nodes
+        maxNumSections = 20;
 
-    int numSections;
-    FrameSection **sections; // vector of sections
-    BeamIntegration *beamInt;
+  void getBasicStiff(Matrix& kb, int initial = 0);
 
-    OpenSees::MatrixND<6,6> kb;
-    OpenSees::VectorND<6>   q;
 
-    double density;         // Mass density per unit length
-    double total_mass,
-           twist_mass;
-    int mass_flag;
-    bool mass_initialized;
+  int numSections;
+  FrameSection** theSections;       // the materials
+  FrameTransform3d* theCoordTransf; // coordinate transformation object
+  BeamIntegration* beamInt;
 
-    constexpr static int max_nip = 20;
-    double xi[max_nip];
-    double wt[max_nip];
+  double xi[maxNumSections];
+  double wt[maxNumSections];
+  double phizs[maxNumSections]; // Shear term 12EIz/(GA L^2)
+  double phiys[maxNumSections]; // Shear term 12EIy/(GA L^2)
 
-    static double workArea[];
+  ID connectedExternalNodes; // Tags of quad nodes
 
-    static constexpr FrameStressLayout scheme = {
-      FrameStress::N,
-      FrameStress::Mz,
-      FrameStress::My,
-      FrameStress::T,
-    };
+  Node* theNodes[nen];
+
+
+  Vector Q;       // Applied nodal loads
+  Vector q;       // Basic force
+  VectorND<5> q0; // Fixed end forces in basic system (no torsion)
+  VectorND<5> p0; // Reactions in basic system (no torsion)
+
+  double density;             // Mass density per unit length
+  double total_mass,
+         twist_mass;
+  int    mass_flag;
+  bool   use_density;
+  bool   mass_initialized;
+
+  int parameterID;
+
+  static Matrix K; // Element stiffness, damping, and mass Matrix
+  static Vector P; // Element resisting force vector
+
+  static constexpr FrameStressLayout scheme = {
+      FrameStress::N, FrameStress::Vy, FrameStress::Vz,
+      FrameStress::T, FrameStress::My, FrameStress::Mz,
+  };
 };
 
 #endif
-

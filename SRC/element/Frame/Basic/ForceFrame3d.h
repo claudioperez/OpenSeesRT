@@ -4,26 +4,6 @@
 //
 //===----------------------------------------------------------------------===//
 //
-/*
- * References
- *
- *
- *  State Determination Algorithm
- *  ---
- *  Neuenhofer, A. and F. C. Filippou (1997). "Evaluation of Nonlinear Frame Finite
- *  Element Models." Journal of Structural Engineering, 123(7):958-966.
- *
- *  Spacone, E., V. Ciampi, and F. C. Filippou (1996). "Mixed Formulation of
- *  Nonlinear Beam Finite Element." Computers and Structures, 58(1):71-83.
- *
- *  Analytical Response Sensitivity (DDM)
- *  ---
- *  Scott, M. H., P. Franchin, G. L. Fenves, and F. C. Filippou (2004).
- *  "Response Sensitivity for Nonlinear Beam-Column Elements."
- *  Journal of Structural Engineering, 130(9):1281-1288.
- *
- */
-//
 #ifndef ForceFrame3d_h
 #define ForceFrame3d_h
 //
@@ -46,18 +26,21 @@ using namespace OpenSees;
 class ForceFrame3d: public BasicFrame3d
 {
  public:
-  ForceFrame3d();
   ForceFrame3d(int tag, std::array<int,2>& nodes,
-        std::vector<FrameSection*>& sections,
-		    BeamIntegration &beamIntegr,
-		    FrameTransform3d &coordTransf, 
-        double density, int cMass, bool use_density,
-		    int max_iter, double tolerance
+               std::vector<FrameSection*>& sections,
+               BeamIntegration &beamIntegr,
+               FrameTransform3d &coordTransf, 
+               double density, int mass_flag, bool use_density,
+               int max_iter, double tolerance
   );
+
+  ForceFrame3d();
   
   ~ForceFrame3d();
 
-  const char *getClassType() const {return "ForceFrame3d";};
+  const char *getClassType() const final {
+    return "ForceFrame3d";
+  }
 
   int setNodes();
   int commitState();
@@ -78,25 +61,26 @@ class ForceFrame3d: public BasicFrame3d
   */
   
   Response *setResponse(const char **argv, int argc, OPS_Stream &s);
-  int getResponse(int responseID, Information &eleInformation);
+  int getResponse(int responseID, Information &);
   
-
-  int setParameter(const char **argv, int argc, Parameter &param);
-  int updateParameter(int parameterID, Information &info);
+  // Element: Parameters
+  int setParameter(const char **argv, int argc, Parameter &);
+  int updateParameter(int parameterID, Information &);
   int activateParameter(int parameterID);
+
+  // Element: Sensitivity
   const Vector &getResistingForceSensitivity(int gradNumber);
   const Matrix &getKiSensitivity(int gradNumber);
   const Matrix &getMassSensitivity(int gradNumber);
   int commitSensitivity(int gradNumber, int numGrads);
-  int getResponseSensitivity(int responseID, int gradNumber, Information &info);
+  int getResponseSensitivity(int responseID, int gradNumber, Information &);
 
 
   virtual int getIntegral(Field field, State state, double& total);
 
-
   // MovableObject
-  int sendSelf(int cTag, Channel &theChannel);
-  int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+  int sendSelf(int cTag, Channel &);
+  int recvSelf(int cTag, Channel &, FEM_ObjectBroker &);
   
   // TaggedObject
   void Print(OPS_Stream &s, int flag =0);    
@@ -114,6 +98,7 @@ class ForceFrame3d: public BasicFrame3d
   constexpr static int 
         nsr = 6,              // number of section resultants
         ndm = 3,              // dimension of the problem (3D)
+        nen = 2,              // number of element nodes
         nq  = 6,              // number of element dof's in the basic system
         maxNumSections = 20,
         maxSubdivisions= 10;
@@ -189,16 +174,15 @@ class ForceFrame3d: public BasicFrame3d
            weight;
     FrameSection* material;
 
-    MatrixND<nsr,nsr> Fs;         // section flexibility
-    VectorND<nsr>     es;         // section deformations
-    VectorND<nsr>     sr;         // section stress resultants
-    VectorND<nsr> es_save;        // committed section deformations
+    MatrixND<nsr,nsr> Fs;         // Section flexibility
+    VectorND<nsr>     es;         // Section deformations
+    VectorND<nsr>     sr;         // Section stress resultants
+    VectorND<nsr> es_save;        // Committed section deformations
   };
 
   std::vector<GaussPoint> points;
   BeamIntegration*        stencil;
   
-
 
 //void getForceInterpolatMatrix(double xi, Matrix &b, const ID &code);
 //void getDistrLoadInterpolatMatrix(double xi, Matrix &bp, const ID &code);
