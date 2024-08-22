@@ -1,5 +1,6 @@
 //
-// Description: This file contains the class implementation of DispBeamColumn2dInt.Based on DispBeamColumn2d.cpp.
+// Description: This file contains the class implementation of DispBeamColumn2dInt.
+// Based on DispBeamColumn2d.cpp.
 //
 // Created: 07/04
 // Modified by: LMS
@@ -161,12 +162,6 @@ DispBeamColumn2dInt::DispBeamColumn2dInt(int tag, int nd1, int nd2, int numSec,
 {
   // Allocate arrays of pointers to SectionForceDeformations
   theSections = new FiberSection2dInt *[numSections];
-
-  if (theSections == 0) {
-    opserr << "DispBeamColumn2dInt::DispBeamColumn2dInt - failed to allocate section "
-              "model pointer\n";
-    exit(-1);
-  }
 
   for (int i = 0; i < numSections; i++) {
 
@@ -452,17 +447,16 @@ DispBeamColumn2dInt::getTangentStiff()
     // Perform numerical integration
     double wti = wts[i] * oneOverL;
 
-    double d11, d12, d13, d21, d22, d23, d31, d32, d33;
 
-    d11 = ks(0, 0);
-    d12 = ks(0, 1);
-    d13 = ks(0, 2);
-    d21 = ks(1, 0);
-    d22 = ks(1, 1);
-    d23 = ks(1, 2);
-    d31 = ks(2, 0);
-    d32 = ks(2, 1);
-    d33 = ks(2, 2);
+    double d11 = ks(0, 0);
+    double d12 = ks(0, 1);
+    double d13 = ks(0, 2);
+    double d21 = ks(1, 0);
+    double d22 = ks(1, 1);
+    double d23 = ks(1, 2);
+    double d31 = ks(2, 0);
+    double d32 = ks(2, 1);
+    double d33 = ks(2, 2);
 
     kb(0, 0) += wti * (d11);
     kb(0, 1) += wti * (d13);

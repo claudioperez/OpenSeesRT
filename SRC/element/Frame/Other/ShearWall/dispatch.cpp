@@ -1,10 +1,10 @@
-
 //
-// Created: 07/04 
-// Modified by: LMS 
 // Description: This file contains the 
 // implementation of TclBasicBuilder_addDispBeamColumnInt().
 // Based on TclBasicBuilder_addDispBeamColumn().
+//
+// Created: 07/04 
+// Modified by: LMS 
 //
 #include <tcl.h>
 #include <assert.h>
