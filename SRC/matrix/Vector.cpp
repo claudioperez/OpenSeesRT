@@ -27,7 +27,7 @@
 #include "Vector.h"
 #include "Matrix.h"
 #include "ID.h"
-#include <iostream>
+#include <OPS_Stream.h>
 
 #include <math.h>
 #include <assert.h>
