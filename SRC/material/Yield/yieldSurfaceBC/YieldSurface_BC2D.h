@@ -4,7 +4,6 @@
 
 #if !defined YIELDSURFACE_BC2D_H
 #define YIELDSURFACE_BC2D_H
-
 #include "YieldSurface_BC.h"
 #include <UniaxialMaterial.h>
 
