@@ -1,9 +1,10 @@
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 
-template <int ndm, int nn, int deriv, typename T> void 
-lagrange(const double xi, T shp[nn]);
-
-// template <int ndm, int nn, int deriv, typename T> void 
-// lagrange(const double xi, const double xn[nn], T shp[2][nn]);
+#pragma once
 
 template <int nn> void 
 constexpr lagrange(const double xi, const double xn[nn], double shp[2][nn])
@@ -25,6 +26,13 @@ constexpr lagrange(const double xi, const double xn[nn], double shp[2][nn])
 
   }
 }
+
+
+template <int ndm, int nn, int deriv, typename T> void 
+lagrange(const double xi, T shp[nn]);
+
+// template <int ndm, int nn, int deriv, typename T> void 
+// lagrange(const double xi, const double xn[nn], T shp[2][nn]);
 
 
 
@@ -49,10 +57,9 @@ lagrange<1, 3, 0>(const double xi, double shp[3])
     //
     // o------o------o
     // 0      2      1
-    shp[0] = 0.5*xi*(xi-1.0) ;
-    shp[1] = 0.5*xi*(xi+1.0) ;
-    shp[2] = 1.0 - xi*xi ;
-
+    shp[0] = 0.5*xi*(xi - 1.0);
+    shp[1] = 0.5*xi*(xi + 1.0);
+    shp[2] = 1.0 - xi*xi;
 }
 
 template <> void 
