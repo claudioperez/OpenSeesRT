@@ -36,7 +36,7 @@
 #include <DOF_GrpIter.h>
 #include <FE_Element.h>
 #include <FE_EleIter.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 #define START_EQN_NUM 0
 

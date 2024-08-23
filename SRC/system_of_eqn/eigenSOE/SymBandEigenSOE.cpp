@@ -17,18 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2009-05-20 17:31:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/eigenSOE/SymBandEigenSOE.cpp,v $
-
+//
 // Written: MHS
 // Created: Oct 2001
 //
 // Description: This file contains the class definition for
 // SymBandEigenSOE, which stores a symmetric banded matrix, A, for
 // standard eigenvalue computations.
-
+//
 #include <SymBandEigenSOE.h>
 #include <SymBandEigenSolver.h>
 #include <Matrix.h>
@@ -229,6 +225,7 @@ SymBandEigenSOE::addM(const Matrix &m, const ID &id, double fact)
   for (int ii=0; ii<idSize; ii++) 
     for (int jj=0; jj<idSize; jj++)
       if (ii!=jj)
+
 	if (m(ii,jj) != 0.0)
 	  issueWarning = true;
   if (issueWarning == true) {

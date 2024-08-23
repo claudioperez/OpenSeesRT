@@ -27,7 +27,7 @@
 #include <Material.h>
 
 Material::Material(int tag, int clasTag)
-:TaggedObject(tag), MovableObject(clasTag)
+ : TaggedObject(tag), MovableObject(clasTag)
 {
 
 }
@@ -36,8 +36,6 @@ Material::Material(int tag, int clasTag)
 Material::~Material()
 {
   // does nothing
-
-
 }
 
 Response*

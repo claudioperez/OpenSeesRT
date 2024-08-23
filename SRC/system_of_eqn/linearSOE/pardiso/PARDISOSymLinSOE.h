@@ -17,10 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.2 $
-// $Date: 2006-01-10 00:42:51 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/pardiso/PARDISOSymLinSOE.h,v $
 //
 // Written: M. Salehi opensees.net@gmail.com
 // website : http://opensees.net

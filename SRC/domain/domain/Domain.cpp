@@ -301,6 +301,9 @@ Domain::~Domain()
 
   if (theParameters != nullptr)
     delete theParameters;
+
+  if (paramIndex != nullptr)
+    delete [] paramIndex;
   
   if (theEleIter != nullptr)
     delete theEleIter;
@@ -412,7 +415,6 @@ Domain::addElement(Element *element)
 
 
 
-// void addNode(Node *);
 //	Method to add a Node to the model.
 //
 bool
@@ -883,16 +885,17 @@ Domain::addElementalLoad(ElementalLoad *load, int pattern)
     // now add it to the pattern
     TaggedObject *thePattern = theLoadPatterns->getComponentPtr(pattern);
     if (thePattern == nullptr) {
-      opserr << "Domain::addElementalLoad() - no pattern with tag " << pattern << 
-	"exits in  the model, not adding the ele load " << *load << endln;
+      opserr << "Domain::addElementalLoad() - no pattern with tag " << pattern
+             << "exits in  the model, not adding the ele load " << *load << endln;
 
-	return false;
+      return false;
     }
     LoadPattern *theLoadPattern = (LoadPattern *)thePattern;
+
     bool result = theLoadPattern->addElementalLoad(load);
     if (result == false) {
       opserr << "Domain::addElementalLoad() - no pattern with tag " << 
-	pattern << "in  the model, not adding the ele load" << *load << endln;
+      pattern << "in  the model, not adding the ele load" << *load << endln;
       return false;
     }
 
@@ -1648,28 +1651,31 @@ const Vector *
 Domain::getElementResponse(int eleTag, const char **argv, int argc)
 {
   Element *theEle = this->getElement(eleTag);
-  if (theEle == 0)
+
+  if (theEle == nullptr)
     return NULL;
+
   else  {
 
     if (argc == 1) {
       if (strcmp(argv[0],"forces") == 0) {
-	return &(theEle->getResistingForce());
+        return &(theEle->getResistingForce());
+
       } else if (strcmp(argv[0],"nodeTags") == 0) {
-	const ID&theNodes = theEle->getExternalNodes();
-	int size = theNodes.Size();
-	if (responseData.Size() != size) 
-	  responseData.resize(size);
-	for (int i=0; i<size; i++)
-	  responseData(i) = theNodes(i);
-	return &responseData;
+        const ID&theNodes = theEle->getExternalNodes();
+        int size = theNodes.Size();
+        if (responseData.Size() != size) 
+          responseData.resize(size);
+        for (int i=0; i<size; i++)
+          responseData(i) = theNodes(i);
+        return &responseData;
       }
     }
-	
+
     DummyStream dummy;
     Response *theResponse = theEle->setResponse(argv, argc, dummy);
-    if (theResponse == 0) {
-      return 0;	  
+    if (theResponse == nullptr) {
+      return 0;
     }
 
     if (theResponse->getResponse() < 0) {
@@ -1684,7 +1690,6 @@ Domain::getElementResponse(int eleTag, const char **argv, int argc)
     return &responseData;
   }
 }
-
 
 
 

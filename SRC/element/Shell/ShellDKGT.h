@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.10 $
-// $Date: 2014/07/01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/shellDKGQ/shellDKGQ.h,v $
-
+//
 // Written: Shuhao Zhang & Xinzheng Lu
 //
 // Three node flat shell element with membrane and drill DOF
@@ -53,7 +49,7 @@ class ShellDKGT : public Element {
          int node3,
          SectionForceDeformation &theMaterial, double b1, double b2, double b3) ;
   
-  //destructor 
+  // destructor 
   virtual ~ShellDKGT( ) ;
 
   //set domain because frank is a dumb ass 
@@ -67,47 +63,44 @@ class ShellDKGT : public Element {
   Node **getNodePtrs( );
   
   //return number of dofs
-    int getNumDOF( ) ;
-    
-    //commit state
-    int commitState( ) ;
-    
-    //revert to last commit 
-    int revertToLastCommit( ) ;
-    
-    //revert to start 
-    int revertToStart( ) ;
+  int getNumDOF( ) ;
+  
+  //commit state
+  int commitState( ) ;
+  
+  //revert to last commit 
+  int revertToLastCommit( ) ;
+  
+  //revert to start 
+  int revertToStart( ) ;
 
-    //print out element data
-    void Print( OPS_Stream &s, int flag ) ;
-    
-    //return stiffness matrix 
-    const Matrix &getTangentStiff( ) ;
-    const Matrix &getInitialStiff( );
-    const Matrix &getMass( );
+  //print out element data
+  void Print( OPS_Stream &s, int flag ) ;
+  
+  //return stiffness matrix 
+  const Matrix &getTangentStiff( ) ;
+  const Matrix &getInitialStiff( );
+  const Matrix &getMass( );
 
-    // methods for applying loads
-    void zeroLoad( void );    
-    int addLoad( ElementalLoad *theLoad, double loadFactor );
-    int addInertiaLoadToUnbalance( const Vector &accel );
+  // methods for applying loads
+  void zeroLoad( void );    
+  int addLoad( ElementalLoad *theLoad, double loadFactor );
+  int addInertiaLoadToUnbalance( const Vector &accel );
 
-    //get residual
-    const Vector &getResistingForce( ) ;
-    
-    //get residual with inertia terms
-    const Vector &getResistingForceIncInertia( ) ;
+  //get residual
+  const Vector &getResistingForce( ) ;
+  
+  //get residual with inertia terms
+  const Vector &getResistingForceIncInertia( ) ;
 
-    // public methods for element output
-    int sendSelf ( int commitTag, Channel &theChannel );
-    int recvSelf ( int commitTag, Channel &theChannel, FEM_ObjectBroker 
-                   &theBroker );
+  // public methods for element output
+  int sendSelf ( int commitTag, Channel &theChannel );
+  int recvSelf ( int commitTag, Channel &theChannel, FEM_ObjectBroker 
+                 &theBroker );
 
 
-    Response* setResponse( const char **argv, int argc, OPS_Stream &output );
-    int getResponse( int responseID, Information &eleInfo );
-      
-    //plotting 
-    int displaySelf(Renderer&, int mode, float fact, const char** displayModes = 0, int numModes = 0);
+  Response* setResponse( const char **argv, int argc, OPS_Stream &output );
+  int getResponse( int responseID, Information &eleInfo );
 
   private : 
 
@@ -201,10 +194,10 @@ class ShellDKGT : public Element {
     int applyLoad;
 
 
-    static const int ndf         = 6;
-    static const int numberNodes = 3;
-    static const int numberGauss = 4;
-    static const int nShape      = 3;
-    static const int massIndex   = nShape - 1;
+    static constexpr int ndf         = 6;
+    static constexpr int numberNodes = 3;
+    static constexpr int numberGauss = 4;
+    static constexpr int nShape      = 3;
+    static constexpr int massIndex   = nShape - 1;
 
 } ; 

@@ -103,15 +103,13 @@ public:
     Response* setResponse( const char **argv, int argc, OPS_Stream &output );
     int getResponse( int responseID, Information &eleInfo );
 
-    //plotting
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes = 0, int numModes = 0);
-
-    Matrix transpose( int dim1, int dim2, const Matrix &M );
-
     // Added by Felipe Elgueta
     void shellGeo(Matrix G, Matrix H, Vector& G3, double& dA, Vector& N, Matrix& Gab, Vector& Bv, Matrix& T_Gcon_E, Matrix& T_E_G, Matrix& T_G_E); // Get geometric quantities
     bool pointInElement(double xi, double eta) const;
 private :
+
+    Matrix transpose( int dim1, int dim2, const Matrix &M );
+
     //static data
     static Matrix* stiff ;
     static Vector* resid ;

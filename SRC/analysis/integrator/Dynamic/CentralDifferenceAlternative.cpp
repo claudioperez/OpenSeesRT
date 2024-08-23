@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-
+//
 // Written: fmk 
 // Created: 11/98
 // Revision: A
@@ -41,21 +37,12 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <elementAPI.h>
-#define OPS_Export 
 
 
 void *
 OPS_ADD_RUNTIME_VPV(OPS_CentralDifferenceAlternative)
-{
-    // pointer to an integrator that will be returned
-    TransientIntegrator *theIntegrator = 0;
-    
-    theIntegrator = new CentralDifferenceAlternative();
-    
-    if (theIntegrator == 0)
-        opserr << "WARNING - out of memory creating CentralDifferenceAlternative integrator\n";
-    
-    return theIntegrator;
+{ 
+    return new CentralDifferenceAlternative();
 }
 
 
@@ -87,7 +74,7 @@ CentralDifferenceAlternative::newStep(double _deltaT)
   if (deltaT <= 0.0) {
     opserr << "CentralDifference::newStep() - error in variable\n";
     opserr << "dT = " << deltaT << endln;
-    return -2;	
+    return -2;        
   }
 
   AnalysisModel *theModel = this->getAnalysisModel();
@@ -102,7 +89,6 @@ CentralDifferenceAlternative::formEleTangent(FE_Element *theEle)
 {
   theEle->zeroTangent();
   theEle->addMtoTang();
-
   return 0;
 }    
 
@@ -140,18 +126,18 @@ CentralDifferenceAlternative::domainChanged()
 
     // cheack we obtained the new
     if (Ut == 0 || Ut->Size() != size ||
-	Utp1 == 0 || Utp1->Size() != size ||
-	Udot == 0 || Udot->Size() != size) {
+        Utp1 == 0 || Utp1->Size() != size ||
+        Udot == 0 || Udot->Size() != size) {
       
       opserr << "CentralDifferenceAlternative::domainChanged - ran out of memory\n";
 
       // delete the old
       if (Ut != 0)
-	delete Ut;
+        delete Ut;
       if (Utp1 != 0)
-	delete Utp1;
+        delete Utp1;
       if (Udot != 0)
-	delete Udot;
+        delete Udot;
 
       Ut = 0; Utp1 = 0; Udot = 0;
       return -1;
@@ -168,11 +154,11 @@ CentralDifferenceAlternative::domainChanged()
     const ID &id = dofPtr->getID();
     int idSize = id.Size();
     int i;
-    const Vector &disp = dofPtr->getCommittedDisp();	
+    const Vector &disp = dofPtr->getCommittedDisp();        
     for (i=0; i < idSize; i++)  {
       int loc = id(i);
       if (loc >= 0)  {
-	(*Ut)(loc) = disp(i);		
+        (*Ut)(loc) = disp(i);                
       }
     }
     
@@ -180,7 +166,7 @@ CentralDifferenceAlternative::domainChanged()
     for (i=0; i < idSize; i++)  {
       int loc = id(i);
       if (loc >= 0)  {
-	(*Udot)(loc) = vel(i);
+        (*Udot)(loc) = vel(i);
       }
     }
   }
@@ -204,13 +190,13 @@ CentralDifferenceAlternative::update(const Vector &X)
   if (theModel == 0) {
     opserr << "ERROR CentralDifferenceAlternative::update() - no AnalysisModel set\n";
     return -2;
-  }	
+  }        
   
   // check domainChanged() has been called, i.e. Ut will not be zero
   if (Ut == 0) {
     opserr << "WARNING CentralDifferenceAlternative::update() - domainChange() failed or not called\n";
     return -2;
-  }	
+  }        
 
   // check deltaU is of correct size
   if (X.Size() != Ut->Size()) {
@@ -226,7 +212,7 @@ CentralDifferenceAlternative::update(const Vector &X)
   Utp1->addVector(1.0, *Udot, deltaT);
 
   //  determine the vel at t+ 0.5 * delta t 
-  (*Udot) =  *Utp1;
+  (*Udot)  = *Utp1;
   (*Udot) -= *Ut;
   (*Udot) *= (1.0/deltaT);
 
@@ -236,16 +222,16 @@ CentralDifferenceAlternative::update(const Vector &X)
   theModel->updateDomain();
 
   return 0;
-  }    
+}
 
 int
-CentralDifferenceAlternative::commit(void)
+CentralDifferenceAlternative::commit()
 {
   AnalysisModel *theModel = this->getAnalysisModel();
   if (theModel == 0) {
     opserr << "WARNING CentralDifferenceAlternative::commit() - no AnalysisModel set\n";
     return -1;
-  }	  
+  }          
   
   *Ut = *Utp1;
   
@@ -281,9 +267,9 @@ CentralDifferenceAlternative::Print(OPS_Stream &s, int flag)
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel != 0) {
-	double currentTime = theModel->getCurrentDomainTime();
-	s << "\t CentralDifferenceAlternative - currentTime: " << currentTime;
+        double currentTime = theModel->getCurrentDomainTime();
+        s << "\t CentralDifferenceAlternative - currentTime: " << currentTime;
     } else 
-	s << "\t CentralDifferenceAlternative - no associated AnalysisModel\n";
+        s << "\t CentralDifferenceAlternative - no associated AnalysisModel\n";
 }
 

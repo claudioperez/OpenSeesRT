@@ -69,7 +69,7 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_TrussElement)
 
   if (numRemainingArgs < 4) {
     opserr << "Invalid Args want: element Truss $tag $iNode $jNode $sectTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag>\n";
-    opserr << " or: element Truss $tag $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag>\n";
+    opserr << " or: element Truss $tag $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag> <-useInitialDisp $flag>\n";
     return 0;	
   }
 
@@ -82,6 +82,7 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_TrussElement)
   int matTag = 0;
   int doRayleigh = 0; // by default rayleigh not done
   int cMass = 0; // by default use lumped mass matrix
+  bool useInitialDisp = true; // default is the previous behavior
   int ndm = OPS_GetNDM();
 
   int numData = 3;
@@ -120,33 +121,47 @@ OPS_Export void * OPS_ADD_RUNTIME_VPV(OPS_TrussElement)
       numData = 1;
       if (OPS_GetDouble(&numData, &rho) != 0) {
 	opserr << "WARNING Invalid rho in element Truss " << iData[0] << 
-	  " $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag>\n";
+	  " $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag> <-useInitialDisp $flag>\n";
 	return 0;
       }
     } else if (strcmp(argvS,"-cMass") == 0) {
       numData = 1;
       if (OPS_GetInt(&numData, &cMass) != 0) {
 	opserr << "WARNING: Invalid cMass in element Truss " << iData[0] << 
-	  " $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag>\n";
+	  " $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag> <-useInitialDisp $flag>\n";
 	return 0;
       }
     } else if (strcmp(argvS,"-doRayleigh") == 0) {
       numData = 1;
       if (OPS_GetInt(&numData, &doRayleigh) != 0) {
 	opserr << "WARNING: Invalid doRayleigh in element Truss " << iData[0] << 
-	  " $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag>\n";
+	  " $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag> <-useInitialDisp $flag>\n";
 	return 0;
       }
+    } else if (strcmp(argvS,"-useInitialDisp") == 0) {
+      numData = 1;
+      int useid = 1;
+      if (OPS_GetInt(&numData, &useid) != 0) {
+	opserr << "WARNING: Invalid useInitialDisp in element Truss " << iData[0] << 
+	  " $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag> <-useInitialDisp $flag>\n";
+	return 0;
+      }
+      useInitialDisp = useid != 0;
     } else {
       opserr << "WARNING: Invalid option " << argvS << "  in: element Truss " << iData[0] << 
-	" $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag>\n";
+	" $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag> <-useInitialDisp $flag>\n";
       return 0;
     }      
     numRemainingArgs -= 2;
   }
 
   // now create the Truss
-  theElement = new Truss(iData[0], ndm, iData[1], iData[2], *theUniaxialMaterial, A, rho, doRayleigh, cMass);
+  theElement = new Truss(iData[0], ndm, iData[1], iData[2], *theUniaxialMaterial, A, rho, doRayleigh, cMass, useInitialDisp);
+
+  if (theElement == 0) {
+    opserr << "WARNING: out of memory: element Truss " << iData[0] << 
+      " $iNode $jNode $A $matTag <-rho $rho> <-cMass $flag> <-doRayleigh $flag> <-useInitialDisp $flag>\n";
+  }
 
   return theElement;
 }
@@ -155,13 +170,13 @@ Truss::Truss(int tag, int dim,
          int Nd1, int Nd2, 
          UniaxialMaterial &theMat,
          double a, double r,
-         int damp, int cm)
+	     int damp, int cm, bool initDisp)
  :Element(tag,ELE_TAG_Truss),
   theMaterial(0), connectedExternalNodes(2),
   dimension(dim), numDOF(0),
   theLoad(0), theMatrix(0), theVector(0),
   L(0.0), A(a), rho(r), doRayleighDamping(damp),
-  cMass(cm), initialDisp(0)
+  cMass(cm), useInitialDisp(initDisp), initialDisp(0)
 {
     // get a copy of the material and check we obtained a valid copy
     theMaterial = theMat.getCopy();
@@ -203,7 +218,7 @@ Truss::Truss()
  dimension(0), numDOF(0),
  theLoad(0), theMatrix(0), theVector(0),
  L(0.0), A(0.0), rho(0.0), doRayleighDamping(0),
- cMass(0), initialDisp(0)
+ cMass(0), useInitialDisp(false), initialDisp(0)
 {
     // ensure the connectedExternalNode ID is of correct size 
   if (connectedExternalNodes.Size() != 2) {
@@ -388,7 +403,7 @@ Truss::setDomain(Domain *theDomain)
     if (dimension == 1) {
       double dx = end2Crd(0)-end1Crd(0);
 
-      if (initialDisp == 0) {
+      if (useInitialDisp && initialDisp == 0) {
 	double iDisp = end2Disp(0)-end1Disp(0);
 
 	if (iDisp != 0) {
@@ -410,7 +425,7 @@ Truss::setDomain(Domain *theDomain)
       double dx = end2Crd(0)-end1Crd(0);
       double dy = end2Crd(1)-end1Crd(1);	
     
-      if (initialDisp == 0) {
+      if (useInitialDisp && initialDisp == 0) {
 	double iDispX = end2Disp(0)-end1Disp(0);
 	double iDispY = end2Disp(1)-end1Disp(1);
 	if (iDispX != 0 || iDispY != 0) {
@@ -438,7 +453,7 @@ Truss::setDomain(Domain *theDomain)
       double dy = end2Crd(1)-end1Crd(1);	
       double dz = end2Crd(2)-end1Crd(2);		
 
-      if (initialDisp == 0) {
+      if (useInitialDisp && initialDisp == 0) {
 	double iDispX = end2Disp(0)-end1Disp(0);
 	double iDispY = end2Disp(1)-end1Disp(1);      
 	double iDispZ = end2Disp(2)-end1Disp(2);      
@@ -855,7 +870,7 @@ Truss::sendSelf(int commitTag, Channel &theChannel)
   // truss packs it's data into a Vector and sends this to theChannel
   // along with it's dbTag and the commitTag passed in the arguments
 
-  static Vector data(12);
+  static Vector data(13);
   data(0) = this->getTag();
   data(1) = dimension;
   data(2) = numDOF;
@@ -867,7 +882,8 @@ Truss::sendSelf(int commitTag, Channel &theChannel)
   data(4) = theMaterial->getClassTag();
   int matDbTag = theMaterial->getDbTag();
   
-  if (initialDisp != 0) {
+  data(12) = useInitialDisp ? 1.0 : -1.0;
+  if (useInitialDisp && initialDisp != 0) {
     for (int i=0; i<dimension; i++) {
       data[9+i] = initialDisp[i];
     }
@@ -881,7 +897,7 @@ Truss::sendSelf(int commitTag, Channel &theChannel)
       theMaterial->setDbTag(matDbTag);
   }
   data(5) = matDbTag;
-
+  
   res = theChannel.sendVector(dataTag, commitTag, data);
   if (res < 0) {
     opserr <<"WARNING Truss::sendSelf() - " << this->getTag() << " failed to send Vector\n";
@@ -914,7 +930,7 @@ Truss::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
   // truss creates a Vector, receives the Vector and then sets the 
   // internal data with the data in the Vector
 
-  static Vector data(12);
+  static Vector data(13);
   res = theChannel.recvVector(dataTag, commitTag, data);
   if (res < 0) {
     opserr <<"WARNING Truss::recvSelf() - failed to receive Vector\n";
@@ -929,21 +945,26 @@ Truss::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
   doRayleighDamping = (int)data(7);
   cMass = (int)data(8);
 
-  initialDisp = new double[dimension];
-  for (int i=0; i<dimension; i++)
-    initialDisp[i] = 0.0;
-
-  int initial = 0;
-  for (int i=0; i<dimension; i++) {
-    if (data(9+i) != 0.0) {
-      initial = 1;
-    }
-  }
-  
-  if (initial != 0) {
+  useInitialDisp = data(12) > 0.0 ? true : false;
+  if (initialDisp != 0)
+    delete [] initialDisp;
+  if (useInitialDisp) {
+    initialDisp = new double[dimension];
+    for (int i=0; i<dimension; i++)
+      initialDisp[i] = 0.0;
+    
+    int initial = 0;
     for (int i=0; i<dimension; i++) {
-      initialDisp[i] = data(9+i);
-    }    
+      if (data(9+i) != 0.0) {
+	initial = 1;
+      }
+    }
+    
+    if (initial != 0) {
+      for (int i=0; i<dimension; i++) {
+	initialDisp[i] = data(9+i);
+      }    
+    }
   }
   
   // truss now receives the tags of it's two external nodes
@@ -1101,7 +1122,7 @@ Truss::computeCurrentStrain(void) const
     const Vector &disp2 = theNodes[1]->getTrialDisp();	
 
     double dLength = 0.0;
-    if (initialDisp == 0)
+    if (!useInitialDisp || initialDisp == 0)
       for (int i = 0; i < dimension; i++)
 	dLength += (disp2(i)-disp1(i))*cosX[i];
     else
@@ -1148,7 +1169,7 @@ Truss::setResponse(const char **argv, int argc, OPS_Stream &output)
 
     if ((strcmp(argv[0],"force") == 0) || (strcmp(argv[0],"forces") == 0) 
         || (strcmp(argv[0],"globalForce") == 0) || (strcmp(argv[0],"globalForces") == 0)){
-            char outputData[10];
+            char outputData[40];
             int numDOFperNode = numDOF/2;
             for (int i=0; i<numDOFperNode; i++) {
                 sprintf(outputData,"P1_%d", i+1);
@@ -1211,6 +1232,10 @@ Truss::setResponse(const char **argv, int argc, OPS_Stream &output)
             }
         }
     }
+    else if (strcmp(argv[0], "energy") == 0)
+    {
+        theResponse = new ElementResponse(this, 2000, 0.0);
+    }
 
     output.endTag();
     return theResponse;
@@ -1254,6 +1279,9 @@ Truss::getResponse(int responseID, Information &eleInfo)
       kVec(0,0) = A*force/L;
       return eleInfo.setMatrix(kVec);
       
+    case 2000:
+        return eleInfo.setDouble(A * L * theMaterial->getEnergy());
+
     default:
       return 0;
     }
@@ -1271,7 +1299,7 @@ Truss::setParameter(const char **argv, int argc, Parameter &param)
     param.setValue(A);
     return param.addObject(1, this);
   }
-  // Mass densitity of the truss
+  // Mass density of the truss
   if (strcmp(argv[0],"rho") == 0) {
     param.setValue(rho);
     return param.addObject(2, this);

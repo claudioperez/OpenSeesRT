@@ -1,6 +1,6 @@
 #include <tcl.h>
 #include <string.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <UmfpackGenLinSOE.h>
 #include <UmfpackGenLinSolver.h>
 

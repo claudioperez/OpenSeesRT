@@ -17,19 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2009-03-20 18:36:30 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/BackwardEuler.cpp,v $
-
+//
 // Written : krm
 // Created : 11/2012
 //
 // Description: This file contains the implementation of the BackwardEuler class.
 // See comments in the header file for description of algorithm.
 //
-// What: "@(#) BackwardEuler.C, revA"
-
 #include <BackwardEuler.h>
 #include <FE_Element.h>
 #include <LinearSOE.h>
@@ -118,11 +112,11 @@ int BackwardEuler::newStep(double deltaT)
     else
         step++;
 
-    // get a pointer to the AnalysisModel
-    AnalysisModel *theModel = this->getAnalysisModel();
-
     // set response at t to be that at t+deltaT of previous step
     dt = deltaT;
+
+    // get a pointer to the AnalysisModel
+    AnalysisModel *theModel = this->getAnalysisModel();
 
     // save storage quantites before updating
     (*Utm1) = *Ut;
@@ -161,11 +155,11 @@ int BackwardEuler::newStep(double deltaT)
 
             // this method has extra velocity terms
             Udotdot->addVector(1.0, *Utm1dot, 1.0/(2.0*deltaT));
-            Udotdot->addVector(1.0, *Utdot, -2.0/deltaT);
+            Udotdot->addVector(1.0, *Utdot,  -2.0/deltaT);
             
         } else if (optn == 1) {
             // mixed with 2 pt BE for accel from Liu et al
-            (*Udotdot) = *Utdot;
+            (*Udotdot)  = *Utdot;
             (*Udotdot) *= -2.0/deltaT;
                
         }

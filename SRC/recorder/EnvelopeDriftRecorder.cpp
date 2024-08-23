@@ -35,7 +35,7 @@
 #include <string.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 EnvelopeDriftRecorder::EnvelopeDriftRecorder()
   :Recorder(RECORDER_TAGS_EnvelopeDriftRecorder),

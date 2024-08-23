@@ -25,11 +25,7 @@
 //
 // Written: Shuhao Zhang & Xinzheng Lu
 //
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <math.h> 
-
-#include <time.h>
+// #include <time.h>
 
 #include <ID.h> 
 #include <Vector.h>
@@ -37,16 +33,15 @@
 #include <Element.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
-#include <R3vectors.h>
 
 class ShellNLDKGT : public Element {
 
  public:
   
-  //null constructor
+  // null constructor
   ShellNLDKGT( );
   
-  //full constructor
+  // full constructor
   ShellNLDKGT(int tag, 
               int node1,
               int node2,
@@ -105,13 +100,10 @@ class ShellNLDKGT : public Element {
 
   Response* setResponse( const char **argv, int argc, OPS_Stream &output );
   int getResponse( int responseID, Information &eleInfo );
-    
-  //plotting 
-  int displaySelf( Renderer &theViewer, int displayMode, float fact );
 
 private : 
 
-  //static data
+  // static data
   static Matrix stiff ;
   static Vector resid ;
   static Matrix mass ;
@@ -122,8 +114,7 @@ private :
   Vector CstrainGauss,TstrainGauss;  //modify for geometric nonlinearity
 
   //quadrature data
-   static const double three ;
-  static const double one;
+  static const double three ;
   static const double one_over_three ;
   static const double five;
   static const double one_over_five;

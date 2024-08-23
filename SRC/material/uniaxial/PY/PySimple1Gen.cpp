@@ -45,7 +45,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "PySimple1Gen.h"
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 #include <stdlib.h>
 #include <string.h>

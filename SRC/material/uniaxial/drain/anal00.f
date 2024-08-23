@@ -177,7 +177,7 @@ c
       fk(1,2) = -tang
       fk(2,1) = -tang
       fk(2,2) =  tang
-	  
+
 c
 c CHANGE IN STIFFNESS MATRIX
 c

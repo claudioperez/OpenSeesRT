@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:27 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/DomainSolver.cpp,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/DomainSolver.h
 //
 // Written: fmk 
 // Created: Tue Sep 26 16:27:47: 1996

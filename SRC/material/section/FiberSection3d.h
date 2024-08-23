@@ -29,7 +29,7 @@
 #ifndef FiberSection3d_h
 #define FiberSection3d_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
 #include <VectorND.h>
@@ -38,7 +38,7 @@
 class Response;
 class UniaxialMaterial;
 
-class FiberSection3d : public SectionForceDeformation
+class FiberSection3d : public FrameSection
 {
   public:
     FiberSection3d(); 
@@ -51,24 +51,24 @@ class FiberSection3d : public SectionForceDeformation
 #endif
     ~FiberSection3d();
 
-    const char *getClassType(void) const {return "FiberSection3d";};
+    const char *getClassType() const {return "FiberSection3d";};
 
     int   setTrialSectionDeformation(const Vector &deforms);
-    const Vector &getSectionDeformation(void);
+    const Vector &getSectionDeformation();
 
-    const Vector &getStressResultant(void);
-    const Matrix &getSectionTangent(void);
-    const Matrix &getInitialTangent(void);
+    int   getIntegral(Field field, State state, double& value) const;
+    const Vector &getStressResultant();
+    const Matrix &getSectionTangent();
+    const Matrix &getInitialTangent();
 
-    int   commitState(void);
-    int   revertToLastCommit(void);    
-    int   revertToStart(void);
+    int   commitState();
+    int   revertToLastCommit();    
+    int   revertToStart();
  
-    SectionForceDeformation *getCopy(void);
+    FrameSection *getFrameCopy();
     const ID &getType();
-    int getOrder (void) const;
-    unsigned long getScheme(void) const;
-    
+    int getOrder () const; //  {return 4;};
+ 
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel, 
 		 FEM_ObjectBroker &theBroker);
@@ -95,17 +95,15 @@ class FiberSection3d : public SectionForceDeformation
 
 
   protected:
-    
+
   private:
-    int numFibers, sizeFibers;       // number of fibers in the section
-    UniaxialMaterial **theMaterials; // array of pointers to materials
-//  double   *matData;               // data for the materials [yloc, zloc, area]
+    int numFibers, sizeFibers;         // number of fibers in the section
+    UniaxialMaterial **theMaterials;   // array of pointers to materials
     std::shared_ptr<double[]> matData; // data for the materials [yloc, zloc, and area]
-    double   kData[16];              // data for ks matrix 
-//  double   sData[4];               // data for s vector 
+    double   kData[16];                // data for ks matrix 
 
     double QzBar, QyBar, Abar;
-    double yBar;       // Section centroid
+    double yBar;                       // Section centroid
     double zBar;
     bool computeCentroid;
 

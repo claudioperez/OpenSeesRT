@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2008-08-26 16:49:19 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/ElasticShearSection3d.cpp,v $
-
+//
 #include <ElasticShearSection3d.h>
 #include <Matrix.h>
 #include <Vector.h>
@@ -42,8 +38,8 @@ void *
 OPS_ADD_RUNTIME_VPV(OPS_ElasticShearSection3d)
 {
     if(OPS_GetNumRemainingInputArgs() < 9) {
-	opserr<<"insufficient arguments for ealstic shear 3d section\n";
-	return 0;
+        opserr<<"insufficient arguments for ealstic shear 3d section\n";
+        return 0;
     }
 
     // get tag
@@ -57,30 +53,30 @@ OPS_ADD_RUNTIME_VPV(OPS_ElasticShearSection3d)
     if(OPS_GetDoubleInput(&numData,&data[0]) < 0) return 0;
 
     return new ElasticShearSection3d(tag,data[0],data[1],data[2],
-				     data[3],data[4],data[5],data[6],
-				     data[7]);
+                                     data[3],data[4],data[5],data[6],
+                                     data[7]);
 }
 
 
 ElasticShearSection3d::ElasticShearSection3d(void)
-:SectionForceDeformation(0, SEC_TAG_ElasticShear3d),
+:FrameSection(0, SEC_TAG_ElasticShear3d),
  E(0.0), A(0.0), Iz(0.0), Iy(0.0), G(0.0), J(0.0),
  alphaY(0.0), alphaZ(0.0), e(6)
 {
-    if (code(0) != SECTION_RESPONSE_P) {
-	code(0) = SECTION_RESPONSE_P;	// P is the first quantity
-	code(1) = SECTION_RESPONSE_MZ;	// Mz is the second
-	code(2) = SECTION_RESPONSE_VY;	// Vy is the third 
-	code(3) = SECTION_RESPONSE_MY;	// My is the fourth
-	code(4) = SECTION_RESPONSE_VZ;	// Vz is the fifth
-	code(5) = SECTION_RESPONSE_T;	// T is the sixth
-    }
+  if (code(0) != SECTION_RESPONSE_P) {
+      code(0) = SECTION_RESPONSE_P;       // P is the first quantity
+      code(1) = SECTION_RESPONSE_MZ;      // Mz is the second
+      code(2) = SECTION_RESPONSE_VY;      // Vy is the third 
+      code(3) = SECTION_RESPONSE_MY;      // My is the fourth
+      code(4) = SECTION_RESPONSE_VZ;      // Vz is the fifth
+      code(5) = SECTION_RESPONSE_T;       // T is the sixth
+  }
 }
 
 ElasticShearSection3d::ElasticShearSection3d
 (int tag, double E_in, double A_in, double Iz_in, double Iy_in,
  double G_in, double J_in, double alphaY_in, double alphaZ_in)
-:SectionForceDeformation(tag, SEC_TAG_ElasticShear3d),
+:FrameSection(tag, SEC_TAG_ElasticShear3d),
  E(E_in), A(A_in), Iz(Iz_in), Iy(Iy_in), G(G_in), J(J_in),
  alphaY(alphaY_in), alphaZ(alphaZ_in), e(6)
 {
@@ -116,13 +112,13 @@ ElasticShearSection3d::ElasticShearSection3d
       opserr << "ElasticShearSection3d::ElasticShearSection3d -- Input alphaZ <= 0.0\n";
     }
 
-	if (code(0) != SECTION_RESPONSE_P) {
-	code(0) = SECTION_RESPONSE_P;	// P is the first quantity
-	code(1) = SECTION_RESPONSE_MZ;	// Mz is the second
-	code(2) = SECTION_RESPONSE_VY;	// Vy is the third 
-	code(3) = SECTION_RESPONSE_MY;	// My is the fourth
-	code(4) = SECTION_RESPONSE_VZ;	// Vz is the fifth
-	code(5) = SECTION_RESPONSE_T;	// T is the sixth
+    if (code(0) != SECTION_RESPONSE_P) {
+      code(0) = SECTION_RESPONSE_P;        // P is the first quantity
+      code(1) = SECTION_RESPONSE_MZ;        // Mz is the second
+      code(2) = SECTION_RESPONSE_VY;        // Vy is the third 
+      code(3) = SECTION_RESPONSE_MY;        // My is the fourth
+      code(4) = SECTION_RESPONSE_VZ;        // Vz is the fifth
+      code(5) = SECTION_RESPONSE_T;        // T is the sixth
     }
 }
 
@@ -238,12 +234,12 @@ ElasticShearSection3d::getInitialFlexibility (void)
   return ks;
 }
 
-SectionForceDeformation*
-ElasticShearSection3d::getCopy ()
+FrameSection*
+ElasticShearSection3d::getFrameCopy ()
 {
     // Make a copy of the hinge
     ElasticShearSection3d *theCopy =
-	new ElasticShearSection3d (this->getTag(), E, A, Iz, Iy,
+        new ElasticShearSection3d (this->getTag(), E, A, Iz, Iy,
                                G, J, alphaY, alphaZ);
 
     theCopy->parameterID = parameterID;
@@ -293,7 +289,7 @@ ElasticShearSection3d::sendSelf(int commitTag, Channel &theChannel)
 
 int
 ElasticShearSection3d::recvSelf(int commitTag, Channel &theChannel,
-					 FEM_ObjectBroker &theBroker)
+                                         FEM_ObjectBroker &theBroker)
 {
     int res = 0;
     
@@ -323,31 +319,31 @@ ElasticShearSection3d::recvSelf(int commitTag, Channel &theChannel,
 void
 ElasticShearSection3d::Print(OPS_Stream &s, int flag)
 {
-	if (flag == OPS_PRINT_PRINTMODEL_SECTION) {
-		s << "ElasticShearSection3d, tag: " << this->getTag() << endln;
-		s << "\t E: " << E << endln;
-		s << "\t A: " << A << endln;
-		s << "\tIz: " << Iz << endln;
-		s << "\tIy: " << Iy << endln;
-		s << "\t G: " << G << endln;
-		s << "\t J: " << J << endln;
-		s << "\talphaY: " << alphaY << endln;
-		s << "\talphaZ: " << alphaZ << endln;
-	}
+        if (flag == OPS_PRINT_PRINTMODEL_SECTION) {
+                s << "ElasticShearSection3d, tag: " << this->getTag() << "\n";
+                s << "\t E: " << E << "\n";
+                s << "\t A: " << A << "\n";
+                s << "\tIz: " << Iz << "\n";
+                s << "\tIy: " << Iy << "\n";
+                s << "\t G: " << G << "\n";
+                s << "\t J: " << J << "\n";
+                s << "\talphaY: " << alphaY << "\n";
+                s << "\talphaZ: " << alphaZ << "\n";
+        }
 
-	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-		s << "\t\t\t{";
-		s << "\"name\": \"" << this->getTag() << "\", ";
-		s << "\"type\": \"ElasticShearSection3d\", ";
-		s << "\"E\": " << E << ", ";
-		s << "\"G\": " << G << ", ";
-		s << "\"A\": " << A << ", ";
-		s << "\"Avy\": " << alphaY*A << ", ";
-		s << "\"Avz\": " << alphaZ*A << ", ";
-		s << "\"Jx\": " << J << ", ";
-		s << "\"Iy\": " << Iy << ", ";
-		s << "\"Iz\": " << Iz << "}";
-	}
+        if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+                s << "\t\t\t{";
+                s << "\"name\": \"" << this->getTag() << "\", ";
+                s << "\"type\": \"ElasticShearSection3d\", ";
+                s << "\"E\": " << E << ", ";
+                s << "\"G\": " << G << ", ";
+                s << "\"A\": " << A << ", ";
+                s << "\"Avy\": " << alphaY*A << ", ";
+                s << "\"Avz\": " << alphaZ*A << ", ";
+                s << "\"Jx\": " << J << ", ";
+                s << "\"Iy\": " << Iy << ", ";
+                s << "\"Iz\": " << Iz << "}";
+        }
 }
 
 int
@@ -357,35 +353,35 @@ ElasticShearSection3d::setParameter(const char **argv, int argc, Parameter &para
     return -1;
 
   if (strcmp(argv[0],"E") == 0) {
-	  param.setValue(E);
+          param.setValue(E);
     return param.addObject(1, this);
   }
   if (strcmp(argv[0],"A") == 0) {
-	  param.setValue(A);
+          param.setValue(A);
     return param.addObject(2, this);
   }
   if (strcmp(argv[0],"Iz") == 0) {
-	  param.setValue(Iz);
+          param.setValue(Iz);
     return param.addObject(3, this);
   }
   if (strcmp(argv[0],"Iy") == 0) {
-	  param.setValue(Iy);
+          param.setValue(Iy);
     return param.addObject(4, this);
   }
   if (strcmp(argv[0],"G") == 0) {
-	  param.setValue(G);
+          param.setValue(G);
     return param.addObject(5, this);
   }
   if (strcmp(argv[0],"J") == 0) {
-	  param.setValue(J);
+          param.setValue(J);
     return param.addObject(6, this);
   }
   if (strcmp(argv[0],"alphaY") == 0) {
-	  param.setValue(alphaY);
+          param.setValue(alphaY);
     return param.addObject(7, this);
   }
   if (strcmp(argv[0],"alphaZ") == 0) {
-	  param.setValue(alphaZ);
+          param.setValue(alphaZ);
     return param.addObject(8, this);
   }
   return -1;
@@ -424,7 +420,7 @@ ElasticShearSection3d::activateParameter(int paramID)
 
 const Vector&
 ElasticShearSection3d::getStressResultantSensitivity(int gradIndex,
-						     bool conditional)
+                                                     bool conditional)
 {
   s.Zero();
 

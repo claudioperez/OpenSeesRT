@@ -25,7 +25,7 @@
 // DifferenceAccelerator2. 
 
 #include <DifferenceAccelerator2.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <Matrix.h>
 #include <Vector.h>
 #include <LinearSOE.h>

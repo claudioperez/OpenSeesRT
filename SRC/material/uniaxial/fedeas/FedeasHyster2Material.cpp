@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2004-07-15 21:36:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/fedeas/FedeasHyster2Material.cpp,v $
-                                                                      
+//
 // Written: MHS
 // Created: Jan 2001
 //
@@ -30,6 +26,7 @@
 // 1d material subroutine Hyster_2.
 
 #include <stdlib.h>
+#include <Logging.h>
 #include <FedeasHyster2Material.h>
 
 FedeasHyster2Material::FedeasHyster2Material(int tag,

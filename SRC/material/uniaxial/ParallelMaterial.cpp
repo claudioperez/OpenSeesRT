@@ -458,20 +458,22 @@ ParallelMaterial::recvSelf(int cTag, Channel &theChannel,
     // and invoke recvSelf() on it
     for (int i=0; i<numMaterials; i++) {
       int matClassTag = classTags(i);
-      if (theModels[i] == 0 || theModels[i]->getClassTag() != matClassTag) {
-	if (theModels[i] == 0)
-	  delete theModels[i];
-	UniaxialMaterial *theMaterialModel = 
-	    theBroker.getNewUniaxialMaterial(matClassTag);
-	if (theMaterialModel != 0) {
-	    theModels[i] = theMaterialModel;
-	    theMaterialModel->setDbTag(classTags(i+numMaterials));
-	}
-	else {
-	    opserr << "FATAL ParallelMaterial::recvSelf() ";
-	    opserr << " could not get a UniaxialMaterial \n";
-	    exit(-1);
-	}    	    
+      if (theModels[i] == nullptr || theModels[i]->getClassTag() != matClassTag) {
+        if (theModels[i] != nullptr)
+          delete theModels[i];
+
+        UniaxialMaterial *theMaterialModel = 
+            theBroker.getNewUniaxialMaterial(matClassTag);
+
+        if (theMaterialModel != 0) {
+            theModels[i] = theMaterialModel;
+            theMaterialModel->setDbTag(classTags(i+numMaterials));
+        }
+        else {
+            opserr << "FATAL ParallelMaterial::recvSelf() ";
+            opserr << " could not get a UniaxialMaterial \n";
+            exit(-1);
+        }
       }
       theModels[i]->recvSelf(cTag, theChannel, theBroker);
     }

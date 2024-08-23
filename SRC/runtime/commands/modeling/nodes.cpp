@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 // 
 // Description: This file implements commands that configure Node objects
 // for an analysis.
@@ -11,13 +12,13 @@
 #include <assert.h>
 #include <string.h>
 #include <tcl.h>
-#include <G3_Logging.h>
-#include <G3_Char.h>
+#include <Logging.h>
+#include <Parsing.h>
 #include <Node.h>
 #include <NodeND.h>
 #include <Matrix.h>
 #include <Domain.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #define G3_MAX_NUM_DOFS 1000000000000
 #define G3_NUM_DOF_BUFFER 20
@@ -145,7 +146,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 
       double theMass;
       Matrix mass(ndf, ndf);
-      for (int i = 0; i < ndf; i++) {
+      for (int i = 0; i < ndf; ++i) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theMass) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal mass term";
           opserr << " at dof " << i + 1 << "\n";
@@ -164,7 +165,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       Vector displayLoc(ndm);
       double theCrd;
-      for (int i = 0; i < ndm; i++) {
+      for (int i = 0; i < ndm; ++i) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theCrd) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal mass term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << "\n";
@@ -183,7 +184,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       Vector disp(ndf);
       double theDisp;
-      for (int i = 0; i < ndf; i++) {
+      for (int i = 0; i < ndf; ++i) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal disp term\n";
           opserr << "node: " << nodeId << ", dof: " << i + 1 << "\n";
@@ -204,7 +205,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
 
       double theDisp;
       Vector disp(ndf);
-      for (int i = 0; i < ndf; i++) {
+      for (int i = 0; i < ndf; ++i) {
         if (Tcl_GetDouble(interp, argv[currentArg++], &theDisp) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal vel term at ";
           opserr << " dof " << i + 1 << "\n";
@@ -258,7 +259,7 @@ TclCommand_addNodalMass(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // check for mass terms
   Matrix mass(ndf,ndf);
-  for (int i=0; i<ndf; i++) {
+  for (int i=0; i<ndf; ++i) {
      double theMass;
      if (Tcl_GetDouble(interp, argv[i+2], &theMass) != TCL_OK) {
           opserr << G3_ERROR_PROMPT << "invalid nodal mass term\n";

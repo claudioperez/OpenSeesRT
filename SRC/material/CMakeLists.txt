@@ -4,7 +4,7 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-#add_library(OPS_Material OBJECT)
+target_link_libraries(OPS_Material PRIVATE OPS_Domain OPS_Logging)
 
 target_sources(OPS_Material
     PRIVATE
@@ -13,31 +13,32 @@ target_sources(OPS_Material
       Material.h
 )
 
-target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-
-target_include_directories(OPS_Material PRIVATE
-  ${OPS_SRC_DIR}/material/Solid
-  ${OPS_SRC_DIR}/material/nD/cyclicSoil
-  ${OPS_SRC_DIR}/material/nD/feap
-  ${OPS_SRC_DIR}/material/nD/matCMM
-  ${OPS_SRC_DIR}/material/nD/soil
-  ${OPS_SRC_DIR}/material/section/yieldSurface
-  ${OPS_SRC_DIR}/material/Yield/evolution
-  ${OPS_SRC_DIR}/material/Yield/plasticHardeningMaterial
-  ${OPS_SRC_DIR}/material/Yield/yieldSurfaceBC
-  ${OPS_SRC_DIR}/material/uniaxial/backbone
-  ${OPS_SRC_DIR}/material/uniaxial/drain
-  ${OPS_SRC_DIR}/material/uniaxial/fedeas
-  ${OPS_SRC_DIR}/material/uniaxial/limitState
-  ${OPS_SRC_DIR}/material/uniaxial/limitState/limitCurve
-  ${OPS_SRC_DIR}/material/uniaxial/PY
-  ${OPS_SRC_DIR}/material/uniaxial/snap
-  ${OPS_SRC_DIR}/material/uniaxial/stiffness
-  ${OPS_SRC_DIR}/material/uniaxial/strength
-  ${OPS_SRC_DIR}/material/uniaxial/unloading
-  ${OPS_SRC_DIR}/material/nD/stressDensityModel
-  ${OPS_SRC_DIR}/material/nD/UANDESmaterials
-  ${OPS_SRC_DIR}/material/nD/UWmaterials
+target_include_directories(OPS_Material
+  PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}
+  PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/Solid
+    ${CMAKE_CURRENT_LIST_DIR}/nD/cyclicSoil
+    ${CMAKE_CURRENT_LIST_DIR}/nD/feap
+    ${CMAKE_CURRENT_LIST_DIR}/nD/matCMM
+    ${CMAKE_CURRENT_LIST_DIR}/nD/soil
+    ${CMAKE_CURRENT_LIST_DIR}/section/yieldSurface
+    ${CMAKE_CURRENT_LIST_DIR}/Yield/evolution
+    ${CMAKE_CURRENT_LIST_DIR}/Yield/plasticHardeningMaterial
+    ${CMAKE_CURRENT_LIST_DIR}/Yield/yieldSurfaceBC
+    ${CMAKE_CURRENT_LIST_DIR}/uniaxial/backbone
+    ${CMAKE_CURRENT_LIST_DIR}/uniaxial/drain
+    ${CMAKE_CURRENT_LIST_DIR}/uniaxial/fedeas
+    ${CMAKE_CURRENT_LIST_DIR}/uniaxial/limitState
+    ${CMAKE_CURRENT_LIST_DIR}/uniaxial/limitState/limitCurve
+    ${CMAKE_CURRENT_LIST_DIR}/uniaxial/PY
+    ${CMAKE_CURRENT_LIST_DIR}/uniaxial/snap
+    ${CMAKE_CURRENT_LIST_DIR}/uniaxial/stiffness
+    ${CMAKE_CURRENT_LIST_DIR}/uniaxial/strength
+    ${CMAKE_CURRENT_LIST_DIR}/uniaxial/unloading
+    ${CMAKE_CURRENT_LIST_DIR}/nD/stressDensityModel
+    ${CMAKE_CURRENT_LIST_DIR}/nD/UANDESmaterials
+    ${CMAKE_CURRENT_LIST_DIR}/nD/UWmaterials
 )
 add_subdirectory(Frame)
 add_subdirectory(uniaxial)

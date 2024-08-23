@@ -1,14 +1,15 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains functions that are responsible
 // for orchestrating an analysis.
 //
 #include <tcl.h>
 #include <assert.h>
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <G3_Logging.h>
 #include <StandardStream.h>
 #include <FileStream.h>
@@ -17,7 +18,7 @@
 #include <Domain.h> // for modal damping
 #include <AnalysisModel.h>
 
-#include "runtime/BasicAnalysisBuilder.h"
+#include "BasicAnalysisBuilder.h"
 
 #include <StaticAnalysis.h>
 #include <DirectIntegrationAnalysis.h>
@@ -47,17 +48,6 @@
 #include <DOF_Numberer.h>
 #include "analysis.h"
 
-// extern StaticIntegrator *theStaticIntegrator;
-// extern TransientIntegrator *theTransientIntegrator;
-// extern DirectIntegrationAnalysis *theTransientAnalysis;
-// extern VariableTimeStepDirectIntegrationAnalysis
-//            *theVariableTimeStepTransientAnalysis;
-
-// extern ConvergenceTest   *theTest;
-// extern DOF_Numberer      *theGlobalNumberer ;
-// extern EigenSOE          *theEigenSOE;
-// extern LinearSOE         *theSOE;
-// extern ConstraintHandler *theHandler ;
 
 // for response spectrum analysis
 extern void OPS_DomainModalProperties(G3_Runtime*);
@@ -67,10 +57,8 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        TCL_Char ** const argv, Domain *domain);
 
 Tcl_CmdProc TclCommand_clearAnalysis;
+Tcl_CmdProc TclCommand_setNumberer;
 
-DOF_Numberer* G3Parse_newNumberer(G3_Runtime*, int, G3_Char**const);
-// TODO: consolidate
-// int specifyNumberer(ClientData clientData, Tcl_Interp *interp, int argc,TCL_Char ** const argv);
 
 //
 // Add commands to the interpreter that take the AnalysisBuilder as clientData.
@@ -83,14 +71,11 @@ G3_AddTclAnalysisAPI(Tcl_Interp *interp, Domain* domain)
   Tcl_CreateCommand(interp, "wipeAnalysis", &wipeAnalysis, builder, nullptr);
   Tcl_CreateCommand(interp, "_clearAnalysis", &TclCommand_clearAnalysis, builder, nullptr);
 
-  Tcl_CreateCommand(interp, "numberer", [](ClientData builder, Tcl_Interp *i, int ac, G3_Char** const av)->int{
-      ((BasicAnalysisBuilder*)builder)->set(G3Parse_newNumberer(G3_getRuntime(i), ac, av));
-      return TCL_OK;
-  }, builder, nullptr);
+  Tcl_CreateCommand(interp, "numberer",   TclCommand_setNumberer, builder, nullptr);
 
 
   static int ncmd = sizeof(tcl_analysis_cmds)/sizeof(char_cmd);
-  for (int i = 0; i < ncmd; i++)
+  for (int i = 0; i < ncmd; ++i)
     Tcl_CreateCommand(interp, 
         tcl_analysis_cmds[i].name, 
         tcl_analysis_cmds[i].func, 
@@ -327,7 +312,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
     resDataSize = requiredDataSize;
   }
 
-  for (int i = 0; i < requiredDataSize; i++)
+  for (int i = 0; i < requiredDataSize; ++i)
     resDataPtr[i] = '\n';
 
   //
@@ -340,7 +325,7 @@ eigenAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
   if (result == 0) {
     const Vector &eigenvalues = domain->getEigenvalues();
     int cnt = 0;
-    for (int i = 0; i < numEigen; i++) {
+    for (int i = 0; i < numEigen; ++i) {
       cnt += sprintf(&resDataPtr[cnt], "%35.20f  ", eigenvalues[i]);
     }
 
@@ -382,14 +367,20 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (argc < 2) {
     opserr
-        << G3_ERROR_PROMPT << "modalDampingQ ?factor - not enough arguments to command\n";
+        << G3_ERROR_PROMPT << argv[0] << " ?factor - not enough arguments to command\n";
     return TCL_ERROR;
   }
 
+  int numModes = argc - 1;
+
   if (numEigen == 0) {
-    opserr << G3_ERROR_PROMPT 
-           << "- modalDampingQ - eigen command needs to be called first\n";
-    return TCL_ERROR;
+    opserr << G3_WARN_PROMPT 
+           << "- " << argv[0] << " - eigen command needs to be called first\n";
+
+    numEigen = numModes;
+    builder->newEigenAnalysis(EigenSOE_TAGS_ArpackSOE, 0.0);
+    builder->eigen(numModes, true, true);
+    // return TCL_ERROR;
   }
 
   /* 
@@ -402,11 +393,11 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   if (strcmp(argv[0], "modalDampingQ") == 0)
     do_tangent = false;
 
-  int numModes = argc - 1;
   double factor = 0;
   Vector modalDampingValues(numEigen);
 
   if (numModes != 1 && numModes != numEigen) {
+    // TODO: Just call eigen again?
     opserr << G3_ERROR_PROMPT << "modalDampingQ - same number of damping factors as modes must be "
               "specified\n";
 //  opserr << "                    - same damping ratio will be applied to all\n";
@@ -419,17 +410,16 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
   if (numModes == numEigen) {
 
     // read in all factors one at a time
-    for (int i = 0; i < numEigen; i++) {
+    for (int i = 0; i < numEigen; ++i) {
       if (Tcl_GetDouble(interp, argv[1 + i], &factor) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "rayleigh alphaM? betaK? betaK0? betaKc? - could not "
-                  "read betaK? \n";
+        opserr << G3_ERROR_PROMPT << argv[0] << " - could not read factor at position "
+               << i << "\n";
         return TCL_ERROR;
       }
       modalDampingValues[i] = factor;
     }
 
   } else {
-
     //  read in one & set all factors to that value
     if (Tcl_GetDouble(interp, argv[1], &factor) != TCL_OK) {
       opserr << G3_ERROR_PROMPT 
@@ -438,7 +428,7 @@ modalDamping(ClientData clientData, Tcl_Interp *interp, int argc,
       return TCL_ERROR;
     }
 
-    for (int i = 0; i < numEigen; i++)
+    for (int i = 0; i < numEigen; ++i)
       modalDampingValues[i] = factor;
   }
 
@@ -537,6 +527,10 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     if ((strcmp(argv[currentArg], "file") == 0) ||
         (strcmp(argv[currentArg], "-file") == 0)) {
       currentArg++;
+      if (currentArg == argc) {
+        opserr << G3_WARN_PROMPT << "-file missing argument\n";
+        return TCL_ERROR;
+      }
 
       if (outputFile.setFile(argv[currentArg]) != 0) {
         opserr << "printA <filename> .. - failed to open file: "
@@ -579,6 +573,7 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
   // Form the tangent
   //
   TransientIntegrator *oldint = nullptr;
+
   // construct integrator here so that it is not
   // destructed when the `if` scope ends
   GimmeMCK integrator(m, c, k, 0.0);
@@ -602,26 +597,43 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
   const Matrix *A = theSOE.getA();
   if (A == nullptr) {
-    opserr << G3_ERROR_PROMPT << "Could not get matrix from linear system\n";
+    opserr << OpenSees::PromptValueError 
+           << "Could not get matrix from linear system\n";
     return TCL_ERROR;
   }
 
   if (ret) {
     int n = A->noRows();
     int m = A->noCols();
-    if (n * m > 0) {
-      for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-          char buffer[40];
-          sprintf(buffer, "%.10e ", (*A)(i, j));
-          Tcl_AppendResult(interp, buffer, NULL);
-        }
+    if (n*m == 0) {
+      opserr << OpenSees::PromptValueError 
+             << "linear system is empty\n";
+      return TCL_ERROR;
+    }
+
+    // Create an empty list with space preallocated for
+    // n*m elements. This is not formally documented, but
+    // it is mentioned here 
+    //   https://wiki.tcl-lang.org/page/Tcl_NewListObj
+    //
+    // and evident from the source code here:
+    //   https://github.com/enthought/tcl/blob/master/generic/tclListObj.c
+    //
+    Tcl_Obj* list = Tcl_NewListObj(n*m, nullptr);
+
+
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < m; j++) {
+//        char buffer[40];
+//        sprintf(buffer, "%.10e ", (*A)(i, j));
+//        Tcl_AppendResult(interp, buffer, NULL);
+        Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj((*A)(i, j)));
       }
     }
+    Tcl_SetObjResult(interp, list);
 
   } else {
     *output << *A;
-    // close the output file
     outputFile.close();
   }
 
@@ -652,6 +664,10 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     if ((strcmp(argv[currentArg], "file") == 0) ||
         (strcmp(argv[currentArg], "-file") == 0)) {
       currentArg++;
+      if (currentArg == argc) {
+        opserr << G3_WARN_PROMPT << "-file missing argument\n";
+        return TCL_ERROR;
+      }
 
       if (outputFile.setFile(argv[currentArg]) != 0) {
         opserr << "print <filename> .. - failed to open file: "
@@ -672,19 +688,25 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     // TODO
     builder->formUnbalance();
 
+    if (theSOE->getNumEqn() == 0) {
+      opserr << OpenSees::PromptValueError << "System of equations is empty\n";
+      return TCL_ERROR;
+    }
+
     const Vector &b = theSOE->getB();
+
     if (ret) {
-      int n = b.Size();
-      if (n > 0) {
-        for (int i = 0; i < n; i++) {
-          char buffer[40];
-          sprintf(buffer, "%.10e ", b(i));
-          Tcl_AppendResult(interp, buffer, NULL);
-        }
+      const int size = b.Size();
+      Tcl_Obj* list = Tcl_NewListObj(size, nullptr);
+      for (int i = 0; i < size; ++i) {
+//        char buffer[40];
+//        sprintf(buffer, "%.10e ", b(i));
+//        Tcl_AppendResult(interp, buffer, NULL);
+        Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(b[i]));
       }
+      Tcl_SetObjResult(interp, list);
     } else {
       *output << b;
-      // close the output file
       outputFile.close();
     }
   }
@@ -703,7 +725,7 @@ TclCommand_clearAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char *
     delete builder;
 
     static int ncmd = sizeof(tcl_analysis_cmds)/sizeof(char_cmd);
-    for (int i = 0; i < ncmd; i++)
+    for (int i = 0; i < ncmd; ++i)
       Tcl_DeleteCommand(interp, tcl_analysis_cmds[i].name);
 
     Tcl_CreateCommand(interp, "wipeAnalysis",  &wipeAnalysis, nullptr, nullptr);
@@ -735,16 +757,20 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
   
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
-  // make sure at least one other argument to contain numberer
+  // make sure at least one other argument to contain type name
   if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "need to specify a Nemberer type \n";
+    opserr << G3_ERROR_PROMPT << "need to specify a constraint type \n";
     return TCL_ERROR;
   }
 
   ConstraintHandler *theHandler = nullptr;
-  // check argv[1] for type of Numberer and create the object
+  // check argv[1] for type of handler and create the object
   if (strcmp(argv[1], "Plain") == 0)
     theHandler = new PlainHandler();
+
+  else if (strcmp(argv[1], "Transformation") == 0) {
+    theHandler = new TransformationConstraintHandler();
+  }
 
   else if (strcmp(argv[1], "Penalty") == 0) {
     if (argc < 4) {
@@ -759,21 +785,6 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
     theHandler = new PenaltyConstraintHandler(alpha1, alpha2);
   }
 
-#if 0
-  // ***** adding later
-  else if (strcmp(argv[1],"PenaltyNoHomoSPMultipliers") == 0) {
-    if (argc < 4) {
-      opserr << "WARNING: need to specify alpha: handler Penalty alpha \n";
-      return TCL_ERROR;
-    }
-    double alpha1, alpha2;
-    if (Tcl_GetDouble(interp, argv[2], &alpha1) != TCL_OK)
-      return TCL_ERROR;
-    if (Tcl_GetDouble(interp, argv[3], &alpha2) != TCL_OK)
-      return TCL_ERROR;
-    theHandler = new PenaltyHandlerNoHomoSPMultipliers(alpha1, alpha2);
-  } // **********************
-#endif
   else if (strcmp(argv[1], "Lagrange") == 0) {
     double alpha1 = 1.0;
     double alpha2 = 1.0;
@@ -784,10 +795,6 @@ specifyConstraintHandler(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
     }
     theHandler = new LagrangeConstraintHandler(alpha1, alpha2);
-  }
-
-  else if (strcmp(argv[1], "Transformation") == 0) {
-    theHandler = new TransformationConstraintHandler();
   }
 
   else {

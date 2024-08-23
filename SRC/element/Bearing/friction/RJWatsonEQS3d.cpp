@@ -42,6 +42,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+#if 0
 #include <elementAPI.h>
 #include <string>
 
@@ -274,6 +276,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_RJWatsonEQS3d)
         kInit, mats, y, x, sDistI, doRayleigh, mass, maxIter, tol,
         kFactUplift);
 }
+#endif
 
 
 // initialize the class wide variables

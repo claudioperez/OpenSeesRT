@@ -17,23 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-  
-
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2008-04-14 22:38:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/damage/ParkAng.h,v $
-                                                                        
-#ifndef ParkAng_h
-#define ParkAng_h         
-                                                               
-// Written: AA,GGD
-// Created: 10/02
-// Revision: AA
 //
 // Description: This file contains the class definition for 
 // Cimbined damage model. It is a subclass od DamageModel
 //
+// Written: AA,GGD
+// Created: 10/02
+// Revision: AA
+//
+#ifndef ParkAng_h
+#define ParkAng_h         
 
 #include <ErrorHandler.h>
 #include <DamageModel.h>

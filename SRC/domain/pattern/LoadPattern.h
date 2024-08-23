@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2008-02-29 20:45:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/pattern/LoadPattern.h,v $
-                                                                        
-                                                                        
+//
 #ifndef LoadPattern_h
 #define LoadPattern_h
 
@@ -94,7 +89,7 @@ class LoadPattern :
     // methods to apply loads
     virtual void applyLoad(double pseudoTime = 0.0);
     virtual void setLoadConstant(void);
-	virtual void unsetLoadConstant(void);
+    virtual void unsetLoadConstant(void);
     virtual double getLoadFactor(void);
 
     // methods for o/p
@@ -121,7 +116,7 @@ class LoadPattern :
     // AddingSensitivity:END ///////////////////////////////////////////
 
   protected:
-    bool   isConstant;     // to indictae whether setConstant has been called
+    bool   isConstant;     // to indicate whether setConstant has been called
 	
   private:
     double loadFactor;     // current load factor

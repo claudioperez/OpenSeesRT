@@ -2,10 +2,9 @@
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
 **                                                                    **
-**                                                                    **
 ** ****************************************************************** */
 
-// Written: Ping Tan ��Guangzhou University, China��
+// Written: Ping Tan ��Guangzhou University, China
 // Created: 2015-10-12 18:46:30
 // Revision: A
 //
@@ -31,7 +30,7 @@
 
 #include <OPS_Globals.h>
 #include <Message.h>
-using namespace std;
+
 #include <iostream>
 
 #define PI 3.14159l
@@ -52,7 +51,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElastomericBearingBoucWenMod3d)
   
   if (numRemainingArgs < 18) {
     opserr << "Want: ElastomericBearingBoucWenMod eleTag iNode jNode kInit fy Gr Kbulk D1 D2 ts tr n alpha1 alpha2 mu eta beta gamma <-PMod a1 a2 > <-TMod T b1 b2 b3 b4> <-shearDist sDratio> <-doRayleigh> <-mass m> <-iter maxIter tol> <-orient <x1 x2 x3> y1 y2 y3>\n";
-    return 0;	
+    return 0;
   }
   int tag;
   int iNode, jNode;
@@ -96,7 +95,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElastomericBearingBoucWenMod3d)
   numData = 8;
   if (OPS_GetDouble(&numData, dData) != 0) {
     opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading data\n";
-    return 0;	
+    return 0;
   }
   kInit = dData[0];
   fy = dData[1];
@@ -110,14 +109,14 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElastomericBearingBoucWenMod3d)
   numData = 1;
   if (OPS_GetInt(&numData, iData) != 0) {
     opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading data\n";
-    return 0;	
+    return 0;
   }
   n = iData[0];
 
   numData = 6;
   if (OPS_GetDouble(&numData, dData) != 0) {
     opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading data\n";
-    return 0;	
+    return 0;
   }
   alpha1 = dData[0];
   alpha2 = dData[1];
@@ -132,16 +131,16 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElastomericBearingBoucWenMod3d)
     if (strcmp(option,"-PMod") == 0)  {
       numData = 2;
       if (OPS_GetDouble(&numData, dData) != 0) {
-	opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -PMod data\n";
-	break;
+        opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -PMod data\n";
+        break;
       }
       a1 = dData[0];
       a2 = dData[1];
     } else if (strcmp(option,"-TMod") == 0)  {
       numData = 4;
       if (OPS_GetDouble(&numData, dData) != 0) {
-	opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -TMod data\n";
-	break;
+        opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -TMod data\n";
+        break;
       }
       b1 = dData[0];
       b1 = dData[1];
@@ -150,8 +149,8 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElastomericBearingBoucWenMod3d)
     } else if (strcmp(option,"-shearDist") == 0)  {
       numData = 1;
       if (OPS_GetDouble(&numData, dData) != 0) {
-	opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -shearDist data\n";
-	break;
+        opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -shearDist data\n";
+        break;
       }
       shearDistI = dData[0];
     } else if (strcmp(option,"-doRayleigh") == 0)  {
@@ -159,19 +158,19 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElastomericBearingBoucWenMod3d)
     } else if (strcmp(option,"-mass") == 0)  {
       numData = 1;
       if (OPS_GetDouble(&numData, dData) != 0) {
-	opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -mass data\n";
-	break;
+        opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -mass data\n";
+        break;
       }
       mass = dData[0];
     } else if (strcmp(option,"-iter") == 0)  {
       numData = 1;
       if (OPS_GetInt(&numData, iData) != 0) {
-	opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -iter data\n";
-	break;
+        opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -iter data\n";
+        break;
       }
       if (OPS_GetDouble(&numData, dData) != 0) {
-	opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -iter data\n";
-	break;
+        opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -iter data\n";
+        break;
       }
       maxIter = iData[0];
       tol = dData[0];
@@ -179,11 +178,11 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElastomericBearingBoucWenMod3d)
       int numOrient = OPS_GetNumRemainingInputArgs();
       numData = numOrient;
       if (numData != 3 || numData != 6) {
-	opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -orient data, need 3 or 6 values\n";
+        opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -orient data, need 3 or 6 values\n";
       }
       if (OPS_GetDouble(&numData, dData) != 0) {
-	opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -orient data\n";
-	break;
+        opserr << "WARNING element ElastomericBeamringMod3d tag: " << tag << " error reading -orient data\n";
+        break;
       }
       if (numOrient == 3) {
 	y(0) = dData[0];

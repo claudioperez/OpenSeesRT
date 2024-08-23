@@ -44,7 +44,7 @@
 #include <SingleDomEleIter.h>
 #include <Graph.h>
 #include <FE_Element.h>
-#include <modelbuilder/PartitionedModelBuilder.h>
+// #include <modelbuilder/PartitionedModelBuilder.h>
 
 #include <EquiSolnAlgo.h>
 #include <IncrementalIntegrator.h>

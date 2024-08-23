@@ -17,15 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-
-#ifndef GimmeMCK_h
-#define GimmeMCK_h
-
+//
 // Written: MHS
 // Created: May 2020
 // Revision: A
@@ -33,6 +25,9 @@
 // Description: This file contains the class definition for GimmeMCK.
 // GimmeMCK is an algorithmic class for performing a transient analysis
 // using the explicit Newmark integration scheme (beta = 0).
+//
+#ifndef GimmeMCK_h
+#define GimmeMCK_h
 
 #include <TransientIntegrator.h>
 

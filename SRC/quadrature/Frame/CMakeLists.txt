@@ -9,7 +9,7 @@ add_library(OPS_FrameQuadrature)
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(OPS_FrameQuadrature PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
-target_sources(OPS_Runtime PRIVATE dispatch.cpp)
+target_sources(OPS_Runtime PRIVATE commands.cpp)
 
 target_sources(OPS_FrameQuadrature
   PRIVATE

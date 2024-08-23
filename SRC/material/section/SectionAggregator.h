@@ -17,74 +17,69 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.17 $
-// $Date: 2009-10-01 23:04:32 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/SectionAggregator.h,v $
-                                                                        
-                                                                        
-// File: ~/section/SectionAggregator.h
-//
-// Written: MHS
-// Created: Jun 2000
-// Revision: A
 //
 // Description: This file contains the class definition for 
 // SectionAggregator.  SectionAggregator decorates an MP
 // section (couple bending and axial) with an uncoupled shear
 // relation.
 //
+// Written: MHS
+// Created: Jun 2000
+// Revision: A
+//
 // What: "@(#) SectionAggregator.h, revA"
 
 #ifndef SectionAggregator_h
 #define SectionAggregator_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <UniaxialMaterial.h>
 
 #include <Vector.h>
 #include <Matrix.h>
 
-class SectionAggregator : public SectionForceDeformation
+class SectionAggregator : public FrameSection
 {
   public:
     SectionAggregator(); 
 
-    SectionAggregator(int tag, SectionForceDeformation &theSection,
-		      int numAdditions, UniaxialMaterial **theAdditions,
-		      const ID &code); 
+    SectionAggregator(int tag, FrameSection &theSection,
+                      int numAdditions, UniaxialMaterial **theAdditions,
+                      const ID &code); 
     SectionAggregator(int tag, int numAdditions,
-		      UniaxialMaterial **theAdditions, const ID &code); 
-    SectionAggregator(int tag, SectionForceDeformation &thesection,
-		      UniaxialMaterial &theAddition, int c);
+                      UniaxialMaterial **theAdditions, const ID &code); 
+    SectionAggregator(int tag, FrameSection &thesection,
+                      UniaxialMaterial &theAddition, int c);
 
     ~SectionAggregator();
 
-    const char *getClassType(void) const {return "SectionAggregator";};
+    const char *getClassType() const {return "SectionAggregator";};
 
     int   setTrialSectionDeformation(const Vector &deforms); 
-    const Vector &getSectionDeformation(void);
+    const Vector &getSectionDeformation();
 
-    const Vector &getStressResultant(void);
-    const Matrix &getSectionTangent(void);
-    const Matrix &getInitialTangent(void);
-    const Matrix &getSectionFlexibility(void);
-    const Matrix &getInitialFlexibility(void);
+    const Vector &getStressResultant();
+    const Matrix &getSectionTangent();
+    const Matrix &getInitialTangent();
+    const Matrix &getSectionFlexibility();
+    const Matrix &getInitialFlexibility();
 
-    int   commitState(void);
-    int   revertToLastCommit(void);    
-    int   revertToStart(void);
+    int   commitState();
+    int   revertToLastCommit();    
+    int   revertToStart();
  
-    SectionForceDeformation *getCopy(void);
+    FrameSection *getFrameCopy();
     const ID &getType();
-    int getOrder (void) const;
+    int getOrder() const;
 
     int sendSelf(int cTag, Channel &theChannel);
-    int recvSelf(int cTag, Channel &theChannel, 
-		 FEM_ObjectBroker &theBroker);
+    int recvSelf(int cTag, Channel &theChannel,
+                 FEM_ObjectBroker &theBroker);
+
+    int getIntegral(Field field, State state, double& value) const override final;
 
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
-  int getResponse(int responseID, Information &info);
+    int getResponse(int responseID, Information &info);
 
     void Print(OPS_Stream &s, int flag =0);
 
@@ -98,16 +93,16 @@ class SectionAggregator : public SectionForceDeformation
     const Matrix & getInitialTangentSensitivity(int gradIndex);
     int   commitSensitivity(const Vector& sectionDeformationGradient, int gradIndex, int numGrads);
 
-    const Vector &getdedh(void); // MHS hack
+    const Vector &getdedh(); // MHS hack
     // AddingSensitivity:END ///////////////////////////////////////////
 
-    SectionForceDeformation* getSection() {return theSection;}
+    FrameSection* getSection() {return theSection;}
 
   protected:
     
   private:
     
-    SectionForceDeformation *theSection;
+    FrameSection *theSection;
     UniaxialMaterial **theAdditions;
 
     ID *matCodes;

@@ -25,7 +25,7 @@
 #ifndef ElasticShearSection3d_h
 #define ElasticShearSection3d_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Matrix.h>
 #include <Vector.h>
 
@@ -34,7 +34,7 @@ class FEM_ObjectBroker;
 class Information;
 class Parameter;
 
-class ElasticShearSection3d : public SectionForceDeformation
+class ElasticShearSection3d : public FrameSection
 {
  public:
   ElasticShearSection3d(int tag, double E, double A, double Iz, 
@@ -57,7 +57,7 @@ class ElasticShearSection3d : public SectionForceDeformation
   const Matrix &getSectionFlexibility(void);
   const Matrix &getInitialFlexibility(void);
   
-  SectionForceDeformation *getCopy(void);
+  FrameSection *getFrameCopy();
   const ID &getType();
   int getOrder(void) const;
   

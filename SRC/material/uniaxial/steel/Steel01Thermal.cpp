@@ -22,7 +22,6 @@
 //              Panagiotis Kotsovinos(P.Kotsovinos@ed.ac.uk)// 
 
 
-
 #include <Steel01Thermal.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -34,7 +33,7 @@
 #include <float.h>
 
 #include <elementAPI.h>
-#include <OPS_Globals.h>
+#include <Logging.h>
 static int numSteel01Th = 0;
 
 void * OPS_ADD_RUNTIME_VPV(OPS_Steel01Thermal)

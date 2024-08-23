@@ -5,6 +5,8 @@
 #
 #==============================================================================
 
+target_sources(OPS_Runtime PRIVATE dispatch.cpp)
+
 target_sources(OPS_Material
   PRIVATE
     DrainHardeningMaterial.cpp

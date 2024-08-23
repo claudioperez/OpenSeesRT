@@ -1,27 +1,19 @@
-/* *****************************************************************************
-  Copyright (c) 2015-2023, The Regents of the University of California (Regents).
-  All rights reserved.
-
-  Redistribution and use in source and binary forms, with or without 
-  modification, are permitted provided that the following conditions are met:
-
-  1. Redistributions of source code must retain the above copyright notice, this
-     list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright notice,
-     this list of conditions and the following disclaimer in the documentation
-     and/or other materials provided with the distribution.
-
-*************************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 // 
-// BasicAnalysisBuilder is an aggregate class which manages the analysis objects:
+// BasicAnalysisBuilder is an aggregate class which manages the analysis 
+// objects:
 //
 // - LinearSOE
 // - Domain                    *theDomain;
-// - ConstraintHandler 	      *theHandler;
-// - DOF_Numberer 	      *theNumberer;
-// - AnalysisModel 	      *theAnalysisModel;
-// - EquiSolnAlgo 	      *theAlgorithm;
-// - EigenSOE 		      *theEigenSOE;
+// - ConstraintHandler 	       *theHandler;
+// - DOF_Numberer 	           *theNumberer;
+// - AnalysisModel 	           *theAnalysisModel;
+// - EquiSolnAlgo 	           *theAlgorithm;
+// - EigenSOE 		             *theEigenSOE;
 // - StaticIntegrator          *theStaticIntegrator;
 // - TransientIntegrator       *theTransientIntegrator;
 // - ConvergenceTest           *theTest;
@@ -30,8 +22,7 @@
 // deleting these objects, but ownership of the SOE may be
 // given up.
 //
-//
-// Written: Minjie Zhu, cmp
+// Written: cmp
 //
 #ifndef BasicAnalysisBulider_h
 #define BasicAnalysisBulider_h
@@ -48,19 +39,12 @@ class StaticIntegrator;
 class TransientIntegrator;
 class ConvergenceTest;
 class VariableTimeStepDirectIntegrationAnalysis;
-class Integrator;
 
 class BasicAnalysisBuilder
 {
 public:
     BasicAnalysisBuilder(Domain* domain);
     ~BasicAnalysisBuilder();
-
-//  enum NoDelete {
-//    StaticIntegrator    = 1<<0,
-//    TransientIntegrator = 1<<1,
-//    LinearSOE           = 1<<2,
-//  };
 
     enum CurrentAnalysis {
       EMPTY_ANALYSIS,
@@ -79,8 +63,8 @@ public:
 
     LinearSOE* getLinearSOE();
 
-    Domain* getDomain(void);
-    int initialize(void);
+    Domain* getDomain();
+    int initialize();
 
     int  newTransientAnalysis();
     int  setStaticAnalysis();
@@ -91,10 +75,10 @@ public:
     int  eigen(int numMode, bool generalized, bool findSmallest);
     int  getNumEigen() {return numEigen;};
 
-    void formUnbalance();
+    int formUnbalance();
 
     VariableTimeStepDirectIntegrationAnalysis* getVariableTimeStepDirectIntegrationAnalysis() {
-	return theVariableTimeStepTransientAnalysis;
+      return theVariableTimeStepTransientAnalysis;
     }
 
     EquiSolnAlgo*        getAlgorithm();
@@ -102,8 +86,9 @@ public:
     TransientIntegrator* getTransientIntegrator();
     ConvergenceTest*     getConvergenceTest();
 
-    int domainChanged(void);
+    int domainChanged();
 
+    // Performing analysis
     int analyze(int num_steps, double size_steps=0.0);
     int analyzeStatic(int num_steps);
     
@@ -121,12 +106,12 @@ private:
     void fillDefaults(enum CurrentAnalysis flag);
 
     Domain                    *theDomain;
-    ConstraintHandler 	      *theHandler;
-    DOF_Numberer 	      *theNumberer;
-    AnalysisModel 	      *theAnalysisModel;
-    EquiSolnAlgo 	      *theAlgorithm;
-    LinearSOE 		      *theSOE;
-    EigenSOE 		      *theEigenSOE;
+    ConstraintHandler         *theHandler;
+    DOF_Numberer              *theNumberer;
+    AnalysisModel             *theAnalysisModel;
+    EquiSolnAlgo              *theAlgorithm;
+    LinearSOE                 *theSOE;
+    EigenSOE                  *theEigenSOE;
     StaticIntegrator          *theStaticIntegrator;
     TransientIntegrator       *theTransientIntegrator;
     ConvergenceTest           *theTest;

@@ -30,7 +30,7 @@
 // 1d material subroutine Bond_1.
 
 #include <stdlib.h>
-
+#include <Logging.h>
 #include <FedeasBond1Material.h>
 
 FedeasBond1Material::FedeasBond1Material(int tag,

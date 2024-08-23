@@ -48,38 +48,38 @@ Matrix BeamColumnwLHNMYS::k(3,3);
 void * OPS_ADD_RUNTIME_VPV(OPS_BeamColumnwLHNMYS)
 {
     if(OPS_GetNumRemainingInputArgs() < 11) {
-	opserr<<"insufficient arguments:eleTag,iNode,jNode,A,E,Iz,NpI NpJ,MpI MpJ,transfTag\n";
-	return 0;
+        opserr<<"insufficient arguments:eleTag,iNode,jNode,A,E,Iz,NpI NpJ,MpI MpJ,transfTag\n";
+        return 0;
     }
 
     int ndm = OPS_GetNDM();
     int ndf = OPS_GetNDF();
     if(ndm != 2 || ndf != 3) {
-	opserr<<"ndm must be 2 and ndf must be 3\n";
-	return 0;
+        opserr<<"ndm must be 2 and ndf must be 3\n";
+        return 0;
     }
 
     // inputs: 
     int iData[3];
     int numData = 3;
     if(OPS_GetIntInput(&numData,&iData[0]) < 0) {
-	opserr<<"WARNING failed to read integers\n";
-	return 0;
+        opserr<<"WARNING failed to read integers\n";
+        return 0;
     }
 
     double data[7];
     // Read A, E, I, NpI, NpJ, MpI, MpJ
     numData = 7;
     if(OPS_GetDoubleInput(&numData,&data[0]) < 0) {
-	opserr<<"WARNING failed to read doubles\n";
-	return 0;
+        opserr<<"WARNING failed to read doubles\n";
+        return 0;
       }
 
     numData = 1;
     int transfTag;
     if(OPS_GetIntInput(&numData,&transfTag) < 0) {
-	opserr<<"WARNING transfTag is not integer\n";
-	return 0;
+        opserr<<"WARNING transfTag is not integer\n";
+        return 0;
     }
     
     // options
@@ -101,11 +101,11 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BeamColumnwLHNMYS)
     
     
     while(OPS_GetNumRemainingInputArgs() > 0) {
-	std::string type = OPS_GetString();
-	if(type == "-Wtol") {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
-		if(OPS_GetDoubleInput(&numData,&Wtol) < 0) return 0;
-	    }
+        std::string type = OPS_GetString();
+        if(type == "-Wtol") {
+            if(OPS_GetNumRemainingInputArgs() > 0) {
+                if(OPS_GetDoubleInput(&numData,&Wtol) < 0) return 0;
+            }
     } else if(type == "-yftol") {
         if(OPS_GetNumRemainingInputArgs() > 0) {
             if(OPS_GetDoubleInput(&numData,&yftol) < 0) return 0;
@@ -114,10 +114,10 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BeamColumnwLHNMYS)
         if(OPS_GetNumRemainingInputArgs() > 0) {
             if(OPS_GetIntInput(&numData,&MaxIter) < 0) return 0;
         }
-	} else if(type == "-HirI") {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
-		if(OPS_GetDoubleInput(&numData,&HirI) < 0) return 0;
-	    }
+        } else if(type == "-HirI") {
+            if(OPS_GetNumRemainingInputArgs() > 0) {
+                if(OPS_GetDoubleInput(&numData,&HirI) < 0) return 0;
+            }
     } else if(type == "-HirJ") {
         if(OPS_GetNumRemainingInputArgs() > 0) {
             if(OPS_GetDoubleInput(&numData,&HirJ) < 0) return 0;
@@ -134,12 +134,12 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BeamColumnwLHNMYS)
         if(OPS_GetNumRemainingInputArgs() > 0) {
             if(OPS_GetDoubleInput(&numData,&HkrJ) < 0) return 0;
         }
-	} else if(type == "-mass") {
-	    if(OPS_GetNumRemainingInputArgs() > 0) {
+        } else if(type == "-mass") {
+            if(OPS_GetNumRemainingInputArgs() > 0) {
             if(OPS_GetDoubleInput(&numData,&mass) < 0) return 0;
-	    }
-	} else if(type == "-cMass") {
-	    cMass = 1;
+            }
+        } else if(type == "-cMass") {
+            cMass = 1;
     } else if(type == "-ySurf") {
         if(OPS_GetNumRemainingInputArgs() > 0) {
             if(OPS_GetIntInput(&numData,&nrow) < 0) return 0;
@@ -167,7 +167,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BeamColumnwLHNMYS)
     // check transf
     CrdTransf* theTransf = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
     if(theTransf == nullptr)
-	return nullptr;
+        return nullptr;
     
     return new BeamColumnwLHNMYS(iData[0],iData[1],iData[2],data[0],data[1],data[2],data[3],data[4], data[5],data[6],*theTransf,yftol,Wtol,MaxIter,Hir,Hkr,nrow,GPYSC,mass,cMass);
     
@@ -242,7 +242,7 @@ Q(6), q(3), connectedExternalNodes(2), theCoordTransf(0)
 BeamColumnwLHNMYS::~BeamColumnwLHNMYS()
 {
     if (theCoordTransf)
-	delete theCoordTransf;
+        delete theCoordTransf;
 }
 
 int
@@ -284,7 +284,7 @@ BeamColumnwLHNMYS::setDomain(Domain *theDomain)
       opserr << "BeamColumnwLHNMYS::setDomain -- Node 1: " << connectedExternalNodes(0) << " does not exist\n";
       exit(-1);
     }
-			      
+                              
     if (theNodes[1] == 0) {
       opserr << "BeamColumnwLHNMYS::setDomain -- Node 2: " << connectedExternalNodes(1) << " does not exist\n";
       exit(-1);
@@ -295,21 +295,21 @@ BeamColumnwLHNMYS::setDomain(Domain *theDomain)
     
     if (dofNd1 != 3) {
       opserr << "BeamColumnwLHNMYS::setDomain -- Node 1: " << connectedExternalNodes(0)
-	     << " has incorrect number of DOF\n";
+             << " has incorrect number of DOF\n";
       exit(-1);
     }
     
     if (dofNd2 != 3) {
       opserr << "BeamColumnwLHNMYS::setDomain -- Node 2: " << connectedExternalNodes(1)
-	     << " has incorrect number of DOF\n";
+             << " has incorrect number of DOF\n";
       exit(-1);
     }
-	
+        
     this->DomainComponent::setDomain(theDomain);
     
     if (theCoordTransf->initialize(theNodes[0], theNodes[1]) != 0) {
-	opserr << "BeamColumnwLHNMYS::setDomain -- Error initializing coordinate transformation\n";
-	exit(-1);
+        opserr << "BeamColumnwLHNMYS::setDomain -- Error initializing coordinate transformation\n";
+        exit(-1);
     }
     
     double L = theCoordTransf->getInitialLength();
@@ -413,9 +413,9 @@ BeamColumnwLHNMYS::update(void)
     ScVecI(1) = MpI;
     ScVecJ(0) = NpJ;
     ScVecJ(1) = MpJ;
-    double yfnI, yfnJ;
     Vector gI(2), gJ(2);
     Matrix HI(2,2), HJ(2,2);
+    double yfnI, yfnJ;
     GPYS2d(GPYSC,xyrefI,ScVecI,yfnI,gI,HI);
     GPYS2d(GPYSC,xyrefJ,ScVecJ,yfnJ,gJ,HJ);
     Vector yftr(2);
@@ -709,8 +709,8 @@ BeamColumnwLHNMYS::getInitialStiff(void)
     double EI = E*I;
     double EAoverL = EA/L;
     double EIoverL = EI/L;
-    double EIoverL2 = 2.0*EIoverL;		// 2EI/L
-    double EIoverL4 = 2.0*EIoverL2;		// 4EI/L
+    double EIoverL2 = 2.0*EIoverL;                // 2EI/L
+    double EIoverL4 = 2.0*EIoverL2;                // 4EI/L
     
     // elastic stiffness matrix
     static Matrix ke(3,3);
@@ -878,7 +878,7 @@ BeamColumnwLHNMYS::addInertiaLoadToUnbalance(const Vector &accel)
   // get R * accel from the nodes
   const Vector &Raccel1 = theNodes[0]->getRV(accel);
   const Vector &Raccel2 = theNodes[1]->getRV(accel);
-	
+        
   if (3 != Raccel1.Size() || 3 != Raccel2.Size()) {
     opserr << "BeamColumnwLHNMYS::addInertiaLoadToUnbalance matrix and vector sizes are incompatable\n";
     return -1;
@@ -910,7 +910,7 @@ BeamColumnwLHNMYS::addInertiaLoadToUnbalance(const Vector &accel)
 
 const Vector &
 BeamColumnwLHNMYS::getResistingForceIncInertia()
-{	
+{        
   P = this->getResistingForce();
   
   // subtract external load P = P - Q
@@ -1014,11 +1014,11 @@ BeamColumnwLHNMYS::Print(OPS_Stream &s, int flag)
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << "\t\t\t{";
-	s << "\"name\": " << this->getTag() << ", ";
-	s << "\"type\": \"BeamColumnwLHNMYS\", ";
+        s << "\"name\": " << this->getTag() << ", ";
+        s << "\"type\": \"BeamColumnwLHNMYS\", ";
     s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
-	s << "\"E\": " << E << ", ";
-	s << "\"A\": "<< A << ", ";
+        s << "\"E\": " << E << ", ";
+        s << "\"A\": "<< A << ", ";
     s << "\"Iz\": "<< I << ", ";
     s << "\"massperlength\": "<< rho << ", ";
     s << "\"crdTransformation\": \"" << theCoordTransf->getTag() << "\"}";
@@ -1057,8 +1057,8 @@ BeamColumnwLHNMYS::displaySelf(Renderer &theViewer, int displayMode, float fact,
     const Matrix &eigen2 = theNodes[1]->getEigenvectors();
     if (eigen1.noCols() >= mode) {
       for (int i = 0; i < 2; i++) {
-	v1(i) += eigen1(i,mode-1)*fact;
-	v2(i) += eigen2(i,mode-1)*fact;    
+        v1(i) += eigen1(i,mode-1)*fact;
+        v2(i) += eigen2(i,mode-1)*fact;    
       }    
     }
 
@@ -1179,7 +1179,7 @@ BeamColumnwLHNMYS::setResponse(const char **argv, int argc, OPS_Stream &output)
 
     // deformations
   }  else if (strcmp(argv[0],"deformations") == 0 ||
-	      strcmp(argv[0],"basicDeformations") == 0) {
+              strcmp(argv[0],"basicDeformations") == 0) {
     
     output.tag("ResponseType","eps");
     output.tag("ResponseType","theta1");
@@ -1188,7 +1188,7 @@ BeamColumnwLHNMYS::setResponse(const char **argv, int argc, OPS_Stream &output)
   
   // chord rotation -
   } else if (strcmp(argv[0],"chordRotation") == 0 || strcmp(argv[0],"chordDeformation") == 0 
-	     || strcmp(argv[0],"basicDeformation") == 0) {
+             || strcmp(argv[0],"basicDeformation") == 0) {
 
     output.tag("ResponseType","eps");
     output.tag("ResponseType","theta1");
@@ -1279,20 +1279,20 @@ BeamColumnwLHNMYS::setParameter(const char **argv, int argc, Parameter &param)
 int
 BeamColumnwLHNMYS::updateParameter (int parameterID, Information &info)
 {
-	switch (parameterID) {
-	case -1:
-		return -1;
-	case 1:
-		E = info.theDouble;
-		return 0;
-	case 2:
-		A = info.theDouble;
-		return 0;
-	case 3:
-		I = info.theDouble;
-		return 0;
-	default:
-		return -1;
-	}
+        switch (parameterID) {
+        case -1:
+                return -1;
+        case 1:
+                E = info.theDouble;
+                return 0;
+        case 2:
+                A = info.theDouble;
+                return 0;
+        case 3:
+                I = info.theDouble;
+                return 0;
+        default:
+                return -1;
+        }
 }
 

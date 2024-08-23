@@ -64,7 +64,7 @@ SectionForceDeformation::getSectionFlexibility ()
 {
   int order = this->getOrder();
   
-  if (fDefault == nullptr) {		
+  if (fDefault == nullptr) {                
     fDefault = new Matrix(order,order);
   }
 
@@ -88,7 +88,7 @@ SectionForceDeformation::getInitialFlexibility ()
 {
   int order = this->getOrder();
   
-  if (fDefault == 0) {		
+  if (fDefault == 0) {                
     fDefault = new Matrix(order,order);
     if (fDefault == 0) {
       opserr << "SectionForceDeformation::getInitialFlexibility -- failed to allocate flexibility matrix\n";
@@ -119,7 +119,7 @@ SectionForceDeformation::getRho(void)
 
 Response*
 SectionForceDeformation::setResponse(const char **argv, int argc,
-				     OPS_Stream &output)
+                                     OPS_Stream &output)
 {
   const ID &type = this->getType();
   int typeSize = this->getOrder();
@@ -136,23 +136,23 @@ SectionForceDeformation::setResponse(const char **argv, int argc,
       int code = type(i);
       switch (code){
       case SECTION_RESPONSE_MZ:
-	output.tag("ResponseType","kappaZ");
-	break;
+        output.tag("ResponseType","kappaZ");
+        break;
       case SECTION_RESPONSE_P:
-	output.tag("ResponseType","eps");
-	break;
+        output.tag("ResponseType","eps");
+        break;
       case SECTION_RESPONSE_VY:
-	output.tag("ResponseType","gammaY");
-	break;
+        output.tag("ResponseType","gammaY");
+        break;
       case SECTION_RESPONSE_MY:
-	output.tag("ResponseType","kappaY");
-	break;
+        output.tag("ResponseType","kappaY");
+        break;
       case SECTION_RESPONSE_VZ:
-	output.tag("ResponseType","gammaZ");
-	break;
+        output.tag("ResponseType","gammaZ");
+        break;
       case SECTION_RESPONSE_T:
-	output.tag("ResponseType","theta");
-	break;
+        output.tag("ResponseType","theta");
+        break;
       case SECTION_RESPONSE_FXX:
           output.tag("ResponseType", "epsXX");
           break;
@@ -178,7 +178,7 @@ SectionForceDeformation::setResponse(const char **argv, int argc,
           output.tag("ResponseType", "gammaYZ");
           break;
       default:
-	output.tag("ResponseType","Unknown");
+        output.tag("ResponseType","Unknown");
       }
     }
     theResponse =  new SectionResponse(*this, 1, this->getSectionDeformation());
@@ -189,23 +189,23 @@ SectionForceDeformation::setResponse(const char **argv, int argc,
       int code = type(i);
       switch (code){
       case SECTION_RESPONSE_MZ:
-	output.tag("ResponseType","Mz");
-	break;
+        output.tag("ResponseType","Mz");
+        break;
       case SECTION_RESPONSE_P:
-	output.tag("ResponseType","P");
-	break;
+        output.tag("ResponseType","P");
+        break;
       case SECTION_RESPONSE_VY:
-	output.tag("ResponseType","Vy");
-	break;
+        output.tag("ResponseType","Vy");
+        break;
       case SECTION_RESPONSE_MY:
-	output.tag("ResponseType","My");
-	break;
+        output.tag("ResponseType","My");
+        break;
       case SECTION_RESPONSE_VZ:
-	output.tag("ResponseType","Vz");
-	break;
+        output.tag("ResponseType","Vz");
+        break;
       case SECTION_RESPONSE_T:
-	output.tag("ResponseType","T");
-	break;
+        output.tag("ResponseType","T");
+        break;
       case SECTION_RESPONSE_FXX:
           output.tag("ResponseType", "Fxx");
           break;
@@ -231,7 +231,7 @@ SectionForceDeformation::setResponse(const char **argv, int argc,
           output.tag("ResponseType", "Vyz");
           break;
       default:
-	output.tag("ResponseType","Unknown");
+        output.tag("ResponseType","Unknown");
       }
     }
     theResponse =  new SectionResponse(*this, 2, this->getStressResultant());
@@ -242,23 +242,23 @@ SectionForceDeformation::setResponse(const char **argv, int argc,
       int code = type(i);
       switch (code){
       case SECTION_RESPONSE_MZ:
-	output.tag("ResponseType","kappaZ");
-	break;
+        output.tag("ResponseType","kappaZ");
+        break;
       case SECTION_RESPONSE_P:
-	output.tag("ResponseType","eps");
-	break;
+        output.tag("ResponseType","eps");
+        break;
       case SECTION_RESPONSE_VY:
-	output.tag("ResponseType","gammaY");
-	break;
+        output.tag("ResponseType","gammaY");
+        break;
       case SECTION_RESPONSE_MY:
-	output.tag("ResponseType","kappaY");
-	break;
+        output.tag("ResponseType","kappaY");
+        break;
       case SECTION_RESPONSE_VZ:
-	output.tag("ResponseType","gammaZ");
-	break;
+        output.tag("ResponseType","gammaZ");
+        break;
       case SECTION_RESPONSE_T:
-	output.tag("ResponseType","theta");
-	break;
+        output.tag("ResponseType","theta");
+        break;
       case SECTION_RESPONSE_FXX:
           output.tag("ResponseType", "epsXX");
           break;
@@ -284,30 +284,30 @@ SectionForceDeformation::setResponse(const char **argv, int argc,
           output.tag("ResponseType", "gammaYZ");
           break;
       default:
-	output.tag("ResponseType","Unknown");
+        output.tag("ResponseType","Unknown");
       }
     }
     for (int j=0; j<typeSize; j++) {
       int code = type(j);
       switch (code){
       case SECTION_RESPONSE_MZ:
-	output.tag("ResponseType","Mz");
-	break;
+        output.tag("ResponseType","Mz");
+        break;
       case SECTION_RESPONSE_P:
-	output.tag("ResponseType","P");
-	break;
+        output.tag("ResponseType","P");
+        break;
       case SECTION_RESPONSE_VY:
-	output.tag("ResponseType","Vy");
-	break;
+        output.tag("ResponseType","Vy");
+        break;
       case SECTION_RESPONSE_MY:
-	output.tag("ResponseType","My");
-	break;
+        output.tag("ResponseType","My");
+        break;
       case SECTION_RESPONSE_VZ:
-	output.tag("ResponseType","Vz");
-	break;
+        output.tag("ResponseType","Vz");
+        break;
       case SECTION_RESPONSE_T:
-	output.tag("ResponseType","T");
-	break;
+        output.tag("ResponseType","T");
+        break;
       case SECTION_RESPONSE_FXX:
           output.tag("ResponseType", "Fxx");
           break;
@@ -333,7 +333,7 @@ SectionForceDeformation::setResponse(const char **argv, int argc,
           output.tag("ResponseType", "Vyz");
           break;
       default:
-	output.tag("ResponseType","Unknown");
+        output.tag("ResponseType","Unknown");
       }
     }
     
@@ -389,7 +389,7 @@ SectionForceDeformation::getResponse(int responseID, Information &secInfo)
 
 int 
 SectionForceDeformation::getResponseSensitivity(int responseID, int gradIndex,
-						Information &secInfo)
+                                                Information &secInfo)
 {
   Vector &theVec = *(secInfo.theVector);
 
@@ -434,7 +434,7 @@ SectionForceDeformation::getSectionTangentSensitivity(int gradIndex)
 {
   int order = this->getOrder();
   
-  if (fDefault == 0) {		
+  if (fDefault == 0) {                
     fDefault = new Matrix(order,order);
     if (fDefault == 0) {
       opserr << "SectionForceDeformation::getSectionTangentSensitivity -- failed to allocate matrix\n";
@@ -452,7 +452,7 @@ SectionForceDeformation::getInitialTangentSensitivity(int gradIndex)
 {
   int order = this->getOrder();
   
-  if (fDefault == 0) {		
+  if (fDefault == 0) {                
     fDefault = new Matrix(order,order);
     if (fDefault == 0) {
       opserr << "SectionForceDeformation::getInitialTangentSensitivity -- failed to allocate matrix\n";
@@ -470,7 +470,7 @@ SectionForceDeformation::getSectionFlexibilitySensitivity(int gradIndex)
 {
   int order = this->getOrder();
   
-  if (fDefault == 0) {		
+  if (fDefault == 0) {                
     fDefault = new Matrix(order,order);
     if (fDefault == 0) {
       opserr << "SectionForceDeformation::getSectionFlexibilitySensitivity -- failed to allocate matrix\n";
@@ -492,7 +492,7 @@ SectionForceDeformation::getInitialFlexibilitySensitivity(int gradIndex)
 {
   int order = this->getOrder();
   
-  if (fDefault == 0) {		
+  if (fDefault == 0) {                
     fDefault = new Matrix(order,order);
     if (fDefault == 0) {
       opserr << "SectionForceDeformation::getInitialFlexibilitySensitivity -- failed to allocate matrix\n";
@@ -517,7 +517,7 @@ SectionForceDeformation::getRhoSensitivity(int gradIndex)
 
 int
 SectionForceDeformation::commitSensitivity(const Vector& defSens,
-					   int gradIndex, int numGrads)
+                                           int gradIndex, int numGrads)
 {
   return -1;
 }

@@ -90,7 +90,7 @@ ArpackSOE::setSize(Graph &theGraph)
     while ((theVertex = theVertices()) != 0) {
       int vertexTag = theVertex->getTag();
       if (vertexTag > maxVertexTag)
-	maxVertexTag = vertexTag;
+        maxVertexTag = vertexTag;
     }
 
     if (processID != 0) {
@@ -118,17 +118,17 @@ ArpackSOE::setSize(Graph &theGraph)
       FEM_ObjectBroker theBroker;
 
       for (int j=0; j<numChannels; j++) {
-	Channel *theChannel = theChannels[j];
-	theChannel->recvID(0, 0, data);
-	if (data(0) > maxVertexTag)
-	  maxVertexTag = data(0);
+        Channel *theChannel = theChannels[j];
+        theChannel->recvID(0, 0, data);
+        if (data(0) > maxVertexTag)
+          maxVertexTag = data(0);
       }
       
       data(0) = maxVertexTag;
 
       for (int j=0; j<numChannels; j++) {
-	Channel *theChannel = theChannels[j];
-	theChannel->sendID(0, 0, data);
+        Channel *theChannel = theChannels[j];
+        theChannel->sendID(0, 0, data);
       }
       size = maxVertexTag;
     }
@@ -182,7 +182,7 @@ ArpackSOE::setSize(Graph &theGraph)
 int 
 ArpackSOE::addA(const Matrix &m, const ID &id, double fact)
 {
-  if (theSOE == 0) {
+  if (theSOE == nullptr) {
     opserr << "ArpackSOE::addA() - no SOE set\n";
     return -1;
   }
@@ -195,9 +195,9 @@ ArpackSOE::addA(const Matrix &m, const ID &id, double fact)
 
 
 void 
-ArpackSOE::zeroA(void)
+ArpackSOE::zeroA()
 {
-  if (theSOE == 0) {
+  if (theSOE == nullptr) {
     opserr << "ArpackSOE::zeroA() - no SOE set\n";
     return;
   }
@@ -207,7 +207,7 @@ ArpackSOE::zeroA(void)
 int 
 ArpackSOE::addM(const Matrix &m, const ID &id, double fact)
 {
-  if (theSOE == 0) {
+  if (theSOE == nullptr) {
     opserr << "ArpackSOE::addM() - no SOE set\n";
     return -1;
   }
@@ -225,17 +225,17 @@ ArpackSOE::addM(const Matrix &m, const ID &id, double fact)
     int locI = id(i);
     if (locI >= 0 && locI < Msize) {
       for (int j=0; j<idSize; j++) {
-	int locJ = id(j);
-	if (locJ >= 0 && locJ < Msize) {
-	  if (locI == locJ) {
-	    M[locI] += m(i,i);
-	  } else {
-	    if (m(i,j) != 0.0) {
-	      mDiagonal = false;
-	      return res;
-	    }
-	  }
-	}
+        int locJ = id(j);
+        if (locJ >= 0 && locJ < Msize) {
+          if (locI == locJ) {
+            M[locI] += m(i,i);
+          } else {
+            if (m(i,j) != 0.0) {
+              mDiagonal = false;
+              return res;
+            }
+          }
+        }
       }
     }
   }
@@ -283,8 +283,8 @@ ArpackSOE::sendSelf(int commitTag, Channel &theChannel)
     bool found = false;
     for (int i=0; i<numChannels; i++)
       if (theChannels[i] == &theChannel) {
-	sendID = i+1;
-	found = true;
+        sendID = i+1;
+        found = true;
       }
     
     // if new object, enlarge Channel pointers to hold new channel * & allocate new ID
@@ -292,34 +292,34 @@ ArpackSOE::sendSelf(int commitTag, Channel &theChannel)
       int nextNumChannels = numChannels + 1;
       Channel **nextChannels = new Channel *[nextNumChannels];
       if (nextNumChannels == 0) {
-	opserr << "ArpackSOE::sendSelf() - failed to allocate channel array of size: " << 
-	  nextNumChannels << endln;
-	return -1;
+        opserr << "ArpackSOE::sendSelf() - failed to allocate channel array of size: " << 
+          nextNumChannels << endln;
+        return -1;
       }
       for (int i=0; i<numChannels; i++)
-	nextChannels[i] = theChannels[i];
+        nextChannels[i] = theChannels[i];
       nextChannels[numChannels] = &theChannel;
       
       numChannels = nextNumChannels;
       
       if (theChannels != 0)
-	delete [] theChannels;
+        delete [] theChannels;
       
       theChannels = nextChannels;
       
       if (localCol != 0)
-	delete [] localCol;
+        delete [] localCol;
       localCol = new ID *[numChannels];
       if (localCol == 0) {
-	opserr << "ArpackSOE::sendSelf() - failed to allocate id array of size: " << 
-	  nextNumChannels << endln;
-	return -1;
+        opserr << "ArpackSOE::sendSelf() - failed to allocate id array of size: " << 
+          nextNumChannels << endln;
+        return -1;
       }
       for (int i=0; i<numChannels; i++)
-	localCol[i] = 0;    
+        localCol[i] = 0;    
       
       if (sizeLocal != 0)
-	delete sizeLocal;
+        delete sizeLocal;
       
       sizeLocal = new ID(numChannels);
       
@@ -345,14 +345,14 @@ ArpackSOE::sendSelf(int commitTag, Channel &theChannel)
     
 int 
 ArpackSOE::recvSelf(int commitTag, Channel &theChannel, 
-		 FEM_ObjectBroker &theBroker)
+                 FEM_ObjectBroker &theBroker)
 {
   ID idData(1);
   int res = theChannel.recvID(0, commitTag, idData);
   if (res < 0) {
     opserr <<"WARNING ArpackSOE::recvSelf() - failed to send data\n";
     return -1;
-  }	      
+  }              
   processID = idData(0);
 
   numChannels = 1;
@@ -388,39 +388,39 @@ ArpackSOE::setLinearSOE(LinearSOE &theLinearSOE)
 int
 ArpackSOE::checkSameInt(int value)
 {
-	if (processID == -1)
-		return 1;
+    if (processID == -1)
+        return 1;
 
-	static ID idData(1);
+    static ID idData(1);
+
     if (processID != 0) {
     
-		Channel *theChannel = theChannels[0];
-	    idData(0) = value;
-		theChannel->sendID(0, 0, idData);
-		theChannel->recvID(0, 0, idData);
-		if (idData(0) == 1)
-			return 1;
-		else
-			return 0;
-	} 
+            Channel *theChannel = theChannels[0];
+            idData(0) = value;
+            theChannel->sendID(0, 0, idData);
+            theChannel->recvID(0, 0, idData);
+            if (idData(0) == 1)
+                    return 1;
+            else
+                    return 0;
+    } 
+    else {
+      int ok = 1;
+      // receive B 
+      for (int j=0; j<numChannels; j++) {
+      // get X & add
+              Channel *theChannel = theChannels[j];
+              theChannel->recvID(0, 0, idData);
+              if (idData(0) != value)
+                      ok = 0;
+      }
 
-	else {
-        int ok = 1;
-		// receive B 
-		for (int j=0; j<numChannels; j++) {
-		// get X & add
-			Channel *theChannel = theChannels[j];
-			theChannel->recvID(0, 0, idData);
-			if (idData(0) != value)
-				ok = 0;
-		}
-
-		// send results back
-		idData(0) = ok;
-		for (int j=0; j<numChannels; j++) {
-			Channel *theChannel = theChannels[j];
-			theChannel->sendID(0, 0, idData);
-		}
-		return ok;
+      // send results back
+      idData(0) = ok;
+      for (int j=0; j<numChannels; j++) {
+              Channel *theChannel = theChannels[j];
+              theChannel->sendID(0, 0, idData);
+      }
+      return ok;
     }
 }

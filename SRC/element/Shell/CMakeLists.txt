@@ -19,16 +19,13 @@ target_sources(OPS_Element
       ShellMITC4.cpp
       ShellMITC4Thermal.cpp
       ShellMITC9.cpp
+#     IGAShellMITC9.cpp
       ShellNLDKGQ.cpp
       ShellNLDKGQThermal.cpp
       ShellNLDKGT.cpp
     PUBLIC
       ASDShellQ4.h
       ASDShellT3.h
-
-      ASDShellT3CorotationalTransformation.h
-      ASDShellT3LocalCoordinateSystem.h
-      ASDShellT3Transformation.h
 
       ShellANDeS.h
       ShellDKGQ.h

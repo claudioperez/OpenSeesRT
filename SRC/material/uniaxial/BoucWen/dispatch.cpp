@@ -1,6 +1,6 @@
 #include <tcl.h>
-#include <G3_Char.h>
-#include <OPS_ErrorStream.h>
+#include <Parsing.h>
+#include <Logging.h>
 #include <BasicModelBuilder.h>
 #include "BoucWenMaterial.h"
 

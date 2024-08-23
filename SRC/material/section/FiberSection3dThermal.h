@@ -31,7 +31,7 @@
 #ifndef FiberSection3dThermal_h
 #define FiberSection3dThermal_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
 
@@ -39,7 +39,7 @@ class UniaxialMaterial;
 class Fiber;
 class Response;
 
-class FiberSection3dThermal : public SectionForceDeformation
+class FiberSection3dThermal : public FrameSection
 {
   public:
     FiberSection3dThermal();
@@ -61,7 +61,7 @@ class FiberSection3dThermal : public SectionForceDeformation
     int   revertToLastCommit(void);
     int   revertToStart(void);
 
-    SectionForceDeformation *getCopy(void);
+    FrameSection *getFrameCopy();
     const ID &getType();
     int getOrder (void) const;
 

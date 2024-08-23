@@ -45,8 +45,8 @@ lib:
 #	 -lpetscsnes -lpetscksp -lpetscdm -lpetscmat -lpetscvec -lpetsc 
 
 
-test:    main.o $(OBJS)
-	$(LINKER) $(LINKFLAGS) $(OBJS) main.o  $(MATRIX_LIBS) $(ERROR_LIBS) $(GRAPH_LIBS)\
+test:  main.o $(OBJS)
+	$(LINKER) $(LINKFLAGS) $(OBJS) main.o  $(MATRIX_LIBS) $(ERROR_LIBS) $(GRAPH_LIBS) \
         $(SysOfEqn_LIBS) $(MACHINE_NUMERICAL_LIBS)  -o $(PROGRAM)
 
 ERROR_LIBS = $(FE)/handler/StandardStream.o \

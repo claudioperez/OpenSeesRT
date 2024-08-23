@@ -17,14 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision$
-// $Date$
-// $URL$
-                                                                        
-#ifndef CentralDifferenceAlternative_h
-#define CentralDifferenceAlternative_h
-
+//
 // Written: fmk 
 // Created: 11/98
 // Revision: A
@@ -34,6 +27,10 @@
 // analysis using the alternative form of the Central Differenceintegration scheme, 
 // which is an explicit direct integration scheme as outlined in the book 'Concepts
 // and Applications of Finite Element Analysis' by Cook, Malkus & Plesha.
+//
+#ifndef CentralDifferenceAlternative_h
+#define CentralDifferenceAlternative_h
+
 
 #include <TransientIntegrator.h>
 
@@ -52,13 +49,13 @@ class CentralDifferenceAlternative : public TransientIntegrator
     int formEleTangent(FE_Element *theEle);
     int formNodTangent(DOF_Group *theDof);        
 
-    int domainChanged(void);    
+    int domainChanged();    
     int newStep(double deltaT);    
     int update(const Vector &deltaU);
 
-    int commit(void);
+    int commit();
 
-    const Vector &getVel(void);
+    const Vector &getVel();
     
     virtual int sendSelf(int commitTag, Channel &theChannel);
     virtual int recvSelf(int commitTag, Channel &theChannel, 
@@ -71,7 +68,7 @@ class CentralDifferenceAlternative : public TransientIntegrator
   private:
     int updateCount;    // method should only have one update per step
     Vector *Ut, *Utp1;  // disp response quantities at time t and t + deltaT
-    Vector *Udot;      // vel response quantity at time t-1/2 delta t
+    Vector *Udot;       // vel response quantity at time t-1/2 delta t
     double deltaT;
 };
 

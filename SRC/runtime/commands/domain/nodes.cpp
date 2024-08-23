@@ -1,15 +1,21 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file implements commands for interacting with nodes
 // in the domain.
 //
+// All commands assume a Domain* is passed as clientData.
+//
 #include <math.h>
 #include <assert.h>
+#include <set>
+#include <vector>
+#include <algorithm>
 #include <tcl.h>
-#include <OPS_Globals.h>
+#include <Logging.h>
 #include <ID.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -18,10 +24,13 @@
 #include <Node.h>
 #include <NodeIter.h>
 #include <Pressure_Constraint.h>
+#include <MP_Constraint.h>
+#include <MP_ConstraintIter.h>
 
 // TODO(cmp): Remove global vars
 static char *resDataPtr  = nullptr;
 static int   resDataSize = 0;
+
 
 int
 getNodeTags(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -68,7 +77,7 @@ findID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     DOF_Group *theGroup = theNode->getDOF_GroupPtr();
     if (theGroup != nullptr) {
       const ID &nodeID = theGroup->getID();
-      for (int i = 0; i < nodeID.Size(); i++) {
+      for (int i = 0; i < nodeID.Size(); ++i) {
         if (nodeID(i) == tag) {
           sprintf(buffer, "%d ", theNode->getTag());
           Tcl_AppendResult(interp, buffer, NULL);
@@ -121,6 +130,9 @@ setNodeCoord(ClientData clientData, Tcl_Interp *interp, int argc,
     // TODO: add error message
     return TCL_ERROR;
   }
+
+  //
+  // TODO: Check dimensions
 
   Vector coords(theNode->getCrds());
   coords(dim - 1) = value;
@@ -176,7 +188,7 @@ nodeDisp(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
 
   } else {
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", (*nodalResponse)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -267,7 +279,7 @@ nodeBounds(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
     resDataSize = requiredDataSize;
   }
 
-  for (int i = 0; i < requiredDataSize; i++)
+  for (int i = 0; i < requiredDataSize; ++i)
     resDataPtr[i] = '\n';
 
   const Vector &bounds = the_domain->getPhysicalBounds();
@@ -332,7 +344,7 @@ nodeVel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
   } else {
 
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", (*nodalResponse)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -458,7 +470,6 @@ setNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 
-
 int
 setNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char ** const argv)
@@ -562,7 +573,7 @@ nodeAccel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const
 
   } else {
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", (*nodalResponse)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -620,7 +631,7 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
 
   } else {
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", (*nodalResponse)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -735,7 +746,7 @@ nodeEigenvector(ClientData clientData, Tcl_Interp *interp, int argc,
   } else {
 
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       double value = theEigenvectors(i, eigenvector);
       sprintf(buffer, "%35.20f", value);
       Tcl_AppendResult(interp, buffer, NULL);
@@ -820,10 +831,160 @@ nodeReaction(ClientData clientData, Tcl_Interp *interp, int argc,
 
   } else {
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", (*nodalResponse)(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
+  }
+
+  return TCL_OK;
+}
+
+int
+nodeCoord(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  if (argc < 2) {
+    opserr << G3_ERROR_PROMPT << "want - nodeCoord nodeTag? <dim?>\n";
+    return TCL_ERROR;
+  }
+
+  int tag;
+
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "nodeCoord nodeTag? dim? - could not read nodeTag? \n";
+    return TCL_ERROR;
+  }
+
+  int dim = -1;
+
+  if (argc > 2) {
+    if (strcmp(argv[2], "X") == 0 || strcmp(argv[2], "x") == 0 ||
+        strcmp(argv[2], "1") == 0)
+      dim = 0;
+    else if (strcmp(argv[2], "Y") == 0 || strcmp(argv[2], "y") == 0 ||
+             strcmp(argv[2], "2") == 0)
+      dim = 1;
+    else if (strcmp(argv[2], "Z") == 0 || strcmp(argv[2], "z") == 0 ||
+             strcmp(argv[2], "3") == 0)
+      dim = 2;
+    else {
+      opserr << G3_ERROR_PROMPT << "" << "nodeCoord nodeTag? dim? - could not read dim? \n";
+      return TCL_ERROR;
+    }
+  }
+
+  Node *theNode = the_domain->getNode(tag);
+
+  if (theNode == nullptr) {
+    opserr << G3_ERROR_PROMPT << "Unable to retrieve node with tag '" << tag << "'\n";
+    return TCL_ERROR;
+  }
+
+  const Vector &coords = theNode->getCrds();
+
+  char buffer[40];
+  int size = coords.Size();
+  if (dim == -1) {
+    for (int i = 0; i < size; ++i) {
+      sprintf(buffer, "%35.20f", coords(i));
+      Tcl_AppendResult(interp, buffer, NULL);
+    }
+    return TCL_OK;
+
+  } else if (dim < size) {
+    double value = coords(dim);
+    Tcl_SetObjResult(interp, Tcl_NewDoubleObj(value));
+    return TCL_OK;
+  }
+
+  return TCL_ERROR;
+}
+
+int
+retainedNodes(ClientData clientData, Tcl_Interp *interp, int argc,
+              TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  Domain *domain = (Domain*)clientData;
+  bool all = 1;
+  int cNode;
+  if (argc > 1) {
+    if (Tcl_GetInt(interp, argv[1], &cNode) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "retainedNodes <cNode?> - could not read cNode? \n";
+      return TCL_ERROR;
+    }
+    all = 0;
+  }
+
+  MP_Constraint *theMP;
+  MP_ConstraintIter &mpIter = domain->getMPs();
+
+  // get unique constrained nodes with set
+  std::set<int> tags;
+  int tag;
+  while ((theMP = mpIter()) != nullptr) {
+    tag = theMP->getNodeRetained();
+    if (all || cNode == theMP->getNodeConstrained()) {
+      tags.insert(tag);
+    }
+  }
+
+  // assign set to vector and sort
+  std::vector<int> tagv;
+  tagv.assign(tags.begin(), tags.end());
+  std::sort(tagv.begin(), tagv.end());
+
+  // loop through unique, sorted tags, adding to output
+  char buffer[20];
+  for (int tag : tagv) {
+    sprintf(buffer, "%d ", tag);
+    Tcl_AppendResult(interp, buffer, NULL);
+  }
+
+  return TCL_OK;
+}
+
+
+
+int
+nodeDOFs(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  if (argc != 2) {
+    opserr << G3_ERROR_PROMPT << "expected - nodeDOFs nodeTag?\n";
+    return TCL_ERROR;
+  }
+
+  int tag;
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT << "nodeDOFs nodeTag?\n";
+    return TCL_ERROR;
+  }
+
+
+  Node *theNode = the_domain->getNode(tag);
+  if (theNode == nullptr) {
+    opserr << G3_ERROR_PROMPT << "nodeDOFs node " << tag << " not found" << endln;
+    return TCL_ERROR;
+  }
+
+  int numDOF = theNode->getNumberDOF();
+  DOF_Group *theDOFgroup = theNode->getDOF_GroupPtr();
+  if (theDOFgroup == nullptr) {
+    opserr << G3_ERROR_PROMPT << "nodeDOFs DOF group null" << endln;
+    return -1;
+  }
+
+  char buffer[40];
+  const ID &eqnNumbers = theDOFgroup->getID();
+  for (int i = 0; i < numDOF; ++i) {
+    sprintf(buffer, "%d ", eqnNumbers(i));
+    Tcl_AppendResult(interp, buffer, NULL);
   }
 
   return TCL_OK;

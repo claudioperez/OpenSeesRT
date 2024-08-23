@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the function invoked when the user invokes
 // the uniaxialMaterial command in the interpreter.
@@ -12,7 +13,7 @@
 
 #include <G3_Logging.h>
 #include <iostream>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 #include "uniaxial.hpp"
 #include <packages.h>
 
@@ -70,7 +71,7 @@ static UniaxialPackageCommand *theUniaxialPackageCommands = NULL;
 
 static void printCommand(int argc, TCL_Char ** const argv) {
   opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
+  for (int i = 0; i < argc; ++i)
     opserr << argv[i] << " ";
   opserr << "\n";
 }
@@ -114,16 +115,16 @@ TclCommand_addUniaxialMaterial(ClientData clientData, Tcl_Interp *interp,
   UniaxialMaterial *theMaterial = nullptr;
 
   auto tcl_cmd = uniaxial_dispatch.find(std::string(argv[1]));
-  if (tcl_cmd != uniaxial_dispatch.end()) {
+  if (tcl_cmd != uniaxial_dispatch.end())
     return (*tcl_cmd->second)(clientData, interp, argc, &argv[0]);
-  }
+
 
   if (theMaterial == nullptr) {
     char *mat_name;
     if ((mat_name = strstr((char *)argv[1], "::"))) {
       // TODO: clean this up!!!!!!!!!!!!!!
       char **new_argv = new char*[argc];
-      for (int i=0; i<argc; i++)
+      for (int i=0; i<argc; ++i)
         new_argv[i] = (char*)argv[i];
       new_argv[1] = mat_name+2;
       char pack_name[40];
@@ -953,6 +954,66 @@ TclDispatch_LegacyUniaxials(ClientData clientData, Tcl_Interp* interp, int argc,
 
   return TCL_OK;
 }
+
+#include <UniaxialJ2Plasticity.h>
+static int
+TclCommand_newUniaxialJ2Plasticity(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const argv)
+{
+  // ----- 1D J2 Plasticity ----
+    if (argc < 7) {
+      opserr << "WARNING invalid number of arguments\n";
+      printCommand(argc, argv);
+      opserr << "Want: uniaxialMaterial UniaxialJ2Plasticity tag? E? sigmaY? "
+                "Hkin? <Hiso?>"
+             << endln;
+      return TCL_ERROR;
+    }
+
+    int tag;
+    double E, sigmaY, Hkin, Hiso;
+    Hiso = 0.0;
+
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+      opserr << "WARNING invalid uniaxialMaterial UniaxialJ2Plasticity tag"
+             << endln;
+      return TCL_ERROR;
+    }
+
+    if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
+      opserr << "WARNING invalid E\n";
+      opserr << "uniaxiaMaterial UniaxialJ2Plasticity: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    if (Tcl_GetDouble(interp, argv[4], &sigmaY) != TCL_OK) {
+      opserr << "WARNING invalid sigmaY\n";
+      opserr << "uniaxiaMaterial UniaxialJ2Plasticity: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    if (Tcl_GetDouble(interp, argv[5], &Hkin) != TCL_OK) {
+      opserr << "WARNING invalid Hkin\n";
+      opserr << "uniaxiaMaterial SmoothPSConcrete: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    if (argc >= 7)
+      if (Tcl_GetDouble(interp, argv[6], &Hiso) != TCL_OK) {
+        opserr << "WARNING invalid Hiso\n";
+        opserr << "uniaxialMaterial UniaxialJ2Plasticity: " << tag << endln;
+        return TCL_ERROR;
+      }
+
+    // Parsing was successful, allocate the material
+    UniaxialMaterial* theMaterial = new UniaxialJ2Plasticity(tag, E, sigmaY, Hkin, Hiso);
+
+   assert(clientData != nullptr);
+   BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
+   builder->addTaggedObject<UniaxialMaterial>(*theMaterial);
+   return TCL_OK;
+
+}
+
 
 #include <Pinching4Material.h>       // NM
 static int

@@ -54,19 +54,22 @@ template <typename T> static int sgn(T val) {
 }
 
 ArcLength::ArcLength(double arcLength, double alpha,
-                     double numIter, double expon_, bool use_det_)
+                     double numIter, double expon_, bool use_det_,
+                     ReferencePattern reference_type_)
 :StaticIntegrator(INTEGRATOR_TAGS_ArcLength),
  arcLength(arcLength),
  alpha2(alpha*alpha),
  expon(expon_),
  use_det(use_det_),
+ reference_type(reference_type_),
  numLastIter(numIter),
  numSpecIter(numIter),
  deltaUhat(0), deltaUbar(0), deltaU(0), deltaUstep(0),deltaUstep2(0),dDeltaUstepdh(0), 
  phat(0), 
  deltaLambdaStep(0.0),
  dDeltaLambdaStepdh(0.0), currentLambda(0.0), dLAMBDA(0.0),dLAMBDA2(0.0),dlambda1dh(0.0),dLAMBDAdh(0),Residual(0),sensU(0),sensitivityFlag(0),
- signLastDeltaLambdaStep(1), signLastDeterminant(1), dUhatdh(0),dphatdh(0),dUIJdh(0),dlambdaJdh(0.0),gradNumber(0), 
+ signLastDeltaLambdaStep(1), signLastDeterminant(1), 
+ dUhatdh(0),dphatdh(0),dUIJdh(0),dlambdaJdh(0.0),gradNumber(0), 
  a(0.0),b(0.0),c(0.0),b24ac(0.0)
 {
 
@@ -76,17 +79,17 @@ ArcLength::~ArcLength()
 {
     // delete any vector object created
     if (deltaUhat != 0)
-	delete deltaUhat;
+       delete deltaUhat;
     if (deltaU != 0)
-	delete deltaU;
+       delete deltaU;
     if (deltaUstep != 0)
-	delete deltaUstep;
+       delete deltaUstep;
     if (deltaUstep2 !=0)
        delete deltaUstep2;
     if (deltaUbar != 0)
-	delete deltaUbar;
+       delete deltaUbar;
     if (phat != 0)
-	delete phat;
+       delete phat;
     if(dUhatdh !=0)
        delete dUhatdh;
     if(dphatdh !=0)
@@ -117,7 +120,7 @@ ArcLength::newStep()
     //
     // Determine sign of increment
     //
-    int signStep = 1;
+    double signStep = 1;
 
     if (deltaLambdaStep < 0)
         signStep = -1;
@@ -145,9 +148,9 @@ ArcLength::newStep()
     Vector &dUhat = *deltaUhat;
     
     // determine delta lambda(1) == dlambda
-    arcLength    *= std::pow(numSpecIter/numLastIter, expon);
-    double dLambda = arcLength/std::sqrt(((dUhat^dUhat)+alpha2));
-    dLambda *= signStep; // base sign of load change
+    arcLength     *= std::pow(numSpecIter/numLastIter, expon);
+    double dLambda = std::sqrt((arcLength*arcLength)/((dUhat^dUhat) + alpha2));
+    dLambda *= signStep; // base sign of load change on what was happening last step
 
     deltaLambdaStep = dLambda;
     dLAMBDA         = dLambda;
@@ -173,24 +176,24 @@ ArcLength::newStep()
       // int numGrads = theDomain->getNumParameters();
 
       while ((theParam = paramIter()) != nullptr)
-	 theParam->activate(false);
+        theParam->activate(false);
 
       paramIter = theDomain->getParameters();
       while ((theParam = paramIter()) != nullptr) {
-	 // Activate this parameter
-	 theParam->activate(true);
-	 // Get the grad index for this parameter
-	 gradNumber = theParam->getGradIndex();
+        // Activate this parameter
+        theParam->activate(true);
+        // Get the grad index for this parameter
+        gradNumber = theParam->getGradIndex();
 
-	 this->formTangDispSensitivity(gradNumber);
+        this->formTangDispSensitivity(gradNumber);
 
-	 this->formdLambdaDh(gradNumber);
+        this->formdLambdaDh(gradNumber);
 
-	 dDeltaUstepdh->addVector(0.0,*dUhatdh,dLambda);
-	 dDeltaUstepdh->addVector(1.0,*deltaUhat,dlambda1dh);
-	 dDeltaLambdaStepdh =dlambda1dh; 
-	 theParam->activate(false);
-      } 
+        dDeltaUstepdh->addVector(0.0,*dUhatdh,dLambda);
+        dDeltaUstepdh->addVector(1.0,*deltaUhat,dlambda1dh);
+        dDeltaLambdaStepdh =dlambda1dh; 
+        theParam->activate(false);
+      }
    }
    ///////////////Abbas/////////////////////////////
 
@@ -239,7 +242,7 @@ ArcLength::update(const Vector &dU)
     opserr << "ArcLength::update() - zero denominator";
     opserr << " alpha was set to 0.0 and zero reference load\n";
     return -2;
-  }			       
+  }
 
   // determine the roots of the quadratic
   double sqrtb24ac = sqrt(b24ac);
@@ -247,7 +250,7 @@ ArcLength::update(const Vector &dU)
   double dlambda2 = (-b - sqrtb24ac)/a2;
 
   double val    =  (*deltaUhat)^(*deltaUstep);
-  double theta1 = ((*deltaUstep)^(*deltaUstep)) 
+  double theta1 = ((*deltaUstep)^(*deltaUstep))
                 + ((*deltaUbar)^(*deltaUstep))
                 + dlambda1*val;
 
@@ -266,16 +269,16 @@ ArcLength::update(const Vector &dU)
   deltaU->addVector(1.0, *deltaUhat,dLambda);
   
   // update dU and dlambda
-  (*deltaUstep) += *deltaU;
+  (*deltaUstep)   += *deltaU;
   deltaLambdaStep += dLambda;
-  currentLambda += dLambda;
+  currentLambda   += dLambda;
 
   // update the model
   theModel->incrDisp(*deltaU);    
   theModel->applyLoadDomain(currentLambda);
 
   theModel->updateDomain();
-  
+
   // set the X soln in linearSOE to be deltaU for convergence Test
   theLinSOE->setX(*deltaU);
   return 0;
@@ -370,13 +373,38 @@ ArcLength::domainChanged()
   //
   // need to save currentLambda because calling
   // applyLoadDomain will change it (in the domain)
-  currentLambda = theModel->getCurrentDomainTime();
-  theModel->applyLoadDomain(1.0);
-  theLinSOE->zeroB();
-  this->formNodalUnbalance();
-  (*phat) = theLinSOE->getB();
-  theModel->setCurrentDomainTime(currentLambda);    
-  
+  if (false) {
+    // Original
+    currentLambda = theModel->getCurrentDomainTime();
+    opserr << currentLambda << "\n";
+    currentLambda += 1.0;
+    theModel->applyLoadDomain(currentLambda);    
+    this->formUnbalance(); // NOTE: this assumes unbalance at last was 0
+    (*phat) = theLinSOE->getB();
+    currentLambda -= 1.0;
+    theModel->setCurrentDomainTime(currentLambda);    
+
+  } else {
+    currentLambda = theModel->getCurrentDomainTime();
+    theModel->applyLoadDomain(1.0);
+
+    switch (reference_type) {
+    case ReferencePattern::Point:
+      theLinSOE->zeroB();
+      this->formNodalUnbalance();
+      break;
+    case ReferencePattern::Body:
+      theLinSOE->zeroB();
+      this->formElementResidual();
+      break;
+    case ReferencePattern::Full:
+      this->formUnbalance();
+      break;
+    }
+    (*phat) = theLinSOE->getB();
+    theModel->setCurrentDomainTime(currentLambda);    
+  }
+
 
   // check there is a reference load
   bool haveLoad = false;
@@ -415,7 +443,7 @@ ArcLength::sendSelf(int cTag, Channel &theChannel)
 
 int
 ArcLength::recvSelf(int cTag,
-		    Channel &theChannel, FEM_ObjectBroker &theBroker)
+                    Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
 
   Vector data(5);
@@ -436,14 +464,14 @@ ArcLength::recvSelf(int cTag,
 void
 ArcLength::Print(OPS_Stream &s, int flag)
 {
-    AnalysisModel *theModel = this->getAnalysisModel();
-    if (theModel != nullptr) {
-	double cLambda = theModel->getCurrentDomainTime();
-	s << "\t ArcLength - currentLambda: " << cLambda;
-	s << "  arcLength: " << arcLength <<  "  alpha: ";
-	s << sqrt(alpha2) << endln;
-    } else 
-	s << "\t ArcLength - no associated AnalysisModel\n";
+  AnalysisModel *theModel = this->getAnalysisModel();
+  if (theModel != nullptr) {
+    double cLambda = theModel->getCurrentDomainTime();
+    s << "\t ArcLength - currentLambda: " << cLambda;
+    s << "  arcLength: " << arcLength <<  "  alpha: ";
+    s << sqrt(alpha2) << endln;
+  } else 
+    s << "\t ArcLength - no associated AnalysisModel\n";
 }
 
 
@@ -455,6 +483,7 @@ ArcLength::formTangDispSensitivity(int gradNumber)
 {
    AnalysisModel *theModel=this->getAnalysisModel();
    LinearSOE *theLinSOE = this->getLinearSOE(); 
+
    // To get the structural stiffness Matrix
 
    dphatdh->Zero();

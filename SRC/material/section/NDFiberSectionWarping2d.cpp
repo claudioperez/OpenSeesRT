@@ -37,7 +37,7 @@
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
 #include <SensitiveResponse.h>
-typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
+typedef SensitiveResponse<FrameSection> SectionResponse;
 #include <NDMaterial.h>
 #include <Parameter.h>
 #include <elementAPI.h>
@@ -76,7 +76,7 @@ void* OPS_NDFiberSectionWarping2d()
 }
 
 NDFiberSectionWarping2d::NDFiberSectionWarping2d(int tag, int num, double a): 
-    SectionForceDeformation(tag, SEC_TAG_NDFiberSectionWarping2d),
+    FrameSection(tag, SEC_TAG_NDFiberSectionWarping2d),
     numFibers(0), sizeFibers(num), theMaterials(0), matData(0),
     yBar(0.0), alpha(a), yBarZero(0.0), DeltaYbar(0.0),
     e(5), eCommit(5), s(0), ks(0), parameterID(0), dedh(5)
@@ -124,7 +124,7 @@ NDFiberSectionWarping2d::NDFiberSectionWarping2d(int tag, int num, double a):
 
 // constructor for blank object that recvSelf needs to be invoked upon
 NDFiberSectionWarping2d::NDFiberSectionWarping2d():
-SectionForceDeformation(0, SEC_TAG_NDFiberSectionWarping2d),
+FrameSection(0, SEC_TAG_NDFiberSectionWarping2d),
     numFibers(0), theMaterials(0), matData(0), yBar(0.0), alpha(6.0/6),
     e(5), eCommit(5), s(0), ks(0), parameterID(0), dedh(5), yBarZero(0.0)
 {
@@ -569,8 +569,8 @@ NDFiberSectionWarping2d::getStressResultant(void)
     return *s;
 }
 
-SectionForceDeformation*
-NDFiberSectionWarping2d::getCopy(void)
+FrameSection*
+NDFiberSectionWarping2d::getFrameCopy(void)
 {
     NDFiberSectionWarping2d *theCopy = new NDFiberSectionWarping2d ();
     theCopy->setTag(this->getTag());
@@ -588,7 +588,7 @@ NDFiberSectionWarping2d::getCopy(void)
             theCopy->theMaterials[i] = theMaterials[i]->getCopy("BeamFiber2d");
 
             if (theCopy->theMaterials[i] == nullptr) {
-                opserr <<"NDFiberSectionWarping2d::getCopy -- failed to get copy of a Material";
+                opserr <<"NDFiberSectionWarping2d::getFrameCopy -- failed to get copy of a Material";
                 delete theCopy;
                 return nullptr;
             }
@@ -1238,7 +1238,7 @@ NDFiberSectionWarping2d::setResponse(const char **argv, int argc,
     }
 
     if (theResponse == 0)
-      return SectionForceDeformation::setResponse(argv, argc, output);
+      return FrameSection::setResponse(argv, argc, output);
 
     return theResponse;
 }
@@ -1249,7 +1249,7 @@ NDFiberSectionWarping2d::getResponse(int responseID, Information &sectInfo)
 {
     // Just call the base class method ... don't need to define
     // this function, but keeping it here just for clarity
-    return SectionForceDeformation::getResponse(responseID, sectInfo);
+    return FrameSection::getResponse(responseID, sectInfo);
 }
 
 

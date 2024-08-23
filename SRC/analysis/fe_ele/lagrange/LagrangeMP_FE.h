@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2006-02-08 20:20:00 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/fe_ele/lagrange/LagrangeMP_FE.h,v $
-                                                                        
-                                                                        
+//
 // File: ~/analysis/fe_ele/lagrange/LagrangeMP_FE.h
 // 
 // Written: fmk 
@@ -60,9 +55,12 @@ class LagrangeMP_FE: public FE_Element
     virtual ~LagrangeMP_FE();    
 
     // public methods
-    virtual int  setID(void);
+    virtual int  setID() final;
     virtual const Matrix &getTangent(Integrator *theIntegrator);    
-    virtual const Vector &getResidual(Integrator *theIntegrator);    
+    virtual const Vector &getResidual(Integrator *theIntegrator) final;    
+//  virtual const Vector &getResidual(StaticIntegrator &theIntegrator) final {
+//      return this->getResidual(static_cast<Integrator*>(&theIntegrator));
+//  };
     virtual const Vector &getTangForce(const Vector &x, double fact = 1.0);
 
     virtual const Vector &getK_Force(const Vector &x, double fact = 1.0);

@@ -35,7 +35,7 @@
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
 #include <SensitiveResponse.h>
-typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
+typedef SensitiveResponse<FrameSection> SectionResponse;
 #include <UniaxialMaterial.h>
 #include <math.h> //JZ
 #include <elementAPI.h>
@@ -64,7 +64,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FiberSection2dThermal)
 #if 0
 // constructors:
 FiberSection2dThermal::FiberSection2dThermal(int tag, int num, Fiber **fibers, bool compCentroid):
-  SectionForceDeformation(tag, SEC_TAG_FiberSection2dThermal),
+  FrameSection(tag, SEC_TAG_FiberSection2dThermal),
   numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
   QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(compCentroid),
   e(2), eCommit(2), s(0), ks(0),
@@ -141,7 +141,7 @@ FiberSection2dThermal::FiberSection2dThermal(int tag, int num, Fiber **fibers, b
 
 // allocate memory for fibers
 FiberSection2dThermal::FiberSection2dThermal(int tag, int num, bool compCentroid):
-  SectionForceDeformation(tag, SEC_TAG_FiberSection2dThermal),
+  FrameSection(tag, SEC_TAG_FiberSection2dThermal),
   numFibers(0), sizeFibers(num), theMaterials(0), matData(0),
   QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(compCentroid),
   e(2), eCommit(2), s(0), ks(0),
@@ -203,7 +203,7 @@ FiberSection2dThermal::FiberSection2dThermal(int tag, int num, bool compCentroid
 
 // constructor for blank object that recvSelf needs to be invoked upon
 FiberSection2dThermal::FiberSection2dThermal():
-  SectionForceDeformation(0, SEC_TAG_FiberSection2dThermal),
+  FrameSection(0, SEC_TAG_FiberSection2dThermal),
   numFibers(0), sizeFibers(0), theMaterials(0), matData(0),
   QzBar(0.0), ABar(0.0), yBar(0.0), computeCentroid(true),
   e(2), eCommit(2), s(0), ks(0),
@@ -582,8 +582,8 @@ FiberSection2dThermal::getThermalElong(void)
 
 
 
-SectionForceDeformation*
-FiberSection2dThermal::getCopy(void)
+FrameSection*
+FiberSection2dThermal::getFrameCopy(void)
 {
   FiberSection2dThermal *theCopy = new FiberSection2dThermal ();
   theCopy->setTag(this->getTag());
@@ -594,14 +594,14 @@ FiberSection2dThermal::getCopy(void)
     theCopy->theMaterials = new UniaxialMaterial *[numFibers];
 
     if (theCopy->theMaterials == 0) {
-      opserr <<"FiberSection2dThermal::getCopy -- failed to allocate Material pointers\n";
+      opserr <<"FiberSection2dThermal::getFrameCopy -- failed to allocate Material pointers\n";
       exit(-1);
     }
 
     theCopy->matData = new double [numFibers*2];
 
     if (theCopy->matData == 0) {
-      opserr << "FiberSection2dThermal::getCopy -- failed to allocate double array for material data\n";
+      opserr << "FiberSection2dThermal::getFrameCopy -- failed to allocate double array for material data\n";
       exit(-1);
     }
 
@@ -611,7 +611,7 @@ FiberSection2dThermal::getCopy(void)
       theCopy->theMaterials[i] = theMaterials[i]->getCopy();
 
       if (theCopy->theMaterials[i] == 0) {
-	opserr <<"FiberSection2dThermal::getCopy -- failed to get copy of a Material";
+	opserr <<"FiberSection2dThermal::getFrameCopy -- failed to get copy of a Material";
 	exit(-1);
       }
     }
@@ -619,7 +619,7 @@ FiberSection2dThermal::getCopy(void)
 	//theCopy->theTemperatures = theTemperatures->getCopy();
 
 //	if (theCopy->theTemperatures == 0) {
-//		opserr <<"FiberSection2dThermal::getCopy -- failed to get copy of the temperatures";
+//		opserr <<"FiberSection2dThermal::getFrameCopy -- failed to get copy of the temperatures";
 //		exit(-1);
 //	}
 
@@ -1036,7 +1036,7 @@ FiberSection2dThermal::setResponse(const char **argv, int argc,
   }
 
   if (theResponse == 0)
-    return SectionForceDeformation::setResponse(argv, argc, output);
+    return FrameSection::setResponse(argv, argc, output);
 
   return theResponse;
 }
@@ -1047,7 +1047,7 @@ FiberSection2dThermal::getResponse(int responseID, Information &sectInfo)
 {
   // Just call the base class method ... don't need to define
   // this function, but keeping it here just for clarity
-  return SectionForceDeformation::getResponse(responseID, sectInfo);
+  return FrameSection::getResponse(responseID, sectInfo);
 }
 
 

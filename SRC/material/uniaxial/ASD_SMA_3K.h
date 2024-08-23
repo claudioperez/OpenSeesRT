@@ -59,13 +59,13 @@ class ASD_SMA_3K : public UniaxialMaterial
     ASD_SMA_3K();
     ~ASD_SMA_3K();
 
-    const char *getClassType(void) const {return "ASD_SMA_3K";};
+    const char *getClassType(void) const {return "ASD_SMA_3K";}
 
     int setTrialStrain(double strain, double strainRate = 0.0); 
     double getStrain(void);          
     double getStress(void);
     double getTangent(void);
-    double getInitialTangent(void) {return k1;};
+    double getInitialTangent(void) {return k1;}
 
     int commitState(void);
     int revertToLastCommit(void);    
@@ -91,8 +91,6 @@ class ASD_SMA_3K : public UniaxialMaterial
     
     // Extra Calculated Material Parameters
     double ActDef;	// Actvation Strain/Deformation
-    
-    double diffStrain;		// Difference of strain from last step
     
     // Committed history variables
     double CactivStrainPos;	// Committed activation strain (Pos Quad)
@@ -132,14 +130,15 @@ class ASD_SMA_3K : public UniaxialMaterial
     double Cstress;		// Committed Strain
     double Ctangent;		// Committed Strain
 
-    // Intermediate Value
-    double X;
-    double Y;
+    int CNo_k2_Pos;
+    int CNo_k2_Neg;
+    int CNo_Y_Pos;
+    int CNo_Y_Neg;
 
     int No_k2_Pos;
     int No_k2_Neg;
     int No_Y_Pos;
-    int No_Y_Neg;
+    int No_Y_Neg;  
 
 };
 

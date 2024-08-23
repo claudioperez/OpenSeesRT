@@ -29,7 +29,7 @@
 #include <Channel.h>
 #include <Message.h>
 #include <Matrix.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 using std::cerr;
 using std::ios;

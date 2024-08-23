@@ -24,7 +24,7 @@
 #include "BeamGT.h"
 #include <elementAPI.h>
 #include <OPS_Globals.h>
-#include <Print.h>
+#include <TaggedObject.h>
 #include <Information.h>
 #include <Domain.h>
 #include <Node.h>

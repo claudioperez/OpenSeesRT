@@ -48,28 +48,43 @@ class Vector
     // constructors and destructor
     Vector();
     Vector(int);
-    Vector(const Vector &);    
-    template <int n> Vector(OpenSees::VectorND<n,double>& v)
-      : sz(v.size()), theData(v.values), fromFree(1)
-    {
-    }
+    Vector(const Vector &);
+    // Referencing constructors; these dont own the data
+    Vector(const Vector &, int start, int size);
     Vector(double *data, int size);
     Vector(std::shared_ptr<double[]>, int size);
 #if !defined(NO_CXX11_MOVE)
     Vector(Vector &&);    
 #endif
+    template <int n> Vector(OpenSees::VectorND<n,double>& v)
+      : sz(v.size()), theData(v.values), fromFree(1)
+    {
+    }
 
     ~Vector();
 
+    template <int n> operator OpenSees::VectorND<n,double>() const {
+      OpenSees::VectorND<n,double> ret;
+      ret = *this; 
+      return ret;
+    }
+
     // utility methods
     int setData(double *newData, int size);
+#if 1
+    template <int n>
+    inline int setData(OpenSees::VectorND<n, double> v) {
+      return setData(&v.values[0], n);
+    }
+#endif
+    Vector view(int start, int end) const;
     int Assemble(const Vector &V, const ID &l, double fact = 1.0);
-    double Norm(void) const;
+    double Norm() const;
     double pNorm(int p) const;
-    inline int Size(void) const;
+    inline int Size() const;
     int resize(int newSize);
-    inline void Zero(void);
-    int Normalize(void);
+    inline void Zero();
+    int Normalize();
     
     int addVector(const Vector &other, double factOther);
     int addVector(double factThis, const Vector &other, double factOther);
@@ -143,14 +158,14 @@ class Vector
 
 /********* INLINED VECTOR FUNCTIONS ***********/
 inline int 
-Vector::Size(void) const 
+Vector::Size() const 
 {
   return sz;
 }
 
 
 inline void
-Vector::Zero(void){
+Vector::Zero() {
   for (int i=0; i<sz; i++)
     theData[i] = 0.0;
 }
@@ -178,7 +193,6 @@ Vector::operator()(int x)
   assert(x >= 0 && x < sz);
   return theData[x];
 }
-
 
 #endif
 

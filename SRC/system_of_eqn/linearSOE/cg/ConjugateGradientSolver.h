@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:29 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/cg/ConjugateGradientSolver.h,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/ConjugateGradientSolver.h
 //
 // Written: fmk 
 // Created: 06/00

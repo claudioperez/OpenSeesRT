@@ -134,7 +134,7 @@ Es = Steel's Elastic modulus, vo = Poisson's coefficient for concrete, k = reduc
 	 double v0_, 
 	 double k_,
 	 double useBuck_)
- :UniaxialMaterial(tag, MAT_TAG_FRPConfinedConcrete),fpc1(fpc1), fpc2(fpc2), epsc0(epsc0), CminStrain(0.0), CendStrain(0.0),Cstrain(0.0), Cstress(0.0), CaLatstress(0.0) ,
+ :UniaxialMaterial(tag, MAT_TAG_FRPConfinedConcrete),CminStrain(0.0), CendStrain(0.0),Cstrain(0.0), Cstress(0.0), CaLatstress(0.0) ,
    CbLatstress(0.00001),CLatStrain(0.0) ,CConvFlag(false) ,CConfRat(1.0) ,CConfStrain(epsc0),CLBuck(0.0)
 {
   fpc1 = fpc1_;
@@ -213,7 +213,8 @@ FRPConfinedConcrete::FRPConfinedConcrete():UniaxialMaterial(0, MAT_TAG_FRPConfin
 
 FRPConfinedConcrete::~FRPConfinedConcrete()
 {
-  // Does nothing - It's a destructor
+  if (SHVs != 0)
+	  delete SHVs;
 }
 
 double FRPConfinedConcrete::getInitialTangent( ) {return Ec;}
@@ -663,7 +664,7 @@ FRPConfinedConcrete::flat (double flcover_n, double arrayLat[6] )
 
   //Spoelstra&Monti iteration
   flcore=flcover_n+fls_n;
-  //Verical Stresses
+  //Vertical Stresses
   fcc_core=fpc1*(2.254*sqrt(1+7.94*(flcore/fpc1))-2*(flcore/fpc1)-1.254); 
   ecc_core=epsc0*(1+5*(fcc_core/fpc1-1));
   x_core = Tstrain /ecc_core;
@@ -990,6 +991,8 @@ int FRPConfinedConcrete::recvSelf (int commitTag, Channel& theChannel,
 
 void FRPConfinedConcrete::Print (OPS_Stream& s, int flag)
 {
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+  } else {
    s << "  FRPConfinedConcrete: Constitutive (FEM) Model for FRP and Tie - Confined Concrete for Circular Concrete Sections, tag: " << this->getTag() << endln;
    s << "  Compressive Strength of Concrete Core: "  << fpc1 << endln;
    s << "  Compressive Strength of Concrete Cover: " << fpc2 << endln;
@@ -1005,10 +1008,11 @@ void FRPConfinedConcrete::Print (OPS_Stream& s, int flag)
    s << "  Yielding Strength of Stirrups: " << fyh << endln;
    s << "  Diameter of Longitudinal Bars: " << dlong << endln;
    s << "  Diameter of Stirrups " << dtrans << endln;
-   s << "  Poisson's Coeffcient for Concrete" << v0 << endln;
+   s << "  Poisson's Coefficient for Concrete" << v0 << endln;
    s << "  Elastic Modulus for Steel " << Es << endln;
    s << "  Reduction Factor for FRP Ultimate Strain (0.5-0.8) " << k << endln;
    s << "  FRP Jacket Failure Criterion due to Buckling of Longitudinal Compressive Steel Bars (0 = not include it, 1= to include it) " << useBuck << endln;
+  }
 }
 
 // AddingSensitivity:BEGIN ///////////////////////////////////

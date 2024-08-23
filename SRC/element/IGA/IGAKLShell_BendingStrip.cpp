@@ -43,15 +43,16 @@
 #include <Domain.h>
 #include <ErrorHandler.h>
 #include <IGAKLShell_BendingStrip.h>
-#include <R3vectors.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <elementAPI.h>
+
+#include <quadrature/GaussNURBS.h>
 #include <map>
+#include <set>
 
 #define min(a,b) ( (a)<(b) ? (a):(b) )
 #define max(a,b) ( (a)>(b) ? (a):(b) )
@@ -60,11 +61,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#include <quadrature/GaussNURBS.h>
-#include "R3vectors.h"
 
-#include <set>
-using namespace std;
 template<typename T>
 std::vector<T> arange(T start, T stop, T step = 1) {
   std::vector<T> values;
@@ -77,10 +74,10 @@ static int numIGAKLShell_BendingStrip = 0;
 
 
 //static data
-Matrix*  IGAKLShell_BendingStrip::stiff = 0;
-Matrix*  IGAKLShell_BendingStrip::mass = 0;
-Vector*  IGAKLShell_BendingStrip::resid = 0;
-// Vector*  IGAKLShell_BendingStrip::load = 0;
+Matrix*  IGAKLShell_BendingStrip::stiff = nullptr;
+Matrix*  IGAKLShell_BendingStrip::mass = nullptr;
+Vector*  IGAKLShell_BendingStrip::resid = nullptr;
+// Vector*  IGAKLShell_BendingStrip::load = nullptr;
 
 
 
@@ -122,7 +119,7 @@ IGAKLShell_BendingStrip::IGAKLShell_BendingStrip( int tag,
   quadPoint = new Matrix(ngauss, 2);
   quadWeight = new Vector(ngauss);
 
-  ID PQ = myPatch -> getOrders();
+  ID PQ = myPatch->getOrders();
   int P = PQ(0);
   int Q = PQ(1);
 
@@ -145,10 +142,8 @@ IGAKLShell_BendingStrip::IGAKLShell_BendingStrip( int tag,
   }
 
 
-  for (int gp = 0 ;  gp < ngauss; gp++ )
-  {
-    for (int capa = 0; capa < nLayers; capa++)
-    {
+  for (int gp = 0 ;  gp < ngauss; gp++ ) {
+    for (int capa = 0; capa < nLayers; capa++) {
       NDMaterial* theReferenceMaterial = OPS_getNDMaterial(myPatch->getMatTag(capa)); // Pointer to NDMaterial
       NDMaterial* newmat = theReferenceMaterial->getCopy( );  // Copy of pointer to NDMaterial
       materialPointers[gp][capa] =  newmat;   // llama new
@@ -2939,21 +2934,9 @@ int  IGAKLShell_BendingStrip::recvSelf (int commitTag,
                            FEM_ObjectBroker &theBroker)
 {
   int res = 0;
-
-
-
   return res;
 }
 //**************************************************************************
-
-int
-IGAKLShell_BendingStrip::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-
-  int error = 0;
-
-  return error;
-}
 
 
 bool IGAKLShell_BendingStrip::pointInElement(double xi, double eta) const

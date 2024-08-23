@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.22 $
-// $Date: 2009-03-09 22:33:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/dof_grp/TransformationDOF_Group.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: 05/99
 // Revision: A

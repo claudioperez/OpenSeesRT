@@ -23,21 +23,20 @@
 //
 // Description: This file contains the implementation for BandSPDLinSOE
 //
-#include <stdlib.h>
-
 #include <BandSPDLinSOE.h>
 #include <BandSPDLinSolver.h>
 #include <Matrix.h>
 #include <Graph.h>
 #include <Vertex.h>
 #include <VertexIter.h>
-#include <math.h>
-
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <iostream>
+#include <Logging.h>
+
+
+#include <math.h>
 #include <assert.h>
-#include <OPS_ErrorStream.h>
+#include <iostream>
 
 BandSPDLinSOE::BandSPDLinSOE(BandSPDLinSolver &the_Solver)
 :LinearSOE(the_Solver, LinSOE_TAGS_BandSPDLinSOE),
@@ -129,7 +128,7 @@ BandSPDLinSOE::setSize(Graph &theGraph)
     Vertex *vertexPtr;
     VertexIter &theVertices = theGraph.getVertices();
     
-    while ((vertexPtr = theVertices()) != 0) {
+    while ((vertexPtr = theVertices()) != nullptr) {
         int vertexNum = vertexPtr->getTag();
         const ID &theAdjacency = vertexPtr->getAdjacency();
         for (int i=0; i<theAdjacency.Size(); i++) {

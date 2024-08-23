@@ -114,19 +114,21 @@ private:
     int nonLinearGeometry;
     int noPts;              // Number of control points (noPtsX*noPtsY)
     Vector gFact;           // Factor xyz for gravity
+
     Vector uKnot;           // Knot vector in the U direction
     Vector vKnot;           // Knot vector in the V direction
-    Vector wKnot;       // Knot vector in the V direction
-    Matrix controlPts;  // Control-points
+    Vector wKnot;           // Knot vector in the V direction
+    Matrix controlPts;      // Control-points
     Vector weights;
     int noElemsU;        // Number of Elements in the U direction
     int noElemsV;        // Number of Elements in the V direction
-    int noElems;        // Number of Elements
-    int noFuncs;        //Number of shape functions
+    int noElems;         // Number of Elements
+    int noFuncs;         // Number of shape functions
 
 
     ShellType shtype;
     ID matTags;
+    std::vector<NDMaterial> materials;
 
     Matrix* index;
     Matrix* elRangeU;

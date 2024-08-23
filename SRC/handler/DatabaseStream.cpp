@@ -27,7 +27,7 @@
 // What: "@(#) DatabaseStream.C, revA"
 
 #include "DatabaseStream.h"
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <FE_Datastore.h>
 #include <Vector.h>
 #include <string.h>

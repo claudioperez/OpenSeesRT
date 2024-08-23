@@ -32,7 +32,7 @@
 #include <ConvergenceTest.h>
 #include <float.h>
 #include <AnalysisModel.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 // Constructor
 VariableTimeStepDirectIntegrationAnalysis::VariableTimeStepDirectIntegrationAnalysis(

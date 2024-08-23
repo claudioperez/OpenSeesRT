@@ -1,29 +1,30 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 // 
 // Description: This command is used to update the parameters of
 // PressureDependMultiYield or PressureIndependMultiYield material. Currently,
 // two material parameters, reference low-strain shear modulus Gr and reference
 // bulk modulus Br, can be modified during an analysis.
 //
-// fmk
+// Written: fmk
 //
+#include <tcl.h>
 #include <string.h>
-#include <runtime/BasicModelBuilder.h>
+#include <assert.h>
 #include <Domain.h>
+// #include <BasicModelBuilder.h>
 #include <MatParameter.h>
-
-class TclBasicBuilder;
 
 
 int
 TclCommand_UpdateMaterialsCommand(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, TCL_Char ** const argv,
-                                  TclBasicBuilder *theTclBuilder,
-                                  Domain *theDomain)
+                                  int argc, TCL_Char ** const argv)
 {
+  assert(clientData != nullptr);
+  Domain* theDomain = static_cast<Domain*>(clientData);
 
   if (argc < 5) {
     opserr << "WARNING insufficient number of UpdateMaterialStage arguments\n";

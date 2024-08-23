@@ -28,7 +28,7 @@
 #define _OPS_Globals_h
 
 #define _USING_OpenSees_STREAMS
-#include <OPS_Stream.h>
+#include <handler/OPS_Stream.h>
 extern OPS_Stream *opserrPtr;
 #define opserr (*opserrPtr)
 #define endln "\n"
@@ -49,13 +49,5 @@ extern Element *ops_TheActiveElement;  // current element undergoing an update
 // global variable for initial state analysis
 // added: Chris McGann, University of Washington
 extern bool  ops_InitialStateAnalysis;
-
-#define OPS_PRINT_CURRENTSTATE 0
-#define OPS_PRINT_PRINTMODEL_SECTION  1
-#define OPS_PRINT_PRINTMODEL_MATERIAL 2
-#define OPS_PRINT_PRINTMODEL_JSON   25000
-
-#define OPS_PRINT_JSON_ELEM_INDENT "      "
-#define OPS_PRINT_JSON_NODE_INDENT "      "
 
 #endif

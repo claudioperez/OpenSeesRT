@@ -22,12 +22,12 @@
 //  considering geometric nonlinear, form nonlinear shell element
 //  using updated Lagrangian formula
 //
-// Ref: Plate Bending Part - DKQ, thin plate element
-//      Membrane Part - GQ12, a membrane element with drilling DOF
+//  Ref: Plate Bending Part - DKQ, thin plate element
+//       Membrane Part - GQ12, a membrane element with drilling DOF
 //
-// Modified for SIF modelling by Liming Jiang [http://openseesforfire.github.io]
+//  Modified for SIF modelling by Liming Jiang [http://openseesforfire.github.io]
 //
-// Written: Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
+//  Written: Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
 //
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,7 +43,6 @@
 #include <ErrorHandler.h>
 #include <ShellNLDKGQThermal.h>
 #include <R3vectors.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 
 #include <Channel.h>
@@ -1581,7 +1580,6 @@ int ShellNLDKGQThermal::formResidAndTangent(int tang_flag)
       //add for geometric nonlinearity
       //BGJ
       BGJ = computeBG(j, shpBend);
-      //opserr<<BGJ<<endln;
 
       //nodal "displacements"  - need to be modified for geometric nonlinearity
       //delta displacements
@@ -1598,7 +1596,7 @@ int ShellNLDKGQThermal::formResidAndTangent(int tang_flag)
       if (incrDisp.Norm() > 1e6)
         return (-1);
       //if((this->getTag())==1&&i==3)
-      //opserr<<"Node "<<j<<" incrDisp "<<incrDisp<<endln;
+
       //dispIncLocal = Tmat * dul
       dispIncLocal.addMatrixVector(0.0, Tmat, incrDisp, 1.0);
 
@@ -2688,44 +2686,4 @@ int ShellNLDKGQThermal::recvSelf(int commitTag, Channel &theChannel,
 
   return res;
 }
-//**************************************************************************
 
-int ShellNLDKGQThermal::displaySelf(Renderer &theViewer, int displayMode,
-                                    float fact, const char **modes, int numMode)
-{
-  // get the end point display coords
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
-  static Vector v4(3);
-  nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-  nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-  nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-  nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
-
-  // place values in coords matrix
-  static Matrix coords(4, 3);
-  for (int i = 0; i < 3; i++) {
-    coords(0, i) = v1(i);
-    coords(1, i) = v2(i);
-    coords(2, i) = v3(i);
-    coords(3, i) = v4(i);
-  }
-
-  // Display mode is positive:
-  // display mode = 0 -> plot no contour
-  // display mode = 1-8 -> plot 1-8 stress resultant
-  static Vector values(4);
-  if (displayMode < 8 && displayMode > 0) {
-    for (int i = 0; i < 4; i++) {
-      const Vector &stress = materialPointers[i]->getStressResultant();
-      values(i)            = stress(displayMode - 1);
-    }
-  } else {
-    for (int i = 0; i < 4; i++)
-      values(i) = 0.0;
-  }
-
-  // draw the polygon
-  return theViewer.drawPolygon(coords, values, this->getTag());
-}

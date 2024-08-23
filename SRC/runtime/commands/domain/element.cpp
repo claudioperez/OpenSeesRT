@@ -1,15 +1,49 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 //
 #include <assert.h>
 #include <tcl.h>
 #include <Domain.h>
 #include <Element.h>
+#include <ElementIter.h>
 #include <Vector.h>
 #include <G3_Logging.h>
+
+int
+TclCommand_getEleTags(ClientData clientData, Tcl_Interp *interp, int argc,
+            TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  ElementIter &elemIter = the_domain->getElements();
+
+  Element *elem;
+  char buffer[128];
+  while ((elem = elemIter()) != nullptr) {
+    sprintf(buffer, "%d ", elem->getTag());
+    Tcl_AppendResult(interp, buffer, NULL);
+  }
+
+  return TCL_OK;
+}
+
+int
+getNumElements(ClientData clientData, Tcl_Interp *interp, int argc,
+               TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(((Domain*)clientData)->getNumElements()));
+
+  return TCL_OK;
+}
+
+
 
 int
 TclCommand_addElementRayleigh(ClientData clientData, Tcl_Interp *interp,
@@ -39,25 +73,25 @@ TclCommand_addElementRayleigh(ClientData clientData, Tcl_Interp *interp,
 
   if (Tcl_GetDouble(interp, argv[2], &alphaM) != TCL_OK) {
     opserr << "WARNING : setElementRayleighFactors invalid ";
-    opserr << "alphaM: " << argv[2] << endln;
+    opserr << "alphaM: " << argv[2] << "\n";
     return TCL_ERROR;
   }
 
   if (Tcl_GetDouble(interp, argv[3], &betaK) != TCL_OK) {
     opserr << "WARNING : setElementRayleighFactors invalid ";
-    opserr << "betaK: " << argv[3] << endln;
+    opserr << "betaK: " << argv[3] << "\n";
     return TCL_ERROR;
   }
 
   if (Tcl_GetDouble(interp, argv[4], &betaKinit) != TCL_OK) {
     opserr << "WARNING : setElementRayleighFactors invalid ";
-    opserr << "betaKinit: " << argv[4] << endln;
+    opserr << "betaKinit: " << argv[4] << "\n";
     return TCL_ERROR;
   }
 
   if (Tcl_GetDouble(interp, argv[5], &betaKcomm) != TCL_OK) {
     opserr << "WARNING : setElementRayleighFactors invalid ";
-    opserr << "betaKcomm: " << argv[5] << endln;
+    opserr << "betaKcomm: " << argv[5] << "\n";
     return TCL_ERROR;
   }
 
@@ -179,8 +213,8 @@ eleForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const a
       Tcl_SetObjResult(interp, Tcl_NewDoubleObj((*force)(dof)));
 
     } else {
-      char buffer[40];
-      for (int i = 0; i < size; i++) {
+      char buffer[128];
+      for (int i = 0; i < size; ++i) {
         sprintf(buffer, "%35.20f", (*force)(i));
         Tcl_AppendResult(interp, buffer, NULL);
       }
@@ -239,8 +273,8 @@ localForce(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char** const
       Tcl_SetObjResult(interp, Tcl_NewDoubleObj(value));
 
     } else {
-      char buffer[40];
-      for (int i = 0; i < size; i++) {
+      char buffer[128];
+      for (int i = 0; i < size; ++i) {
         sprintf(buffer, "%35.20f", (*force)(i));
         Tcl_AppendResult(interp, buffer, NULL);
       }
@@ -295,7 +329,7 @@ eleDynamicalForce(ClientData clientData, Tcl_Interp *interp, int argc,
 
   } else {
     char buffer[40];
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20f", force(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }
@@ -318,19 +352,19 @@ eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
   int tag;
 
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "eleForce eleTag? dof? - could not read nodeTag? \n";
+    opserr << G3_ERROR_PROMPT << "eleResponse eleTag? args? - could not read eleTag? \n";
     return TCL_ERROR;
   }
 
   // TODO: Create element response function, remove from domain
   const Vector *data = the_domain->getElementResponse(tag, argv + 2, argc - 2);
-  if (data != 0) {
-    int size = data->Size();
-    char buffer[40];
-    for (int i = 0; i < size; i++) {
-      sprintf(buffer, "%f ", (*data)(i));
-      Tcl_AppendResult(interp, buffer, NULL);
-    }
+  if (data != nullptr) {
+    const int size = data->Size();
+    Tcl_Obj* listPtr = Tcl_NewListObj(size, nullptr);
+    for (int i = 0; i < size; ++i)
+      Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewDoubleObj((*data)(i)));
+
+    Tcl_SetObjResult(interp,listPtr);	
   }
   return TCL_OK;
 }
@@ -353,16 +387,16 @@ eleNodes(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const 
     return TCL_ERROR;
   }
 
-  char buffer[20];
+  char buffer[48];
 
   Element *theElement = the_domain->getElement(tag);
   if (theElement == nullptr) {
-    opserr << G3_ERROR_PROMPT << "eleNodes ele " << tag << " not found" << endln;
+    opserr << G3_ERROR_PROMPT << "eleNodes ele " << tag << " not found" << "\n";
     return TCL_ERROR;
   }
   int numTags = theElement->getNumExternalNodes();
   const ID &tags = theElement->getExternalNodes();
-  for (int i = 0; i < numTags; i++) {
+  for (int i = 0; i < numTags; ++i) {
     sprintf(buffer, "%d ", tags(i));
     Tcl_AppendResult(interp, buffer, NULL);
   }
@@ -382,7 +416,6 @@ eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
   }
 
   int tag;
-
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "eleType eleTag? \n";
     return TCL_ERROR;
@@ -391,7 +424,7 @@ eleType(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const a
   Element *theElement = the_domain->getElement(tag);
 
   if (theElement == nullptr) {
-    opserr << G3_ERROR_PROMPT << "eleType ele " << tag << " not found" << endln;
+    opserr << G3_ERROR_PROMPT << "eleType ele " << tag << " not found" << "\n";
     return TCL_ERROR;
   }
   const char *type = theElement->getClassType();

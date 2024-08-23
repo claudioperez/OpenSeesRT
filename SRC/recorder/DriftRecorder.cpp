@@ -34,7 +34,7 @@
 #include <string.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 DriftRecorder::DriftRecorder()
   :Recorder(RECORDER_TAGS_DriftRecorder),

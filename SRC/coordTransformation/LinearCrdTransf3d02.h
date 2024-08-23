@@ -33,7 +33,7 @@
 #include <Vector.h>
 #include <Matrix.h>
 
-class LinearCrdTransf3d02: public FrameTransform<3>
+class LinearCrdTransf3d02: public FrameTransform3d
 {
 public:
     LinearCrdTransf3d02(int tag, const Vector &vecInLocXZPlane);
@@ -65,7 +65,7 @@ public:
     const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce);
     const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff);
     
-    CrdTransf *getCopy3d(void);
+    FrameTransform3d *getCopy();
     
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);

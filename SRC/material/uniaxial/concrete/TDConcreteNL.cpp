@@ -148,6 +148,7 @@ TDConcreteNL::TDConcreteNL(int tag, double _fc, double _fcu, double _epscu, doub
   fc(_fc), fcu(_fcu), epscu(_epscu), ft(_ft), Ec(_Ec), beta(_beta), age(_age), epsshu(_epsshu), epssha(_epssha), tcr(_tcr), epscru(_epscru), epscra(_epscra), epscrd(_epscrd), tcast(_tcast)
 {
   ecminP = 0.0;
+  ecmaxP = 0.0;
   deptP = 0.0;
 
   //sigCr = fabs(sigCr);
@@ -211,7 +212,7 @@ TDConcreteNL::getInitialTangent(void)
 double
 TDConcreteNL::getCurrentTime(void)
 {
-	double currentTime;
+	double currentTime = 0.0;
 	Domain * theDomain = ops_TheActiveDomain;
 
 	if (theDomain != 0) {

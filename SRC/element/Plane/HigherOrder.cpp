@@ -22,8 +22,7 @@
 //
 // Description: Track the edge nodes in higher order elements
 // 
-// 
-
+//
 #include "HigherOrder.h"
 
 static HigherOrder high;
@@ -50,7 +49,8 @@ HigherOrder::operator()(const VInt& face) const
 {
     SInt fs(face.begin(), face.end());
     HO::const_iterator it = ho.find(fs);
-    if (it == ho.end()) return emp;
+    if (it == ho.end()) 
+      return emp;
 
     return it->second;
 }
@@ -77,9 +77,9 @@ HigherOrder::removeEle(const VInt& face, int ele)
     eles.erase(ele);
 
     if (eles.empty()) {
-	// remove the face
-	midele.erase(fs);
-	ho.erase(fs);
+      // remove the face
+      midele.erase(fs);
+      ho.erase(fs);
     }
     
     return eles.empty();

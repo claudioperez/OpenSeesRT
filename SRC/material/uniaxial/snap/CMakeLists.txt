@@ -5,15 +5,17 @@
 #
 #==============================================================================
 
+target_sources(OPS_Runtime PRIVATE dispatch.cpp)
+
 target_sources(OPS_Material
-    PRIVATE
+  PRIVATE
     Pinching.cpp
     Bilinear.cpp
     Clough.cpp
     CloughHenry.cpp
     CloughDamage.cpp
     PinchingDamage.cpp
-    PUBLIC
+  PUBLIC
     Pinching.h
     Bilinear.h
     Clough.h
@@ -23,5 +25,4 @@ target_sources(OPS_Material
 )
 
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-
 

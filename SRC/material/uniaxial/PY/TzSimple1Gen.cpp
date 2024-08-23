@@ -50,7 +50,7 @@ MODIFICATIONS.
 //$Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/PY/TzSimple1Gen.cpp,v $
 
 #include "TzSimple1Gen.h"
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <stdlib.h>
 #include <string.h>
 

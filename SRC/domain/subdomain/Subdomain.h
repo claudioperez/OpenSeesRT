@@ -151,7 +151,7 @@ class Subdomain: public Element, public Domain
 			 FEM_ObjectBroker &theBroker);
 
     virtual double getCost(void);
-    virtual int addResistingForceToNodalReaction(bool inclInertia);
+    virtual int addResistingForceToNodalReaction(int inclInertia);
     
   protected:    
     virtual int buildMap(void);

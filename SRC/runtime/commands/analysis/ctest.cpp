@@ -1,15 +1,18 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 // 
 // Description: This file implements the selection of a convergence test.
 //
+#include <tcl.h>
+#include <Parsing.h>
+#include <Logging.h>
+#include "BasicAnalysisBuilder.h"
+
 #include <assert.h>
 #include <string.h>
-#include <tcl.h>
-#include <G3_Logging.h>
-#include "runtime/BasicAnalysisBuilder.h"
 
 // convergence tests
 #include <CTestNormUnbalance.h>
@@ -23,9 +26,6 @@
 #include <NormDispAndUnbalance.h>
 #include <NormDispOrUnbalance.h>
 
-#ifndef G3_Char
-#define G3_Char const char
-#endif
 
 ConvergenceTest*
 TclDispatch_newConvergenceTest(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char ** const argv);
@@ -289,7 +289,7 @@ getCTestNorms(ClientData clientData, Tcl_Interp *interp, int argc,
 
     char buffer[40];
     int size = data.Size();
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; ++i) {
       sprintf(buffer, "%35.20e", data(i));
       Tcl_AppendResult(interp, buffer, NULL);
     }

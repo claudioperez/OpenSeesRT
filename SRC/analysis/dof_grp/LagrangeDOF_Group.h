@@ -17,16 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2004-10-12 21:52:25 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/dof_grp/LagrangeDOF_Group.h,v $
-                                                                        
-                                                                        
-#ifndef LagrangeDOF_Group_h
-#define LagrangeDOF_Group_h
-
-// File: ~/analysis/dof_grp/LagrangeDOF_Group.h
 // 
 // Written: fmk 
 // Created: 02/99
@@ -36,7 +26,8 @@
 // A LagrangeDOF_Group object is instantiated by a LagrangeConstraintHandler for 
 // every constrained node in the domain. 
 //
-// What: "@(#) LagrangeDOF_Group.h, revA"
+#ifndef LagrangeDOF_Group_h
+#define LagrangeDOF_Group_h
 
 #include <DOF_Group.h>
 class SP_Constraint;
@@ -81,10 +72,7 @@ class LagrangeDOF_Group: public DOF_Group
     virtual const Vector &getM_Force(const Vector &x, double fact = 1.0);
     
   protected:
-    
   private:
-
 };
-
 #endif
 

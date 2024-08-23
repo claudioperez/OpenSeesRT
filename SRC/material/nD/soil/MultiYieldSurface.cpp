@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <MultiYieldSurface.h>
 
 

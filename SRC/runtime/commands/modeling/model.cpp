@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file implements commands that configure a 
 // `ModelBuider`.
@@ -12,12 +13,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <g3_api.h>
-#include <G3_Logging.h>
+#include <tcl.h>
+#include <Logging.h>
+#include <runtimeAPI.h>
 #include <Domain.h>
 #include <FE_Datastore.h>
 
-#include "runtime/BasicModelBuilder.h"
+#include "BasicModelBuilder.h"
 
 #ifdef _PARALLEL_PROCESSING
 #  include <PartitionedDomain.h>
@@ -268,7 +270,7 @@ int
 buildModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *argv[])
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  ModelBuilder* builder = (ModelBuilder*)G3_getModelBuilder(rt);
+  BasicModelBuilder* builder = (BasicModelBuilder*)G3_getModelBuilder(rt);
 
   // TODO: Remove `builtModel` var.
   // to build the model make sure the ModelBuilder has been constructed

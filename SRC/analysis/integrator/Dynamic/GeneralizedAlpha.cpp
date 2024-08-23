@@ -17,20 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-// Written: fmk
-// Created: 1/10
-// Revision: A
 //
 // Description: This file contains the implementation of the GeneralizedAlpha class.
 // J.Chung, G.M.Hulbert "A Time Integration Algorithm for Structural Dynamics With
 // Improved Numerical Dissipation: The Generalized-alpha Method" ASME Journal of Applied
 // Mechanics, Vol 60, 371-375, 1993.
-
+//
+// Written: fmk
+// Created: 1/10
+// Revision: A
+//
 #include <GeneralizedAlpha.h>
 #include <FE_Element.h>
 #include <LinearSOE.h>
@@ -67,9 +63,6 @@ OPS_ADD_RUNTIME_VPV(OPS_GeneralizedAlpha)
   else
     theIntegrator = new GeneralizedAlpha(dData[0], dData[1], dData[2], dData[3]);
 
-  if (theIntegrator == 0)
-    opserr << "WARNING - out of memory creating GeneralizedAlpha integrator\n";
-
   return theIntegrator;
 }
 
@@ -90,7 +83,8 @@ GeneralizedAlpha::GeneralizedAlpha()
 GeneralizedAlpha::GeneralizedAlpha(double _alphaM, double _alphaF)
   : TransientIntegrator(INTEGRATOR_TAGS_GeneralizedAlpha),
     alphaM(_alphaM), alphaF(_alphaF),
-    beta((1+_alphaM-_alphaF)*(1+_alphaM-_alphaF)*0.25), gamma(0.5+_alphaM-_alphaF),
+    beta((1 + _alphaM-_alphaF)*(1 + _alphaM - _alphaF)*0.25),
+    gamma(0.5+_alphaM-_alphaF),
     deltaT(0.0), 
     c1(0.0), c2(0.0), c3(0.0), 
     Ut(0), Utdot(0), Utdotdot(0), 
@@ -151,7 +145,7 @@ int GeneralizedAlpha::newStep(double _deltaT)
     if (deltaT <= 0.0)  {
         opserr << "GeneralizedAlpha::newStep() - error in variable\n";
         opserr << "dT = " << deltaT << endln;
-        return -2;	
+        return -2;        
     }
 
     // get a pointer to the AnalysisModel
@@ -172,14 +166,17 @@ int GeneralizedAlpha::newStep(double _deltaT)
     (*Utdot) = *Udot;
     (*Utdotdot) = *Udotdot;
 
-    // determine new velocities and accelerations at t+deltaT
-    double a1 = (1.0 - gamma/beta);
-    double a2 = deltaT*(1.0 - 0.5*gamma/beta);
-    Udot->addVector(a1, *Utdotdot, a2);
-    
-    double a3 = -1.0/(beta*deltaT);
-    double a4 = 1.0 - 0.5/beta;
-    Udotdot->addVector(a4, *Utdot, a3);
+    {
+      // 
+      // determine new velocities and accelerations at t+deltaT
+      double a1 = (1.0 - gamma/beta);
+      double a2 = deltaT*(1.0 - 0.5*gamma/beta);
+      Udot->addVector(a1, *Utdotdot, a2);
+
+      double a3 = -1.0/(beta*deltaT);
+      double a4 = 1.0 - 0.5/beta;
+      Udotdot->addVector(a4, *Utdot, a3);
+    }
 
     // determine the velocities at t+alphaF*deltaT
     (*Ualphadot) = *Utdot;
@@ -226,16 +223,18 @@ int GeneralizedAlpha::formEleTangent(FE_Element *theEle)
         theEle->addKtToTang(alphaF*c1);
         theEle->addCtoTang(alphaF*c2);
         theEle->addMtoTang(alphaM*c3);
+
     } else if (statusFlag == INITIAL_TANGENT)  {
         theEle->addKiToTang(alphaF*c1);
         theEle->addCtoTang(alphaF*c2);
         theEle->addMtoTang(alphaM*c3);
+
     } else if (statusFlag == HALL_TANGENT)  {
         theEle->addKtToTang(c1*cFactor);
         theEle->addKiToTang(c1*iFactor);
         theEle->addCtoTang(c2);
         theEle->addMtoTang(c3);
-    }    
+    }
     
     return 0;
 }   
@@ -264,15 +263,15 @@ int GeneralizedAlpha::domainChanged()
       
         // delete the old
       if (Ut != 0) {
-	delete Ut;
-	delete Utdot;
-	delete Utdotdot;
-	delete U;
-	delete Udot;
-	delete Udotdot;
-	delete Ualpha;
-	delete Ualphadot;
-	delete Ualphadotdot;
+        delete Ut;
+        delete Utdot;
+        delete Utdotdot;
+        delete U;
+        delete Udot;
+        delete Udotdot;
+        delete Ualpha;
+        delete Ualphadot;
+        delete Ualphadotdot;
       }        
       // create the new
       Ut = new Vector(size);
@@ -287,42 +286,42 @@ int GeneralizedAlpha::domainChanged()
       
       // check we obtained the new
       if (Ut == 0 || Ut->Size() != size ||
-	  Utdot == 0 || Utdot->Size() != size ||
-	  Utdotdot == 0 || Utdotdot->Size() != size ||
-	  U == 0 || U->Size() != size ||
-	  Udot == 0 || Udot->Size() != size ||
-	  Udotdot == 0 || Udotdot->Size() != size ||
-	  Ualpha == 0 || Ualpha->Size() != size ||
-	  Ualphadot == 0 || Ualphadot->Size() != size ||
-	  Ualphadotdot == 0 || Ualphadotdot->Size() != size)  {
-	
-	opserr << "GeneralizedAlpha::domainChanged - ran out of memory\n";
+          Utdot == 0 || Utdot->Size() != size ||
+          Utdotdot == 0 || Utdotdot->Size() != size ||
+          U == 0 || U->Size() != size ||
+          Udot == 0 || Udot->Size() != size ||
+          Udotdot == 0 || Udotdot->Size() != size ||
+          Ualpha == 0 || Ualpha->Size() != size ||
+          Ualphadot == 0 || Ualphadot->Size() != size ||
+          Ualphadotdot == 0 || Ualphadotdot->Size() != size)  {
         
-	// delete the old
-	if (Ut != 0)
-	  delete Ut;
-	if (Utdot != 0)
-	  delete Utdot;
-	if (Utdotdot != 0)
-	  delete Utdotdot;
-	if (U != 0)
-	  delete U;
-	if (Udot != 0)
-	  delete Udot;
-	if (Udotdot != 0)
-	  delete Udotdot;
-	if (Ualpha != 0)
-	  delete Ualpha;
-	if (Ualphadot != 0)
-	  delete Ualphadot;
-	if (Ualphadotdot != 0)
-	  delete Ualphadotdot;
-	
-	Ut = 0; Utdot = 0; Utdotdot = 0;
-	U = 0; Udot = 0; Udotdot = 0;
-	Ualpha = 0; Ualphadot = 0; Ualphadotdot = 0;
-	
-	return -1;
+        opserr << "GeneralizedAlpha::domainChanged - ran out of memory\n";
+        
+        // delete the old
+        if (Ut != 0)
+          delete Ut;
+        if (Utdot != 0)
+          delete Utdot;
+        if (Utdotdot != 0)
+          delete Utdotdot;
+        if (U != 0)
+          delete U;
+        if (Udot != 0)
+          delete Udot;
+        if (Udotdot != 0)
+          delete Udotdot;
+        if (Ualpha != 0)
+          delete Ualpha;
+        if (Ualphadot != 0)
+          delete Ualphadot;
+        if (Ualphadotdot != 0)
+          delete Ualphadotdot;
+        
+        Ut = 0; Utdot = 0; Utdotdot = 0;
+        U = 0; Udot = 0; Udotdot = 0;
+        Ualpha = 0; Ualphadot = 0; Ualphadotdot = 0;
+        
+        return -1;
       }
     }        
     
@@ -335,11 +334,11 @@ int GeneralizedAlpha::domainChanged()
       int idSize = id.Size();
       
       int i;
-      const Vector &disp = dofPtr->getCommittedDisp();	
+      const Vector &disp = dofPtr->getCommittedDisp();        
       for (i=0; i < idSize; i++)  {
             int loc = id(i);
             if (loc >= 0)  {
-                (*U)(loc) = disp(i);		
+                (*U)(loc) = disp(i);                
             }
         }
         
@@ -351,7 +350,7 @@ int GeneralizedAlpha::domainChanged()
             }
         }
         
-        const Vector &accel = dofPtr->getCommittedAccel();	
+        const Vector &accel = dofPtr->getCommittedAccel();        
         for (i=0; i < idSize; i++)  {
             int loc = id(i);
             if (loc >= 0)  {
@@ -371,7 +370,7 @@ int GeneralizedAlpha::update(const Vector &deltaU)
         opserr << "WARNING GeneralizedAlpha::update() - no AnalysisModel set\n";
         return -1;
     }
-    
+
     // check domainChanged() has been called, i.e. Ut will not be zero
     if (Ut == 0)  {
         opserr << "WARNING GeneralizedAlpha::update() - domainChange() failed or not called\n";
@@ -384,7 +383,7 @@ int GeneralizedAlpha::update(const Vector &deltaU)
         opserr << " expecting " << U->Size() << " obtained " << deltaU.Size() << endln;
         return -3;
     }
-    
+
     //  determine the response at t+deltaT
     (*U) += deltaU;
     Udot->addVector(1.0, deltaU, c2);
@@ -401,8 +400,9 @@ int GeneralizedAlpha::update(const Vector &deltaU)
     (*Ualphadotdot) = *Utdotdot;
     Ualphadotdot->addVector((1.0-alphaM), *Udotdot, alphaM);
 
-    
+
     // update the response at the DOFs
+    // TODO: Should Udotdot be Ualphadotdot?
     theModel->setResponse(*Ualpha,*Ualphadot,*Udotdot);        
     if (theModel->updateDomain() < 0)  {
         opserr << "GeneralizedAlpha::update() - failed to update the domain\n";
@@ -413,13 +413,13 @@ int GeneralizedAlpha::update(const Vector &deltaU)
 }
 
 
-int GeneralizedAlpha::commit(void)
+int GeneralizedAlpha::commit()
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel == 0)  {
         opserr << "WARNING GeneralizedAlpha::commit() - no AnalysisModel set\n";
         return -1;
-    }	  
+    }          
     
     // update the response at the DOFs
     theModel->setResponse(*U,*Udot,*Udotdot);
@@ -468,12 +468,12 @@ int GeneralizedAlpha::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &
         opserr << "WARNING GeneralizedAlpha::recvSelf() - could not receive data\n";
         return -1;
     }
-    
+
     alphaF  = data(0);
     alphaM  = data(1);
     beta   = data(2);
     gamma  = data(3);
-    
+
     return 0;
 }
 

@@ -44,46 +44,40 @@ class ShellMITC9 : public Element,
 
     // full constructor
     ShellMITC9(int tag, 
-	     int node1,
-	     int node2,
-	     int node3,
-	     int node4,
-	     int node5,
-	     int node6,
-	     int node7,
-	     int node8,
-	     int node9,
-	     SectionForceDeformation &theMaterial ) ;
-    // destructor 
-    virtual ~ShellMITC9( ) ;
+             int node1,
+             int node2,
+             int node3,
+             int node4,
+             int node5,
+             int node6,
+             int node7,
+             int node8,
+             int node9,
+             SectionForceDeformation &theMaterial ) ;
 
-    //get the number of external nodes
-    int getNumExternalNodes( ) const ;
-    //return connected external nodes
-    const ID &getExternalNodes( ) ;
+    virtual ~ShellMITC9();
+
+    //  get the number of external nodes
+    int getNumExternalNodes() const ;
+
+    const ID &getExternalNodes();
     Node **getNodePtrs();
-    //return number of dofs
-    int getNumDOF( ) ;
+    int getNumDOF();
 
-    //set domain 
-    void setDomain( Domain *theDomain ) ;
-    //commit state
-    int commitState( ) ;
-    //revert to last commit 
-    int revertToLastCommit( ) ;
-    //revert to start 
-    int revertToStart( ) ;
+    void setDomain(Domain *theDomain);
+    int commitState();
+    int revertToLastCommit();
+    int revertToStart();
 
-    //print out element data
-    void Print( OPS_Stream &s, int flag ) ;
-	
-    //return stiffness matrix 
     const Matrix &getTangentStiff( ) ;
     const Matrix &getInitialStiff();
     const Matrix &getMass();
 
+    // print out element data
+    void Print( OPS_Stream &s, int flag ) ;
+
     // methods for applying loads
-    void zeroLoad(void);	
+    void zeroLoad();        
     int addLoad(ElementalLoad *theLoad, double loadFactor);
     int addInertiaLoadToUnbalance(const Vector &accel);
 
@@ -96,7 +90,7 @@ class ShellMITC9 : public Element,
     // public methods for element output
     int sendSelf (int commitTag, Channel &theChannel);
     int recvSelf (int commitTag, Channel &theChannel, FEM_ObjectBroker 
-		  &theBroker);
+                  &theBroker);
 
 
     Response* setResponse(const char **argv, int argc, OPS_Stream &output);
@@ -142,7 +136,7 @@ class ShellMITC9 : public Element,
 
     //material information: pointers to four materials
     SectionForceDeformation *materialPointers[9] ;
-					  
+                                          
     //local nodal coordinates, two coordinates for each of nine nodes
     //static double xl[][9] ; 
     double xl[2][9] ;
@@ -158,7 +152,7 @@ class ShellMITC9 : public Element,
     //inertia terms
     void formInertiaTerms( int tangFlag ) ;
 
-    //form residual and tangent					  
+    //form residual and tangent                                          
     void formResidAndTangent( int tang_flag ) ;
 
     //compute Jacobian matrix and inverse at point {L1,L2}
@@ -170,8 +164,8 @@ class ShellMITC9 : public Element,
 
     //assemble a B matrix 
     const Matrix& assembleB( const Matrix &Bmembrane,
-			     const Matrix &Bbend, 
-			     const Matrix &Bshear ) ;
+                             const Matrix &Bbend, 
+                             const Matrix &Bshear ) ;
     
     //compute Bmembrane matrix
     const Matrix& computeBmembrane( int node, const double shp[3][9] ) ;
@@ -184,9 +178,9 @@ class ShellMITC9 : public Element,
     
     //shape function routine for four node quads
     void shape2d( double ss, double tt, 
-		  const double x[2][9], 
-		  double shp[3][9], 
-		  double &xsj ) ;
+                  const double x[2][9], 
+                  double shp[3][9], 
+                  double &xsj ) ;
 
     // vector for applying loads
     Vector *load;

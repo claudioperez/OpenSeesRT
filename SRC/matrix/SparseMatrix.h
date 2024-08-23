@@ -1,10 +1,16 @@
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
 #include <vector>
 #include <algorithm>
 
-// a triplet for the sparse mass matrix
 // a simple structure for the sparse mass matrix
 struct SparseMatrix
 {
+// a triplet for the sparse mass matrix
     struct triplet_t {
         int i,j;
         double val;

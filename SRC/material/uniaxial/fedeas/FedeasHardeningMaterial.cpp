@@ -30,6 +30,7 @@
 // 1d material subroutine Hard_1.
 
 #include <stdlib.h>
+#include <Logging.h>
 #include <FedeasHardeningMaterial.h>
 
 FedeasHardeningMaterial::FedeasHardeningMaterial(int tag,

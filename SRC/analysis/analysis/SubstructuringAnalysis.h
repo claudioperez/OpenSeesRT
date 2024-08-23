@@ -65,7 +65,6 @@ class SubstructuringAnalysis: public DomainDecompositionAnalysis
 			   DomainSolver &theSolver,
 			   ConvergenceTest *theTest);
 
-    virtual int analyze(void);
     virtual ~SubstructuringAnalysis();
     
   protected: 

@@ -83,7 +83,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_UVCuniaxial) {
     return 0;
   }
 
-  // Read in the updated model paramters
+  // Read in the updated model parameters
   nInputsToRead = N_UPDATED_PROPERTIES;
   if (OPS_GetDoubleInput(&nInputsToRead, updProps) != 0) {
     opserr << inputInstructions.c_str() << endln;
@@ -168,11 +168,40 @@ UVCuniaxial::UVCuniaxial(int tag, double E, double sy0, double qInf, double b,
   plasticLoading(false)
 {
   nBackstresses = cK.size();
+  if (nBackstresses > MAX_BACKSTRESSES) {
+    opserr << "UVCuniaxial - num backstresses (" << nBackstresses << ") exceeds maximum\n";
+    opserr << "  continuing with first " << MAX_BACKSTRESSES << " backstresses" << endln;
+  }
   for (int i = 0; i < nBackstresses; ++i) {
     alphaKTrial.push_back(0.);
     alphaKConverged.push_back(0.);
   }
-};
+}
+
+UVCuniaxial::UVCuniaxial()
+  : UniaxialMaterial(0, MAT_TAG_UVCuniaxial),
+  elasticModulus(0.),
+  yieldStress(0.),
+  qInf(0.),
+  bIso(0.),
+  dInf(0.),
+  aIso(0.),
+  cK(0.),
+  gammaK(0.),
+  strainConverged(0.),
+  strainTrial(0.),
+  strainPEqConverged(0.),
+  strainPEqTrial(0.),
+  stressConverged(0.),
+  stressTrial(0.),
+  stiffnessInitial(0.),
+  stiffnessConverged(0.),
+  stiffnessTrial(0.),
+  flowDirection(0.),
+  plasticLoading(false)
+{
+
+}
 
 /* ------------------------------------------------------------------------ */
 
@@ -188,13 +217,18 @@ UVCuniaxial::~UVCuniaxial() {
  */
 void UVCuniaxial::returnMapping(double strainIncrement) {
 
+  // Initialize all the variables
+  double dit = 0.;
+  double plasticStrainIncrement = 0.;
+  double aux = 0.;
+  double ePTotal = 0.;
 
   // Yield criteria
   double alpha = 0.;
   for (int i = 0; i < nBackstresses; ++i)
     alpha += alphaKConverged[i];
 
-  double ePEq    = strainPEqConverged;
+  double ePEq = strainPEqConverged;
   double sigmaY1 = qInf * (1. - exp(-bIso * ePEq));
   double sigmaY2 = dInf * (1. - exp(-aIso * ePEq));
   stressTrial = stressConverged + elasticModulus * strainIncrement;
@@ -203,6 +237,8 @@ void UVCuniaxial::returnMapping(double strainIncrement) {
   double stressRadius = stressTrial - alpha;
   double phi = stressRadius*stressRadius - sy*sy;
 
+  const double RETURN_MAP_TOL = 10.0e-10;
+  const int MAXIMUM_ITERATIONS = 1000;
   // Determine if have elastic or plastic loading
   bool converged = true;
   if (phi > RETURN_MAP_TOL) 
@@ -212,15 +248,16 @@ void UVCuniaxial::returnMapping(double strainIncrement) {
   while ((!converged) && (iterationNumber < MAXIMUM_ITERATIONS)) {
     iterationNumber++;
 
-    double aux = elasticModulus;
-    for (int i = 0; i < nBackstresses; ++i)
-      aux = aux + sgn(stressRadius) * cK[i] - gammaK[i] * alphaKTrial[i];
+    aux = elasticModulus;
+    for (int i = 0; i < nBackstresses; ++i) {
+      aux = aux + cK[i] - sgn<double>(stressRadius) * gammaK[i] * alphaKTrial[i];
+    }
 
     // Calculate the plastic strain from the strain increment
-    double dit = 2. * stressRadius * aux +
-      2. * sy * qInf * bIso * exp(-bIso * ePEq) -
-      2. * sy * dInf * aIso * exp(-aIso * ePEq);
-    double plasticStrainIncrement = phi / dit;
+    dit = 2. * stressRadius * aux +
+          sgn<double>(stressRadius) * 2. * sy * qInf * bIso * exp(-bIso * ePEq) -
+          sgn<double>(stressRadius) * 2. * sy * dInf * aIso * exp(-aIso * ePEq);
+    plasticStrainIncrement = phi / dit;
 
     // Prevent Newton step from overshooting
     if (abs(plasticStrainIncrement) > abs(stressTrial / elasticModulus))
@@ -228,7 +265,8 @@ void UVCuniaxial::returnMapping(double strainIncrement) {
                               *abs(stressTrial / elasticModulus);
 
     // Update the variables
-    ePEq = ePEq + abs(plasticStrainIncrement);
+    ePTotal = ePTotal + plasticStrainIncrement;
+    ePEq = strainPEqConverged + abs(ePTotal);
     stressTrial = stressTrial - elasticModulus * plasticStrainIncrement;
     sigmaY1 = qInf * (1. - exp(-bIso * ePEq));
     sigmaY2 = dInf * (1. - exp(-aIso * ePEq));
@@ -380,10 +418,12 @@ int UVCuniaxial::revertToStart() {
   strainConverged = 0.;
   strainPEqConverged = 0.;
   stressConverged = 0.;
-  stiffnessConverged = 0.;
+  stiffnessConverged = elasticModulus;
   for (int i = 0; i < nBackstresses; ++i) {
     alphaKConverged[i] = 0.;
   }
+  plasticLoading = false;
+  flowDirection = 0.0;
   revertToLastCommit();
   return 0;
 }
@@ -430,7 +470,7 @@ UniaxialMaterial* UVCuniaxial::getCopy() {
  */
 int UVCuniaxial::sendSelf(int commitTag, Channel& theChannel) {
 
-  static Vector data(26);  // enough space for 4 backstresses
+  static Vector data(15 + 2*MAX_BACKSTRESSES);  // enough space for 8 backstresses
   // Material properties
   data(0) = elasticModulus;
   data(1) = yieldStress;
@@ -446,10 +486,13 @@ int UVCuniaxial::sendSelf(int commitTag, Channel& theChannel) {
   data(9) = stressConverged;
   data(10) = stiffnessConverged;
   data(11) = flowDirection;
-  data(12) = plasticLoading;
+  data(12) = plasticLoading ? 1.0 : -1.0;
 
+  data(13) = this->getTag();
+  data(14) = nBackstresses;
+  
   // Kinematic hardening related, 12 total spaces required
-  int cKStart = 13;  // starts at the 13th space
+  int cKStart = 15;  // start index
   int gammaKStart = cKStart + nBackstresses;
   int alpha_k_start = gammaKStart + nBackstresses;
   for (int i = 0; i < nBackstresses; ++i) {
@@ -457,8 +500,6 @@ int UVCuniaxial::sendSelf(int commitTag, Channel& theChannel) {
     data(gammaKStart + i) = gammaK[i];
     data(alpha_k_start + i) = alphaKConverged[i];
   }
-
-  data(25) = this->getTag();
 
   if (theChannel.sendVector(this->getDbTag(), commitTag, data) < 0) {
     opserr << "UVCuniaxial::sendSelf() - failed to sendSelf\n";
@@ -478,7 +519,7 @@ int UVCuniaxial::sendSelf(int commitTag, Channel& theChannel) {
  */
 int UVCuniaxial::recvSelf(int commitTag, Channel& theChannel,
   FEM_ObjectBroker& theBroker) {
-  static Vector data(26);
+  static Vector data(15 + 2*MAX_BACKSTRESSES);
 
   if (theChannel.recvVector(this->getDbTag(), commitTag, data) < 0) {
     opserr << "UVCuniaxial::recvSelf() - failed to recvSelf\n";
@@ -500,19 +541,23 @@ int UVCuniaxial::recvSelf(int commitTag, Channel& theChannel,
   stressConverged = data(9);
   stiffnessConverged = data(10);
   flowDirection = data(11);
-  plasticLoading = bool(data(12));
+  plasticLoading = data(12) > 0.0 ? true : false;
 
+  this->setTag(int(data(13)));
+  nBackstresses = int(data(14));
+  cK.resize(nBackstresses);
+  gammaK.resize(nBackstresses);
+  alphaKConverged.resize(nBackstresses);
+  
   // Kinematic hardening related, 12 total spaces required
-  int cKStart = 13;  // starts at the 13th space
+  int cKStart = 15;  // start index 
   int gammaKStart = cKStart + nBackstresses;
   int alpha_k_start = gammaKStart + nBackstresses;
   for (int i = 0; i < nBackstresses; ++i) {
-    cK[i] = (cKStart + i);
-    gammaK[i] = (gammaKStart + i);
-    alphaKConverged[i] = (alpha_k_start + i);
+    cK[i] = data(cKStart + i);
+    gammaK[i] = data(gammaKStart + i);
+    alphaKConverged[i] = data(alpha_k_start + i);
   }
-
-  this->setTag(int(data(25)));
 
   // Set the trial to the converged values
   revertToLastCommit();

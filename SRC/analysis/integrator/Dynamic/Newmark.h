@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.9 $
-// $Date: 2010-02-04 01:06:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/Newmark.h,v $
-
-
+//
 #ifndef Newmark_h
 #define Newmark_h
 
@@ -48,26 +43,30 @@ class Newmark : public TransientIntegrator
 public:
     // constructors
     Newmark(int classTag=INTEGRATOR_TAGS_Newmark);
-    Newmark(double gamma, double beta, bool disp = true, bool aflag=false, int classTag=INTEGRATOR_TAGS_Newmark);
+    Newmark(double gamma, double beta, 
+            int uflag=1,                   // choose which "u"nknown is solved for: d, v or a
+            int iflag=3,                   // choose how to "i"nitialize the unknown: Dd=0, Dv=0 or Da=0
+            bool aflag=false,
+            int classTag=INTEGRATOR_TAGS_Newmark);
 
     // destructor
     ~Newmark();
     
     // methods which define what the FE_Element and DOF_Groups add
     // to the system of equation object.
-    int formEleTangent(FE_Element *theEle);
-    int formNodTangent(DOF_Group *theDof);
-    int formEleResidual(FE_Element* theEle);
-    int formNodUnbalance(DOF_Group* theDof);
+    virtual int formEleTangent(FE_Element *theEle)  final;
+    virtual int formNodTangent(DOF_Group *theDof)   final;
+    virtual int formEleResidual(FE_Element* theEle) final;
+    virtual int formNodUnbalance(DOF_Group* theDof) final;
     
-    int domainChanged(void);    
-    int newStep(double deltaT);    
-    int revertToLastStep(void);        
-    int update(const Vector &deltaU);
+    int domainChanged();    
+    int newStep(double deltaT);
+    int revertToLastStep();
+    virtual int update(const Vector &deltaU);
 
-    double getCFactor(void);
+    double getCFactor();
 
-    const Vector &getVel(void);
+    const Vector &getVel();
     
     virtual int sendSelf(int commitTag, Channel &theChannel);
     virtual int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
@@ -80,14 +79,23 @@ public:
     int formIndependentSensitivityRHS();
     int saveSensitivity   (const Vector &v, int gradNum, int numGrads);
     int commitSensitivity (int gradNum, int numGrads);  
-   int computeSensitivities( );
+    int computeSensitivities( );
     // AddingSensitivity:END ////////////////////////////////////
-    
+
 protected:
-    int displ;      // a flag indicating whether displ(1), vel(2) or accel(3) increments
+
+private:
+    enum Unknown {
+      Displacement=1,
+      Velocity=2,
+      Acceleration=3
+    };
+    int unknown;                    // flag indicating whether displ(1), vel(2) or accel(3) increments
+    int unknown_initialize = 1;     //
+
     double gamma;
     double beta;
-    
+
     double c1, c2, c3;              // some constants we need to keep
     Vector *Ut, *Utdot, *Utdotdot;  // response quantities at time t
     Vector *U, *Udot, *Udotdot;     // response quantities at time t+deltaT
@@ -102,8 +110,7 @@ protected:
     Vector independentRHS;
     Vector dUn, dVn, dAn;
     //////////////////////
-    
-private:
+
 };
 
 #endif

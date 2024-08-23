@@ -17,29 +17,26 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2009-05-29 19:10:42 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/UniaxialJ2Plasticity.h,v $
-
-#ifndef UniaxialJ2Plasticity_h
-#define UniaxialJ2Plasticity_h
-
+// 
+// NOTE[cmp]: this looks derived from HardeningMaterial.cpp
+//
+// Refer to paper:
+// Conte, J. P., Vijalapura, P., and Meghella, M., "Consistent Finite Element Response Sensitivities Analysis," 
+// Journal of Engineering Mechanics, ASCE, Vol. 129, No. 12, pp. 1380-1393, 2003.
+//
+// Created: May 2009
+//
 // Written: QGU. UCSD Group for response sensitivity analysis
 //  Contact: Quan Gu(guquan2005@gmail.com)  
 //           Joel P. Conte (jpconte@ucsd.edu)
 //           Michele Barbato (mbarbato@lsu.edu)
 //
-// Created: May 2009
-// 
-// refer to paper:
-// Conte, J. P., Vijalapura, P., and Meghella, M., "Consistent Finite Element Response Sensitivities Analysis," 
-// Journal of Engineering Mechanics, ASCE, Vol. 129, No. 12, pp. 1380-1393, 2003.
-//
+#ifndef UniaxialJ2Plasticity_h
+#define UniaxialJ2Plasticity_h
+
 
 #include <UniaxialMaterial.h>
-#include <Matrix.h>
-
+class Matrix;
 
 class UniaxialJ2Plasticity : public UniaxialMaterial
 {
@@ -82,30 +79,30 @@ class UniaxialJ2Plasticity : public UniaxialMaterial
     
   private:
     // Material parameters
-    double E;	// Elastic modulus
-    double sigmaY;	// Yield stress
-    double Hiso;	// Isotropic hardening parameter
-    double Hkin;	// Kinematic hardening parameter
+    double E;    // Elastic modulus
+    double sigmaY;    // Yield stress
+    double Hiso;      // Isotropic hardening parameter
+    double Hkin;      // Kinematic hardening parameter
     //double eta;
-	
+    
     // Committed history variables
-    double CPlasticStrain;	// Committed plastic strain
-    double CBackStress;		// Committed back stress;
-    double CAccumulatedPlasticStrain;		// Committed accumulated plastic strain
+    double CPlasticStrain;                // Committed plastic strain
+    double CBackStress;                      // Committed back stress;
+    double CAccumulatedPlasticStrain;        // Committed accumulated plastic strain
 
-	// Trial history variables
-    double TPlasticStrain;	// Trial plastic strain
-    double TBackStress;		// Trial back stress
-    double TAccumulatedPlasticStrain;		// Trial accumulated plastic strain
+    // Trial history variables
+    double TPlasticStrain;    // Trial plastic strain
+    double TBackStress;        // Trial back stress
+    double TAccumulatedPlasticStrain;        // Trial accumulated plastic strain
 
     // Trial state variables
-    double TStrain;		// Trial strain
-    double TStress;		// Trial stress
-    double TTangent;	// Trial tangent
+    double t_strain;        // Trial strain
+    double t_stress;        // Trial stress
+    double TTangent;        // Trial tangent
 
-    double CStrain;		// Committed strain
-    double CStress;		// Committed stress
-    double CTangent;	// Committed tangent
+    double c_strain;        // Committed strain
+    double c_stress;        // Committed stress
+    double CTangent;        // Committed tangent
 
 
 // AddingSensitivity:BEGIN //////////////////////////////////////////

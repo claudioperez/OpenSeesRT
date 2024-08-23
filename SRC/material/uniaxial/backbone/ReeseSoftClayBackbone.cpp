@@ -31,7 +31,7 @@
 #include <ReeseSoftClayBackbone.h>
 #include <Vector.h>
 #include <Channel.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <math.h>
 
 ReeseSoftClayBackbone::ReeseSoftClayBackbone(int tag, double p, double y, double nn):

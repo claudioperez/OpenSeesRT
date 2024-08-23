@@ -25,9 +25,8 @@
 //
 // Modified for SIF modelling by Jian Jiang, Liming Jiang [http://openseesforfire.github.io]
 //
-// Written: Leopoldo Tesser, Diego A. Talledo, V�ronique Le Corvec
+// Written: Leopoldo Tesser, Diego A. Talledo, Veronique Le Corvec
 //
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 

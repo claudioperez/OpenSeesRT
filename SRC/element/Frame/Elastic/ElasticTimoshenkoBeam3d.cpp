@@ -58,7 +58,7 @@ Vector ElasticTimoshenkoBeam3d::theVector(12);
 
 void * OPS_ADD_RUNTIME_VPV(OPS_ElasticTimoshenkoBeam3d)
 {
-    Element *theElement = 0;
+    Element *theElement = nullptr;
     
     int numRemainingArgs = OPS_GetNumRemainingInputArgs();
     
@@ -68,7 +68,8 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticTimoshenkoBeam3d)
     }
     
     if (numRemainingArgs < 11)  {
-        opserr << "ERROR not enough args provided, want: element ElasticTimoshenkoBeam3d $tag $iNode $jNode $E $G $A $Jx $Iy $Iz $Avy $Avz $transTag <-mass $m> <-cMass> \n";
+        opserr << "ERROR not enough args provided, want: "
+                  "element ElasticTimoshenkoBeam3d $tag $iNode $jNode $E $G $A $Jx $Iy $Iz $Avy $Avz $transTag <-mass $m> <-cMass> \n";
         return 0;
     }
     

@@ -92,7 +92,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_CFSSSWP)
 CFSSSWP::CFSSSWP(int tag, double H, int B, double fuf, double fyf,
                           double tf,double Af,double fus, double fys, double ts,
 						  double np, double ds, double Vs,double sc, double A, double L): 
-             UniaxialMaterial(tag, MAT_TAG_Pinching4), hight(H), width(B), fuf(fuf),
+             UniaxialMaterial(tag, MAT_TAG_CFSSSWP), hight(H), width(B), fuf(fuf),
              fyf(fyf), tf(tf),
 	         Af(Af), fus(fus), fys(fys), ts(ts),
              np(np), ds(ds), Vs(Vs),
@@ -125,7 +125,6 @@ CFSSSWP::CFSSSWP(int tag, double H, int B, double fuf, double fyf,
 
 void CFSSSWP :: lateralShearStrength(void) 
 {
-	    Precision=100;
 	    double Alpha,Alpha1,Alpha2,Beta,Beta1,Beta2,Beta3,Lambda,Wmax,Pns,Pns1,
 		Pns2,Pns3,Pnsed,We,rho,V,V1,V2,Gs,Omega1,Omega2,Omega3,Omega4,Delta1,
         Delta2,Delta3,Delta4,DeltaV,MinPns,MinPns1,MinPns2,N,Pn;
@@ -214,7 +213,7 @@ void CFSSSWP :: lateralShearStrength(void)
 }
 
  CFSSSWP::CFSSSWP():
-   UniaxialMaterial(0, MAT_TAG_Pinching4),
+   UniaxialMaterial(0, MAT_TAG_CFSSSWP),
    stress1p(0.0), strain1p(0.0), stress2p(0.0), strain2p(0.0),
    stress3p(0.0), strain3p(0.0), stress4p(0.0), strain4p(0.0),
    stress1n(0.0), strain1n(0.0), stress2n(0.0), strain2n(0.0),
@@ -326,8 +325,8 @@ getIndexNeg(Vector v,double value)
 
  void CFSSSWP::SetSpline(void)
  {
-			int Size = 5;
-			double *X = new double[Size], *Y = new double[Size];
+			const int Size = 5;
+			double X[Size]; double Y[Size];
 			
 			int fifth = getIndexNeg(envlpNegStrain,state3Strain(0));
 			if(fifth == -1)
@@ -385,7 +384,7 @@ getIndexNeg(Vector v,double value)
 			if(X[3] - X[0] < 0)
 			{
 				printf("erreur2\n");
-				while(1);
+				//while(1);
 			}
 			
 			a0 = GetTangentFromCurve(state4Strain(0));
@@ -674,8 +673,8 @@ getIndexNeg(Vector v,double value)
  
 		 // BSpline Adds
 
-		 int Size = 9;
-		 double *X = new double[Size], *Y = new double[Size];
+		 const int Size = 9;
+		 double X[Size]; double Y[Size];
 
 		 for(int i = 0;i < 2;i++)
 		 {
@@ -690,8 +689,9 @@ getIndexNeg(Vector v,double value)
 			 X[i + 2] = envlpPosStrain(i);
 			 Y[i + 2] = envlpPosStress(i);
 		 }
-		 double *XFit = new double[(Size-3)*Precision+2],*YFit = new double[(Size-3)*Precision+2];
-		 double *a = new double[4], *b = new double[4];
+		 //double *XFit = new double[(Size-3)*Precision+2],*YFit = new double[(Size-3)*Precision+2];
+		 double XFit[(Size-3)*Precision+2]; double YFit[(Size-3)*Precision+2]; 
+		 double a[4]; double b[4];
 			 
 		
 		double p1X,p1Y,p2X,p2Y,p3X,p3Y,p4X,p4Y;
@@ -1403,7 +1403,7 @@ double CFSSSWP::posEnvlpStress(double u)
   if(isnan(f))
     {
       printf("erreur3");
-      while(1);
+      //while(1);
     }
   if(f != 10e8)
     {
@@ -1431,7 +1431,7 @@ double CFSSSWP::posEnvlpStress(double u)
   printf("Strain = %f	Stress = %f	Min = %f, Max = %f\n",u,f,s3Strain(0),s3Strain(3));
   if(u > s3Strain(3))
     {
-      while(1);
+      //while(1);
     }
   return f;
 }
@@ -1445,7 +1445,7 @@ double CFSSSWP::Envlp4Stress(Vector s4Strain, Vector s4Stress, double u)
   if(isnan(f))
     {
 										 printf("erreur4");
-										 while(1);
+										 //while(1);
     }
   if(f != 10e8)
 								 {
@@ -1473,7 +1473,7 @@ double CFSSSWP::Envlp4Stress(Vector s4Strain, Vector s4Stress, double u)
 								 printf("Strain = %f	Stress = %f	Min = %f, Max = %f\n",u,f,s4Strain(0),s4Strain(3));
 								 if(u > s4Strain(3))
 								 {
-									 while(1);
+									 //while(1);
 								 }
                                  return f;
                          }

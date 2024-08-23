@@ -33,7 +33,7 @@
 #include <Domain.h>
 #include <Node.h>
 #include <ID.h>
-#include <Print.h>
+#include <TaggedObject.h> // for PRINT flags
 
 static int numSPs = 0;
 static int nextTag = 0;
@@ -209,6 +209,7 @@ SP_Constraint::Print(OPS_Stream &s, int flag)
     s << "\"node\": " << nodeTag << ", ";
     s << "\"DOF\": " << dofNumber+1 << ", ";
     s << "\"ref value\": " << valueR << "}";
+
   } else {
     s << "SP_Constraint: " << this->getTag();
     s << "\t Node: " << nodeTag << " DOF: " << dofNumber+1;

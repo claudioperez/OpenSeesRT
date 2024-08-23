@@ -1,7 +1,6 @@
 /* ****************************************************************** **
 **    Opensee - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Description: This file contains the function invoked when the user invokes
@@ -11,10 +10,11 @@
 // Created: 07/99
 //
 //
-#include <runtime/BasicModelBuilder.h>
-#include <unordered_map> // std::unordered_map
-#include <g3_api.h>
+#include <unordered_map>
+#include <tcl.h>
+#include <runtimeAPI.h>
 #include <elementAPI.h>
+#include <BasicModelBuilder.h>
 #include <Elastic2Material.h>   // ZHY
 #include <HardeningMaterial.h>  // MHS
 #include <HardeningMaterial2.h> // MHS
@@ -81,7 +81,6 @@ extern OPS_Routine OPS_FRPConfinedConcrete;
 extern OPS_Routine OPS_FRPConfinedConcrete02;
 extern OPS_Routine OPS_UVCuniaxial;
 extern OPS_Routine OPS_Steel01Thermal;
-extern OPS_Routine OPS_Steel02Thermal;
 extern OPS_Routine OPS_Concrete02Thermal;
 extern OPS_Routine OPS_StainlessECThermal;     // L.Jiang [SIF]
 extern OPS_Routine OPS_SteelECThermal;         // L.Jiang [SIF]
@@ -140,7 +139,7 @@ static void
 printCommand(int argc, TCL_Char ** const argv)
 {
   opserr << "Input command: ";
-  for (int i = 0; i < argc; i++)
+  for (int i = 0; i < argc; ++i)
     opserr << argv[i] << " ";
   opserr << endln;
 }
@@ -2097,58 +2096,8 @@ TclBasicBuilderUniaxialMaterialCommand(ClientData clientData, Tcl_Interp *interp
     theMaterial = new SmoothPSConcrete(tag, fc, fu, Ec, eps0, epsu, eta);
   }
 
-  // ----- 1D J2 Plasticity ----
-  else if (strcmp(argv[1], "UniaxialJ2Plasticity") == 0) {
-    if (argc < 7) {
-      opserr << "WARNING invalid number of arguments\n";
-      printCommand(argc, argv);
-      opserr << "Want: uniaxialMaterial UniaxialJ2Plasticity tag? E? sigmaY? "
-                "Hkin? <Hiso?>"
-             << endln;
-      return TCL_ERROR;
-    }
 
-    int tag;
-    double E, sigmaY, Hkin, Hiso;
-    Hiso = 0.0;
-
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << "WARNING invalid uniaxialMaterial UniaxialJ2Plasticity tag"
-             << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
-      opserr << "WARNING invalid E\n";
-      opserr << "uniaxiaMaterial UniaxialJ2Plasticity: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[4], &sigmaY) != TCL_OK) {
-      opserr << "WARNING invalid sigmaY\n";
-      opserr << "uniaxiaMaterial UniaxialJ2Plasticity: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[5], &Hkin) != TCL_OK) {
-      opserr << "WARNING invalid Hkin\n";
-      opserr << "uniaxiaMaterial SmoothPSConcrete: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (argc >= 7)
-      if (Tcl_GetDouble(interp, argv[6], &Hiso) != TCL_OK) {
-        opserr << "WARNING invalid Hiso\n";
-        opserr << "uniaxialMaterial UniaxialJ2Plasticity: " << tag << endln;
-        return TCL_ERROR;
-      }
-
-    // Parsing was successful, allocate the material
-    theMaterial = new UniaxialJ2Plasticity(tag, E, sigmaY, Hkin, Hiso);
-
-  }
-
-  if (strcmp(argv[1], "HystereticPoly") ==
+  else if (strcmp(argv[1], "HystereticPoly") ==
       0) { // BEGIN Salvatore Sessa 14-Jan-2021 Mail: salvatore.sessa2@unina.it
     void *theMat = OPS_HystereticPoly(rt, argc, argv);
     if (theMat != 0)

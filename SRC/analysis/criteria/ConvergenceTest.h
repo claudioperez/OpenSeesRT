@@ -34,15 +34,9 @@
 #include <Vector.h>
 #include <stdbool.h>
 #include <string>
-#include <runtime/Logging/color.h>
 
 class EquiSolnAlgo;
 
-#define LOG_TEST ":: "
-#define LOG_ITERATE BLU "   ITERATE" COLOR_RESET " :: "
-#define LOG_FAILURE RED "   FAILURE" COLOR_RESET " :: "
-#define LOG_SUCCESS GRN "   SUCCESS" COLOR_RESET " :: "
-#define LOG_CONTINUE "\n              "
 
 class ConvergenceTest: public MovableObject
 {

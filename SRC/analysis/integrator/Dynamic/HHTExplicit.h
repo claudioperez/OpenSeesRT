@@ -17,14 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-#ifndef HHTExplicit_h
-#define HHTExplicit_h
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 02/05
 // Revision: A
@@ -32,6 +25,10 @@
 // Description: This file contains the class definition for HHTExplicit.
 // HHTExplicit is an algorithmic class for performing a transient analysis
 // using the HHTExplicit integration scheme (beta = 0).
+//
+#ifndef HHTExplicit_h
+#define HHTExplicit_h
+
 
 #include <TransientIntegrator.h>
 

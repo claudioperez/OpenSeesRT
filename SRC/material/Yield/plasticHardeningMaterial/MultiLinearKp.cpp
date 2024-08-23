@@ -4,8 +4,8 @@
 
 #include "MultiLinearKp.h"
 #include <stdlib.h>
-#include <Print.h>
-#include <OPS_ErrorStream.h>
+#include <TaggedObject.h>
+#include <Logging.h>
 
 #define MAT_TAG_MULTILINEAR -1
 #define DEBG 0

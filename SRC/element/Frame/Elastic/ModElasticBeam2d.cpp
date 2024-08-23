@@ -604,7 +604,7 @@ ModElasticBeam2d::getResistingForceIncInertia()
 const Vector &
 ModElasticBeam2d::getResistingForce()
 {
-  theCoordTransf->update();
+  // theCoordTransf->update();
   
   const Vector &v = theCoordTransf->getBasicTrialDisp();
   double L = theCoordTransf->getInitialLength();

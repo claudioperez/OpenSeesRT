@@ -58,7 +58,7 @@ set(CONDA_PREFIX $ENV{CONDA_PREFIX})
 
 # opensees_load(METIS                                        SEARCH)
 
-opensees_load(HDF5                                           FIND)
+# opensees_load(HDF5                                           FIND)
 
 # opensees_load(MySQL                                          FIND
 #   #LIBRARY ${CONDA_PREFIX}/Library/lib/libmysql.lib

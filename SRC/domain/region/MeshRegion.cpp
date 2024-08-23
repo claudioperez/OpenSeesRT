@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2003-02-14 23:01:02 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/region/MeshRegion.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 //
 // Description: This file contains the class definition for MeshRegion.
@@ -31,8 +26,7 @@
 // as are all elements whose end nodes are in the region)
 //
 // What: "@(#) MeshRegion.h, revA"
-
-
+//
 #include <MeshRegion.h>
 #include <stdlib.h>
 #include <string.h>
@@ -106,7 +100,7 @@ MeshRegion::setNodes(const ID &theNods)
     Node *theNode = theDomain->getNode(nodeTag);
     if (theNode != 0) {
       if (theNodes->getLocation(nodeTag) < 0)
-	(*theNodes)[loc++] = nodeTag;      
+        (*theNodes)[loc++] = nodeTag;      
     }
   }
 
@@ -130,8 +124,8 @@ MeshRegion::setNodes(const ID &theNods)
     for (int i=0; i<numNodes; i++) {
       int nodeTag = theEleNodes(i);
       if (theNodes->getLocation(nodeTag) < 0) {
-	in = false;
-	i = numNodes;
+        in = false;
+        i = numNodes;
       }
     }
     
@@ -179,11 +173,61 @@ MeshRegion::setNodesOnly(const ID &theNods)
 }
 
 int 
+MeshRegion::setElements(const std::vector<int> &theEles)
+{
+  // destroy the old lists
+  if (theNodes != 0)
+    delete theNodes;
+
+  if (theElements != 0)
+    delete theElements;
+
+  // create new element & node lists
+  int numEle = theEles.size();
+
+  theElements = new ID(0, numEle); // don't copy yet .. make sure ele in domain
+  theNodes = new ID(0, numEle); // initial guess at size of ID
+
+  // now loop over the elements in ele ID passed in to create the node & ele list
+  // NOTE - only add those elements to the list that are in the domain
+  // NOTE - node added to region if any element has it as an external node
+  int locEle = 0;
+  int locNode = 0;
+
+  Domain *theDomain = this->getDomain();
+  if (theDomain == 0) {
+    opserr << "MeshRegion::setElements() - no domain yet set\n";
+    return -1;
+  }
+
+  for (int tag : theEles) {
+    Element *theEle = theDomain->getElement(tag);
+
+    if (theEle != nullptr) {
+      if (theElements->getLocation(tag) < 0)
+        (*theElements)[locEle++] = tag;
+
+      const ID &theEleNodes = theEle->getExternalNodes();
+
+      for (int i=0; i<theEleNodes.Size(); i++) {
+        int nodeTag = theEleNodes(i);
+        // add the node tag if not already there
+        if (theNodes->getLocation(nodeTag) < 0)
+          (*theNodes)[locNode++] = nodeTag;
+      }
+    }
+  }
+
+  return 0;
+}
+
+int 
 MeshRegion::setElements(const ID &theEles)
 {
   // destroy the old lists
   if (theNodes != 0)
     delete theNodes;
+
   if (theElements != 0)
     delete theElements;
 
@@ -216,15 +260,15 @@ MeshRegion::setElements(const ID &theEles)
     if (theEle != 0) {
 
       if (theElements->getLocation(eleTag) < 0)
-	  (*theElements)[locEle++] = eleTag;
+          (*theElements)[locEle++] = eleTag;
 
       const ID &theEleNodes = theEle->getExternalNodes();
 
       for (int i=0; i<theEleNodes.Size(); i++) {
-	int nodeTag = theEleNodes(i);
-	// add the node tag if not already there
-	if (theNodes->getLocation(nodeTag) < 0)
-	  (*theNodes)[locNode++] = nodeTag;
+        int nodeTag = theEleNodes(i);
+        // add the node tag if not already there
+        if (theNodes->getLocation(nodeTag) < 0)
+          (*theNodes)[locNode++] = nodeTag;
       }
     }
   }
@@ -304,7 +348,7 @@ MeshRegion::setRayleighDampingFactors(double alpham, double betak, double betak0
       int eleTag = (*theElements)(i);
       Element *theEle = theDomain->getElement(eleTag);
       if (theEle != 0)
-	theEle->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
+        theEle->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
     }
   }
 
@@ -313,7 +357,7 @@ MeshRegion::setRayleighDampingFactors(double alpham, double betak, double betak0
       int nodTag = (*theNodes)(i);
       Node *theNode = theDomain->getNode(nodTag);
       if (theNode != 0)
-	theNode->setRayleighDampingFactor(alphaM);
+        theNode->setRayleighDampingFactor(alphaM);
     }
   }
 
@@ -357,13 +401,13 @@ MeshRegion::sendSelf(int commitTag, Channel &theChannel)
   if (lastGeoSendTag != currentGeoTag) {
     if (numNod != 0) 
       if (theChannel.sendID(dbNod, currentGeoTag, *theNodes) < 0) {
-	opserr << "MeshRegion::sendSelf - channel failed to send the nodes\n";
-	return -1;
+        opserr << "MeshRegion::sendSelf - channel failed to send the nodes\n";
+        return -1;
       }
     if (numEle != 0) 
       if (theChannel.sendID(dbEle, currentGeoTag, *theElements) < 0) {
-	opserr << "MeshRegion::sendSelf - channel failed to send the elements\n";
-	return -1;
+        opserr << "MeshRegion::sendSelf - channel failed to send the elements\n";
+        return -1;
       }
 
     Vector dData(4);
@@ -386,7 +430,7 @@ MeshRegion::sendSelf(int commitTag, Channel &theChannel)
 
 int 
 MeshRegion::recvSelf(int commitTag, Channel &theChannel, 
-		 FEM_ObjectBroker &theBroker)
+                 FEM_ObjectBroker &theBroker)
 {
   // get my current database tag
   // NOTE - dbTag equals 0 if not sending to a database OR has not yet been sent
@@ -424,13 +468,13 @@ MeshRegion::recvSelf(int commitTag, Channel &theChannel,
 
     if (numNod != 0) 
       if (theChannel.recvID(dbNod, currentGeoTag, *theNodes) < 0) {
-	opserr << "MeshRegion::sendSelf - channel failed to recv the nodes\n";
-	return -1;
+        opserr << "MeshRegion::sendSelf - channel failed to recv the nodes\n";
+        return -1;
       }
     if (numEle != 0) 
       if (theChannel.recvID(dbEle, currentGeoTag, *theElements) < 0) {
-	opserr << "MeshRegion::sendSelf - channel failed to recv the elements\n";
-	return -1;
+        opserr << "MeshRegion::sendSelf - channel failed to recv the elements\n";
+        return -1;
       }
 
     Vector dData(4);

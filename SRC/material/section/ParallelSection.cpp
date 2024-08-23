@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2008-08-26 16:48:13 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/ParallelSection.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/section/ParallelSection.C
 //
 // Written: MHS

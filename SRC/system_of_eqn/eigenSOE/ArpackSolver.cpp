@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.5 $
-// $Date: 2010-02-16 18:51:04 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/eigenSOE/ArpackSolver.cpp,v $
-
-// Written: fmk
-// Created: 05.09
 //
 // This is the solver that works on the ArpackSOE. It uses the LinearSOE
 // in the SOE to perform the solve() operation if required.
@@ -35,11 +28,13 @@
 // and generalized eigen problems. When the matrix <B>K</B> is symmetric, 
 // the method is a variant of the Lanczos process called Implicitly Restarted
 // Lanczos Method (IRLM).
-
 //
 // It is based on previous work of Jun Peng(Stanford)
 //
-
+//
+// Written: fmk
+// Created: 05.09
+//
 #include <DataFileStream.h>
 #include <ArpackSolver.h>
 #include <ArpackSOE.h>
@@ -62,7 +57,7 @@
 #include <iostream>
 using namespace std;
 
-static double *workArea = 0;
+static double *workArea = nullptr;
 static int sizeWork = 0;
 
 ArpackSolver::ArpackSolver()
@@ -100,33 +95,33 @@ ArpackSolver::~ArpackSolver()
 #ifdef _WIN32
 
 extern "C" void DSAUPD(int *ido, char* bmat, 
-		       int *n, char *which,
-		       int *nev, 
-		       double *tol, double *resid, int *ncv, double *v, 
-		       int *ldv,
-		       int *iparam, int *ipntr, double *workd, double *workl,
-		       int *lworkl, int *info);
+                       int *n, char *which,
+                       int *nev, 
+                       double *tol, double *resid, int *ncv, double *v, 
+                       int *ldv,
+                       int *iparam, int *ipntr, double *workd, double *workl,
+                       int *lworkl, int *info);
 
 extern "C" void DSEUPD(bool *rvec, char *howmny,
-		       int *select, double *d, double *z,
-		       int *ldz, double *sigma, char *bmat,
-		       int 	*n, char *which,
-		       int *nev, double *tol, double *resid, int *ncv, 
-		       double *v,
-		       int *ldv, int *iparam, int *ipntr, double *workd, 
-		       double *workl, int *lworkl, int *info);
+                       int *select, double *d, double *z,
+                       int *ldz, double *sigma, char *bmat,
+                       int         *n, char *which,
+                       int *nev, double *tol, double *resid, int *ncv, 
+                       double *v,
+                       int *ldv, int *iparam, int *ipntr, double *workd, 
+                       double *workl, int *lworkl, int *info);
 #else
 
 extern "C" void dsaupd_(int *ido, char* bmat, int *n, char *which, int *nev, 
-		       double *tol, double *resid, int *ncv, double *v, int *ldv,
-		       int *iparam, int *ipntr, double *workd, double *workl,
-		       int *lworkl, int *info);
+                       double *tol, double *resid, int *ncv, double *v, int *ldv,
+                       int *iparam, int *ipntr, double *workd, double *workl,
+                       int *lworkl, int *info);
 
 extern "C" void dseupd_(bool *rvec, char *howmny, int *select, double *d, double *z,
-		       int *ldz, double *sigma, char *bmat, int *n, char *which,
-		       int *nev, double *tol, double *resid, int *ncv, double *v,
-		       int *ldv, int *iparam, int *ipntr, double *workd, 
-		       double *workl, int *lworkl, int *info);
+                       int *ldz, double *sigma, char *bmat, int *n, char *which,
+                       int *nev, double *tol, double *resid, int *ncv, double *v,
+                       int *ldv, int *iparam, int *ipntr, double *workd, 
+                       double *workl, int *lworkl, int *info);
 #endif
 
 
@@ -142,7 +137,7 @@ ArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 
   theSOE = theArpackSOE->theSOE;
 
-  if (theSOE == 0) {
+  if (theSOE == nullptr) {
     opserr << "ArpackSolver::setSize() - no LinearSOE set\n";
     return -1;
   }
@@ -179,7 +174,7 @@ ArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
     select = new int[ncv];
 
     for (int i=0; i<lworkl+1; i++)
-	   workl[i] = 0;
+           workl[i] = 0;
     for (int i=0; i<3*n+1; i++)
       workd[i] = 0;
 
@@ -197,7 +192,7 @@ ArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
   }
 
 
-  char bmat = 'G';
+  char bmat  = 'G';
   char howmy = 'A';
   
   // some more variables
@@ -229,20 +224,20 @@ ArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 
    // opserr << "ArpackSOE::solver) -  before DSAPPD\n";
     DSAUPD(&ido, &bmat, &n, which, &nev, &tol, resid, 
-	   &ncv, v, &ldv,
-	   iparam, ipntr, workd, workl, &lworkl, &info);
-	// opserr << "ArpackSOE::solver) - 1 after DSAPPD\n";
+           &ncv, v, &ldv,
+           iparam, ipntr, workd, workl, &lworkl, &info);
+        // opserr << "ArpackSOE::solver) - 1 after DSAPPD\n";
 #else
     dsaupd_(&ido, &bmat, &n, which, &nev, &tol, resid, &ncv, v, &ldv,
-	    iparam, ipntr, workd, workl, &lworkl, &info);
+            iparam, ipntr, workd, workl, &lworkl, &info);
 #endif
-	
+        
 
-	if (theArpackSOE->checkSameInt(ido) != 1) {
-		opserr << "ArpackSolver::solve - ido values not the same .. ido, processID: "
-			<< ido << " " << processID << endln;
-		return -1;
-	}
+    if (theArpackSOE->checkSameInt(ido) != 1) {
+      opserr << "ArpackSolver::solve - ido values not the same .. ido, processID: "
+             << ido << " " << processID << endln;
+      return -1;
+    }
 
     if (ido == -1) {
     
@@ -251,14 +246,14 @@ ArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
       theVector.setData(&workd[ipntr[1] - 1], size);
      
       if (processID > 0)
-	theSOE->zeroB();
+        theSOE->zeroB();
       else
-	theSOE->setB(theVector);
+        theSOE->setB(theVector);
 
       ierr = theSOE->solve();
       const Vector &X = theSOE->getX();
       theVector = X;
-      
+
       continue;
       
     } else if (ido == 1) {
@@ -267,11 +262,11 @@ ArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
       myCopy(n, &workd[ipntr[2]-1], &workd[ipntr[1]-1]);
       //opserr << "ArpackSOE::solver) - 1 before SOE-setVector\n"; 
       theVector.setData(&workd[ipntr[1] - 1], size);
-	   //opserr << "ArpackSOE::solver) - 1 after SOE-setEVctor\n";
+           //opserr << "ArpackSOE::solver) - 1 after SOE-setEVctor\n";
       if (processID > 0)
-	     theSOE->zeroB();
+             theSOE->zeroB();
       else
-	      theSOE->setB(theVector);
+              theSOE->setB(theVector);
 
       theSOE->solve();
    
@@ -281,10 +276,8 @@ ArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
 
       continue;
       
-    } else if (ido == 2) {     
-
+    } else if (ido == 2) {
       myMv(n, &workd[ipntr[0]-1], &workd[ipntr[1]-1]);
-
       continue;
     }
     break;
@@ -351,6 +344,7 @@ ArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
     eigenvectors = 0;
     
     return info;
+
   } else {
     if (info == 1) {
       opserr << "ArpackSolver::Maximum number of iteration reached." << endln;
@@ -371,100 +365,73 @@ ArpackSolver::solve(int numModes, bool generalized, bool findSmallest)
       unsigned int sizeHowmany =1;
       
       DSEUPD(&rvec, &howmy, (int*)(select), eigenvalues, eigenvectors, &ldv, &sigma, &bmat, &n, which,
-	     &nev, &tol, resid, &ncv, v, &ldv, iparam, ipntr, workd,
-	     workl, &lworkl, &info);
+             &nev, &tol, resid, &ncv, v, &ldv, iparam, ipntr, workd,
+             workl, &lworkl, &info);
 #else
       dseupd_(&rvec, &howmy, (int*)(select), eigenvalues, eigenvectors, &ldv, &sigma, &bmat, &n, which,
-	      &nev, &tol, resid, &ncv, v, &ldv, iparam, ipntr, workd,
-	      workl, &lworkl, &info);
+              &nev, &tol, resid, &ncv, v, &ldv, iparam, ipntr, workd,
+              workl, &lworkl, &info);
 #endif
       if (info != 0) {
-	opserr << "ArpackSolver::Error with dseupd_" << info;
-	switch(info) {
-	  
-	case -1: 
-	  opserr << " N must be positive.\n";
-	  break;
-	case -2: 
-	  opserr << " NEV must be positive.\n";
-	  break;
-	case -3: 
-	  opserr << " NCV must be greater than NEV and less than or equal to N.\n";
-	  break;
-	case -5: 
-	  opserr << " WHICH must be one of 'LM', 'SM', 'LA', 'SA' or 'BE'.\n";
-	  break;
-	case -6: 
-	  opserr << " BMAT must be one of 'I' or 'G'.\n";
-	  break;
-	case -7: 
-	  opserr << " Length of private work WORKL array is not sufficient.\n";
-	  break;
-	case -8: 
-	  opserr << " Error return from trid. eigenvalue calculation";
-	  opserr << "Information error from LAPACK routine dsteqr.\n";
-	  break;
-	case -9: 
-	  opserr << " Starting vector is zero.\n";
-	  break;
-	case -10: 
-	  opserr << " IPARAM(7) must be 1,2,3,4,5.\n";
-	  break;
-	case -11: 
-	  opserr << " IPARAM(7) = 1 and BMAT = 'G' are incompatibl\n";
-	  break;
-	case -12: 
-	  opserr << " NEV and WHICH = 'BE' are incompatible.\n";
-	  break;
-	case -14: 
-	  opserr << " DSAUPD did not find any eigenvalues to sufficient accuracy.\n";
-	  break;
-	case -15: 
-	  opserr << " HOWMNY must be one of 'A' or 'S' if RVEC = .true.\n";
-	  break;
-	case -16: 
-	  opserr << " HOWMNY = 'S' not yet implemented\n";
-	  break;
-	default:
-	  ;
-	}
-	
-	
-	return info;
-	
+        opserr << "ArpackSolver::Error with dseupd_" << info;
+        switch(info) {
+          
+        case -1: 
+          opserr << " N must be positive.\n";
+          break;
+        case -2: 
+          opserr << " NEV must be positive.\n";
+          break;
+        case -3: 
+          opserr << " NCV must be greater than NEV and less than or equal to N.\n";
+          break;
+        case -5: 
+          opserr << " WHICH must be one of 'LM', 'SM', 'LA', 'SA' or 'BE'.\n";
+          break;
+        case -6: 
+          opserr << " BMAT must be one of 'I' or 'G'.\n";
+          break;
+        case -7: 
+          opserr << " Length of private work WORKL array is not sufficient.\n";
+          break;
+        case -8: 
+          opserr << " Error return from trid. eigenvalue calculation";
+          opserr << "Information error from LAPACK routine dsteqr.\n";
+          break;
+        case -9: 
+          opserr << " Starting vector is zero.\n";
+          break;
+        case -10: 
+          opserr << " IPARAM(7) must be 1,2,3,4,5.\n";
+          break;
+        case -11: 
+          opserr << " IPARAM(7) = 1 and BMAT = 'G' are incompatibl\n";
+          break;
+        case -12: 
+          opserr << " NEV and WHICH = 'BE' are incompatible.\n";
+          break;
+        case -14: 
+          opserr << " DSAUPD did not find any eigenvalues to sufficient accuracy.\n";
+          break;
+        case -15: 
+          opserr << " HOWMNY must be one of 'A' or 'S' if RVEC = .true.\n";
+          break;
+        case -16: 
+          opserr << " HOWMNY = 'S' not yet implemented\n";
+          break;
+        default:
+          ;
+        }
+        
+        
+        return info;
+        
       }
     }
   }
   
   numMode = numModes;
 
-  /*
-  ofstream outfile;
-  outfile.open("eigenvectors.dat", ios::out);
-  for (int i=0; i<n; i++) {
-    for (int j=0; j<numMode; j++) {
-      //  int index = (mode - 1) * size;
-      //  theVector.setData(&eigenvectors[index], size);
-      outfile << eigenvectors[j*n + i] << " ";
-    }
-    outfile << "\n";
-  }
-  outfile.close();
-
-  bool mDiagonal = theArpackSOE->mDiagonal;
-  if (mDiagonal == true) {
-    outfile.open("mass.dat", ios::out);
-    int Msize = theArpackSOE->Msize;
-    double *M = theArpackSOE->M;
-    if (n <= Msize) {
-      for (int i=0; i<n; i++)
-	outfile << M[i] << " ";
-    }
-    outfile.close();
-  }
-  */
-
-  // clean up the memory
   return 0;
 }
 
@@ -500,17 +467,9 @@ ArpackSolver::myMv(int n, double *v, double *result)
     int Msize = theArpackSOE->Msize;
     double *M = theArpackSOE->M;
 
-    /* for output
-    DataFileStream dataStream("M.txt");
-    dataStream.open();
-    for (int i=0; i<n; i++)
-      dataStream << M[i] << endln;
-    dataStream.close();
-    */
-
     if (n <= Msize) {
       for (int i=0; i<n; i++)
-	result[i] = M[i]*v[i];
+        result[i] = M[i]*v[i];
     } else {
       opserr << "ArpackSolver::myMv() n > Msize!\n";
       return;
@@ -539,7 +498,7 @@ ArpackSolver::myMv(int n, double *v, double *result)
     }
   }
 
-  // if paallel we have to merge the results
+  // if parallel we have to merge the results
   int processID = theArpackSOE->processID;
   if (processID != -1) {
     Channel **theChannels = theArpackSOE->theChannels;
@@ -551,12 +510,12 @@ ArpackSolver::myMv(int n, double *v, double *result)
       Vector other(workArea, n);
       // recv contribution from remote & add
       for (int i=0; i<numChannels; i++) {
-	theChannels[i]->recvVector(0,0,other);
-	y += other;
+        theChannels[i]->recvVector(0,0,other);
+        y += other;
       }
       // send result back
       for (int i=0; i<numChannels; i++) {
-	theChannels[i]->sendVector(0,0,y);
+        theChannels[i]->sendVector(0,0,y);
       }
     }
   }
@@ -638,10 +597,9 @@ ArpackSolver::sendSelf(int commitTag, Channel &theChannel)
 
 int
 ArpackSolver::recvSelf(int commitTag, Channel &theChannel, 
-		       FEM_ObjectBroker &theBroker)
+                       FEM_ObjectBroker &theBroker)
 {
   return 0;
 }
 
- 
 

@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2009-05-11 21:08:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/eigenSOE/ArpackSolver.h,v $
-
+//
 // Written: fmk
 // Created: 05/09
 
@@ -56,7 +52,7 @@ class ArpackSolver : public EigenSolver
     ~ArpackSolver();
 
     int solve(int numMode, bool generalized, bool findSmallest = true);
-    int setSize(void);
+    int setSize();
     int setEigenSOE(ArpackSOE &theSOE);
     
     const Vector &getEigenvector(int mode);
@@ -64,10 +60,10 @@ class ArpackSolver : public EigenSolver
     
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, 
-		 FEM_ObjectBroker &theBroker);
-    
+		             FEM_ObjectBroker &theBroker);
+
   protected:
-    
+
   private:
     LinearSOE *theSOE;
     ArpackSOE *theArpackSOE;
@@ -86,12 +82,12 @@ class ArpackSolver : public EigenSolver
     double *resid;
     int iparam[11];
     int ipntr[11];
-  //	long int* select;
-  int* select;
+    //	long int* select;
+    int* select;
     
     void myMv(int n, double *v, double *result);
     void myCopy(int n, double *v, double *result);
-    int getNCV(int n, int nev);
+    int  getNCV(int n, int nev);
 };
 
 #endif

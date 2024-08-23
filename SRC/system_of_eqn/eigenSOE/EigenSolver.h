@@ -1,7 +1,4 @@
-// $Revision: 1.2 $
-// $Date: 2009-05-11 21:01:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/eigenSOE/EigenSolver.h,v $
-
+//
 // Written: Jun Peng
 // Created: Sat Feb. 6, 1999
 // Revision: A
@@ -18,7 +15,7 @@
 
 #ifndef EigenSolver_h
 #define EigenSolver_h
-
+#include <Logging.h> // TODO
 #include <MovableObject.h>
 #include <Vector.h>
 

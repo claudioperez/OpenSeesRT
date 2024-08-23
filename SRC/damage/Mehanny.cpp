@@ -17,20 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2008-04-14 22:38:26 $
-// $Source: /usr/local/cvs/OpenSees/SRC/damage/Mehanny.cpp,v $
-
-// Written: Arash Altoontash, Gregory Deierlein 
-// Created: 10/02
-// Revision: AA
 //
 // Description: This file contains the class implementation for Mehanny 
 // damage model. Mehanny damage model calculates the damage index based on
 // primary half cycle and the summation of follower half cycles.
 //
-
+//
+// Written: Arash Altoontash, Gregory Deierlein 
+// Created: 10/02
+// Revision: AA
+//
 #include <Mehanny.h>
 #include <DamageResponse.h>
 #include <math.h>

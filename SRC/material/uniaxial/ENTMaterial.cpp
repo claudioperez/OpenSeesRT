@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2010-04-06 20:18:49 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/ENTMaterial.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: fmk 
 // Created: 07/98
 // Revision: A
@@ -31,7 +26,7 @@
 // ENTMaterial. 
 //
 // What: "@(#) ENTMaterial.C, revA"
-
+//
 #include <ENTMaterial.h>
 #include <Vector.h>
 #include <Channel.h>
@@ -56,13 +51,9 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ENTMaterial)
     if(OPS_GetDoubleInput(&num, &E) < 0) return 0;
 
     UniaxialMaterial* mat = new ENTMaterial(tag,E);
-    if(mat == 0) return 0;
+    if(mat == 0) 
+      return 0;
 
-    // if(OPS_addUniaxialMaterial(mat) == false) {
-    // 	opserr<<"WARNING: failed to add ENT material\n";
-    // 	delete mat;
-    // 	return 0;
-    // }
     return mat;
 }
 

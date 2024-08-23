@@ -41,7 +41,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <elementAPI.h>
 #include <vector>
 
 // initialize the class wide variables
@@ -54,6 +53,8 @@ Vector TwoNodeLink::TwoNodeLinkV4(4);
 Vector TwoNodeLink::TwoNodeLinkV6(6);
 Vector TwoNodeLink::TwoNodeLinkV12(12);
 
+#if 0
+#include <elementAPI.h>
 void * OPS_ADD_RUNTIME_VPV(OPS_TwoNodeLink)
 {
     int ndm = OPS_GetNDM();
@@ -205,6 +206,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_TwoNodeLink)
     return new TwoNodeLink(idata[0], ndm, idata[1], idata[2],
         dirs, &mats[0], y, x, Mratio, sDistI, doRayleigh, mass);
 }
+#endif
 
 
 // responsible for allocating the necessary space needed

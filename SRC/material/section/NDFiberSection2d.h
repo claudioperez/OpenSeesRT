@@ -29,14 +29,14 @@
 #ifndef NDFiberSection2d_h
 #define NDFiberSection2d_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
 
 class NDMaterial;
 class Response;
 
-class NDFiberSection2d : public SectionForceDeformation
+class NDFiberSection2d : public FrameSection
 {
   public:
     NDFiberSection2d(); 
@@ -61,7 +61,7 @@ class NDFiberSection2d : public SectionForceDeformation
     int   revertToLastCommit(void);    
     int   revertToStart(void);
  
-    SectionForceDeformation *getCopy(void);
+    FrameSection *getFrameCopy();
     const ID &getType();
     int getOrder (void) const;
     

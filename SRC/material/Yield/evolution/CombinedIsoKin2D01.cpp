@@ -5,7 +5,7 @@
 #include "CombinedIsoKin2D01.h"
 #include <math.h>
 #include <OPS_Stream.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 #define evolDebug 0
 #define COMBINEDISOKIN2D01_CLASSTAG -1

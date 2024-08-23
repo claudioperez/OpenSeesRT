@@ -1,28 +1,16 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//    See https://opensees.berkeley.edu/OpenSees/copyright.php for license.
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the implementation for the
 // CorotCrdTransf3d02 class. CorotCrdTransf3d02 is a Corotational
-// transformation for a spatial frame between the global
+// transformation for a spatial frame element between the global
 // and basic coordinate systems. The formulation is derived from
 // Crisfield (1991) and employs a heuristic approximation to the
+// logarithm on SO(3).
 //
 // Written: Claudio Perez
 // Created: 05/2024
@@ -41,8 +29,9 @@ using namespace OpenSees;
 #include <Node.h>
 #include <Channel.h>
 #include <elementAPI.h>
-#include <string>
 #include <CorotCrdTransf3d02.h>
+
+#include "RotationLibrary.h"
 
 #undef OPS_STATIC
 #define OPS_STATIC // static 
@@ -74,152 +63,6 @@ Matrix CorotCrdTransf3d02::Lr3(12,3);
 //     {0,    0,    1,    0,    0,    0 },
 //     {0,    0,    0,    0,   -1,    0 },
 //     {1,    0,    0,    0,    0,    0 }}};
-
-
-
-template <class VecT> static inline void
-getTangScaledPseudoVectorFromQuaternion(const VectorND<4> &q, VecT& w)
-{
-  const double q0 = q[3];
-
-  for (int i = 0; i < 3; i++)
-    w[i] = 2.0 * q[i]/q0;
-
-  return ;
-}
-
-static inline VectorND<4>
-quaternionProduct(const VectorND<4> &qa, const VectorND<4> &qb)
-{
-    const double qa0 = qa[0],
-                 qa1 = qa[1],
-                 qa2 = qa[2],
-                 qa3 = qa[3],
-                 qb0 = qb[0],
-                 qb1 = qb[1],
-                 qb2 = qb[2],
-                 qb3 = qb[3];
-
-    // calculate the dot product qa.qb
-    const double qaTqb = qa0*qb0 + qa1*qb1 + qa2*qb2;
-
-    // calculate the cross-product qa x qb
-    const double
-      qaxqb0 = qa1*qb2 - qa2*qb1,
-      qaxqb1 = qa2*qb0 - qa0*qb2,
-      qaxqb2 = qa0*qb1 - qa1*qb0;
-
-    // calculate the quaternion product
-    VectorND<4> q12;
-    q12[0] = qa3*qb0 + qb3*qa0 - qaxqb0;
-    q12[1] = qa3*qb1 + qb3*qa1 - qaxqb1;
-    q12[2] = qa3*qb2 + qb3*qa2 - qaxqb2;
-    q12[3] = qa3*qb3 - qaTqb;
-    return q12;
-}
-
-static inline Vector3D
-LogC90(const MatrixND<3,3> &R)
-{
-  return Vector3D {
-    std::asin(0.5*(R(1,2) - R(2,1))),
-    std::asin(0.5*(R(0,1) - R(1,0))),
-    std::asin(0.5*(R(0,2) - R(2,0))),
-  };
-}
-
-static inline Matrix3D
-CaySO3(const Vector3D &w)
-{
-  // Cayley map: for a rotation matrix given the tangent-scaled pseudo-vector
-
-  // R = I + (S + S*S/2)/(1 + w' * w / 4);
-  const double c = 1.0/(1 + w.dot(w)/4.0);
-
-  Matrix3D R;
-  R.zero();
-  R.addDiagonal(1.0);
-  R.addSpin(w, c);
-  R.addSpinSquare(w, 0.5*c);
-
-  return R;
-}
-
-static inline void 
-getRotationMatrixFromQuaternion(const VectorND<4> &q, Matrix3D& R)
-{
-    // R = (q0^2 - q' * q) * I + 2 * q * q' + 2*q0*S(q);
-
-    const double factor = q[3]*q[3] - (q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
-
-    R.zero();
-
-    for (int i = 0; i < 3; i++)
-      R(i,i) = factor;
-
-    R.addTensorProduct(q, q, 2.0);
-    R.addSpin(q, 2.0*q[3]);
-}
-
-
-static inline VectorND<4>
-VersorFromMatrix(const Matrix3D &R)
-{
-    VectorND<4> q;
-    // obtains the normalised quaternion from the rotation matrix
-    // using Spurrier's algorithm
-
-    const double trR = R(0,0) + R(1,1) + R(2,2);
-
-    // a = max ([trR R(0,0) R(1,1) R(2,2)]);
-    double a = trR;
-    for (int i = 0; i < 3; i++)
-      if (R(i,i) > a)
-        a = R(i,i);
-
-    if (a == trR) {
-      q[3] = sqrt(1+a)*0.5;
-
-      for (int i = 0; i < 3; i++) {
-        int j = (i+1)%3;
-        int k = (i+2)%3;
-        q[i] = (R(k,j) - R(j,k))/(4*q[3]);
-      }
-    }
-    else {
-      for (int i = 0; i < 3; i++)
-        if (a == R(i,i)) {
-          int j = (i+1)%3;
-          int k = (i+2)%3;
-
-          q[i] = sqrt(a*0.5 + (1 - trR)/4.0);
-          q[3] = (R(k,j) - R(j,k))/(4*q[i]);
-          q[j] = (R(j,i) + R(i,j))/(4*q[i]);
-          q[k] = (R(k,i) + R(i,k))/(4*q[i]);
-        }
-    }
-    return q;
-}
-
-static inline VectorND<4>
-getQuaternionFromPseudoRotVector(const Vector  &theta)
-{
-    VectorND<4> q;      // normalized quaternion
-
-    double t = theta.Norm();
-    if (t == 0)
-        q.zero();
-
-    else {
-        const double factor = sin(t*0.5)/ t;
-        for (int i = 0; i < 3; i++)
-            q[i] = theta(i) * factor;
-    }
-
-    q[3] = cos(t*0.5);
-
-    return q;
-}
 
 
 static inline void
@@ -388,13 +231,13 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
 CorotCrdTransf3d02::CorotCrdTransf3d02(int tag, const Vector &vecInLocXZPlane,
                                    const Vector &rigJntOffsetI,
                                    const Vector &rigJntOffsetJ):
-FrameTransform(tag, CRDTR_TAG_CorotCrdTransf3d02),
-vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
-nodeIPtr(0), nodeJPtr(0), L(0), Ln(0),
-// alphaIq(4), alphaJq(4), alphaIqcommit(4), alphaJqcommit(4), 
-alphaI(3), alphaJ(3),
-ulcommit(7), ul(7),  ulpr(7), T(7,12),
-nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
+  FrameTransform3d(tag, CRDTR_TAG_CorotCrdTransf3d02),
+  vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
+  nodeIPtr(0), nodeJPtr(0), L(0), Ln(0),
+  // alphaIq(4), alphaJq(4), alphaIqcommit(4), alphaJqcommit(4), 
+  alphaI(3), alphaJ(3),
+  ulcommit(7), ul(7),  ulpr(7), T(7,12),
+  nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
     // check vector that defines local xz plane
     if (vecInLocXZPlane.Size() != 3 ) {
@@ -464,7 +307,7 @@ nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 CorotCrdTransf3d02::CorotCrdTransf3d02():
-  FrameTransform(0, CRDTR_TAG_CorotCrdTransf3d02),
+  FrameTransform3d(0, CRDTR_TAG_CorotCrdTransf3d02),
   vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
   nodeIPtr(0), nodeJPtr(0), L(0), Ln(0),
 //  alphaIq(4), alphaJq(4),  alphaIqcommit(4), alphaJqcommit(4), 
@@ -510,7 +353,7 @@ CorotCrdTransf3d02::~CorotCrdTransf3d02()
 
 
 int
-CorotCrdTransf3d02::commitState(void)
+CorotCrdTransf3d02::commitState()
 {
     ulcommit      = ul;
     alphaIqcommit = alphaIq;
@@ -521,7 +364,7 @@ CorotCrdTransf3d02::commitState(void)
 
 
 int
-CorotCrdTransf3d02::revertToLastCommit(void)
+CorotCrdTransf3d02::revertToLastCommit()
 {
     // determine global displacement increments from last iteration
     const Vector &dispI = nodeIPtr->getTrialDisp();
@@ -553,7 +396,7 @@ CorotCrdTransf3d02::revertToLastCommit(void)
 
 
 int
-CorotCrdTransf3d02::revertToStart(void)
+CorotCrdTransf3d02::revertToStart()
 {
   ul.Zero();
   alphaIq = VersorFromMatrix(R0);    // pseudo-vector for node 1
@@ -623,7 +466,8 @@ CorotCrdTransf3d02::initialize(Node *nodeIPointer, Node *nodeJPointer)
 void inline
 CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r, 
                                                 const Triad& __restrict E, 
-                                                const Triad&__restrict rI, const Triad& __restrict rJ)
+                                                const Triad& __restrict rI, 
+                                                const Triad& __restrict rJ)
 {
 
     // extract columns of rotation matrices
@@ -632,7 +476,6 @@ CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r,
                    &rI1=rI[1], &rI2=rI[2], &rI3=rI[3],
                    &rJ1=rJ[1], &rJ2=rJ[2], &rJ3=rJ[3];
 
-//  Matrix3D A;
     // compute the transformation matrix from the basic to the
     // global system
     //   A = (1/Ln)*(I - e1*e1');
@@ -693,7 +536,6 @@ CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r,
     }
 
     //   T4 = [      O', O',        O', (-S(rJ3)*e2 + S(rJ2)*e3)']';
-
     Se  = rJ2.cross(e3);  // -S(rJ3)*e2 + S(rJ2)*e3
     Se -= rJ3.cross(e2);
     for (int i = 0; i < 3; i++)
@@ -790,7 +632,7 @@ CorotCrdTransf3d02::compTransfMatrixBasicGlobal(const Triad& __restrict r,
 
 // Set RI,RJ,Rbar, Ln, e and ul
 int
-CorotCrdTransf3d02::update(void)
+CorotCrdTransf3d02::update()
 {
     /********* OLD REMO - REPLACED BELOW TO FIX BUG ***************/
 #if 0
@@ -838,8 +680,6 @@ CorotCrdTransf3d02::update(void)
         alphaI[k]  =  dispI(k+3);
         alphaJ[k]  =  dispJ(k+3);
       }
-
-      /************** END OF REPLACEMENT **************************/
 
       // update the nodal triads TI and RJ using quaternions
 
@@ -1025,7 +865,7 @@ CorotCrdTransf3d02::compTransfMatrixBasicLocal(Matrix &Tbl)
 
 
 const Vector &
-CorotCrdTransf3d02::getBasicTrialDisp(void)
+CorotCrdTransf3d02::getBasicTrialDisp()
 {
     static Vector ub(6);
 
@@ -1037,7 +877,7 @@ CorotCrdTransf3d02::getBasicTrialDisp(void)
 
 
 const Vector &
-CorotCrdTransf3d02::getBasicIncrDeltaDisp(void)
+CorotCrdTransf3d02::getBasicIncrDeltaDisp()
 {
     static Vector dub(6);
     static Vector dul(7);
@@ -1054,7 +894,7 @@ CorotCrdTransf3d02::getBasicIncrDeltaDisp(void)
 
 
 const Vector &
-CorotCrdTransf3d02::getBasicIncrDisp(void)
+CorotCrdTransf3d02::getBasicIncrDisp()
 {
     static Vector Dub(6);
     static Vector Dul(7);
@@ -1071,7 +911,7 @@ CorotCrdTransf3d02::getBasicIncrDisp(void)
 
 
 const Vector &
-CorotCrdTransf3d02::getBasicTrialVel(void)
+CorotCrdTransf3d02::getBasicTrialVel()
 {
   opserr << "WARNING CorotCrdTransf3d02::getBasicTrialVel()"
       << " - has not been implemented yet. Returning zeros." << endln;
@@ -1082,7 +922,7 @@ CorotCrdTransf3d02::getBasicTrialVel(void)
 
 
 const Vector &
-CorotCrdTransf3d02::getBasicTrialAccel(void)
+CorotCrdTransf3d02::getBasicTrialAccel()
 {
   opserr << "WARNING CorotCrdTransf3d02::getBasicTrialAccel()"
       << " - has not been implemented yet. Returning zeros." << endln;
@@ -1141,6 +981,7 @@ CorotCrdTransf3d02::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 
         // add end forces due to element p0 loads
         // assuming member loads are in local system
+        // TODO(cmp): Do this better!!! 
         static Vector pl0(12), pg0(12);
         pl0.Zero();
         pl0(0) = p0(0);
@@ -1184,7 +1025,7 @@ CorotCrdTransf3d02::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
     pl.addMatrixTransposeVector(0.0, Tp, pb, 1.0);    // pl = Tp ^ pb;
 
     // transform tangent  stiffness matrix from local to global coordinates
-    //static Matrix kg(12,12);
+    // static Matrix kg(12,12);
 
     // compute the tangent stiffness matrix in global coordinates
     kg.addMatrixTripleProduct(0.0, T, kl, 1.0);
@@ -1477,21 +1318,21 @@ CorotCrdTransf3d02::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
 
 
 double
-CorotCrdTransf3d02::getInitialLength(void)
+CorotCrdTransf3d02::getInitialLength()
 {
     return L;
 }
 
 
 double
-CorotCrdTransf3d02::getDeformedLength(void)
+CorotCrdTransf3d02::getDeformedLength()
 {
     return Ln;
 }
 
 
-CrdTransf *
-CorotCrdTransf3d02::getCopy3d(void)
+FrameTransform3d *
+CorotCrdTransf3d02::getCopy()
 {
   // create a new instance of CorotCrdTransf3d02
 
@@ -1688,6 +1529,7 @@ CorotCrdTransf3d02::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
 void
 CorotCrdTransf3d02::Print(OPS_Stream &s, int flag)
 {
+
   if (flag == OPS_PRINT_CURRENTSTATE) {
           s << "\nCrdTransf: " << this->getTag() << " Type: CorotCrdTransf3d02";
           s << "\tvAxis: " << vAxis;
@@ -1710,7 +1552,7 @@ CorotCrdTransf3d02::Print(OPS_Stream &s, int flag)
 // CMP: commented out, but keeping around because the comments
 // are good
 void
-CorotCrdTransf3d02::compTransfMatrixBasicGlobalNew(void)
+CorotCrdTransf3d02::compTransfMatrixBasicGlobalNew()
 {
     // extract columns of rotation matrices
 

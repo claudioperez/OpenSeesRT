@@ -36,7 +36,7 @@
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
 #include <SensitiveResponse.h>
-typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
+typedef SensitiveResponse<FrameSection> SectionResponse;
 #include <NDMaterial.h>
 #include <Parameter.h>
 #include <elementAPI.h>
@@ -69,7 +69,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_NDFiberSection2d)
 
 
 NDFiberSection2d::NDFiberSection2d(int tag, int num, double a, bool compCentroid): 
-    SectionForceDeformation(tag, SEC_TAG_NDFiberSection2d),
+    FrameSection(tag, SEC_TAG_NDFiberSection2d),
     numFibers(0), sizeFibers(num), theMaterials(0), matData(0),
     QzBar(0.0), Abar(0.0), yBar(0.0), computeCentroid(compCentroid),
     alpha(a), e(3), s(0), ks(0), 
@@ -112,7 +112,7 @@ NDFiberSection2d::NDFiberSection2d(int tag, int num, double a, bool compCentroid
 #if 0
 NDFiberSection2d::NDFiberSection2d(int tag, int num, NDMaterial **mats,
 				   SectionIntegration &si, double a, bool compCentroid):
-  SectionForceDeformation(tag, SEC_TAG_NDFiberSection2d),
+  FrameSection(tag, SEC_TAG_NDFiberSection2d),
   numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
   QzBar(0.0), Abar(0.0), yBar(0.0), computeCentroid(compCentroid),
   alpha(a), sectionIntegr(0), e(3), s(0), ks(0), 
@@ -186,7 +186,7 @@ NDFiberSection2d::NDFiberSection2d(int tag, int num, NDMaterial **mats,
 
 // constructor for blank object that recvSelf needs to be invoked upon
 NDFiberSection2d::NDFiberSection2d():
-  SectionForceDeformation(0, SEC_TAG_NDFiberSection2d),
+  FrameSection(0, SEC_TAG_NDFiberSection2d),
   numFibers(0), sizeFibers(0), theMaterials(0), matData(0),
   QzBar(0.0), Abar(0.0), yBar(0.0), computeCentroid(true),
   alpha(1.0), 
@@ -461,8 +461,8 @@ NDFiberSection2d::getStressResultant(void)
   return *s;
 }
 
-SectionForceDeformation*
-NDFiberSection2d::getCopy(void)
+FrameSection*
+NDFiberSection2d::getFrameCopy(void)
 {
   NDFiberSection2d *theCopy = new NDFiberSection2d ();
   theCopy->setTag(this->getTag());
@@ -474,14 +474,14 @@ NDFiberSection2d::getCopy(void)
     theCopy->theMaterials = new NDMaterial *[numFibers];
 
     if (theCopy->theMaterials == 0) {
-      opserr <<"NDFiberSection2d::getCopy -- failed to allocate Material pointers\n";
+      opserr <<"NDFiberSection2d::getFrameCopy -- failed to allocate Material pointers\n";
       exit(-1);
     }
   
     theCopy->matData = new double [numFibers*2];
 
     if (theCopy->matData == 0) {
-      opserr << "NDFiberSection2d::getCopy -- failed to allocate double array for material data\n";
+      opserr << "NDFiberSection2d::getFrameCopy -- failed to allocate double array for material data\n";
       exit(-1);
     }
 			    
@@ -491,7 +491,7 @@ NDFiberSection2d::getCopy(void)
       theCopy->theMaterials[i] = theMaterials[i]->getCopy("BeamFiber2d");
 
       if (theCopy->theMaterials[i] == 0) {
-	opserr <<"NDFiberSection2d::getCopy -- failed to get copy of a Material";
+	opserr <<"NDFiberSection2d::getFrameCopy -- failed to get copy of a Material";
 	exit(-1);
       }
     }  
@@ -969,7 +969,7 @@ NDFiberSection2d::setResponse(const char **argv, int argc,
   }
 
   if (theResponse == 0)
-    return SectionForceDeformation::setResponse(argv, argc, output);
+    return FrameSection::setResponse(argv, argc, output);
 
   return theResponse;
 }
@@ -980,7 +980,7 @@ NDFiberSection2d::getResponse(int responseID, Information &sectInfo)
 {
   // Just call the base class method ... don't need to define
   // this function, but keeping it here just for clarity
-  return SectionForceDeformation::getResponse(responseID, sectInfo);
+  return FrameSection::getResponse(responseID, sectInfo);
 }
 
 

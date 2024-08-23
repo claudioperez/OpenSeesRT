@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $Source$
-
+//
 // Written: MHS
 // Created: 2012
 //
@@ -33,14 +29,14 @@
 #ifndef NDFiberSectionWarping2d_h
 #define NDFiberSectionWarping2d_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
 
 class NDMaterial;
 class Response;
 
-class NDFiberSectionWarping2d : public SectionForceDeformation
+class NDFiberSectionWarping2d : public FrameSection
 {
   public:
     NDFiberSectionWarping2d(); 
@@ -60,7 +56,7 @@ class NDFiberSectionWarping2d : public SectionForceDeformation
     int   revertToLastCommit(void);    
     int   revertToStart(void);
  
-    SectionForceDeformation *getCopy(void);
+    FrameSection *getFrameCopy();
     const ID &getType();
     int getOrder (void) const;
 	double getRho(void);

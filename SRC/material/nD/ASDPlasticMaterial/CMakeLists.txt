@@ -7,7 +7,7 @@
 find_package(Eigen3 NO_MODULE)
 if (TARGET Eigen3::Eigen)
 
-target_compile_definitions(OPS_Runtime PRIVATE OPS_USE_ASDPlasticMaterials)
+target_compile_definitions(OPS_Material PRIVATE OPS_USE_ASDPlasticMaterials)
 target_link_libraries(OPS_Material PRIVATE Eigen3::Eigen)
 target_include_directories(OPS_Material PRIVATE "${OPS_BUNDLED_DIR}/eigenAPI")
 
@@ -32,3 +32,4 @@ add_subdirectory(PlasticFlowDirections)
 add_subdirectory(YieldFunctions)
 
 endif (TARGET Eigen3::Eigen)
+

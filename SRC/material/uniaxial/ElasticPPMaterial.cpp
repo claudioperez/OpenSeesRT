@@ -17,21 +17,14 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2003-02-14 23:01:38 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/ElasticPPMaterial.cpp,v $
-                                                                        
-// Written: fmk 
-// Created: 07/98
-// Revision: A
 //
 // Description: This file contains the class implementation for 
 // ElasticMaterial. 
 //
-// What: "@(#) ElasticPPMaterial.C, revA"
-
-
+// Written: fmk 
+// Created: 07/98
+// Revision: A
+//
 #include <ElasticPPMaterial.h>
 #include <Vector.h>
 #include <Channel.h>
@@ -65,7 +58,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticPPMaterial)
   numData = numArgs-1;
   if (OPS_GetDoubleInput(&numData, dData) != 0) {
     opserr << "Invalid data for uniaxial ElasticPP " << iData[0] << endln;
-    return 0;	
+    return 0;      
   }
 
   if (numData == 2) 
@@ -88,27 +81,27 @@ ElasticPPMaterial::ElasticPPMaterial(int tag, double e, double eyp)
  trialStrain(0.0), trialStress(0.0), trialTangent(E),
  commitStrain(0.0), commitStress(0.0), commitTangent(E)
 {
-	EnergyP = 0;	//by SAJalali
-	fyp = E*eyp;
+      EnergyP = 0;      //by SAJalali
+      fyp = E*eyp;
   fyn = -fyp;
 }
 
 ElasticPPMaterial::ElasticPPMaterial(int tag, double e, double eyp,
-				     double eyn, double ez )
+                             double eyn, double ez )
 :UniaxialMaterial(tag,MAT_TAG_ElasticPPMaterial),
  ezero(ez), E(e), ep(0.0),
  trialStrain(0.0), trialStress(0.0), trialTangent(E),
  commitStrain(0.0), commitStress(0.0), commitTangent(E)
 {
     if (eyp < 0) {
-	opserr << "ElasticPPMaterial::ElasticPPMaterial() - eyp < 0, setting > 0\n";
-	eyp *= -1.;
+      opserr << "ElasticPPMaterial::ElasticPPMaterial() - eyp < 0, setting > 0\n";
+      eyp *= -1.;
     }
     if (eyn > 0) {
-	opserr << "ElasticPPMaterial::ElasticPPMaterial() - eyn > 0, setting < 0\n";
-	eyn *= -1.;
+      opserr << "ElasticPPMaterial::ElasticPPMaterial() - eyn > 0, setting < 0\n";
+      eyn *= -1.;
     }    
-	EnergyP = 0;	//by SAJalali
+      EnergyP = 0;      //by SAJalali
 
     fyp = E*eyp;
     fyn = E*eyn;
@@ -120,7 +113,7 @@ ElasticPPMaterial::ElasticPPMaterial()
  trialStrain(0.0), trialStress(0.0), trialTangent(0.0),
  commitStrain(0.0), commitStress(0.0), commitTangent(0.0)
 {
-	EnergyP = 0;	//by SAJalali
+      EnergyP = 0;      //by SAJalali
 
 }
 
@@ -138,8 +131,8 @@ ElasticPPMaterial::setTrialStrain(double strain, double strainRate)
   */
     trialStrain = strain;
 
-    double sigtrial;	// trial stress
-    double f;		// yield function
+    double sigtrial;      // trial stress
+    double f;            // yield function
 
     // compute trial stress
     sigtrial = E * ( trialStrain - ezero - ep );
@@ -150,9 +143,9 @@ ElasticPPMaterial::setTrialStrain(double strain, double strainRate)
 
     // evaluate yield function
     if ( sigtrial >= 0.0 )
-	f =  sigtrial - fyp;
+      f =  sigtrial - fyp;
     else
-	f = -sigtrial + fyn;
+      f = -sigtrial + fyn;
 
     double fYieldSurface = - E * DBL_EPSILON;
     if ( f <= fYieldSurface ) {
@@ -165,9 +158,9 @@ ElasticPPMaterial::setTrialStrain(double strain, double strainRate)
 
       // plastic
       if ( sigtrial > 0.0 ) {
-	trialStress = fyp;
+      trialStress = fyp;
       } else {
-	trialStress = fyn;
+      trialStress = fyn;
       }
 
       trialTangent = 0.0;
@@ -198,37 +191,37 @@ ElasticPPMaterial::getTangent(void)
 int 
 ElasticPPMaterial::commitState(void)
 {
-    double sigtrial;	// trial stress
-    double f;		// yield function
+    double sigtrial;      // trial stress
+    double f;            // yield function
 
     // compute trial stress
     sigtrial = E * ( trialStrain - ezero - ep );
 
     // evaluate yield function
     if ( sigtrial >= 0.0 )
-	f =  sigtrial - fyp;
+      f =  sigtrial - fyp;
     else
-	f = -sigtrial + fyn;
+      f = -sigtrial + fyn;
 
     double fYieldSurface = - E * DBL_EPSILON;
     if ( f > fYieldSurface ) {
       // plastic
       if ( sigtrial > 0.0 ) {
-	ep += f / E;
+      ep += f / E;
       } else {
-	ep -= f / E;
+      ep -= f / E;
       }
     }
 
-	//added by SAJalali for energy recorder
-	EnergyP += 0.5*(commitStress + trialStress)*(trialStrain - commitStrain);
+      //added by SAJalali for energy recorder
+      EnergyP += 0.5*(commitStress + trialStress)*(trialStrain - commitStrain);
 
     commitStrain = trialStrain;
     commitTangent=trialTangent;
     commitStress = trialStress;
 
     return 0;
-}	
+}      
 
 
 int 
@@ -250,7 +243,7 @@ ElasticPPMaterial::revertToStart(void)
   trialStress = commitStress = 0.0;
 
   ep = 0.0;
-  EnergyP = 0;	//by SAJalali
+  EnergyP = 0;      //by SAJalali
 
   return 0;
 }
@@ -291,7 +284,7 @@ ElasticPPMaterial::sendSelf(int cTag, Channel &theChannel)
 
 int 
 ElasticPPMaterial::recvSelf(int cTag, Channel &theChannel, 
-				 FEM_ObjectBroker &theBroker)
+                         FEM_ObjectBroker &theBroker)
 {
   int res = 0;
   static Vector data(9);
@@ -319,22 +312,22 @@ ElasticPPMaterial::recvSelf(int cTag, Channel &theChannel,
 void 
 ElasticPPMaterial::Print(OPS_Stream &s, int flag)
 {
-	if (flag == OPS_PRINT_PRINTMODEL_MATERIAL) {
-		s << "ElasticPPMaterial tag: " << this->getTag() << endln;
-		s << "  E: " << E << endln;
-		s << "  ep: " << ep << endln;
-		s << "  stress: " << trialStress << " tangent: " << trialTangent << endln;
-	}
-    
-	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-		s << "\t\t\t{";
-		s << "\"name\": \"" << this->getTag() << "\", ";
-		s << "\"type\": \"ElasticPPMaterial\", ";
-		s << "\"E\": " << E << ", ";
-		s << "\"epsyp\": " << fyp/E << ", ";
-		s << "\"epsyn\": " << fyn/E << ", ";
-		s << "\"eps0\": " << ezero << "}";
-	}
+  if (flag == OPS_PRINT_PRINTMODEL_MATERIAL) {
+        s << "ElasticPPMaterial tag: " << this->getTag() << endln;
+        s << "  E: " << E << endln;
+        s << "  ep: " << ep << endln;
+        s << "  stress: " << trialStress << " tangent: " << trialTangent << endln;
+  }
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        s << "\t\t\t{";
+        s << "\"name\": \"" << this->getTag() << "\", ";
+        s << "\"type\": \"ElasticPPMaterial\", ";
+        s << "\"E\": " << E << ", ";
+        s << "\"epsyp\": " << fyp/E << ", ";
+        s << "\"epsyn\": " << fyn/E << ", ";
+        s << "\"eps0\": " << ezero << "}";
+  }
 }
 
 

@@ -10,6 +10,7 @@
 #include <Matrix.h>
 #include <ID.h>
 #include "YS_Evolution.h"
+#include <Logging.h>
 
 #include <DomainComponent.h>
 #include <MovableObject.h>

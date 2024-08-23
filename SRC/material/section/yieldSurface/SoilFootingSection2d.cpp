@@ -14,7 +14,7 @@
 #include <Vector.h>
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 #include <classTags.h>
 

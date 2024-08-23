@@ -39,7 +39,6 @@
 
 #include <Subdomain.h>
 #include <actor/shadow/Shadow.h>
-#include <remote.h>
 
 class ShadowSubdomain: public Shadow, public Subdomain
 {

@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the function that is invoked
 // by the interpreter when the comand 'record' is invoked by the
@@ -69,8 +70,7 @@ OPS_Routine OPS_MPCORecorder;
 OPS_Routine OPS_VTK_Recorder;
 OPS_Routine OPS_ElementRecorderRMS;
 
-extern "C" int
-OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
+extern "C" int OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp,
                         int cArg, int mArg, TCL_Char ** const argv,
                         Domain *domain);
 
@@ -486,7 +486,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         }
 
         eleIDs = new ID(end - start);
-        for (int i = start; i <= end; i++)
+        for (int i = start; i <= end; ++i)
           (*eleIDs)[numEle++] = i;
 
         loc += 3;
@@ -514,7 +514,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         const ID &eleRegion = theRegion->getElements();
 
         eleIDs = new ID(eleRegion.Size());
-        for (int i = 0; i < eleRegion.Size(); i++)
+        for (int i = 0; i < eleRegion.Size(); ++i)
           (*eleIDs)[numEle++] = eleRegion(i);
 
         loc += 2;
@@ -557,6 +557,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       else {
+        // TODO: handle the same as Node recorder; see Example1.1.py
         // first unknown string then is assumed to start
         // element response request starts
         eleData = loc;
@@ -668,7 +669,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     ID secIDs(numSec);
 
     // read in the sec tags to the ID
-    for (int i = loc; i < endSecIDs; i++) {
+    for (int i = loc; i < endSecIDs; ++i) {
       if (Tcl_GetInt(interp, argv[i], &secID) != TCL_OK)
         return TCL_ERROR;
       secIDs[loc - i] = secID;
@@ -904,7 +905,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
           start = swap;
         }
 
-        for (int i = start; i <= end; i++)
+        for (int i = start; i <= end; ++i)
           if (secondaryFlag == false)
             eleIDs[numEle++] = i;
           else
@@ -934,7 +935,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
           return TCL_OK;
         }
         const ID &eleRegion = theRegion->getElements();
-        for (int i = 0; i < eleRegion.Size(); i++)
+        for (int i = 0; i < eleRegion.Size(); ++i)
           if (secondaryFlag == false)
             eleIDs[numEle++] = eleRegion(i);
           else
@@ -972,7 +973,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
         if (loc < argc && Tcl_GetDouble(interp, argv[loc + 1], &eleM) != TCL_OK) {
           Tcl_GetDouble(interp, argv[loc], &eleM);
-          for (int i = 0; i < numEle; i++)
+          for (int i = 0; i < numEle; ++i)
             eleMass(i) = eleM;
           loc++;
         } else {
@@ -1031,7 +1032,7 @@ TclCreateRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
         secIDs = ID(numSec);
 
         // read in the sec tags to the ID
-        for (int i = loc; i < endSecIDs; i++) {
+        for (int i = loc; i < endSecIDs; ++i) {
           if (Tcl_GetInt(interp, argv[i], &secID) != TCL_OK)
             return TCL_ERROR;
           secIDs[i - loc] = secID;
@@ -1534,7 +1535,6 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
   OPS_Stream   *theOutputStream = nullptr;
   TCL_Char     *responseID      = nullptr;
   bool         echoTimeFlag     = false;
-  int          flags            = 0;
   double       dT               = 0.0;
   double       rTolDt           = 1e-5;
   int          numNodes         = 0;
@@ -1560,7 +1560,7 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
   int pos = 2;
-  while (flags == 0 && pos < argc) {
+  while (pos < argc) {
     int consumed;
     if ((consumed = parseOutputOption(&options, interp, argc-pos, &argv[pos])) != 0) {
       if (consumed > 0)
@@ -1681,7 +1681,7 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       }
 
       theNodes = new ID(end - start + 1);
-      for (int i = start; i <= end; i++)
+      for (int i = start; i <= end; ++i)
         (*theNodes)[numNodes++] = i;
 
       pos += 3;
@@ -1747,24 +1747,26 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
       gradIndex = theParameter->getGradIndex();
     }
     // AddingSensitivity:END ////////////////////////////////////////
-    else
-      flags = 1;
-  }
+    else if (responseID == nullptr && pos < argc) {
+      responseID = argv[pos];
+      pos++;
+    }
+    else if (pos < argc) {
+      opserr << "WARNING Unknown argument " << argv[pos] << "\n";
+    }
+  } // while (pos < argc)
 
-  if (pos >= argc) {
+  if (responseID == nullptr) { // pos >= argc) {
     opserr << "WARNING: No response type specified for node recorder, will "
               "assume you meant -disp\n";
   }
-
-  if (responseID == nullptr && pos < argc)
-    responseID = argv[pos];
 
   theOutputStream = createOutputStream(options);
 
   if (theTimeSeries != nullptr && theTimeSeriesID.Size() < theDofs.Size()) {
     opserr << G3_ERROR_PROMPT << "recorder Node/EnvelopNode # TimeSeries must equal # "
               "dof - IGNORING TimeSeries OPTION\n";
-    for (int i = 0; i < theTimeSeriesID.Size(); i++) {
+    for (int i = 0; i < theTimeSeriesID.Size(); ++i) {
       if (theTimeSeries[i] != nullptr)
         delete theTimeSeries[i];
       delete[] theTimeSeries;
@@ -1793,6 +1795,11 @@ createNodeRecorder(ClientData clientData, Tcl_Interp *interp, int argc,
     (*theRecorder) = new EnvelopeNodeRecorder(theDofs, theNodes, dataFlag, dataIndex,
                                               *domain, *theOutputStream, dT, rTolDt,
                                               echoTimeFlag, theTimeSeries);
+  }
+
+  if (*theRecorder != nullptr) {
+    opsdbg << G3_DEBUG_PROMPT << "Created recorder \n";
+    (*theRecorder)->Print(opsdbg, 0);
   }
 
   if (theNodes != nullptr)

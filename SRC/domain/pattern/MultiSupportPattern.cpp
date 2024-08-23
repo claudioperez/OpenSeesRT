@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2006-01-04 21:59:10 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/pattern/MultiSupportPattern.cpp,v $
-                                                                        
-// Written: fmk 11/00
-// Revised:
 //
 // Purpose: This file contains the class definition for MultiSupportPattern.
 // MultiSupportPattern is an abstract class.
-
+//
+// Written: fmk 11/00
+// Revised:
+//
 #include <MultiSupportPattern.h>
 #include <GroundMotion.h>
 
@@ -37,29 +33,6 @@
 #include <SP_ConstraintIter.h>
 #include <stdlib.h>
 #include <Channel.h>
-#include <ErrorHandler.h>
-#include <elementAPI.h>
-
-void *
-OPS_ADD_RUNTIME_VPV(OPS_MultiSupportPattern)
-{
-    int tag;
-
-    if(OPS_GetNumRemainingInputArgs() < 1) {
-	opserr<<"insufficient number of args\n";
-	return 0;
-    }
-    
-    // get tag 
-    int numData = 1;
-    if(OPS_GetIntInput(&numData,&tag) < 0) {
-	opserr << "WARNING failed to get multi support pattern tag\n";
-	return 0;
-    }
-
-    return new MultiSupportPattern(tag);
-}
-
 
 MultiSupportPattern::MultiSupportPattern(int tag, int _classTag)
   :LoadPattern(tag, _classTag), 

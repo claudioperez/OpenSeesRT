@@ -97,14 +97,14 @@ double  ElasticCrossAnisotropic::getMatParameter(int MatParameterID)
 NDMaterial* ElasticCrossAnisotropic::getCopy (const char *type)
 {
     if (strcmp(type,"ThreeDimensional") == 0) {
-		ElasticCrossAnisotropic *theModel;
-		theModel = new ElasticCrossAnisotropic (this->getTag(), Eh, Ev, nuhv, nuhh, Ghv, rho);
-		return theModel;
+      ElasticCrossAnisotropic *theModel;
+      theModel = new ElasticCrossAnisotropic (this->getTag(), Eh, Ev, nuhv, nuhh, Ghv, rho);
+      return theModel;
     }
 
     else {
-		opserr <<"ElasticCrossAnisotropic::getModel failed to get model " << type << "\n";
-		return 0;
+      opserr <<"ElasticCrossAnisotropic::getModel failed to get model " << type << "\n";
+      return 0;
     }
 }
 

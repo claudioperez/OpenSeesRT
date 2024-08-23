@@ -9,12 +9,12 @@ target_sources(OPS_Material
   PRIVATE
     BiaxialHysteretic.cpp
     Bidirectional.cpp
-    ElasticBDShearSection2d.cpp
+#   ElasticBDShearSection2d.cpp
     ElasticSection2d.cpp
     ElasticSection3d.cpp
     ElasticShearSection2d.cpp 
     ElasticShearSection3d.cpp
-    ElasticTubeSection3d.cpp
+#   ElasticTubeSection3d.cpp
     ElasticWarpingShearSection2d.cpp
     Elliptical2.cpp
     FiberSection2d.cpp
@@ -39,12 +39,12 @@ target_sources(OPS_Material
   PUBLIC
     BiaxialHysteretic.h
     Bidirectional.h
-    ElasticBDShearSection2d.h
+#   ElasticBDShearSection2d.h
     ElasticSection2d.h 
     ElasticSection3d.h
     ElasticShearSection2d.h 
     ElasticShearSection3d.h
-    ElasticTubeSection3d.h
+#   ElasticTubeSection3d.h
     ElasticWarpingShearSection2d.h
     Elliptical2.h
     FiberSection2d.h

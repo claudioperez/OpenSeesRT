@@ -5,6 +5,8 @@
 #
 #==============================================================================
 
+target_sources(OPS_Runtime PRIVATE commands.cpp)
+
 target_sources(OPS_Element
   PRIVATE
     Truss.cpp
@@ -38,9 +40,6 @@ target_sources(OPS_Element
     CorotTruss2.h
     Truss2.h
 )
-
-# target_link_libraries(OPS_ConcreteTruss PRIVATE OPS_Material)
-# target_link_libraries(OPS_Element PUBLIC OPS_ConcreteTruss)
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 

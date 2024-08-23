@@ -59,7 +59,7 @@ OPS_ADD_RUNTIME_VPV(OPS_ElasticShearSection2d)
 
 
 ElasticShearSection2d::ElasticShearSection2d(void)
-:SectionForceDeformation(0, SEC_TAG_ElasticShear2d),
+:FrameSection(0, SEC_TAG_ElasticShear2d),
  E(0.0), A(0.0), I(0.0), G(0.0), alpha(0.0),
  e(3), parameterID(0)
 {
@@ -72,7 +72,7 @@ ElasticShearSection2d::ElasticShearSection2d(void)
 
 ElasticShearSection2d::ElasticShearSection2d
 (int tag, double E_in, double A_in, double I_in, double G_in, double alpha_in)
-:SectionForceDeformation(tag, SEC_TAG_ElasticShear2d),
+:FrameSection(tag, SEC_TAG_ElasticShear2d),
  E(E_in), A(A_in), I(I_in), G(G_in), alpha(alpha_in),
  e(3), parameterID(0)
 {
@@ -190,8 +190,8 @@ ElasticShearSection2d::getInitialFlexibility(void)
   return ks;
 }
 
-SectionForceDeformation*
-ElasticShearSection2d::getCopy(void)
+FrameSection*
+ElasticShearSection2d::getFrameCopy(void)
 {
   ElasticShearSection2d *theCopy =
     new ElasticShearSection2d (this->getTag(), E, A, I, G, alpha);

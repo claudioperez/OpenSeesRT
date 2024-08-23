@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file implements selection of an integrator object.
 //
@@ -12,7 +13,7 @@
 #include <runtimeAPI.h>
 #include <Domain.h>
 #include <Node.h>
-#include "runtime/BasicAnalysisBuilder.h"
+#include "BasicAnalysisBuilder.h"
 
 // integrators
 #include <LoadControl.h>
@@ -26,12 +27,12 @@
 #include <ParkLMS3.h>
 #include <BackwardEuler.h>
 
-extern VariableTimeStepDirectIntegrationAnalysis
-           *theVariableTimeStepTransientAnalysis;
+class G3_Runtime;
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char ** const argv, Domain *domain);
+
 
 StaticIntegrator*
 G3Parse_newHSIntegrator(ClientData, Tcl_Interp*, int, TCL_Char ** const);
@@ -78,10 +79,17 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
     G3Parse_newTransientIntegrator(clientData, interp, argc, argv);
 
   if (static_integrator != nullptr) {
+    opsdbg << G3_DEBUG_PROMPT << "Set integrator to \n";
+    static_integrator->Print(opsdbg);
     builder->set(*static_integrator);
 
-  } else if (transient_integrator != nullptr)
+  } else if (transient_integrator != nullptr) {
+    opsdbg << G3_DEBUG_PROMPT << "Set integrator to \n";
+    transient_integrator->Print(opsdbg);
     builder->set(*transient_integrator);
+  }
+  else
+    return TCL_ERROR;
 
   return TCL_OK;
 }
@@ -173,7 +181,6 @@ G3Parse_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
   }
 
   else if (strcmp(argv[1], "Newmark") == 0) {
-    // theTransientIntegrator = (TransientIntegrator *)OPS_Newmark(rt, argc, argv);
     theTransientIntegrator = (TransientIntegrator *)G3Parse_newNewmarkIntegrator(clientData, interp, argc, argv);
   }
 
@@ -394,15 +401,15 @@ G3Parse_newEQPathIntegrator(ClientData clientData, Tcl_Interp *interp, int argc,
     if (argc != 4) {
       opserr << "WARNING integrator EQPath $arc_length $type \n";
       opserr << "REFS : \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.849	 \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.879	 \n";
+      opserr << " https://doi.org/10.12989/sem.2013.48.6.849         \n";
+      opserr << " https://doi.org/10.12989/sem.2013.48.6.879         \n";
       return nullptr;
     }
 
     if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK) {
       opserr << "WARNING integrator EQPath $arc_length $type \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.849	 \n";
-      opserr << " https://doi.org/10.12989/sem.2013.48.6.879	 \n";
+      opserr << " https://doi.org/10.12989/sem.2013.48.6.849         \n";
+      opserr << " https://doi.org/10.12989/sem.2013.48.6.879         \n";
       return nullptr;
     }
 
@@ -424,9 +431,10 @@ G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
 {
   double arcLength;
   double alpha   = 1.0;
-  double expon   = 1.0;
+  double expon   = 0.0;
   bool   use_det = false;
-  int    numIter = 5;
+  double numIter = 5;
+  ReferencePattern reference = ReferencePattern::Full;
   
   // parser variables
   bool got_alpha = false;
@@ -440,26 +448,37 @@ G3Parse_newArcLengthIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
   if (Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
     return nullptr;
 
-  for (int i=3; i<argc; i++) {
+  for (int i=3; i<argc; ++i) {
     if (strcmp(argv[i], "-det") == 0) {
       use_det = true;
     }
-    else if (strcmp(argv[i], "-exp") == 0) {
-      i++;
-      if (Tcl_GetDouble(interp, argv[i], &expon) != TCL_OK) {
+    else if ((strcmp(argv[i], "-exp") == 0)) {
+      if (++i >= argc || Tcl_GetDouble(interp, argv[i], &expon) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "failed to read expon\n";
         return nullptr;
       }
     }
-    else if (!got_alpha) {
+    else if ((strcmp(argv[i], "-j") == 0)) {
+      if (++i >= argc || Tcl_GetDouble(interp, argv[i], &numIter) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "failed to read iter\n";
+        return nullptr;
+      }
+    }
+    else if ((strcmp(argv[i], "-reference") == 0)) {
+      if (++i < argc && strcmp(argv[i], "point")==0) {
+        reference = ReferencePattern::Point;
+      }
+    } else if (!got_alpha) {
       if (Tcl_GetDouble(interp, argv[i], &alpha) != TCL_OK) {
         opserr << G3_ERROR_PROMPT << "failed to read alpha, got " << argv[i] << "\n";
         return nullptr;
       }
+      got_alpha = true;
     }
+
   }
 
-  return new ArcLength(arcLength, alpha, numIter, expon, use_det);
+  return new ArcLength(arcLength, alpha, numIter, expon, use_det, reference);
 }
 
 
@@ -495,7 +514,7 @@ G3Parse_newMinUnbalDispNormIntegrator(ClientData clientData, Tcl_Interp* interp,
     int numIter = 1;
     int signFirstStepMethod = MinUnbalDispNorm::SIGN_LAST_STEP;
 
-    for (int i=3; i < argc; i++) {
+    for (int i=3; i < argc; ++i) {
       if ((strcmp(argv[i], "-determinant") == 0) || 
           (strcmp(argv[i], "-det") == 0)) {
           signFirstStepMethod = MinUnbalDispNorm::CHANGE_DETERMINANT;
@@ -516,7 +535,7 @@ G3Parse_newMinUnbalDispNormIntegrator(ClientData clientData, Tcl_Interp* interp,
     }
 
     return new MinUnbalDispNorm(lambda11, numIter, minlambda,
-                                               maxlambda, signFirstStepMethod);
+                                maxlambda, signFirstStepMethod);
 }
 
 StaticIntegrator*
@@ -553,15 +572,15 @@ G3Parse_newDisplacementControlIntegrator(ClientData clientData, Tcl_Interp *inte
 
     if (argc > 6) {
       if (Tcl_GetInt(interp, argv[5], &numIter) != TCL_OK) {
-	opserr << "WARNING failed to read numIter\n";
+        opserr << "WARNING failed to read numIter\n";
         return nullptr;
       }
       if (Tcl_GetDouble(interp, argv[6], &minIncr) != TCL_OK) {
-	opserr << "WARNING failed to read minIncr\n";
+        opserr << "WARNING failed to read minIncr\n";
         return nullptr;
       }
       if (Tcl_GetDouble(interp, argv[7], &maxIncr) != TCL_OK) {
-	opserr << "WARNING failed to read maxIncr\n";
+        opserr << "WARNING failed to read maxIncr\n";
         return nullptr;
       }
     } else {
@@ -623,54 +642,6 @@ G3Parse_newStagedLoadControlIntegrator(ClientData clientData, Tcl_Interp *interp
 }
 #endif
 
-#include <Newmark1.h>
-TransientIntegrator*
-G3Parse_newNewmark1Integrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
-{
-    double gamma;
-    double beta;
-    double alphaM, betaK, betaKi, betaKc;
-    if (argc != 4 && argc != 8) {
-      opserr << "WARNING integrator Newmark1 gamma beta <alphaM> "
-                "<betaKcurrent> <betaKi> <betaKlastCommitted>\n";
-      return nullptr;
-    }
-    if (Tcl_GetDouble(interp, argv[2], &gamma) != TCL_OK) {
-      opserr << "WARNING integrator Newmark1 gamma beta - undefined gamma\n";
-      return nullptr;
-    }
-    if (Tcl_GetDouble(interp, argv[3], &beta) != TCL_OK) {
-      opserr << "WARNING integrator Newmark1 gamma beta - undefined beta\n";
-      return nullptr;
-    }
-
-    if (argc == 8 || argc == 7) {
-      if (Tcl_GetDouble(interp, argv[4], &alphaM) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - alphaM\n";
-        return nullptr;
-      }
-      if (Tcl_GetDouble(interp, argv[5], &betaK) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - betaK\n";
-        return nullptr;
-      }
-      if (Tcl_GetDouble(interp, argv[6], &betaKi) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - betaKi\n";
-        return nullptr;
-      }
-      if (Tcl_GetDouble(interp, argv[7], &betaKc) != TCL_OK) {
-        opserr << "WARNING integrator Newmark1 gamma beta alphaM betaK betaKi "
-                  "betaKc - betaKc\n";
-        return nullptr;
-      }
-    }
-    if (argc == 4)
-      return new Newmark1(gamma, beta);
-    else
-      return new Newmark1(gamma, beta, alphaM, betaK, betaKi, betaKc);
-}
 
 #ifdef _PARALLEL_INTERPRETERS
   else if ((strcmp(argv[1], "ParallelDisplacementControl") == 0) ||

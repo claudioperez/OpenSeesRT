@@ -12,14 +12,10 @@
 ** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2008-10-20 22:23:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/ElasticOrthotropicPlaneStress.cpp,v $
-
+//
 // Written: Ed "C++" Love
 //
-// ElasticOrthotropicPlaneStress isotropic hardening material class
+// ElasticOrthotropicPlaneStress isotropic hardening material
 // 
 //  Elastic Model
 //  sigma = K*trace(epsilion_elastic) + (2*G)*dev(epsilon_elastic)
@@ -48,7 +44,6 @@
 // 
 //  set eta := 0 for rate independent case
 //
-
 #include <ElasticOrthotropicPlaneStress.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -105,7 +100,6 @@ void* OPS_ADD_RUNTIME_VPV(OPS_ElasticOrthotropicPlaneStress)
     << "rho  = " << rho << endln;
 
 
-
   NDMaterial *theMaterial =  new ElasticOrthotropicPlaneStress (tag, E1, E2, nu12, nu21, G12, rho);
   
   return theMaterial;
@@ -118,15 +112,16 @@ void* OPS_ADD_RUNTIME_VPV(OPS_ElasticOrthotropicPlaneStress)
 
 //null constructor
 ElasticOrthotropicPlaneStress ::  ElasticOrthotropicPlaneStress( ) : 
-NDMaterial(0, ND_TAG_ElasticOrthotropicPlaneStress), 
-strain_vec(3),
-E1(0),
-E2(0),
-nu12(0),
-nu21(0),
-G12(0),
-rho(0)
-{  }
+  NDMaterial(0, ND_TAG_ElasticOrthotropicPlaneStress), 
+  strain_vec(3),
+  E1(0),
+  E2(0),
+  nu12(0),
+  nu21(0),
+  G12(0),
+  rho(0)
+{  
+}
 
 
 //full constructor
@@ -138,22 +133,22 @@ ElasticOrthotropicPlaneStress(int tag,
                    double nu21_,
                    double G12_,
                    double rho_) : 
-NDMaterial(tag, ND_TAG_ElasticOrthotropicPlaneStress), 
-strain_vec(3),
-E1(E1_),
-E2(E2_),
-nu12(nu12_),
-nu21(nu21_),
-G12(G12_),
-rho(rho_)
-{ 
-
+  NDMaterial(tag, ND_TAG_ElasticOrthotropicPlaneStress), 
+  strain_vec(3),
+  E1(E1_),
+  E2(E2_),
+  nu12(nu12_),
+  nu21(nu21_),
+  G12(G12_),
+  rho(rho_)
+{
 }
 
 
 //destructor
 ElasticOrthotropicPlaneStress :: ~ElasticOrthotropicPlaneStress( ) 
-{  } 
+{
+}
 
 
 //make a clone of this material
@@ -179,7 +174,7 @@ int ElasticOrthotropicPlaneStress :: getOrder( ) const
   return 3 ; 
 } 
 
-//mass per unit volume
+// mass per unit volume
 double
 ElasticOrthotropicPlaneStress::getRho( )
 {
@@ -187,7 +182,8 @@ ElasticOrthotropicPlaneStress::getRho( )
 }
 
 //get the strain and integrate plasticity equations
-int ElasticOrthotropicPlaneStress :: setTrialStrain( const Vector &strain_from_element ) 
+int
+ElasticOrthotropicPlaneStress :: setTrialStrain( const Vector &strain_from_element ) 
 {
   strain_vec = strain_from_element;
   
@@ -262,7 +258,7 @@ const Matrix& ElasticOrthotropicPlaneStress :: getTangent( )
 } 
 
 
-//send back the tangent 
+// send back the tangent 
 const Matrix& ElasticOrthotropicPlaneStress :: getInitialTangent( ) 
 {
   // matrix to tensor mapping
@@ -271,31 +267,26 @@ const Matrix& ElasticOrthotropicPlaneStress :: getInitialTangent( )
   //   0           0 0
   //   1           1 1
   //   2           0 1  ( or 1 0 ) 
-  // 
-
-
+  //
   return this->getTangent() ;
 } 
 
 int 
-ElasticOrthotropicPlaneStress::commitState( ) 
+ElasticOrthotropicPlaneStress::commitState()
 {
-
   return 0;
 }
 
 int 
-ElasticOrthotropicPlaneStress::revertToLastCommit( ) {
-
-
+ElasticOrthotropicPlaneStress::revertToLastCommit()
+{
   return 0;
 }
 
 
 int 
-ElasticOrthotropicPlaneStress::revertToStart( ) {
- 
-
+ElasticOrthotropicPlaneStress::revertToStart()
+{
   return 0;
 }
 
@@ -319,16 +310,16 @@ ElasticOrthotropicPlaneStress::recvSelf(int commitTag, Channel &theChannel, FEM_
 //print out material data
 void ElasticOrthotropicPlaneStress :: Print( OPS_Stream &s, int flag )
 {
-  s << endln ;
-  s << "ElasticOrthotropicPlaneStress : " ; 
-  s << this->getType( ) << endln ;
-  s << "Elastic Modulus 1 =   " << E1        << endln ;
-  s << "Elastic Modulus 2 =   " << E2        << endln ;
-  s << "Poisson's ratio 12=  " << nu12       << endln ;
-  s << "Poisson's ratio 21=  " << nu21       << endln ;
-  s << "Shear constant G12=  " << G12       << endln ;
-  s << "mass density =        " << rho     << endln ;
-  s << endln ;
+    s << endln ;
+    s << "ElasticOrthotropicPlaneStress : " ; 
+    s << this->getType( ) << endln ;
+    s << "Elastic Modulus 1 =   " << E1        << endln ;
+    s << "Elastic Modulus 2 =   " << E2        << endln ;
+    s << "Poisson's ratio 12=  " << nu12       << endln ;
+    s << "Poisson's ratio 21=  " << nu21       << endln ;
+    s << "Shear constant G12=  " << G12       << endln ;
+    s << "mass density =        " << rho     << endln ;
+    s << endln ;
 }
 
 
@@ -375,13 +366,13 @@ ElasticOrthotropicPlaneStress :: index_map( int matrix_index, int &i, int &j )
       i = 1 ;
       j = 1 ;
       break ;
-
   } //end switch
 
-i-- ; //subtract 1 for C-indexing
-j-- ;
+  // Subtract 1 for C-indexing
+  i-- ; 
+  j-- ;
 
-return ; 
+  return ; 
 }
 
 

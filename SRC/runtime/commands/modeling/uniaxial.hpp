@@ -9,12 +9,16 @@
 // Written: fmk, MHS, cmp
 // Created: 07/99
 //
+#include <tcl.h>
 #include <assert.h>
 #include <string>
 #include <unordered_map>
 #include <runtimeAPI.h>
 #include <BarSlipMaterial.h>
 extern OPS_Routine OPS_ASD_SMA_3K;
+extern OPS_Routine OPS_APDFMD;
+extern OPS_Routine OPS_APDMD;
+extern OPS_Routine OPS_APDVFD;
 extern OPS_Routine OPS_BWBN;
 extern OPS_Routine OPS_Bilin02;
 extern OPS_Routine OPS_Bilin;
@@ -86,6 +90,7 @@ extern OPS_Routine OPS_PinchingLimitState;
 extern OPS_Routine OPS_PinchingLimitStateMaterial;
 extern OPS_Routine OPS_PySimple3;
 extern OPS_Routine OPS_RambergOsgoodSteel;
+extern OPS_Routine OPS_Ratchet;
 extern OPS_Routine OPS_ReinforcingSteel;
 extern OPS_Routine OPS_ResilienceLow;
 extern OPS_Routine OPS_ResilienceMaterialHR;
@@ -139,19 +144,22 @@ std::unordered_map<std::string, G3_TclUniaxialPackage *> tcl_uniaxial_package_ta
 
 
 typedef UniaxialMaterial* (TclDispatch_UniaxialMaterial)(G3_Runtime*, int, TCL_Char ** const);
-TclDispatch_UniaxialMaterial G3Parse_newFedeasUniaxialDamage;
 TclDispatch_UniaxialMaterial TclCommand_ReinforcingSteel;
-TclDispatch_UniaxialMaterial G3Parse_newParallelMaterial;
-// TclDispatch_UniaxialMaterial TclCommand_AxialSp;
-// TclDispatch_UniaxialMaterial TclCommand_AxialSpHD;
-static Tcl_CmdProc TclCommand_newFatigueMaterial;
 
+static Tcl_CmdProc TclCommand_newFatigueMaterial;
+static Tcl_CmdProc TclCommand_newUniaxialJ2Plasticity;
+
+Tcl_CmdProc TclCommand_newFedeasUniaxialDamage;
+Tcl_CmdProc TclCommand_ContinuumUniaxialMaterial;
+Tcl_CmdProc TclCommand_AxialSp;
+Tcl_CmdProc TclCommand_AxialSpHD;
 Tcl_CmdProc TclCommand_KikuchiAikenHDR;
 Tcl_CmdProc TclCommand_KikuchiAikenLRB;
 Tcl_CmdProc TclCommand_newUniaxialConcrete04;
 Tcl_CmdProc TclCommand_newUniaxialConcrete06;
 Tcl_CmdProc TclCommand_newUniaxialConcrete07;
 Tcl_CmdProc TclCommand_newUniaxialBoucWen;
+Tcl_CmdProc TclCommand_newParallelMaterial;
 
 // typedef int (TclCommand_UniaxialMaterial)(ClientData, Tcl_Interp*, int, TCL_Char ** const);
 static Tcl_CmdProc TclDispatch_newUniaxialPinching4;
@@ -213,24 +221,29 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch_2 {
 #endif
 
 std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
+    {"APDFMD", dispatch<OPS_APDFMD> },
+    {"APDMD",  dispatch<OPS_APDMD> },
+    {"APDVFD", dispatch<OPS_APDVFD> },
 
-    {"FedeasUniaxialDamage", dispatch<G3Parse_newFedeasUniaxialDamage>  },
+    {"FedeasUniaxialDamage", dispatch<TclCommand_newFedeasUniaxialDamage>  },
     {"KikuchiAikenHDR",      dispatch<TclCommand_KikuchiAikenHDR>       },
     {"KikuchiAikenLRB",      dispatch<TclCommand_KikuchiAikenLRB>       },
-    /*
-    {"AxialSp",              TclCommand_AxialSp               },
-    {"AxialSpHD",            TclCommand_AxialSpHD             },
-    */
+
+    {"AxialSp",              dispatch<TclCommand_AxialSp>               },
+    {"AxialSpHD",            dispatch<TclCommand_AxialSpHD>             },
+    {"ContinuumUniaxial",    dispatch<TclCommand_ContinuumUniaxialMaterial>},
+
     {"Concrete04",           dispatch<TclCommand_newUniaxialConcrete04> },
     {"Concrete06",           dispatch<TclCommand_newUniaxialConcrete06> },
     {"Concrete07",           dispatch<TclCommand_newUniaxialConcrete07> },
 #if 0
     { "ConcretewBeta",       dispatch<OPS_ConcretewBeta>    }
 #endif
+    {"Ratchet",              dispatch<OPS_Ratchet>                     },
 //  {"ReinforcingSteel",     dispatch<TclCommand_ReinforcingSteel>   }, 
-    {"ReinforcingSteel",     dispatch< OPS_ReinforcingSteel>         },
-    {"Parallel",             dispatch<G3Parse_newParallelMaterial>   },
-    {"BoucWen",              dispatch<TclCommand_newUniaxialBoucWen> },
+    {"ReinforcingSteel",     dispatch< OPS_ReinforcingSteel>           },
+    {"Parallel",             dispatch<TclCommand_newParallelMaterial>  },
+    {"BoucWen",              dispatch<TclCommand_newUniaxialBoucWen>   },
 
     {"Elastic",                dispatch<OPS_ElasticMaterial>           },
 
@@ -413,6 +426,7 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
     {"Masonryt",               dispatch<OPS_Masonryt>                  },
 
     {"ElasticPP",              dispatch<OPS_ElasticPPMaterial>         },
+    {"UniaxialJ2Plasticity",    dispatch<TclCommand_newUniaxialJ2Plasticity> },
 
     {"Hardening",              dispatch<OPS_HardeningMaterial>         },
     {"Hardening2",             dispatch<OPS_HardeningMaterial>         },

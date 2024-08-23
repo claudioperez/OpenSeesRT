@@ -52,8 +52,8 @@ void zeroi(int, int *);
 *****************************************************************/
 
 int nodfac(int *perm, int *invp, int **padj, int *ancstr , int *list, int neqns, 
-	   int nblks, int *xblk, int *envlen, OFFDBLK **segfirst, 
-	   OFFDBLK **first, int *rowblks )
+                 int nblks, int *xblk, int *envlen, OFFDBLK **segfirst, 
+                 OFFDBLK **first, int *rowblks )
 { 
    int i, node, nbr, qm, m, nnext ;
    int bcount, knz, cnz ;
@@ -88,7 +88,7 @@ int nodfac(int *perm, int *invp, int **padj, int *ancstr , int *list, int neqns,
       i = perm[node] ;
 /*    sort adjacency list */
       for (pt = padj[i] ; pt < padj[i+1] ; pt++) { 
-	 nbr = invp[*pt] ;
+         nbr = invp[*pt] ;
          if ( nbr >= node) continue ;
          qm = node ;
          do {
@@ -103,42 +103,50 @@ int nodfac(int *perm, int *invp, int **padj, int *ancstr , int *list, int neqns,
       nbeg = NULL ;
       while (ancstr[nbr] <= node)
       {  
-	 p = (OFFDBLK *)malloc( sizeof(OFFDBLK));
-	 assert (p != NULL) ;
+         p = (OFFDBLK *)malloc( sizeof(OFFDBLK));
+         assert (p != NULL) ;
          p->row = node ;
          p->beg = nbr ;
-	 po->next = p ;
-	 po = p ;
+         po->next = p ;
+         po = p ;
          nbrblk = rowblks[nbr] ;
          knz += (xblk[nbrblk+1] - nbr) ;
          len[count - bcount] = xblk[nbrblk+1] - nbr ;
          count++;
-	 if (*first == NULL) *first = p ;
-	 if (nbeg == NULL) nbeg = p ;
-	 if (segprv[nbrblk] != NULL) segprv[nbrblk]->bnext = p ;
-	 segprv[nbrblk] = p ;
-	 if (segfirst[nbrblk] == NULL) segfirst[nbrblk] = p ;
+         if (*first == NULL) 
+           *first = p ;
+         if (nbeg == NULL) 
+           nbeg = p ;
+         if (segprv[nbrblk] != NULL) 
+           segprv[nbrblk]->bnext = p ;
+         segprv[nbrblk] = p ;
+         if (segfirst[nbrblk] == NULL) 
+           segfirst[nbrblk] = p ;
          qm = nbr ;
          do {
             nnext = list[qm] ;
             list[qm] = qm ;
             qm = nnext ;
-	 } while (nnext < xblk[nbrblk+1] ) ;
-	 nbr = ancstr[nbr] ;
-	 if (nbr >= nnext ) nbr = nnext ;
-	 else list[nbr] = nnext ;
+         } while (nnext < xblk[nbrblk+1] ) ;
+
+         nbr = ancstr[nbr] ;
+         if (nbr >= nnext ) 
+           nbr = nnext ;
+         else 
+           list[nbr] = nnext ;
       }
       /* part of the diagonal envelop block */
       envlen[node] = node - nbr ;
 /*    should now allocate space for row and set up pointers */
       if (knz > 0) 
       {  
-	 nbeg->nz = (double *)calloc(knz, sizeof(double)) ;
+         nbeg->nz = (double *)calloc(knz, sizeof(double)) ;
          assert(nbeg->nz != NULL) ;
-         if ( bcount < count) bcount++ ;
+         if ( bcount < count) 
+           bcount++ ;
          m = bcount ;
-         while (bcount < count)
-         {  (nbeg->next)->nz = nbeg->nz + len[bcount - m] ;
+         while (bcount < count) {
+            (nbeg->next)->nz = nbeg->nz + len[bcount - m] ;
             nbeg = nbeg->next ;
             bcount++ ;
          }
@@ -162,10 +170,13 @@ int nodfac(int *perm, int *invp, int **padj, int *ancstr , int *list, int neqns,
 
    for (i=0 ; i<=nblks ; i++)
    {
-      if (segfirst[i] == NULL) segfirst[i] = p ;
-      else segprv[i]->bnext = p ;
+      if (segfirst[i] == NULL) 
+        segfirst[i] = p ;
+      else 
+        segprv[i]->bnext = p ;
    }
-   if (*first == NULL) *first = p ;
+   if (*first == NULL) 
+     *first = p ;
 
    free(len) ;
    free(segprv) ;
@@ -173,18 +184,17 @@ int nodfac(int *perm, int *invp, int **padj, int *ancstr , int *list, int neqns,
 }
 
 
-
 /************************************************************************
- ************  setenvlpe ..... set up envelope   ***************************
+ ************  setenvlpe ..... set up envelope   ************************
  ************************************************************************
  
     purpose - allocate space for the envelope structure
-	      and setup pointers
+              and setup pointers
 
     input parameters -penv
         neqns - no of equations
-	penv - array of pointers to be filled
-	envlen - an array with the lengths of each row.
+        penv - array of pointers to be filled
+        envlen - an array with the lengths of each row.
 
     output parameters -
         penv - filled array of pointers pointing to allocated space
@@ -203,8 +213,7 @@ int setenvlpe(int neqns, double **penv, int *envlen)
 
    penv[0] = (double *)calloc(knz+1,sizeof(double)) ;
    assert(penv[0] != NULL ) ;
-   for (i=0;i<neqns;i++)
-   { 
+   for (i=0;i<neqns;i++) { 
        penv[i+1] = penv[i] + envlen[i] ;
    }
 

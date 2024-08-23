@@ -30,7 +30,7 @@
 #include <FEM_ObjectBroker.h>
 #include <ModElasticBeam3d.h>
 
-#include <CrdTransf.h>
+#include <FrameTransform.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 #include <ID.h>
@@ -104,7 +104,7 @@ void *OPS_ADD_RUNTIME_VPV(OPS_ModElasticBeam3d) {
   numData = 1;
   if (OPS_GetIntInput(&numData, &transfTag) < 0)
 	return 0;
-  theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
+  theTrans = G3_getSafeBuilder(rt)->getTypedObject<FrameTransform3d>(transfTag);
   if (theTrans == 0) {
 	opserr << "no CrdTransf is found" << "\n";
 	return 0;

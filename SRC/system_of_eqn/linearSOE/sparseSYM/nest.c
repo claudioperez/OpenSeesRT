@@ -12,9 +12,7 @@
  */
 
 
-#include <assert.h>
 #include <stdio.h>
-
 #include "grcm.h"
 
 /* fmk - adding prototypes */
@@ -22,11 +20,11 @@ extern void zeroi(int, int *);
 
 int fnroot(int root, int **padj, int *mask, int *nlvl, int *xls, int *ls);
 int ndegree(int root, int **padj, int *mask, int *deg, int *ls, int *work);
-int fndsep(int root, int **padj, int *mask, int *sep, int *xls, int *ls, 
-	   int *work, int neqns);
+int fndsep(int root, int **padj, int *mask, int *sep, int *xls, int *ls,
+       int *work, int neqns);
 void revrse(int n, int *v);
 void subrcm (int neqns, int root, int **padj, int *perm, 
-	     int *mask, int *xls, int *work);
+         int *mask, int *xls, int *work);
 extern int rootls(int root, int **padj, int *mask, int *xls, int *ls);
 
 extern int i_greater();
@@ -55,30 +53,33 @@ extern int i_greater();
 *******************************************************************************/
 
 void gennd(int neqns, int **padj, int *mask, int *perm, 
-	   int *xls, int *ls, int *work)
+       int *xls, int *ls, int *work)
 { 
-   int num, i, root, nsep ;
+   int root, nsep ;
 
    zeroi(neqns, mask) ;
-   num = 0 ;
+   int num = 0 ;
 /* -------------------------------
    for each masked component
    -----------------------------*/
 /* modified to operate on equations rather than nodes*/
 
-   for (i=0;i<neqns ; i++)
+   for (int i=0; i<neqns ; i++)
    {
       while (mask[i] >= 0)
       {
-	 root = i ;
+         root = i ;
 /*       -----------------------------------------------------------
          find a separator and number the nodes next.
          ---------------------------------------------------------*/
          nsep = fndsep(root, padj, mask,(perm + num), xls, ls, work, neqns);
          num += nsep ;
       }
-      if (num >= neqns) printf("breaking out at i %d nums %d neqns %d\n",i,num, neqns);
-      if (num >= neqns ) break ;
+      if (num >= neqns) 
+        printf("breaking out at i %d nums %d neqns %d\n",i,num, neqns);
+
+      if (num >= neqns ) 
+        break ;
    }
 
 /* -----------------------------------------------------------------
@@ -92,7 +93,7 @@ void gennd(int neqns, int **padj, int *mask, int *perm,
 
 
 /**********************************************************
-*****************fndsep . . . .  find separator   *********
+**************** fndsep . . . .  find separator   *********
 ***********************************************************
 
         purpose - this routine is used to find a small
@@ -120,9 +121,9 @@ void gennd(int neqns, int **padj, int *mask, int *perm,
                 fnroot
 ******************************************************************/
 int fndsep(int root, int **padj, int *mask, int *sep, int *xls,
-		   int *ls, int *work, int neqns)
+           int *ls, int *work, int neqns)
 {
-   int nlvl, nsep, i, node, midlvl, midbeg, mp1beg, mp1end ;
+   int nlvl, nsep, node, midlvl, midbeg, mp1beg, mp1end ;
    int *ptr ;
    int minone = -1 ;
 
@@ -144,14 +145,14 @@ int fndsep(int root, int **padj, int *mask, int *sep, int *xls,
 
       /*return(nsep) */
      
-      for (i=0;i<nsep;i++)
+      for (int i=0; i<nsep; i++)
       {
-	     node = ls[i] ;
+         node = ls[i] ;
 
          sep[i] = node ;
          mask[node] |= minone ;
       }
-      return(nsep) ;
+      return nsep ;
       
    }
   
@@ -159,15 +160,15 @@ int fndsep(int root, int **padj, int *mask, int *sep, int *xls,
    find the middle level of the rooted level structure.
    ---------------------------------------------------------*/
    midlvl = (nlvl + 2)/2 ;
-   { 
-     int j, k, l ; ;
+   {
+     int j, k, l ;
      k = xls[nlvl] ;
      j = k/ 2 ;
      l = 0 ;
      for (k = 0 ; k < nlvl && l < j ; k++)
      {
        if (l < j) {
-	 l += (xls[k+1] - xls[k]) ;
+         l += (xls[k+1] - xls[k]) ;
        }
      }
  
@@ -176,27 +177,27 @@ int fndsep(int root, int **padj, int *mask, int *sep, int *xls,
      midbeg = xls[midlvl] ;
      mp1beg = xls[midlvl + 1] ;
      mp1end = xls[midlvl + 2] ;
-   }	 
+   }     
 
 /* ----------------------------------------------------------------
    the separator is obtained by including only those middle-level
    nodes with neighbors in the middle+1 level. work is used
    temporarily to mark those nodes in the middle+1 level.
    ---------------------------------------------------------------*/
-   for (i = mp1beg;i<mp1end;i++)
+   for (int i = mp1beg; i<mp1end; i++)
    {
       node = ls[i] ;
       work[node] |= minone ;
    }
    nsep = 0 ;
-   for (i=midbeg;i< mp1beg ; i++)
+   for (int i=midbeg; i<mp1beg ; i++)
    {
       node = ls[i] ;
       for (ptr = padj[node] ; ptr < padj[node+1] ; ptr++)
       {
-	 if (work[*ptr] < 0)
+     if (work[*ptr] < 0)
          {
-	    sep[nsep] = node ;
+        sep[nsep] = node ;
             nsep++ ;
             mask[node] |= minone ;
             ptr = padj[node + 1] ; /* node has been added get out of ptr
@@ -207,13 +208,13 @@ int fndsep(int root, int **padj, int *mask, int *sep, int *xls,
 /* -------------------
    reset work
    ------------------*/
-   for (i=mp1beg; i< mp1end; i++)
+   for (int i=mp1beg; i< mp1end; i++)
    {
       node = ls[i] ;
       work[i] &= 0 ;
    }
 
-   return( nsep) ;
+   return  nsep  ;
 }
 
 
@@ -267,20 +268,19 @@ int fnroot(int root, int **padj, int *mask, int *nlvl, int *xls, int *ls)
       root  = ls[jstrt] ;
       if (ccsize != jstrt)
       {
-	 for (j=jstrt; j<ccsize; j++)
-         {
-	    node = ls[j] ;
-            ndeg = 0 ;
-            for (kptr = padj[node] ; kptr < padj[node+1] ; kptr++)
-            {
-	       nabor = *kptr ;
-               if (mask[nabor] >= 0) ndeg++ ;
-            }
-            if (ndeg < mindeg)
-            {
-	       root = node ;
-               mindeg = ndeg ;
-            }
+        for (j=jstrt; j<ccsize; j++)
+        {
+           node = ls[j] ;
+           ndeg = 0 ;
+           for (kptr = padj[node] ; kptr < padj[node+1] ; kptr++) {
+             nabor = *kptr ;
+             if (mask[nabor] >= 0) 
+               ndeg++ ;
+           }
+           if (ndeg < mindeg) {
+             root = node ;
+             mindeg = ndeg ;
+           }
          }
       }
 /*    -----------------------------------------------
@@ -289,20 +289,22 @@ int fnroot(int root, int **padj, int *mask, int *nlvl, int *xls, int *ls)
       nunlvl = rootls(root, padj, mask, xls, ls) ;
       if ( nunlvl < *nlvl)
       {
-	 root = oldroot ;
+         root = oldroot ;
          *nlvl = rootls(root, padj, mask, xls, ls) ;
       }
-      if ( nunlvl <= *nlvl) return(root) ;
+      if ( nunlvl <= *nlvl)
+        return(root);
       *nlvl = nunlvl ;
       oldroot = root ;
+
    } while (*nlvl < ccsize-1) ;
    
-   return(root) ;
+   return root ;
 }
 
 
 /**************************************************************************
-**********************rootls ....... rooted level structure  **************
+********************* rootls ....... rooted level structure  **************
 ***************************************************************************
         Purpos - rootls generates the level structer rooted
                  at the inp8ut node called root.  Only those
@@ -331,10 +333,10 @@ int rootls(int root, int **padj, int *mask, int *xls, int *ls)
    initialization
    ---------------------------------*/
    mask[root] |= minone ;
-   ls[0] = root ;
-   nlvl |= minone ;
+   ls[0]   = root ;
+   nlvl   |= minone ;
    lvlend &= 0 ;
-   ccsize = 1 ;
+   ccsize  = 1 ;
 /* ----------------------------------------------------------
    lbegin is the pointer to the beginning of the current level
    and lvlend points to the end of this level
@@ -351,14 +353,15 @@ int rootls(int root, int **padj, int *mask, int *xls, int *ls)
       ------------------------------------------------------*/
       for ( i = lbegin;i<lvlend ; i++)
       {
-	 node = ls[i] ;
-         for ( jptr = padj[node] ; jptr < padj[node+1] ; jptr++)
-         {
-	    if (mask[*jptr] < 0) continue ;
+        node = ls[i] ;
+        for ( jptr = padj[node] ; jptr < padj[node+1] ; jptr++)
+        {
+            if (mask[*jptr] < 0)
+              continue ;
             ls[ccsize] = *jptr ;
             ccsize++ ;
             mask[*jptr] |= minone ;
-         }
+        }
       }
 /*    ----------------------------------------------------------
       compute the current level width. if it is nonzero generate
@@ -370,8 +373,8 @@ int rootls(int root, int **padj, int *mask, int *xls, int *ls)
    reset mask to zero for the nodes in the level structure 
    --------------------------------------------------------*/
    xls[nlvl+1] = lvlend ;
-   for (i=0;i<ccsize;i++)
-   {  node = ls[i] ;
+   for (i=0;i<ccsize;i++) {
+      node = ls[i] ;
       mask[node] &= 0 ;
    }
 
@@ -387,11 +390,10 @@ int rootls(int root, int **padj, int *mask, int *xls, int *ls)
 *******************************************************************************/
 
 void revrse(int n, int *v)
-{  
-   int  *ve ;
+{
    int temp ;
 
-   ve = v + n - 1 ;
+   int *ve = v + n - 1 ;
 
    while (ve > v) {
       temp = *v ;
@@ -400,7 +402,7 @@ void revrse(int n, int *v)
       ve-- ;
       v++ ;
    }
-   
+
    return ;
 }
    
@@ -415,9 +417,8 @@ void revrse(int n, int *v)
             
 *****************************************************************************/
 void forminv(int neqns, int *perm, int *invp)
-{  
-   int i ;
-   for (i=0;i<neqns;i++)
+{
+   for (int i=0;i<neqns;i++)
       invp[perm[i]] = i ;
    return ;
 }

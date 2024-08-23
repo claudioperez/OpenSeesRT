@@ -34,7 +34,7 @@
 #include <ID.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <OPS_ErrorStream.h> 
+#include <Logging.h> 
 
 // main degree of freedom for rotation
 

@@ -34,7 +34,7 @@
 #include <Matrix.h>
 
 
-class LinearShearTransf2d: public FrameTransform<2>
+class LinearShearTransf2d: public FrameTransform2d
 {
  public:
   LinearShearTransf2d (int tag);

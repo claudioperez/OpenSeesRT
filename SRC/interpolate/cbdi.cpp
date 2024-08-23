@@ -1,13 +1,39 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
 #include <math.h>                                                                        
 #include <stdlib.h>
 #include <Vector.h>
 #include <Matrix.h>
 #include "cbdi.h"
-#include <OPS_Globals.h>
+
+void
+vandermonde(int numSections, const double xi[], Matrix& G)
+{
+  for (int i = 0; i < numSections; i++) {
+    G(i, 0) = 1;
+    for (int j = 1; j < numSections; j++)
+      G(i, j) = pow(xi[i], j);
+  }
+
+  return;
+}
+
+void
+vandermonde_inverse(int numSections, const double xi[], Matrix& Ginv)
+{
+  Matrix G(numSections, numSections);
+  vandermonde(numSections, xi, G);
+
+  Matrix I(numSections, numSections);
+  for (int i = 0; i < numSections; i++)
+    I(i, i) = 1.0;
+
+  G.Solve(I, Ginv);
+}
 
 void 
 getCBDIinfluenceMatrix(int nIntegrPts, const Matrix &xi_pt, double L, Matrix &ls)
@@ -32,16 +58,15 @@ getCBDIinfluenceMatrix(int nIntegrPts, const Matrix &xi_pt, double L, Matrix &ls
    ls.addMatrixProduct(0.0, l, Ginv, L*L);
 }
 
-void getCBDIinfluenceMatrix(int nIntegrPts, double *pts, double L, Matrix &ls)
+void getCBDIinfluenceMatrix(int nIntegrPts, const double *pts, double L, Matrix &ls)
 {
    // setup Vandermode and CBDI influence matrices
-   double xi;
    Matrix G(nIntegrPts, nIntegrPts); 
    Matrix Ginv(nIntegrPts, nIntegrPts);
    Matrix l(nIntegrPts, nIntegrPts);
 
    for (int i = 0; i < nIntegrPts; i++) {
-     xi = pts[i];
+     double xi = pts[i];
      for (int j = 1; j <= nIntegrPts; j++) {
        int j0 = j - 1;
        G(i,j0) =  pow(xi,j-1);
@@ -56,7 +81,7 @@ void getCBDIinfluenceMatrix(int nIntegrPts, double *pts, double L, Matrix &ls)
 }
 
 void 
-getCBDIinfluenceMatrix(int nPts, double *pts, int nIntegrPts, double *integrPts, double L, Matrix &ls)
+getCBDIinfluenceMatrix(int nPts, const double *pts, int nIntegrPts, const double *integrPts, double L, Matrix &ls)
 {
    // setup Vandermode and CBDI influence matrices
    double xi;

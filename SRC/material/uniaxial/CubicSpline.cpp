@@ -5,13 +5,12 @@
 #include <math.h>
 
 
-
-CubicSpline::CubicSpline(void)
+CubicSpline::CubicSpline()
 {
 }
 
 
-CubicSpline::~CubicSpline(void)
+CubicSpline::~CubicSpline()
 {
 }
 

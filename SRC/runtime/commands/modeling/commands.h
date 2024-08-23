@@ -1,9 +1,10 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
 //
-// cmp
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
+// Written: cmp
 //
 #include <tcl.h>
 
@@ -54,6 +55,7 @@ extern Tcl_CmdProc TclCommand_RigidLink;
 extern Tcl_CmdProc TclCommand_RigidDiaphragm;
 extern Tcl_CmdProc TclCommand_addImposedMotionSP;
 extern Tcl_CmdProc TclCommand_addGroundMotion;
+
 // Loads
 // extern Tcl_CmdProc  TclCommand_addNodalLoad;
 Tcl_CmdProc TclCommand_addElementalLoad;
@@ -61,6 +63,9 @@ Tcl_CmdProc TclCommand_addElementalLoad;
 // Other
 extern Tcl_CmdProc  TclCommand_addHystereticBackbone;
 extern Tcl_CmdProc  TclCommand_updateMaterialStage;
+
+// UpdatedLagrange
+Tcl_CmdProc TclCommand_addCyclicModel;
 
 Tcl_CmdProc TclCommand_addParameter;
 Tcl_CmdProc TclCommand_mesh;
@@ -78,6 +83,7 @@ Tcl_CmdProc TclCommand_invoke;
 
 // printing.cpp
 Tcl_CmdProc TclCommand_print;
+Tcl_CmdProc TclCommand_classType;
 
 struct char_cmd {
   const char* name;
@@ -92,6 +98,7 @@ struct char_cmd {
   {"element",              TclCommand_addElement},
 
   {"print",                TclCommand_print},
+  {"classType",            TclCommand_classType},
   {"printModel",           TclCommand_print},
 
   {"fix",                  TclCommand_addHomogeneousBC},
@@ -150,11 +157,11 @@ struct char_cmd {
 
   {"frictionModel",        TclCommand_addFrictionModel},
 
+  {"cyclicModel",          TclCommand_addCyclicModel},
 #if 0
   {"yieldSurface_BC",      TclCommand_addYieldSurface_BC},
   {"ysEvolutionModel",     TclCommand_addYS_EvolutionModel},
   {"plasticMaterial",      TclCommand_addYS_PlasticMaterial},
-  {"cyclicModel",          TclCommand_addCyclicModel},
   {"limitCurve",           TclCommand_addLimitCurve},
   {"damageModel",          TclCommand_addDamageModel},
   {"stiffnessDegradation", TclCommand_addStiffnessDegradation},

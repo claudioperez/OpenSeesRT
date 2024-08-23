@@ -51,7 +51,7 @@
 #define START_VERTEX_NUM 0
 
 //  AnalysisModel();
-//	constructor
+//        constructor
 
 AnalysisModel::AnalysisModel(int theClassTag)
 :MovableObject(theClassTag),
@@ -114,7 +114,7 @@ AnalysisModel::~AnalysisModel()
 
   if (myGroupGraph != 0) {
     delete myGroupGraph;    
-  }	
+  }        
   
   if (myDOFGraph != 0) {
     delete myDOFGraph;
@@ -130,7 +130,7 @@ AnalysisModel::setLinks(Domain &theDomain, ConstraintHandler &theHandler)
 
 
 // void addFE_Element(FE_Element *);
-//	Method to add an element to the model.
+//        Method to add an element to the model.
 
 bool
 AnalysisModel::addFE_Element(FE_Element *theElement)
@@ -165,7 +165,7 @@ AnalysisModel::addFE_Element(FE_Element *theElement)
 
 
 // void addDOF_Group(DOF_Group *);
-//	Method to add an element to the model.
+//        Method to add an element to the model.
 
 bool
 AnalysisModel::addDOF_Group(DOF_Group *theGroup)
@@ -199,10 +199,10 @@ AnalysisModel::clearAll(void)
 {
     // if the graphs have been constructed delete them
     if (myDOFGraph != 0)
-	delete myDOFGraph;
+        delete myDOFGraph;
 
     if (myGroupGraph != 0)
-	delete myGroupGraph;    
+        delete myGroupGraph;    
 
     theFEs->clearAll();
     theDOFs->clearAll();
@@ -301,22 +301,22 @@ AnalysisModel::getDOFGraph(void)
       const ID &id = dofPtr->getID();
       int size = id.Size();
       for (int i=0; i<size; i++) {
-	int dofTag = id(i);
-	if (dofTag >= START_EQN_NUM) {
-	  Vertex *vertexPtr = myDOFGraph->getVertexPtr(dofTag);
-	  if (vertexPtr == 0) {
-	    Vertex *vertexPtr = new Vertex(dofTag, dofTag);      
-	    if (vertexPtr == 0) {
-	      opserr << "WARNING AnalysisModel::getDOFGraph";
-	      opserr << " - Not Enough Memory to create " << i+1 << "th Vertex\n";
-	      return *myDOFGraph;
-	    }
-	    if (myDOFGraph->addVertex(vertexPtr, false) == false) {
-	      opserr << "WARNING AnalysisModel::getDOFGraph - error adding vertex\n";
-	      return *myDOFGraph;
-	    }
-	  }
-	}
+        int dofTag = id(i);
+        if (dofTag >= START_EQN_NUM) {
+          Vertex *vertexPtr = myDOFGraph->getVertexPtr(dofTag);
+          if (vertexPtr == 0) {
+            Vertex *vertexPtr = new Vertex(dofTag, dofTag);      
+            if (vertexPtr == 0) {
+              opserr << "WARNING AnalysisModel::getDOFGraph";
+              opserr << " - Not Enough Memory to create " << i+1 << "th Vertex\n";
+              return *myDOFGraph;
+            }
+            if (myDOFGraph->addVertex(vertexPtr, false) == false) {
+              opserr << "WARNING AnalysisModel::getDOFGraph - error adding vertex\n";
+              return *myDOFGraph;
+            }
+          }
+        }
       }
     }
     
@@ -333,18 +333,18 @@ AnalysisModel::getDOFGraph(void)
       cnt++;
       int size = id.Size();
       for (int i=0; i<size; i++) {
-	int eqn1 = id(i);
-	
-	// if eqnNum of DOF is a valid eqn number add an edge
-	// to all other DOFs with valid eqn numbers.
-	if (eqn1 >=START_EQN_NUM) {
-	  for (int j=i+1; j<size; j++) {
-	    int eqn2 = id(j);
-	    if (eqn2 >=START_EQN_NUM)
-	      myDOFGraph->addEdgeFast(eqn1-START_EQN_NUM+START_VERTEX_NUM,
-				  eqn2-START_EQN_NUM+START_VERTEX_NUM);
-	  }
-	}
+        int eqn1 = id(i);
+        
+        // if eqnNum of DOF is a valid eqn number add an edge
+        // to all other DOFs with valid eqn numbers.
+        if (eqn1 >=START_EQN_NUM) {
+          for (int j=i+1; j<size; j++) {
+            int eqn2 = id(j);
+            if (eqn2 >=START_EQN_NUM)
+              myDOFGraph->addEdgeFast(eqn1-START_EQN_NUM+START_VERTEX_NUM,
+                                  eqn2-START_EQN_NUM+START_VERTEX_NUM);
+          }
+        }
       }
     }
   }    
@@ -362,7 +362,7 @@ AnalysisModel::getDOFGroupGraph(void)
     // myGroupGraph = new Graph(numVertex);
     MapOfTaggedObjects *graphStorage = new MapOfTaggedObjects();
     myGroupGraph = new Graph(*graphStorage);
-	
+        
 
     // now create the vertices with a reference equal to the DOF_Group number.
     // and a tag which ranges from 0 through numVertex-1
@@ -370,12 +370,12 @@ AnalysisModel::getDOFGroupGraph(void)
     DOF_GrpIter &dofIter2 = this->getDOFs();
     // int count = START_VERTEX_NUM;
     while ((dofPtr = dofIter2()) != 0) {
-	int DOF_GroupTag = dofPtr->getTag();
-	int DOF_GroupNodeTag = dofPtr->getNodeTag();
-	int numDOF = dofPtr->getNumFreeDOF();
-	Vertex *vertexPtr = new Vertex(DOF_GroupTag, DOF_GroupNodeTag, 0, numDOF);
+        int DOF_GroupTag = dofPtr->getTag();
+        int DOF_GroupNodeTag = dofPtr->getNodeTag();
+        int numDOF = dofPtr->getNumFreeDOF();
+        Vertex *vertexPtr = new Vertex(DOF_GroupTag, DOF_GroupNodeTag, 0, numDOF);
 
-	myGroupGraph->addVertex(vertexPtr);
+        myGroupGraph->addVertex(vertexPtr);
     }
 
     // now add the edges, by looping over the Elements, getting their
@@ -385,16 +385,16 @@ AnalysisModel::getDOFGroupGraph(void)
     FE_EleIter &eleIter = this->getFEs();
 
     while((elePtr = eleIter()) != 0) {
-	const ID &id = elePtr->getDOFtags();
-	int size = id.Size();
-	for (int i=0; i<size; i++) {
-	    int dof1 = id(i);
-	    for (int j=0; j<size; j++) 
-		if (i != j) {
-		    int dof2 = id(j);
-		    myGroupGraph->addEdge(dof1,dof2);
-		}
-	}
+        const ID &id = elePtr->getDOFtags();
+        int size = id.Size();
+        for (int i=0; i<size; i++) {
+            int dof1 = id(i);
+            for (int j=0; j<size; j++) 
+                if (i != j) {
+                    int dof2 = id(j);
+                    myGroupGraph->addEdge(dof1,dof2);
+                }
+        }
     }
   }
 
@@ -406,67 +406,67 @@ AnalysisModel::getDOFGroupGraph(void)
 
 void 
 AnalysisModel::setResponse(const Vector &disp,
-			   const Vector &vel, 
-			   const Vector &accel)
+                           const Vector &vel, 
+                           const Vector &accel)
 {
     DOF_GrpIter &theDOFGrps = this->getDOFs();
-    DOF_Group 	*dofPtr;
+    DOF_Group         *dofPtr;
 
-    while ((dofPtr = theDOFGrps()) != 0) {
-	dofPtr->setNodeDisp(disp);
-	dofPtr->setNodeVel(vel);
-	dofPtr->setNodeAccel(accel);	
+    while ((dofPtr = theDOFGrps()) != nullptr) {
+        dofPtr->setNodeDisp(disp);
+        dofPtr->setNodeVel(vel);
+        dofPtr->setNodeAccel(accel);
     }
-}	
-	
+}
+
 void 
 AnalysisModel::setDisp(const Vector &disp)
 {
     DOF_GrpIter &theDOFGrps = this->getDOFs();
-    DOF_Group 	*dofPtr;
+    DOF_Group         *dofPtr;
 
-    while ((dofPtr = theDOFGrps()) != 0) 
-	dofPtr->setNodeDisp(disp);
-}	
-	
+    while ((dofPtr = theDOFGrps()) != nullptr)
+      dofPtr->setNodeDisp(disp);
+}        
+        
 void 
 AnalysisModel::setVel(const Vector &vel)
 {
     DOF_GrpIter &theDOFGrps = this->getDOFs();
-    DOF_Group 	*dofPtr;
+    DOF_Group         *dofPtr;
     
-    while ((dofPtr = theDOFGrps()) != 0) 
-	dofPtr->setNodeVel(vel);
+    while ((dofPtr = theDOFGrps()) != nullptr)
+        dofPtr->setNodeVel(vel);
 }
-	
+        
 
 void 
 AnalysisModel::setAccel(const Vector &accel)
 {
     DOF_GrpIter &theDOFGrps = this->getDOFs();
-    DOF_Group 	*dofPtr;
+    DOF_Group         *dofPtr;
     
     while ((dofPtr = theDOFGrps()) != 0) 
-	dofPtr->setNodeAccel(accel);	
+        dofPtr->setNodeAccel(accel);        
 }
 
 void 
 AnalysisModel::incrDisp(const Vector &disp)
 {
     DOF_GrpIter &theDOFGrps = this->getDOFs();
-    DOF_Group 	*dofPtr;
+    DOF_Group         *dofPtr;
 
-    while ((dofPtr = theDOFGrps()) != 0) 
-	dofPtr->incrNodeDisp(disp);
+    while ((dofPtr = theDOFGrps()) != nullptr)
+        dofPtr->incrNodeDisp(disp);
 }
-	
+        
 void 
 AnalysisModel::incrVel(const Vector &vel)
 {
     DOF_GrpIter &theDOFGrps = this->getDOFs();
-    DOF_Group 	*dofPtr;    
+    DOF_Group         *dofPtr;    
     while ((dofPtr = theDOFGrps()) != nullptr)
-	dofPtr->incrNodeVel(vel);
+        dofPtr->incrNodeVel(vel);
 }
 
 #if 0
@@ -474,11 +474,11 @@ void
 AnalysisModel::incrAccel(const Vector &accel)
 {
     DOF_GrpIter &theDOFGrps = this->getDOFs();
-    DOF_Group 	*dofPtr;
+    DOF_Group         *dofPtr;
     
     while ((dofPtr = theDOFGrps()) != 0) 
-	dofPtr->incrNodeAccel(accel);	
-}	
+        dofPtr->incrNodeAccel(accel);        
+}        
 #endif
 
 
@@ -488,20 +488,20 @@ AnalysisModel::setNumEigenvectors(int numEigenvectors)
     Node *theNode;
     NodeIter &theNodes = myDomain->getNodes();
     while ((theNode = theNodes()) != 0)
-	theNode->setNumEigenvectors(numEigenvectors);
+        theNode->setNumEigenvectors(numEigenvectors);
 }
 
 void 
 AnalysisModel::setEigenvalues(const Vector &eigenvalues)
 {
     myDomain->setEigenvalues(eigenvalues);
-}	
+}        
 
 const Vector &
 AnalysisModel::getEigenvalues(void)
 {
   return myDomain->getEigenvalues();
-}	
+}        
 
 
 
@@ -520,11 +520,11 @@ void
 AnalysisModel::setEigenvector(int mode, const Vector &eigenvalue)
 {
     DOF_GrpIter &theDOFGrps = this->getDOFs();
-    DOF_Group 	*dofPtr;
+    DOF_Group         *dofPtr;
     
     while ((dofPtr = theDOFGrps()) != nullptr) 
-	dofPtr->setEigenvector(mode, eigenvalue);	
-}	
+        dofPtr->setEigenvector(mode, eigenvalue);        
+}        
 
 void 
 AnalysisModel::applyLoadDomain(double pseudoTime)
@@ -582,8 +582,8 @@ AnalysisModel::eigenAnalysis(int numMode, bool generalized, bool findSmallest)
     // check to see there is a Domain linked to the Model
 
     if (myDomain == nullptr) {
-	opserr << "WARNING: AnalysisModel::newStep. No Domain linked.\n";
-	return -1;
+        opserr << "WARNING: AnalysisModel::newStep. No Domain linked.\n";
+        return -1;
     }
 
     // invoke the method
@@ -616,17 +616,17 @@ AnalysisModel::revertDomainToLastCommit()
     // check to see there is a Domain linked to the Model
 
     if (myDomain == nullptr) {
-	opserr << "WARNING: AnalysisModel::revertDomainToLastCommit.";
-	opserr << " No Domain linked.\n";
-	return -1;
+      opserr << "WARNING: AnalysisModel::revertDomainToLastCommit.";
+      opserr << " No Domain linked.\n";
+      return -1;
     }
 
     // invoke the method
     if (myDomain->revertToLastCommit() < 0) {
-	opserr << "WARNING: AnalysisModel::revertDomainToLastCommit.";
-	opserr << " Domain::revertToLastCommit() failed.\n";
-	return -2;
-    }	
+      opserr << "WARNING: AnalysisModel::revertDomainToLastCommit.";
+      opserr << " Domain::revertToLastCommit() failed.\n";
+      return -2;
+    }
     return OpenSees::Flag::Success;
 }
 
@@ -636,9 +636,9 @@ AnalysisModel::getCurrentDomainTime(void)
     // check to see there is a Domain linked to the Model
 
     if (myDomain == nullptr) {
-	opserr << "WARNING: AnalysisModel::getCurrentDomainTime.";
-	opserr << " No Domain linked.\n";
-	return 0.0;
+      opserr << "WARNING: AnalysisModel::getCurrentDomainTime.";
+      opserr << " No Domain linked.\n";
+      return 0.0;
     }
 
     // invoke the method
@@ -650,8 +650,8 @@ void
 AnalysisModel::setCurrentDomainTime(double newTime)
 {
     if (myDomain == nullptr) {
-	opserr << "WARNING: AnalysisModel::getCurrentDomainTime.";
-	opserr << " No Domain linked.\n";
+      opserr << "WARNING: AnalysisModel::getCurrentDomainTime.";
+      opserr << " No Domain linked.\n";
     }
 
     // invoke the method
@@ -663,9 +663,9 @@ AnalysisModel::setCurrentDomainTime(double newTime)
 void
 AnalysisModel::setRayleighDampingFactors(double alphaM, double betaK, double betaK0, double betaKc)
 {
-    if (myDomain == 0) {
-	opserr << "WARNING: AnalysisModel::getCurrentDomainTime.";
-	opserr << " No Domain linked.\n";
+    if (myDomain == nullptr) {
+      opserr << "WARNING: AnalysisModel::getCurrentDomainTime.";
+      opserr << " No Domain linked.\n";
     }
 
     // invoke the method
@@ -691,7 +691,7 @@ AnalysisModel::sendSelf(int cTag, Channel &theChannel)
 
 int
 AnalysisModel::recvSelf(int cTag, Channel &theChannel, 
-			FEM_ObjectBroker &theBroker) 
+                        FEM_ObjectBroker &theBroker) 
 {
     return OpenSees::Flag::Success;
 }

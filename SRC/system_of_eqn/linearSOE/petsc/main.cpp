@@ -17,18 +17,10 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2006-01-12 23:59:07 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/petsc/main.cpp,v $
-                                                                        
-                                                                        
-
+//
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
-//#include <PetscSOE.h>
-//#include <PetscSolver.h>
 #include <PetscSOE.h>
 #include <PetscSolver.h>
 #include <Graph.h>
@@ -71,12 +63,12 @@ main()
     c(1,1) = 9.0;
     c(1,2) = 2.0;		      
     
-    ID d(1);    d(0) =  1;
-    ID e(1);    e(0) =  2;
-    ID f(2);    f(0) =  1; f(1) = 0;
-    ID g(2);    g(0) = -1; g(1) = 2;
-    ID h(3);    h(0) =  2; h(1) = 1; h(2) = 3;
-    ID m(3);    m(0) =  5; m(1) = 4; m(2) = 3;    
+    ID d(1);   d(0) =  1;
+    ID e(1);   e(0) =  2;
+    ID f(2);   f(0) =  1;  f(1) = 0;
+    ID g(2);   g(0) = -1;  g(1) = 2;
+    ID h(3);   h(0) =  2;  h(1) = 1; h(2) = 3;
+    ID m(3);   m(0) =  5;  m(1) = 4; m(2) = 3;    
 
     Graph theGraph(6);  
     Vertex v0(0,0);  theGraph.addVertex(&v0);

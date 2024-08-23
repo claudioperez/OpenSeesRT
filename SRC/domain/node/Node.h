@@ -96,15 +96,15 @@ class Node :
     //
     // public methods for obtaining committed and trial 
     // response quantities of the node
-    VIRTUAL const Vector &getDisp(void);
-    VIRTUAL const Vector &getIncrDisp(void);
-    VIRTUAL const Vector &getIncrDeltaDisp(void);
-    VIRTUAL const Vector &getTrialDisp(void);
+    VIRTUAL const Vector &getDisp();
+    VIRTUAL const Vector &getIncrDisp();
+    VIRTUAL const Vector &getIncrDeltaDisp();
+    VIRTUAL const Vector &getTrialDisp();
 
-    VIRTUAL const Vector &getVel(void);
-    VIRTUAL const Vector &getAccel(void);
-    VIRTUAL const Vector &getTrialVel(void);
-    VIRTUAL const Vector &getTrialAccel(void);
+    VIRTUAL const Vector &getVel();
+    VIRTUAL const Vector &getAccel();
+    VIRTUAL const Vector &getTrialVel();
+    VIRTUAL const Vector &getTrialAccel();
 
     // public methods for updating the trial response quantities
     virtual int setTrialDisp  (double value, int dof);
@@ -116,13 +116,13 @@ class Node :
     VIRTUAL int incrTrialAccel(const Vector &);
 
     // Dynamics
-    VIRTUAL const Matrix &getMass(void);
+    VIRTUAL const Matrix &getMass();
+    VIRTUAL const Matrix &getDamp();
     VIRTUAL int setMass(const Matrix &theMass);
     VIRTUAL int setNumColR(int numCol);
     VIRTUAL int setR(int row, int col, double Value);
     VIRTUAL const Vector &getRV(const Vector &V);
     VIRTUAL int setRayleighDampingFactor(double alphaM);
-    VIRTUAL const Matrix &getDamp(void);
 
     // Eigen vectors
     VIRTUAL int setNumEigenvectors(int numVectorsToStore);
@@ -139,8 +139,8 @@ class Node :
     VIRTUAL void zeroUnbalancedLoad(void);
     VIRTUAL int addUnbalancedLoad(const Vector &load, double fact = 1.0);
     VIRTUAL int addInertiaLoadToUnbalance(const Vector &accel, double fact = 1.0);
-    VIRTUAL const Vector &getUnbalancedLoad(void);
-    VIRTUAL const Vector &getUnbalancedLoadIncInertia(void);
+    VIRTUAL const Vector &getUnbalancedLoad();
+    VIRTUAL const Vector &getUnbalancedLoadIncInertia();
 
 
     // Misc. Responses
@@ -192,7 +192,7 @@ class Node :
 #endif
 
 
-    Domain *getDomain(void) {return theDomain;};
+    Domain *getDomain() {return theDomain;};
     void setDomain(Domain *model) {theDomain = model;};
 
   protected:
@@ -221,9 +221,9 @@ class Node :
 
     // priavte methods used to create the Vector objects 
     // for the committed and trial response quantaties.
-    virtual int createDisp(void);
-    int createVel(void);
-    int createAccel(void);
+    virtual int createDisp();
+    int createVel();
+    int createAccel();
 
     // private data associated with each node object
     int numberDOF;                    // number of dof at Node

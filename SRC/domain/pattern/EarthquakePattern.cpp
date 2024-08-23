@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.9 $
-// $Date: 2006-09-05 20:51:38 $
-// $Source: /usr/local/cvs/OpenSees/SRC/domain/pattern/EarthquakePattern.cpp,v $
-                                                                        
+//
 // Written: fmk 11/98
 // Revised:
 //
@@ -57,7 +53,6 @@ EarthquakePattern::~EarthquakePattern()
       delete theMotions[i];
   
   if (theMotions != 0)
-    //    free ((void *)theMotions);
     delete [] theMotions;
 
   if (uDotG != 0)
@@ -77,11 +72,11 @@ EarthquakePattern::applyLoad(double time)
     return;
 
   // check if setLoadConstant() has been called
-  if (isConstant != 0)
+  if (isConstant != true)
     currentTime = time;
 
   Domain *theDomain = this->getDomain();
-  if (theDomain == 0)
+  if (theDomain == nullptr)
     return;
 
 
@@ -93,7 +88,7 @@ EarthquakePattern::applyLoad(double time)
 
   NodeIter &theNodes = theDomain->getNodes();
   Node *theNode;
-  while ((theNode = theNodes()) != 0) 
+  while ((theNode = theNodes()) != nullptr)
     theNode->addInertiaLoadToUnbalance(*uDotDotG, 1.0);
   
 

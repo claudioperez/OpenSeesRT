@@ -30,6 +30,7 @@
 // 1d material subroutine Steel_1.
 
 #include <stdlib.h>
+#include <Logging.h>
 #include <FedeasSteel1Material.h>
 
 FedeasSteel1Material::FedeasSteel1Material(int tag,

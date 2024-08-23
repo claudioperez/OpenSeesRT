@@ -4,7 +4,8 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-#add_library(convergenceTest OBJECT)
+
+target_link_libraries(OPS_ConvergenceTest PRIVATE OPS_Algorithm OPS_Logging)
 
 target_sources(OPS_ConvergenceTest
   PRIVATE

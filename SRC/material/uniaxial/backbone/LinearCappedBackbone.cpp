@@ -30,7 +30,7 @@
 #include <ID.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 LinearCappedBackbone::LinearCappedBackbone(int tag, HystereticBackbone &backbone,
 					   double def, double slope, double res):

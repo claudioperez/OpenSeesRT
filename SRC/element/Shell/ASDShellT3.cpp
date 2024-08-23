@@ -320,18 +320,18 @@ namespace
         const auto& p1 = LCS.P1();
         const auto& p2 = LCS.P2();
         const auto& p3 = LCS.P3();
-        double y12 = p1.y() - p2.y();
-        double y23 = p2.y() - p3.y();
-        double y31 = p3.y() - p1.y();
-        double x23 = p2.x() - p3.x();
-        double x31 = p3.x() - p1.x();
-        double x12 = p1.x() - p2.x();
-        double x32 = p3.x() - p2.x();
-        double y32 = p3.y() - p2.y();
-        double x13 = p1.x() - p3.x();
-        double y13 = p1.y() - p3.y();
-        double x21 = p2.x() - p1.x();
-        double y21 = p2.y() - p1.y();
+        double y12 = p1[1] - p2[1];
+        double y23 = p2[1] - p3[1];
+        double y31 = p3[1] - p1[1];
+        double x23 = p2[0] - p3[0];
+        double x31 = p3[0] - p1[0];
+        double x12 = p1[0] - p2[0];
+        double x32 = p3[0] - p2[0];
+        double y32 = p3[1] - p2[1];
+        double x13 = p1[0] - p3[0];
+        double y13 = p1[1] - p3[1];
+        double x21 = p2[0] - p1[0];
+        double y21 = p2[1] - p1[1];
 
         // membrane part (ANDeS, basic)
         constexpr double alpha_membrane = 1.5;
@@ -668,7 +668,7 @@ void ASDShellT3::setDomain(Domain* theDomain)
         Vector3Type e1;
         if (m_local_x) {
             // user-defined (already normalized in c-tor)
-            e1 = Vector3Type(*m_local_x);
+            e1 = *m_local_x;
             // make sure it's on the reference x-y plane
             Vector3Type e3 = reference_cs.Vz();
             Vector3Type e2 = e3.cross(e1);
@@ -682,9 +682,9 @@ void ASDShellT3::setDomain(Domain* theDomain)
         }
         else {
             // default one
-            Vector3Type P1(m_transformation->getNodes()[0]->getCrds());
-            Vector3Type P2(m_transformation->getNodes()[1]->getCrds());
-            Vector3Type e1 = (P2 - P1) / 2.0;
+            const Vector& P1 = m_transformation->getNodes()[0]->getCrds();
+            const Vector& P2 = m_transformation->getNodes()[1]->getCrds();
+            e1 = (P2 - P1) / 2.0;
             e1.normalize();
         }
         m_angle = std::acos(std::max(-1.0, std::min(1.0, e1.dot(e1_local))));
@@ -1602,19 +1602,19 @@ int ASDShellT3::calculateAll(Matrix& LHS, Vector& RHS, int options)
         m_transformation->createLocalCoordinateSystem(UG);
 
     // Some matrices/vectors
-    auto& N = ASDShellT3Globals::instance().N;
-    auto& dN = ASDShellT3Globals::instance().dN;
+    auto& N    = ASDShellT3Globals::instance().N;
+    auto& dN   = ASDShellT3Globals::instance().dN;
     auto& dNdX = ASDShellT3Globals::instance().dNdX;
-    auto& jac = ASDShellT3Globals::instance().jac;
-    auto& B = ASDShellT3Globals::instance().B;
-    auto& Bd = ASDShellT3Globals::instance().Bd;
-    auto& Bhx = ASDShellT3Globals::instance().Bhx;
-    auto& Bhy = ASDShellT3Globals::instance().Bhy;
-    auto& B1 = ASDShellT3Globals::instance().B1;
+    auto& jac  = ASDShellT3Globals::instance().jac;
+    auto& B    = ASDShellT3Globals::instance().B;
+    auto& Bd   = ASDShellT3Globals::instance().Bd;
+    auto& Bhx  = ASDShellT3Globals::instance().Bhx;
+    auto& Bhy  = ASDShellT3Globals::instance().Bhy;
+    auto& B1   = ASDShellT3Globals::instance().B1;
     auto& B1TD = ASDShellT3Globals::instance().B1TD;
-    auto& E = ASDShellT3Globals::instance().E;
-    auto& S = ASDShellT3Globals::instance().S;
-    auto& D = ASDShellT3Globals::instance().D;
+    auto& E    = ASDShellT3Globals::instance().E;
+    auto& S    = ASDShellT3Globals::instance().S;
+    auto& D    = ASDShellT3Globals::instance().D;
     auto& Dsection = ASDShellT3Globals::instance().Dsection;
 
     // matrices for orienting strains in section coordinate system
@@ -1659,7 +1659,8 @@ int ASDShellT3::calculateAll(Matrix& LHS, Vector& RHS, int options)
     const auto& gx = m_reduced_integration ? XI0 : XI;
     const auto& gy = m_reduced_integration ? ETA0 : ETA;
     const auto& gw = m_reduced_integration ? WTS0 : WTS;
-    for(int igauss = 0; igauss < gx.size(); ++igauss)
+
+    for (int igauss = 0; igauss < gx.size(); ++igauss)
     {
         // Current integration point data
         double xi = gx[igauss];
@@ -1855,6 +1856,7 @@ int ASDShellT3::calculateAll(Matrix& LHS, Vector& RHS, int options)
     return result;
 }
 
+
 double ASDShellT3::evaluateSectionThickness()
 {
     const Matrix& D = m_sections[0]->getInitialTangent();
@@ -1893,3 +1895,4 @@ ASDShellT3::displaySelf(Renderer& theViewer, int displayMode, float fact, const 
     // draw the polygon
     return theViewer.drawPolygon(coords, values, this->getTag());
 }
+

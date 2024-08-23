@@ -38,7 +38,7 @@
 #include <ChannelAddress.h>
 #include <MovableObject.h>
 #include <SocketAddress.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 static int GetHostAddr(const char *host, char *IntAddr);
 static void inttoa(unsigned int no, char *string, int *cnt);

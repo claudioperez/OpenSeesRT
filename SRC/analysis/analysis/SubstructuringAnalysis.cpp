@@ -82,11 +82,4 @@ SubstructuringAnalysis::~SubstructuringAnalysis()
 
 }    
 
-int 
-SubstructuringAnalysis::analyze(void)
-{
-    opserr << "SubstructuringAnalysis::analyze(void)";
-    opserr << "does nothing and should not have been called\n";
-    return -1;
-}
 

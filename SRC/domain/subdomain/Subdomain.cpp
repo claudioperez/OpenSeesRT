@@ -50,7 +50,6 @@
 #include <DOF_Group.h>
 #include <ElementIter.h>
 
-#include <EquiSolnAlgo.h>
 #include <IncrementalIntegrator.h>
 #include <LinearSOE.h>
 
@@ -59,6 +58,7 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
+class EquiSolnAlgo;
 
 Matrix Subdomain::badResult(1,1); // for returns from getStiff, getMass and getDamp
 
@@ -937,7 +937,7 @@ Subdomain::getDDAnalysis(void)
 }
 
 int 
-Subdomain::addResistingForceToNodalReaction(bool inclInertia)
+Subdomain::addResistingForceToNodalReaction(int inclInertia)
 {
   return 0;
 }

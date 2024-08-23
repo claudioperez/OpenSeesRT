@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:02:02 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/petsc/ShadowPetscSOE.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/system_of_eqn/linearSOE/petsc/ShadowPetscSOE.C
 //
 // Written: fmk & om
@@ -188,38 +183,38 @@ ShadowPetscSOE::setSize(Graph &theGraph)
 
       theVertex = theGraph.getVertexPtr(a);
       if (theVertex == 0) {
-	opserr << "WARNING:SparseGenLinSOE::setSize :";
-	opserr << " vertex " << a << " not in graph! - size set to 0\n";
-	size = 0;
-	return -1;
+        opserr << "WARNING:SparseGenLinSOE::setSize :";
+        opserr << " vertex " << a << " not in graph! - size set to 0\n";
+        size = 0;
+        return -1;
       }
 
       colA[lastLoc++] = theVertex->getTag(); // place diag in first
       const ID &theAdjacency = theVertex->getAdjacency();
       int idSize = theAdjacency.Size();
-	
+        
       // now we have to place the entries in the ID into order in colA
       for (int i=0; i<idSize; i++) {
 
-	int row = theAdjacency(i);
-	bool foundPlace = false;
-	// find a place in colA for current col
-	for (int j=startLoc; j<lastLoc; j++)
-	  if (colA[j] > row) { 
-	    // move the entries already there one further on
-	    // and place col in current location
-	    for (int k=lastLoc; k>j; k--)
-	      colA[k] = colA[k-1];
-	    colA[j] = row;
-	    foundPlace = true;
-	      j = lastLoc;
-	  }
-	if (foundPlace == false) // put in at the end
-	  colA[lastLoc] = row;
+        int row = theAdjacency(i);
+        bool foundPlace = false;
+        // find a place in colA for current col
+        for (int j=startLoc; j<lastLoc; j++)
+          if (colA[j] > row) { 
+            // move the entries already there one further on
+            // and place col in current location
+            for (int k=lastLoc; k>j; k--)
+              colA[k] = colA[k-1];
+            colA[j] = row;
+            foundPlace = true;
+              j = lastLoc;
+          }
+        if (foundPlace == false) // put in at the end
+          colA[lastLoc] = row;
 
-	lastLoc++;
+        lastLoc++;
       }
-      rowStartA[a+1] = lastLoc;;	    
+      rowStartA[a+1] = lastLoc;;            
       startLoc = lastLoc;
     }
   }
@@ -252,11 +247,11 @@ ShadowPetscSOE::setSize(Graph &theGraph)
       int rowStart = rowStartA[startRow+j];
       int nextRowStart = rowStartA[startRow+j+1];
       for (int k=rowStart; k<nextRowStart; k++) {
-	int col = colA[k];
-	if (col < startRow || col > endRow)
-	  onnz[j] += 1;
-	else
-	  dnnz[j] += 1;
+        int col = colA[k];
+        if (col < startRow || col > endRow)
+          onnz[j] += 1;
+        else
+          dnnz[j] += 1;
       }
     }
 
@@ -331,7 +326,7 @@ ShadowPetscSOE::zeroA(void)
   MPI_Bcast(sendBuffer, 3, MPI_INT, 0, PETSC_COMM_WORLD);
   theSOE.zeroA();
 }
-	
+        
 void 
 ShadowPetscSOE::zeroB(void)
 {
@@ -429,13 +424,9 @@ ShadowPetscSOE::sendSelf(int cTag, Channel &theChannel)
 
 int 
 ShadowPetscSOE::recvSelf(int cTag, 
-			 Channel &theChannel, FEM_ObjectBroker &theBroker)
+                         Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
   opserr << "WARNING ShadowPetscSOE::sendSelf - does not receive itself YET\n";
   return 0;
 }
-
-
-
-
 

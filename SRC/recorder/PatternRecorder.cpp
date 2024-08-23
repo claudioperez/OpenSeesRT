@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <PatternRecorder.h>
 #include <Domain.h>
 #include <LoadPattern.h>

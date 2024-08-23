@@ -1,15 +1,16 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // standard library
 #include <array>
 #include <string>
 #include <unordered_map>
 // framework
-#include <g3_api.h>
-#include <OPS_Globals.h>
+#include <runtimeAPI.h>
+#include <Parsing.h>
 #include <packages.h>
 // analysis
 #include <StaticAnalysis.h>
@@ -169,6 +170,10 @@ std::unordered_map<std::string, struct soefps> soe_table = {
      MP_SOE(ProfileSPDLinDirectSolver,   DistributedProfileSPDLinSOE)}},
 
   {"fullgeneral", {
+     G3_SOE(FullGenLinLapackSolver,      FullGenLinSOE),
+     SP_SOE(FullGenLinLapackSolver,      FullGenLinSOE),
+     MP_SOE(FullGenLinLapackSolver,      FullGenLinSOE)}},
+  {"fullgen", {
      G3_SOE(FullGenLinLapackSolver,      FullGenLinSOE),
      SP_SOE(FullGenLinLapackSolver,      FullGenLinSOE),
      MP_SOE(FullGenLinLapackSolver,      FullGenLinSOE)}},

@@ -38,7 +38,7 @@
 #include <stdlib.h>
 #include <Channel.h>
 #include <math.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <string.h>
 
 #define DEBG 0

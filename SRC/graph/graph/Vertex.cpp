@@ -28,7 +28,7 @@
 #include <Vertex.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <Vector.h>
 
 Vertex::Vertex(int tag, int ref, double weight, int color)

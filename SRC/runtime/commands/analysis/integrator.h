@@ -1,10 +1,10 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 #include <runtimeAPI.h>
-class G3_Runtime;
 
 OPS_Routine OPS_Newmark;
 OPS_Routine OPS_StagedNewmark;

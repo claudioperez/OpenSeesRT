@@ -8,60 +8,61 @@
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 target_sources(OPS_Material
-    PRIVATE
-      AxialSp.cpp
-      AxialSp.cpp
-      AxialSpHD.cpp
-      BWBN.cpp
-      Bilin.cpp
-      Bilin02.cpp
-      DowelType.cpp
-      Elastic2Material.cpp
-      ElasticBilin.cpp
-      ElasticMaterial.cpp
-      ElasticMultiLinear.cpp
-      ElasticPPMaterial.cpp
-      ElasticPowerFunc.cpp
-      IMKBilin.cpp
-      IMKPeakOriented.cpp
-      IMKPinching.cpp
-      JankowskiImpact.cpp
-      HystereticSMMaterial.cpp
-      HystereticSmooth.cpp
-      HystereticAsym.cpp
-      MaterialState.cpp
-      OriginCentered.cpp
-      ParallelMaterial.cpp
-      ResilienceLow.cpp
-      UVCuniaxial.cpp
-      UniaxialMaterial.cpp
-    PUBLIC
-      AxialSp.h
-      AxialSp.h
-      AxialSpHD.h
-      BWBN.h
-      Bilin.h
-      Bilin02.h
-      DowelType.h
-      Elastic2Material.h
-      ElasticBilin.h
-      ElasticMaterial.h
-      ElasticMultiLinear.h
-      ElasticPPMaterial.h
-      ElasticPowerFunc.h
-      IMKBilin.h
-      IMKPeakOriented.h
-      IMKPinching.h
-      JankowskiImpact.h
-      HystereticSMMaterial.h
-      HystereticSmooth.h
-      HystereticAsym.h
-      MaterialState.h
-      OriginCentered.h
-      ParallelMaterial.h
-      ResilienceLow.h
-      UVCuniaxial.h
-      UniaxialMaterial.h
+  PRIVATE
+    APDFMD.cpp
+    APDMD.cpp
+    APDVFD.cpp
+    BWBN.cpp
+    Bilin.cpp
+    Bilin02.cpp
+    DowelType.cpp
+    Elastic2Material.cpp
+    ElasticBilin.cpp
+    ElasticMaterial.cpp
+    ElasticMultiLinear.cpp
+    ElasticPPMaterial.cpp
+    ElasticPowerFunc.cpp
+    IMKBilin.cpp
+    IMKPeakOriented.cpp
+    IMKPinching.cpp
+    JankowskiImpact.cpp
+    HystereticSMMaterial.cpp
+    HystereticSmooth.cpp
+    HystereticAsym.cpp
+    MaterialState.cpp
+    MultiplierMaterial.cpp
+    ParallelMaterial.cpp
+    ResilienceLow.cpp
+    Ratchet.cpp
+    UVCuniaxial.cpp
+    UniaxialMaterial.cpp
+  PUBLIC
+    APDMD.h
+    APDVFD.h
+    BWBN.h
+    Bilin.h
+    Bilin02.h
+    DowelType.h
+    Elastic2Material.h
+    ElasticBilin.h
+    ElasticMaterial.h
+    ElasticMultiLinear.h
+    ElasticPPMaterial.h
+    ElasticPowerFunc.h
+    IMKBilin.h
+    IMKPeakOriented.h
+    IMKPinching.h
+    JankowskiImpact.h
+    HystereticSMMaterial.h
+    HystereticSmooth.h
+    HystereticAsym.h
+    MaterialState.h
+    MultiplierMaterial.h
+    ParallelMaterial.h
+    ResilienceLow.h
+    Ratchet.h
+    UVCuniaxial.h
+    UniaxialMaterial.h
 )
 
 
@@ -77,7 +78,6 @@ target_sources(OPS_Material
       CFSWSWP.cpp
       CableMaterial.cpp
       Cast.cpp
-      ContinuumUniaxial.cpp
       CubicSpline.cpp
       DamperMaterial.cpp
       DegradingPinchedBW.cpp
@@ -141,20 +141,12 @@ target_sources(OPS_Material
       CFSWSWP.h
       CableMaterial.h
       Cast.h
-#     Concrete01.h
-#     Concrete01WithSITC.h
-#     Concrete02.h
 #     Concrete02IS.h
 #     Concrete02Thermal.h
-#     Concrete04.h
-#     Concrete05.h
-#     Concrete06.h
-#     Concrete07.h
 #     ConcreteECThermal.h
 #     ConcreteSakaiKawashima.h
 #     ConcretewBeta.h
 #     ConfinedConcrete01.h
-      ContinuumUniaxial.h
       CubicSpline.h
       DamperMaterial.h
       DegradingPinchedBW.h
@@ -255,6 +247,7 @@ add_library(OPS_Material_f)
 if ("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
   target_compile_options(OPS_Material_f PRIVATE "-w" "-std=legacy")
 endif()
+
 # target_sources(OPS_Material_f PRIVATE
 #      #DoddRestrepo.f
 #      #STEELDR.f
@@ -264,18 +257,22 @@ endif()
 target_link_libraries(OPS_Material PUBLIC OPS_Material_f)
 
 add_subdirectory(BoucWen)
+add_subdirectory(AxialSpring)
+add_subdirectory(AlgebraicHysteresis)
 add_subdirectory(backbone)
 add_subdirectory(bearing)
 add_subdirectory(stiffness)
 add_subdirectory(strength)
 add_subdirectory(unloading)
 add_subdirectory(limitState)
+add_subdirectory(Parallel)
 add_subdirectory(concrete)
 add_subdirectory(steel)
 
 add_subdirectory(PY)
 add_subdirectory(snap)
 add_subdirectory(fedeas)
+add_subdirectory(wrapper)
 add_subdirectory(drain)
-
+add_subdirectory(legacy)
 

@@ -4,7 +4,7 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-target_sources(OPS_Analysis
+target_sources(OPS_Algorithm
     PRIVATE
       Accelerator.cpp
       MillerAccelerator.cpp 
@@ -33,7 +33,7 @@ target_sources(OPS_Analysis
 )
 # Build files are not properly generated for Windows
 # when libraries contain both C++ and Fortran files
-# add_library(OPS_Analysis_Naccel OBJECT naccel.f)
-# target_link_libraries(OPS_Analysis OPS_Analysis_Naccel)
+# add_library(OPS_Algorithm_Naccel OBJECT naccel.f)
+# target_link_libraries(OPS_Algorithm OPS_Algorithm_Naccel)
 
-target_include_directories(OPS_Analysis PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Algorithm PUBLIC ${CMAKE_CURRENT_LIST_DIR})

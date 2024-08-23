@@ -33,7 +33,7 @@
 //
 #include <SolutionAlgorithm.h>
 #include <IncrementalIntegrator.h>
-
+#include <logging/Logging.h> // TODO
 class AnalysisModel;
 class LinearSOE;
 class ConvergenceTest;

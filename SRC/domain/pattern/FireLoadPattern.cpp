@@ -150,7 +150,7 @@ void
 FireLoadPattern::applyLoad(double time)
 {
 	// first determine the load factor
-  if (theSeries1 != 0 && isConstant != 0) {
+  if (theSeries1 != nullptr && isConstant != true) {
     loadFactors(0) = theSeries1->getFactor(time);
     loadFactors(1) = theSeries2->getFactor(time);
     loadFactors(2) = theSeries3->getFactor(time);

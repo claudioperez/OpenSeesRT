@@ -174,8 +174,12 @@ void * OPS_ADD_RUNTIME_VPV(OPS_SteelDRC)
 // Material Constructors and destructor
 // Simplest class constructor, used to generate copy of the object
 SteelDRC::SteelDRC(int tag)
-	:UniaxialMaterial(tag, MAT_TAG_SteelDRC) {
+	:UniaxialMaterial(tag, MAT_TAG_SteelDRC)
+{
+	// To initialize variables
+	this->revertToStart();
 }
+
 // Constructor for the case when all the model parameters are given and strain hardening is defined from (esh1, fsh1)
 SteelDRC::SteelDRC(int tag, double Es, double fy, double eu, double fu, double esh,
 	double esh1, double fsh1, double eft, double omegaFac, int bauschType,
@@ -255,7 +259,7 @@ SteelDRC::~SteelDRC()
 int
 SteelDRC::setTrialStrain(double strain, double strainRate)
 {
-	// Copy state variables of last commited state into trial state.
+	// Copy state variables of last committed state into trial state.
 	revertToLastCommit();
 
 	// If strain change is very small no update is necessary
@@ -433,7 +437,7 @@ SteelDRC::revertToLastCommit(void)
 	trialTangent = commitTangent;
 	trialStress = commitStress;
 
-	// revert the internal state variables to the previously commited state
+	// revert the internal state variables to the previously committed state
 	Teps = Ceps; 
 	Tsig = Csig;
 	Ttan = Ctan;
@@ -610,7 +614,7 @@ SteelDRC::getCopy(void)
 	theCopy->trialStress = trialStress;
 	theCopy->trialTangent = trialTangent;
 
-	// Copy commited state variables into the new object
+	// Copy committed state variables into the new object
 	theCopy->Ceps = Ceps;
 	theCopy->Csig = Csig;
 	theCopy->Ctan = Ctan;
@@ -668,7 +672,7 @@ SteelDRC::sendSelf(int cTag, Channel &theChannel)
 {
 	int res = 0;
 	int index = 0;
-	static Vector data(70);
+	static Vector data(85);
 	
 	data(index++) = this->getTag();
 	data(index++) = Teps;
@@ -770,7 +774,7 @@ SteelDRC::recvSelf(int cTag, Channel &theChannel,
 FEM_ObjectBroker &theBroker)
 {
 	int res = 0;
-	static Vector data(70);
+	static Vector data(85);
 	res = theChannel.recvVector(this->getDbTag(), cTag, data);
 	if (res < 0)
 		opserr << "SteelDRC::recvSelf() - failed to recv data\n";
@@ -1530,7 +1534,7 @@ void SteelDRC::State_Determination(int S, int K, int M, int Klmr, double Eun)
 		return;
 	}
 	// Case 5 : Bauschinger curve from Tea[K] to Terejoin[K].
-	// Last reversal occured in yield plateau and the current 
+	// Last reversal occurred in yield plateau and the current 
 	// state has not rejoined the shifted backbone curve
 	if (!isnan(Terejoin[K])) {
 		ptA[0] = Tea[K];
@@ -1557,7 +1561,7 @@ void SteelDRC::State_Determination(int S, int K, int M, int Klmr, double Eun)
 }
 
 void SteelDRC::State_Reversal(int S,int K, int M, int &Klmr, double &Eun) {
-	// Case 1: Reversal occured in linear-elastic zone of the skeleton curve
+	// Case 1: Reversal occurred in linear-elastic zone of the skeleton curve
 	// No parameter requires updating
 	if ((Te0[0] == 0 && Te0[1] == 0) && (Ceps <= eyN && Ceps >= -eyN)) 
 		return;
@@ -1584,7 +1588,7 @@ void SteelDRC::State_Reversal(int S,int K, int M, int &Klmr, double &Eun) {
 	Tea[K] = Ter + S*Dfu * fyEng / Eun;
 	
 	// Case 3: No strain hardening has occurred yet (but a reversal from yield plateau has 
-	// ocurred already). Reversal occurred in Bauschinger curve
+	// occurred already). Reversal occurred in Bauschinger curve
 	if (TshOnset == 0 && !isnan(Terejoin[M]) && S*Ter > S*Terejoin[M])
 		return;
 	

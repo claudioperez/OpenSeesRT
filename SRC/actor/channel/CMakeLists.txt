@@ -7,7 +7,6 @@
 target_sources(OPS_Actor
     PRIVATE
       Channel.cpp
-#     HTTP.cpp
       Socket.cpp
       TCP_Socket.cpp
       UDP_Socket.cpp      

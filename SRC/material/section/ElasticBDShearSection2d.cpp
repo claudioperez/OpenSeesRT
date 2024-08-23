@@ -34,16 +34,16 @@ Vector ElasticBDShearSection2d::s(3);
 Matrix ElasticBDShearSection2d::ks(3,3);
 ID ElasticBDShearSection2d::code(3);
 
-ElasticBDShearSection2d::ElasticBDShearSection2d(void)
+ElasticBDShearSection2d::ElasticBDShearSection2d()
 :SectionForceDeformation(0, SEC_TAG_ElasticBDShear2d),
  E(0.0), b(0.0), d(0.0), G(0.0), alpha(0.0),
  e(3), parameterID(0)
 {
     if (code(0) != SECTION_RESPONSE_P)
     {
-	code(0) = SECTION_RESPONSE_P;	// P is the first quantity
-	code(1) = SECTION_RESPONSE_MZ;	// Mz is the second
-	code(2) = SECTION_RESPONSE_VY;	// Vy is the third
+      code(0) = SECTION_RESPONSE_P;      // P is the first quantity
+      code(1) = SECTION_RESPONSE_MZ;     // Mz is the second
+      code(2) = SECTION_RESPONSE_VY;     // Vy is the third
     }    
 }
 
@@ -54,53 +54,53 @@ ElasticBDShearSection2d::ElasticBDShearSection2d
  e(3), parameterID(0)
 {
     if (E <= 0.0)  {
-		opserr << "ElasticBDShearSection2d::ElasticBDShearSection2d -- Input E <= 0.0 ... setting E to 1.0\n";
-		E = 1.0;
-  }
-	
+        opserr << "ElasticBDShearSection2d::ElasticBDShearSection2d -- Input E <= 0.0 ... setting E to 1.0\n";
+        E = 1.0;
+    }
+        
     if (b <= 0.0)  {
-		opserr << "ElasticBDShearSection2d::ElasticBDShearSection2d -- Input b <= 0.0 ... setting b to 1.0\n";
-		b = 1.0;
+        opserr << "ElasticBDShearSection2d::ElasticBDShearSection2d -- Input b <= 0.0 ... setting b to 1.0\n";
+        b = 1.0;
     }
     
     if (d <= 0.0)  {
-		opserr << "ElasticBDShearSection2d::ElasticBDShearSection2d -- Input d <= 0.0 ... setting d to 1.0\n";
-		d = 1.0;
+        opserr << "ElasticBDShearSection2d::ElasticBDShearSection2d -- Input d <= 0.0 ... setting d to 1.0\n";
+        d = 1.0;
     }    
-	
+        
     if (code(0) != SECTION_RESPONSE_P)
     {
-	code(0) = SECTION_RESPONSE_P;	// P is the first quantity
-	code(1) = SECTION_RESPONSE_MZ;	// Mz is the second
-	code(2) = SECTION_RESPONSE_VY;	// Vy is the third
+        code(0) = SECTION_RESPONSE_P;        // P is the first quantity
+        code(1) = SECTION_RESPONSE_MZ;        // Mz is the second
+        code(2) = SECTION_RESPONSE_VY;        // Vy is the third
     }
 }
 
-ElasticBDShearSection2d::~ElasticBDShearSection2d(void)
+ElasticBDShearSection2d::~ElasticBDShearSection2d()
 {
 
 }
 
 int 
-ElasticBDShearSection2d::commitState(void)
-{
-  return 0;
-}
-
-int 
-ElasticBDShearSection2d::revertToLastCommit(void)
+ElasticBDShearSection2d::commitState()
 {
   return 0;
 }
 
 int 
-ElasticBDShearSection2d::revertToStart(void)
+ElasticBDShearSection2d::revertToLastCommit()
+{
+  return 0;
+}
+
+int 
+ElasticBDShearSection2d::revertToStart()
 {
   return 0;
 }
 
 int
-ElasticBDShearSection2d::setTrialSectionDeformation (const Vector &def)
+ElasticBDShearSection2d::setTrialSectionDeformation(const Vector &def)
 {
   e = def;
 
@@ -108,13 +108,13 @@ ElasticBDShearSection2d::setTrialSectionDeformation (const Vector &def)
 }
 
 const Vector &
-ElasticBDShearSection2d::getSectionDeformation (void)
+ElasticBDShearSection2d::getSectionDeformation()
 {
   return e;
 }
 
 const Vector &
-ElasticBDShearSection2d::getStressResultant (void)
+ElasticBDShearSection2d::getStressResultant()
 {
   double A = b*d;
   double I = b*d*d*d/12.0;
@@ -127,7 +127,7 @@ ElasticBDShearSection2d::getStressResultant (void)
 }
 
 const Matrix &
-ElasticBDShearSection2d::getSectionTangent(void)
+ElasticBDShearSection2d::getSectionTangent()
 {
   double A = b*d;
   double I = b*d*d*d/12.0;
@@ -140,7 +140,7 @@ ElasticBDShearSection2d::getSectionTangent(void)
 }
 
 const Matrix &
-ElasticBDShearSection2d::getInitialTangent(void)
+ElasticBDShearSection2d::getInitialTangent()
 {
   double A = b*d;
   double I = b*d*d*d/12.0;
@@ -153,7 +153,7 @@ ElasticBDShearSection2d::getInitialTangent(void)
 }
 
 const Matrix &
-ElasticBDShearSection2d::getSectionFlexibility (void)
+ElasticBDShearSection2d::getSectionFlexibility ()
 {
   double A = b*d;
   double I = b*d*d*d/12.0;
@@ -166,7 +166,7 @@ ElasticBDShearSection2d::getSectionFlexibility (void)
 }
 
 const Matrix &
-ElasticBDShearSection2d::getInitialFlexibility(void)
+ElasticBDShearSection2d::getInitialFlexibility()
 {
   double A = b*d;
   double I = b*d*d*d/12.0;
@@ -179,7 +179,7 @@ ElasticBDShearSection2d::getInitialFlexibility(void)
 }
 
 SectionForceDeformation*
-ElasticBDShearSection2d::getCopy(void)
+ElasticBDShearSection2d::getCopy()
 {
   ElasticBDShearSection2d *theCopy =
     new ElasticBDShearSection2d (this->getTag(), E, b, d, G, alpha);
@@ -196,7 +196,7 @@ ElasticBDShearSection2d::getType()
 }
 
 int
-ElasticBDShearSection2d::getOrder(void) const
+ElasticBDShearSection2d::getOrder() const
 {
   return 3;
 }
@@ -228,7 +228,7 @@ ElasticBDShearSection2d::sendSelf(int commitTag, Channel &theChannel)
 
 int
 ElasticBDShearSection2d::recvSelf(int commitTag, Channel &theChannel,
-				FEM_ObjectBroker &theBroker)
+                                FEM_ObjectBroker &theBroker)
 {
   int res = 0;
 
@@ -265,7 +265,7 @@ ElasticBDShearSection2d::Print(OPS_Stream &s, int flag)
 
 int
 ElasticBDShearSection2d::setParameter(const char **argv, int argc,
-				      Parameter &param)
+                                      Parameter &param)
 {
   if (argc < 1)
     return -1;
@@ -321,7 +321,7 @@ ElasticBDShearSection2d::activateParameter(int paramID)
 
 const Vector&
 ElasticBDShearSection2d::getStressResultantSensitivity(int gradIndex,
-						       bool conditional)
+                                                       bool conditional)
 {
   static Vector dsdh(3);
   dsdh.Zero();

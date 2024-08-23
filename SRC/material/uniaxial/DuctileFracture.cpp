@@ -57,7 +57,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_DuctileFracture)
 	int idata[2];
 	numdata = 2;
 	if (OPS_GetIntInput(&numdata, idata) < 0) {
-		opserr << "WARNING invlid int inputs\n";
+		opserr << "WARNING invalid int inputs\n";
 		return 0;
 	}
 
@@ -198,7 +198,7 @@ DuctileFracture::DuctileFracture(int tag,UniaxialMaterial &material,
   // status variable initializations
   FI  = 0; // Fracture index
   FI_VGM	= 0; // Void growth damage component
-  FI_MVC	= 0; // Multi-void coalescence damage compoent
+  FI_MVC	= 0; // Multi-void coalescence damage component
   ep_prev	= 0; // Previous plastic strain
   ep_curr	= 0; // Current plastic strain
   dep		= 0; // Incremental plastic strain
@@ -244,7 +244,7 @@ DuctileFracture::DuctileFracture()
 {
 	FI = 0; // Fracture index
 	FI_VGM = 0; // Void growth damage component
-	FI_MVC = 0; // Multi-void coalescence damage compoent
+	FI_MVC = 0; // Multi-void coalescence damage component
 	ep_prev = 0; // Previous plastic strain
 	ep_curr = 0; // Current plastic strain
 	dep = 0; // Incremental plastic strain
@@ -448,6 +448,19 @@ DuctileFracture::revertToLastCommit(void)
 int 
 DuctileFracture::revertToStart(void)
 {
+  FI  = 0; // Fracture index
+  FI_VGM	= 0; // Void growth damage component
+  FI_MVC	= 0; // Multi-void coalescence damage component
+  ep_prev	= 0; // Previous plastic strain
+  ep_curr	= 0; // Current plastic strain
+  dep		= 0; // Incremental plastic strain
+  cep_comp	= 0; // Cumulative compressive plastic strain
+  es_local = 0; // Local strain
+  T = 0; // Triaxiality
+  es_max = 0; // The maximum steel strain
+  es_min = 0; // The minimum steel strain
+  e_memo = 0; // The strain memory factor
+	
   fracFailure = false;
   return theMaterial->revertToStart();
 }

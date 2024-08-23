@@ -29,8 +29,6 @@
 //
 // Written: Lisha Wang, Xinzheng Lu, Linlin Xie, Song Cen & Quan Gu
 //
-#include <stdio.h> 
-#include <stdlib.h> 
 #include <math.h> 
 
 #include <ID.h> 
@@ -39,7 +37,6 @@
 #include <Element.h>
 #include <Node.h>
 #include <SectionForceDeformation.h>
-#include <R3vectors.h>
 #include <ElementalLoad.h>
 
 class ShellNLDKGQThermal : public Element {
@@ -110,8 +107,6 @@ class ShellNLDKGQThermal : public Element {
     Response* setResponse( const char **argv, int argc, OPS_Stream &output );
     int getResponse( int responseID, Information &eleInfo );
       
-    //plotting 
-	int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode);
 
   private : 
 

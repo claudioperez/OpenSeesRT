@@ -29,8 +29,6 @@
 // $Date: 2011/03/10 22:51:21 $
 //
 #include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 
 #include <ID.h>
@@ -1206,10 +1204,10 @@ void ShellMITC4::computeBasis()
   // get two vectors (v1, v2) in plane of shell by
   // nodal coordinate differences
 
-  const Vector &coor0 = nodePointers[0]->getCrds();
-  const Vector &coor1 = nodePointers[1]->getCrds();
-  const Vector &coor2 = nodePointers[2]->getCrds();
-  const Vector &coor3 = nodePointers[3]->getCrds();
+  const Vector& coor0 = nodePointers[0]->getCrds();
+  const Vector& coor1 = nodePointers[1]->getCrds();
+  const Vector& coor2 = nodePointers[2]->getCrds();
+  const Vector& coor3 = nodePointers[3]->getCrds();
 
   v1.zero();
   // v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;

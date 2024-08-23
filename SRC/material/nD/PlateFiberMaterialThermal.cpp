@@ -27,7 +27,7 @@
 #include <PlateFiberMaterialThermal.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 //static vector and matrices
 Vector  PlateFiberMaterialThermal::stress(5);

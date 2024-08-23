@@ -47,7 +47,7 @@
 #include <J2PlaneStrain.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 //static vectors and matrices
 Vector J2PlaneStrain :: strain_vec(3) ;
 Vector J2PlaneStrain :: stress_vec(3) ;

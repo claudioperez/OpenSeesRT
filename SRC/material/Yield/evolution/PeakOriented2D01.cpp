@@ -4,8 +4,8 @@
 
 #include "PeakOriented2D01.h"
 #include <OPS_Stream.h>
-#include <OPS_ErrorStream.h>
-#include <Print.h>
+#include <Logging.h>
+#include <TaggedObject.h>
 #include <math.h>
 
 #define evolDebug 0

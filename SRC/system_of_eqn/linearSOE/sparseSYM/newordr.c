@@ -11,6 +11,7 @@
  *  Prof. Kincho H. Law
  *  Stanford University
  *
+ * and:
  *  Claudio M. Perez
  * --------------------
  */
@@ -61,7 +62,7 @@ void initValues()
  ************************************************************************/
      
 int pfordr(int neqns, int **padj, int *perm, int *invp, int *parent, int *fchild, 
-	   int *sibling, int *winvp, int *wperm, int *list, int *rowblks)
+           int *sibling, int *winvp, int *wperm, int *list, int *rowblks)
 {  
    int nblks;
    int *i, j;
@@ -84,7 +85,7 @@ int pfordr(int neqns, int **padj, int *perm, int *invp, int *parent, int *fchild
 /* set the static variables to the right values */
    initValues();
    postordr ( neqns-1, parent, fchild, sibling, winvp, wperm,
-	      invp, perm, list, rowblks  ) ;
+              invp, perm, list, rowblks  ) ;
 
 
 /* count number of blocks */
@@ -93,10 +94,10 @@ int pfordr(int neqns, int **padj, int *perm, int *invp, int *parent, int *fchild
 /* this sets parent to be the ancestor array */
    nblks = 0 ;
    i = parent ;
-   while (*list >=0 ) 
-   {  j = parent[list[1] - 1 ] ;
+   while (*list >=0 )  {
+      j = parent[list[1] - 1 ] ;
       for ( ; i < parent + list[1]; i++)
-	 *i = j ;
+         *i = j ;
       nblks++ ;
       list++ ;
    }
@@ -219,7 +220,7 @@ void bntree (int neqns, int *parent, int *fchild, int *sibling)
  
     purpose - to form an equivalent post ordering of the elimination
               tree.  It also forms a list of the beginning of 
-	      new blocks in the generalized profile matrix.
+              new blocks in the generalized profile matrix.
  
     input parameters -
         i - begin postordering at i from first call this should
@@ -237,7 +238,7 @@ void bntree (int neqns, int *parent, int *fchild, int *sibling)
 modeled from a recursive postorder traversal in
 Fundamentals of Data Structures by Horowitz and Sahni 
 page 231
-	additional info like forming the link list to form xblk 
+        additional info like forming the link list to form xblk 
         and the number of blocks has been tacked on
 
         list 
@@ -245,7 +246,7 @@ page 231
  ************************************************************************/
 static
 void postordr(int i, int *parent, int *fchild, int *sibling, int *oinvp, int *operm, 
-	      int *ninvp, int *nperm, int *list, int *rowblks)
+              int *ninvp, int *nperm, int *list, int *rowblks)
 {
    int t ;
 
@@ -276,7 +277,7 @@ void postordr(int i, int *parent, int *fchild, int *sibling, int *oinvp, int *op
                ninvp, nperm, list, rowblks ) ;
       /* add parent to list of nodes beginning a new block */
       /* comment out below to cut down number of blocks and 
-	 follow Liu's scheme */ 
+         follow Liu's scheme */ 
       if (list[xcount] != count) {
          xcount++ ;
          list[xcount] = count ;

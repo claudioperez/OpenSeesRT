@@ -116,7 +116,7 @@ form_offsets(const double R[3][3], const double nodeIOffset[3], const double nod
 
 // constructor:
 LinearCrdTransf3d02::LinearCrdTransf3d02(int tag, const Vector &vecInLocXZPlane)
-    : FrameTransform(tag, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform3d(tag, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -133,7 +133,7 @@ LinearCrdTransf3d02::LinearCrdTransf3d02(int tag, const Vector &vecInLocXZPlane)
 LinearCrdTransf3d02::LinearCrdTransf3d02(int tag, const Vector &vecInLocXZPlane,
                                      const Vector &rigJntOffset1,
                                      const Vector &rigJntOffset2)
-    : FrameTransform(tag, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform3d(tag, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -175,7 +175,7 @@ LinearCrdTransf3d02::LinearCrdTransf3d02(int tag, const Vector &vecInLocXZPlane,
 // constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 LinearCrdTransf3d02::LinearCrdTransf3d02()
-    : FrameTransform(0, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform3d(0, CRDTR_TAG_LinearCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -902,8 +902,8 @@ LinearCrdTransf3d02::getInitialGlobalStiffMatrix(const Matrix &KB)
   return kg;
 }
 
-CrdTransf *
-LinearCrdTransf3d02::getCopy3d(void)
+FrameTransform3d *
+LinearCrdTransf3d02::getCopy()
 {
   // create a new instance of LinearCrdTransf3d
 

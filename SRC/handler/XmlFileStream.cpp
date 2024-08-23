@@ -29,7 +29,7 @@
 #include <Channel.h>
 #include <Message.h>
 
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 
 using std::cerr; // TODO: why use both opserr and cerr?
 using std::ios;

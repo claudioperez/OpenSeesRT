@@ -24,9 +24,10 @@
 //
 // Description: This file contains the function to parse the TCL input
 // for the flatSliderBearing element.
+//
 #include <assert.h>
-#include <runtime/BasicModelBuilder.h>
-
+#include <BasicModelBuilder.h>
+#include <tcl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
@@ -38,7 +39,6 @@
 #include <FrictionModel.h>
 #include <UniaxialMaterial.h>
 
-class TclBasicBuilder;
 
 int
 TclCommand_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
@@ -547,8 +547,7 @@ TclCommand_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
 // Description: This file contains the function to parse the TCL input
 // for the RJWatsonEqsBearing element.
 
-class TclBasicBuilder;
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -564,18 +563,12 @@ class TclBasicBuilder;
 
 int
 TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
-                                      int argc, TCL_Char ** const argv,
-                                      Domain *theTclDomain,
-                                      TclBasicBuilder *theTclBuilder,
-                                      int eleArgStart)
+                                      int argc, TCL_Char ** const argv)
 {
-  // ensure the destructor has not been called
+  assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  constexpr int eleArgStart = 1;
 
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed - RJWatsonEqsBearing\n";
-    return TCL_ERROR;
-  }
 
   Element *theElement = 0;
   int ndm = builder->getNDM();
@@ -808,7 +801,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
     }
 
     // then add the RJWatsonEqsBearing to the domain
-    if (theTclDomain->addElement(theElement) == false) {
+    if (builder->getDomain()->addElement(theElement) == false) {
       opserr << "WARNING could not add element to the domain\n";
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       delete theElement;
@@ -1108,7 +1101,7 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
     }
 
     // then add the RJWatsonEqsBearing to the domain
-    if (theTclDomain->addElement(theElement) == false) {
+    if (builder->getDomain()->addElement(theElement) == false) {
       opserr << "WARNING could not add element to the domain\n";
       opserr << "RJWatsonEqsBearing element: " << tag << endln;
       delete theElement;
@@ -1154,9 +1147,8 @@ TclBasicBuilder_addRJWatsonEqsBearing(ClientData clientData, Tcl_Interp *interp,
 // Created: 02/06
 // Revision: A
 //
-class TclBasicBuilder;
 #include <assert.h>
-#include <runtime/BasicModelBuilder.h>
+#include <BasicModelBuilder.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -1683,7 +1675,7 @@ TclCommand_addSingleFPBearing(ClientData clientData, Tcl_Interp *interp,
     }
 
     // then add the singleFPBearing to the domain
-    if (theTclDomain->addElement(theElement) == false) {
+    if (builder->getDomain()->addElement(theElement) == false) {
       opserr << "WARNING could not add element to the domain\n";
       opserr << "singleFPBearing element: " << tag << endln;
       delete theElement;

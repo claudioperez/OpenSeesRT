@@ -49,30 +49,30 @@ class UniaxialMaterial : public Material
     UniaxialMaterial();
     virtual ~UniaxialMaterial();
 
-    virtual int setTrialStrain (double strain, double strainRate =0) =0;
-    virtual int setTrialStrain (double strain, double temperature, double strainRate);
-    virtual int setTrial (double strain, double &stress, double &tangent, double strainRate = 0.0);
-    virtual int setTrial (double strain, double temperature, double &stress, double &tangent, double &thermalElongation, double strainRate = 0.0);
+    virtual int setTrialStrain(double strain, double strainRate =0) =0;
+    virtual int setTrialStrain(double strain, double temperature, double strainRate);
+    virtual int setTrial(double strain, double &stress, double &tangent, double strainRate = 0.0);
+    virtual int setTrial(double strain, double temperature, double &stress, double &tangent, double &thermalElongation, double strainRate = 0.0);
 
-    virtual double getStrain (void) = 0;
-    virtual double getStrainRate (void);
-    virtual double getStress (void) = 0;
-    virtual double getTangent (void) = 0;
-    virtual double getInitialTangent (void) = 0;
-    virtual double getDampTangent (void);
-    virtual double getRho(void);
+    virtual double getStrain() = 0;
+    virtual double getStrainRate();
+    virtual double getStress() = 0;
+    virtual double getTangent() = 0;
+    virtual double getInitialTangent() = 0;
+    virtual double getDampTangent();
+    virtual double getRho();
     
-    virtual int commitState (void) = 0;
-    virtual int revertToLastCommit (void) = 0;    
-    virtual int revertToStart (void) = 0;        
+    virtual int commitState() = 0;
+    virtual int revertToLastCommit() = 0;    
+    virtual int revertToStart() = 0;        
     
-    virtual UniaxialMaterial *getCopy (void) = 0;
+    virtual UniaxialMaterial *getCopy() = 0;
     virtual UniaxialMaterial *getCopy(SectionForceDeformation *s);
     
     virtual Response *setResponse (const char **argv, int argc, 
 				   OPS_Stream &theOutputStream);
     virtual int getResponse (int responseID, Information &matInformation);    
-    virtual bool hasFailed(void) {return false;}
+    virtual bool hasFailed() {return false;}
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     virtual double getStressSensitivity     (int gradIndex, bool conditional);
@@ -83,8 +83,8 @@ class UniaxialMaterial : public Material
     virtual double getRhoSensitivity        (int gradIndex);
     virtual int    commitSensitivity        (double strainGradient, int gradIndex, int numGrads);
     // AddingSensitivity:END ///////////////////////////////////////////
-	//by SAJalali
-    virtual double getEnergy(void) { return 0; }
+	  // by SAJalali
+    virtual double getEnergy() { return 0; }
 
  protected:
     

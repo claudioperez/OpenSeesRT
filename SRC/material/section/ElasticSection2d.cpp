@@ -88,7 +88,7 @@ OPS_ADD_RUNTIME_VPV(OPS_ElasticSection)
 }
 
 ElasticSection2d::ElasticSection2d(void)
-:SectionForceDeformation(0, SEC_TAG_Elastic2d),
+:FrameSection(0, SEC_TAG_Elastic2d),
  E(0.0), A(0.0), I(0.0), e(2)
 {
   if (code(0) != SECTION_RESPONSE_P) {
@@ -99,7 +99,7 @@ ElasticSection2d::ElasticSection2d(void)
 
 ElasticSection2d::ElasticSection2d
 (int tag, double E_in, double A_in, double I_in)
-:SectionForceDeformation(tag, SEC_TAG_Elastic2d),
+:FrameSection(tag, SEC_TAG_Elastic2d),
  E(E_in), A(A_in), I(I_in), e(2)
 {
   if (E <= 0.0)  {
@@ -202,8 +202,8 @@ ElasticSection2d::getInitialFlexibility(void)
   return ks;
 }
 
-SectionForceDeformation*
-ElasticSection2d::getCopy(void)
+FrameSection*
+ElasticSection2d::getFrameCopy(void)
 {
     // Make a copy of the hinge
     ElasticSection2d *theCopy =

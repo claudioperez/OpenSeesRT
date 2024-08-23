@@ -62,7 +62,7 @@ OPS_ADD_RUNTIME_VPV(OPS_ElasticSection3d)
 
 
 ElasticSection3d::ElasticSection3d(void)
-:SectionForceDeformation(0, SEC_TAG_Elastic3d),
+:FrameSection(0, SEC_TAG_Elastic3d),
  E(0.0), A(0.0), Iz(0.0), Iy(0.0), G(0.0), J(0.0), e(4)
 {
   if (code(0) != SECTION_RESPONSE_P) {
@@ -75,7 +75,7 @@ ElasticSection3d::ElasticSection3d(void)
 
 ElasticSection3d::ElasticSection3d
 (int tag, double E_in, double A_in, double Iz_in, double Iy_in, double G_in, double J_in)
-:SectionForceDeformation(tag, SEC_TAG_Elastic3d),
+:FrameSection(tag, SEC_TAG_Elastic3d),
  E(E_in), A(A_in), Iz(Iz_in), Iy(Iy_in), G(G_in), J(J_in), e(4)
 {
   if (E <= 0.0)  {
@@ -136,19 +136,20 @@ ElasticSection3d::revertToStart(void)
 int
 ElasticSection3d::setTrialSectionDeformation (const Vector &def)
 {
-    e = def;
+
+  e = def;
     
 	return 0;
 }
 
 const Vector &
-ElasticSection3d::getSectionDeformation (void)
+ElasticSection3d::getSectionDeformation()
 {
     return e;
 }
 
 const Vector &
-ElasticSection3d::getStressResultant (void)
+ElasticSection3d::getStressResultant()
 {
   s(0) = E*A*e(0);
   s(1) = E*Iz*e(1);
@@ -169,6 +170,29 @@ ElasticSection3d::getSectionTangent(void)
   return ks;
 }
 
+int
+ElasticSection3d::getIntegral(Field field, State state, double& value) const
+{
+  switch (field) {
+    case Field::Unit:
+      value = A;
+      return 0;
+
+    case Field::UnitYY:
+    case Field::UnitCentroidYY:
+      value = Iz;
+      return 0;
+
+    case Field::UnitZZ:
+    case Field::UnitCentroidZZ:
+      value = Iy;
+      return 0;
+
+    default:
+      return -1;
+  }
+}
+
 const Matrix &
 ElasticSection3d::getInitialTangent(void)
 {
@@ -181,7 +205,7 @@ ElasticSection3d::getInitialTangent(void)
 }
 
 const Matrix &
-ElasticSection3d::getSectionFlexibility (void)
+ElasticSection3d::getSectionFlexibility()
 {
   ks(0,0) = 1.0/(E*A);
   ks(1,1) = 1.0/(E*Iz);
@@ -192,7 +216,7 @@ ElasticSection3d::getSectionFlexibility (void)
 }
 
 const Matrix &
-ElasticSection3d::getInitialFlexibility (void)
+ElasticSection3d::getInitialFlexibility()
 {
   ks(0,0) = 1.0/(E*A);
   ks(1,1) = 1.0/(E*Iz);
@@ -202,8 +226,8 @@ ElasticSection3d::getInitialFlexibility (void)
   return ks;
 }
 
-SectionForceDeformation*
-ElasticSection3d::getCopy ()
+FrameSection*
+ElasticSection3d::getFrameCopy()
 {
     // Make a copy of the hinge
     ElasticSection3d *theCopy =
@@ -221,7 +245,7 @@ ElasticSection3d::getType()
 }
 
 int
-ElasticSection3d::getOrder () const
+ElasticSection3d::getOrder() const
 {
     return 4;
 }

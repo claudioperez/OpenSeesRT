@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.0 $
-// $Date: 2012-05-21 23:03:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/LayeredShellFiberSection.cpp,v $
-
+//
 // Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 //
 // Layered Shell Section

@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains basic commands that enhance the
 // experience of the interpreter. This file should not reference
@@ -9,7 +10,7 @@
 //
 #include <tcl.h>
 #include <assert.h>
-#include <g3_api.h>
+#include <runtimeAPI.h>
 #include <G3_Runtime.h>
 #include <OPS_Globals.h>
 #include <Timer.h>
@@ -139,7 +140,7 @@ OpenSees_putsCommand(ClientData dummy, Tcl_Interp *interp, int objc,
       if (newline == 0)
         opserr << Tcl_GetString(string);
       else
-        opserr << Tcl_GetString(string) << endln;
+        opserr << Tcl_GetString(string) << "\n";
     }
     return TCL_OK;
   } else {

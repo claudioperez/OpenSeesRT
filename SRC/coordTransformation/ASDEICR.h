@@ -52,13 +52,9 @@
 namespace EICR
 {
 
-// public:
-
     typedef std::size_t size_t;
 
-    typedef Vector3D Vector3Type;
-
-    typedef std::vector<Vector3Type> NodeContainerType;
+    typedef std::vector<Vector3D> NodeContainerType;
 
     typedef Vector VectorType;
 
@@ -67,8 +63,6 @@ namespace EICR
     using OpenSees::Matrix3D;
 
     typedef ASDQuaternion<double> QuaternionType;
-
-// public:
 
 
     /**
@@ -106,7 +100,7 @@ namespace EICR
     * @param B the second vector
     */
     template <typename VectType>
-    inline static void GetBlock(const VectorType& A, size_t begin, size_t end, VectType& B)
+    inline static void GetBlock(const Vector& A, size_t begin, size_t end, VectType& B)
     {
         size_t n = end - begin;
         for (size_t i = 0; i < n; ++i)
@@ -153,7 +147,7 @@ namespace EICR
     * @param B the second vector
     * @param C the output matrix
     */
-    inline static void OuterProd(const VectorType& A, const VectorType& B, MatrixType& C)
+    inline static void OuterProd(const Vector& A, const Vector& B, MatrixType& C)
     {
         for (size_t i = 0; i < A.Size(); ++i)
             for (size_t j = 0; j < B.Size(); ++j)
@@ -236,7 +230,7 @@ namespace EICR
     * @param displacements the vector of nodal displacements and rotations in the local corotational coordinate system. (assumed size = num_nodes*6)
     * @return the H matrix
     */
-    inline static void Compute_H(const VectorType& displacements, MatrixType& H)
+    inline static void Compute_H(const Vector& displacements, Matrix& H)
     {
         size_t num_dofs = displacements.Size();
         size_t num_nodes = num_dofs / 6;
@@ -295,7 +289,7 @@ namespace EICR
     * @param H the Axial Vector Jacobian Matrix computed with a previous call to EICR::Compute_H(displacements)
     * @return the L matrix
     */
-    inline static void Compute_L(const VectorType& displacements, const VectorType& forces, const MatrixType& H, MatrixType& L)
+    inline static void Compute_L(const Vector& displacements, const Vector& forces, const MatrixType& H, MatrixType& L)
     {
         size_t num_dofs = displacements.Size();
         size_t num_nodes = num_dofs / 6;

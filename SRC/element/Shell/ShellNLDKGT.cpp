@@ -27,6 +27,8 @@
 #include <math.h>
 #include <ID.h>
 #include <Vector.h>
+#include <VectorND.h>
+#include <MatrixND.h>
 #include <Matrix.h>
 #include <Element.h>
 #include <Node.h>
@@ -35,15 +37,17 @@
 #include <ErrorHandler.h>
 #include <ShellNLDKGT.h>
 #include <R3vectors.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
+using OpenSees::VectorND;
+using OpenSees::MatrixND;
+
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-//static data
+// static data
 Matrix ShellNLDKGT::stiff(18, 18);
 Vector ShellNLDKGT::resid(18);
 Matrix ShellNLDKGT::mass(18, 18);
@@ -226,7 +230,6 @@ int ShellNLDKGT::revertToLastCommit()
   return success;
 }
 
-//revert to start
 int ShellNLDKGT::revertToStart()
 {
   int success = 0;
@@ -260,12 +263,11 @@ void ShellNLDKGT::Print(OPS_Stream &s, int flag)
 
     int counter = (flag + 1) * -1;
     int eleTag  = this->getTag();
-    int i, j;
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       const Vector &stress = materialPointers[i]->getStressResultant();
 
       s << "STRESS\t" << eleTag << "\t" << counter << "\t" << i << "\tTOP";
-      for (j = 0; j < 6; j++)
+      for (int j = 0; j < 6; j++)
         s << "\t" << stress(j);
       s << endln;
     }
@@ -289,7 +291,8 @@ void ShellNLDKGT::Print(OPS_Stream &s, int flag)
     s << "\t\t\t{";
     s << "\"name\": " << this->getTag() << ", ";
     s << "\"type\": \"ShellNLDKGT\", ";
-    s << "\"nodes\": [" << connectedExternalNodes(0) << ", "
+    s << "\"nodes\": [" 
+      << connectedExternalNodes(0) << ", "
       << connectedExternalNodes(1) << ", ";
     s << connectedExternalNodes(2) << "], ";
     s << "\"section\": \"" << materialPointers[0]->getTag() << "\"}";
@@ -508,12 +511,8 @@ const Matrix &ShellNLDKGT::getInitialStiff()
 
   //	static double shpM[3][numnodes];//shape function-membrane at a gausss point
 
-  static double shpDrill
-      [4]
-      [numnodes]; //shape function-drilling dof(Nu,1&Nu,2&Nv,1&Nv,2) at a gauss point
-  static double shpBend
-      [6]
-      [9]; //shape function -bending part(Hx,Hy,Hx-1,2&Hy-1,2) at a gauss point
+  static double shpDrill[4][numnodes]; //shape function-drilling dof(Nu,1&Nu,2&Nv,1&Nv,2) at a gauss point
+  static double shpBend[6][9]; //shape function -bending part(Hx,Hy,Hx-1,2&Hy-1,2) at a gauss point
 
   //static Vector residJ(ndf,ndf); //nodeJ residual, global coordinates
 
@@ -611,8 +610,8 @@ const Matrix &ShellNLDKGT::getInitialStiff()
   Pmat(4, 3) = one;
   Pmat(5, 4) = one;
   //transpose PmatTran=transpose(Pmat)
-  for (p1 = 0; p1 < 6; p1++) {
-    for (q1 = 0; q1 < 6; q1++) {
+  for (int p1 = 0; p1 < 6; p1++) {
+    for (int q1 = 0; q1 < 6; q1++) {
       PmatTran(p1, q1) = Pmat(q1, p1);
     }
   }
@@ -640,15 +639,14 @@ const Matrix &ShellNLDKGT::getInitialStiff()
   Tmat(5, 5) = g3[2];
 
   //transpose TmatTran=transpose(Tmat)
-  for (p2 = 0; p2 < 6; p2++) {
-    for (q2 = 0; q2 < 6; q2++) {
+  for (int p2 = 0; p2 < 6; p2++) {
+    for (int q2 = 0; q2 < 6; q2++) {
       TmatTran(p2, q2) = Tmat(q2, p2);
     }
   }
 
-  //------------gauss loop--------------------------
-  for (i = 0; i < ngauss; i++) {
-
+  //----------- Gauss loop -------------------------
+  for (int i = 0; i < ngauss; i++) {
     //get shape functions
     shape2d(sg[i], tg[i], qg[i], xl, shp, xsj, sx);
     shapeDrill(sg[i], tg[i], qg[i], xl, sx, shpDrill);
@@ -674,7 +672,7 @@ const Matrix &ShellNLDKGT::getInitialStiff()
     // j-node loop to compute strain
     for (j = 0; j < numnodes; j++) {
 
-      //compute B matrix
+      // compute B matrix
 
       Bmembrane = computeBmembrane(j, shp, shpDrill);
 
@@ -683,8 +681,8 @@ const Matrix &ShellNLDKGT::getInitialStiff()
       BJ = assembleB(Bmembrane, Bbend, Bshear);
 
       //save the B-matrix
-      for (p = 0; p < nstress; p++) {
-        for (q = 0; q < ndf; q++) {
+      for (int p = 0; p < nstress; p++) {
+        for (int q = 0; q < ndf; q++) {
           saveB[p][q][j] = BJ(p, q);
         }
       }
@@ -697,10 +695,10 @@ const Matrix &ShellNLDKGT::getInitialStiff()
       const Vector &TrialDisp  = nodePointers[j]->getTrialDisp();
       const Vector &CommitDisp = nodePointers[j]->getDisp();
 
-      //incrDisp = TrialDisp - CommitDisp;
-      for (p = 0; p < ndf; p++) {
+      // incrDisp = TrialDisp - CommitDisp;
+      for (int p = 0; p < ndf; p++) {
         incrDisp(p) = TrialDisp(p) - CommitDisp(p);
-      } // end for p
+      }
 
       //dispIncLocal = Tmat * dul
       dispIncLocal.addMatrixVector(0.0, Tmat, incrDisp, 1.0);
@@ -732,13 +730,12 @@ const Matrix &ShellNLDKGT::getInitialStiff()
       dstrain(5) = dstrain_li(5);
       dstrain(6) = dstrain_li(6);
       dstrain(7) = dstrain_li(7);
+    }
 
-    } //end j-node loop
-
-    //strain = Cstrain + dstrain;
-    for (q = 0; q < nstress; q++) {
+    // strain = Cstrain + dstrain;
+    for (int q = 0; q < nstress; q++) {
       strain(q) = Cstrain(q) + dstrain(q);
-    } //end for q
+    }
 
     //send the strain to the material
     success = materialPointers[i]->setTrialSectionDeformation(strain);
@@ -771,28 +768,28 @@ const Matrix &ShellNLDKGT::getInitialStiff()
     jj = 0;
     for (j = 0; j < numnodes; j++) {
 
-      //extract BJ
-      for (p = 0; p < nstress; p++) {
-        for (q = 0; q < ndf; q++)
+      // extract BJ
+      for (int p = 0; p < nstress; p++) {
+        for (int q = 0; q < ndf; q++)
           BJ(p, q) = saveB[p][q][j];
       } // end for p
       //multiply bending terms by -1.0 for correct statement of equilibrium
-      for (p = 3; p < 6; p++) {
-        for (q = 3; q < 6; q++)
+      for (int p = 3; p < 6; p++) {
+        for (int q = 3; q < 6; q++)
           BJ(p, q) *= (-1.0);
       }
 
       //transpose BJtran=transpose(BJ);
       for (int p = 0; p < ndf; p++) {
-        for (q = 0; q < nstress; q++)
+        for (int q = 0; q < nstress; q++)
           BJtran(p, q) = BJ(q, p);
       }
 
       //add for geometric nonlinearity
       BGJ = computeBG(j, shpBend);
       //transpose BGJ
-      for (p3 = 0; p3 < 3; p3++) {
-        for (q3 = 0; q3 < 2; q3++)
+      for (int p3 = 0; p3 < 3; p3++) {
+        for (int q3 = 0; q3 < 2; q3++)
           BGJtran(p3, q3) = BGJ(q3, p3);
       }
       stiffBGM.addMatrixProduct(0.0, BGJtran, membraneForce, 1.0);
@@ -802,11 +799,11 @@ const Matrix &ShellNLDKGT::getInitialStiff()
 
       //k loop
       kk = 0;
-      for (k = 0; k < numnodes; k++) {
+      for (int k = 0; k < numnodes; k++) {
 
-        //extract BK
-        for (p = 0; p < nstress; p++) {
-          for (q = 0; q < ndf; q++)
+        // extract BK
+        for (int p = 0; p < nstress; p++) {
+          for (int q = 0; q < ndf; q++)
             BK(p, q) = saveB[p][q][k];
         } // end for p
 
@@ -830,11 +827,11 @@ const Matrix &ShellNLDKGT::getInitialStiff()
         stiffJK3.addMatrixProduct(0.0, TmatTran, stiffJK2, 1.0);
         stiffJK.addMatrixProduct(0.0, stiffJK3, Tmat, 1.0);
 
-        //generate stiff
-        for (p = 0; p < ndf; p++) {
-          for (q = 0; q < ndf; q++) {
+        // generate stiff
+        for (int p = 0; p < ndf; p++) {
+          for (int q = 0; q < ndf; q++) {
             stiff(jj + p, kk + q) += stiffJK(p, q);
-          } //end for q
+          }
         }
 
         kk += ndf;
@@ -844,7 +841,7 @@ const Matrix &ShellNLDKGT::getInitialStiff()
 
     } // end for j loop
 
-  } //end for i gauss loop
+  } // end for i gauss loop
 
   Ki = new Matrix(stiff);
   return stiff;
@@ -880,7 +877,7 @@ int ShellNLDKGT::addInertiaLoadToUnbalance(const Vector &accel)
   int i;
 
   int allRhoZero = 0;
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (materialPointers[i]->getRho() != 0.0)
       allRhoZero = 1;
   }
@@ -889,7 +886,7 @@ int ShellNLDKGT::addInertiaLoadToUnbalance(const Vector &accel)
     return 0;
 
   int count = 0;
-  for (i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     const Vector &Raccel = nodePointers[i]->getRV(accel);
     for (int j = 0; j < 6; j++)
       resid(count++) = Raccel(i);
@@ -949,52 +946,44 @@ void ShellNLDKGT::formInertiaTerms(int tangFlag)
   //translational mass only
   //rotational inertia terms are neglected
 
-  static const int ndf = 6;
-
-  static const int numberNodes = 3;
-
-  static const int numberGauss = 4;
-
-  static const int nShape = 3;
-
+  static constexpr int ndf = 6;
+  static constexpr int numberNodes = 3;
+  static constexpr int numberGauss = 4;
+  static constexpr int nShape = 3;
   static const int massIndex = nShape - 1;
 
-  double xsj; // determinant jacaobian matrix
-
   double sx[2][2]; //inverse jacobian matrix
-
-  double dvol; //volume element
-
   static double shp[nShape][numberNodes]; //shape functions at a gauss point
 
-  static Vector momentum(ndf);
+  static VectorND<ndf> momentum;
 
   int i, j, k, p;
   int jj, kk;
 
   double temp, rhoH, massJK;
+  double xsj; // determinant jacaobian matrix
 
-  //zero mass
+  // zero mass
   mass.Zero();
 
-  //Gauss loop
+  // Gauss loop
   //----------------------------------------------------------------------------------
-  for (i = 0; i < numberGauss; i++) {
+  for (int i = 0; i < numberGauss; i++) {
 
-    //get shape functions
+    // get shape functions
     shape2d(sg[i], tg[i], qg[i], xl, shp, xsj, sx);
 
-    //volume element to also be saved
-    dvol = 0.5 * wg[i] * xsj;
+    // volume element to also be saved
+    double dvol = 0.5 * wg[i] * xsj;
 
-    //node loop to compute accelerations
-    momentum.Zero();
-    for (j = 0; j < numberNodes; j++)
-      //momentum += ( shp[massIndex][j] * nodePointers[j]->getTrialAccel() ) ;
+    // node loop to compute accelerations
+    momentum.zero();
+    for (int j = 0; j < numberNodes; j++)
+      // momentum += ( shp[massIndex][j] * nodePointers[j]->getTrialAccel() ) ;
       momentum.addVector(1.0, nodePointers[j]->getTrialAccel(),
                          shp[massIndex][j]);
 
-    //density
+    // density
     rhoH = materialPointers[i]->getRho();
 
     //multiply acceleration by density to form momentum
@@ -1005,20 +994,20 @@ void ShellNLDKGT::formInertiaTerms(int tangFlag)
 
       temp = shp[massIndex][j] * dvol;
 
-      for (p = 0; p < 3; p++)
+      for (int p = 0; p < 3; p++)
         resid(jj + p) += (temp * momentum(p));
 
       if (tangFlag == 1 && rhoH != 0.0) {
 
-        //multiply by density
+        // scale by density
         temp *= rhoH;
 
-        //node-node translational mass
+        // node-node translational mass
         for (k = 0, kk = 0; k < numberNodes; k++, kk += ndf) {
 
           massJK = temp * shp[massIndex][k];
 
-          for (p = 0; p < 3; p++)
+          for (int p = 0; p < 3; p++)
             mass(jj + p, kk + p) += massJK;
 
         } // end for k loop
@@ -1030,43 +1019,36 @@ void ShellNLDKGT::formInertiaTerms(int tangFlag)
   } //end for i gauss loop
 }
 
-//*********************************************************************
 
-//form residual and tangent
+// form residual and tangent
 void ShellNLDKGT::formResidAndTangent(int tang_flag)
 {
   //
-  //six(6) nodal dof's ordered:
-  //-----------
-  //|    u1    |   <---- plate membrane
-  //|    u2    |
-  //|----------|
-  //|   w = u3 |  <----plate bending
-  //|   theta1 |
-  //|   theta2 |
-  //|----------|
-  //|   theta3 |  <- drill (tran from membrane)
-  //|----------|
+  // six(6) nodal dof's ordered:
+  // -----------
+  // |    u1    |   <---- plate membrane
+  // |    u2    |
+  // |----------|
+  // |   w = u3 |  <----plate bending
+  // |   theta1 |
+  // |   theta2 |
+  // |----------|
+  // |   theta3 |  <- drill (tran from membrane)
+  // |----------|
   // membrane strains ordered :
 
-  static const int ndf = 6; //two membrane + 3 moment +drill
-
-  static const int nstress = 8; //3 membrane , 3 moment, 2 shear
-
-  static const int ngauss = 4;
-
-  static const int numnodes = 3;
+  static constexpr int ndf = 6; //two membrane + 3 moment +drill
+  static constexpr int nstress = 8; //3 membrane , 3 moment, 2 shear
+  static constexpr int ngauss = 4;
+  static constexpr int numnodes = 3;
 
   int i, j, k, p, q;
   int jj, kk;
   int jlast, jnew; //add for geometric nonlinearity
 
   int p1, q1;
-
   int p2, q2;
-
   int p3, q3;
-
   int pp, qq;
 
   int success;
@@ -1077,44 +1059,28 @@ void ShellNLDKGT::formResidAndTangent(int tang_flag)
 
   static double dvol[ngauss]; //volume element
 
-  //add for geometric nonlinearity
+  // add for geometric nonlinearity
   static Vector incrDisp(ndf); //total displacement
 
-  static Vector Cstrain(
-      nstress); //commit strain last step/ add for geometric nonlinearity
-
+  static Vector Cstrain(nstress); //commit strain last step/ add for geometric nonlinearity
   static Vector strain(nstress); //strain
 
-  //add for geometric nonlinearity
-  static Vector dstrain(nstress);    //total strain increment
-  static Vector dstrain_li(nstress); //linear incr strain
-  static Vector dstrain_nl(3);       //geometric nonlinear strain
-
-  static double shp[3][numnodes]; //shape function 2d at a gauss point
-
-  static double
-      shpDrill[4][numnodes]; //shape function drilling dof at a gauss point
-
-  static double shpBend[6][9]; //shape function - bending part at a gauss point
-
-  static Vector residJ(ndf); //nodeJ residual, global coordinates
-
-  static Matrix stiffJK(ndf, ndf); //nodeJK stiffness, global coordinates
-
-  static Vector residJlocal(ndf); //nodeJ residual, local coordinates
-
+  // add for geometric nonlinearity
+  static Vector dstrain(nstress);      // total strain increment
+  static Vector dstrain_li(nstress);   // linear incr strain
+  static Vector dstrain_nl(3);         // geometric nonlinear strain
+  static double shp[3][numnodes];      // shape function 2d at a gauss point
+  static double shpDrill[4][numnodes]; // shape function drilling dof at a gauss point
+  static double shpBend[6][9];         // shape function - bending part at a gauss point
+  static Vector residJ(ndf);           // nodeJ residual, global coordinates
+  static Matrix stiffJK(ndf, ndf);     // nodeJK stiffness, global coordinates
+  static Vector residJlocal(ndf);      // nodeJ residual, local coordinates
   static Matrix stiffJKlinear(ndf, ndf); //nodeJK stiffness,for linear part
-
   static Matrix stiffJKgeo(3, 3); //nodeJK stiffness,for geometric nonlinearity
-
   static Matrix stiffJKlocal(ndf, ndf); //nodeJK stiffness, local coordinates
-
   static Matrix stiffJK1(ndf, ndf);
-
   static Matrix stiffJK2(ndf, ndf);
-
   static Matrix stiffJK3(ndf, ndf);
-
   static Vector residJ1(ndf);
 
   static Vector stress(nstress); //stress resultants
@@ -1124,24 +1090,21 @@ void ShellNLDKGT::formResidAndTangent(int tang_flag)
   static Matrix dd(nstress, nstress); //material tangent
 
   //static Matrix J0(2,2); //Jacobian at center
-
   //static Matrix J0inv(2,2); //inverse of Jacobian at center
   static double sx[2][2];
 
   //add for geometric nonlinearity
   static Vector dispIncLocal(6); //incr disp in local coordinates
-  static Vector dispIncLocalBend(
-      3); //incr disp of bending part in local coordinates
+  static Vector dispIncLocalBend(3); //incr disp of bending part in local coordinates
 
-  //eleForce & eleForceLast: gauss stress
-  static Matrix membraneForce(2, 2); //membrane force in gauss point
-  Matrix Tmat(6, 6);                 //local-global coordinates transform matrix
-  Matrix TmatTran(6, 6);
-  Matrix Pmat(6, 6); //transform dofs order
-  Matrix PmatTran(6, 6);
+  // eleForce & eleForceLast: gauss stress
+  static Matrix membraneForce(2, 2); // membrane force in gauss point
+  MatrixND<6,6> Tmat{0.0};           // local-global coordinates transform matrix
+  MatrixND<6,6> TmatTran{0.0};
+  MatrixND<6,6> Pmat{0.0};           //transform dofs order
+  MatrixND<6,6> PmatTran{0.0};
 
   //-------------------B-matrices---------------------------------
-
   static Matrix BJ(nstress, ndf); // B matrix node J
   static Matrix BJtran(ndf, nstress);
   static Matrix BK(nstress, ndf);      // B matrix node K
@@ -1174,14 +1137,13 @@ void ShellNLDKGT::formResidAndTangent(int tang_flag)
   //end Yuli Huang & Xinzheng Lu
 
   //define Pmat- transpose the dofs
-  Pmat.Zero();
-  double one = 1.00;
-  Pmat(0, 0) = one;
-  Pmat(1, 1) = one;
-  Pmat(2, 5) = one;
-  Pmat(3, 2) = one;
-  Pmat(4, 3) = one;
-  Pmat(5, 4) = one;
+  Pmat.zero();
+  Pmat(0, 0) = 1.0;
+  Pmat(1, 1) = 1.0;
+  Pmat(2, 5) = 1.0;
+  Pmat(3, 2) = 1.0;
+  Pmat(4, 3) = 1.0;
+  Pmat(5, 4) = 1.0;
   //transpose PmatTran=transpose(Pmat)
   for (p1 = 0; p1 < 6; p1++) {
     for (q1 = 0; q1 < 6; q1++) {
@@ -1189,8 +1151,8 @@ void ShellNLDKGT::formResidAndTangent(int tang_flag)
     }
   }
 
-  //define Tmat xl=Tmat * x from global to local coordinates
-  Tmat.Zero();
+  // define Tmat xl=Tmat * x from global to local coordinates
+  Tmat.zero();
   Tmat(0, 0) = g1[0];
   Tmat(0, 1) = g1[1];
   Tmat(0, 2) = g1[2];
@@ -1211,17 +1173,17 @@ void ShellNLDKGT::formResidAndTangent(int tang_flag)
   Tmat(5, 4) = g3[1];
   Tmat(5, 5) = g3[2];
 
-  //transpose TmatTran=transpose(Tmat)
-  for (p2 = 0; p2 < 6; p2++) {
-    for (q2 = 0; q2 < 6; q2++) {
+  // transpose TmatTran=transpose(Tmat)
+  for (int p2 = 0; p2 < 6; p2++) {
+    for (int q2 = 0; q2 < 6; q2++) {
       TmatTran(p2, q2) = Tmat(q2, p2);
     }
   }
 
-  //------------gauss loop--------------------------
-  for (i = 0; i < ngauss; i++) {
+  //------------ Gauss loop --------------------------
+  for (int i = 0; i < ngauss; i++) {
 
-    //get shape functions
+    // get shape functions
     shape2d(sg[i], tg[i], qg[i], xl, shp, xsj, sx);
 
     shapeDrill(sg[i], tg[i], qg[i], xl, sx, shpDrill);
@@ -1247,9 +1209,9 @@ void ShellNLDKGT::formResidAndTangent(int tang_flag)
     }
 
     // j-node loop to compute strain
-    for (j = 0; j < numnodes; j++) {
+    for (int j = 0; j < numnodes; j++) {
 
-      //compute B matrix
+      // compute B matrix
 
       Bmembrane = computeBmembrane(j, shp, shpDrill);
 
@@ -1302,10 +1264,10 @@ void ShellNLDKGT::formResidAndTangent(int tang_flag)
       //note: dstrain should be BGJ * dispIncLocalBend sum from j=0 to j=3
       dstrain_nl += computeNLdstrain(BGJ, dispIncLocalBend);
 
-    } //end j-node loop
+    } // end j-node loop
 
-    dstrain_nl
-        .Zero(); //add for accelerate the convergence,but not zero in stability analysis problems.
+    //add for accelerate the convergence,but not zero in stability analysis problems.
+    dstrain_nl.Zero(); 
     dstrain(0) = dstrain_li(0) + dstrain_nl(0);
     dstrain(1) = dstrain_li(1) + dstrain_nl(1);
     dstrain(2) = dstrain_li(2) + dstrain_nl(2);
@@ -1316,9 +1278,9 @@ void ShellNLDKGT::formResidAndTangent(int tang_flag)
     dstrain(7) = dstrain_li(7);
 
     //strain = Cstrain + dstrain;
-    for (q = 0; q < nstress; q++) {
+    for (int q = 0; q < nstress; q++)
       strain(q) = Cstrain(q) + dstrain(q);
-    } //end for q
+
 
     //send the strain to the material
     success = materialPointers[i]->setTrialSectionDeformation(strain);
@@ -1329,10 +1291,9 @@ void ShellNLDKGT::formResidAndTangent(int tang_flag)
     //add for geometric nonlinearity
     //update strain in gauss points
     //define TstrainGauss
-    for (jnew = 0; jnew < nstress; jnew++) {
-
+    for (jnew = 0; jnew < nstress; jnew++)
       TstrainGauss(i * 8 + jnew) = strain(jnew);
-    }
+
 
     //add for geometric nonlinearity
     //from stress(0,1,2) to compute membraneForce at t
@@ -1347,7 +1308,7 @@ void ShellNLDKGT::formResidAndTangent(int tang_flag)
     if (tang_flag == 1) {
       dd = materialPointers[i]->getSectionTangent();
       dd *= dvol[i];
-    } //end if tang_flag
+    }
 
     //residual and tangent calculations node loops
 
@@ -2217,38 +2178,3 @@ int ShellNLDKGT::recvSelf(int commitTag, Channel &theChannel,
   return res;
 }
 
-int ShellNLDKGT::displaySelf(Renderer &theViewer, int displayMode, float fact)
-{
-  // get the end point display coords
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
-  nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-  nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-  nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-
-  // place values in coords matrix
-  static Matrix coords(3, 3);
-  for (int i = 0; i < 3; i++) {
-    coords(0, i) = v1(i);
-    coords(1, i) = v2(i);
-    coords(2, i) = v3(i);
-  }
-
-  // Display mode is positive:
-  // display mode = 0 -> plot no contour
-  // display mode = 1-8 -> plot 1-8 stress resultant
-  static Vector values(3);
-  if (displayMode < 8 && displayMode > 0) {
-    for (int i = 0; i < 3; i++) {
-      const Vector &stress = materialPointers[i]->getStressResultant();
-      values(i)            = stress(displayMode - 1);
-    }
-  } else {
-    for (int i = 0; i < 3; i++)
-      values(i) = 0.0;
-  }
-
-  // draw the polygon
-  return theViewer.drawPolygon(coords, values, this->getTag());
-}

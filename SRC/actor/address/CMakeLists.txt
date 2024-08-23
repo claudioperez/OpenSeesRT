@@ -7,8 +7,10 @@
 target_sources(OPS_Actor
     PRIVATE
       ChannelAddress.cpp
+      SocketAddress.cpp
     PUBLIC
       ChannelAddress.h
+      SocketAddress.h
 )
 
 target_sources(OPS_Parallel

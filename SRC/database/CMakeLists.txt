@@ -4,7 +4,7 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-
+target_link_libraries(OPS_Database PRIVATE OPS_Logging)
 target_sources(OPS_Database
     PRIVATE
         FE_Datastore.cpp

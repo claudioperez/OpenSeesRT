@@ -14,21 +14,6 @@
 #ifndef FeStructs_h
 #define FeStructs_h
 
-struct offdblk
-{
-	int             row    ;
-	int             beg    ;
-	struct offdblk  *bnext ;
-	struct offdblk  *next  ;
-	double          *nz    ;
-};
-
-typedef  struct offdblk  OFFDBLK;
-
-#endif
-
-/************************************************************/
-
 /*
  * data structure
  *  struct - pointer to pointer to nonzeros in L
@@ -51,5 +36,20 @@ typedef  struct offdblk  OFFDBLK;
  *  diag[i]      - the i the diagonal of L
  */
 
+
+struct offdblk
+{
+	int             row    ;
+	int             beg    ;
+	struct offdblk  *bnext ;
+	struct offdblk  *next  ;
+	double          *nz    ;
+};
+
+typedef  struct offdblk  OFFDBLK;
+
+#endif
+
+/************************************************************/
 
 

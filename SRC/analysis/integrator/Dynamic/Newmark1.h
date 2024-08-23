@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2003-02-14 23:00:49 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/Newmark1.h,v $
-                                                                        
-                                                                        
+//
 #ifndef Newmark1_h
 #define Newmark1_h
 
@@ -58,13 +53,13 @@ class Newmark1 : public TransientIntegrator
     int formEleTangent(FE_Element *theEle);
     int formNodTangent(DOF_Group *theDof);        
 
-    int domainChanged(void);    
-    int initialize(void);    
+    int domainChanged();    
+    int initialize();    
     int newStep(double deltaT);    
-    int revertToLastStep(void);            
+    int revertToLastStep();            
     int update(const Vector &deltaU);
 
-    const Vector &getVel(void);
+    const Vector &getVel();
     
     virtual int sendSelf(int commitTag, Channel &theChannel);
     virtual int recvSelf(int commitTag, Channel &theChannel, 

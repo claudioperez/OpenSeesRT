@@ -1,14 +1,18 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
 //
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
+//
+// These commands expect a Domain* as their clientData.
+// 
+// Written: cmp
 //
 #include <assert.h>
 #include <Domain.h>
 #include <tcl.h>
-#include <OPS_Globals.h> // Tcl_Char
-#include <OPS_ErrorStream.h>
+#include <Parsing.h> // Tcl_Char
+#include <Logging.h>
 
 int
 TclCommand_setLoadConst(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)

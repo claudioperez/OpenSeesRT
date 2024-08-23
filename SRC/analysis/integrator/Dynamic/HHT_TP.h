@@ -17,14 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision$
-// $Date$
-// $URL$
-
-#ifndef HHT_TP_h
-#define HHT_TP_h
-
+//
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 08/15
 // Revision: A
@@ -32,6 +25,10 @@
 // Description: This file contains the class definition for HHT_TP.
 // HHT_TP is an algorithmic class for performing a transient analysis
 // using the HHT integration scheme based on the trapezoidal rule.
+//
+#ifndef HHT_TP_h
+#define HHT_TP_h
+
 
 #include <TransientIntegrator.h>
 

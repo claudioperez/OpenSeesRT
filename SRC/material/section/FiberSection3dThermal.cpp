@@ -35,7 +35,7 @@
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
 #include <SensitiveResponse.h>
-typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
+typedef SensitiveResponse<FrameSection> SectionResponse;
 #include <UniaxialMaterial.h>
 #include <math.h>
 
@@ -43,7 +43,7 @@ ID FiberSection3dThermal::code(3);
 
 
 FiberSection3dThermal::FiberSection3dThermal(int tag, int num, bool compCentroid):
-  SectionForceDeformation(tag, SEC_TAG_FiberSection3dThermal),
+  FrameSection(tag, SEC_TAG_FiberSection3dThermal),
   numFibers(0), sizeFibers(num), theMaterials(0), matData(0),
   QzBar(0.0), QyBar(0.0), ABar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
   e(3), eCommit(3), s(0), ks(0),
@@ -92,7 +92,7 @@ FiberSection3dThermal::FiberSection3dThermal(int tag, int num, bool compCentroid
 
 // constructor for blank object that recvSelf needs to be invoked upon
 FiberSection3dThermal::FiberSection3dThermal():
-  SectionForceDeformation(0, SEC_TAG_FiberSection3dThermal),
+  FrameSection(0, SEC_TAG_FiberSection3dThermal),
   numFibers(0), sizeFibers(0), theMaterials(0), matData(0),
   QzBar(0.0), QyBar(0.0), ABar(0.0), yBar(0.0), zBar(0.0), computeCentroid(true),
   e(3), eCommit(3), s(0), ks(0),
@@ -467,8 +467,8 @@ FiberSection3dThermal::getTemperatureStress(const Vector& dataMixed)
 
 
 
-SectionForceDeformation*
-FiberSection3dThermal::getCopy(void)
+FrameSection*
+FiberSection3dThermal::getFrameCopy(void)
 {
   FiberSection3dThermal *theCopy = new FiberSection3dThermal ();
   theCopy->setTag(this->getTag());
@@ -498,7 +498,7 @@ FiberSection3dThermal::getCopy(void)
       theCopy->theMaterials[i] = theMaterials[i]->getCopy();
 
       if (theCopy->theMaterials[i] == 0) {
-    opserr << "FiberSection3dThermal::getCopy -- failed to get copy of a Material\n";
+    opserr << "FiberSection3dThermal::getFrameCopy -- failed to get copy of a Material\n";
     exit(-1);
       }
     }
@@ -957,7 +957,7 @@ FiberSection3dThermal::setResponse(const char **argv, int argc, OPS_Stream &outp
   }
 
   if (theResponse == 0)
-    return SectionForceDeformation::setResponse(argv, argc, output);
+    return FrameSection::setResponse(argv, argc, output);
 
   return theResponse;
 }
@@ -983,7 +983,7 @@ FiberSection3dThermal::getResponse(int responseID, Information &sectInfo)
     }
     return sectInfo.setVector(data);
   } else
-    return SectionForceDeformation::getResponse(responseID, sectInfo);
+    return FrameSection::getResponse(responseID, sectInfo);
 }
 
 int

@@ -45,7 +45,7 @@
 //
 // Written: Ed "C++" Love
 //
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <J2AxiSymm.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>

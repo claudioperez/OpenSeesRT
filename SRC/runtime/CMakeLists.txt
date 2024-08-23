@@ -1,7 +1,9 @@
-#* ****************************************************************** *#
-#*    OpenSees - Open System for Earthquake Engineering Simulation    *#
-#*          Pacific Earthquake Engineering Research Center            *#
-#* ****************************************************************** *#
+#==============================================================================
+#
+#        OpenSees -- Open System For Earthquake Engineering Simulation
+#                Pacific Earthquake Engineering Research Center
+#
+#==============================================================================
 
 add_library(OpenSeesRT SHARED)
 target_sources(OpenSeesRT PRIVATE "OpenSeesRT.cpp")
@@ -17,34 +19,18 @@ target_compile_options(OPS_Runtime PRIVATE
 target_include_directories(OPS_Runtime PUBLIC 
   ./api/
   ${OPS_SRC_DIR}/runtime/commands
+  ${OPS_SRC_DIR}/runtime/parsing/
   ${OPS_SRC_DIR}/runtime/commands/modeling
-  ${OPS_SRC_DIR}/runtime/runtime/modelbuilder
-  ${OPS_SRC_DIR}/runtime/runtime/modelbuilder/basic
   ${OPS_SRC_DIR}/runtime/runtime/
-  ${OPS_SRC_DIR}/runtime/runtime/Logging/
 )
-target_link_libraries(OPS_Runtime PRIVATE G3)
+target_link_libraries(OPS_Runtime PRIVATE G3 OPS_Algorithm)
 
-add_subdirectory(commands/)
-
-add_subdirectory(runtime/)
+add_subdirectory(commands)
+add_subdirectory(runtime)
 
 target_sources(OPS_Runtime PRIVATE
-    "G3_Runtime.cpp"
-    "InterpreterAPI.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/utilities/tclutils.cpp"
-
-    #
-    # OTHER
-    #
-    "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/PyTzQz/TclPyTzQzMaterialCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/snap/TclSnapMaterialCommand.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/contrib/uniaxial/drain/TclDrainMaterialCommand.cpp"
-    # "contrib/uniaxial/TclAxialSp.cpp"
-    # "contrib/uniaxial/fedeas/TclFedeasWrappers.cpp"
-    # "contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
-    #"contrib/uniaxial/fedeas/TclFedeasMaterialCommand.cpp"
-
+    "runtime/G3_Runtime.cpp"
+    "parsing/InterpreterAPI.cpp"
 )
 
 if (DEFINED OPENSEESRT_VERSION)
@@ -55,7 +41,6 @@ if (DEFINED OPENSEESRT_VERSION)
   )
 endif()
 
-add_subdirectory(contrib/)
 
 #
 # Tcl
@@ -65,7 +50,7 @@ if (${TCL_INCLUDE_PATH})
   target_include_directories(OPS_Runtime PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
-target_link_libraries(OpenSeesRT PRIVATE OPS_Runtime ${TCL_STUB_LIBRARY})
+target_link_libraries(OpenSeesRT PRIVATE OPS_Runtime OPS_Renderer OPS_Algorithm ${TCL_STUB_LIBRARY})
 
 #
 # Python
@@ -82,7 +67,11 @@ endif()
 #
 if (FALSE) # (MPI_FOUND)
   add_library(OpenSeesRT_Parallel SHARED)
-  add_subdirectory(parallel)
+  add_subdirectory(commands/parallel)
   target_sources(OpenSeesRT_Parallel PRIVATE OpenSeesPRT.cpp)
 endif()
 
+
+if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/packages/UCSD_CompGeoMech/CMakeLists.txt)
+  add_subdirectory(packages/UCSD_CompGeoMech)
+endif ()

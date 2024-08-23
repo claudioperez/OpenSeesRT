@@ -1,9 +1,11 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-** ****************************************************************** */
-
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
+//
+// Written: cmp
+//
 #ifndef FiberSectionBuilder_h 
 #define FiberSectionBuilder_h 
 
@@ -28,12 +30,12 @@ public:
     const int nc   = patch.getNumCells();
     const int mat  = patch.getMaterialID();
     for(int j=0; j<nc; j++) {
-	// get fiber data
-	double area        = cells[j]->getArea();
-	const Vector& cPos = cells[j]->getCentroidPosition();
+      // get fiber data
+      double area        = cells[j]->getArea();
+      const Vector& cPos = cells[j]->getCentroidPosition();
 
-        if (this->addFiber(j, mat, area, cPos) != 0)
-          return -1;
+      if (this->addFiber(j, mat, area, cPos) != 0)
+        return -1;
     }
     return 0;
   }

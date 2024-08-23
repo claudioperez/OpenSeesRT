@@ -29,7 +29,7 @@
 // Purpose: This file contains the methods for class ElementalLoad.
 
 #include <ElementalLoad.h>
-#include <OPS_ErrorStream.h>
+#include <Logging.h>
 #include <Element.h>
 #include <Domain.h>
 

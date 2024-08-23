@@ -8,6 +8,8 @@
 #define transDebug  0
 #define driftDebug  0
 
+#include <Logging.h>
+
 #include <MaterialResponse.h>
 #include <math.h>
 

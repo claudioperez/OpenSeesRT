@@ -65,7 +65,8 @@ IGASurfacePatch::IGASurfacePatch(int tag, int P_, const Vector & uKnot_, const M
 
 
 // IGASurfacePatch::IGASurfacePatch(int tag, int P_, int Q_, const Vector & uKnot_, const Vector & vKnot_, const Matrix & controlPts_)
-IGASurfacePatch::IGASurfacePatch(int tag, int nodeStartTag_, int P_, int Q_, int noPtsX_, int noPtsY_, int nonLinearGeometry_, const Vector gFact_, const ID& matTags_, const Vector& theta_, const Vector& thickness_, const Vector& uKnot_, const Vector& vKnot_, const Matrix& controlPts_, ShellType shtype_)
+IGASurfacePatch::IGASurfacePatch(int tag, int nodeStartTag_, int P_, int Q_, int noPtsX_, int noPtsY_, int nonLinearGeometry_, const Vector gFact_, 
+    const std::vector<NDMaterial*>& materials_, const Vector& theta_, const Vector& thickness_, const Vector& uKnot_, const Vector& vKnot_, const Matrix& controlPts_, ShellType shtype_)
     :
     Subdomain(tag),
     nodeStartTag(nodeStartTag_),
@@ -77,7 +78,7 @@ IGASurfacePatch::IGASurfacePatch(int tag, int nodeStartTag_, int P_, int Q_, int
     gFact(gFact_),
     nonLinearGeometry(nonLinearGeometry_),
     noPts(noPtsX * noPtsY),
-    matTags(matTags_),
+    materials(materials_),
     theta(theta_),
     thickness(thickness_),
     Zk(0),
@@ -237,8 +238,6 @@ IGASurfacePatch::IGASurfacePatch(int tag, int P_, int Q_, int R_, const Vector &
     opserr << "IGASurfacePatch::IGASurfacePatch() - 3D constructor" << endln;
     Print(opserr);
 
-
-
 }
 
 void
@@ -364,8 +363,7 @@ void IGASurfacePatch::setDomain(Domain *theDomain)
             if ((ele = new IGAKLShell(tag, this, nodes, quadorder, xiE, etaE, matTags)) != 0)
             {
                 opsDomain->addElement(ele);
-            } else
-            {
+            } else {
                 opserr << "IGASurfacePatch::setDomain - Out of memory creating new element. " << endln;
                 return ;
             }
@@ -650,18 +648,14 @@ bool IGASurfacePatch::generateIGA2DMesh(int & noElems, int & noElemsU, int & noE
     }
 
 
-
-
-
-
-
     //* Implementar *//
     result = true;
 
     return result;
 }
 
-int IGASurfacePatch::Nurbs2DBasis2ndDers(double xi, double eta, Vector & R, Vector & dRdxi, Vector & dRdeta, Vector & dR2dxi, Vector & dR2deta, Vector & dR2dxideta)
+int 
+IGASurfacePatch::Nurbs2DBasis2ndDers(double xi, double eta, Vector & R, Vector & dRdxi, Vector & dRdeta, Vector & dR2dxi, Vector & dR2deta, Vector & dR2dxideta)
 {
     bool result = false;
 
@@ -672,8 +666,7 @@ int IGASurfacePatch::Nurbs2DBasis2ndDers(double xi, double eta, Vector & R, Vect
        All non-zero basis functions and derivatives at point [xi,eta] are computed.
 
       We expect the function to be called as
-      [R dRdxi dRdeta dR2dxi dR2deta dR2dxideta] = NURBS2DBasis2ndDers(...
-                                xi, p, q, knotU,knotV, weights)
+      [R dRdxi dRdeta dR2dxi dR2deta dR2dxideta] = NURBS2DBasis2ndDers(xi, p, q, knotU,knotV, weights)
 
         xi           = point, [xi eta], where we want to interpolate
         knotU, knotV = knot vectors
@@ -682,14 +675,12 @@ int IGASurfacePatch::Nurbs2DBasis2ndDers(double xi, double eta, Vector & R, Vect
     Written originally for Matlab by Vinh Phu Nguyen, nvinhphu@gmail.com
     */
 
-    //* Implementar *//
-
-    // opserr << "knotU = " << this->uKnot << endln;
+    // * Implementar
 
 
 
-    int numKnotU = uKnot.Size();
-    int numKnotV = vKnot.Size();
+    int numKnotU = this->uKnot.Size();
+    int numKnotV = this->vKnot.Size();
 
     int nU = numKnotU - 1 - P  - 1;
     int nV = numKnotV - 1 - Q  - 1;
@@ -726,7 +717,7 @@ int IGASurfacePatch::Nurbs2DBasis2ndDers(double xi, double eta, Vector & R, Vect
 
 
 
-    int spanU      = FindSpan(nU, P, xi, uKnot);
+    int spanU      = FindSpan(nU, P,  xi, uKnot);
     int spanV      = FindSpan(nV, Q, eta, vKnot);
 
     BasisFuns     (spanU, xi, P, uKnot, N);
@@ -743,23 +734,21 @@ int IGASurfacePatch::Nurbs2DBasis2ndDers(double xi, double eta, Vector & R, Vect
     int i, j, k, c;
 
     int uind = spanU - P;
-    int vind;
 
-    double w      = 0.0; /* w = N_I w_I*/
-    double dwdxi  = 0.0; /* first derivative of w w.r.t xi*/
-    double d2wdxi = 0.0; /* second derivative of w w.r.t xi*/
-    double dwdet  = 0.0; /* first derivative of w w.r.t eta*/
-    double d2wdet = 0.0; /* second derivative of w w.r.t eta*/
-    double d2wdxe = 0.0; /* second derivative of w w.r.t xi-eta*/
+    double w      = 0.0; /* w = N_I w_I */
+    double dwdxi  = 0.0; /* first derivative of w w.r.t xi */
+    double d2wdxi = 0.0; /* second derivative of w w.r.t xi */
+    double dwdet  = 0.0; /* first derivative of w w.r.t eta */
+    double d2wdet = 0.0; /* second derivative of w w.r.t eta */
+    double d2wdxe = 0.0; /* second derivative of w w.r.t xi-eta */
     double wi;
 
 
-
-    for (j = 0; j <= Q; j++)
+    for (int j = 0; j <= Q; j++)
     {
-        vind = spanV - Q + j;
+        int vind = spanV - Q + j;
 
-        for (i = 0; i <= P; i++)
+        for (int i = 0; i <= P; i++)
         {
             c   = uind + i + vind * (nU + 1);
             wi  = controlPts(3, c); //Weight of control point
@@ -767,13 +756,11 @@ int IGASurfacePatch::Nurbs2DBasis2ndDers(double xi, double eta, Vector & R, Vect
 
             w      += N[i]        * M[j] * wi;
             dwdxi  += dersN(1,i) * M[j] * wi;
-            if (P >= 2)
-            {
+            if (P >= 2) {
                 d2wdxi += dersN(2,i) * M[j] * wi;
             }
             dwdet  += dersM(1,j) * N[i] * wi;
-            if (Q >= 2)
-            {
+            if (Q >= 2) {
                 d2wdet += dersM(2,j) * N[i] * wi;
             }
             d2wdxe += dersN(1,i) * dersM(1,j) * wi;
@@ -788,15 +775,15 @@ int IGASurfacePatch::Nurbs2DBasis2ndDers(double xi, double eta, Vector & R, Vect
     double fac;
     double NiMj, w3Inv, w2Inv;
 
-    for (j = 0; j <= Q; j++)
+    for (int j = 0; j <= Q; j++)
     {
-        vind = spanV - Q + j;
+        int vind = spanV - Q + j;
 
-        for (i = 0; i <= P; i++)
+        for (int i = 0; i <= P; i++)
         {
             c        = uind + i + vind * (nU + 1);
-            wi = controlPts(3, c); //Weight of control point
-            // wi = weights(c); //Weight of control point
+            wi = controlPts(3, c); // Weight of control point
+            // wi = weights(c);    // Weight of control point
 
             NiMj     = N[i] * M[j];
             w3Inv    = 1 / w / w / w;
@@ -808,13 +795,11 @@ int IGASurfacePatch::Nurbs2DBasis2ndDers(double xi, double eta, Vector & R, Vect
             dRdxi(k) = (dersN(1,i) * M[j] * w - NiMj * dwdxi) * fac;
             dRdeta(k) = (dersM(1,j) * N[i] * w - NiMj * dwdet) * fac;
 
-            if (P >= 2)
-            {
+            if (P >= 2) {
                 // dR2dxi(k) = wi * (dersN[2][i] * M[j] / w - 2 * dersN[1][i] * M[j] * dwdxi / w / w - N[i] * M[j] * d2wdxi / w / w + 2 * N[i] * M[j] * dwdxi * dwdxi / w / w / w);
                 dR2dxi(k) = wi * (dersN(2,i) * M[j] / w - 2 * dersN(1,i) * M[j] * dwdxi * w2Inv - NiMj * d2wdxi * w2Inv + 2 * NiMj * dwdxi * dwdxi * w3Inv);
             }
-            if (Q >= 2)
-            {
+            if (Q >= 2) {
                 // dR2deta(k) = wi * (dersM[2][j] * N[i] / w - 2 * dersM[1][j] * N[i] * dwdet / w / w - N[i] * M[j] * d2wdet / w / w + 2 * N[i] * M[j] * dwdet * dwdet / w / w / w);
                 dR2deta(k) = wi * (dersM(2,j) * N[i] / w - 2 * dersM(1,j) * N[i] * dwdet * w2Inv - NiMj * d2wdet * w2Inv + 2 * NiMj * dwdet * dwdet * w3Inv);
             }
@@ -830,10 +815,9 @@ int IGASurfacePatch::Nurbs2DBasis2ndDers(double xi, double eta, Vector & R, Vect
     // free2Darray(dersN, (nU + 1));
     // free2Darray(dersM, (nV + 1));
 
-
-
     return result;
 }
+
 
 double IGASurfacePatch::parent2ParametricSpace(Vector range, double xibar)
 {

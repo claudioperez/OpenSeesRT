@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2007-07-27 19:12:18 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/ShearPanelMaterial.cpp,v $
-                                                                        
-                                                                        
+//
 // Written: NM (nmitra@u.washington.edu) 
 // Created: December 2005
 //

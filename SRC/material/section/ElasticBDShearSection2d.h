@@ -18,6 +18,8 @@
 **                                                                    **
 ** ****************************************************************** */
 //
+// NOTE[cmp] : The only difference between this and ElasticShearSection2d
+// is that it is constructed from dimensions b and d???
 //
 #ifndef ElasticBDShearSection2d_h
 #define ElasticBDShearSection2d_h
@@ -35,27 +37,27 @@ class ElasticBDShearSection2d: public SectionForceDeformation
  public:
   ElasticBDShearSection2d(int tag, double E, double b, double d,
 			double G, double alpha);
-  ElasticBDShearSection2d(void);    
-  ~ElasticBDShearSection2d(void);
+  ElasticBDShearSection2d();    
+  ~ElasticBDShearSection2d();
   
-  int commitState(void);
-  int revertToLastCommit(void);
-  int revertToStart(void);
+  int commitState();
+  int revertToLastCommit();
+  int revertToStart();
   
-  const char *getClassType(void) const {return "ElasticBDShearSection2d";};
+  const char *getClassType() const {return "ElasticBDShearSection2d";};
   
   int setTrialSectionDeformation(const Vector&);
-  const Vector &getSectionDeformation(void);
+  const Vector &getSectionDeformation();
   
-  const Vector &getStressResultant(void);
-  const Matrix &getSectionTangent(void);
-  const Matrix &getInitialTangent(void);
-  const Matrix &getSectionFlexibility(void);
-  const Matrix &getInitialFlexibility(void);
+  const Vector &getStressResultant();
+  const Matrix &getSectionTangent();
+  const Matrix &getInitialTangent();
+  const Matrix &getSectionFlexibility();
+  const Matrix &getInitialFlexibility();
   
-  SectionForceDeformation *getCopy(void);
+  SectionForceDeformation *getCopy();
   const ID &getType();
-  int getOrder(void) const;
+  int getOrder() const;
   
   int sendSelf(int commitTag, Channel &theChannel);
   int recvSelf(int commitTag, Channel &theChannel,

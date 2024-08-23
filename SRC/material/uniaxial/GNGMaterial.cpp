@@ -61,7 +61,7 @@
 #include <elementAPI.h>
 #include <OPS_Globals.h>
 
-//Added when trying to add args to eleResponse
+// Added when trying to add args to eleResponse
 #include <MaterialResponse.h>
 #include <Information.h>
 #include <string.h>
@@ -69,27 +69,27 @@
 #include <FEM_ObjectBroker.h>
 #include <OPS_Stream.h>
 
-//External Procedure
-//This is the all important external procedure that the interpreter will parse when it 
-//comes across your element on the command line. You need to parse the command line,
-//create a material using the command line arguments you parsed and then return this
-//material. The name of the procedure must be OPS_YourClassName (no exceptions). If this
-//procedure is missing or the name is incorrect, your material will fail to load.
+// External Procedure
+// This is the all important external procedure that the interpreter will parse when it 
+// comes across your element on the command line. You need to parse the command line,
+// create a material using the command line arguments you parsed and then return this
+// material. The name of the procedure must be OPS_YourClassName (no exceptions). If this
+// procedure is missing or the name is incorrect, your material will fail to load.
 
-//NOTE: parsing the command line is easy with some other procedures that are defined in 
-//the elementAPI.h file. In the example we show how to get integer and double values from 
-//the command line. Other options such as character strings and obtaining the number of 
-//input arguments are also available.
+// NOTE: parsing the command line is easy with some other procedures that are defined in 
+// the elementAPI.h file. In the example we show how to get integer and double values from 
+// the command line. Other options such as character strings and obtaining the number of 
+// input arguments are also available.
 
-static int numGNGMaterials = 0;
 
 void * OPS_ADD_RUNTIME_VPV(OPS_GNGMaterial)
 {
+  static int numGNGMaterials = 0;
 	
 	if (numGNGMaterials == 0) {
 		numGNGMaterials++;
 		opserr << "Grip 'n' Grab device installed in this structure!\n";
-    }
+  }
 	
     // Pointer to a uniaxial material that will be returned
     UniaxialMaterial *theMaterial = 0;
