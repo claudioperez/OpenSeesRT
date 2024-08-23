@@ -325,7 +325,7 @@ getIndexNeg(Vector v,double value)
 
  void CFSSSWP::SetSpline(void)
  {
-			const int Size = 5;
+			constexpr int Size = 5;
 			double X[Size]; double Y[Size];
 			
 			int fifth = getIndexNeg(envlpNegStrain,state3Strain(0));
