@@ -12,32 +12,6 @@ class Domain;
 class Response;
 class Rotation;
 
-#if 0
-template<int ndf, int nn, typename T, typename Vec, const Vec& (T::*method)()>
-VectorND<ndf> MapMethod(std::array<Node*, nn> nodes) 
-{
-}
-#endif
-
-//     Displacement
-//     Deformation
-//     Conjugate
-//     Resultant
-//
-//          Response
-//     Nodal
-//          Position
-//          Location
-//          Rotation
-//          Jacobian
-//          Unknown
-//          Hessian
-//          Tangent
-//          Force
-//          State
-//          Stress
-//          Strain
-
 using namespace OpenSees;
 
 #include <State.h>
@@ -140,6 +114,13 @@ protected:
     // Implemented by children
     virtual MatrixND<ndf*nen,ndf*nen> getTangent(State state, int rate) =0;
     virtual VectorND<ndf*nen>         getForce(State state, int rate) =0;
+
+    // Supplied to children
+    const VectorND<ndf>& getNodeUnknowns(int tag, int rate);
+    const VectorND<ndm>& getNodePosition(int tag, State state);
+    const Rotation&      getNodeRotation(int tag, State state);
+    const VectorND<ndm>& getNodeVelocity(int tag);
+    const VectorND<ndm>& getNodeLocation(int tag, State state);
 #endif
     virtual                       int setNodes() = 0;
 
@@ -168,22 +149,14 @@ protected:
         return status;
       }
     }
-    const VectorND<ndf>& getNodeUnknowns(int tag, int rate);
-    const VectorND<ndm>& getNodePosition(int tag, State state);
-    const Rotation&      getNodeRotation(int tag, State state);
-    const VectorND<ndm>& getNodeVelocity(int tag);
-    const VectorND<ndm>& getNodeLocation(int tag, State state);
 
     //
     std::array<Node*, nen> theNodes;
 
     ID  connectedExternalNodes;    
 
-
 private:
     State  e_state;
 
-
 };
-
 
