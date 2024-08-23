@@ -32,7 +32,7 @@
 #include "ID.h"
 
 #include <stdlib.h>
-#include <iostream>
+#include <OPS_Stream.h>
 
 #define MATRIX_VERY_LARGE_VALUE 1.0e213
 
@@ -1457,10 +1457,7 @@ Matrix::operator^(const Matrix &M) const
   result.addMatrixTransposeProduct(0.0, *this, M, 1.0);
 #else
 
-  if (numRows != M.numRows || result.numRows != numCols) {
-    opserr << "Matrix::operator*(Matrix): incompatable sizes\n";
-    return result;
-  } 
+  assert(numRows == M.numRows && result.numRows == numCols);
 
     double *resDataPtr = result.data;            
 
