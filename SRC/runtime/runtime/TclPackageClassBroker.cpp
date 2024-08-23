@@ -326,7 +326,9 @@ using namespace OpenSees::Hash::literals;
 
 // node header files
 #include "Node.h"
+#ifdef HEAP_NODE
 #include "HeapNode.h"
+#endif
 
 #include "FileStream.h"
 #include "StandardStream.h"
@@ -743,7 +745,11 @@ TclPackageClassBroker::getNewNode(int classTag)
 {
   switch (classTag) {
   case NOD_TAG_Node:
+#ifdef HEAP_NODE
     return new HeapNode(classTag);
+#else
+    return new Node(classTag);
+#endif
 
   default:
     opserr << "TclPackageClassBroker::getNewNode - ";
