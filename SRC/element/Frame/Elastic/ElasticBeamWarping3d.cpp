@@ -18,16 +18,17 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: fmk 11/95
-// Revised:
-//
 // Purpose: This file contains the class definition for ElasticBeamWarping3d.
 // ElasticBeamWarping3d is a 3d beam element. As such it can only
 // connect to a node with 6-dof. 
+//
 // Modified by Xi Zhang from University of Sydney, Australia (include warping degrees of freedom). Refer to 
 // Formulation and Implementation of Three-dimensional Doubly Symmetric Beam-Column Analyses with Warping Effects in OpenSees
 // Research Report R917, School of Civil Engineering, University of Sydney.
-
+//
+// Written: fmk 11/95
+// Revised:
+//
 #include <ElasticBeamWarping3d.h>
 #include <Domain.h>
 #include <Channel.h>
@@ -48,22 +49,20 @@
 Matrix ElasticBeamWarping3d::K(14,14);
 Vector ElasticBeamWarping3d::P(14);
 Matrix ElasticBeamWarping3d::kb(9,9);
-using std::string;
-using namespace std;
 
 void * OPS_ADD_RUNTIME_VPV(OPS_ElasticBeamWarping3d)
 {
     int numArgs = OPS_GetNumRemainingInputArgs();
     if (numArgs < 11 && numArgs != 6) {
-	opserr<<"insufficient arguments:eleTag,iNode,jNode,<A,E,G,J,Iy,Iz>or<sectionTag>,transfTag,Cw\n";
-	return 0;
+        opserr<<"insufficient arguments:eleTag,iNode,jNode,<A,E,G,J,Iy,Iz>or<sectionTag>,transfTag,Cw\n";
+        return 0;
     }
 
     int ndm = OPS_GetNDM();
     int ndf = OPS_GetNDF();
     if (ndm != 3 || ndf != 7) {
-	opserr<<"ndm must be 3 and ndf must be 7\n";
-	return 0;
+        opserr<<"ndm must be 3 and ndf must be 7\n";
+        return 0;
     }
 
     // inputs: 
@@ -78,32 +77,32 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticBeamWarping3d)
     int transfTag, secTag;
     
     if (numArgs == 6) {
-	numData = 1;
-	if (OPS_GetIntInput(&numData,&secTag) < 0)
+        numData = 1;
+        if (OPS_GetIntInput(&numData,&secTag) < 0)
           return 0;
-	if (OPS_GetIntInput(&numData,&transfTag) < 0)
+        if (OPS_GetIntInput(&numData,&transfTag) < 0)
           return 0;
 
-	theSection = G3_getSafeBuilder(rt)->getTypedObject<SectionForceDeformation>(secTag);
-	if (theSection == nullptr)
-	    return nullptr;
+        theSection = G3_getSafeBuilder(rt)->getTypedObject<SectionForceDeformation>(secTag);
+        if (theSection == nullptr)
+            return nullptr;
 
-	theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
-	if (theTrans == nullptr)
-	    return nullptr;
+        theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
+        if (theTrans == nullptr)
+            return nullptr;
 
     } else {
-	numData = 6;
-	if (OPS_GetDoubleInput(&numData,&data[0]) < 0)
+        numData = 6;
+        if (OPS_GetDoubleInput(&numData,&data[0]) < 0)
           return 0;
-	numData = 1;
-	if (OPS_GetIntInput(&numData,&transfTag) < 0)
+        numData = 1;
+        if (OPS_GetIntInput(&numData,&transfTag) < 0)
           return 0;
 
-	theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
-	if (theTrans == nullptr) {
-	    return nullptr;
-	}
+        theTrans = G3_getSafeBuilder(rt)->getTypedObject<CrdTransf>(transfTag);
+        if (theTrans == nullptr) {
+            return nullptr;
+        }
     }
 
     // Read Cw
@@ -116,19 +115,19 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ElasticBeamWarping3d)
     double mass = 0.0;
     int cMass = 0;
     while(OPS_GetNumRemainingInputArgs() > 0) {
-	std::string theType = OPS_GetString();
-	if (theType == "-mass") {
-	    if (OPS_GetNumRemainingInputArgs() > 0) {
-		if(OPS_GetDoubleInput(&numData,&mass) < 0) return 0;
-	    }
-	}
+        std::string theType = OPS_GetString();
+        if (theType == "-mass") {
+            if (OPS_GetNumRemainingInputArgs() > 0) {
+                if(OPS_GetDoubleInput(&numData,&mass) < 0) return 0;
+            }
+        }
     }
 
-    if (theSection != 0) {
+    if (theSection != nullptr) {
       return new ElasticBeamWarping3d(iData[0],iData[1],iData[2],theSection,*theTrans,Cw,mass); 
     } else {
       return new ElasticBeamWarping3d(iData[0],data[0],data[1],data[2],data[3],data[4],
-				      data[5],iData[1],iData[2],*theTrans, Cw, mass);
+                                      data[5],iData[1],iData[2],*theTrans, Cw, mass);
     }
 }
 
@@ -156,8 +155,8 @@ ElasticBeamWarping3d::ElasticBeamWarping3d()
 }
 
 ElasticBeamWarping3d::ElasticBeamWarping3d(int tag, double a, double e, double g, 
-			     double jx, double iy, double iz, int Nd1, int Nd2, 
-			     CrdTransf &coordTransf,  double cw, double r)
+                             double jx, double iy, double iz, int Nd1, int Nd2, 
+                             CrdTransf &coordTransf,  double cw, double r)
   :Element(tag,ELE_TAG_ElasticBeamWarping3d), 
    A(a), E(e), G(g), Jx(jx), Iy(iy), Iz(iz), Cw(cw), rho(r),
   Q(14), q(9), connectedExternalNodes(2), theCoordTransf(0)
@@ -189,8 +188,8 @@ ElasticBeamWarping3d::ElasticBeamWarping3d(int tag, double a, double e, double g
     theNodes[i] = 0;      
 }
 
-ElasticBeamWarping3d::ElasticBeamWarping3d(int tag, int Nd1, int Nd2, SectionForceDeformation *section, 			     
-					   CrdTransf &coordTransf, double cw, double r)
+ElasticBeamWarping3d::ElasticBeamWarping3d(int tag, int Nd1, int Nd2, SectionForceDeformation *section,                              
+                                           CrdTransf &coordTransf, double cw, double r)
   :Element(tag,ELE_TAG_ElasticBeamWarping3d), Cw(cw), rho(r),
   Q(14), q(9), connectedExternalNodes(2), theCoordTransf(0)
 {
@@ -206,19 +205,19 @@ ElasticBeamWarping3d::ElasticBeamWarping3d(int tag, int Nd1, int Nd2, SectionFor
       int code = sectCode(i);
       switch(code) {
       case SECTION_RESPONSE_P:
-	A = sectTangent(i,i);
-	break;
+        A = sectTangent(i,i);
+        break;
       case SECTION_RESPONSE_MZ:
-	Iz = sectTangent(i,i);
-	break;
+        Iz = sectTangent(i,i);
+        break;
       case SECTION_RESPONSE_MY:
-	Iy = sectTangent(i,i);
-	break;
+        Iy = sectTangent(i,i);
+        break;
       case SECTION_RESPONSE_T:
-	Jx = sectTangent(i,i);
-	break;
+        Jx = sectTangent(i,i);
+        break;
       default:
-	break;
+        break;
       }
     }
   }    
@@ -252,7 +251,7 @@ ElasticBeamWarping3d::ElasticBeamWarping3d(int tag, int Nd1, int Nd2, SectionFor
 
   // set node pointers to NULL
   for (int i=0; i<2; i++)
-    theNodes[i] = 0;      
+    theNodes[i] = nullptr;
 }
 
 ElasticBeamWarping3d::~ElasticBeamWarping3d()
@@ -262,25 +261,25 @@ ElasticBeamWarping3d::~ElasticBeamWarping3d()
 }
 
 int
-ElasticBeamWarping3d::getNumExternalNodes(void) const
+ElasticBeamWarping3d::getNumExternalNodes() const
 {
     return 2;
 }
 
 const ID &
-ElasticBeamWarping3d::getExternalNodes(void) 
+ElasticBeamWarping3d::getExternalNodes() 
 {
     return connectedExternalNodes;
 }
 
 Node **
-ElasticBeamWarping3d::getNodePtrs(void) 
+ElasticBeamWarping3d::getNodePtrs() 
 {
   return theNodes;
 }
 
 int
-ElasticBeamWarping3d::getNumDOF(void)
+ElasticBeamWarping3d::getNumDOF()
 {
     return 14;
 }
@@ -301,7 +300,7 @@ ElasticBeamWarping3d::setDomain(Domain *theDomain)
       opserr << "ElasticBeamWarping3d::setDomain -- Node 1: " << connectedExternalNodes(0) << " does not exist\n";
       exit(-1);
     }
-			      
+                              
     if (theNodes[1] == 0) {
       opserr << "ElasticBeamWarping3d::setDomain -- Node 2: " << connectedExternalNodes(1) << " does not exist\n";
       exit(-1);
@@ -310,23 +309,12 @@ ElasticBeamWarping3d::setDomain(Domain *theDomain)
     int dofNd1 = theNodes[0]->getNumberDOF();
     int dofNd2 = theNodes[1]->getNumberDOF();    
     
-    //if (dofNd1 != 6) {
-     // opserr << "ElasticBeamWarping3d::setDomain -- Node 1: " << connectedExternalNodes(0) 
-	    // << " has incorrect number of DOF\n";
-     // exit(-1);
-   // }
-    
-    /*if (dofNd2 != 6) {
-      opserr << "ElasticBeamWarping3d::setDomain -- Node 2: " << connectedExternalNodes(1) 
-	     << " has incorrect number of DOF\n";
-      exit(-1);
-    }*/
-	
+
     this->DomainComponent::setDomain(theDomain);
     
     if (theCoordTransf->initialize(theNodes[0], theNodes[1]) != 0) {
-	opserr << "ElasticBeamWarping3d::setDomain -- Error initializing coordinate transformation\n";
-	exit(-1);
+        opserr << "ElasticBeamWarping3d::setDomain -- Error initializing coordinate transformation\n";
+        exit(-1);
     }
     
     double L = theCoordTransf->getInitialLength();
@@ -362,37 +350,30 @@ ElasticBeamWarping3d::revertToStart()
 }
 
 int
-ElasticBeamWarping3d::update(void)
+ElasticBeamWarping3d::update()
 {
   return theCoordTransf->update();
 }
 
 const Matrix &
-ElasticBeamWarping3d::getTangentStiff(void)
+ElasticBeamWarping3d::getTangentStiff()
 {
   const Vector &v = theCoordTransf->getBasicTrialDisp();
-  /*for (int j=0; j<9; j++)
-				{
-					uuoutput << "v"<<"\t\t"<<j<<"\t\t"<<v(j)<<endln;
-					
-			}
- uuoutput<<"------------------------------------------------------------"<<endln;
- uuoutput<<"finish v"<<endln;*/
-  //double Cw=134.46;
+
   double L = theCoordTransf->getInitialLength();
-  double oneOverL = 1.0/L;
-  double EoverL   = E*oneOverL;
-  double EAoverL  = A*EoverL;			// EA/L
-  double EIzoverL2 = 2.0*Iz*EoverL;		// 2EIz/L
-  double EIzoverL4 = 2.0*EIzoverL2;		// 4EIz/L
-  double EIyoverL2 = 2.0*Iy*EoverL;		// 2EIy/L
-  double EIyoverL4 = 2.0*EIyoverL2;		// 4EIy/L
-  double GJoverL = G*Jx*oneOverL;         // GJ/L
-  double ECoverL3=E*Cw/L/L/L;
-  double ECoverL2=E*Cw/L/L;
-  double ECoverL=E*Cw/L;
-  double GJover10=G*Jx/10.0;
-  double GJL=G*Jx*L;
+  double oneOverL  = 1.0/L;
+  double EoverL    = E*oneOverL;
+  double EAoverL   = A*EoverL;                     // EA/L
+  double EIzoverL2 = 2.0*Iz*EoverL;                // 2EIz/L
+  double EIzoverL4 = 2.0*EIzoverL2;                // 4EIz/L
+  double EIyoverL2 = 2.0*Iy*EoverL;                // 2EIy/L
+  double EIyoverL4 = 2.0*EIyoverL2;                // 4EIy/L
+  double GJoverL   = G*Jx*oneOverL;                // GJ/L
+  double ECoverL3 = E*Cw/L/L/L;
+  double ECoverL2 = E*Cw/L/L;
+  double ECoverL  = E*Cw/L;
+  double GJover10 = G*Jx/10.0;
+  double GJL = G*Jx*L;
   
   q(0) = (12.0*ECoverL3+6.0/5.0*GJoverL)*(v(0)-v(4))+(GJover10+6.0*ECoverL2)*(v(3)+v(7));
   q(1) = EIzoverL4*v(1) + EIzoverL2*v(5);
@@ -410,19 +391,19 @@ ElasticBeamWarping3d::getTangentStiff(void)
   q(3) += q0[3];
   q(4) += q0[4];
 
-  kb(0,0) = 12.*ECoverL3+6./5.*GJoverL;
-  kb(0,3) = kb(3,0) = kb(0,7) = kb(7,0) = GJover10+6.*ECoverL2;
-  kb(0,4) = kb(4,0) = -12.*ECoverL3-6./5.*GJoverL;
-  kb(1,1) = kb(5,5) = EIzoverL4;
-  kb(1,5) = kb(5,1) = EIzoverL2;
-  kb(2,2) = kb(6,6) = EIyoverL4;
-  kb(2,6) = kb(6,2) = EIyoverL2;
-  kb(3,3) = 4.*ECoverL+2./15.*GJL;
-  kb(3,4) = kb(4,3) = -kb(3,0);
-  kb(3,7) = kb(7,3) = 2.*ECoverL-1./30.*GJL;
+  kb(0,0)            = 12.*ECoverL3 + 6./5.*GJoverL;
+  kb(0,3) =  kb(3,0) = kb(0,7) = kb(7,0) = GJover10+6.*ECoverL2;
+  kb(0,4) =  kb(4,0) = -12.*ECoverL3-6./5.*GJoverL;
+  kb(1,1) =  kb(5,5) = EIzoverL4;
+  kb(1,5) =  kb(5,1) = EIzoverL2;
+  kb(2,2) =  kb(6,6) = EIyoverL4;
+  kb(2,6) =  kb(6,2) = EIyoverL2;
+  kb(3,3)            = 4.*ECoverL + 2./15.*GJL;
+  kb(3,4) =  kb(4,3) = -kb(3,0);
+  kb(3,7) =  kb(7,3) = 2.*ECoverL - 1./30.*GJL;
   kb(4,4) = -kb(4,0);
   kb(4,7) = kb(7,4) = -GJover10-6.*ECoverL2;
-  kb(7,7) = 4.*ECoverL+2./15.*GJL;
+  kb(7,7) = 4.*ECoverL + 2./15.*GJL;
   kb(8,8) = EAoverL;
  
   return theCoordTransf->getGlobalStiffMatrix(kb,q);
@@ -430,34 +411,33 @@ ElasticBeamWarping3d::getTangentStiff(void)
 
 
 const Matrix &
-ElasticBeamWarping3d::getInitialStiff(void)
+ElasticBeamWarping3d::getInitialStiff()
 {
-  //  const Vector &v = theCoordTransf->getBasicTrialDisp();
   double L = theCoordTransf->getInitialLength();
-  //double Cw=134.46;
+
   double oneOverL = 1.0/L;
   double EoverL   = E*oneOverL;
-  double EAoverL  = A*EoverL;			// EA/L
-  double EIzoverL2 = 2.0*Iz*EoverL;		// 2EIz/L
-  double EIzoverL4 = 2.0*EIzoverL2;		// 4EIz/L
-  double EIyoverL2 = 2.0*Iy*EoverL;		// 2EIy/L
-  double EIyoverL4 = 2.0*EIyoverL2;		// 4EIy/L
+  double EAoverL  = A*EoverL;                        // EA/L
+  double EIzoverL2 = 2.0*Iz*EoverL;                // 2EIz/L
+  double EIzoverL4 = 2.0*EIzoverL2;                // 4EIz/L
+  double EIyoverL2 = 2.0*Iy*EoverL;                // 2EIy/L
+  double EIyoverL4 = 2.0*EIyoverL2;                // 4EIy/L
   double GJoverL = G*Jx*oneOverL;         // GJ/L
-  double ECoverL3=E*Cw/L/L/L;
-  double ECoverL2=E*Cw/L/L;
-  double ECoverL=E*Cw/L;
-  double GJover10=G*Jx/10.;
-  double GJL=G*Jx*L;
+  double ECoverL3 = E*Cw/L/L/L;
+  double ECoverL2 = E*Cw/L/L;
+  double ECoverL = E*Cw/L;
+  double GJover10 = G*Jx/10.;
+  double GJL = G*Jx*L;
   
 
-  kb(0,0) = 12.*ECoverL3+6./5.*GJoverL;
+  kb(0,0) = 12.*ECoverL3 + 6./5.*GJoverL;
   kb(0,3) = kb(3,0) = kb(0,7) = kb(7,0) = GJover10+6.*ECoverL2;
   kb(0,4) = kb(4,0) = -12.*ECoverL3-6./5.*GJoverL;
   kb(1,1) = kb(5,5) = EIzoverL4;
   kb(1,5) = kb(5,1) = EIzoverL2;
   kb(2,2) = kb(6,6) = EIyoverL4;
   kb(2,6) = kb(6,2) = EIyoverL2;
-  kb(3,3) = 4.*ECoverL+2./15.*GJL;
+  kb(3,3) = 4.*ECoverL + 2./15.*GJL;
   kb(3,4) = kb(4,3) = -kb(3,0);
   kb(3,7) = kb(7,3) = 2.*ECoverL-1./30.*GJL;
   kb(4,4) = -kb(4,0);
@@ -469,7 +449,7 @@ ElasticBeamWarping3d::getInitialStiff(void)
 }
 
 const Matrix &
-ElasticBeamWarping3d::getMass(void)
+ElasticBeamWarping3d::getMass()
 { 
   K.Zero();
 
@@ -490,7 +470,7 @@ ElasticBeamWarping3d::getMass(void)
 }
 
 void 
-ElasticBeamWarping3d::zeroLoad(void)
+ElasticBeamWarping3d::zeroLoad()
 {
   Q.Zero();
 
@@ -599,7 +579,7 @@ ElasticBeamWarping3d::addInertiaLoadToUnbalance(const Vector &accel)
   // Get R * accel from the nodes
   const Vector &Raccel1 = theNodes[0]->getRV(accel);
   const Vector &Raccel2 = theNodes[1]->getRV(accel);
-	
+        
   if (6 != Raccel1.Size() || 6 != Raccel2.Size()) {
     opserr << "ElasticBeamWarping3d::addInertiaLoadToUnbalance matrix and vector sizes are incompatable\n";
     return -1;
@@ -625,7 +605,7 @@ ElasticBeamWarping3d::addInertiaLoadToUnbalance(const Vector &accel)
 
 const Vector &
 ElasticBeamWarping3d::getResistingForceIncInertia()
-{	
+{        
   P = this->getResistingForce();
 
   // add the damping forces if rayleigh damping
@@ -664,17 +644,17 @@ ElasticBeamWarping3d::getResistingForce()
   //double Cw=134.46;
   double oneOverL = 1.0/L;
   double EoverL   = E*oneOverL;
-  double EAoverL  = A*EoverL;			// EA/L
-  double EIzoverL2 = 2.0*Iz*EoverL;		// 2EIz/L
-  double EIzoverL4 = 2.0*EIzoverL2;		// 4EIz/L
-  double EIyoverL2 = 2.0*Iy*EoverL;		// 2EIy/L
-  double EIyoverL4 = 2.0*EIyoverL2;		// 4EIy/L
+  double EAoverL  = A*EoverL;                        // EA/L
+  double EIzoverL2 = 2.0*Iz*EoverL;                // 2EIz/L
+  double EIzoverL4 = 2.0*EIzoverL2;                // 4EIz/L
+  double EIyoverL2 = 2.0*Iy*EoverL;                // 2EIy/L
+  double EIyoverL4 = 2.0*EIyoverL2;                // 4EIy/L
   double GJoverL = G*Jx*oneOverL;         // GJ/L
-   double ECoverL3=E*Cw/L/L/L;
-  double ECoverL2=E*Cw/L/L;
-  double ECoverL=E*Cw/L;
-  double GJover10=G*Jx/10.;
-  double GJL=G*Jx*L;
+  double ECoverL3 = E*Cw/L/L/L;
+  double ECoverL2 = E*Cw/L/L;
+  double ECoverL = E*Cw/L;
+  double GJover10 = G*Jx/10.;
+  double GJL = G*Jx*L;
 
   q(0) = (12.0*ECoverL3+6.0/5.0*GJoverL)*(v(0)-v(4))+(GJover10+6.0*ECoverL2)*(v(3)+v(7));
   q(1) = EIzoverL4*v(1) + EIzoverL2*v(5);
@@ -720,14 +700,14 @@ ElasticBeamWarping3d::sendSelf(int cTag, Channel &theChannel)
     data(7) = this->getTag();
     data(8) = connectedExternalNodes(0);
     data(9) = connectedExternalNodes(1);
-    data(10) = theCoordTransf->getClassTag();    	
+    data(10) = theCoordTransf->getClassTag();            
 
     int dbTag = theCoordTransf->getDbTag();
     
     if (dbTag == 0) {
       dbTag = theChannel.getDbTag();
       if (dbTag != 0)
-	theCoordTransf->setDbTag(dbTag);
+        theCoordTransf->setDbTag(dbTag);
     }
     
     data(11) = dbTag;
@@ -869,7 +849,7 @@ ElasticBeamWarping3d::Print(OPS_Stream &s, int flag)
      s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << endln;
 
      const Vector &node1Crd = theNodes[0]->getCrds();
-     const Vector &node2Crd = theNodes[1]->getCrds();	
+     const Vector &node2Crd = theNodes[1]->getCrds();        
      const Vector &node1Disp = theNodes[0]->getDisp();
      const Vector &node2Disp = theNodes[1]->getDisp();    
      
@@ -901,7 +881,7 @@ ElasticBeamWarping3d::Print(OPS_Stream &s, int flag)
    }
    else {
 
-     this->getResistingForce(); // in case linear algo
+    this->getResistingForce(); // in case linear algo
 
     s << "\nElasticBeamWarping3d: " << this->getTag() << endln;
     s << "\tConnected Nodes: " << connectedExternalNodes ;
@@ -932,7 +912,7 @@ Response*
 ElasticBeamWarping3d::setResponse(const char **argv, int argc, OPS_Stream &output)
 {
 
-  Response *theResponse = 0;
+  Response *theResponse = nullptr;
 
   output.tag("ElementOutput");
   output.attr("eleType","ElasticBeamWarping3d");
@@ -960,7 +940,7 @@ ElasticBeamWarping3d::setResponse(const char **argv, int argc, OPS_Stream &outpu
 
     theResponse =  new ElementResponse(this, 2, P);
 
-	// local forces
+  // local forces
   } else if (strcmp(argv[0],"localForce") == 0 || strcmp(argv[0],"localForces") == 0) {
 
     output.tag("ResponseType","N_ 1");
