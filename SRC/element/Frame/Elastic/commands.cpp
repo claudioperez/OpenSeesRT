@@ -10,43 +10,27 @@
 // Written: fmk,cmp
 // Created: 07/99
 //
-#include <tcl.h>
 #include <array>
 #include <vector>
-#include <cstddef>
 #include <stdlib.h>
 #include <string.h>
-#include <Domain.h>
+
+#include <tcl.h>
 #include <Logging.h>
 #include <ArgumentTracker.h>
+
+#include <Domain.h>
 #include <FrameTransform.h>
 #include <LinearFrameTransf3d.h>
+
 #include "ElasticBeam2d.h"
 #include "ElasticBeam3d.h"
-
 #include "PrismFrame2d.h"
 #include "PrismFrame3d.h"
 
 #include <FrameSection.h>
-#include <SectionForceDeformation.h>
 
 #include <BasicModelBuilder.h>
-
-// enum class Position : int {
-//   A, E, Iz, Iy, G, J, Transform, End
-// };
-
-enum class Args2D : int {
-  A, E, Iz, Transform, End, 
-  // values coming after End wont be handled
-  // by ArgumentTracker; these need to be here for
-  // the template to compile.
-  G, J, Iy
-};
-
-enum class Args3D : int {
-  A, E, G, J, Iy, Iz, Transform, End
-};
 
 //
 // element NAME 
@@ -60,15 +44,27 @@ enum class Args3D : int {
 //    < -warp $warp>
 //
 // For a two-dimensional problem:
-// element elasticBeamColumn $eleTag $iNode $jNode $A $E $Iz $transfTag <-mass $massDens> <-cMass>
+//   element elasticBeamColumn $eleTag $iNode $jNode $A $E $Iz $transfTag <-mass $massDens> <-cMass>
 //
 // For a three-dimensional problem:
-// 
-// element elasticBeamColumn $eleTag $iNode $jNode $A $E $G $J $Iy $Iz $transfTag <-mass $massDens> <-cMass>
+//   element elasticBeamColumn $eleTag $iNode $jNode $A $E $G $J $Iy $Iz $transfTag <-mass $massDens> <-cMass>
 //
 // For two- and three-dimensional problems:
-// element elasticBeamColumn $eleTag $iNode $jNode $secTag $transfTag <-mass $massDens> <-cMass>
+//   element elasticBeamColumn $eleTag $iNode $jNode $secTag $transfTag <-mass $massDens> <-cMass>
 //
+
+enum class Args2D : int {
+  A, E, Iz, Transform, End, 
+  // values coming after End wont be handled
+  // by ArgumentTracker; these need to be here for
+  // the template to compile.
+  G, J, Iy
+};
+
+enum class Args3D : int {
+  A, E, G, J, Iy, Iz, Transform, End
+};
+
 template <typename Position>
 int
 Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -81,9 +77,9 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   //
-  // Declare the variables we're parsing
+  // Declare the variables we're parsing for
   //
-  struct {
+  struct FrameData {
     double E, G;                         // Material data
     double A, Iz, Iy, Ixy, J, Cw;        // Section data
     double thermal_coeff = 0.0,          // Thermal
@@ -92,28 +88,29 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
   double mass = 0.0;
   bool use_mass = false;
 
-  ArgumentTracker<Position> tracker;
 
-  struct BeamFlags {
+  struct FrameFlags {
     int                                  shear_flag = 0;
     int                                  geom_flag  = 0;
     int                                  relz_flag  = 0;
     int                                  rely_flag  = 0;
     enum  {NoWarp=0, HaveWarp}           warp_flag  = NoWarp;
-    enum  {LumpedMass=0, CubicMass} mass_flag  = LumpedMass;
+    enum  {
+      RigidMass=0,
+      PrismMass
+    } mass_type  = RigidMass;
   } options;
 
-  std::vector<int> positional;
+  ArgumentTracker<Position> tracker;
+  std::vector<int> positions;
 
 
-  int tag, iNode, jNode, transTag;
 
   FrameTransform2d *theTrans2d = nullptr;
   FrameTransform3d *theTrans3d = nullptr;
   FrameSection* theSection     = nullptr;
 
 
-  Element *theBeam = nullptr;
 
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
@@ -127,6 +124,7 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // Parse tag, iNode, jNode
+  int tag, iNode, jNode, transTag;
   if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << OpenSees::PromptValueError << "invalid tag " << argv[2] << "\n";
     return TCL_ERROR;
@@ -258,11 +256,11 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     else if ((strcmp(argv[argi], "-lMass") == 0) ||
                (strcmp(argv[argi], "lMass") == 0)) {
-      options.mass_flag = BeamFlags::LumpedMass;
+      options.mass_type = FrameFlags::RigidMass;
     }
     else if ((strcmp(argv[argi], "-cMass") == 0) ||
                (strcmp(argv[argi], "cMass") == 0)) {
-      options.mass_flag = BeamFlags::CubicMass;
+      options.mass_type = FrameFlags::PrismMass;
     }
 
     // Thermal
@@ -287,23 +285,25 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
     } 
 
     else
-      positional.push_back(argi);
+      positions.push_back(argi);
   }
 
   //
   // Parse positional arguments
   //
-  if (positional.size() <= 2) {
+
+  // Case 1
+  if (positions.size() <= 2) {
     std::size_t i=0;
     // Section
     if (theSection == nullptr) {
-      if (i >= positional.size()) {
+      if (i >= positions.size()) {
         opserr << OpenSees::PromptValueError
                << "Missing required positional argument $section\n";
         return TCL_ERROR;
       }
       int section;
-      if (Tcl_GetInt(interp, argv[positional[i]], &section) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[positions[i]], &section) != TCL_OK) {
         opserr << OpenSees::PromptValueError << "invalid secTag\n";
         return TCL_ERROR;
       }
@@ -320,12 +320,12 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
 
     // Coordinate transformation
     if (tracker.contains(Position::Transform)) {
-      if (i >= positional.size()) {
+      if (i >= positions.size()) {
         opserr << OpenSees::PromptValueError
                << "Missing required positional argument $transform\n";
         return TCL_ERROR;
       }
-      if (Tcl_GetInt(interp, argv[positional[i]], &transTag) != TCL_OK) {
+      if (Tcl_GetInt(interp, argv[positions[i]], &transTag) != TCL_OK) {
         opserr << OpenSees::PromptValueError << "invalid transTag" << tag;
         opserr << " iNode jNode sectionTag? transfTag?\n";
         return TCL_ERROR;
@@ -347,13 +347,14 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else {
+    //
     // Parse remaining section properties as positional arguments
-
-    for (int i : positional) {
+    //
+    for (int i : positions) {
 
       switch (tracker.current()) {
         case Position::E:
-          if (Tcl_GetDouble (interp, argv[i], &beam_data.E) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i], &beam_data.E) != TCL_OK) {
               opserr << OpenSees::PromptParseError << "invalid E\n";
               return TCL_ERROR;
           } else {
@@ -362,7 +363,7 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
           }
 
         case Position::G:
-          if (Tcl_GetDouble (interp, argv[i], &beam_data.G) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i], &beam_data.G) != TCL_OK) {
               opserr << OpenSees::PromptParseError << "invalid G\n";
               return TCL_ERROR;
           } else {
@@ -371,7 +372,7 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
           }
 
         case Position::A:
-          if (Tcl_GetDouble (interp, argv[i], &beam_data.A) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i], &beam_data.A) != TCL_OK) {
               opserr << OpenSees::PromptParseError << "invalid A\n";
               return TCL_ERROR;
           } else {
@@ -380,7 +381,7 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
           }
 
         case Position::Iz:
-          if (Tcl_GetDouble (interp, argv[i], &beam_data.Iz) != TCL_OK) {
+          if (Tcl_GetDouble(interp, argv[i], &beam_data.Iz) != TCL_OK) {
               opserr << OpenSees::PromptParseError << "invalid Iz\n";
               return TCL_ERROR;
           }
@@ -432,11 +433,17 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
     }
   }
 
+  // Ensure that all positional arguments have been consumed
   if (tracker.current() != Position::End) {
       opserr << OpenSees::PromptParseError
              << "Missing required positional arguments\n";
       return TCL_ERROR;
   }
+
+
+
+
+  Element *theBeam = nullptr;
 
   if (ndm == 2) {
     // check plane frame problem has 3 dof per node
@@ -449,12 +456,12 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
     if (theSection != nullptr) {
       // now create the beam and add it to the Domain
 
-      std::array<int, 2> nodes {iNode, jNode};
+//    std::array<int, 2> nodes {iNode, jNode};
       theBeam = new PrismFrame2d(tag, iNode, jNode, 
                                  *theSection, *theTrans2d, 
                                  beam_data.thermal_coeff, beam_data.thermal_depth, 
                                  mass,
-                                 options.mass_flag,
+                                 options.mass_type,
                                  use_mass,
                                  options.relz_flag,
                                  options.geom_flag);
@@ -465,7 +472,7 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
       theBeam = new PrismFrame2d(tag, beam_data.A, beam_data.E, beam_data.Iz, 
                                  iNode, jNode, *theTrans2d,
                                  beam_data.thermal_coeff, beam_data.thermal_depth, 
-                                 mass, options.mass_flag, 
+                                 mass, options.mass_type, 
                                  options.relz_flag, 
                                  options.geom_flag);
     } else {
@@ -473,7 +480,7 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
       theBeam = new ElasticBeam2d(tag, beam_data.A, beam_data.E, beam_data.Iz, 
                                   iNode, jNode, *theTrans2d,
                                   beam_data.thermal_coeff, beam_data.thermal_depth, 
-                                  mass, options.mass_flag);
+                                  mass, options.mass_type);
     }
 
   } else { // ndm == 3
@@ -493,7 +500,7 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
       std::array<int, 2> nodes {iNode, jNode};
       theBeam = new PrismFrame3d(tag, nodes, *theSection, *theTrans3d, 
                                  mass,
-                                 options.mass_flag,
+                                 options.mass_type,
                                  use_mass,
                                  options.relz_flag, 
                                  options.rely_flag);
@@ -507,7 +514,7 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
                                    beam_data.A, beam_data.E, beam_data.G, 
                                    beam_data.J, beam_data.Iy, beam_data.Iz,
                                    *theTrans3d, mass,
-                                   options.mass_flag,
+                                   options.mass_type,
                                    options.relz_flag, 
                                    options.rely_flag);
                                 // options.geom_flag);
@@ -517,7 +524,8 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
                                     beam_data.A, beam_data.E, beam_data.G, 
                                     beam_data.J, beam_data.Iy, beam_data.Iz,
                                     iNode, jNode,
-                                    *theTrans3d, mass, options.mass_flag);
+                                    *theTrans3d, 
+                                    mass, options.mass_type);
       }
     }
   }
