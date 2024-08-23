@@ -186,8 +186,7 @@ public:
     int elem_twist    = -1,
         elem_bishear  = -1;
 
-    int sect_twist    = -1,
-        sect_bishear  = -1;
+    int sect_bishear  = -1;
 
     for (int i=0; i<n; i++) {
       // Save warp location

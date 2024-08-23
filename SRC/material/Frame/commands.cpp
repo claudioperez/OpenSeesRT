@@ -78,7 +78,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
 {
     assert(clientData != nullptr);
     BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
-    FrameSectionConstants consts{0.0};
+    FrameSectionConstants consts{};
 
     enum class PositionalArgument : int {
       Tag, E, A, Iz, Iy, G, J, End
@@ -279,7 +279,42 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
 
     if (tracker.current() != PositionalArgument::End) {
       opserr << OpenSees::PromptParseError
-             << "missing required positional arguments.\n";
+             << "missing required arguments: ";
+      while (tracker.current() != PositionalArgument::End) {
+        switch (tracker.current()) {
+          case PositionalArgument::Tag :
+            opserr << "tag ";
+            break;
+          case PositionalArgument::E:
+            opserr << "E ";
+            break;
+          case PositionalArgument::A:
+            opserr << "A ";
+            break;
+          case PositionalArgument::Iz:
+            opserr << "Iz ";
+            break;
+          case PositionalArgument::Iy:
+            opserr << "Iy ";
+            break;
+          case PositionalArgument::G:
+            opserr << "G ";
+            break;
+          case PositionalArgument::J:
+            opserr << "J ";
+            break;
+          case PositionalArgument::End:
+            break;
+        }
+
+        if (tracker.current() == PositionalArgument::End)
+          break;
+
+        tracker.consume(tracker.current());
+      }
+
+      opserr << "\n";
+
       return TCL_ERROR;
     }
 
