@@ -338,7 +338,7 @@ class OpenSeesPy:
 
             elem_tag = next(new_elem)
 
-            if i < nn:
+            if i < nn and eleType != '' and eleArgs:
                 add_element(eleType,elem_tag,nodes[i],nodes[i+1],*eleArgs)
 
         self._mesh["line"][tag] = nodes
@@ -449,6 +449,8 @@ class Model:
             m_elems = {tag for tag in m_elems}
 
         m_nodes = self._openseespy._str_call("getNodeTags")
+        if isinstance(m_nodes, int):
+            m_nodes = {m_nodes}
         if m_nodes is not None:
             m_nodes = {
                     int(tag): self._openseespy._str_call("nodeCoord", f"{tag}")
