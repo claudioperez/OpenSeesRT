@@ -92,6 +92,7 @@ public:
           break;
         case FrameStress::Bishear:
           elem_bishear  = i;
+          break;
         case FrameStress::Bimoment:
           elem_bimoment  = i;
           break;
