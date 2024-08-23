@@ -21,7 +21,9 @@
 //   Moler, C. B. and C. F. Van Loan, 
 //      "Nineteen Dubious Ways to Compute the Exponential of a Matrix," 
 //      SIAM Review 20, 1978, pp. 801–836. 
-//      Reprinted and updated as “Nineteen Dubious Ways to Compute the Exponential of a Matrix, Twenty-Five Years Later,” SIAM Review 45, 2003, pp. 3–49.
+//      Reprinted and updated as 
+//      "Nineteen Dubious Ways to Compute the Exponential of a Matrix, Twenty-Five Years Later,”
+//      SIAM Review 45, 2003, pp. 3–49.
 //
 //===----------------------------------------------------------------------===//
 //
@@ -37,9 +39,9 @@
 namespace OpenSees {
 namespace Internal {
 
-//  Compute the (3,3)-Pad&eacute; approximant to the exponential.
+//  Compute the (3,3)-Pade approximant to the exponential.
 //
-//  After exit, \f$ (V+U)(V-U)^{-1} \f$ is the Pad&eacute;
+//  After exit, \f$ (V+U)(V-U)^{-1} \f$ is the Pade
 //  approximant of \f$ \exp(A) \f$ around \f$ A = 0 \f$.
 //
 template <typename MatA, typename MatU, typename MatV>
@@ -53,9 +55,9 @@ void matrix_exp_pade3(const MatA& A, MatU& U, MatV& V) {
   V.addDiagonal(b[0]);
 }
 
-//  Compute the (5,5)-Pad&eacute; approximant to the exponential.
+//  Compute the (5,5)-Pade approximant to the exponential.
 //
-//  After exit, \f$ (V+U)(V-U)^{-1} \f$ is the Pad&eacute;
+//  After exit, \f$ (V+U)(V-U)^{-1} \f$ is the Pade
 //  approximant of \f$ \exp(A) \f$ around \f$ A = 0 \f$.
 // 
 template <typename MatA, typename MatU, typename MatV>
@@ -70,9 +72,9 @@ void matrix_exp_pade5(const MatA& A, MatU& U, MatV& V) {
   V.addDiagonal(b[0]);
 }
 
-//  Compute the (7,7)-Pad&eacute; approximant to the exponential.
+//  Compute the (7,7)-Pade approximant to the exponential.
 //
-//  After exit, \f$ (V+U)(V-U)^{-1} \f$ is the Pad&eacute;
+//  After exit, \f$ (V+U)(V-U)^{-1} \f$ is the Pade
 //  approximant of \f$ \exp(A) \f$ around \f$ A = 0 \f$.
 // 
 template <typename MatA, typename MatU, typename MatV>
@@ -88,9 +90,9 @@ void matrix_exp_pade7(const MatA& A, MatU& U, MatV& V) {
   V.addDiagonal(b[0]);
 }
 
-/** Compute the (9,9)-Pad&eacute; approximant to the exponential.
+/** Compute the (9,9)-Pade approximant to the exponential.
  *
- *  After exit, \f$ (V+U)(V-U)^{-1} \f$ is the Pad&eacute;
+ *  After exit, \f$ (V+U)(V-U)^{-1} \f$ is the Pade
  *  approximant of \f$ \exp(A) \f$ around \f$ A = 0 \f$.
  */
 template <typename MatA, typename MatU, typename MatV>
@@ -109,9 +111,9 @@ void matrix_exp_pade9(const MatA& A, MatU& U, MatV& V) {
   V.addDiagonal(b[0]);
 }
 
-//  Compute the (13,13)-Pad&eacute; approximant to the exponential.
+//  Compute the (13,13)-Pade approximant to the exponential.
 //
-//  After exit, \f$ (V+U)(V-U)^{-1} \f$ is the Pad&eacute;
+//  After exit, \f$ (V+U)(V-U)^{-1} \f$ is the Pade
 //  approximant of \f$ \exp(A) \f$ around \f$ A = 0 \f$.
 // 
 template <typename MatA, typename MatU, typename MatV>
@@ -150,11 +152,11 @@ void matrix_exp_pade13(const MatA& A, MatU& U, MatV& V) {
 
 // template <typename MatrixType>
 // struct matrix_exp_computeUV {
-//   //  Compute Pad&eacute; approximant to the exponential.
+//   //  Compute Pade approximant to the exponential.
 //   //
-//   // Computes \c U, \c V and \c squarings such that \f$ (V+U)(V-U)^{-1} \f$ is a Pad&eacute;
+//   // Computes \c U, \c V and \c squarings such that \f$ (V+U)(V-U)^{-1} \f$ is a Pade
 //   // approximant of \f$ \exp(2^{-\mbox{squarings}}M) \f$ around \f$ M = 0 \f$, where \f$ M \f$
-//   // denotes the matrix \c arg. The degree of the Pad&eacute; approximant and the value of squarings
+//   // denotes the matrix \c arg. The degree of the Pade approximant and the value of squarings
 //   // are chosen such that the approximation error is no more than the round-off error.
 //   // 
 //   static void run(const MatrixType& arg, MatrixType& U, MatrixType& V, int& squarings);
@@ -210,10 +212,10 @@ matrix_exp_computeUV(const MatrixType& arg, MatrixType& U, MatrixType& V, int& s
 
 template <typename MatrixType>
 static inline MatrixType
-ExpGLn(const MatrixType& arg) // , ResultType& result)
+ExpGLn(const MatrixType& arg)
 {
-  MatrixType result;
   // Pade approximant is (U+V) / (-U+V)
+  MatrixType result;
   MatrixType U, V;
   int squarings;
   Internal::matrix_exp_computeUV<MatrixType>(arg, U, V, squarings);
@@ -232,7 +234,7 @@ ExpGLn(const MatrixType& arg) // , ResultType& result)
 }
 
 
-}  // end namespace OpenSees
+} // end namespace OpenSees
 
 #include <Rotations.hpp>
 
