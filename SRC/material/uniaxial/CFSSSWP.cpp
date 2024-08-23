@@ -673,7 +673,7 @@ getIndexNeg(Vector v,double value)
  
 		 // BSpline Adds
 
-		 const int Size = 9;
+		 constexpr int Size = 9;
 		 double X[Size]; double Y[Size];
 
 		 for(int i = 0;i < 2;i++)
