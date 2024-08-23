@@ -17,25 +17,22 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2007-10-26 03:49:05 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/accelerator/Accelerator.h,v $
-
+//
+// Description: This file contains the class definition for 
+// Accelerator. 
+// Accelerator is an abstract base class. Its subclasses seek
+// to find an improvement to the modified Newton prediction of
+// the displacement increment.
+//
+// Written: MHS
+// Created: April 2002
+//
 #ifndef Accelerator_h
 #define Accelerator_h
 
-// Written: MHS
-// Created: April 2002
-
-// Description: This file contains the class definition for 
-// Accelerator. Accelerator is an abstract base class, 
-// i.e. no objects of it's type can be created.  Its subclasses seek
-// to find an improvement to the modified Newton prediction of
-// the displacement increment.
-
 #include <MovableObject.h>
 #include <OPS_Stream.h>
+#include <Logging.h> // TODO
 #include <IncrementalIntegrator.h>
 
 class SolutionAlgorithm;

@@ -36,8 +36,8 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <ConvergenceTest.h>
-#include <elementAPI.h>
 
+#include <elementAPI.h>
 void *
 OPS_ADD_RUNTIME_VPV(OPS_ModifiedNewton)
 {

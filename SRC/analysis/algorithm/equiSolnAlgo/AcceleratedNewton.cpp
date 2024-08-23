@@ -101,8 +101,6 @@ AcceleratedNewton::solveCurrentStep(void)
   
   if ((theAnaModel == 0) || (theIntegrator == 0) || (theSOE == 0)
       || (theTest == 0)){
-    opserr << "WARNING AcceleratedNewton::solveCurrentStep() - setLinks() has";
-    opserr << " not been called - or no ConvergenceTest has been set\n";
     return -5;
   }        
 
