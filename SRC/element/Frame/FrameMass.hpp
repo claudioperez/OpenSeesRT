@@ -47,9 +47,7 @@ addPrismMass(MatT Mass, double factor, FrameSection& section, double length)
   if (total_mass == 0.0)
     return 0;
 
-
-
-  // Consistent mass matrix
+  // McCalley-Archer consistent mass matrix
   double L, A, Iy, Iz, Jx, phiY, phiZ;
   MatrixND<12,12> mlTrn, 
                   mlRot, 
