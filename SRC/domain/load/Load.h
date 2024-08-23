@@ -32,7 +32,7 @@
 #include <ID.h>
 #include <TaggedObject.h>
 #include <MovableObject.h>
-
+class Domain;
 
 class Load : public TaggedObject, public MovableObject
 {
