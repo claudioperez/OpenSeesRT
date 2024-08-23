@@ -110,7 +110,6 @@ target_sources(OPS_Material
       OOHystereticMaterial.cpp
       PathIndependentMaterial.cpp
       Pinching4Material.cpp
-      ReinforcingSteel.cpp
       ResilienceMaterialHR.cpp
       SAWSMaterial.cpp
       SPSW02.cpp
@@ -184,7 +183,6 @@ target_sources(OPS_Material
       PathIndependentMaterial.h
       Pinching4Material.h
 
-      ReinforcingSteel.h
       ResilienceMaterialHR.h
       SAWSMaterial.h
       SPSW02.h
