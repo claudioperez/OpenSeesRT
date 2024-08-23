@@ -15,7 +15,7 @@
 
 #ifndef EigenSolver_h
 #define EigenSolver_h
-
+#include <Logging.h> // TODO
 #include <MovableObject.h>
 #include <Vector.h>
 
