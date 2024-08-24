@@ -27,7 +27,6 @@ target_sources(OPS_Material
       Steel4.cpp
       SteelBRB.cpp
       SteelDRC.cpp
-      STEELDR.f
       SteelECThermal.cpp
       SteelFractureDI.cpp
       SteelMP.cpp
