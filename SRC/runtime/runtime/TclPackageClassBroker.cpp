@@ -67,7 +67,7 @@ using namespace OpenSees::Hash::literals;
 #include "Steel2.h"
 #include "Steel4.h"
 #include "FatigueMaterial.h"
-#include "ReinforcingSteel.h"
+#include "ReinforcingSteel/ReinforcingSteel.h"
 #include "HardeningMaterial.h"
 #include "HystereticMaterial.h"
 #include "EPPGapMaterial.h"
