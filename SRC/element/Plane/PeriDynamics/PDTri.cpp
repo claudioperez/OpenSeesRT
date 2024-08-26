@@ -197,7 +197,8 @@ PDTri::commitState()
     }    
 
     // Loop over the integration points and commit the material states
-    for (int i = 0; i < numgp; i++) retVal += theMaterial[i]->commitState();
+    for (int i = 0; i < numgp; i++)
+      retVal += theMaterial[i]->commitState();
 
     return retVal;
 }
@@ -208,7 +209,8 @@ PDTri::revertToLastCommit()
     int retVal = 0;
 
     // Loop over the integration points and revert to last committed state
-    for (int i = 0; i < numgp; i++) retVal += theMaterial[i]->revertToLastCommit();
+    for (int i = 0; i < numgp; i++) 
+      retVal += theMaterial[i]->revertToLastCommit();
 
     return retVal;
 }
