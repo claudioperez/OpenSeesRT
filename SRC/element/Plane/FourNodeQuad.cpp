@@ -131,7 +131,7 @@ FourNodeQuad::getExternalNodes()
 
 
 Node **
-FourNodeQuad::getNodePtrs(void) 
+FourNodeQuad::getNodePtrs() 
 {
   return theNodes;
 }
@@ -145,40 +145,29 @@ FourNodeQuad::getNumDOF()
 void
 FourNodeQuad::setDomain(Domain *theDomain)
 {
-  // Check Domain is not null - invoked when object removed from a domain
+  // Check Domain is not null. This happens when element is removed from a domain.
+  // In this case just set null pointers to null and return.
   if (theDomain == nullptr) {
-      theNodes[0] = nullptr;
-      theNodes[1] = nullptr;
-      theNodes[2] = nullptr;
-      theNodes[3] = nullptr;
-      return;
+    for (int i=0; i < NEN; i++)
+      theNodes[i] = nullptr;
+    return;
   }
 
-  int Nd1 = connectedExternalNodes(0);
-  int Nd2 = connectedExternalNodes(1);
-  int Nd3 = connectedExternalNodes(2);
-  int Nd4 = connectedExternalNodes(3);
-
-  theNodes[0] = theDomain->getNode(Nd1);
-  theNodes[1] = theDomain->getNode(Nd2);
-  theNodes[2] = theDomain->getNode(Nd3);
-  theNodes[3] = theDomain->getNode(Nd4);
-
-  if (theNodes[0] == 0 || theNodes[1] == 0 || theNodes[2] == 0 || theNodes[3] == 0) {
-      //opserr << "FATAL ERROR FourNodeQuad (tag: %d), node not found in domain",
-      //        this->getTag()); 
+  for (int i=0; i<NEN; i++) {
+    // Retrieve the node from the domain using its tag.
+    // If no node is found, then return
+    theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
+    if (theNodes[i] == nullptr)
       return;
-  }
 
-  int dofNd1 = theNodes[0]->getNumberDOF();
-  int dofNd2 = theNodes[1]->getNumberDOF();
-  int dofNd3 = theNodes[2]->getNumberDOF();
-  int dofNd4 = theNodes[3]->getNumberDOF();
-  
-  if (dofNd1 != 2 || dofNd2 != 2 || dofNd3 != 2 || dofNd4 != 2) {
-      //opserr << "FATAL ERROR FourNodeQuad (tag: %d), has differing number of DOFs at its nodes",
-      //        this->getTag());   
+    // If node is found, ensure node has the proper number of DOFs
+    int dofs = theNodes[i]->getNumberDOF();
+    if (dofs != NDF) {
+      opserr << "WARNING element " << this->getTag() 
+             << " does not have " << NDF << " DOFs at node " 
+             << theNodes[i]->getTag() << ".\n";
       return;
+    }
   }
   this->DomainComponent::setDomain(theDomain);
 
@@ -426,7 +415,7 @@ FourNodeQuad::getMass()
 }
 
 void
-FourNodeQuad::zeroLoad(void)
+FourNodeQuad::zeroLoad()
 {
     Q.Zero();
 
@@ -1192,7 +1181,7 @@ double FourNodeQuad::shapeFunction(double xi, double eta)
 }
 
 void 
-FourNodeQuad::setPressureLoadAtNodes(void)
+FourNodeQuad::setPressureLoadAtNodes()
 {
     pressureLoad.Zero();
 
