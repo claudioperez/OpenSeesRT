@@ -406,8 +406,14 @@ class Model:
 
     def element(self, type, tag, *args, **kwds):
         if tag is None:
-            tag = 0
-            for existing_tag in self.getEleTags():
+            tag = 1
+            ele_tags = self.getEleTags()
+            if ele_tags is None:
+                ele_tags = []
+            elif isinstance(ele_tags, int):
+                ele_tags = [ele_tags]
+
+            for existing_tag in ele_tags:
                 if tag <= existing_tag:
                     tag = existing_tag + 1
 
