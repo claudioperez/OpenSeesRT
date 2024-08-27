@@ -18,14 +18,14 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Description: This file contains the class definition for FourNodeQuad3d.
+// Written: Roozbeh Geraili Mikola (roozbehg@berkeley.edu)
+// Created: Sep 2010
+// Revised: --------
 //
-// Written: MHS
-// Created: Feb 2000
-// Revised: Dec 2000 for efficiency
+// Description: This file contains the class definition for Tri31.
 //
-#ifndef FourNodeQuad3d_h
-#define FourNodeQuad3d_h
+#ifndef Tri31_h
+#define Tri31_h
 
 #ifndef _bool_h
 #include <stdbool.h>
@@ -40,19 +40,19 @@ class Node;
 class NDMaterial;
 class Response;
 
-class FourNodeQuad3d : public Element
+class Tri31 : public Element
 {
   public:
-    FourNodeQuad3d(int tag, int nd1, int nd2, int nd3, int nd4,
-		   NDMaterial &m, const char *type,
-		   double t, double pressure = 0.0, 
-		   double rho = 0.0,
-		   double b1 = 0.0, double b2 = 0.0);
-    FourNodeQuad3d();
-    ~FourNodeQuad3d();
+    Tri31(int tag, int nd1, int nd2, int nd3,
+      NDMaterial &m, const char *type,
+      double t, double pressure = 0.0, 
+      double rho = 0.0,
+      double b1 = 0.0, double b2 = 0.0);
+    Tri31();
+    ~Tri31();
 
-    const char *getClassType() const {return "FourNodeQuad3d";}
-    static constexpr const char* class_name = "FourNodeQuad3d";
+    const char *getClassType() const {return "Tri31";};
+    static constexpr const char* class_name = "Tri31";
 
     int getNumExternalNodes() const;
     const ID &getExternalNodes();
@@ -81,13 +81,11 @@ class FourNodeQuad3d : public Element
 
     // public methods for element output
     int sendSelf(int commitTag, Channel &theChannel);
-    int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker 
-		  &theBroker);
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
+    int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+
     void Print(OPS_Stream &s, int flag =0);
 
-    Response *setResponse(const char **argv, int argc, 
-			  OPS_Stream &s);
+    Response *setResponse(const char **argv, int argc, OPS_Stream &s);
 
     int getResponse(int responseID, Information &eleInformation);
 
@@ -102,42 +100,41 @@ class FourNodeQuad3d : public Element
   protected:
     
   private:
-    constexpr static int NEN = 4; // number of nodes
-    constexpr static int NDF = 3; // number of DOFs per node
 
-    // private attributes - a copy for each object of the class
+    static constexpr int numgp = 1;    // number of gauss points
+    static constexpr int numnodes = 3; // number of nodes
+
 
     NDMaterial **theMaterial; // pointer to the ND material objects
     
-    ID connectedExternalNodes; // Tags of quad nodes
+    ID connectedExternalNodes; // Tags of Tri31 nodes
 
-    Node *theNodes[NEN];
+    Node *theNodes[3];
 
-    static double matrixData[144];  // array data for matrix
-    static Matrix K;		// Element stiffness, damping, and mass Matrix
-    static Vector P;		// Element resisting force vector
-    Vector Q;		        // Applied nodal loads
-    double b[2];		// Body forces
+    static double matrixData[36];  // array data for matrix
+    static Matrix K;        // Element stiffness, damping, and mass Matrix
+    static Vector P;        // Element resisting force vector
+    Vector Q;                // Applied nodal loads
+    double b[2];        // Body forces
 
-    Vector pressureLoad;	// Pressure load at nodes
+    double appliedB[2]; // Body forces applied with load pattern
+    int applyLoad;      // flag for body force in load
 
-    double thickness;	        // Element thickness
+    Vector pressureLoad;    // Pressure load at nodes
 
-    double appliedB[2]; // Body forces applied with load pattern, C.McGann, U.Washington
-    int applyLoad;      // flag for body force in load, C.McGann, U.Washington
-	
-    double pressure;	        // Normal surface traction (pressure) over entire element
-					 // Note: positive for outward normal
+    double thickness;            // Element thickness
+    double pressure;            // Normal surface traction (pressure) over entire element
+                     // Note: positive for outward normal
     double rho;
-    static double shp[3][4];	// Stores shape functions and derivatives (overwritten)
-    static double pts[4][2];	// Stores quadrature points
-    static double wts[4];	// Stores quadrature weights
+    static double shp[3][3];    // Stores shape functions and derivatives (overwritten)
+    static double pts[1][2];    // Stores quadrature points
+    static double wts[1];        // Stores quadrature weights
 
     // private member functions - only objects of this class can call these
     double shapeFunction(double xi, double eta);
     void setPressureLoadAtNodes();
 
-    int dirn[2];
+    Matrix *Ki;
 };
 
 #endif

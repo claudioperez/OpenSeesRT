@@ -7,13 +7,11 @@
 // Constant volume/pressure integration (BBar method) is used for integration//
 // of the volumetric component of solid phase and the fulid phase.           //
 //                                                                           //
-// Written by Zhaohui Yang    (June 2009)                                      //
+// Written by Zhaohui Yang    (June 2009)                                    //
 ///////////////////////////////////////////////////////////////////////////////
-
-// $Revision: 1.1 $
-// $Date: 2009-10-07 20:02:23 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/UP-ucsd/BBarFourNodeQuadUP.h,v $
-
+//
+// Date: 2009-10-07 20:02:23
+//
 #ifndef BBarFourNodeQuadUP_h
 #define BBarFourNodeQuadUP_h
 
@@ -44,32 +42,32 @@ class BBarFourNodeQuadUP : public Element,
     BBarFourNodeQuadUP();
     virtual ~BBarFourNodeQuadUP();
 
-    const char *getClassType(void) const {return "BBarFourNodeQuadUP";};
+    const char *getClassType() const {return "BBarFourNodeQuadUP";};
     static constexpr const char* class_name = "BBarFourNodeQuadUP";
-    int getNumExternalNodes(void) const;
-    const ID &getExternalNodes(void);
-    Node **getNodePtrs(void);
+    int getNumExternalNodes() const;
+    const ID &getExternalNodes();
+    Node **getNodePtrs();
 
-    int getNumDOF(void);
+    int getNumDOF();
     void setDomain(Domain *theDomain);
 
     // public methods to set the state of the element
-    int commitState(void);
-    int revertToLastCommit(void);
-    int revertToStart(void);
-    int update(void);
+    int commitState();
+    int revertToLastCommit();
+    int revertToStart();
+    int update();
 
     // public methods to obtain stiffness, mass, damping and residual information
-    const Matrix &getTangentStiff(void);
-    const Matrix &getInitialStiff(void);
-    const Matrix &getDamp(void);
-    const Matrix &getMass(void);
+    const Matrix &getTangentStiff();
+    const Matrix &getInitialStiff();
+    const Matrix &getDamp();
+    const Matrix &getMass();
 
     void zeroLoad();
     int addLoad(ElementalLoad *theLoad, double loadFactor);
     int addInertiaLoadToUnbalance(const Vector &accel);
-    const Vector &getResistingForce(void);
-    const Vector &getResistingForceIncInertia(void);
+    const Vector &getResistingForce();
+    const Vector &getResistingForceIncInertia();
 
     // public methods for element output
     int sendSelf(int commitTag, Channel &theChannel);
@@ -91,18 +89,20 @@ class BBarFourNodeQuadUP : public Element,
   protected:
 
   private:
+    // private member functions - only objects of this class can call these
+    double mixtureRho(int ipt);  // Mixture mass density at integration point i
+    void shapeFunction();
+    void setPressureLoadAtNodes();
+
+    constexpr static int NEN = 4; // number of nodes;
+    constexpr static int NDM = 2; // number of dimensions
+    constexpr static int NDF = 3; // number of DOFs per node
 
     // private attributes - a copy for each object of the class
     NDMaterial **theMaterial; // pointer to the ND material objects
     ID connectedExternalNodes; // Tags of quad nodes
 
-    Node *nd1Ptr;        // Pointers to quad nodes
-    Node *nd2Ptr;
-    Node *nd3Ptr;
-    Node *nd4Ptr;
 
-    static Matrix K;        // Element stiffness, damping, and mass Matrix
-    static Vector P;        // Element resisting force vector
     Vector Q;        // Applied nodal loads
     double b[2];        // Body forces
 
@@ -113,8 +113,8 @@ class BBarFourNodeQuadUP : public Element,
 
     double thickness;    // Element thickness
     double rho;            // Fluid mass per unit volume
-    double kc;   // combined bulk modulus
-    double pressure;    // Normal surface traction (pressure) over entire element
+    double kc;             // combined bulk modulus
+    double pressure;       // Normal surface traction (pressure) over entire element
 
     // Note: positive for outward normal
     double perm[2];  // lateral/vertical permeability
@@ -134,13 +134,15 @@ class BBarFourNodeQuadUP : public Element,
     // [col][node][Gauss point]  Note: there is only one row in Bp matrix
     static double Bp[2][4][4]; // Stores strain-displacement matrix for fluid phase (overwritten)
 
-    // private member functions - only objects of this class can call these
-    double mixtureRho(int ipt);  // Mixture mass density at integration point i
-    void shapeFunction(void);
-    void setPressureLoadAtNodes(void);
-
     Matrix *Ki;
-    static Node *theNodes[4];
+    static Matrix K;        // Element stiffness, damping, and mass Matrix
+    static Vector P;        // Element resisting force vector
+
+    static Node *theNodes[NEN];
+    Node *nd1Ptr;               // Pointers to quad nodes
+    Node *nd2Ptr;
+    Node *nd3Ptr;
+    Node *nd4Ptr;
 };
 
 #endif

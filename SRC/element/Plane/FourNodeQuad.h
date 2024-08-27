@@ -78,20 +78,21 @@ class FourNodeQuad : public Element,
     const Vector &getResistingForce(void);
     const Vector &getResistingForceIncInertia(void);            
 
-    // public methods for element output
-    int sendSelf(int commitTag, Channel &theChannel);
-    int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker 
-		  &theBroker);
+    // Public methods for element output
 
-    void Print(OPS_Stream &s, int flag =0);
-
-    Response *setResponse(const char **argv, int argc, 
-			  OPS_Stream &s);
-
+    Response *setResponse(const char **argv, int argc, OPS_Stream &s);
     int getResponse(int responseID, Information &eleInformation);
 
     int setParameter(const char **argv, int argc, Parameter &param);
     int updateParameter(int parameterID, Information &info);
+
+    // Inherited from TaggedObject
+    void Print(OPS_Stream &s, int flag =0);
+
+    // Inherited from MovableObject
+    int sendSelf(int commitTag, Channel &theChannel);
+    int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker 
+		  &theBroker);
 
     // RWB; PyLiq1 & TzLiq1 need to see the excess pore pressure and initial stresses.
     friend class PyLiq1;
@@ -101,13 +102,17 @@ class FourNodeQuad : public Element,
   protected:
     
   private:
+    constexpr static int NDM = 2;    // number of spatial dimensions
+    constexpr static int NEN = 4;    // number of nodes
+    constexpr static int NDF = 4;    // number of DOFs per node
+
     // private attributes - a copy for each object of the class
 
     NDMaterial **theMaterial; // pointer to the ND material objects
     
     ID connectedExternalNodes; // Tags of quad nodes
 
-    Node *theNodes[4];
+    Node *theNodes[NEN];
 
     static double matrixData[64];  // array data for matrix
     static Matrix K;		// Element stiffness, damping, and mass Matrix
@@ -124,7 +129,7 @@ class FourNodeQuad : public Element,
     double pressure;	        // Normal surface traction (pressure) over entire element
 					 // Note: positive for outward normal
     double rho;
-    static double shp[3][4];	// Stores shape functions and derivatives (overwritten)
+    static double shp[3][NEN];	// Stores shape functions and derivatives (overwritten)
 
     // private member functions - only objects of this class can call these
     double shapeFunction(double xi, double eta);

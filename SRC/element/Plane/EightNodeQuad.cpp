@@ -18,12 +18,13 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// based on FourNodeQuad by MHS
+// Description: This file contains the class definition for EightNodeQuad.
+//
 // Written: Seweryn Kokot, Opole University of Technology, Poland
+// based on FourNodeQuad by MHS
 // Created: Aug 2020
 //
-// Description: This file contains the class definition for EightNodeQuad.
-
+//
 #include "EightNodeQuad.h"
 #include <Node.h>
 #include <NDMaterial.h>
@@ -40,80 +41,11 @@
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
-#if 0
-void * OPS_ADD_RUNTIME_VPV(OPS_EightNodeQuad)
-{
-    int ndm = OPS_GetNDM();
-    int ndf = OPS_GetNDF();
 
-    if (ndm != 2 || ndf != 2) {
-    opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with quad element\n";
-    return 0;
-    }
-
-    if (OPS_GetNumRemainingInputArgs() < 12) {
-    opserr << "WARNING insufficient arguments\n";
-    opserr << "Want: element EightNodeQuad eleTag? Node1? Node2? Node3? Node4? Node5? Node6? Node7? Node8? thk? type? matTag? <pressure? rho? b1? b2?>\n";
-    return 0;
-    }
-
-    // EightNodeQuadId, iNode, jNode, kNode, lNode
-    // nNode, mNode, pNode, qNode
-    int idata[9];
-    int num = 9;
-    if (OPS_GetIntInput(&num,idata) < 0) {
-    opserr<<"WARNING: invalid integer inputs\n";
-    return 0;
-    }
-
-    double thk = 1.0;
-    num = 1;
-    if (OPS_GetDoubleInput(&num,&thk) < 0) {
-    opserr<<"WARNING: invalid double inputs\n";
-    return 0;
-    }
-
-    const char* type = OPS_GetString();
-
-    int matTag;
-    num = 1;
-    if (OPS_GetIntInput(&num,&matTag) < 0) {
-    opserr<<"WARNING: invalid matTag\n";
-    return 0;
-    }
-
-    NDMaterial* mat = OPS_getNDMaterial(matTag);
-    if (mat == 0) {
-    opserr << "WARNING material not found\n";
-    opserr << "Material: " << matTag;
-    opserr << "\nEightNodeQuad element: " << idata[0] << endln;
-    return 0;
-    }
-
-    // p, rho, b1, b2
-    double data[4] = {0,0,0,0};
-    num = OPS_GetNumRemainingInputArgs();
-    if (num > 4) {
-    num = 4;
-    }
-    if (num > 0) {
-    if (OPS_GetDoubleInput(&num,data) < 0) {
-        opserr<<"WARNING: invalid integer data\n";
-        return 0;
-    }
-    }
-
-    return new EightNodeQuad(idata[0],idata[1],idata[2],idata[3],idata[4],
-                            idata[5],idata[6],idata[7],idata[8],
-                            *mat,type,thk,data[0],data[1],data[2],data[3]);
-}
-#endif
-
-
-double EightNodeQuad::matrixData[(nnodes*2)*(nnodes*2)];
-Matrix EightNodeQuad::K(matrixData, nnodes*2, nnodes*2);
-Vector EightNodeQuad::P(nnodes*2);
-double EightNodeQuad::shp[3][nnodes];
+double EightNodeQuad::matrixData[(NEN*2)*(NEN*2)];
+Matrix EightNodeQuad::K(matrixData, NEN*2, NEN*2);
+Vector EightNodeQuad::P(NEN*2);
+double EightNodeQuad::shp[3][NEN];
 // double EightNodeQuad::pts[nip][2];
 // double EightNodeQuad::wts[nip];
 
@@ -122,8 +54,8 @@ EightNodeQuad::EightNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
                            NDMaterial &m, const char *type, double t,
                            double p, double r, double b1, double b2)
 :Element (tag, ELE_TAG_EightNodeQuad),
-  theMaterial(0), connectedExternalNodes(nnodes),
- Q(nnodes*2), applyLoad(0), pressureLoad(nnodes*2), thickness(t), pressure(p), rho(r), Ki(0)
+  theMaterial(0), connectedExternalNodes(NEN),
+ Q(NEN*2), applyLoad(0), pressureLoad(NEN*2), thickness(t), pressure(p), rho(r), Ki(0)
 {
 //  pts[0][0] = -0.7745966692414834;
 //  pts[0][1] = -0.7745966692414834;
@@ -194,16 +126,16 @@ EightNodeQuad::EightNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
     connectedExternalNodes(6) = nd7;
     connectedExternalNodes(7) = nd8;
 
-    for (int i=0; i<nnodes; i++)
-      theNodes[i] = 0;
+    for (int i=0; i<NEN; i++)
+      theNodes[i] = nullptr;
 }
 
 EightNodeQuad::EightNodeQuad()
 :Element (0,ELE_TAG_EightNodeQuad),
-  theMaterial(0), connectedExternalNodes(nnodes),
- Q(nnodes*2), applyLoad(0), pressureLoad(nnodes*2), thickness(0.0), pressure(0.0), Ki(0)
+  theMaterial(0), connectedExternalNodes(NEN),
+ Q(NEN*2), applyLoad(0), pressureLoad(NEN*2), thickness(0.0), pressure(0.0), Ki(0)
 {
-    for (int i=0; i<nnodes; i++)
+    for (int i=0; i<NEN; i++)
       theNodes[i] = nullptr;
 }
 
@@ -225,7 +157,7 @@ EightNodeQuad::~EightNodeQuad()
 int
 EightNodeQuad::getNumExternalNodes() const
 {
-    return nnodes;
+    return NEN;
 }
 
 const ID&
@@ -244,7 +176,7 @@ EightNodeQuad::getNodePtrs(void)
 int
 EightNodeQuad::getNumDOF()
 {
-    return nnodes*2;
+    return NEN*2;
 }
 
 void
@@ -283,10 +215,8 @@ EightNodeQuad::setDomain(Domain *theDomain)
 
     if (theNodes[0] == 0 || theNodes[1] == 0 || theNodes[2] == 0 || theNodes[3] == 0 ||
         theNodes[4] == 0 || theNodes[5] == 0 || theNodes[6] == 0 || theNodes[7] == 0) {
-    //opserr << "FATAL ERROR EightNodeQuad (tag: %d), node not found in domain",
-    //    this->getTag());
 
-    return;
+      return;
     }
 
     int dofNd1 = theNodes[0]->getNumberDOF();
@@ -365,7 +295,7 @@ EightNodeQuad::update()
     const Vector &disp7 = theNodes[6]->getTrialDisp();
     const Vector &disp8 = theNodes[7]->getTrialDisp();
 
-    static double u[2][nnodes];
+    static double u[2][NEN];
 
     u[0][0] = disp1(0);
     u[1][0] = disp1(1);
@@ -398,7 +328,7 @@ EightNodeQuad::update()
         //eps = B*u;
         //eps.addMatrixVector(0.0, B, u, 1.0);
         eps.Zero();
-        for (int beta = 0; beta < nnodes; beta++) {
+        for (int beta = 0; beta < NEN; beta++) {
             eps(0) += shp[0][beta]*u[0][beta];
             eps(1) += shp[1][beta]*u[1][beta];
             eps(2) += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
@@ -439,8 +369,8 @@ EightNodeQuad::getTangentStiff()
       double D10 = D(1,0); double D11 = D(1,1); double D12 = D(1,2);
       double D20 = D(2,0); double D21 = D(2,1); double D22 = D(2,2);
 
-      for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia += 2) {
-        for (int beta = 0, ib = 0; beta < nnodes; beta++, ib += 2) {
+      for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
+        for (int beta = 0, ib = 0; beta < NEN; beta++, ib += 2) {
 
           DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
           DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
@@ -491,10 +421,10 @@ EightNodeQuad::getInitialStiff()
     //K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
     //K.addMatrixTripleProduct(1.0, B, D, intWt(i)*intWt(j)*detJ);
     for (int beta = 0, ib = 0, colIb =0, colIbP1 = 8;
-     beta < nnodes;
+     beta < NEN;
      beta++, ib += 2, colIb += 16, colIbP1 += 16) {
 
-      for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia += 2) {
+      for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
         DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
         DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
         DB[2][0] = dvol * (D20 * shp[0][beta] + D22 * shp[1][beta]);
@@ -544,7 +474,7 @@ EightNodeQuad::getMass()
         // Element plus material density ... MAY WANT TO REMOVE ELEMENT DENSITY
         rhodvol *= (rhoi[i]*thickness*wts[i]);
 
-        for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia++) {
+        for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia++) {
             Nrho = shp[2][alpha]*rhodvol;
             K(ia,ia) += Nrho;
             ia++;
@@ -619,7 +549,7 @@ EightNodeQuad::addInertiaLoadToUnbalance(const Vector &accel)
     return -1;
   }
 
-  static double ra[nnodes*2];
+  static double ra[NEN*2];
 
   ra[0] = Raccel1(0);
   ra[1] = Raccel1(1);
@@ -643,7 +573,7 @@ EightNodeQuad::addInertiaLoadToUnbalance(const Vector &accel)
 
   // Want to add ( - fact * M R * accel ) to unbalance
   // Take advantage of lumped mass matrix
-  for (i = 0; i < 2*nnodes; i++)
+  for (i = 0; i < 2*NEN; i++)
     Q(i) += -K(i,i)*ra[i];
 
   return 0;
@@ -669,7 +599,7 @@ EightNodeQuad::getResistingForce()
         // Perform numerical integration on internal force
         //P = P + (B^ sigma) * intWt(i)*intWt(j) * detJ;
         //P.addMatrixTransposeVector(1.0, B, sigma, intWt(i)*intWt(j)*detJ);
-        for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia += 2) {
+        for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
 
             P(ia) += dvol*(shp[0][alpha]*sigma(0) + shp[1][alpha]*sigma(2));
 
@@ -732,7 +662,7 @@ EightNodeQuad::getResistingForceIncInertia()
     const Vector &accel7 = theNodes[6]->getTrialAccel();
     const Vector &accel8 = theNodes[7]->getTrialAccel();
 
-    static double a[nnodes*2];
+    static double a[NEN*2];
 
     a[0] = accel1(0);
     a[1] = accel1(1);
@@ -758,7 +688,7 @@ EightNodeQuad::getResistingForceIncInertia()
     this->getMass();
 
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 2*nnodes; i++)
+    for (i = 0; i < 2*NEN; i++)
         P(i) += K(i,i)*a[i];
 
     // add the damping forces if rayleigh damping
@@ -802,7 +732,7 @@ EightNodeQuad::sendSelf(int commitTag, Channel &theChannel)
   // Now quad sends the ids of its materials
   int matDbTag;
 
-  static ID idData(2*nip+nnodes);
+  static ID idData(2*nip+NEN);
 
   int i;
   for (i = 0; i < nip; i++) {
@@ -818,7 +748,7 @@ EightNodeQuad::sendSelf(int commitTag, Channel &theChannel)
     idData(i+nip) = matDbTag;
   }
 
-  for( i = 0; i < nnodes; i++)
+  for( i = 0; i < NEN; i++)
     idData(2*nip+i) = connectedExternalNodes(i);
 
   res += theChannel.sendID(dataTag, commitTag, idData);
@@ -867,7 +797,7 @@ EightNodeQuad::recvSelf(int commitTag, Channel &theChannel,
   betaK0 = data(7);
   betaKc = data(8);
 
-  static ID idData(2*nip+nnodes);
+  static ID idData(2*nip+NEN);
   // Quad now receives the tags of its nine external nodes
   res += theChannel.recvID(dataTag, commitTag, idData);
   if (res < 0) {
@@ -875,7 +805,7 @@ EightNodeQuad::recvSelf(int commitTag, Channel &theChannel,
     return res;
   }
 
-  for( int i = 0; i < nnodes; i++)
+  for( int i = 0; i < NEN; i++)
     connectedExternalNodes(i) = idData(2*nip+i);
 
   if (theMaterial == 0) {
@@ -935,12 +865,28 @@ EightNodeQuad::recvSelf(int commitTag, Channel &theChannel,
 void
 EightNodeQuad::Print(OPS_Stream &s, int flag)
 {
+  const ID& node_tags = this->getExternalNodes();
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"type\": \"" << this->getClassType() << "\", ";
+      s << "\"nodes\": [";
+      for (int i=0; i < NEN-1; i++)
+          s << node_tags(i) << ", ";
+      s << node_tags(NEN-1) << "], ";
+      s << "\"thickness\": " << thickness << ", ";
+      s << "\"surfacePressure\": " << pressure << ", ";
+      s << "\"masspervolume\": " << rho << ", ";
+      s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
+      s << "\"material\": \"" << theMaterial[0]->getTag() << "\"}";
+  }
+
   if (flag == 2) {
 
     s << "#EightNodeQuad\n";
 
     int i;
-    const int numNodes = nnodes;
+    const int numNodes = NEN;
     const int nstress = nip ;
 
     for (i=0; i<numNodes; i++) {
@@ -987,24 +933,6 @@ EightNodeQuad::Print(OPS_Stream &s, int flag)
         s << "\t\tGauss point " << i+1 << ": " << theMaterial[i]->getStress();
   }
 
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-      s << "\t\t\t{";
-      s << "\"name\": " << this->getTag() << ", ";
-      s << "\"type\": \"EightNodeQuad\", ";
-      s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-      s << connectedExternalNodes(1) << ", ";
-      s << connectedExternalNodes(2) << ", ";
-      s << connectedExternalNodes(3) << ", ";
-      s << connectedExternalNodes(4) << ", ";
-      s << connectedExternalNodes(5) << ", ";
-      s << connectedExternalNodes(6) << ", ";
-      s << connectedExternalNodes(7) << "], ";
-      s << "\"thickness\": " << thickness << ", ";
-      s << "\"surfacePressure\": " << pressure << ", ";
-      s << "\"masspervolume\": " << rho << ", ";
-      s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
-      s << "\"material\": \"" << theMaterial[0]->getTag() << "\"}";
-  }
 }
 
 int
@@ -1140,7 +1068,7 @@ EightNodeQuad::setResponse(const char **argv, int argc,
   }
 
   else if ((strcmp(argv[0],"stressesAtNodes") ==0) || (strcmp(argv[0],"stressAtNodes") ==0)) {
-    for (int i=0; i<nnodes; i++) {
+    for (int i=0; i<NEN; i++) {
       output.tag("NodalPoint");
       output.attr("number",i+1);
       // output.attr("eta",pts[i][0]);
@@ -1157,7 +1085,7 @@ EightNodeQuad::setResponse(const char **argv, int argc,
       output.endTag(); // GaussPoint
       // output.endTag(); // NdMaterialOutput
       }
-    theResponse =  new ElementResponse(this, 11, Vector(3*nnodes));
+    theResponse =  new ElementResponse(this, 11, Vector(3*NEN));
   }
 
   else if ((strcmp(argv[0],"strain") ==0) || (strcmp(argv[0],"strains") ==0)) {
@@ -1214,7 +1142,7 @@ EightNodeQuad::getResponse(int responseID, Information &eleInfo)
 
     // extrapolate stress from Gauss points to element nodes
     static Vector stressGP(3*nip);
-    static Vector stressAtNodes(3*nnodes);
+    static Vector stressAtNodes(3*NEN);
     stressAtNodes.Zero();
     int cnt = 0;
     // first get stress components (xx, yy, xy) at Gauss points
@@ -1227,23 +1155,22 @@ EightNodeQuad::getResponse(int responseID, Information &eleInfo)
       cnt += 3;
     }
 
-    const double We[nnodes][nip] = {{2.0758287072798374, 0.1666666666666666, -0.075828707279838,  0.1666666666666666, -0.7636648162452683, 0.0969981495786018, 0.0969981495786018, -0.7636648162452683, 0.0},
-                                    {0.1666666666666666, 2.0758287072798374, 0.1666666666666666, -0.075828707279838, -0.7636648162452683, -0.7636648162452683, 0.0969981495786018, 0.0969981495786018, 0.0},
-                                    {-0.075828707279838,  0.1666666666666666, 2.0758287072798374, 0.1666666666666666, 0.0969981495786018, -0.7636648162452683, -0.7636648162452683, 0.0969981495786018, 0.0},
-                                    {0.1666666666666666, -0.075828707279838,  0.1666666666666666, 2.0758287072798374, 0.0969981495786018, 0.0969981495786018, -0.7636648162452683, -0.7636648162452683, 0.0},
-                                    {0.1666666666666666, 0.1666666666666666, 0.1666666666666666, 0.1666666666666666, 1.1454972243679027, -0.3333333333333333, -0.1454972243679028, -0.3333333333333333, 0.0},
-                                    {0.1666666666666666, 0.1666666666666666, 0.1666666666666666, 0.1666666666666666, -0.3333333333333333, 1.1454972243679027, -0.3333333333333333, -0.1454972243679028, 0.0},
-                                    {0.1666666666666666, 0.1666666666666666, 0.1666666666666666, 0.1666666666666666, -0.1454972243679028, -0.3333333333333333, 1.1454972243679027, -0.3333333333333333, 0.0},
-                                    {0.1666666666666666, 0.1666666666666666, 0.1666666666666666, 0.1666666666666666, -0.3333333333333333, -0.1454972243679028, -0.3333333333333333, 1.1454972243679027, 0.0}};
+    const double We[NEN][nip] = {{2.0758287072798374, 0.1666666666666666, -0.075828707279838,  0.1666666666666666, -0.7636648162452683, 0.0969981495786018, 0.0969981495786018, -0.7636648162452683, 0.0},
+                                 {0.1666666666666666, 2.0758287072798374, 0.1666666666666666, -0.075828707279838, -0.7636648162452683, -0.7636648162452683, 0.0969981495786018, 0.0969981495786018, 0.0},
+                                 {-0.075828707279838,  0.1666666666666666, 2.0758287072798374, 0.1666666666666666, 0.0969981495786018, -0.7636648162452683, -0.7636648162452683, 0.0969981495786018, 0.0},
+                                 {0.1666666666666666, -0.075828707279838,  0.1666666666666666, 2.0758287072798374, 0.0969981495786018, 0.0969981495786018, -0.7636648162452683, -0.7636648162452683, 0.0},
+                                 {0.1666666666666666, 0.1666666666666666, 0.1666666666666666, 0.1666666666666666, 1.1454972243679027, -0.3333333333333333, -0.1454972243679028, -0.3333333333333333, 0.0},
+                                 {0.1666666666666666, 0.1666666666666666, 0.1666666666666666, 0.1666666666666666, -0.3333333333333333, 1.1454972243679027, -0.3333333333333333, -0.1454972243679028, 0.0},
+                                 {0.1666666666666666, 0.1666666666666666, 0.1666666666666666, 0.1666666666666666, -0.1454972243679028, -0.3333333333333333, 1.1454972243679027, -0.3333333333333333, 0.0},
+                                 {0.1666666666666666, 0.1666666666666666, 0.1666666666666666, 0.1666666666666666, -0.3333333333333333, -0.1454972243679028, -0.3333333333333333, 1.1454972243679027, 0.0}};
 
-    int p, l;
-    for (int i = 0; i < nnodes; i++) {
+
+    for (int i = 0; i < NEN; i++) {
       for (int k = 0; k < 3; k++) {
-        p = 3*i + k;
+        int p = 3*i + k;
         for (int j = 0; j < nip; j++) {
-          l = 3*j + k;
+          int l = 3*j + k;
           stressAtNodes(p) += We[i][j] * stressGP(l);
-          // opserr << "stressAtNodes(" << p << ") = We[" << i << "][" << j << "] * stressGP(" << l << ") = " << We[i][j] << " * " << stressGP(l) << " = " << stressAtNodes(p) <<  "\n";
         }
       }
     }

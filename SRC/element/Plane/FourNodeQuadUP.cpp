@@ -4,9 +4,9 @@
 // coupled analysis. This implementation is a simplified u-p formulation     //
 // of Biot theory (u - solid displacement, p - fluid pressure). Each element //
 // node has two DOFs for u and 1 DOF for p.                                  //
-//                       //
-// Written by Zhaohui Yang  (May 2002)             //
-// based on FourNodeQuad element by Michael Scott             //
+//                                                                           //
+// Written by Zhaohui Yang  (May 2002)                                       //
+// based on FourNodeQuad element by Michael Scott                            //
 ///////////////////////////////////////////////////////////////////////////////
 //
 #include <FourNodeQuadUP.h>
@@ -25,79 +25,9 @@
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
-
-#if 0
-void * OPS_ADD_RUNTIME_VPV(OPS_FourNodeQuadUP)
-{
-    if (OPS_GetNDM() != 2 || OPS_GetNDF() != 3) {
-  opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with QuadUP element\n";
-  return 0;
-    }
-    if (OPS_GetNumRemainingInputArgs() < 11) {
-  opserr << "WARNING insufficient arguments\n";
-  opserr << "Want: element FourNodeQuadUP eleTag? iNode? jNode? kNode? lNode? thk? type? matTag? bulk? rho? perm_x? perm_y? <b1? b2? pressure? dM? dK?>\n";
-  return 0;
-    }
-
-    // FourNodeQuadUPId, iNode, jNode, kNode, lNode
-    int tags[5];
-    int num = 5;
-    if (OPS_GetIntInput(&num,tags) < 0) {
-  opserr<<"WARNING: invalid integer input\n";
-  return 0;
-    }
-
-    double thk;
-    num = 1;
-    if (OPS_GetDoubleInput(&num,&thk) < 0) {
-  opserr<<"WARNING: invalid double input\n";
-  return 0;
-    }
-
-    int matTag;
-    if (OPS_GetIntInput(&num,&matTag) < 0) {
-  opserr<<"WARNING: invalid integer input\n";
-  return 0;
-    }
-    NDMaterial* mat = OPS_getNDMaterial(matTag);
-    if (mat == 0) {
-  opserr << "WARNING material not found\n";
-  opserr << "material tag: " << matTag;
-  opserr << "\nquad element: " << tags[0] << endln;
-    }
-
-    // bk, r, perm1, perm2
-    double data[4];
-    num = 4;
-    if (OPS_GetDoubleInput(&num,data) < 0) {
-  opserr<<"WARNING: invalid double input\n";
-  return 0;
-    }
-
-    // b1, b2, p
-    double opt[3] = {0,0,0};
-    num = OPS_GetNumRemainingInputArgs();
-    if (num > 3) {
-  num = 3;
-    }
-    if (num > 0) {
-  if (OPS_GetDoubleInput(&num,opt) < 0) {
-      opserr<<"WARNING: invalid double input\n";
-      return 0;
-  }
-    }
-
-    return new FourNodeQuadUP(tags[0],tags[1],tags[2],tags[3],tags[4],
-            *mat,"PlaneStrain",thk,data[0],data[1],data[2],data[3],
-            opt[0],opt[1],opt[2]);
-}
-#endif
-
 Matrix FourNodeQuadUP::K(12,12);
 Vector FourNodeQuadUP::P(12);
 double FourNodeQuadUP::shp[3][4][4];
-// double FourNodeQuadUP::pts[4][2];
-// double FourNodeQuadUP::wts[4];
 double FourNodeQuadUP::dvol[4];
 double FourNodeQuadUP::shpBar[3][4];
 Node *FourNodeQuadUP::theNodes[4];
@@ -232,7 +162,7 @@ void
 FourNodeQuadUP::setDomain(Domain *theDomain)
 {
   // Check Domain is not null - invoked when object removed from a domain
-  if (theDomain == 0) {
+  if (theDomain == nullptr) {
     nd1Ptr = 0;
     nd2Ptr = 0;
     nd3Ptr = 0;

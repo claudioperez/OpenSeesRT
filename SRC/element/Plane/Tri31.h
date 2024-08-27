@@ -20,7 +20,6 @@
 //
 // Written: Roozbeh Geraili Mikola (roozbehg@berkeley.edu)
 // Created: Sep 2010
-// Revised: --------
 //
 // Description: This file contains the class definition for Tri31.
 //
@@ -31,6 +30,7 @@
 #include <stdbool.h>
 #endif
 
+#include <array>
 #include <Element.h>
 #include <Matrix.h>
 #include <Vector.h>
@@ -43,15 +43,20 @@ class Response;
 class Tri31 : public Element
 {
   public:
-    Tri31(int tag, int nd1, int nd2, int nd3,
-      NDMaterial &m, const char *type,
-      double t, double pressure = 0.0, 
-      double rho = 0.0,
-      double b1 = 0.0, double b2 = 0.0);
+    Tri31(int tag, 
+          std::array<int,3> &nodes,
+          NDMaterial &m,
+          const char *type,
+          double thickness, 
+          double pressure,
+          double rho,
+          double b1, double b2);
     Tri31();
     ~Tri31();
 
-    const char *getClassType() const {return "Tri31";};
+    const char *getClassType() const {
+      return "Tri31";
+    }
     static constexpr const char* class_name = "Tri31";
 
     int getNumExternalNodes() const;
@@ -101,34 +106,35 @@ class Tri31 : public Element
     
   private:
 
-    static constexpr int numgp = 1;    // number of gauss points
-    static constexpr int numnodes = 3; // number of nodes
+    constexpr static int NDM = 2;      // number of dimensions
+    constexpr static int NEN = 3;      // number of nodes
+    constexpr static int numgp = 1;    // number of gauss points
 
 
-    NDMaterial **theMaterial; // pointer to the ND material objects
+    std::array<NDMaterial *,numgp> theMaterial; // array of ND material objects
     
     ID connectedExternalNodes; // Tags of Tri31 nodes
 
     Node *theNodes[3];
 
     static double matrixData[36];  // array data for matrix
-    static Matrix K;        // Element stiffness, damping, and mass Matrix
-    static Vector P;        // Element resisting force vector
-    Vector Q;                // Applied nodal loads
-    double b[2];        // Body forces
+    static Matrix K;               // Element stiffness, damping, and mass Matrix
+    static Vector P;               // Element resisting force vector
+    Vector Q;                   // Applied nodal loads
+    double b[2];                // Body forces
 
-    double appliedB[2]; // Body forces applied with load pattern
-    int applyLoad;      // flag for body force in load
+    double appliedB[2];         // Body forces applied with load pattern
+    int applyLoad;              // flag for body force in load
 
-    Vector pressureLoad;    // Pressure load at nodes
+    Vector pressureLoad;        // Pressure load at nodes
 
-    double thickness;            // Element thickness
+    double thickness;           // Element thickness
     double pressure;            // Normal surface traction (pressure) over entire element
-                     // Note: positive for outward normal
+                                // Note: positive for outward normal
     double rho;
     static double shp[3][3];    // Stores shape functions and derivatives (overwritten)
     static double pts[1][2];    // Stores quadrature points
-    static double wts[1];        // Stores quadrature weights
+    static double wts[1];       // Stores quadrature weights
 
     // private member functions - only objects of this class can call these
     double shapeFunction(double xi, double eta);
