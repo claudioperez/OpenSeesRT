@@ -47,304 +47,73 @@ double Tri31::shp[3][3];
 double Tri31::pts[1][2];
 double Tri31::wts[1];
 
-#if 0
-void *
-OPS_DECL_RUNTIME(OPS_Tri31, const ID &info)
-{
-    static int num_Tri31 = 0;
-    if (num_Tri31 == 0) {
-    num_Tri31++;
-    opserr<<"Tri31 - Written by Roozbeh G. Mikola and N.Sitar, UC Berkeley\n";
-    }
-
-    int iData[5];
-    char *theType = (char*) "PlaneStress";
-    double dData[5];
-    dData[1] = 0.0;
-    dData[2] = 0.0;
-    dData[3] = 0.0;
-    dData[4] = 0.0;
-    int numData;
-
-    // Pointer to an element that will be returned
-    Element *theElement = 0;
-
-    // regular element, not in a mesh, get tags
-    if (info.Size() == 0) {
-    int numRemainingInputArgs = OPS_GetNumRemainingInputArgs();
-
-    if (numRemainingInputArgs < 4) {
-        opserr << "Invalid #args, want: element element Tri31 eleTag? iNode? jNode? kNode?\n";
-        return 0;
-    }
-
-    numData = 4;
-    if (OPS_GetIntInput(&numData, iData) != 0) {
-        opserr << "WARNING invalid integer data: element Tri31\n";
-        return 0;
-    }
-    }
-
-    // regular element, or in a mesh
-    if (info.Size()==0 || info(0)==1) {
-    if(OPS_GetNumRemainingInputArgs() < 3) {
-        opserr<<"insufficient arguments: thk? type? matTag? <pressure? rho? b1? b2?>\n";
-        return 0;
-    }
-
-    numData = 1;
-    if (OPS_GetDoubleInput(&numData, dData) != 0) {
-        opserr << "WARNING invalid thickness data: element Tri31 " << "\n";
-        return 0;
-    }
-
-    // if (OPS_GetStringCopy(&theType) != 0) {
-    //   opserr << "WARNING invalid type, want: ""PlaneStress"" or ""PlaneStrain""  element SSPquad " << iData[0] << "\n";
-    //   return 0;
-    // }
-    theType = (char*)OPS_GetString();
-
-    numData = 1;
-    if (OPS_GetIntInput(&numData, &iData[4]) != 0) {
-        opserr << "WARNING invalid integer data: element Tri31\n";
-        return 0;
-    }
-
-    if (OPS_GetNumRemainingInputArgs() == 4) {
-        numData = 4;
-        if (OPS_GetDoubleInput(&numData, &dData[1]) != 0) {
-        opserr << "WARNING invalid optional data: element Tri31 " << "\n";
-        return 0;
-        }
-    }
-    }
-
-    // store data for different mesh
-    static std::map<int, Vector> meshdata;
-    if (info.Size()>0 && info(0)==1) {
-    if (info.Size() < 2) {
-        opserr << "WARNING: need info -- inmesh, meshtag\n";
-        return 0;
-    }
-
-    // save the data for a mesh
-    Vector& mdata = meshdata[info(1)];
-    mdata.resize(7);
-    for (int i=0; i<5; ++i) {
-        mdata(i) = dData[i];
-    }
-    mdata(5) = iData[4];
-    if (strcmp(theType,"PlaneStrain") == 0 ||
-        strcmp(theType,"PlaneStrain2D") == 0) {
-        mdata(6) = 1;
-    } else if (strcmp(theType,"PlaneStress") == 0 ||
-           strcmp(theType,"PlaneStress2D") == 0) {
-        mdata(6) = 2;
-    }
-
-    return &meshdata;
-
-    } else if (info.Size()>0 && info(0)==2) {
-    if (info.Size() < 6) {
-        opserr << "WARNING: need info -- inmesh, meshtag, eleTag, nd1, nd2, nd3\n";
-        return 0;
-    }
-
-    // get the data for a mesh
-    Vector& mdata = meshdata[info(1)];
-    if (mdata.Size() < 7) return 0;
-
-    for (int i=0; i<5; ++i) {
-        dData[i] = mdata(i);
-    }
-    for (int i=0; i<4; ++i) {
-        iData[i] = info(2+i);
-    }
-    iData[4] = mdata(5);
-    if (mdata(6) == 1) {
-        theType = (char*)"PlaneStrain";
-    } else if (mdata(6) == 2) {
-        theType = (char*)"PlaneStress";
-    }
-    }
-
-    int matID = iData[4];
-    NDMaterial *theMaterial = OPS_getNDMaterial(matID);
-    if (theMaterial == 0) {
-    opserr << "WARNING element Tri31 " << iData[0] << "\n";
-    opserr << " Material: " << matID << "not found\n";
-    return 0;
-    }
-
-    // parsing was successful, allocate the element
-    theElement = new Tri31(iData[0], iData[1], iData[2], iData[3],
-               *theMaterial, theType,
-               dData[0], dData[1], dData[2], dData[3], dData[4]);
-
-    if (theElement == 0) {
-    opserr << "WARNING could not create element of type Tri31\n";
-    return 0;
-    }
-
-    return theElement;
-}
-
-
-int OPS_Tri31(Domain& theDomain, const ID& elenodes, ID& eletags)
-{
-    // get inputs
-    int numRemainingInputArgs = OPS_GetNumRemainingInputArgs();
-    if (numRemainingInputArgs < 3) {
-    opserr << "Invalid #args, want: thk? type? matTag? <pressure? rho? b1? b2?>\n";
-    return -1;
-    }
-
-    int matID;
-    double thk;
-    char *theType;
-    double dData[4];
-    dData[0] = 0.0;
-    dData[1] = 0.0;
-    dData[2] = 0.0;
-    dData[3] = 0.0;
- 
-    int numData = 1;
-    if (OPS_GetDoubleInput(&numData, &thk) != 0) {
-    opserr << "WARNING invalid thickness data: element Tri31 \n";
-    return -1;
-    }
-
-    theType = (char*)OPS_GetString();
-  
-    numData = 1;
-    if (OPS_GetIntInput(&numData, &matID) != 0) {
-    opserr << "WARNING invalid integer data: element Tri31\n";
-    return -1;
-    }
-  
-    NDMaterial *theMaterial = OPS_getNDMaterial(matID);
-    if (theMaterial == 0) {
-    opserr << "WARNING element Tri31 \n";
-    opserr << " Material: " << matID << "not found\n";
-    return -1;
-    }
-  
-    if (OPS_GetNumRemainingInputArgs() >= 4) {
-    numData = 4;
-    if (OPS_GetDoubleInput(&numData, &dData[0]) != 0) {
-        opserr << "WARNING invalid optional data: element Tri31\n";
-        return -1;
-    }
-    }
-
-    // create elements
-    ElementIter& theEles = theDomain.getElements();
-    Element* theEle = theEles();
-    int currTag = 0;
-    if (theEle != 0) {
-    currTag = theEle->getTag();
-    }
-
-    eletags.resize(elenodes.Size()/3);
-
-    for (int i=0; i<eletags.Size(); i++) {
-    theEle = new Tri31(--currTag,elenodes(3*i),elenodes(3*i+1),elenodes(3*i+2),
-               *theMaterial, theType, thk,
-               dData[0], dData[1], dData[2], dData[3]);
-    if (theEle == 0) {
-        opserr<<"WARNING: run out of memory for creating element\n";
-        return -1;
-    }
-    if (theDomain.addElement(theEle) == false) {
-        opserr<<"WARNING: failed to add element to domain\n";
-        delete theEle;
-        return -1;
-    }
-    eletags(i) = currTag;
-    }
-  
-    return 0;
-}
-#endif
-
-Tri31::Tri31(int tag, int nd1, int nd2, int nd3,
-         NDMaterial &m, const char *type, double t,
-         double p, double r, double b1, double b2)
-:Element (tag, ELE_TAG_Tri31), 
-  theMaterial(0), connectedExternalNodes(3), 
- Q(6), pressureLoad(6), thickness(t), pressure(p), rho(r), Ki(0)
+Tri31::Tri31(int tag, 
+             std::array<int,3> &nodes,
+             NDMaterial &m, const char *type, double t,
+             double p, double r, double b1, double b2)
+: Element(tag, ELE_TAG_Tri31), 
+  connectedExternalNodes(NEN), 
+  Q(6), pressureLoad(6), thickness(t), pressure(p), rho(r), Ki(0)
 {
 
     pts[0][0] = 0.333333333333333;
     pts[0][1] = 0.333333333333333;
     wts[0] = 0.5;
-
-    if (strcmp(type,"PlaneStrain") != 0 && strcmp(type,"PlaneStress") != 0
-        && strcmp(type,"PlaneStrain2D") != 0 && strcmp(type,"PlaneStress2D") != 0) {
-            opserr << "Tri31::Tri31 -- improper material type: " << type << "for Tri31\n";
-            exit(-1);
-    }
 
     // Body forces
     b[0] = b1;
     b[1] = b2;
 
-    // Allocate arrays of pointers to NDMaterials
-    theMaterial = new NDMaterial *[numgp];
-    
-    if (theMaterial == 0) {
-      opserr << "Tri31::Tri31 - failed allocate material model pointer\n";
-      exit(-1);
-    }
-
-    int i;
-    for (i = 0; i < numgp; i++) {
+    // Note: type is checked by parser
+    for (int i = 0; i < numgp; i++) {
         // Get copies of the material model for each integration point
         theMaterial[i] = m.getCopy(type);
             
         // Check allocation
-        if (theMaterial[i] == 0) {
-               opserr << "Tri31::Tri31 -- failed to get a copy of material model\n";
+        if (theMaterial[i] == nullptr) {
+            opserr << "Tri31::Tri31 -- failed to get a copy of material model\n";
             exit(-1);
         }
     }
 
     // Set connected external node IDs
-    connectedExternalNodes(0) = nd1;
-    connectedExternalNodes(1) = nd2;
-    connectedExternalNodes(2) = nd3;
-    
-    for (i=0; i<numnodes; i++) theNodes[i] = 0;
+    for (int i=0; i<NEN; i++) {
+      connectedExternalNodes(i) = nodes[i];
+      theNodes[i] = nullptr;
+    } 
 }
 
 Tri31::Tri31()
-:Element (0,ELE_TAG_Tri31),
-  theMaterial(0), connectedExternalNodes(3), Q(6), pressureLoad(6), thickness(0.0), pressure(0.0), Ki(0)
+ : Element (0,ELE_TAG_Tri31),
+   connectedExternalNodes(3), 
+   Q(6), pressureLoad(6), thickness(0.0), pressure(0.0),
+   Ki(nullptr)
 {
     pts[0][0] = 0.333333333333333;
     pts[0][1] = 0.333333333333333;
 
     wts[0] = 0.5;
 
-    for (int i=0; i<numnodes; i++) theNodes[i] = 0;
+    for (int i=0; i<NEN; i++)
+      theNodes[i] = nullptr;
 }
 
 Tri31::~Tri31()
 {    
   for (int i = 0; i < numgp; i++) {
-      if (theMaterial[i]) delete theMaterial[i];
+      if (theMaterial[i])
+        delete theMaterial[i];
   }
 
-  // Delete the array of pointers to NDMaterial pointer arrays
-  if (theMaterial) delete [] theMaterial;
 
-  if (Ki != 0) delete Ki;
+  if (Ki != nullptr)
+    delete Ki;
 }
 
 int
 Tri31::getNumExternalNodes() const
 {
-    return numnodes;
+    return NEN;
 }
 
 const ID&
@@ -354,7 +123,7 @@ Tri31::getExternalNodes()
 }
 
 Node **
-Tri31::getNodePtrs(void) 
+Tri31::getNodePtrs() 
 {
   return theNodes;
 }
@@ -374,45 +143,32 @@ Tri31::getNumDOF()
 void
 Tri31::setDomain(Domain *theDomain)
 {
-    // Check Domain is not null - invoked when object removed from a domain
-    if (theDomain == 0) {
-        theNodes[0] = 0;
-        theNodes[1] = 0;
-        theNodes[2] = 0;
+    // Check Domain is not null. This happens when element is removed from a domain.
+    // In this case just set null pointers to null and return.
+    if (theDomain == nullptr) {
+      for (int i=0; i<NEN; i++)
+        theNodes[i] = nullptr;
+      return;
+    }
+
+    for (int i=0; i<NEN; i++) {
+      // Retrieve the node from the domain using its tag.
+      // If no node is found, then return
+      theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
+      if (theNodes[i] == nullptr)
         return;
-    }
 
-    int Nd1 = connectedExternalNodes(0);
-    int Nd2 = connectedExternalNodes(1);
-    int Nd3 = connectedExternalNodes(2);
-
-    theNodes[0] = theDomain->getNode(Nd1);
-    theNodes[1] = theDomain->getNode(Nd2);
-    theNodes[2] = theDomain->getNode(Nd3);
-
-    if (theNodes[0] == 0 || theNodes[1] == 0 || theNodes[2] == 0) {
-        //opserr << "FATAL ERROR Tri31 (tag: %d), node not found in domain",
-        //this->getTag());
+      // If node is found, ensure node has the proper number of DOFs
+      int dofs = theNodes[i]->getNumberDOF();
+      if (dofs != 2 && dofs != 3) {
+        opserr << "WARNING Tri31::setDomain() element " << this->getTag() 
+               << " does not have 2 or 3 DOFs at node " 
+               << theNodes[i]->getTag() << "\n";
         return;
+      }
     }
 
-    int dofNd1 = theNodes[0]->getNumberDOF();
-    int dofNd2 = theNodes[1]->getNumberDOF();
-    int dofNd3 = theNodes[2]->getNumberDOF();
-    
-    if (dofNd1 != 2 && dofNd1 != 3) {
-      opserr << "WARNING Tri31::setDomain() element " << this->getTag() << " does not have 2 or 3 DOF at node " << theNodes[0]->getTag() << "\n";
-      return;
-    }
-    if (dofNd2 != 2 && dofNd2 != 3) {
-      opserr << "WARNING Tri31::setDomain() element " << this->getTag() << " does not have 2 or 3 DOF at node " << theNodes[1]->getTag() << "\n";
-      return;
-    }
-    if (dofNd3 != 2 && dofNd3 != 3) {
-      opserr << "WARNING Tri31::setDomain() element " << this->getTag() << " does not have 2 or 3 DOF at node " << theNodes[2]->getTag() << "\n";
-      return;
-    }
-
+    //
     this->DomainComponent::setDomain(theDomain);
 
     // Compute consistent nodal loads due to pressure
@@ -488,7 +244,7 @@ Tri31::update()
         //eps = B*u;
         //eps.addMatrixVector(0.0, B, u, 1.0);
         eps.Zero();
-        for (int beta = 0; beta < numnodes; beta++) {
+        for (int beta = 0; beta < NEN; beta++) {
             eps(0) += shp[0][beta]*u[0][beta];
             eps(1) += shp[1][beta]*u[1][beta];
             eps(2) += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
@@ -527,12 +283,9 @@ Tri31::getTangentStiff()
         double D10 = D(1,0); double D11 = D(1,1); double D12 = D(1,2);
         double D20 = D(2,0); double D21 = D(2,1); double D22 = D(2,2);
 
-        //for (int beta = 0, ib = 0, colIb =0, colIbP1 = 8; 
-        //   beta < 4; 
-        //   beta++, ib += 2, colIb += 16, colIbP1 += 16) {
-        
-        for (int alpha = 0, ia = 0; alpha < numnodes; alpha++, ia += 2) {
-            for (int beta = 0, ib = 0; beta < numnodes; beta++, ib += 2) {
+
+        for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
+            for (int beta = 0, ib = 0; beta < NEN; beta++, ib += 2) {
 
                 DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
                 DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
@@ -545,11 +298,7 @@ Tri31::getTangentStiff()
                 K(ia,ib+1)   += shp[0][alpha]*DB[0][1] + shp[1][alpha]*DB[2][1];
                 K(ia+1,ib)   += shp[1][alpha]*DB[1][0] + shp[0][alpha]*DB[2][0];
                 K(ia+1,ib+1) += shp[1][alpha]*DB[1][1] + shp[0][alpha]*DB[2][1];
-                //matrixData[colIb   +   ia] += shp[0][alpha]*DB[0][0] + shp[1][alpha]*DB[2][0];
-                //matrixData[colIbP1 +   ia] += shp[0][alpha]*DB[0][1] + shp[1][alpha]*DB[2][1];
-                //matrixData[colIb   + ia+1] += shp[1][alpha]*DB[1][0] + shp[0][alpha]*DB[2][0];
-                //matrixData[colIbP1 + ia+1] += shp[1][alpha]*DB[1][1] + shp[0][alpha]*DB[2][1];
-          
+
             }
        }
     }
@@ -585,11 +334,9 @@ Tri31::getInitialStiff()
         // Perform numerical integration
         //K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
         //K.addMatrixTripleProduct(1.0, B, D, intWt(i)*intWt(j)*detJ);
-        //for (int beta = 0, ib = 0, colIb =0, colIbP1 = 2*numnodes; beta < numnodes; beta++, ib += 2, colIb += numnodes*numnodes, colIbP1 += numnodes*numnodes) {
-        //      for (int alpha = 0, ia = 0; alpha < numnodes; alpha++, ia += 2) {
 
-        for (int alpha = 0, ia = 0; alpha < numnodes; alpha++, ia += 2) {
-            for (int beta = 0, ib = 0; beta < numnodes; beta++, ib += 2) {
+        for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
+            for (int beta = 0, ib = 0; beta < NEN; beta++, ib += 2) {
 
                 DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
                 DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
@@ -603,10 +350,6 @@ Tri31::getInitialStiff()
                 K(ia+1,ib)   += shp[1][alpha]*DB[1][0] + shp[0][alpha]*DB[2][0];
                 K(ia+1,ib+1) += shp[1][alpha]*DB[1][1] + shp[0][alpha]*DB[2][1];
     
-                //matrixData[colIb   +   ia] += shp[0][alpha]*DB[0][0] + shp[1][alpha]*DB[2][0];
-                //matrixData[colIbP1 +   ia] += shp[0][alpha]*DB[0][1] + shp[1][alpha]*DB[2][1];
-                //matrixData[colIb   + ia+1] += shp[1][alpha]*DB[1][0] + shp[0][alpha]*DB[2][0];
-                //matrixData[colIbP1 + ia+1] += shp[1][alpha]*DB[1][1] + shp[0][alpha]*DB[2][1];
            }
         }
     }
@@ -644,7 +387,7 @@ Tri31::getMass()
         // Element plus material density ... MAY WANT TO REMOVE ELEMENT DENSITY
         rhodvol *= (rhoi[i]*thickness*wts[i]);
 
-        for (int alpha = 0, ia = 0; alpha < numnodes; alpha++, ia++) {
+        for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia++) {
             Nrho = shp[2][alpha]*rhodvol;
             K(ia,ia) += Nrho;
             ia++;
@@ -656,7 +399,7 @@ Tri31::getMass()
 }
 
 void
-Tri31::zeroLoad(void)
+Tri31::zeroLoad()
 {
     applyLoad = 0;
     appliedB[0] = 0.0;
@@ -728,7 +471,7 @@ Tri31::addInertiaLoadToUnbalance(const Vector &accel)
 
     // Want to add ( - fact * M R * accel ) to unbalance
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 2*numnodes; i++) Q(i) += -K(i,i)*ra[i];
+    for (i = 0; i < 2*NEN; i++) Q(i) += -K(i,i)*ra[i];
 
     return 0;
 }
@@ -753,7 +496,7 @@ Tri31::getResistingForce()
         // Perform numerical integration on internal force
         //P = P + (B^ sigma) * intWt(i)*intWt(j) * detJ;
         //P.addMatrixTransposeVector(1.0, B, sigma, intWt(i)*intWt(j)*detJ);
-        for (int alpha = 0, ia = 0; alpha < numnodes; alpha++, ia += 2) {                                    
+        for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {                                    
             
             P(ia) += dvol*(shp[0][alpha]*sigma(0) + shp[1][alpha]*sigma(2));
             
@@ -830,7 +573,7 @@ Tri31::getResistingForceIncInertia()
     this->getMass();
 
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 2*numnodes; i++) P(i) += K(i,i)*a[i];
+    for (i = 0; i < 2*NEN; i++) P(i) += K(i,i)*a[i];
 
     // add the damping forces if rayleigh damping
     if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0) P += this->getRayleighDampingForces();
@@ -872,7 +615,7 @@ Tri31::sendSelf(int commitTag, Channel &theChannel)
     int matDbTag;
     int count=0;
   
-    static ID idData(2*numgp+numnodes+1);
+    static ID idData(2*numgp+NEN+1);
   
     int i;
     for (i = 0; i < numgp; i++) { 
@@ -936,7 +679,7 @@ Tri31::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
     betaK0 = data(8);
     betaKc = data(9);
 
-    static ID idData(2*numgp+numnodes+1);
+    static ID idData(2*numgp+NEN+1);
     // Tri31 now receives the tags of its four external nodes
     res += theChannel.recvID(dataTag, commitTag, idData);
     if (res < 0) {
@@ -950,13 +693,8 @@ Tri31::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
     connectedExternalNodes(1) = idData(count); count += 1;
     connectedExternalNodes(2) = idData(count);
 
-    if (theMaterial == 0) {
+    if (theMaterial[0] == nullptr) {
         // Allocate new materials
-        theMaterial = new NDMaterial *[numgp];
-        if (theMaterial == 0) {
-            opserr << "Tri31::recvSelf() - Could not allocate NDMaterial* array\n";
-            return -1;
-        }
         for (int i = 0; i < numgp; i++) {
             int matClassTag = idData(i);
             int matDbTag = idData(i+numgp);
@@ -1008,55 +746,6 @@ Tri31::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 void
 Tri31::Print(OPS_Stream &s, int flag)                                                                 
 {
-    if (flag == OPS_PRINT_CURRENTSTATE) {
-        s << "\nTri31, element id:  " << this->getTag() << "\n";
-        s << "\tConnected external nodes:  " << connectedExternalNodes;
-        s << "\tthickness:  " << thickness << "\n";
-        s << "\tsurface pressure:  " << pressure << "\n";
-        s << "\tmass density:  " << rho << "\n";
-        s << "\tbody forces:  " << b[0] << " " << b[1] << "\n";
-        theMaterial[0]->Print(s, flag);
-        s << "\tStress (xx yy xy)" << "\n";
-        for (int i = 0; i<numgp; i++) s << "\t\tGauss point " << i + 1 << ": " << theMaterial[i]->getStress();
-    }
-
-    if (flag == 2) {
-
-        s << "#Tri31\n";
-
-        int i;
-        const int numNodes = numnodes;
-        const int nstress = numgp;
-
-        for (i = 0; i < numNodes; i++) {
-            const Vector &nodeCrd = theNodes[i]->getCrds();
-            s << "#NODE " << nodeCrd(0) << " " << nodeCrd(1) << " " << "\n";
-        }
-
-        // print the section location & invoke print on the scetion
-        const int numMaterials = numgp;
-
-        static Vector avgStress(nstress);
-        static Vector avgStrain(nstress);
-        avgStress.Zero();
-        avgStrain.Zero();
-        for (i = 0; i < numMaterials; i++) {
-            avgStress += theMaterial[i]->getStress();
-            avgStrain += theMaterial[i]->getStrain();
-        }
-        avgStress /= numMaterials;
-        avgStrain /= numMaterials;
-
-        s << "#AVERAGE_STRESS ";
-        for (i = 0; i < nstress; i++)
-          s << avgStress(i) << " ";
-        s << "\n";
-
-        s << "#AVERAGE_STRAIN ";
-        for (i = 0; i < nstress; i++)
-          s << avgStrain(i) << " ";
-        s << "\n";
-    }
 
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
         s << OPS_PRINT_JSON_ELEM_INDENT << "{";
@@ -1069,7 +758,56 @@ Tri31::Print(OPS_Stream &s, int flag)
         s << "\"surfacePressure\": " << pressure << ", ";
         s << "\"masspervolume\": " << rho << ", ";
         s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
-        s << "\"material\": \"" << theMaterial[0]->getTag() << "\"}";
+        s << "\"material\": " << theMaterial[0]->getTag() << "}";
+    }
+
+    if (flag == OPS_PRINT_CURRENTSTATE) {
+        s << "\nTri31, element id:  " << this->getTag() << "\n";
+        s << "\tConnected external nodes:  " << connectedExternalNodes;
+        s << "\tthickness:  " << thickness << "\n";
+        s << "\tsurface pressure:  " << pressure << "\n";
+        s << "\tmass density:  " << rho << "\n";
+        s << "\tbody forces:  " << b[0] << " " << b[1] << "\n";
+        theMaterial[0]->Print(s, flag);
+        s << "\tStress (xx yy xy)" << "\n";
+        for (int i = 0; i<numgp; i++)
+          s << "\t\tGauss point " << i + 1 << ": " << theMaterial[i]->getStress();
+    }
+
+    if (flag == 2) {
+
+        s << "#Tri31\n";
+
+        int i;
+        const int nstress = numgp;
+
+        for (int i = 0; i < NEN; i++) {
+            const Vector &nodeCrd = theNodes[i]->getCrds();
+            s << "#NODE " << nodeCrd(0) << " " << nodeCrd(1) << " " << "\n";
+        }
+
+        // print the section location & invoke print on the material
+
+        static Vector avgStress(nstress);
+        static Vector avgStrain(nstress);
+        avgStress.Zero();
+        avgStrain.Zero();
+        for (i = 0; i < numgp; i++) {
+            avgStress += theMaterial[i]->getStress();
+            avgStrain += theMaterial[i]->getStrain();
+        }
+        avgStress /= static_cast<double>(numgp);
+        avgStrain /= static_cast<double>(numgp);
+
+        s << "#AVERAGE_STRESS ";
+        for (i = 0; i < nstress; i++)
+          s << avgStress(i) << " ";
+        s << "\n";
+
+        s << "#AVERAGE_STRAIN ";
+        for (i = 0; i < nstress; i++)
+          s << avgStrain(i) << " ";
+        s << "\n";
     }
 }
 
@@ -1132,11 +870,11 @@ Tri31::setResponse(const char **argv, int argc, OPS_Stream &output)
    }
 
   else if ((strcmp(argv[0],"stressesAtNodes") ==0) || (strcmp(argv[0],"stressAtNodes") ==0)) {
-    for (int i=0; i<numnodes; i++) {
+    for (int i=0; i<NEN; i++) {
       output.tag("NodalPoint");
       output.attr("number",i+1);
-      // output.attr("eta",pts[i][0]);
-      // output.attr("neta",pts[i][1]);
+      // output.attr("eta", pts[i][0]);
+      // output.attr("neta", pts[i][1]);
 
       // output.tag("NdMaterialOutput");
       // output.attr("classType", theMaterial[i]->getClassTag());
@@ -1149,7 +887,7 @@ Tri31::setResponse(const char **argv, int argc, OPS_Stream &output)
       output.endTag(); // GaussPoint
       // output.endTag(); // NdMaterialOutput
       }
-    theResponse =  new ElementResponse(this, 11, Vector(3*numnodes));
+    theResponse =  new ElementResponse(this, 11, Vector(3*NEN));
   }
 
 
@@ -1164,6 +902,7 @@ Tri31::getResponse(int responseID, Information &eleInfo)
 
     if (responseID == 1) {
         return eleInfo.setVector(this->getResistingForce());
+
     } else if (responseID == 3) {
         // Loop over the integration points
         static Vector stresses(3*numgp);
@@ -1182,31 +921,29 @@ Tri31::getResponse(int responseID, Information &eleInfo)
 
     // extrapolate stress from Gauss points to element nodes
     static Vector stressGP(3*numgp);
-    static Vector stressAtNodes(3*numnodes); // 3*nnodes
+    static Vector stressAtNodes(3*NEN); // 3*nnodes
     stressAtNodes.Zero();
     int cnt = 0;
     // first get stress components (xx, yy, xy) at Gauss points
     for (int i = 0; i < numgp; i++) {
       // Get material stress response
       const Vector &sigma = theMaterial[i]->getStress();
-      stressGP(cnt) = sigma(0);
-      stressGP(cnt+1) = sigma(1);
-      stressGP(cnt+2) = sigma(2);
+      stressGP(cnt+2) = sigma[2];
+      stressGP(cnt+1) = sigma[1];
+      stressGP(cnt)   = sigma[0];
       cnt += 3;
     }
 
-    double We[numnodes][numgp] = {{1.0},
-                                  {1.0},
-                                  {1.0}};
+    double We[NEN][numgp] = {{1.0},
+                             {1.0},
+                             {1.0}};
 
-    int p, l;
-    for (int i = 0; i < numnodes; i++) {
+    for (int i = 0; i < NEN; i++) {
       for (int k = 0; k < 3; k++) { // number of stress components
-        p = 3*i + k;
+        int p = 3*i + k;
         for (int j = 0; j < numgp; j++) {
-          l = 3*j + k;
+          int l = 3*j + k;
           stressAtNodes(p) += We[i][j] * stressGP(l);
-          // opserr << "stressAtNodes(" << p << ") = We[" << i << "][" << j << "] * stressGP(" << l << ") = " << We[i][j] << " * " << stressGP(l) << " = " << stressAtNodes(p) <<  "\n";
         }
       }
     }
@@ -1315,11 +1052,12 @@ double Tri31::shapeFunction(double xi, double eta)
 }
 
 void 
-Tri31::setPressureLoadAtNodes(void)
+Tri31::setPressureLoadAtNodes()
 {
     pressureLoad.Zero();
 
-    if (pressure == 0.0) return;
+    if (pressure == 0.0)
+      return;
 
     const Vector &node1 = theNodes[0]->getCrds();
     const Vector &node2 = theNodes[1]->getCrds();
@@ -1361,11 +1099,5 @@ Tri31::setPressureLoadAtNodes(void)
 
     //pressureLoad = pressureLoad*thickness;
 }
-
-
-
-
-
-
 
 
