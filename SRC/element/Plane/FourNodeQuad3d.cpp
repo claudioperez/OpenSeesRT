@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.35 $
-// $Date: 2009-10-13 21:14:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/FourNodeQuad3d.cpp,v $
-
+//
+// Description: This file contains the class definition for FourNodeQuad3d.
+//
 // Written: MHS
 // Created: Feb 2000
 // Revised: Dec 2000 for efficiency
 //
-// Description: This file contains the class definition for FourNodeQuad3d.
-
 #include <FourNodeQuad3d.h>
 #include <Node.h>
 #include <NDMaterial.h>
@@ -254,7 +250,7 @@ FourNodeQuad3d::getExternalNodes()
 
 
 Node **
-FourNodeQuad3d::getNodePtrs(void) 
+FourNodeQuad3d::getNodePtrs() 
 {
   return theNodes;
 }
@@ -268,38 +264,29 @@ FourNodeQuad3d::getNumDOF()
 void
 FourNodeQuad3d::setDomain(Domain *theDomain)
 {
-  // Check Domain is not null - invoked when object removed from a domain
-  if (theDomain == 0) {
-    theNodes[0] = 0;
-    theNodes[1] = 0;
-    theNodes[2] = 0;
-    theNodes[3] = 0;
+  // Check Domain is not null. This happens when element is removed from a domain.
+  // In this case just set null pointers to null and return.
+  if (theDomain == nullptr) {
+    for (int i=0; i < NEN; i++)
+      theNodes[i] = nullptr;
     return;
   }
   
-  int Nd1 = connectedExternalNodes(0);
-  int Nd2 = connectedExternalNodes(1);
-  int Nd3 = connectedExternalNodes(2);
-  int Nd4 = connectedExternalNodes(3);
-  
-  theNodes[0] = theDomain->getNode(Nd1);
-  theNodes[1] = theDomain->getNode(Nd2);
-  theNodes[2] = theDomain->getNode(Nd3);
-  theNodes[3] = theDomain->getNode(Nd4);
-  
-  if (theNodes[0] == 0 || theNodes[1] == 0 || theNodes[2] == 0 || theNodes[3] == 0) {
-    opserr << "FATAL ERROR FourNodeQuad3d (tag: " << this->getTag() << " ) a node does not exist\n";
-    exit(-1);
-  }
-  
-  int dofNd1 = theNodes[0]->getNumberDOF();
-  int dofNd2 = theNodes[1]->getNumberDOF();
-  int dofNd3 = theNodes[2]->getNumberDOF();
-  int dofNd4 = theNodes[3]->getNumberDOF();
-  
-  if (dofNd1 != 3 || dofNd2 != 3 || dofNd3 != 3 || dofNd4 != 3) {
-    opserr << "FATAL ERROR FourNodeQuad3d (tag: " << this->getTag() << " ) needs ndf = 3\n";
-    exit(-1);
+  for (int i=0; i<NEN; i++) {
+    // Retrieve the node from the domain using its tag.
+    // If no node is found, then return
+    theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
+    if (theNodes[i] == nullptr)
+      return;
+
+    // If node is found, ensure node has the proper number of DOFs
+    int dofs = theNodes[i]->getNumberDOF();
+    if (dofs < NDF) {
+      opserr << "WARNING element " << this->getTag() 
+             << " does not have " << NDF << " DOFs at node " 
+             << theNodes[i]->getTag() << ".\n";
+      return;
+    }
   }
   this->DomainComponent::setDomain(theDomain);
   
@@ -621,7 +608,7 @@ FourNodeQuad3d::getMass()
 }
 
 void
-FourNodeQuad3d::zeroLoad(void)
+FourNodeQuad3d::zeroLoad()
 {
   Q.Zero();
   
@@ -1326,23 +1313,23 @@ double FourNodeQuad3d::shapeFunction(double xi, double eta)
 	double L11onePlusxi   = L11*onePlusxi;
 
 	// See Cook, Malkus, Plesha p. 169 for the derivation of these terms
-    shp[0][0] = -L00oneMinuseta - L01oneMinusxi;	// N_1,1
-    shp[0][1] =  L00oneMinuseta - L01onePlusxi;		// N_2,1
-    shp[0][2] =  L00onePluseta  + L01onePlusxi;		// N_3,1
-    shp[0][3] = -L00onePluseta  + L01oneMinusxi;	// N_4,1
-	
-    shp[1][0] = -L10oneMinuseta - L11oneMinusxi;	// N_1,2
-    shp[1][1] =  L10oneMinuseta - L11onePlusxi;		// N_2,2
-    shp[1][2] =  L10onePluseta  + L11onePlusxi;		// N_3,2
-    shp[1][3] = -L10onePluseta  + L11oneMinusxi;	// N_4,2
+  shp[0][0] = -L00oneMinuseta - L01oneMinusxi;	// N_1,1
+  shp[0][1] =  L00oneMinuseta - L01onePlusxi;		// N_2,1
+  shp[0][2] =  L00onePluseta  + L01onePlusxi;		// N_3,1
+  shp[0][3] = -L00onePluseta  + L01oneMinusxi;	// N_4,1
 
-    return detJ;
+  shp[1][0] = -L10oneMinuseta - L11oneMinusxi;	// N_1,2
+  shp[1][1] =  L10oneMinuseta - L11onePlusxi;		// N_2,2
+  shp[1][2] =  L10onePluseta  + L11onePlusxi;		// N_3,2
+  shp[1][3] = -L10onePluseta  + L11oneMinusxi;	// N_4,2
+
+  return detJ;
 }
 
 void 
-FourNodeQuad3d::setPressureLoadAtNodes(void)
+FourNodeQuad3d::setPressureLoadAtNodes()
 {
-        pressureLoad.Zero();
+  pressureLoad.Zero();
 
 	if (pressure == 0.0)
 		return;

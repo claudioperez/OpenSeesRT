@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.15 $
-// $Date: 2009-08-07 20:01:54 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/FourNodeQuad3d.h,v $
-                                                                        
+//
+// Description: This file contains the class definition for FourNodeQuad3d.
+//
 // Written: MHS
 // Created: Feb 2000
 // Revised: Dec 2000 for efficiency
 //
-// Description: This file contains the class definition for FourNodeQuad3d.
-
 #ifndef FourNodeQuad3d_h
 #define FourNodeQuad3d_h
 
@@ -55,33 +51,33 @@ class FourNodeQuad3d : public Element
     FourNodeQuad3d();
     ~FourNodeQuad3d();
 
-    const char *getClassType(void) const {return "FourNodeQuad3d";};
+    const char *getClassType() const {return "FourNodeQuad3d";}
     static constexpr const char* class_name = "FourNodeQuad3d";
 
-    int getNumExternalNodes(void) const;
-    const ID &getExternalNodes(void);
-    Node **getNodePtrs(void);
+    int getNumExternalNodes() const;
+    const ID &getExternalNodes();
+    Node **getNodePtrs();
 
-    int getNumDOF(void);
+    int getNumDOF();
     void setDomain(Domain *theDomain);
 
     // public methods to set the state of the element    
-    int commitState(void);
-    int revertToLastCommit(void);
-    int revertToStart(void);
-    int update(void);
+    int commitState();
+    int revertToLastCommit();
+    int revertToStart();
+    int update();
 
     // public methods to obtain stiffness, mass, damping and residual information    
-    const Matrix &getTangentStiff(void);
-    const Matrix &getInitialStiff(void);    
-    const Matrix &getMass(void);    
+    const Matrix &getTangentStiff();
+    const Matrix &getInitialStiff();    
+    const Matrix &getMass();    
 
     void zeroLoad();
     int addLoad(ElementalLoad *theLoad, double loadFactor);
     int addInertiaLoadToUnbalance(const Vector &accel);
 
-    const Vector &getResistingForce(void);
-    const Vector &getResistingForceIncInertia(void);            
+    const Vector &getResistingForce();
+    const Vector &getResistingForceIncInertia();            
 
     // public methods for element output
     int sendSelf(int commitTag, Channel &theChannel);
@@ -106,13 +102,16 @@ class FourNodeQuad3d : public Element
   protected:
     
   private:
+    constexpr static int NEN = 4; // number of nodes
+    constexpr static int NDF = 3; // number of DOFs per node
+
     // private attributes - a copy for each object of the class
 
     NDMaterial **theMaterial; // pointer to the ND material objects
     
     ID connectedExternalNodes; // Tags of quad nodes
 
-    Node *theNodes[4];
+    Node *theNodes[NEN];
 
     static double matrixData[144];  // array data for matrix
     static Matrix K;		// Element stiffness, damping, and mass Matrix
@@ -136,7 +135,7 @@ class FourNodeQuad3d : public Element
 
     // private member functions - only objects of this class can call these
     double shapeFunction(double xi, double eta);
-    void setPressureLoadAtNodes(void);
+    void setPressureLoadAtNodes();
 
     int dirn[2];
 };
