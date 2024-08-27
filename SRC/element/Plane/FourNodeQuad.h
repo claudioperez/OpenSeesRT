@@ -102,6 +102,7 @@ class FourNodeQuad : public Element,
   protected:
     
   private:
+    constexpr static int NDM = 2;    // number of spatial dimensions
     constexpr static int NEN = 4;    // number of nodes
     constexpr static int NDF = 4;    // number of DOFs per node
 
@@ -111,7 +112,7 @@ class FourNodeQuad : public Element,
     
     ID connectedExternalNodes; // Tags of quad nodes
 
-    Node *theNodes[4];
+    Node *theNodes[NEN];
 
     static double matrixData[64];  // array data for matrix
     static Matrix K;		// Element stiffness, damping, and mass Matrix
