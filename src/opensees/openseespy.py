@@ -1,3 +1,10 @@
+#===----------------------------------------------------------------------===#
+#
+#         STAIRLab -- STructural Artificial Intelligence Laboratory
+#                               Berkeley, CA
+#
+#===----------------------------------------------------------------------===#
+#
 """
 This module implements the OpenSeesPy interface.
 Imports can be performed exactly as one would
