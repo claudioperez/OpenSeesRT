@@ -220,23 +220,15 @@ FourNodeQuad::revertToStart()
 int
 FourNodeQuad::update()
 {
-    const Vector &disp1 = theNodes[0]->getTrialDisp();
-    const Vector &disp2 = theNodes[1]->getTrialDisp();
-    const Vector &disp3 = theNodes[2]->getTrialDisp();
-    const Vector &disp4 = theNodes[3]->getTrialDisp();
-    
-    double u[2][4];
+    // Collect displacements at each node into a local array
+    double u[NDM][NEN];
 
-    u[0][0] = disp1(0);
-    u[1][0] = disp1(1);
-    u[0][1] = disp2(0);
-    u[1][1] = disp2(1);
-    u[0][2] = disp3(0);
-    u[1][2] = disp3(1);
-    u[0][3] = disp4(0);
-    u[1][3] = disp4(1);
-
-    VectorND<3> eps;
+    for (int i=0; i<NEN; i++) {
+        const Vector &displ = theNodes[i]->getTrialDisp();
+        for (int j=0; j<NDM; j++) {
+           u[j][i] = displ[j];
+        }
+    }
 
     int ret = 0;
 
@@ -246,8 +238,8 @@ FourNodeQuad::update()
       this->shapeFunction(pts[i][0], pts[i][1]);
 
       // Interpolate strains
-      //eps = B*u;
-      //eps.addMatrixVector(0.0, B, u, 1.0);
+      //   eps = B*u;
+      VectorND<3> eps;
       eps.zero();
       for (int beta = 0; beta < 4; beta++) {
           eps[0] += shp[0][beta]*u[0][beta];
@@ -769,6 +761,27 @@ FourNodeQuad::recvSelf(int commitTag, Channel &theChannel,
 void
 FourNodeQuad::Print(OPS_Stream &s, int flag)
 {
+  const ID& node_tags = this->getExternalNodes();
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": " << this->getTag() << ", ";
+      s << "\"type\": \"" << this->class_name << "\", ";
+      s << "\"nodes\": [";
+      for (int i=0; i < NEN-1; i++)
+          s << node_tags(i) << ", ";
+      s << node_tags(NEN-1) << "], ";
+
+      s << "\"thickness\": " << thickness << ", ";
+      s << "\"surfacePressure\": " << pressure << ", ";
+      s << "\"masspervolume\": " << rho << ", ";
+      s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
+      s << "\"material\": ";
+      for (int i = 0; i < nip - 1; i++)
+        s << theMaterial[i]->getTag() << ", ";
+      s << theMaterial[nip - 1]->getTag() << "], ";
+  }
+
   if (flag == 2) {
 
     s << "#FourNodeQuad\n";
@@ -821,20 +834,6 @@ FourNodeQuad::Print(OPS_Stream &s, int flag)
                 s << "\t\tGauss point " << i+1 << ": " << theMaterial[i]->getStress();
   }
   
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
-      s << "\"name\": " << this->getTag() << ", ";
-      s << "\"type\": \"" << this->class_name << "\", ";
-      s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-                        s << connectedExternalNodes(1) << ", ";
-                        s << connectedExternalNodes(2) << ", ";
-                        s << connectedExternalNodes(3) << "], ";
-      s << "\"thickness\": " << thickness << ", ";
-      s << "\"surfacePressure\": " << pressure << ", ";
-      s << "\"masspervolume\": " << rho << ", ";
-      s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
-      s << "\"material\": \"" << theMaterial[0]->getTag() << "\"}";
-  }
 }
 
 Response*

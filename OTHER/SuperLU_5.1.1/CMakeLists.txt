@@ -158,12 +158,12 @@ if (WIN32)
   target_compile_definitions(DZLAUX  PRIVATE UpCase)
 endif()
 
-if ("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
-# On *nix builds, hide warnings
-  target_compile_options(SuperLU PRIVATE "-w" "-std=legacy")
-  target_compile_options(DLUSRC  PRIVATE "-w" "-std=legacy")
-  target_compile_options(ALLAUX  PRIVATE "-w" "-std=legacy")
-  target_compile_options(DZLAUX  PRIVATE "-w" "-std=legacy")
+if ("${CMAKE_C_COMPILER_ID}" MATCHES "GNU")
+  # On *nix builds, hide warnings
+  target_compile_options(SuperLU PRIVATE "-w")
+  target_compile_options(DLUSRC  PRIVATE "-w")
+  target_compile_options(ALLAUX  PRIVATE "-w")
+  target_compile_options(DZLAUX  PRIVATE "-w")
 endif()
 
 include_directories(${SUPERLU_SRC_DIR})

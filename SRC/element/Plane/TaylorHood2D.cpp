@@ -22,11 +22,7 @@
 //
 // Description: P2+P-1 element, quadratic velocity, discontinuous linear pressure
 //
-
-// for FEM_ObjectBroker, recvSelf must invoke
-
 #include "TaylorHood2D.h"
-#include <elementAPI.h>
 #include <Node.h>
 #include <Domain.h>
 #include <ElementResponse.h>
@@ -37,6 +33,7 @@
 Matrix TaylorHood2D::mat;
 Vector TaylorHood2D::vec;
 
+#include <elementAPI.h>
 void * OPS_ADD_RUNTIME_VPV(OPS_TaylorHood2D)
 {
     int num = OPS_GetNumRemainingInputArgs();
@@ -108,7 +105,8 @@ TaylorHood2D::~TaylorHood2D()
     HigherOrder& ho = OPS_getHigherOrder();
     int eletag = this->getTag();
     Domain* domain = OPS_GetDomain();
-    if (domain == 0) return;
+    if (domain == 0)
+        return;
     
     for (int i=0; i<vxdof.Size()/2; ++i) {
 	
@@ -217,7 +215,7 @@ TaylorHood2D::getMass()
     gauss(np,xpts,ypts,wts);
 
     // integration
-    for(unsigned int i=0; i<wts.size(); ++i) {
+    for (unsigned int i=0; i<wts.size(); ++i) {
 
 	// area coordinates
 	double l2 = xpts[i];

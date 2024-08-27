@@ -28,6 +28,8 @@
 #include <NDMaterial.h>
 #include <Matrix.h>
 #include <Vector.h>
+#include <VectorND.h>
+using OpenSees::VectorND;
 #include <ID.h>
 #include <Domain.h>
 #include <string.h>
@@ -217,20 +219,17 @@ Tri31::revertToStart()
 int
 Tri31::update()
 {
-    const Vector &disp1 = theNodes[0]->getTrialDisp();
-    const Vector &disp2 = theNodes[1]->getTrialDisp();
-    const Vector &disp3 = theNodes[2]->getTrialDisp();
-    
-    static double u[2][3];
+    // Collect displacements at each node into a local array
+    double u[NDM][NEN];
 
-    u[0][0] = disp1(0);
-    u[1][0] = disp1(1);
-    u[0][1] = disp2(0);
-    u[1][1] = disp2(1);
-    u[0][2] = disp3(0);
-    u[1][2] = disp3(1);
+    for (int i=0; i<NEN; i++) {
+        const Vector &displ = theNodes[i]->getTrialDisp();
+        for (int j=0; j<NDM; j++) {
+           u[j][i] = displ[j];
+        }
+    }
 
-    static Vector eps(3);
+
 
     int ret = 0;
 
@@ -241,13 +240,12 @@ Tri31::update()
         this->shapeFunction(pts[i][0], pts[i][1]);
 
         // Interpolate strains
-        //eps = B*u;
-        //eps.addMatrixVector(0.0, B, u, 1.0);
-        eps.Zero();
+        //   eps = B*u;
+        VectorND<3> eps{};
         for (int beta = 0; beta < NEN; beta++) {
-            eps(0) += shp[0][beta]*u[0][beta];
-            eps(1) += shp[1][beta]*u[1][beta];
-            eps(2) += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
+            eps[0] += shp[0][beta]*u[0][beta];
+            eps[1] += shp[1][beta]*u[1][beta];
+            eps[2] += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
         }
 
         // Set the material strain
