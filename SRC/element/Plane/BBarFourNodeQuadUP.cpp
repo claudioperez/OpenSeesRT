@@ -9,16 +9,16 @@
 //                                                                           //
 // Written by Zhaohui Yang  (June 2009)                                      //
 ///////////////////////////////////////////////////////////////////////////////
-
-// $Revision: 1.1 $
-// $Date: 2009-10-07 20:02:23 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/UP-ucsd/BBarFourNodeQuadUP.cpp,v $
-
+//
+// Date: 2009-10-07 20:02:23
+//
 #include <BBarFourNodeQuadUP.h>
 #include <Node.h>
 #include <NDMaterial.h>
 #include <Matrix.h>
 #include <Vector.h>
+#include <VectorND.h>
+using OpenSees::VectorND;
 #include <ID.h>
 #include <Renderer.h>
 #include <Domain.h>
@@ -30,81 +30,10 @@
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
-#if 0
-void * OPS_ADD_RUNTIME_VPV(OPS_BBarFourNodeQuadUP)
-{
-    if (OPS_GetNDM() != 2 || OPS_GetNDF() != 3) {
-  opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with QuadUP element\n";
-  return 0;
-    }
-
-    if (OPS_GetNumRemainingInputArgs() < 11) {
-  opserr << "WARNING insufficient arguments\n";
-  opserr << "Want: element bbarQuadUP eleTag? iNode? jNode? kNode? lNode? thk? type? matTag? bulk? rho? perm_x? perm_y? <b1? b2? pressure? dM? dK?>\n";
-  return 0;
-    }
-
-    // BBarFourNodeQuadUPId, iNode, jNode, kNode, lNode
-    int tags[5];
-    int num = 5;
-    if (OPS_GetIntInput(&num,tags) < 0) {
-  opserr<<"WARNING: invalid integer input\n";
-  return 0;
-    }
-
-    double thk;
-    num = 1;
-    if (OPS_GetDoubleInput(&num,&thk) < 0) {
-  opserr<<"WARNING: invalid double input\n";
-  return 0;
-    }
-
-    int matTag;
-    if (OPS_GetIntInput(&num,&matTag) < 0) {
-  opserr<<"WARNING: invalid integer input\n";
-  return 0;
-    }
-    NDMaterial* mat = OPS_getNDMaterial(matTag);
-    if (mat == 0) {
-  opserr << "WARNING material not found\n";
-  opserr << "Material: " << matTag;
-  opserr << "\nBBarFourNodeQuadUP element: " << tags[0] << endln;
-  return 0;
-    }
-
-    // bk, r, perm1, perm2
-    double data[4];
-    num = 4;
-    if (OPS_GetDoubleInput(&num,data) < 0) {
-  opserr<<"WARNING: invalid double input\n";
-  return 0;
-    }
-
-    // b1, b2, p
-    double opt[3] = {0,0,0};
-    num = OPS_GetNumRemainingInputArgs();
-    if (num > 3) {
-  num = 3;
-    }
-    if (num > 0) {
-  if (OPS_GetDoubleInput(&num,opt) < 0) {
-      opserr<<"WARNING: invalid double input\n";
-      return 0;
-  }
-    }
-
-    return new BBarFourNodeQuadUP(tags[0],tags[1],tags[2],tags[3],tags[4],
-          *mat,"PlaneStrain",thk,data[0],data[1],data[2],data[3],
-          opt[0],opt[1],opt[2]);
-}
-#endif
-
 
 Matrix BBarFourNodeQuadUP::K(12,12);
 Vector BBarFourNodeQuadUP::P(12);
 double BBarFourNodeQuadUP::shp[3][4][4];
-// double BBarFourNodeQuadUP::pts[4][2];
-// double BBarFourNodeQuadUP::wts[4];
 double BBarFourNodeQuadUP::dvol[4];
 double BBarFourNodeQuadUP::shpBar[2][4];
 double BBarFourNodeQuadUP::B[4][2][4][4];
@@ -142,7 +71,7 @@ BBarFourNodeQuadUP::BBarFourNodeQuadUP(int tag, int nd1, int nd2, int nd3, int n
   perm[1] = p2;
 
   // Allocate arrays of pointers to NDMaterials
-  theMaterial = new NDMaterial *[4];
+  theMaterial = new NDMaterial *[NEN];
 
   for (int i = 0; i < nip; i++) {
 
@@ -197,7 +126,7 @@ BBarFourNodeQuadUP::~BBarFourNodeQuadUP()
 
   // Delete the array of pointers to NDMaterial pointer arrays
   if (theMaterial)
-  delete [] theMaterial;
+    delete [] theMaterial;
 
   if (Ki != 0)
     delete Ki;
@@ -206,7 +135,7 @@ BBarFourNodeQuadUP::~BBarFourNodeQuadUP()
 int
 BBarFourNodeQuadUP::getNumExternalNodes() const
 {
-  return 4;
+  return NEN;
 }
 
 const ID&
@@ -229,7 +158,7 @@ BBarFourNodeQuadUP::getNodePtrs()
 int
 BBarFourNodeQuadUP::getNumDOF()
 {
-  return 12;
+  return NEN*NDF;
 }
 
 void
@@ -289,7 +218,7 @@ BBarFourNodeQuadUP::commitState()
     }
 
     // Loop over the integration points and commit the material states
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < nip; i++)
       retVal += theMaterial[i]->commitState();
 
     return retVal;
@@ -301,7 +230,7 @@ BBarFourNodeQuadUP::revertToLastCommit()
   int retVal = 0;
 
   // Loop over the integration points and revert to last committed state
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < nip; i++)
     retVal += theMaterial[i]->revertToLastCommit();
 
   return retVal;
@@ -322,23 +251,16 @@ BBarFourNodeQuadUP::revertToStart()
 int
 BBarFourNodeQuadUP::update()
 {
-  const Vector &disp1 = nd1Ptr->getTrialDisp();
-  const Vector &disp2 = nd2Ptr->getTrialDisp();
-  const Vector &disp3 = nd3Ptr->getTrialDisp();
-  const Vector &disp4 = nd4Ptr->getTrialDisp();
+   // Collect displacements at each node into a local array
+   double u[NDM][NEN];
 
-  static double u[2][4];
+   for (int i=0; i<NEN; i++) {
+       const Vector &displ = theNodes[i]->getTrialDisp();
+       for (int j=0; j<NDM; j++) {
+          u[j][i] = displ[j];
+       }
+   }
 
-  u[0][0] = disp1(0);
-  u[1][0] = disp1(1);
-  u[0][1] = disp2(0);
-  u[1][1] = disp2(1);
-  u[0][2] = disp3(0);
-  u[1][2] = disp3(1);
-  u[0][3] = disp4(0);
-  u[1][3] = disp4(1);
-
-  static Vector eps(3);
 
   int ret = 0;
 
@@ -349,9 +271,9 @@ BBarFourNodeQuadUP::update()
   for (int i = 0; i < nip; i++) {
 
     // Interpolate strains
-    //eps = B*u;
-    //eps.addMatrixVector(0.0, B, u, 1.0);
-    eps.Zero();
+    //  eps = B*u;
+    VectorND<3> eps;
+    eps.zero();
     for (int beta = 0; beta < 4; beta++) {
       //eps(0) += shp[0][beta][i]*u[0][beta];
       //eps(1) += shp[1][beta][i]*u[1][beta];
@@ -381,7 +303,7 @@ BBarFourNodeQuadUP::getTangentStiff()
   this->shapeFunction();
 
   // Loop over the integration points
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < nip; i++) {
 
     // Get the material tangent
     const Matrix &D = theMaterial[i]->getTangent();
@@ -426,7 +348,7 @@ BBarFourNodeQuadUP::getTangentStiff()
 }
 
 
-const Matrix &BBarFourNodeQuadUP::getInitialStiff ()
+const Matrix &BBarFourNodeQuadUP::getInitialStiff()
 {
   if (Ki != 0) return *Ki;
 
@@ -438,14 +360,14 @@ const Matrix &BBarFourNodeQuadUP::getInitialStiff ()
   this->shapeFunction();
 
   // Loop over the integration points
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < nip; i++) {
 
     // Get the material tangent
     const Matrix &D = theMaterial[i]->getInitialTangent();
 
     // Perform numerical integration
-    //K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
-    //K.addMatrixTripleProduct(1.0, B, D, intWt(i)*intWt(j)*detJ);
+    //   K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
+    //
     for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 3) {
 
       for (int beta = 0, ib = 0; beta < 4; beta++, ib += 3) {

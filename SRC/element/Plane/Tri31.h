@@ -106,8 +106,9 @@ class Tri31 : public Element
     
   private:
 
-    constexpr static int numgp = 1;    // number of gauss points
+    constexpr static int NDM = 2;      // number of dimensions
     constexpr static int NEN = 3;      // number of nodes
+    constexpr static int numgp = 1;    // number of gauss points
 
 
     std::array<NDMaterial *,numgp> theMaterial; // array of ND material objects
