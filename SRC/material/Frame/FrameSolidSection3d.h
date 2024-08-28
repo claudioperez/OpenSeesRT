@@ -32,6 +32,7 @@
 #include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
+#include <MatrixND.h>
 
 class NDMaterial;
 class Response;
@@ -43,22 +44,27 @@ class FrameSolidSection3d : public FrameSection
     FrameSolidSection3d(int tag, int numFibers, double a = 1.0, bool compCentroid=true);
     ~FrameSolidSection3d();
 
-    const char *getClassType(void) const {return "FrameSolidSection3d";};
+    int addFiber(NDMaterial& theMat, double Area, double yLoc, double zLoc);
+    
+    // Element
+    const char *getClassType() const {
+      return "FrameSolidSection3d";
+    }
 
     int   setTrialSectionDeformation(const Vector &deforms); 
-    const Vector &getSectionDeformation(void);
+    const Vector &getSectionDeformation();
 
-    const Vector &getStressResultant(void);
-    const Matrix &getSectionTangent(void);
-    const Matrix &getInitialTangent(void);
+    const Vector &getStressResultant();
+    const Matrix &getSectionTangent();
+    const Matrix &getInitialTangent();
 
-    int   commitState(void);
-    int   revertToLastCommit(void);    
-    int   revertToStart(void);
+    int   commitState();
+    int   revertToLastCommit();    
+    int   revertToStart();
  
     FrameSection *getFrameCopy();
     const ID &getType();
-    int getOrder (void) const;
+    int getOrder () const;
     
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel, 
@@ -69,25 +75,25 @@ class FrameSolidSection3d : public FrameSection
 			  OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
-    int addFiber(NDMaterial& theMat, const double Area, const double yLoc, const double zLoc);
 
-    // AddingSensitivity:BEGIN //////////////////////////////////////////
+    // Sensitivity
     int setParameter(const char **argv, int argc, Parameter &param);
     int updateParameter(int parameterID, Information &info);
     int activateParameter(int parameterID);
-    const Vector& getStressResultantSensitivity(int gradIndex,
-						bool conditional);
+    const Vector& getStressResultantSensitivity(int gradIndex, bool conditional);
     const Vector& getSectionDeformationSensitivity(int gradIndex);
     const Matrix& getInitialTangentSensitivity(int gradIndex);
-    int commitSensitivity(const Vector& sectionDeformationGradient,
-			  int gradIndex, int numGrads);
-    // AddingSensitivity:END ///////////////////////////////////////////
+    int commitSensitivity(const Vector& strainGrad, int gradIndex, int numGrads);
+
 
   protected: 
     //  private:
     int numFibers, sizeFibers;        // number of fibers in the section
     NDMaterial **theMaterials;        // array of pointers to materials
     double   *matData;                // data for the materials [yloc and area]
+
+
+//  MatrixND<6,6> ks;
     double   kData[36];               // data for ks matrix 
     double   sData[6];                // data for s vector 
 
