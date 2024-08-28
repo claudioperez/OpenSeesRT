@@ -171,10 +171,25 @@ enable_language(Fortran)
 
 # C++
 #--------------------------------------
-set(CMAKE_CXX_STANDARD 17)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # using Clang
+  set(CMAKE_CXX_STANDARD 17)
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # using GCC
+  set(CMAKE_CXX_STANDARD 17)
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+  # using Intel C++
+  set(CMAKE_CXX_STANDARD 20)
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # using Visual Studio C++
+  set(CMAKE_CXX_STANDARD 20)
+ 
+endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
-#set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
 
 # Compiler warnings
 add_compile_options(
