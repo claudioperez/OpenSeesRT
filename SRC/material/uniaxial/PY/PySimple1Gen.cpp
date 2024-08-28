@@ -526,7 +526,8 @@ void PySimple1Gen::GetPattern(const char *file6)
 void PySimple1Gen::GetNodes(const char *file)
 {
     int i = 0;
-    char *trash2 = new char[5];
+//  char *trash2 = new char[5];
+    char trash2[1000];
     char ch;
 
     ifstream in2(file, ios::in);
@@ -559,7 +560,7 @@ void PySimple1Gen::GetNodes(const char *file)
                 break;
         }
     }
-    delete[] trash2;
+//  delete[] trash2;
     in2.close();
     return;
 }
@@ -569,7 +570,8 @@ void PySimple1Gen::GetNodes(const char *file)
 void PySimple1Gen::GetPyElements(const char *file)
 {
     int i = 0;
-    char *trash = new char[1000];
+//  char *trash = new char[1000];
+    char trash[1000];
     char ch;
 
     ifstream in3;
@@ -608,7 +610,7 @@ void PySimple1Gen::GetPyElements(const char *file)
         }
     }
 
-    delete[] trash;
+//  delete[] trash;
     in3.close();
     return;
 }
@@ -618,7 +620,8 @@ void PySimple1Gen::GetPyElements(const char *file)
 void PySimple1Gen::GetPileElements(const char *file)
 {
     int i = 0;
-    char* trash = new char[1000];
+//  char* trash = new char[1000];
+    char trash[1000];
     char ch;
 
     ifstream in4;
@@ -654,7 +657,7 @@ void PySimple1Gen::GetPileElements(const char *file)
         }
     }
 
-    delete[] trash;
+//  delete[] trash;
     in4.close();
     return;
 }
@@ -1067,7 +1070,6 @@ int PySimple1Gen::NumRows(const char *file, const char *begin)
 
     in_file.close();
     return i;
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

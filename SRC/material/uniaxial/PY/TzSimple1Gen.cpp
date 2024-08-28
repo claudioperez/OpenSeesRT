@@ -53,6 +53,10 @@ MODIFICATIONS.
 #include <Logging.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fstream>
+#include <istream>
+#include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -157,14 +161,14 @@ void TzSimple1Gen::GetTzSimple1(const char *file1, const char *file2, const char
 
     // Define local variables
     int tzelenum, TzIndex, tzmat, stype, NODENUM;
-    double z, maxz, c, mt;
+    double z, maxz, c;
     double ztrib1, ztrib2, dzsub, zsub, depthsub, sublength, tult, z50, numtzshared;
-    mt = 1.0;
+    double mt = 1.0;
     char *mattype;
 
     // Initialize output stream
-    ofstream TzOut;
-    TzOut.open(file5, ios::out);
+    std::ofstream TzOut;
+    TzOut.open(file5, std::ios::out);
 
     // Write headers for output file
     TzOut << "#######################################################################################" << "\n";
@@ -462,10 +466,10 @@ void TzSimple1Gen::GetPattern(const char *file6)
 void TzSimple1Gen::GetNodes(const char *file)
 {
     int i = 0;
-    char *trash = new char[1000];
+    char trash[1000];
     char ch;
     
-    ifstream in_file(file, ios::in);
+    std::ifstream in_file(file, std::ios::in);
     
     if(!in_file)
     {
@@ -478,25 +482,24 @@ void TzSimple1Gen::GetNodes(const char *file)
     Nodex = new double[NumNodes];
     Nodey = new double[NumNodes];
     
-    while(!in_file.eof())
+    while (!in_file.eof())
     {
-        if(in_file.peek()=='n')
+        if (in_file.peek()=='n')
         {
             in_file.get(trash,5);
-            if(strcmp(trash,"node")==0)
+            if (strcmp(trash,"node")==0)
             {
                 in_file >> NodeNum[i] >> Nodex[i] >> Nodey[i];
                 i+=1;
             }
         }
-        while(in_file.get(ch))
+        while (in_file.get(ch))
         {
-            if(ch=='\n')
+            if (ch=='\n')
                 break;
         }
     }
 
-    delete[] trash;
     in_file.close();
     return;
 }
@@ -506,7 +509,8 @@ void TzSimple1Gen::GetNodes(const char *file)
 void TzSimple1Gen::GetTzElements(const char *file)
 {
     int i = 0;
-    char *trash = new char[1000];
+//  char *trash = new char[1000];
+    char trash[1000];
     char ch;
 
     ifstream in_file;
@@ -544,7 +548,7 @@ void TzSimple1Gen::GetTzElements(const char *file)
         }
     }
 
-    delete[] trash;
+//  delete[] trash;
     in_file.close();
     return;
 }
@@ -554,13 +558,13 @@ void TzSimple1Gen::GetTzElements(const char *file)
 void TzSimple1Gen::GetPileElements(const char *file)
 {
     int i = 0;
-    char* trash = new char[1000];
+    char trash[1000];
     char ch;
     
     ifstream in_file;
     in_file.open(file, ios::in);
 
-    if(!in_file)
+    if (!in_file)
     {
         opserr << "File " << file << "does not exist.  Must exit." << endln;
         exit(-1);
@@ -590,7 +594,6 @@ void TzSimple1Gen::GetPileElements(const char *file)
         }
     }
 
-    delete[] trash;
     in_file.close();
     return;
 }
@@ -677,16 +680,16 @@ void TzSimple1Gen::GetSoilProperties(const char *file)
         delta_b[i] = 0;
 
         // read in arguments that are common to all material types
-        in1 >> MatType[i] >> z_t[i] >> z_b[i] >> gamma_t[i] >> gamma_b[i];
+        in1 >> *MatType[i] >> z_t[i] >> z_b[i] >> gamma_t[i] >> gamma_b[i];
     
         // read in arguments that are specific to certain material types
-        if(strcmp(MatType[i],"tz1")==0)
+        if (strcmp(MatType[i],"tz1")==0)
         {
             in1 >> p_t[i] >> p_b[i] >> ca_t[i] >> ca_b[i];
-            if(in1.peek() != '\n')
+            if (in1.peek() != '\n')
                 in1 >> c_t[i] >> c_b[i];
         }
-        else if(strcmp(MatType[i],"tz2")==0)
+        else if (strcmp(MatType[i],"tz2")==0)
         {
             in1 >> p_t[i] >> p_b[i] >> delta_t[i] >> delta_b[i];
             if(in1.peek() != '\n')
