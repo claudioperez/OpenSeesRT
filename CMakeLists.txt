@@ -171,6 +171,7 @@ enable_language(Fortran)
 
 # C++
 #--------------------------------------
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
   set(CMAKE_CXX_STANDARD 17)
@@ -186,8 +187,13 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # using Visual Studio C++
   set(CMAKE_CXX_STANDARD 20)
+
+else ()
+  # This includes AppleClang
+  set(CMAKE_CXX_STANDARD 17)
  
 endif()
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 
