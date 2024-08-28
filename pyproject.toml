@@ -8,7 +8,7 @@ authors = [
 
 license = {file = "project/LICENSE"}
 
-readme = "README.md"
+readme = "project/README.md"
 
 description = "Fast nonlinear finite element analysis."
 
