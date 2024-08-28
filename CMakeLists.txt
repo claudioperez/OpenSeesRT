@@ -169,14 +169,32 @@ endif ()
 # Fortran
 #--------------------------------------
 enable_language(Fortran)
-
-# C++
-#--------------------------------------
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_C_STANDARD 11)
 set(CMAKE_FORTRAN_STANDARD 08)
 
+# C/C++
+#--------------------------------------
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_COLOR_DIAGNOSTICS ON)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # using Clang
+  set(CMAKE_CXX_STANDARD 17)
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # using GCC
+  set(CMAKE_CXX_STANDARD 17)
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+  # using Intel C++
+  set(CMAKE_CXX_STANDARD 20)
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # using Visual Studio C++
+  set(CMAKE_CXX_STANDARD 20)
+ 
+endif()
+
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 
