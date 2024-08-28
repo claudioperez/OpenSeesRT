@@ -8,7 +8,7 @@ RE_LOGI='[=!><]'
 # use perl
 SEDE="perl -pe"
 
-OPS_PREFIX="ops"
+OPS_PREFIX="model"
 declare -a OPS_CMDS=(
   node
   fix
@@ -24,7 +24,7 @@ declare -a OPS_CMDS=(
 
 cat - <<EOF
 from math import cos,sin,sqrt,pi
-import opensees.openseespy as ${OPS_PREFIX}
+import opensees.openseespy as ops
 EOF
 
 cat $1 | {
@@ -128,10 +128,15 @@ cat $1 | {
 } | {
   $SEDE s/",  section ([0-9]* [ 0-9]*)/, section=[\1], /g"
 } | {
+  # remove comments at end of line
+  $SEDE s/"  *#.*$"//g
+} | {
 #
 # 
 # Simple model commands
 $SEDE "s/(section) '([A-z0-9]*)', ([A-z 0-9+-.'=,]*)\{"'/${1}.${2}(${3}, [/g if !/"/ && !/#/'
+} | {
+  $SEDE 's/\[;$/[/g'
 } | {
   # commands that probably take the rest of their line
   $SEDE "s/(node|mass|geomTransf|element|uniaxialMaterial) ([A-z \(\)0-9-.'=,*\/]*)"'/model.\1(${2})/g if !/"/ && !/^ *#/'
@@ -140,7 +145,7 @@ $SEDE "s/(section) '([A-z0-9]*)', ([A-z 0-9+-.'=,]*)\{"'/${1}.${2}(${3}, [/g if 
   $SEDE "s/(fix|fixZ|fixY|fixX) ([A-z 0-9-.'=,]*);*"'/model.\1(${2})/g if !/"/ && !/^ *#/'
 } | {
   # Simple analysis commands
-  $SEDE "s/(system|numberer|recorder|rayleigh|analyze|loadConst|algorithm|test|timeSeries|integrator|analysis|constraints|remove) ([A-z 0-9-.'=,]*)"'/ana.\1(${2})/g if !/"/ && !/#/'
+  $SEDE "s/(system|numberer|recorder|rayleigh|analyze|loadConst|algorithm|test|timeSeries|integrator|analysis|constraints|remove) ([A-z 0-9-.'=,]*)"'/model.\1(${2})/g if !/"/ && !/#/'
 } | {
   $SEDE "s/(patch|layer|fiber) *'([A-z]*)', *([A-z 0-9-.'=,]*);{,1}"'/\1.${2}(${3}),/g if !/"/'
 } | {
@@ -148,5 +153,7 @@ $SEDE "s/(section) '([A-z0-9]*)', ([A-z 0-9+-.'=,]*)\{"'/${1}.${2}(${3}, [/g if 
   $SEDE "s/([A-z0-9'.]) {1,}([A-z0-9'.])/\1, \2/g"' if /^[A-z]/ && !/"/ && !/^ *#/ && !/^if / && !/CONVERT-COMPLETE/'
 } | {
   $SEDE "s/(?=^(def) )([A-z0-9'.]) {1,}([A-z0-9'.])/\1, \2/g"
+} | {
+  $SEDE "s/=,/=/g"
 } 
 
