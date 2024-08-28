@@ -50,12 +50,12 @@ elseif(WIN32)
   endif()
   
   include(${CMAKE_BINARY_DIR}/conan.cmake)
-  
+
   conan_cmake_configure(REQUIRES tcl/8.6.11
                         GENERATORS cmake ) # cmake_find_package)
 
   conan_cmake_autodetect(settings)
-  
+
   conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
                       BUILD missing
                       REMOTE conancenter
@@ -146,6 +146,7 @@ elseif (WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
   include(OpenSeesDependenciesWin)
   add_compile_definitions(_WIN32 _TCL85)
   add_compile_options(/favor:INTEL64)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   message(STATUS ":: WIN32")
 endif()
 
@@ -172,9 +173,12 @@ enable_language(Fortran)
 # C++
 #--------------------------------------
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_FORTRAN_STANDARD 08)
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
-#set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cqls <TARGET> <LINK_FLAGS> <OBJECTS>")
+
 
 # Compiler warnings
 add_compile_options(
