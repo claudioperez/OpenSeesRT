@@ -1,3 +1,10 @@
+#===----------------------------------------------------------------------===#
+#
+#         STAIRLab -- STructural Artificial Intelligence Laboratory
+#                               Berkeley, CA
+#
+#===----------------------------------------------------------------------===#
+#
 import os
 import sys
 import json

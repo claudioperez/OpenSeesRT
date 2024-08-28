@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+#===----------------------------------------------------------------------===#
+#
+#         STAIRLab -- STructural Artificial Intelligence Laboratory
+#
+#===----------------------------------------------------------------------===#
+#
 """
 This file implements the primary command line interface for
 the package which is invoked by running:
@@ -31,6 +37,8 @@ Options
 
   -v/--verbose
 
+
+  --no-load                   Do not pre-load the OpenSeesRT library.
 """
 
 """
