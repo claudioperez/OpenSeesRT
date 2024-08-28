@@ -31,6 +31,8 @@ Options
 
   -v/--verbose
 
+
+  --no-load                   Do not pre-load the OpenSeesRT library.
 """
 
 """
