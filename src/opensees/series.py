@@ -1,3 +1,5 @@
+
+
 import math
 
 def triangle(t, period=2*math.pi, amplitude=2.0):
