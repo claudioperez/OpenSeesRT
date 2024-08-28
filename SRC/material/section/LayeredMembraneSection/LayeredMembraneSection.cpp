@@ -25,7 +25,7 @@
 #include <Parameter.h>
 #include <SensitiveResponse.h>
 typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
-#include <algorithm>				/*min, max*/
+#include <limits> /* min, max */
 #include <DummyStream.h>
 
 using namespace std;
