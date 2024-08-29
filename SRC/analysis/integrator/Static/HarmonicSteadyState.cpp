@@ -227,8 +227,8 @@ HarmonicSteadyState::Print(OPS_Stream &s, int flag)
 int
 HarmonicSteadyState::formEleTangent(FE_Element *theEle)
 {
-  static const double twoPi = 2*3.1415926535897932;
-  static double twoPiSquareOverPeriodSquare = twoPi*twoPi/(loadPeriod*loadPeriod);
+  static constexpr double twoPi = 2*3.1415926535897932;
+  double twoPiSquareOverPeriodSquare = twoPi*twoPi/(loadPeriod*loadPeriod);
   if (statusFlag == CURRENT_TANGENT) {
     theEle->zeroTangent();
     theEle->addKtToTang();
