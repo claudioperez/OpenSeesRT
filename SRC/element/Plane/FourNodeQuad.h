@@ -104,7 +104,7 @@ class FourNodeQuad : public Element,
   private:
     constexpr static int NDM = 2;    // number of spatial dimensions
     constexpr static int NEN = 4;    // number of nodes
-    constexpr static int NDF = 4;    // number of DOFs per node
+    constexpr static int NDF = 2;    // number of DOFs per node
 
     // private attributes - a copy for each object of the class
 
