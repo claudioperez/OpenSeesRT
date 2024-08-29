@@ -34,14 +34,23 @@
 #include <SP_Constraint.h>
 #include <MP_Constraint.h>
 
+//#define LAG_DOF_VERBOSE
+
 LagrangeDOF_Group::LagrangeDOF_Group(int tag, SP_Constraint &spPtr)
 :DOF_Group(tag, 1)
+, m_lagrange_variable(1)
 {
 
 }
 
 LagrangeDOF_Group::LagrangeDOF_Group(int tag, MP_Constraint &mpPtr)
-:DOF_Group(tag, (mpPtr.getRetainedDOFs()).Size())
+//    changed by M.Petracca: 2024. should be the constrained dof size.
+//    now it's the same because all MP constraints in opensees are one-to-one.
+//    but in the future we may implement generic constraints of the form:
+//    CDOF = a1*RDOF1 + a2*RDOF2 + ... + an*RDOFn + beta
+//:DOF_Group(tag, (mpPtr.getRetainedDOFs()).Size())
+:DOF_Group(tag, (mpPtr.getConstrainedDOFs()).Size())
+, m_lagrange_variable(mpPtr.getConstrainedDOFs().Size())
 {
 
 }
@@ -84,7 +93,17 @@ LagrangeDOF_Group::getUnbalance(Integrator *theIntegrator)
 void
 LagrangeDOF_Group::setNodeDisp(const Vector &u)
 {
-    return;
+    m_lagrange_variable.Zero();
+    const auto& ids = this->getID();
+    for (int i = 0; i < this->getNumDOF(); i++) {
+        int loc = ids(i);
+        if (loc >= 0)
+            m_lagrange_variable(i) = u(loc);
+    }
+#ifdef LAG_DOF_VERBOSE
+    opserr << "LAG DOF: set U (total) = " << u;
+    opserr << "   -> LM = " << m_lagrange_variable;
+#endif // LAG_DOF_VERBOSE
 }
 	
 	
@@ -118,7 +137,16 @@ LagrangeDOF_Group::setNodeAccel(const Vector &udotdot)
 void
 LagrangeDOF_Group::incrNodeDisp(const Vector &u)
 {
-    return;
+    const auto& ids = this->getID();
+    for (int i = 0; i < this->getNumDOF(); i++) {
+        int loc = ids(i);
+        if (loc >= 0)
+            m_lagrange_variable(i) += u(loc);
+    }
+#ifdef LAG_DOF_VERBOSE
+    opserr << "LAG DOF: set U (increment) = " << u;
+    opserr << "   -> LM = " << m_lagrange_variable;
+#endif // LAG_DOF_VERBOSE
 }
 	
 	
@@ -148,8 +176,10 @@ LagrangeDOF_Group::incrNodeAccel(const Vector &udotdot)
 const Vector &
 LagrangeDOF_Group::getCommittedDisp(void)
 {
-    unbalance->Zero();
-    return *unbalance;
+    // note: this is actually the trial one. but this method is only
+    // called by triansient integrators during the domainChanged method
+    // (trial and committed should be the same)
+    return m_lagrange_variable;
 }
 
 const Vector &
@@ -161,6 +191,23 @@ LagrangeDOF_Group::getCommittedVel(void)
 
 const Vector &
 LagrangeDOF_Group::getCommittedAccel(void)
+{
+    unbalance->Zero();
+    return *unbalance;
+}
+
+const Vector& LagrangeDOF_Group::getTrialDisp()
+{
+    return m_lagrange_variable;
+}
+
+const Vector& LagrangeDOF_Group::getTrialVel()
+{
+    unbalance->Zero();
+    return *unbalance;
+}
+
+const Vector& LagrangeDOF_Group::getTrialAccel()
 {
     unbalance->Zero();
     return *unbalance;
