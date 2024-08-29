@@ -107,9 +107,8 @@ class ShellDKGQ : public Element,
 
     Response* setResponse( const char **argv, int argc, OPS_Stream &output );
     int getResponse( int responseID, Information &eleInfo );
-      
-    //plotting
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
+
+    int setParameter(const char **argv, int argc, Parameter &param);
 
   private : 
 
@@ -189,10 +188,4 @@ class ShellDKGQ : public Element,
     static const int nShape = 3;
     static const int massIndex = nShape - 1;
 } ; 
-
-
-
-
-
-
 
