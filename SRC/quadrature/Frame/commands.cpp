@@ -158,12 +158,9 @@ int
 TclCommand_CreateHingeStencil(ClientData clientData, Tcl_Interp *interp,
                               int argc, TCL_Char **const argv)
 {
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
 
   bool parse_tag = false;
   const char* const type = argv[6];
-
 
   int nIP;
   std::vector<int> sections;
