@@ -17,17 +17,11 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.8 $
-// $Date: 2007-05-03 23:03:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/MembranePlateFiberSection.cpp,v $
-
+//
 // Ed "C++" Love
 //
 //  Generic Plate Section with membrane
 //
-
-
 #include <MembranePlateFiberSection.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -38,31 +32,31 @@ void * OPS_ADD_RUNTIME_VPV(OPS_MembranePlateFiberSection)
 {
     int numdata = OPS_GetNumRemainingInputArgs();
     if (numdata < 3) {
-	opserr << "WARNING insufficient arguments\n";
-	opserr << "Want: section PlateFiber tag? matTag? h? " << endln;
-	return 0;
+        opserr << "WARNING insufficient arguments\n";
+        opserr << "Want: section PlateFiber tag? matTag? h? " << endln;
+        return 0;
     }
     
     int idata[2];
     numdata = 2;
     if (OPS_GetIntInput(&numdata, idata) < 0) {
-	opserr << "WARNING: invalid tags\n";
-	return 0;
+        opserr << "WARNING: invalid tags\n";
+        return 0;
     }
 
     double h;
     numdata = 1;
     if (OPS_GetDoubleInput(&numdata, &h) < 0) {
-	opserr << "WARNING: invalid h\n";
-	return 0;
+        opserr << "WARNING: invalid h\n";
+        return 0;
     }
 
     NDMaterial *theMaterial = OPS_getNDMaterial(idata[1]);
     if (theMaterial == 0) {
-	opserr << "WARNING nD material does not exist\n";
-	opserr << "nD material: " << idata[1]; 
-	opserr << "\nPlateFiber section: " << idata[0] << endln;
-	return 0;
+        opserr << "WARNING nD material does not exist\n";
+        opserr << "nD material: " << idata[1]; 
+        opserr << "\nPlateFiber section: " << idata[0] << endln;
+        return 0;
     }
 
     return new MembranePlateFiberSection(idata[0], h, *theMaterial);
@@ -78,16 +72,16 @@ ID      MembranePlateFiberSection::array(8) ;
 
 
 const double  MembranePlateFiberSection::sg[] = { -1, 
-						  -0.65465367, 
-					           0, 
-					           0.65465367, 
-					           1 } ;
+                                                  -0.65465367, 
+                                                   0, 
+                                                   0.65465367, 
+                                                   1 } ;
  
 const double  MembranePlateFiberSection::wg[] = { 0.1, 
-					          0.5444444444, 
-						  0.7111111111, 
-						  0.5444444444, 
-						  0.1  };
+                                                  0.5444444444, 
+                                                  0.7111111111, 
+                                                  0.5444444444, 
+                                                  0.1  };
 
 /*      from Ham-O
         case 5:
@@ -120,7 +114,7 @@ strainResultant(8)
 
 //full constructor
 MembranePlateFiberSection::MembranePlateFiberSection(    
-				   int tag, 
+                                   int tag, 
                                    double thickness, 
                                    NDMaterial &Afiber ) :
 SectionForceDeformation( tag, SEC_TAG_MembranePlateFiberSection ),
@@ -506,34 +500,36 @@ const Matrix&  MembranePlateFiberSection::getSectionTangent( )
 
 
 // print out data
-void  MembranePlateFiberSection::Print( OPS_Stream &s, int flag )
+void
+MembranePlateFiberSection::Print( OPS_Stream &s, int flag )
 {
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-      s << "\t\t\t{";
-      s << "\"name\": \"" << this->getTag() << "\", ";
-      s << "\"type\": \"MembranePlateFiberSection\", ";
-      s << "\"thickness\": " << h << ", ";
-      s << "\"fibers\": [\n";
-      for (int i = 0; i < numFibers; i++) {
-              s << "\t\t\t\t{";
-              // s << "\"coord\": [" << matData[3*i] << ", " << matData[3*i+1] << "], ";
-              // s << "\"area\": " << matData[3*i+2] << ", ";
-              s << "\"material\": \"" << theFibers[i]->getTag() << "\"";
-              if (i < numFibers - 1)
-                      s << "},\n";
-              else
-                      s << "}\n";
-      }
-      s << "\t\t\t]}";
-      return;
-  }
+      if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        s << OPS_PRINT_JSON_MATE_INDENT << "{";
+        s << "\"name\": \"" << this->getTag() << "\", ";
+        s << "\"type\": \""<< this->getClassType() <<"\", ";
+        s << "\"thickness\": \"" << h << "\", ";
+        s << "\"fibers\": [\n";
+        for (int i = 0; i < numFibers; i++) {
+            s << OPS_PRINT_JSON_MATE_INDENT << "\t{";
+            s << "\"centroid\": " << (i+0.5) * h / numFibers << ", ";
+            s << "\"material\": \"" << theFibers[i]->getTag() << "\"";
+            if (i < numFibers - 1)
+                s << "},\n";
+            else
+                s << "}\n";
+        }
+        s << OPS_PRINT_JSON_MATE_INDENT << "]}";
+    }
+    else {
+        s << "MembranePlateFiberSection: \n ";
+        s << "  Thickness h = " << h << endln;
 
-  s << "MembranePlateFiberSection: \n " ;
-  s <<  "  Thickness h = "        <<  h  <<  endln ;
+        for (int i = 0; i < numFibers; i++) {
+            theFibers[i]->Print(s, flag);
+        }
 
-  for (int i = 0; i < numFibers; i++) {
-    theFibers[i]->Print( s, flag ) ;
-  }
+        return;
+    }
 
   return ;
 }
@@ -570,8 +566,8 @@ MembranePlateFiberSection::sendSelf(int commitTag, Channel &theChannel)
     // tag if we are sending to a database channel.
     if (matDbTag == 0) {
       matDbTag = theChannel.getDbTag();
-			if (matDbTag != 0)
-			  theFibers[i]->setDbTag(matDbTag);
+                        if (matDbTag != 0)
+                          theFibers[i]->setDbTag(matDbTag);
     }
     idData(i+numFibers) = matDbTag;
   }
@@ -581,7 +577,7 @@ MembranePlateFiberSection::sendSelf(int commitTag, Channel &theChannel)
   res += theChannel.sendID(dataTag, commitTag, idData);
   if (res < 0) {
     opserr << "WARNING MembranePlateFiberSection::sendSelf() - " << this->getTag() << " failed to send ID\n";
-			    
+                            
     return res;
   }
 
@@ -634,17 +630,17 @@ MembranePlateFiberSection::recvSelf(int commitTag, Channel &theChannel, FEM_Obje
       // Allocate new material with the sent class tag
       theFibers[i] = theBroker.getNewNDMaterial(matClassTag);
       if (theFibers[i] == 0) {
-	opserr << "MembranePlateFiberSection::recvSelf() - " <<
-	  "Broker could not create NDMaterial of class type " << matClassTag << endln;
-	return -1;
+        opserr << "MembranePlateFiberSection::recvSelf() - " <<
+          "Broker could not create NDMaterial of class type " << matClassTag << endln;
+        return -1;
       }
       // Now receive materials into the newly allocated space
       theFibers[i]->setDbTag(matDbTag);
       res += theFibers[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
-	opserr << "MembranePlateFiber::recvSelf() - material " << i << "failed to recv itself\n";
-	  
-	return res;
+        opserr << "MembranePlateFiber::recvSelf() - material " << i << "failed to recv itself\n";
+          
+        return res;
       }
     }
   }
@@ -656,21 +652,21 @@ MembranePlateFiberSection::recvSelf(int commitTag, Channel &theChannel, FEM_Obje
       // Check that material is of the right type; if not,
       // delete it and create a new one of the right type
       if (theFibers[i]->getClassTag() != matClassTag) {
-	delete theFibers[i];
-	theFibers[i] = theBroker.getNewNDMaterial(matClassTag);
-	if (theFibers[i] == 0) {
-	  opserr << "MembranePlateFiberSection::recvSelf() - " << 
-	    "Broker could not create NDMaterial of class type" << matClassTag << endln;
-	  exit(-1);
-	}
+        delete theFibers[i];
+        theFibers[i] = theBroker.getNewNDMaterial(matClassTag);
+        if (theFibers[i] == 0) {
+          opserr << "MembranePlateFiberSection::recvSelf() - " << 
+            "Broker could not create NDMaterial of class type" << matClassTag << endln;
+          exit(-1);
+        }
       }
       // Receive the material
       theFibers[i]->setDbTag(matDbTag);
       res += theFibers[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
-	opserr << "MembranePlateFiberSection::recvSelf() - material " << 
-	  i << ", failed to recv itself\n";
-	return res;
+        opserr << "MembranePlateFiberSection::recvSelf() - material " << 
+          i << ", failed to recv itself\n";
+        return res;
       }
     }
   }
@@ -682,7 +678,7 @@ MembranePlateFiberSection::recvSelf(int commitTag, Channel &theChannel, FEM_Obje
 
 Response*
 MembranePlateFiberSection::setResponse(const char **argv, int argc,
-				       OPS_Stream &output)
+                                       OPS_Stream &output)
 {
   Response *theResponse =0;
 
