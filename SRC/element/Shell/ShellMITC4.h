@@ -108,12 +108,14 @@ class ShellMITC4 : public    Element,
     Response* setResponse( const char **argv, int argc, OPS_Stream &output );
     int getResponse( int responseID, Information &eleInfo );
 
+    int setParameter(const char **argv, int argc, Parameter &param);
+
 
   private : 
     static const int ndf = 6;     // two membrane plus three bending plus one drill
     static const int nstress = 8; // three membrane, three moment, two shear
-    static const int ngauss = 4;
-    static const int numnodes = 4;
+//  static const int NIP = 4;     // suppllied by quadrature
+    static const int NEN = 4;
 
     //static data
     static Matrix stiff ;
@@ -123,7 +125,7 @@ class ShellMITC4 : public    Element,
 
     //node information
     ID connectedExternalNodes ;  //four node numbers
-    Node *nodePointers[4] ;      //pointers to four nodes
+    Node *theNodes[NEN] ;      //pointers to four nodes
 
     //drilling stiffness
     double Ktt ;

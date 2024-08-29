@@ -96,11 +96,13 @@ class ShellMITC9 : public Element,
     Response* setResponse(const char **argv, int argc, OPS_Stream &output);
     int getResponse(int responseID, Information &eleInfo);
 
+    int setParameter(const char **argv, int argc, Parameter &param);
+
   private : 
-    static constexpr int ndf = 6;      // two membrane plus three bending plus one drill
+    static constexpr int NDF = 6;      // two membrane plus three bending plus one drill
     static constexpr int nstress  = 8; // three membrane, three moment, two shear
-    static constexpr int ngauss   = 9;
-    static constexpr int numnodes = 9;
+//  static constexpr int nip   = 9;
+    static constexpr int NEN = 9;
 
     //static data
     static Matrix stiff ;
@@ -129,7 +131,7 @@ class ShellMITC9 : public Element,
     //node information
     ID connectedExternalNodes ;  //nine node numbers
     //pointers to nine nodes
-    Node *nodePointers[9] ;
+    Node *theNodes[NEN] ;
 
     //drilling stiffness
     double Ktt ;
