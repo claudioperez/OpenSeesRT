@@ -146,6 +146,9 @@ TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
 
   if (strcmp(argv[count], "-beamUniform") == 0 ||
       strcmp(argv[count], "beamUniform") == 0) {
+    //
+    // see https://portwooddigital.com/2021/05/05/trapezoidal-beam-loads
+    //
     count++;
     if (ndm == 2) {
       // wy wx a/L  b/L wyb wxb
