@@ -39,7 +39,6 @@ using OpenSees::VectorND;
 #include <FEM_ObjectBroker.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
-#include <ElementIter.h>
 #include <map>
 
 double Tri31::matrixData[36];
@@ -67,7 +66,7 @@ Tri31::Tri31(int tag,
     b[1] = b2;
 
     // Note: type is checked by parser
-    for (int i = 0; i < numgp; i++) {
+    for (int i = 0; i < NIP; i++) {
         // Get copies of the material model for each integration point
         theMaterial[i] = m.getCopy(type);
             
@@ -102,7 +101,7 @@ Tri31::Tri31()
 
 Tri31::~Tri31()
 {    
-  for (int i = 0; i < numgp; i++) {
+  for (int i = 0; i < NIP; i++) {
       if (theMaterial[i])
         delete theMaterial[i];
   }
@@ -188,7 +187,7 @@ Tri31::commitState()
     }    
 
     // Loop over the integration points and commit the material states
-    for (int i = 0; i < numgp; i++) retVal += theMaterial[i]->commitState();
+    for (int i = 0; i < NIP; i++) retVal += theMaterial[i]->commitState();
 
     return retVal;
 }
@@ -199,7 +198,7 @@ Tri31::revertToLastCommit()
     int retVal = 0;
 
     // Loop over the integration points and revert to last committed state
-    for (int i = 0; i < numgp; i++) retVal += theMaterial[i]->revertToLastCommit();
+    for (int i = 0; i < NIP; i++) retVal += theMaterial[i]->revertToLastCommit();
 
     return retVal;
 }
@@ -210,7 +209,7 @@ Tri31::revertToStart()
     int retVal = 0;
 
     // Loop over the integration points and revert states to start
-    for (int i = 0; i < numgp; i++) retVal += theMaterial[i]->revertToStart();
+    for (int i = 0; i < NIP; i++) retVal += theMaterial[i]->revertToStart();
 
     return retVal;
 }
@@ -234,7 +233,7 @@ Tri31::update()
     int ret = 0;
 
     // Loop over the integration points
-    for (int i = 0; i < numgp; i++) {
+    for (int i = 0; i < NIP; i++) {
 
         // Determine Jacobian for this integration point
         this->shapeFunction(pts[i][0], pts[i][1]);
@@ -265,7 +264,7 @@ Tri31::getTangentStiff()
     double DB[3][2];
 
     // Loop over the integration points
-    for (int i = 0; i < numgp; i++) {
+    for (int i = 0; i < NIP; i++) {
         // Determine Jacobian for this integration point
         dvol = this->shapeFunction(pts[i][0], pts[i][1]);
         dvol *= (thickness*wts[i]);
@@ -316,7 +315,7 @@ Tri31::getInitialStiff()
     double DB[3][2];
   
     // Loop over the integration points
-    for (int i = 0; i < numgp; i++) {
+    for (int i = 0; i < NIP; i++) {
 
           // Determine Jacobian for this integration point
         dvol = this->shapeFunction(pts[i][0], pts[i][1]);
@@ -362,9 +361,9 @@ Tri31::getMass()
     K.Zero();
 
     int i;
-    static double rhoi[1]; //numgp
+    static double rhoi[1]; //NIP
     double sum = 0.0;
-    for (int i = 0; i < numgp; i++) {
+    for (int i = 0; i < NIP; i++) {
         if (rho == 0)
             rhoi[i] = theMaterial[i]->getRho();
         else
@@ -377,7 +376,7 @@ Tri31::getMass()
     double rhodvol, Nrho;
 
     // Compute a lumped mass matrix
-    for (int i = 0; i < numgp; i++) {
+    for (int i = 0; i < NIP; i++) {
         
         // Determine Jacobian for this integration point
         rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
@@ -431,9 +430,9 @@ int
 Tri31::addInertiaLoadToUnbalance(const Vector &accel)
 {
     int i;
-    static double rhoi[1]; //numgp
+    static double rhoi[1]; //NIP
     double sum = 0.0;
-    for (i = 0; i < numgp; i++) {
+    for (i = 0; i < NIP; i++) {
             if(rho == 0) {
                 rhoi[i] = theMaterial[i]->getRho();
             } else {
@@ -482,7 +481,7 @@ Tri31::getResistingForce()
     double dvol;
 
     // Loop over the integration points
-    for (int i = 0; i < numgp; i++) {
+    for (int i = 0; i < NIP; i++) {
 
         // Determine Jacobian for this integration point
         dvol = this->shapeFunction(pts[i][0], pts[i][1]);
@@ -530,9 +529,9 @@ const Vector&
 Tri31::getResistingForceIncInertia()
 {
     int i;
-    static double rhoi[1]; //numgp
+    static double rhoi[1]; //NIP
     double sum = 0.0;
-    for (i = 0; i < numgp; i++) {
+    for (i = 0; i < NIP; i++) {
             if(rho == 0) {
         rhoi[i] = theMaterial[i]->getRho();
             } else {
@@ -613,10 +612,10 @@ Tri31::sendSelf(int commitTag, Channel &theChannel)
     int matDbTag;
     int count=0;
   
-    static ID idData(2*numgp+NEN+1);
+    static ID idData(2*NIP+NEN+1);
   
     int i;
-    for (i = 0; i < numgp; i++) { 
+    for (i = 0; i < NIP; i++) { 
         idData(i) = theMaterial[i]->getClassTag();
         matDbTag = theMaterial[i]->getDbTag();
         // NOTE: we do have to ensure that the material has a database
@@ -625,9 +624,9 @@ Tri31::sendSelf(int commitTag, Channel &theChannel)
             matDbTag = theChannel.getDbTag();
             if (matDbTag != 0) theMaterial[i]->setDbTag(matDbTag);
         }
-        idData(i+numgp) = matDbTag;
+        idData(i+NIP) = matDbTag;
     }
-    count += 2*numgp;
+    count += 2*NIP;
     idData(count) = connectedExternalNodes(0); count += 1;
     idData(count) = connectedExternalNodes(1); count += 1;
     idData(count) = connectedExternalNodes(2);
@@ -639,7 +638,7 @@ Tri31::sendSelf(int commitTag, Channel &theChannel)
     }
 
     // Finally, Tri31 asks its material objects to send themselves
-    for (i = 0; i < numgp; i++) {
+    for (i = 0; i < NIP; i++) {
         res += theMaterial[i]->sendSelf(commitTag, theChannel);
         if (res < 0) {
             opserr << "WARNING Tri31::sendSelf() - " << this->getTag() << " failed to send its Material\n";
@@ -677,7 +676,7 @@ Tri31::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
     betaK0 = data(8);
     betaKc = data(9);
 
-    static ID idData(2*numgp+NEN+1);
+    static ID idData(2*NIP+NEN+1);
     // Tri31 now receives the tags of its four external nodes
     res += theChannel.recvID(dataTag, commitTag, idData);
     if (res < 0) {
@@ -685,7 +684,7 @@ Tri31::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
         return res;
     }
 
-    int count = 2*numgp;
+    int count = 2*NIP;
 
     connectedExternalNodes(0) = idData(count); count += 1;
     connectedExternalNodes(1) = idData(count); count += 1;
@@ -693,9 +692,9 @@ Tri31::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 
     if (theMaterial[0] == nullptr) {
         // Allocate new materials
-        for (int i = 0; i < numgp; i++) {
+        for (int i = 0; i < NIP; i++) {
             int matClassTag = idData(i);
-            int matDbTag = idData(i+numgp);
+            int matDbTag = idData(i+NIP);
             // Allocate new material with the sent class tag
             theMaterial[i] = theBroker.getNewNDMaterial(matClassTag);
             if (theMaterial[i] == 0) {
@@ -714,9 +713,9 @@ Tri31::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 
     // materials exist , ensure materials of correct type and recvSelf on them
     else {
-        for (int i = 0; i < numgp; i++) {
+        for (int i = 0; i < NIP; i++) {
             int matClassTag = idData(i);
-            int matDbTag = idData(i+numgp);
+            int matDbTag = idData(i+NIP);
             // Check that material is of the right type; if not,
             // delete it and create a new one of the right type
             if (theMaterial[i]->getClassTag() != matClassTag) {
@@ -768,7 +767,7 @@ Tri31::Print(OPS_Stream &s, int flag)
         s << "\tbody forces:  " << b[0] << " " << b[1] << "\n";
         theMaterial[0]->Print(s, flag);
         s << "\tStress (xx yy xy)" << "\n";
-        for (int i = 0; i<numgp; i++)
+        for (int i = 0; i<NIP; i++)
           s << "\t\tGauss point " << i + 1 << ": " << theMaterial[i]->getStress();
     }
 
@@ -777,7 +776,7 @@ Tri31::Print(OPS_Stream &s, int flag)
         s << "#Tri31\n";
 
         int i;
-        const int nstress = numgp;
+        const int nstress = NIP;
 
         for (int i = 0; i < NEN; i++) {
             const Vector &nodeCrd = theNodes[i]->getCrds();
@@ -790,12 +789,12 @@ Tri31::Print(OPS_Stream &s, int flag)
         static Vector avgStrain(nstress);
         avgStress.Zero();
         avgStrain.Zero();
-        for (i = 0; i < numgp; i++) {
+        for (i = 0; i < NIP; i++) {
             avgStress += theMaterial[i]->getStress();
             avgStrain += theMaterial[i]->getStrain();
         }
-        avgStress /= static_cast<double>(numgp);
-        avgStrain /= static_cast<double>(numgp);
+        avgStress /= static_cast<double>(NIP);
+        avgStrain /= static_cast<double>(NIP);
 
         s << "#AVERAGE_STRESS ";
         for (i = 0; i < nstress; i++)
@@ -824,7 +823,7 @@ Tri31::setResponse(const char **argv, int argc, OPS_Stream &output)
 
     char dataOut[10];
     if (strcmp(argv[0],"force") == 0 || strcmp(argv[0],"forces") == 0) {
-        for (int i=1; i<=numgp; i++) {
+        for (int i=1; i<=NIP; i++) {
             sprintf(dataOut,"P1_%d",i);
             output.tag("ResponseType",dataOut);
             sprintf(dataOut,"P2_%d",i);
@@ -835,7 +834,7 @@ Tri31::setResponse(const char **argv, int argc, OPS_Stream &output)
     } else if (strcmp(argv[0],"material") == 0 || strcmp(argv[0],"integrPoint") == 0) {
 
         int pointNum = atoi(argv[1]);
-        if (pointNum > 0 && pointNum <= numgp) {
+        if (pointNum > 0 && pointNum <= NIP) {
             output.tag("GaussPoint");
             output.attr("number",pointNum);
             output.attr("eta",pts[pointNum-1][0]);
@@ -847,7 +846,7 @@ Tri31::setResponse(const char **argv, int argc, OPS_Stream &output)
 
        }
    } else if ((strcmp(argv[0],"stresses") ==0) || (strcmp(argv[0],"stress") ==0)) {
-       for (int i=0; i<numgp; i++) {
+       for (int i=0; i<NIP; i++) {
            output.tag("GaussPoint");
            output.attr("number",i+1);
            output.attr("eta",pts[i][0]);
@@ -864,7 +863,7 @@ Tri31::setResponse(const char **argv, int argc, OPS_Stream &output)
            output.endTag(); // GaussPoint
            output.endTag(); // NdMaterialOutput
        }
-       theResponse =  new ElementResponse(this, 3, Vector(3*numgp));
+       theResponse =  new ElementResponse(this, 3, Vector(3*NIP));
    }
 
   else if ((strcmp(argv[0],"stressesAtNodes") ==0) || (strcmp(argv[0],"stressAtNodes") ==0)) {
@@ -903,9 +902,9 @@ Tri31::getResponse(int responseID, Information &eleInfo)
 
     } else if (responseID == 3) {
         // Loop over the integration points
-        static Vector stresses(3*numgp);
+        static Vector stresses(3*NIP);
         int cnt = 0;
-        for (int i = 0; i < numgp; i++) {
+        for (int i = 0; i < NIP; i++) {
             // Get material stress response
             const Vector &sigma = theMaterial[i]->getStress();
             stresses(cnt) = sigma(0);
@@ -918,12 +917,12 @@ Tri31::getResponse(int responseID, Information &eleInfo)
   } else if (responseID == 11) {
 
     // extrapolate stress from Gauss points to element nodes
-    static Vector stressGP(3*numgp);
+    static Vector stressGP(3*NIP);
     static Vector stressAtNodes(3*NEN); // 3*nnodes
     stressAtNodes.Zero();
     int cnt = 0;
     // first get stress components (xx, yy, xy) at Gauss points
-    for (int i = 0; i < numgp; i++) {
+    for (int i = 0; i < NIP; i++) {
       // Get material stress response
       const Vector &sigma = theMaterial[i]->getStress();
       stressGP(cnt+2) = sigma[2];
@@ -932,14 +931,14 @@ Tri31::getResponse(int responseID, Information &eleInfo)
       cnt += 3;
     }
 
-    double We[NEN][numgp] = {{1.0},
+    double We[NEN][NIP] = {{1.0},
                              {1.0},
                              {1.0}};
 
     for (int i = 0; i < NEN; i++) {
       for (int k = 0; k < 3; k++) { // number of stress components
         int p = 3*i + k;
-        for (int j = 0; j < numgp; j++) {
+        for (int j = 0; j < NIP; j++) {
           int l = 3*j + k;
           stressAtNodes(p) += We[i][j] * stressGP(l);
         }
@@ -968,14 +967,14 @@ Tri31::setParameter(const char **argv, int argc, Parameter &param)
         if (argc < 3) return -1;
 
         int pointNum = atoi(argv[1]);
-        if (pointNum > 0 && pointNum <= numgp) return theMaterial[pointNum-1]->setParameter(&argv[2], argc-2, param);
+        if (pointNum > 0 && pointNum <= NIP) return theMaterial[pointNum-1]->setParameter(&argv[2], argc-2, param);
         else return -1;
     }
 
     // otherwise it could be just a forall material parameter
     else {
         int matRes = res;
-        for (int i=0; i<numgp; i++) {
+        for (int i=0; i<NIP; i++) {
             matRes =  theMaterial[i]->setParameter(argv, argc, param);
             if (matRes != -1) res = matRes;
         }
