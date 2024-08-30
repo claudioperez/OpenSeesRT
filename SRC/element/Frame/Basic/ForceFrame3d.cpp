@@ -402,7 +402,7 @@ ForceFrame3d::getInitialStiff()
 
   THREAD_LOCAL MatrixND<nq,nq> F_init;
   this->getInitialFlexibility(F_init);
-    
+
   // calculate element stiffness matrix
   THREAD_LOCAL MatrixND<nq, nq> K_init;
   if (F_init.invert(K_init) < 0)

@@ -29,14 +29,14 @@ class PrismFrame2d : public Element
     PrismFrame2d(int tag, double A, double E, double I, 
                   int Nd1, int Nd2, CrdTransf &theTransf,
                   double alpha, double depth,
-                  double rho, int cMass,
+                  double rho, int mass_flag,
                   int release, int geom_flag);
 
     PrismFrame2d(int tag, 
                  int Nd1, int Nd2, 
                   FrameSection& theSection, CrdTransf &theTransf,
                   double alpha, double depth,
-                  double rho, int cMass, bool use_mass,
+                  double rho, int mass_flag, bool use_mass,
                   int release,
                   int geom_flag);
 
@@ -85,12 +85,13 @@ class PrismFrame2d : public Element
     constexpr static int NEN = 2;
 
     // Model parameters
-    double A,E,I;     // area, elastic modulus, moment of inertia
+    double A,E,Iz;    // area, elastic modulus, moment of inertia
     double alpha,     // coeff. of thermal expansion,
            depth;     // depth
     double rho;       // mass per unit length
+    double phi;       // shear constant
 
-    int cMass;        // consistent mass flag
+    int mass_flag;        // consistent mass flag
     int release;      // moment release 0=none, 1=I, 2=J, 3=I,J
     int geom_flag;
 
