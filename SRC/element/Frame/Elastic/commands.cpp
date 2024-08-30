@@ -169,6 +169,38 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
         tracker.increment();
     }
 
+    // Release
+    else if ((strcmp(argv[argi], "-release") == 0) ||
+             (strcmp(argv[argi], "-releasez") == 0)) {
+      if (argc < argi + 2) {
+        opserr << OpenSees::PromptValueError
+               << "not enough arguments, expected -release $release?\n";
+        return TCL_ERROR;
+      }
+
+      if (Tcl_GetInt(interp, argv[argi+1], &options.relz_flag) != TCL_OK) {
+        opserr << OpenSees::PromptValueError 
+               << "invalid release flag.\n";
+        return TCL_ERROR;
+      }
+      argi += 1;
+    }
+    else if ((strcmp(argv[argi], "-releasey") == 0) ||
+             (strcmp(argv[argi], "-releasey") == 0)) {
+      if (argc < argi + 2) {
+        opserr << OpenSees::PromptValueError
+               << "not enough arguments, expected -releasey $release?\n";
+        return TCL_ERROR;
+      }
+
+      if (Tcl_GetInt(interp, argv[argi+1], &options.rely_flag) != TCL_OK) {
+        opserr << OpenSees::PromptValueError 
+               << "invalid release flag.\n";
+        return TCL_ERROR;
+      }
+      argi += 1;
+    }
+
     // Transform
     else if (strcmp(argv[argi], "-transform") == 0) {
       if (argc < argi + 2) {
@@ -427,7 +459,7 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
 
         case Position::End:
           opserr << OpenSees::PromptParseError
-                 << "unexpected argument" << argv[i] << "\n";
+                 << "unexpected argument " << argv[i] << "\n";
           return TCL_ERROR;
       }
     }
@@ -480,10 +512,13 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
       theBeam = new ElasticBeam2d(tag, beam_data.A, beam_data.E, beam_data.Iz, 
                                   iNode, jNode, *theTrans2d,
                                   beam_data.thermal_coeff, beam_data.thermal_depth, 
-                                  mass, options.mass_type);
+                                  mass, options.mass_type,
+                                  options.relz_flag);
     }
 
-  } else { // ndm == 3
+  } else {
+    // ndm == 3
+
     //
     // Some final validation
     //
