@@ -6,9 +6,9 @@ authors = [
   # <50180406+claudioperez@users.noreply.github.com>"
 ]
 
-license = {file = "project/LICENSE"}
+license = {file = "about/LICENSE"}
 
-readme = "README.md"
+readme = "about/README.md"
 
 description = "Fast nonlinear finite element analysis."
 
