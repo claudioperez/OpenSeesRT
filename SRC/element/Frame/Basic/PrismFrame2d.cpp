@@ -60,7 +60,8 @@ PrismFrame2d::PrismFrame2d(int tag, double a, double e, double i,
                            double Alpha, double depth_, double r, int cm,
                            int rel, int geom_flag_)
   :Element(tag,ELE_TAG_ElasticBeam2d), 
-   A(a), E(e), Iz(i), alpha(Alpha), depth(depth_), rho(r), 
+   A(a), E(e), Iz(i), Ay(0), 
+   alpha(Alpha), depth(depth_), rho(r), 
    mass_flag(cm), release(rel), 
    geom_flag(geom_flag_),
    Q(6), connectedExternalNodes(2), theCoordTransf(nullptr)
@@ -91,14 +92,16 @@ PrismFrame2d::PrismFrame2d(int tag, int Nd1, int Nd2,
                            double r, int cm, bool use_mass, int rel,
                            int geom_flag_)
   : Element(tag,ELE_TAG_ElasticBeam2d), 
-    alpha(Alpha), depth(depth_), rho(r),
-    mass_flag(cm), release(rel),
+    Ay(0),
+    alpha(Alpha), depth(depth_), 
+    rho(r), mass_flag(cm), 
+    release(rel),
     geom_flag(geom_flag_),
     Q(6), connectedExternalNodes(2), theCoordTransf(nullptr)
 {
 
-  double G,Ay;
   section.getIntegral(Field::Unit,   State::Init, A);
+  section.getIntegral(Field::UnitY,  State::Init, Ay);
   section.getIntegral(Field::UnitYY, State::Init, Iz);
 
 
@@ -204,6 +207,11 @@ PrismFrame2d::setDomain(Domain *theDomain)
     exit(-1);
   }
 
+  if (G != 0 && Ay != 0)
+    phi = 12.0 * E * Iz / (L * L * G * Ay);
+  else
+    phi = 0;
+
   formBasicStiffness(km);
   ke = km; // 
 }
@@ -216,12 +224,12 @@ PrismFrame2d::formBasicStiffness(OpenSees::MatrixND<3,3>& kb) const
   //
   kb.zero();
 
-  kb(0,0) = E*A/L;  
+  kb(0,0) = E*A/L;
 
   double EI     = E*Iz;
   if (release == 0) {
-    kb(1,1) = kb(2,2) = 4.0*EI/L;
-    kb(2,1) = kb(1,2) = 2.0*EI/L;    
+    kb(1,1) = kb(2,2) = EI*(4+phi)/(L*(1+phi));
+    kb(2,1) = kb(1,2) = EI*(2-phi)/(L*(1+phi));    
   }
   if (release == 1) { // release I
     kb(2,2) = 3.0*EI/L;
@@ -229,6 +237,15 @@ PrismFrame2d::formBasicStiffness(OpenSees::MatrixND<3,3>& kb) const
   if (release == 2) { // release J
     kb(1,1) = 3.0*EI/L;
   }
+  
+  double r[3] = {(double)(release&0b100), 
+                 (double)(release&0b001),
+                 (double)(release&0b010)};
+
+  MatrixND<3,3> as {{
+    {1-r[0],        0,                  0          },
+    {  0   ,      1-r[1],       -0.5*(1-r[2])*r[1] },
+    {  0   ,-0.5*(1-r[1])*r[2],       1-r[2]       }}};
 }
 
 int
@@ -560,7 +577,7 @@ PrismFrame2d::addLoad(ElementalLoad *theLoad, double loadFactor)
   }
 
   else {
-    opserr << "PrismFrame2d::addLoad()  -- load type unknown for element with tag: " << this->getTag() << endln;
+    opserr << "PrismFrame2d::addLoad()  -- load type unknown for element with tag: " << this->getTag() << "\n";
     return -1;
   }
 
@@ -791,19 +808,19 @@ PrismFrame2d::Print(OPS_Stream &s, int flag)
 
   if (flag == OPS_PRINT_CURRENTSTATE) {
     this->getResistingForce();
-    s << "\nPrismFrame2d: " << this->getTag() << endln;
+    s << "\nPrismFrame2d: " << this->getTag() << "\n";
     s << "\tConnected Nodes: " << connectedExternalNodes ;
-    s << "\tCoordTransf: " << theCoordTransf->getTag() << endln;
-    s << "\tmass density:  " << rho << ", mass_flag: " << mass_flag << endln;
-    s << "\trelease code:  " << release << endln;
+    s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
+    s << "\tmass density:  " << rho << ", mass_flag: " << mass_flag << "\n";
+    s << "\trelease code:  " << release << "\n";
     double P  = q[0];
     double M1 = q[1];
     double M2 = q[2];
     double V = (M1+M2)/L;
     s << "\tEnd 1 Forces (P V M): " << -P+p0[0]
-      << " " << V+p0[1] << " " << M1 << endln;
+      << " " << V+p0[1] << " " << M1 << "\n";
     s << "\tEnd 2 Forces (P V M): " << P
-      << " " << -V+p0[2] << " " << M2 << endln;
+      << " " << -V+p0[2] << " " << M2 << "\n";
   }
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
@@ -812,11 +829,13 @@ PrismFrame2d::Print(OPS_Stream &s, int flag)
         s << "\"type\": \"PrismFrame2d\", ";
     s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
         s << "\"E\": " << E << ", ";
-        s << "\"A\": "<< A << ", ";
+        s << "\"G\": " << G << ", ";
+        s << "\"A\": " << A << ", ";
+        s << "\"Ay\": " << Ay << ", ";
     s << "\"Iz\": "<< Iz << ", ";
     s << "\"massperlength\": "<< rho << ", ";
     s << "\"release\": "<< release << ", ";
-    s << "\"delta\": "<< geom_flag << ", ";
+    s << "\"kinematics\": "<< geom_flag << ", ";
     s << "\"mass_flag\": "<< mass_flag << ", ";
     s << "\"crdTransformation\": \"" << theCoordTransf->getTag() << "\"}";
   }

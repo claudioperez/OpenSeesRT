@@ -42,7 +42,9 @@ class PrismFrame2d : public Element
 
     ~PrismFrame2d();
 
-    const char *getClassType() const {return "PrismFrame2d";};
+    const char *getClassType() const {
+      return "PrismFrame2d";
+    }
     static constexpr const char* class_name = "PrismFrame2d";
 
     int getNumExternalNodes() const;
@@ -84,12 +86,16 @@ class PrismFrame2d : public Element
 
     constexpr static int NEN = 2;
 
-    // Model parameters
-    double A,E,Iz;    // area, elastic modulus, moment of inertia
-    double alpha,     // coeff. of thermal expansion,
-           depth;     // depth
-    double rho;       // mass per unit length
-    double phi;       // shear constant
+    // Section parameters
+    double E;      // elastic modulus
+    double G;      // shear modulus
+    double A;      // cross section (axial) area
+    double Iz;     // moment of inertia about local z axis
+    double Ay;     // shear area along local y axis
+    double phi;    // ratio of bending to shear stiffness
+    double rho;    // mass per unit length
+    double alpha,  // Thermal parameters
+           depth;
 
     int mass_flag;        // consistent mass flag
     int release;      // moment release 0=none, 1=I, 2=J, 3=I,J
