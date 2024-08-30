@@ -74,7 +74,6 @@ void * OPS_ADD_RUNTIME_VPV(OPS_Maxwell)
     // OPS_GetStringCopy(&cArray);
     if ((strcmp(cArray, "-returnD") == 0) || (strcmp(cArray, "-D") == 0)) 
       iData[1] = 1;
-    delete [] cArray;
   }      
   
   // Parsing was successful, allocate the material with zero index
