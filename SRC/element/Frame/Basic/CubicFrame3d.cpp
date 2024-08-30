@@ -4,7 +4,6 @@
 //
 //===----------------------------------------------------------------------===//
 //
-//
 // This element is adapted from TimoshenkoBeamColumn3d
 //
 // Written: MHS
@@ -140,27 +139,32 @@ CubicFrame3d::getNumDOF()
 void
 CubicFrame3d::setDomain(Domain* theDomain)
 {
-  // Check Domain is not null - invoked when object removed from a domain
-  if (theDomain == 0) {
-    theNodes[0] = nullptr;
-    theNodes[1] = nullptr;
+  // Check Domain is not null. This happens when element is removed from a domain.
+  // In this case just set null pointers to null and return.
+  if (theDomain == nullptr) {
+    for (int i=0; i<NEN; i++)
+      theNodes[i] = nullptr;
     return;
   }
 
-  int Nd1 = connectedExternalNodes(0);
-  int Nd2 = connectedExternalNodes(1);
+  for (int i=0; i<NEN; i++) {
+    // Retrieve the node from the domain using its tag.
+    // If no node is found, then return
+    theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
+    if (theNodes[i] == nullptr)
+      return;
 
-  theNodes[0] = theDomain->getNode(Nd1);
-  theNodes[1] = theDomain->getNode(Nd2);
-
-  if (theNodes[0] == 0 || theNodes[1] == 0) {
-    return;
+    // If node is found, ensure node has the proper number of DOFs
+    int dofs = theNodes[i]->getNumberDOF();
+    if (dofs != NDF) {
+      opserr << "WARNING " << this->getClassType() << " element " << this->getTag() 
+             << " does not have " << NDF << " DOFs at node " 
+             << theNodes[i]->getTag() << "\n";
+      return;
+    }
   }
 
-  int dofNd1 = theNodes[0]->getNumberDOF();
-  int dofNd2 = theNodes[1]->getNumberDOF();
-
-  if (theCoordTransf->initialize(theNodes[0], theNodes[1])) {
+  if (theCoordTransf->initialize(theNodes[0], theNodes[NEN-1])) {
     // Add some error check
   }
 
@@ -329,7 +333,6 @@ CubicFrame3d::getTangentStiff()
 
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
-
 
     MatrixND<nsr,6> ka;
     ka.zero();
