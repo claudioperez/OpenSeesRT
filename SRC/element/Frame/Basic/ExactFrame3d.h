@@ -6,6 +6,7 @@
 //
 // Claudio M. Perez
 //
+#pragma once
 #include <vector>
 #include <array>
 #include <Flag.h>
@@ -529,14 +530,5 @@ ExactFrame3d<nen,nip>::Print(OPS_Stream& stream, int flag)
     stream << "}";
   }
 
-  // TODO
-//for (int i=0; i < nip; i++) {
-//  stream << "xi[" << i << "] = " << points[i].point << "\n";
-//  stream << "wi[" << i << "] = " << points[i].weight << "\n";
-//  for (int j=0; j < nen; j++) {
-//    stream << "shp[" << i << "][0][ " << j << "] = " << points[i].shape[0][j] << "\n";
-//    stream << "shp[" << i << "][1][ " << j << "] = " << points[i].shape[1][j] << "\n";
-//  }
-//}
 }
 

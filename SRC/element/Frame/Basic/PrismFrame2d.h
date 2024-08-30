@@ -82,6 +82,8 @@ class PrismFrame2d : public Element
   private:
     void formBasicStiffness(OpenSees::MatrixND<3,3> &) const;
 
+    constexpr static int NEN = 2;
+
     // Model parameters
     double A,E,I;     // area, elastic modulus, moment of inertia
     double alpha,     // coeff. of thermal expansion,
