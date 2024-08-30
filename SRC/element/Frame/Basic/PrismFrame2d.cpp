@@ -87,7 +87,11 @@ PrismFrame2d::PrismFrame2d(int tag, int Nd1, int Nd2,
     geom_flag(geom_flag_),
     Q(6), connectedExternalNodes(2), theCoordTransf(nullptr)
 {
-  E = 1.0;
+
+  double G,Ay;
+  section.getIntegral(Field::Unit,   State::Init, A);
+  section.getIntegral(Field::UnitYY, State::Init, I);
+
 
   const Matrix &sectTangent = section.getInitialTangent();
   const ID &sectCode = section.getType();
@@ -95,10 +99,10 @@ PrismFrame2d::PrismFrame2d(int tag, int Nd1, int Nd2,
     int code = sectCode(i);
     switch(code) {
     case SECTION_RESPONSE_P:
-      A = sectTangent(i,i);
+      E = sectTangent(i,i)/A;
       break;
-    case SECTION_RESPONSE_MZ:
-      I = sectTangent(i,i);
+    case SECTION_RESPONSE_VY:
+      G  = sectTangent(i,i)/Ay;
       break;
     default:
       break;
@@ -248,42 +252,46 @@ PrismFrame2d::update()
   int ok = theCoordTransf->update();
 
   const Vector &v = theCoordTransf->getBasicTrialDisp();
+  L = theCoordTransf->getInitialLength();
 
-  double N = E*A/L*v(0);
+  double N = E*A/L*v[0];
 
-  // initialize with linear coefficients
-  double A = 4,
-         B = 2;
 
   switch (geom_flag) {
     case 0:
     break;
 
     case 1:
-      kg(1,1) = kg(2,2) =  4.0*N/L;
-      kg(1,2) = kg(2,1) = -1.0*N/L;
+      kg.zero();
+      kg(1,1) = kg(2,2) =  4.0*N*L/30.0;
+      kg(1,2) = kg(2,1) = -1.0*N*L/30.0;
       ke = km + kg;
 
     case 2:
+    {
+      // initialize with linear coefficients
+      double A = 4*E*I/L,
+             B = 2*E*I/L;
       double psi = L*std::sqrt(std::fabs(N)/(E*I));
-      if (N < -1.e-6) {
-      // axial force is compressive
+      if (N < -1.e-4) {
+        // Axial force is compressive
         double cs = std::cos(psi);
         double sn = std::sin(psi);
-        double C  = E*I/(L*(2.0 - 2.0*cs - psi*sn));
-        A   = psi*(sin(psi)-psi*cs)/(2*(1-cs)-psi*sin(psi));
-        B   = psi*(psi-sin(psi))         /(2*(1-cs)-psi*sin(psi));
+        double C  = psi*E*I/L/(2.0*(1 - cs) - psi*sn);
+        A   = C*(sn - psi*cs);
+        B   = C*(psi - sn);
 
       } else if (N > 1.e-4) {
-      // axial force is tensile
+        // Axial force is tensile
         double snh = std::sinh(psi);
         double csh = std::cosh(psi);
-        double C = psi/(2*(csh - 1) - psi*snh);
+        double C   = psi*E*I/L/(2*(csh - 1) - psi*snh);
         A   = C*(snh - psi*csh);
         B   = C*(psi - snh);
 
       } else {
       // if axial force is near zero keep linear coefficients
+      
       }
 
       if (std::fabs(N) > 1e-8) {
@@ -293,18 +301,20 @@ PrismFrame2d::update()
         ke = km;
       }
       break;
+    }
   }
+
 #if 0
-  // correct stiffness in the presence of releases
-  if ~isempty(ir) {
-    switch (ir) {
-      case 1:
+  // Account for releases
+  if (release != 0) {
+    switch (release) {
+      case 0:
         k(1,1) = 0;
-      case 2:
-        k(3,3)   = k(2,2) - k(2,3)^2/k(2,2);
+      case 1:
+        k(3,3)   = k(2,2) - std::pow(k(2,3),2)/k(2,2);
         k(2,2:3) = zeros(1,2);
         k(3,2)   = 0;
-      case 3:
+      case 2:
         k(2,2)   = k(3,3)-k(2,3)^2/k(3,3);
         k(3,2:3) = zeros(1,2);
         k(2,3)   = 0;
@@ -745,9 +755,6 @@ PrismFrame2d::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroke
 void
 PrismFrame2d::Print(OPS_Stream &s, int flag)
 {
-  // to update forces!
-  this->getResistingForce();
-
   if (flag == -1) {
     int eleTag = this->getTag();
     s << "EL_BEAM\t" << eleTag << "\t";
@@ -815,7 +822,7 @@ PrismFrame2d::setResponse(const char **argv, int argc, OPS_Stream &output)
     theResponse =  new ElementResponse(this, 2, P);
   
   // local forces
-  }    else if (strcmp(argv[0],"localForce") == 0 || strcmp(argv[0],"localForces") == 0) {
+  } else if (strcmp(argv[0],"localForce") == 0 || strcmp(argv[0],"localForces") == 0) {
 
     output.tag("ResponseType","N_1");
     output.tag("ResponseType","V_1");
@@ -827,7 +834,7 @@ PrismFrame2d::setResponse(const char **argv, int argc, OPS_Stream &output)
     theResponse = new ElementResponse(this, 3, P);
 
   // basic forces
-  }    else if (strcmp(argv[0],"basicForce") == 0 || strcmp(argv[0],"basicForces") == 0) {
+  } else if (strcmp(argv[0],"basicForce") == 0 || strcmp(argv[0],"basicForces") == 0) {
 
     output.tag("ResponseType","N");
     output.tag("ResponseType","M_1");
@@ -866,7 +873,6 @@ PrismFrame2d::setResponse(const char **argv, int argc, OPS_Stream &output)
 int
 PrismFrame2d::getResponse (int responseID, Information &info)
 {
-  double N, M1, M2, V;
   this->getResistingForce();
 
   switch (responseID) {
@@ -877,20 +883,22 @@ PrismFrame2d::getResponse (int responseID, Information &info)
     return info.setVector(this->getResistingForce());
     
   case 3: // local forces
+  {
     // Axial
-    N = q[0];
+    double N = q[0];
     P(3) =  N;
     P(0) = -N+p0[0];
     // Moment
-    M1 = q[1];
-    M2 = q[2];
+    double M1 = q[1];
+    double M2 = q[2];
     P(2) = M1;
     P(5) = M2;
     // Shear
-    V = (M1+M2)/L;
+    double V = (M1+M2)/L;
     P(1) =  V + p0[1];
     P(4) = -V + p0[2];
     return info.setVector(P);
+  }
     
   case 4: // basic forces
     return info.setVector(q);
