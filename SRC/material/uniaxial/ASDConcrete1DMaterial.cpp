@@ -158,7 +158,7 @@ namespace {
 
 }
 
-void* OPS_ASDConcrete1DMaterial()
+void* OPS_ADD_RUNTIME_VPV(OPS_ASDConcrete1DMaterial)
 {
 	// some kudos
 	static bool first_done = false;
