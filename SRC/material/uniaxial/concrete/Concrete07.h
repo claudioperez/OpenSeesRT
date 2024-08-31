@@ -41,6 +41,10 @@ class Concrete07 : public UniaxialMaterial
 		Concrete07 ();
 		~Concrete07();
 
+    const char* getClassType() const {
+      return "Concrete07";
+    }
+
 		int setTrialStrain(double strain, double strainRate = 0.0); 
 		int setTrial (double strain, double &stress, double &tangent, double strainRate = 0.0);
 		double getStrain(void);      

@@ -92,6 +92,7 @@ extern OPS_Routine OPS_FSIFluidBoundaryElement2D;  // Massimo Petracca (ASDEA)
 extern OPS_Routine OPS_FSIFluidElement2D;          // Massimo Petracca (ASDEA)
 extern OPS_Routine OPS_ASDShellT3;
 extern OPS_Routine OPS_TwoNodeLink;
+extern OPS_Routine OPS_TwoNodeLinkSection;
 extern OPS_Routine OPS_LinearElasticSpring;
 extern OPS_Routine OPS_Inerter;
 extern OPS_Routine OPS_Inno3DPnPJoint;
@@ -196,6 +197,7 @@ static
 std::unordered_map<std::string, Tcl_CmdProc *, CaseInsensitive, CaseInsensitive> 
 element_dispatch_tcl = {
   {"twoNodeLink",               TclCommand_addTwoNodeLink},
+  {"twoNodeLinkSection",        TclCommand_addTwoNodeLink},
 //
 // Plane
 //
