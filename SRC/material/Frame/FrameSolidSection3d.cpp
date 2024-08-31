@@ -1,12 +1,15 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
+// Description: This file contains the class implementation of FrameSolidSection3d.
+//
+// Adapted from NDFiberSection3d
 //
 // Written: MHS
 // Created: 2012
-//
-// Description: This file contains the class implementation of FrameSolidSection3d.
 //
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +17,9 @@
 
 #include <Channel.h>
 #include <Vector.h>
+#include <VectorND.h>
 #include <Matrix.h>
+#include <MatrixND.h>
 #include <classTags.h>
 #include <FrameSolidSection3d.h>
 #include <ID.h>
@@ -26,64 +31,12 @@ typedef SensitiveResponse<FrameSection> SectionResponse;
 #include <Parameter.h>
 #include <elementAPI.h>
 
+#define SEC_TAG_FrameSolidSection3d 0
+
+using OpenSees::VectorND;
+using OpenSees::MatrixND;
+
 ID FrameSolidSection3d::code(6);
-
-#if 0
-// constructors:
-FrameSolidSection3d::FrameSolidSection3d(int tag, int num, Fiber **fibers, double a, bool compCentroid): 
-  FrameSection(tag, SEC_TAG_FrameSolidSection3d),
-  numFibers(num), sizeFibers(num), theMaterials(0), matData(0),
-  Abar(0.0), QyBar(0.0), QzBar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
-  alpha(a), e(6), s(0), ks(0), 
-  parameterID(0), dedh(6)
-{
-  if (numFibers != 0) {
-    theMaterials = new NDMaterial *[numFibers];
-    matData = new double [numFibers*3];
-
-    for (int i = 0; i < numFibers; i++) {
-      Fiber *theFiber = fibers[i];
-      double yLoc, zLoc, Area;
-      theFiber->getFiberLocation(yLoc, zLoc);
-      Area = theFiber->getArea();
-      Abar  += Area;
-      QzBar += yLoc*Area;
-      QyBar += zLoc*Area;
-      matData[i*3] = yLoc;
-      matData[i*3+1] = zLoc;
-      matData[i*3+2] = Area;
-      NDMaterial *theMat = theFiber->getNDMaterial();
-      theMaterials[i] = theMat->getCopy("BeamFiber");
-
-      if (theMaterials[i] == 0) {
-        opserr << "FrameSolidSection3d::FrameSolidSection3d -- failed to get copy of a Material\n";
-        exit(-1);
-      }
-    }    
-
-    if (computeCentroid) {
-      yBar = QzBar/Abar;  
-      zBar = QyBar/Abar;
-    }
-  }
-
-  s = new Vector(sData, 6);
-  ks = new Matrix(kData, 6, 6);
-
-  for (int i = 0; i < 6; i++)
-    sData[i] = 0.0;
-
-  for (int i = 0; i < 6*6; i++)
-    kData[i] = 0.0;
-
-  code(0) = SECTION_RESPONSE_P;
-  code(1) = SECTION_RESPONSE_MZ;
-  code(2) = SECTION_RESPONSE_MY;
-  code(3) = SECTION_RESPONSE_VY;
-  code(4) = SECTION_RESPONSE_VZ;
-  code(5) = SECTION_RESPONSE_T;
-}
-#endif
 
 FrameSolidSection3d::FrameSolidSection3d(int tag, int num, double a, bool compCentroid): 
     FrameSection(tag, SEC_TAG_FrameSolidSection3d),
@@ -225,7 +178,7 @@ FrameSolidSection3d::~FrameSolidSection3d()
 
 }
 
-        0  5 4       1       2  3
+//      0  5 4       1       2  3
 // a = [1 -y z       0       0  0
 //      0  0 0 sqrt(a)       0 -z
 //      0  0 0       0 sqrt(a)  y]
@@ -250,7 +203,6 @@ FrameSolidSection3d::setTrialSectionDeformation(const Vector &deforms)
     rootAlpha = sqrt(alpha);
 
   int res = 0;
-  static Vector eps(3);
   for (int i = 0; i < numFibers; i++) {
     NDMaterial *theMat = theMaterials[i];
     const double y  = matData[3*i]   - yBar;
@@ -258,9 +210,10 @@ FrameSolidSection3d::setTrialSectionDeformation(const Vector &deforms)
     const double A  = matData[3*i+2];
 
     // determine material strain and set it
-    eps(0) = e0 - y*e1 + z*e2;
-    eps(1) = rootAlpha*e3 - z*e5;
-    eps(2) = rootAlpha*e4 + y*e5;
+    VectorND<3> eps;
+    eps[0] = e0 - y*e1 + z*e2;
+    eps[1] = rootAlpha*e3 - z*e5;
+    eps[2] = rootAlpha*e4 + y*e5;
 
     res += theMat->setTrialStrain(eps);
     const Vector &stress  = theMat->getStress();
@@ -990,7 +943,7 @@ Response*
 FrameSolidSection3d::setResponse(const char **argv, int argc,
                               OPS_Stream &output)
 {
-  Response *theResponse =0;
+  Response *theResponse = nullptr;
 
   if (argc > 2 && strcmp(argv[0],"fiber") == 0) {
 
@@ -1084,7 +1037,7 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
 
   }
 
-  if (theResponse == 0)
+  if (theResponse == nullptr)
     return FrameSection::setResponse(argv, argc, output);
 
   return theResponse;
@@ -1173,7 +1126,6 @@ FrameSolidSection3d::getStressResultantSensitivity(int gradIndex, bool condition
   
   ds.Zero();
   
-  double y, z, A;
   static Vector stress(3);
   static Vector dsigdh(3);
   static Vector sig_dAdh(3);
@@ -1212,9 +1164,9 @@ FrameSolidSection3d::getStressResultantSensitivity(int gradIndex, bool condition
     drootAlphadh = 0.5/rootAlpha;
 
   for (int i = 0; i < numFibers; i++) {
-    y = yLocs[i] - yBar;
-    z = zLocs[i] - zBar;
-    A = fiberArea[i];
+    double y = yLocs[i] - yBar;
+    double z = zLocs[i] - zBar;
+    double A = fiberArea[i];
     
     dsigdh = theMaterials[i]->getStressSensitivity(gradIndex,true);
 
@@ -1259,7 +1211,7 @@ FrameSolidSection3d::getStressResultantSensitivity(int gradIndex, bool condition
       ds(4) += drootAlphadh * (stress(2)*A);
     }
 
-    static Matrix as(3,6);
+    MatrixND<3,6> as;
     as(0,0) =  1;
     as(0,1) = -y;
     as(0,2) =  z;

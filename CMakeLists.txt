@@ -142,11 +142,12 @@ if (UNIX)
   endif()
 
 elseif (WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
+  message(STATUS ":: Windows")
   include(OpenSeesDependenciesWin)
   add_compile_definitions(_WIN32 _TCL85)
+  # Optimize for Architecture Specifics
   add_compile_options(/favor:INTEL64)
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-  message(STATUS ":: WIN32")
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 endif()
 
 # Check for IPO and maybe use it; this can significantly slow down linking 

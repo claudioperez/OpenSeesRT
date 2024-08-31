@@ -925,52 +925,98 @@ ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, double x)
         }
       }
 
-    } else if (type == LOAD_TAG_Beam3dPartialUniformLoad) {
-      double wa = data(2) * loadFactor; // Axial
-      double wy = data(0) * loadFactor; // Transverse
-      double wz = data(1) * loadFactor; // Transverse
-      double a  = data(3) * L;
-      double b  = data(4) * L;
-
-      double Fa  = wa * (b - a); // resultant axial load
-      double Fy  = wy * (b - a); // resultant transverse load
-      double Fz  = wz * (b - a); // resultant transverse load
-      double c   = a + 0.5 * (b - a);
+    }
+    else if (type == LOAD_TAG_Beam3dPartialUniformLoad) {
+      double wy = data(0) * loadFactor;  // Transverse Y at start
+      double wz = data(1) * loadFactor;  // Transverse Z at start
+      double wa = data(2) * loadFactor;  // Axial at start
+      double a = data(3)*L;
+      double b = data(4)*L;
+      double wyb = data(5) * loadFactor;  // Transverse Y at end
+      double wzb = data(6) * loadFactor;  // Transverse Z at end
+      double wab = data(7) * loadFactor;  // Axial at end
+      double Fa = wa * (b - a) + 0.5 * (wab - wa) * (b - a); // resultant axial load
+      double Fy = wy * (b - a); // resultant transverse load
+      double Fz = wz * (b - a); // resultant transverse load
+      double c = a + 0.5 * (b - a);
       double VyI = Fy * (1 - c / L);
       double VyJ = Fy * c / L;
       double VzI = Fz * (1 - c / L);
       double VzJ = Fz * c / L;
-
+      Fy = 0.5 * (wyb - wy) * (b - a); // resultant transverse load
+      Fz = 0.5 * (wzb - wz) * (b - a); // resultant transverse load
+      c = a + 2.0 / 3.0 * (b - a);
+      VyI += Fy * (1 - c / L);
+      VyJ += Fy * c / L;
+      VzI += Fz * (1 - c / L);
+      VzJ += Fz * c / L;
+     
       for (int ii = 0; ii < nsr; ii++) {
-
         if (x <= a) {
-          switch (scheme[ii]) {
-          case SECTION_RESPONSE_P:  sp[ii] += Fa; break;
-          case SECTION_RESPONSE_VY: sp[ii] -= VyI; break;
-          case SECTION_RESPONSE_VZ: sp[ii] += VzI; break;
-          case SECTION_RESPONSE_MZ: sp[ii] -= VyI * x; break;
-          case SECTION_RESPONSE_MY: sp[ii] += VzI * x; break;
+          switch(scheme[ii]) {
+          case SECTION_RESPONSE_P:
+            sp(ii) += Fa;
+            break;
+          case SECTION_RESPONSE_MZ:
+            sp(ii) -= VyI*x;
+            break;
+          case SECTION_RESPONSE_MY:
+            sp(ii) += VzI*x;
+            break;            
+          case SECTION_RESPONSE_VY:
+            sp(ii) -= VyI;
+            break;
+          case SECTION_RESPONSE_VZ:
+        sp(ii) += VzI;
+            break;            
+          default:
+            break;
           }
-        } else if (x >= b) {
-          switch (scheme[ii]) {
-          case SECTION_RESPONSE_VY: sp[ii] += VyJ; break;
-          case SECTION_RESPONSE_VZ: sp[ii] -= VzJ; break;
-          case SECTION_RESPONSE_MZ: sp[ii] += VyJ * (x - L); break;
-          case SECTION_RESPONSE_MY: sp[ii] -= VzJ * (x - L); break;
+        }
+        else if (x >= b) {
+          switch(scheme[ii]) {
+          case SECTION_RESPONSE_MZ:
+            sp(ii) += VyJ*(x-L);
+            break;
+          case SECTION_RESPONSE_MY:
+            sp(ii) -= VzJ*(x-L);
+            break;            
+          case SECTION_RESPONSE_VY:
+            sp(ii) += VyJ;
+            break;
+          case SECTION_RESPONSE_VZ:
+            sp(ii) -= VzJ;            
+            break;
+          default:
+            break;
           }
-        } else {
-          switch (scheme[ii]) {
-          case SECTION_RESPONSE_P:  sp[ii] +=  Fa  - wa * (x - a); break;
-          case SECTION_RESPONSE_VY: sp[ii] += -VyI + wy * (x - a); break;
-          case SECTION_RESPONSE_VZ: sp[ii] -= -VzI + wz * (x - a); break;
-          case SECTION_RESPONSE_MY: sp[ii] +=  VzI * x - 0.5 * wz * x * x - wz * a * (0.5 * a - x);  break;
-          case SECTION_RESPONSE_MZ: sp[ii] += -VyI * x + 0.5 * wy * x * x + wy * a * (0.5 * a - x); break;
-          default:                  break;
+        }
+        else {
+          double wyy = wy + (wyb - wy) / (b - a) * (x - a);
+          double wzz = wz + (wzb - wz) / (b - a) * (x - a);
+          switch(scheme[ii]) {
+          case SECTION_RESPONSE_P:
+            sp(ii) += Fa - wa * (x - a) - 0.5 * (wab - wa) / (b - a) * (x - a) * (x - a);
+            break;
+          case SECTION_RESPONSE_MZ:
+            sp(ii) += -VyI * x + 0.5 * wy * (x - a) * (x - a) + 0.5 * (wyy - wy) * (x - a) * (x - a) / 3.0;
+            break;
+          case SECTION_RESPONSE_MY:
+            sp(ii) += VzI * x - 0.5 * wz * (x - a) * (x - a) - 0.5 * (wzz - wz) * (x - a) * (x - a) / 3.0;
+            break;            
+          case SECTION_RESPONSE_VY:
+            sp(ii) += -VyI + wy * (x - a) + 0.5 * (wyy - wy) * (x - a);
+            break;
+          case SECTION_RESPONSE_VZ:           
+            sp(ii) -= -VzI + wz * (x - a) - 0.5 * (wzz - wz) * (x - a);
+            break;
+          default:
+            break;
           }
         }
       }
-
-    } else if (type == LOAD_TAG_Beam3dPointLoad) {
+    }
+    else if (type == LOAD_TAG_Beam3dPointLoad) {
       double Py     = data(0) * loadFactor;
       double Pz     = data(1) * loadFactor;
       double N      = data(2) * loadFactor;
@@ -1047,7 +1093,7 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
       double dwzdh       = sens(1);
       double dwadh       = sens(2);
 
-      for (int ii = 0; ii < order; ii++) {
+      for (int ii = 0; ii < nsr; ii++) {
         switch (scheme[ii]) {
         case SECTION_RESPONSE_P:
           //sp(ii) += wa*(L-x);
@@ -1101,7 +1147,7 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
       double dVz1dh = Pz * (0.0 - daLdh) + dPzdh * (1.0 - aOverL);
       double dVz2dh = Pz * daLdh + dPzdh * aOverL;
 
-      for (int ii = 0; ii < order; ii++) {
+      for (int ii = 0; ii < nsr; ii++) {
 
         if (x <= a) {
           switch (scheme[ii]) {
@@ -2320,7 +2366,7 @@ ForceFrame3d::getResponse(int responseID, Information& info)
       const ID& code  = points[i].material->getType();
       const Vector& e = points[i].material->getSectionDeformation();
       int order       = points[i].material->getOrder();
-      for (int j = 0; j < order; j++) {
+      for (int j = 0; j < nsr; j++) {
         if (code(j) == SECTION_RESPONSE_MZ)
           kappaz(i) += e(j);
         if (code(j) == SECTION_RESPONSE_MY)
@@ -2370,7 +2416,7 @@ ForceFrame3d::getResponse(int responseID, Information& info)
       const ID& code  = points[i].material->getType();
       const Vector& e = points[i].material->getSectionDeformation();
       int order       = points[i].material->getOrder();
-      for (int j = 0; j < order; j++) {
+      for (int j = 0; j < nsr; j++) {
         if (code(j) == SECTION_RESPONSE_MZ)
           kappaz(i) += e(j);
         if (code(j) == SECTION_RESPONSE_MY)
@@ -2449,7 +2495,7 @@ ForceFrame3d::getResponse(int responseID, Information& info)
       int order      = points[i].material->getOrder();
       double kappa   = 0.0;
       if (x < LIz) {
-        for (int j = 0; j < order; j++)
+        for (int j = 0; j < nsr; j++)
           if (type(j) == SECTION_RESPONSE_MZ)
             kappa += points[i].es[j];
         double b = -LIz + x;
@@ -2457,7 +2503,7 @@ ForceFrame3d::getResponse(int responseID, Information& info)
       }
       kappa = 0.0;
       if (x < LIy) {
-        for (int j = 0; j < order; j++)
+        for (int j = 0; j < nsr; j++)
           if (type(j) == SECTION_RESPONSE_MY)
             kappa += points[i].es[j];
         double b = -LIy + x;
@@ -2474,7 +2520,7 @@ ForceFrame3d::getResponse(int responseID, Information& info)
       int order      = points[i].material->getOrder();
       double kappa   = 0.0;
       if (x > LIz) {
-        for (int j = 0; j < order; j++)
+        for (int j = 0; j < nsr; j++)
           if (type(j) == SECTION_RESPONSE_MZ)
             kappa += points[i].es[j];
         double b = x - LIz;
@@ -2482,7 +2528,7 @@ ForceFrame3d::getResponse(int responseID, Information& info)
       }
       kappa = 0.0;
       if (x > LIy) {
-        for (int j = 0; j < order; j++)
+        for (int j = 0; j < nsr; j++)
           if (type(j) == SECTION_RESPONSE_MY)
             kappa += points[i].es[j];
         double b = x - LIy;
@@ -2712,7 +2758,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
     stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
     double dxLdh = dptsdh[sectionNum - 1]; // - xL/L*dLdh;
 
-    for (int j = 0; j < order; j++) {
+    for (int j = 0; j < nsr; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_MZ:
         dsdh(j) += dxLdh * (q_pres[1] + q_pres[2]);
@@ -2979,7 +3025,7 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
       this->computeSectionForceSensitivity(ds, i, gradNumber);
 
 
-    for (int j = 0; j < order; j++) {
+    for (int j = 0; j < nsr; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_P:  ds(j) += dqdh(0); break;
       case SECTION_RESPONSE_VY: ds(j) += jsx * (dqdh(1) + dqdh(2)); break;
@@ -2994,7 +3040,7 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
     const Vector& dsdh = points[i].material->getStressResultantSensitivity(gradNumber, true);
     ds -= dsdh;
 
-    for (int j = 0; j < order; j++) {
+    for (int j = 0; j < nsr; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_MZ: ds(j) += dxLdh  * (q_pres[1] + q_pres[2]); break;
       case SECTION_RESPONSE_VY: ds(j) += d1oLdh * (q_pres[1] + q_pres[2]); break;
@@ -3065,7 +3111,7 @@ ForceFrame3d::computedqdh(int gradNumber)
     dsdh.addVector(1.0, dspdh, -1.0);
 
     int j;
-    for (j = 0; j < order; j++) {
+    for (j = 0; j < nsr; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_MZ: dsdh(j) -= dxLdh  * (q_pres[1] + q_pres[2]); break;
       case SECTION_RESPONSE_VY: dsdh(j) -= d1oLdh * (q_pres[1] + q_pres[2]); break;
@@ -3079,7 +3125,7 @@ ForceFrame3d::computedqdh(int gradNumber)
     const Matrix& fs = points[i].material->getSectionFlexibility();
     dedh.addMatrixVector(0.0, fs, dsdh, 1.0);
 
-    for (j = 0; j < order; j++) {
+    for (j = 0; j < nsr; j++) {
       double dei = dedh(j) * wtL;
       switch (code(j)) {
       case SECTION_RESPONSE_P: dvdh(0) += dei; break;
@@ -3201,10 +3247,10 @@ ForceFrame3d::computedfedh(int gradNumber)
 
     double tmp;
     int ii, jj;
-    for (ii = 0; ii < order; ii++) {
+    for (ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (jj = 0; jj < order; jj++) {
+        for (jj = 0; jj < nsr; jj++) {
           fb(jj, 0) += dfsdh(jj, ii) * wtL; // 1
 
           //fb(jj,0) += fs(jj,ii)*dwtLdh; // 3
@@ -3213,7 +3259,7 @@ ForceFrame3d::computedfedh(int gradNumber)
         }
         break;
       case SECTION_RESPONSE_MZ:
-        for (jj = 0; jj < order; jj++) {
+        for (jj = 0; jj < nsr; jj++) {
           tmp = dfsdh(jj, ii) * wtL; // 1
           fb(jj, 1) += xL1 * tmp;
           fb(jj, 2) += xL * tmp;
@@ -3232,7 +3278,7 @@ ForceFrame3d::computedfedh(int gradNumber)
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (jj = 0; jj < order; jj++) {
+        for (jj = 0; jj < nsr; jj++) {
           tmp = jsx * dfsdh(jj, ii) * wtL;
           fb(jj, 1) += tmp;
           fb(jj, 2) += tmp;
@@ -3242,7 +3288,7 @@ ForceFrame3d::computedfedh(int gradNumber)
       default: break;
       }
     }
-    for (ii = 0; ii < order; ii++) {
+    for (ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
         for (jj = 0; jj < nq; jj++)

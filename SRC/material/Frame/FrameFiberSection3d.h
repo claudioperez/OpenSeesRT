@@ -33,15 +33,11 @@ class FrameFiberSection3d : public FrameSection
     FrameFiberSection3d(int tag, int numFibers, UniaxialMaterial &torsion, 
                         bool compCentroid,
                         double mass, bool use_mass);
-#if 0
-    FrameFiberSection3d(int tag, int numFibers, Fiber **fibers, 
-		   UniaxialMaterial &torsion, bool compCentroid=true);
-    FrameFiberSection3d(int tag, int numFibers, UniaxialMaterial **mats,
-		   SectionIntegration &si, UniaxialMaterial &torsion, bool compCentroid=true);
-#endif
     ~FrameFiberSection3d();
 
-    const char *getClassType() const {return "FrameFiberSection3d";};
+    const char *getClassType() const {
+      return "FrameFiberSection3d";
+    }
 
     int   setTrialSectionDeformation(const Vector &deforms);
     const Vector &getSectionDeformation();
@@ -87,10 +83,22 @@ class FrameFiberSection3d : public FrameSection
   protected:
 
   private:
+    struct Sample {
+      double loc;
+      double wgt,
+             psi_yy,
+             psi_yz,
+             psi_zz,
+             psi_zy,
+             phi,
+             phi_y,
+             phi_z;
+    };
+
+
     int numFibers, sizeFibers;         // number of fibers in the section
     UniaxialMaterial **theMaterials;   // array of pointers to materials
     std::shared_ptr<double[]> matData; // data for the materials [yloc, zloc, and area]
-    double   kData[16];                // data for ks matrix
     OpenSees::MatrixND<4,4> ks;
 
     double QzBar, QyBar, Abar;
@@ -102,9 +110,8 @@ class FrameFiberSection3d : public FrameSection
 
     Vector  e;         // trial section deformations 
     Vector  s;         // section resisting forces  (axial force, bending moment)
-//  Matrix  ks;        // section stiffness
 
-    OpenSees::VectorND<4> eData, sData;
+    OpenSees::VectorND<4> es, sr;
     UniaxialMaterial *theTorsion;
     void *pool;        // thread pool
 };
