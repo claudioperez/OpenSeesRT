@@ -396,7 +396,7 @@ TclBasicBuilder_addBeamColumnJoint(ClientData clientData, Tcl_Interp *interp,
 
   } else {
     opserr << "WARNING NDM = " << NDM << " and NDF = " << NDF
-           << "is imcompatible with available frame elements";
+           << " is incompatible with available joint elements";
     return TCL_ERROR;
   }
 

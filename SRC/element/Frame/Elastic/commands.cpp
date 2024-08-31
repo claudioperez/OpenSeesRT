@@ -10,6 +10,7 @@
 // Written: fmk,cmp
 // Created: 07/99
 //
+#if 1
 #include <array>
 #include <vector>
 #include <stdlib.h>
@@ -31,7 +32,7 @@
 #include <FrameSection.h>
 
 #include <BasicModelBuilder.h>
-
+#endif
 //
 // element NAME 
 //    $tag $iNode $jNode
@@ -53,17 +54,6 @@
 //   element elasticBeamColumn $eleTag $iNode $jNode $secTag $transfTag <-mass $massDens> <-cMass>
 //
 
-enum class Args2D : int {
-  A, E, Iz, Transform, End, 
-  // values coming after End wont be handled
-  // by ArgumentTracker; these need to be here for
-  // the template to compile.
-  G, J, Iy
-};
-
-enum class Args3D : int {
-  A, E, G, J, Iy, Iz, Transform, End
-};
 
 template <typename Position>
 int
@@ -469,6 +459,45 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
   if (tracker.current() != Position::End) {
       opserr << OpenSees::PromptParseError
              << "Missing required positional arguments\n";
+
+      while (tracker.current() != Position::End) {
+        switch (tracker.current()) {
+//        case Position::Tag :
+//          opserr << "tag ";
+//          break;
+          case Position::E:
+            opserr << "E ";
+            break;
+          case Position::A:
+            opserr << "A ";
+            break;
+          case Position::Iz:
+            opserr << "Iz ";
+            break;
+          case Position::Iy:
+            opserr << "Iy ";
+            break;
+          case Position::G:
+            opserr << "G ";
+            break;
+          case Position::J:
+            opserr << "J ";
+            break;
+          case Position::Transform:
+            opserr << "transform ";
+            break;
+          case Position::End:
+            break;
+        }
+
+        if (tracker.current() == Position::End)
+          break;
+
+        tracker.consume(tracker.current());
+      }
+
+      opserr << "\n";
+
       return TCL_ERROR;
   }
 
@@ -538,7 +567,8 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
                                  options.mass_type,
                                  use_mass,
                                  options.relz_flag, 
-                                 options.rely_flag);
+                                 options.rely_flag,
+                                 options.geom_flag);
 
     } else {
       // now create the beam and add it to the Domain
@@ -551,8 +581,8 @@ Parse_ElasticBeam(ClientData clientData, Tcl_Interp *interp, int argc,
                                    *theTrans3d, mass,
                                    options.mass_type,
                                    options.relz_flag, 
-                                   options.rely_flag);
-                                // options.geom_flag);
+                                   options.rely_flag,
+                                   options.geom_flag);
 
       } else {
         theBeam = new ElasticBeam3d(tag, 
@@ -586,6 +616,18 @@ TclBasicBuilder_addElasticBeam(ClientData clientData, Tcl_Interp *interp, int ar
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
   const int ndm = builder->getNDM();
+
+  enum class Args2D : int {
+    A, E, Iz, Transform, End, 
+    // values coming after End wont be handled
+    // by ArgumentTracker; these need to be here for
+    // the template to compile.
+    G, J, Iy
+  };
+
+  enum class Args3D : int {
+    A, E, G, J, Iy, Iz, Transform, End
+  };
 
   if (ndm == 2)
     return Parse_ElasticBeam<Args2D>(clientData, interp, argc, argv);

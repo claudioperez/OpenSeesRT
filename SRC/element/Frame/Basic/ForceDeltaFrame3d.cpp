@@ -44,6 +44,7 @@
 #include <string.h>
 #include <float.h>
 
+#include <Node.h>
 #include <Information.h>
 #include <Parameter.h>
 #include <ForceDeltaFrame3d.h>
@@ -53,6 +54,7 @@
 #include <FEM_ObjectBroker.h>
 
 #include <ElementResponse.h>
+#include <BeamIntegration.h>
 #include <CompositeResponse.h>
 #include <ElementalLoad.h>
 

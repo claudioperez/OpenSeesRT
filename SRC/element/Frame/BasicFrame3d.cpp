@@ -647,24 +647,34 @@ BasicFrame3d::computeReactions(double* p0)
       p0[3] -= V;
       p0[4] -= V;
 
-    } else if (type == LOAD_TAG_Beam3dPartialUniformLoad) {
-
-      double wy = data[0] * loadFactor; // Transverse
-      double wz = data[1] * loadFactor; // Transverse
-      double wa = data[2] * loadFactor; // Axial
-      double a  = data[3] * L;
-      double b  = data[4] * L;
-
-      p0[0] -= wa * (b - a);
-      double Fy = wy * (b - a);
-      double c  = a + 0.5 * (b - a);
+    }
+    else if (type == LOAD_TAG_Beam3dPartialUniformLoad) {
+      double wy = data(0) * loadFactor;  // Transverse Y at start
+      double wz = data(1) * loadFactor;  // Transverse Z at start
+      double wa = data(2) * loadFactor;  // Axial at start
+      double a = data(3) * L;
+      double b = data(4) * L;
+      double wyb = data(5) * loadFactor;  // Transverse Y at end
+      double wzb = data(6) * loadFactor;  // Transverse Z at end
+      double wab = data(7) * loadFactor;  // Axial at end
+      p0[0] -= wa * (b - a) + 0.5 * (wab - wa) * (b - a);
+      double c = a + 0.5 * (b - a);
+      double Fy = wy * (b - a); // resultant transverse load Y (uniform part)
       p0[1] -= Fy * (1 - c / L);
       p0[2] -= Fy * c / L;
-      double Fz = wz * (b - a);
+      double Fz = wz * (b - a); // resultant transverse load Z (uniform part)
       p0[3] -= Fz * (1 - c / L);
       p0[4] -= Fz * c / L;
+      c = a + 2.0 / 3.0 * (b - a);
+      Fy = 0.5 * (wyb - wy) * (b - a); // resultant transverse load Y (triang. part)
+      p0[1] -= Fy * (1 - c / L);
+      p0[2] -= Fy * c / L;
+      Fz = 0.5 * (wzb - wz) * (b - a); // resultant transverse load Z (triang. part)
+      p0[3] -= Fz * (1 - c / L);
+      p0[4] -= Fz * c / L;
+    }
 
-    } else if (type == LOAD_TAG_Beam3dPointLoad) {
+    else if (type == LOAD_TAG_Beam3dPointLoad) {
       double Py     = data(0) * loadFactor;
       double Pz     = data(1) * loadFactor;
       double N      = data(2) * loadFactor;

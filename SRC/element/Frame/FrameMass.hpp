@@ -1,4 +1,4 @@
-
+#pragma once
 // GaussPoint:
 //   shape[2][nen]
 //

@@ -13,7 +13,93 @@
 //     element beamWithHinges tag? ndI? ndJ? secTagI? lenI? secTagJ? lenJ? 
 //        E? A? I? transfTag? <-shear shearLength?> <-mass massDens?> 
 //        <-iter maxIters tolerance>
-//
+#if 1
+  #include <array>
+
+  #include <string>
+  #include <array>
+  #include <vector>
+  #include <utility>
+  #include <stdlib.h>
+  #include <string.h>
+  #include <assert.h>
+  #include <math.h>
+  #ifdef _MSC_VER 
+  #  include <string.h>
+  #  define strcasecmp _stricmp
+  #else
+  #  include <strings.h>
+  #endif
+  #define strcmp strcasecmp
+  
+    // Parsing
+  #include <tcl.h>
+  #include <Logging.h>
+  #include <Parsing.h>
+  #include <ArgumentTracker.h>
+  
+    // Model
+  #include <Node.h>
+  #include <Domain.h>
+  #include <BasicModelBuilder.h>
+  
+    // Sections
+  #include <FrameSection.h>
+  #include <ElasticSection2d.h>
+  #include <ElasticSection3d.h>
+  
+    // Geometry
+  #include <FrameTransform.h>
+  #include <LinearFrameTransf3d.h>
+  
+    // Elements
+  #include "ElasticBeam2d.h"
+  #include "ElasticBeam2d.h"
+  #include "ElasticBeam3d.h"
+  #include "ElasticBeam3d.h"
+  #include "PrismFrame2d.h"
+  #include "PrismFrame2d.h"
+  #include "PrismFrame3d.h"
+  #include "PrismFrame3d.h"
+  
+  #include <element/Frame/Basic/CubicFrame3d.h>
+  #include <element/Frame/Basic/ForceFrame3d.h>
+  #include <element/Frame/Basic/ForceDeltaFrame3d.h>
+  #include <element/Frame/Basic/EulerFrame3d.h>
+  #include <element/Frame/Basic/EulerDeltaFrame3d.h>
+  #include <element/Frame/Basic/ExactFrame3d.h>
+  
+  #include <DispBeamColumn2d.h>
+  #include <DispBeamColumn2dThermal.h>
+  #include <DispBeamColumn2dWithSensitivity.h>
+  #include <DispBeamColumn3d.h>
+  #include <DispBeamColumn3dThermal.h>
+  #include <DispBeamColumn3dWithSensitivity.h>
+  #include <DispBeamColumnNL2d.h>
+  
+  #include <ElasticForceBeamColumn2d.h>
+  #include <ElasticForceBeamColumn3d.h>
+  #include <ElasticForceBeamColumnWarping2d.h>
+  
+  #include <ForceBeamColumn2d.h>
+  #include <ForceBeamColumn2d.h>
+  #include <ForceBeamColumn2dThermal.h>
+  #include <ForceBeamColumn3d.h>
+  #include <ForceBeamColumnCBDI2d.h>
+  #include <ForceBeamColumnCBDI3d.h>
+  #include <ForceBeamColumnWarping2d.h>
+  #include <TimoshenkoBeamColumn2d.h>
+  
+    // Quadrature
+  #include <BeamIntegration.h>
+  #include <LobattoBeamIntegration.h>
+  #include <LegendreBeamIntegration.h>
+  #include <HingeEndpointBeamIntegration.h>
+  #include <HingeMidpointBeamIntegration.h>
+  #include <HingeRadauBeamIntegration.h>
+  #include <HingeRadauTwoBeamIntegration.h>
+
+#else 
 
 // Standard library
 #include <string>
@@ -95,7 +181,7 @@
 #include <HingeMidpointBeamIntegration.h>
 #include <HingeRadauBeamIntegration.h>
 #include <HingeRadauTwoBeamIntegration.h>
-
+#endif
 
 struct Options {
   int mass_flag;
@@ -223,7 +309,6 @@ CreatePrismaticFrame(std::string);
 int
 TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
                                    int argc, TCL_Char **const argv)
-//                                 int inArgc, TCL_Char **const inArgv)
 {
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
@@ -328,7 +413,22 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
           goto clean_up;
         }
         argi += 2;
-      } 
+      }
+
+      // Shear
+      if (strcmp(argv[argi], "-order") == 0) {
+        if (argc < argi + 2) {
+          opserr << G3_ERROR_PROMPT << "not enough arguments, expected -order $flag\n";
+          status = TCL_ERROR;
+          goto clean_up;
+        }
+        if (Tcl_GetInt(interp, argv[argi + 1], &options.geom_flag) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "invalid geom_flag, expected integer\n";
+          status = TCL_ERROR;
+          goto clean_up;
+        }
+        argi += 2;
+      }
 
       // -iter $max_iter $tol 
       else if (strcmp(argv[argi], "-iter") == 0) {
@@ -700,13 +800,24 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
                                       *beamIntegr, *theTransf3d, mass, options.mass_flag);
       } 
 
-      else if (strcmp(argv[1], "ForceFrame") == 0) {
+      else if (strstr(argv[1], "Force") != 0) {
         std::array<int, 2> nodes {iNode, jNode};
-        theElement = new ForceFrame3d(tag, nodes, sections,
-                                      *beamIntegr, *theTransf3d,
-                                      mass, options.mass_flag, use_mass,
-                                      max_iter, tol
-                                      );
+
+        if (strcmp(argv[1], "ForceDeltaFrame") == 0 || options.geom_flag) {
+
+          theElement = new ForceDeltaFrame3d(tag, nodes, sections,
+                                        *beamIntegr, *theTransf3d, 
+                                        mass, options.mass_flag, use_mass,
+                                        max_iter, tol,
+                                        options.shear_flag
+                                        );
+        } else {
+          theElement = new ForceFrame3d(tag, nodes, sections,
+                                        *beamIntegr, *theTransf3d,
+                                        mass, options.mass_flag, use_mass,
+                                        max_iter, tol
+                                        );
+        }
       }
 
       else if (strcmp(argv[1], "ExactFrame") == 0) {
@@ -714,15 +825,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         theElement = new ExactFrame3d<2,1>(tag, nodes, sections.data(), *theTransf3d);
       }
 
-      else if (strcmp(argv[1], "ForceDeltaFrame") == 0) {
-        std::array<int, 2> nodes {iNode, jNode};
-        theElement = new ForceDeltaFrame3d(tag, nodes, sections,
-                                      *beamIntegr, *theTransf3d, 
-                                      mass, options.mass_flag, use_mass,
-                                      max_iter, tol,
-                                      options.shear_flag
-                                      );
-      }
 
       else if (strcmp(argv[1], "DisplFrame") == 0) {
         std::array<int, 2> nodes {iNode, jNode};
@@ -786,7 +888,7 @@ clean_up:
 }
 
 
-
+#if 1
 int
 TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
                                   int argc, TCL_Char ** const argv)
@@ -1225,4 +1327,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
 
   return TCL_OK;
 }
+#endif
+
+
 
