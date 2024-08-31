@@ -103,7 +103,6 @@ if (UNIX)
   if (APPLE)
     message(":: MacOS")
     add_compile_definitions(_LINUX _UNIX _TCL85)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1")
     # Temporary fix for a bug that is currently in Xcode 15
     add_link_options("-Wl,-ld_classic")
   else()
@@ -174,6 +173,7 @@ set(CMAKE_FORTRAN_STANDARD 08)
 
 # C/C++
 #--------------------------------------
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
@@ -193,6 +193,10 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # using Visual Studio C++
   set(CMAKE_CXX_STANDARD 20)
+
+else ()
+  # This includes AppleClang
+  set(CMAKE_CXX_STANDARD 17)
  
 endif()
 
