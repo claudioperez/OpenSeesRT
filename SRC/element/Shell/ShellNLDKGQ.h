@@ -94,10 +94,10 @@ class ShellNLDKGQ : public Element,
     int addLoad( ElementalLoad *theLoad, double loadFactor );
     int addInertiaLoadToUnbalance( const Vector &accel );
 
-    //get residual
+    // get residual
     const Vector &getResistingForce( ) ;
     
-    //get residual with inertia terms
+    // get residual with inertia terms
     const Vector &getResistingForceIncInertia( ) ;
 
     // public methods for element output
@@ -105,14 +105,13 @@ class ShellNLDKGQ : public Element,
     int recvSelf ( int commitTag, Channel &theChannel, FEM_ObjectBroker 
                    &theBroker );
 
-
     Response* setResponse( const char **argv, int argc, OPS_Stream &output );
     int getResponse( int responseID, Information &eleInfo );
-      
-    //plotting 
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
+
+    int setParameter(const char **argv, int argc, Parameter &param);
 
   private : 
+    constexpr static int nip = 4;
 
     //static data
     static Matrix stiff ;
@@ -129,10 +128,9 @@ class ShellNLDKGQ : public Element,
     Node *nodePointers[4] ;      //pointers to four nodes
 
     //material information
-    SectionForceDeformation *materialPointers[4] ; //pointers to four materials
+    SectionForceDeformation *materialPointers[nip] ; //pointers to four materials
                       
-    //local nodal coordinates, two coordinates for each of four nodes
-    //static double xl[][4] ; 
+    // local nodal coordinates, two coordinates for each of four nodes
     double xl[2][4] ; 
 
     //shell basis vectors
@@ -140,20 +138,16 @@ class ShellNLDKGQ : public Element,
     double g2[3] ;
     double g3[3] ;
 
-    //compute local coordinates and basis
+    // compute local coordinates and basis
     void computeBasis( ) ;
-//start Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
     void updateBasis( ) ;
-//end Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
+
         
     //inertia terms
     void formInertiaTerms( int tangFlag ) ;
 
     //form residual and tangent                      
     void formResidAndTangent( int tang_flag ) ;
-
-    //compute Bdrill matrix
-    //double* computeBdrill( int node, const double shp[3][4] ) ;
 
     //assemble a B matrix 
     const Matrix& assembleB( const Matrix &Bmembrane,

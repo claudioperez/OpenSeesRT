@@ -37,7 +37,7 @@ PrismShearFrame2d::PrismShearFrame2d(int tag, int Nd1, int Nd2, double e, double
                                      int cm)
  : Element(tag, ELE_TAG_PrismShearFrame2d),
    connectedExternalNodes(2),
-   theCoordTransf(0),
+   theCoordTransf(nullptr),
    E(e),
    G(g),
    A(a),
@@ -57,19 +57,13 @@ PrismShearFrame2d::PrismShearFrame2d(int tag, int Nd1, int Nd2, double e, double
    M(6, 6),
    theLoad(6)
 {
-  // ensure the connectedExternalNode ID is of correct size & set values
-  if (connectedExternalNodes.Size() != 2) {
-    opserr << "PrismShearFrame2d::PrismShearFrame2d() - element: " << this->getTag()
-           << " - failed to create an ID of size 2.\n";
-    exit(-1);
-  }
 
   connectedExternalNodes(0) = Nd1;
   connectedExternalNodes(1) = Nd2;
 
   // set node pointers to NULL
   for (int i = 0; i < 2; i++)
-    theNodes[i] = 0;
+    theNodes[i] = nullptr;
 
   // get a copy of the coordinate transformation
   theCoordTransf = coordTransf.getCopy2d();

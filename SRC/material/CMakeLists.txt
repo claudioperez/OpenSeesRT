@@ -41,6 +41,7 @@ target_include_directories(OPS_Material
     ${CMAKE_CURRENT_LIST_DIR}/nD/UWmaterials
 )
 add_subdirectory(Frame)
+add_subdirectory(Shell)
 add_subdirectory(uniaxial)
 add_subdirectory(section)
 add_subdirectory(Solid)

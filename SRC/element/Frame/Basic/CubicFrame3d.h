@@ -86,15 +86,17 @@ public:
   void Print(OPS_Stream& s, int flag = 0);
 
 protected:
+
+private:
+  void getBasicStiff(Matrix& kb, int initial = 0);
 private:
   constexpr static int 
         nsr = 6,              // number of section resultants
         ndm = 3,              // dimension of the problem (3D)
         nq  = 6,              // number of element dof's in the basic system
-        nen = 2,              // number of element nodes
+        NDF = 3,              //
+        NEN = 2,              // number of element nodes
         maxNumSections = 20;
-
-  void getBasicStiff(Matrix& kb, int initial = 0);
 
 
   int numSections;
@@ -109,7 +111,7 @@ private:
 
   ID connectedExternalNodes; // Tags of quad nodes
 
-  Node* theNodes[nen];
+  Node* theNodes[NEN];
 
 
   Vector Q;       // Applied nodal loads

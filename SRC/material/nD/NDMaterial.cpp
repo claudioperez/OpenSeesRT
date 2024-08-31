@@ -42,6 +42,7 @@
 #include <PlaneStressMaterial.h>
 #include <BeamFiberMaterial.h>
 #include <BeamFiberMaterial2d.h>
+#include <BeamFiberMaterial2dPS.h>
 #include <PlateFiberMaterial.h>
 #include <string.h>
 #include <api/runtimeAPI.h>
@@ -74,23 +75,34 @@ NDMaterial::getCopy(const char *type)
       strcmp(type,"PlaneStress2D") == 0) {
     NDMaterial *copy = this->getCopy("ThreeDimensional");
     PlaneStressMaterial *clone = new PlaneStressMaterial(this->getTag(),*copy);
+    delete copy;
     return clone;
   }
   else if (strcmp(type,"BeamFiber") == 0 ||
 	   strcmp(type,"TimoshenkoFiber") == 0) {
     NDMaterial *copy = this->getCopy("ThreeDimensional");
     BeamFiberMaterial *clone = new BeamFiberMaterial(this->getTag(),*copy);
+    delete copy;
     return clone;
   }
   else if (strcmp(type,"BeamFiber2d") == 0 ||
 	   strcmp(type,"TimoshenkoFiber2d") == 0) {
     NDMaterial *copy = this->getCopy("ThreeDimensional");
     BeamFiberMaterial2d *clone = new BeamFiberMaterial2d(this->getTag(),*copy);
+    delete copy;
     return clone;
   }
+  else if (strcmp(type,"BeamFiber2dPS") == 0 ||
+          strcmp(type,"TimoshenkoFiber2dPS") == 0) {
+    NDMaterial *copy = this->getCopy("PlaneStress");
+    BeamFiberMaterial2dPS *clone = new BeamFiberMaterial2dPS(this->getTag(),*copy);
+    delete copy;
+    return clone;
+  } 
   else if (strcmp(type,"PlateFiber") == 0) {
     NDMaterial *copy = this->getCopy("ThreeDimensional");
     PlateFiberMaterial *clone = new PlateFiberMaterial(this->getTag(),*copy);
+    delete copy;
     return clone;
   }
   else

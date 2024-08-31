@@ -24,9 +24,9 @@
 //      Membrane Part - GT9, a membrane element with drilling DOF
 //
 // Written: Shuhao Zhang & Xinzheng Lu
+// 
+// Modified: Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
 //
-// #include <time.h>
-
 #include <ID.h> 
 #include <Vector.h>
 #include <Matrix.h>
@@ -101,7 +101,10 @@ class ShellNLDKGT : public Element {
   Response* setResponse( const char **argv, int argc, OPS_Stream &output );
   int getResponse( int responseID, Information &eleInfo );
 
+  int setParameter(const char **argv, int argc, Parameter &param);
+
 private : 
+  constexpr static int nip = 4;
 
   // static data
   static Matrix stiff ;
@@ -145,7 +148,7 @@ private :
 
   //compute local coordinates and basis
   void computeBasis( ) ;
-//start Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
+
   void updateBasis( ) ;
 //end Yuli Huang (yulihuang@gmail.com) & Xinzheng Lu (luxz@tsinghua.edu.cn)
       
@@ -154,9 +157,6 @@ private :
 
   //form residual and tangent                      
   void formResidAndTangent( int tang_flag ) ;
-
-  //compute Bdrill matrix
-  //double* computeBdrill( int node, const double shp[3][4] ) ;
 
   //assemble a B matrix 
   const Matrix& assembleB( const Matrix &Bmembrane,
@@ -167,14 +167,11 @@ private :
   const Matrix& computeBmembrane( int node, const double shp[3][3],
                                const double shpDrill[4][3]) ;
 
-  //compute Bbend matrix
+  // compute Bbend matrix
   const Matrix& computeBbend( int node, const double shpBend[6][9] ) ;
-  //add for geometric nonlinearity
+  // add for geometric nonlinearity
   const Matrix& computeBG(int node, const double shpBend[6][9]);
   const Vector& computeNLdstrain(const Matrix &BG,const Vector &dispIncLocalBend);
-
-  //Matrix transpose
-  //Matrix transpose( int dim1, int dim2, const Matrix &M ) ;
 
   //shape function routine for four node quads
   void shape2d(double ss, double tt,double qq, 
@@ -182,11 +179,11 @@ private :
                double shp[3][3], 
                double &xsj ,double sx[2][2]) ;
 
-  //shape function routine for membrane
+  // shape function routine for membrane
   void shapeDrill(double ss, double tt,double qq,  
                   const double x[2][3],
                   double sx[2][2], double shpDrill[4][3]);
-  //shape function routine for bending
+  // shape function routine for bending
   void shapeBend(double ss, double tt,double qq,  const double x[2][3],
                  double sx[2][2], double shpBend[6][9]);
 

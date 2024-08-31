@@ -10,11 +10,13 @@
 //
 //  de Souza, R.M. (2000) 
 //    "Force-based finite element for large displacement inelastic analysis of frames". 
-//    University of California, Berkeley. Available at: https://www.proquest.com/docview/304624959/D8D738C3AC49427EPQ/1?accountid=14496.
+//    University of California, Berkeley. 
+//    Available at: https://www.proquest.com/docview/304624959/D8D738C3AC49427EPQ/1?accountid=14496.
 //
 //  Neuenhofer, A. and Filippou, F.C. (1998) 
 //    "Geometrically Nonlinear Flexibility-Based Frame Finite Element", 
-//    Journal of Structural Engineering, 124(6), pp. 704–711. Available at: https://doi.org/10/d8jvb5.
+//    Journal of Structural Engineering, 124(6), pp. 704–711. 
+//    Available at: https://doi.org/10/d8jvb5.
 //
 //  Spacone, E., V. Ciampi, and F. C. Filippou (1996). 
 //    "Mixed Formulation of Nonlinear Beam Finite Element."
@@ -469,6 +471,7 @@ ForceDeltaFrame3d::update()
       wp.addMatrixVector(0.0, lskp, kappa, L);
       wp.addMatrixVector(1.0, lsgp, gamma, 1.0);
     }
+
     wz.addMatrixVector(0.0, ls, kappay, L * L);
     if (shear_flag) {
       wz.addMatrixVector(1.0, lsg, gammaz, L);
@@ -1106,9 +1109,6 @@ ForceDeltaFrame3d::computedwdq(Matrix& dwidq,
   int numSections = points.size();
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
-
-//double xi[maxNumSections];
-//stencil->getSectionLocations(numSections, L, xi);
 
   Matrix A(2 * numSections, 2 * numSections);
   Matrix b(2 * numSections, nq);
@@ -2541,7 +2541,6 @@ int
 ForceDeltaFrame3d::getResponse(int responseID, Information& info)
 {
   static Vector vp(6);
-  static Matrix fe(6, 6);
 
   if (responseID == 1)
     return info.setVector(this->getResistingForce());
@@ -2580,6 +2579,7 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& info)
 
   // Plastic rotation
   else if (responseID == 4) {
+    static Matrix fe(6, 6);
     this->getInitialFlexibility(fe);
     vp = theCoordTransf->getBasicTrialDisp();
     vp.addMatrixVector(1.0, fe, q_pres, -1.0);

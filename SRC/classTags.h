@@ -253,6 +253,7 @@
 #define MAT_TAG_CoulombDamperMaterial 228
 #define MAT_TAG_FlagShapeMaterial 229
 #define MAT_TAG_CreepMaterial 230
+#define MAT_TAG_ASDConcrete1DMaterial 231
 
 #define MAT_TAG_FedeasMaterial    1000
 #define MAT_TAG_FedeasBond1       1001
@@ -393,6 +394,7 @@
 #define ND_TAG_Damage2p3D 			24
 #define ND_TAG_Damage2ppstress 			25
 #define ND_TAG_SimplifiedJ2                     26
+#define ND_TAG_PlaneStressSimplifiedJ2 2626
 #define ND_TAG_CapPlasticity                    27
 #define ND_TAG_PlaneStressUserMaterial          28
 #define ND_TAG_PlateFromPlaneStressMaterial     29
@@ -411,6 +413,7 @@
 #define ND_TAG_MaterialCMM                        42
 #define ND_TAG_FSAM                               43
 #define ND_TAG_PlasticDamageConcrete3d            44
+#define ND_TAG_PlasticDamageConcretePlaneStress 4444
 #define ND_TAG_PlaneStressLayeredMaterial         45
 #define ND_TAG_PlaneStressRebarMaterial           46
 #define ND_TAG_Faria1998PlaneStrain               48
@@ -552,7 +555,8 @@
 #define ND_TAG_SmearedSteelDoubleLayerT2DMaterial01 7019		  // M. J. Nunez - UChile
 
 #define ND_TAG_InitStrainNDMaterial 7020 // Massimo Petracca ASDEA Software
-#define ND_TAG_ASDPlasticMaterial 10000 // For ASDPlasticity-class material
+#define ND_TAG_ASDPlasticMaterial   10000 // For ASDPlasticity-class material
+#define ND_TAG_ASDPlasticMaterial3D 10000 // For ASDPlasticity-class material
 
 #define FIBER_TAG_Uniaxial2d	1
 #define FIBER_TAG_Uniaxial3d	2

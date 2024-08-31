@@ -38,6 +38,7 @@
 #include <ShellNLDKGT.h>
 #include <R3vectors.h>
 #include <ElementResponse.h>
+#include <Parameter.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -2074,7 +2075,13 @@ int ShellNLDKGT::sendSelf(int commitTag, Channel &theChannel)
     return res;
   }
 
-  // Finally, quad asks its material objects to send themselves
+  res += theChannel.sendVector(dataTag, commitTag, CstrainGauss);
+  if (res < 0) {
+    opserr << "WARNING ShellNLDKGT::sendSelf() - " << this->getTag() << " failed to send committed strains\n";
+    return res;
+  }
+
+  // Finally, have material objects send themselves
   for (i = 0; i < 4; i++) {
     res += materialPointers[i]->sendSelf(commitTag, theChannel);
     if (res < 0) {
@@ -2111,7 +2118,7 @@ int ShellNLDKGT::recvSelf(int commitTag, Channel &theChannel,
   static Vector vectData(4);
   res += theChannel.recvVector(dataTag, commitTag, vectData);
   if (res < 0) {
-    opserr << "WARNING ShellNLDKGT::sendSelf() - " << this->getTag()
+    opserr << "WARNING ShellNLDKGT::recvSelf() - " << this->getTag()
            << " failed to send ID\n";
     return res;
   }
@@ -2122,9 +2129,16 @@ int ShellNLDKGT::recvSelf(int commitTag, Channel &theChannel,
   betaK0 = vectData(2);
   betaKc = vectData(3);
 
+  res += theChannel.recvVector(dataTag, commitTag, CstrainGauss);
+  if (res < 0) {
+    opserr << "WARNING ShellNLDKGT::recvSelf() - " << this->getTag() << " failed to send ID\n";
+    return res;
+  }
+  TstrainGauss = CstrainGauss;
+
   int i;
 
-  if (materialPointers[0] == 0) {
+  if (materialPointers[0] == nullptr) {
     for (i = 0; i < 4; i++) {
       int matClassTag = idData(i);
       int matDbTag    = idData(i + 4);
@@ -2134,7 +2148,6 @@ int ShellNLDKGT::recvSelf(int commitTag, Channel &theChannel,
         opserr << "ShellNLDKGT::recvSelf() - Broker could not create "
                   "NDMaterial of class type"
                << matClassTag << endln;
-        ;
         return -1;
       }
       // Now receive materials into the newly allocated space
@@ -2178,3 +2191,16 @@ int ShellNLDKGT::recvSelf(int commitTag, Channel &theChannel,
   return res;
 }
 
+int
+ShellNLDKGT::setParameter(const char **argv, int argc, Parameter &param)
+{
+  int res = -1;
+  // Send to all sections
+  for (int i = 0; i < nip; i++) {
+    int secRes = materialPointers[i]->setParameter(argv, argc, param);
+    if (secRes != -1) {
+      res = secRes;
+    }
+  }
+  return res;
+}

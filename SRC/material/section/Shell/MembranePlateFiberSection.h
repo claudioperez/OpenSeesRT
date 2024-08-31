@@ -44,10 +44,7 @@
 
 class MembranePlateFiberSection : public SectionForceDeformation{
 
-//-------------------Declarations-------------------------------
-
-  public : 
-
+  public :
     //null constructor
     MembranePlateFiberSection( ) ;
 
@@ -57,15 +54,17 @@ class MembranePlateFiberSection : public SectionForceDeformation{
                                  NDMaterial &Afiber ) ;
 
 
-    const char *getClassType(void) const {return "MembranePlateFiberSection";};
+    const char *getClassType(void) const {
+      return "MembranePlateFiberSection";
+    }
 
-    //destructor
+    // destructor
     virtual ~MembranePlateFiberSection( ) ;
 
-    //make a clone of this material
+    // make a clone of this material
     SectionForceDeformation *getCopy( ) ;
 
-    //mass per unit area
+    // mass per unit area
     double getRho() ;
 
     //send back order of strain in vector form
@@ -131,9 +130,5 @@ class MembranePlateFiberSection : public SectionForceDeformation{
     static ID array ;  
 
 } ; //end of MembranePlateFiberSection declarations
-
-
-
-
 
 #endif

@@ -47,6 +47,7 @@
 #include <Renderer.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
+#include <Parameter.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -112,7 +113,7 @@ ShellMITC4::~ShellMITC4()
   for (int i = 0; i < 4; i++) {
     delete materialPointers[i];
     materialPointers[i] = nullptr;
-    nodePointers[i]     = nullptr;
+    theNodes[i]     = nullptr;
   }
 
   if (load != nullptr)
@@ -131,12 +132,12 @@ void ShellMITC4::setDomain(Domain *theDomain)
 
   // node pointers
   for (int i = 0; i < 4; i++) {
-    nodePointers[i] = theDomain->getNode(connectedExternalNodes(i));
-    if (nodePointers[i] == 0) {
+    theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
+    if (theNodes[i] == 0) {
       opserr << "ShellMITC4::setDomain - no node " << connectedExternalNodes(i);
       opserr << " exists in the model\n";
     }
-    const Vector &nodeDisp = nodePointers[i]->getTrialDisp();
+    const Vector &nodeDisp = theNodes[i]->getTrialDisp();
     assert(nodeDisp.Size() == 6);
 
     init_disp[i][0] = nodeDisp(0);
@@ -174,7 +175,7 @@ int ShellMITC4::getNumExternalNodes() const { return 4; }
 // return connected external nodes
 const ID &ShellMITC4::getExternalNodes() { return connectedExternalNodes; }
 
-Node **ShellMITC4::getNodePtrs(void) { return nodePointers; }
+Node **ShellMITC4::getNodePtrs(void) { return theNodes; }
 
 // return number of dofs
 int ShellMITC4::getNumDOF() { return 24; }
@@ -462,9 +463,9 @@ const Matrix &ShellMITC4::getInitialStiff()
 
   double dvol[nip]; // volume element
 
-  double shp[3][numnodes]; // shape functions at a gauss point
+  double shp[3][NEN]; // shape functions at a gauss point
 
-  //  static double Shape[3][numnodes][nip] ; // all the shape functions
+  //  static double Shape[3][NEN][nip] ; // all the shape functions
 
   static Matrix stiffJK(ndf, ndf);    // nodeJK stiffness
   static Matrix dd(nstress, nstress); // material tangent
@@ -481,8 +482,8 @@ const Matrix &ShellMITC4::getInitialStiff()
   OPS_STATIC double BdrillJ[ndf]; // drill B matrix
   OPS_STATIC double BdrillK[ndf];
 
-  OPS_STATIC double saveB[nstress][ndf][numnodes];
-  OPS_STATIC MatrixND<nstress, ndf> B[numnodes];
+  OPS_STATIC double saveB[nstress][ndf][NEN];
+  OPS_STATIC MatrixND<nstress, ndf> B[NEN];
 
   //-------------------------------------------------------
 
@@ -588,7 +589,7 @@ const Matrix &ShellMITC4::getInitialStiff()
     Bs = Rot * Bsv;
 
     // j-node loop to compute strain
-    for (int j = 0; j < numnodes; j++) {
+    for (int j = 0; j < NEN; j++) {
 
       // compute B matrix
       Bmembrane = computeBmembrane(j, shp);
@@ -610,7 +611,7 @@ const Matrix &ShellMITC4::getInitialStiff()
 
     // residual and tangent calculations node loops
     jj = 0;
-    for (int j = 0; j < numnodes; j++) {
+    for (int j = 0; j < NEN; j++) {
 
       // extract BJ
       for (int p = 0; p < nstress; p++) {
@@ -642,7 +643,7 @@ const Matrix &ShellMITC4::getInitialStiff()
         BdrillJ[p] *= (Ktt * dvol[i]);
 
       kk = 0;
-      for (int k = 0; k < numnodes; k++) {
+      for (int k = 0; k < NEN; k++) {
         // extract BK
         for (int p = 0; p < nstress; p++) {
           for (int q = 0; q < ndf; q++)
@@ -736,7 +737,7 @@ int ShellMITC4::addInertiaLoadToUnbalance(const Vector &accel)
 
   int count = 0;
   for (int i = 0; i < 4; i++) {
-    const Vector &Raccel = nodePointers[i]->getRV(accel);
+    const Vector &Raccel = theNodes[i]->getRV(accel);
     for (int j = 0; j < 6; j++)
       r(count++) = Raccel(j);
   }
@@ -820,8 +821,8 @@ void ShellMITC4::formInertiaTerms(int tangFlag)
     // node loop to compute accelerations
     momentum.Zero();
     for (int j = 0; j < numberNodes; j++)
-      // momentum += ( shp[massIndex][j] * nodePointers[j]->getTrialAccel() ) ;
-      momentum.addVector(1.0, nodePointers[j]->getTrialAccel(),
+      // momentum += ( shp[massIndex][j] * theNodes[j]->getTrialAccel() ) ;
+      momentum.addVector(1.0, theNodes[j]->getTrialAccel(),
                          shp[massIndex][j]);
 
     // density
@@ -910,9 +911,9 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
   double xsj;                   // determinant jacaobian matrix
 
   OPS_STATIC double dvol[nip];             // volume element
-  OPS_STATIC double shp[3][numnodes];      // shape functions at a gauss point
+  OPS_STATIC double shp[3][NEN];      // shape functions at a gauss point
 
-  //  static double Shape[3][numnodes][nip] ; // all the shape functions
+  //  static double Shape[3][NEN][nip] ; // all the shape functions
   static Vector stress(nstress);      // stress resultants
   static Vector strain(nstress);      // strain
                                       //
@@ -924,7 +925,7 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
   double tauDrill = 0.0; // drilling "stress"
 
   //---------B-matrices------------------------------------
-  OPS_STATIC MatrixND<nstress, ndf> B[numnodes];
+  OPS_STATIC MatrixND<nstress, ndf> B[NEN];
   static Matrix BJtranD(ndf, nstress);
   static Matrix Bbend(3, 3);           // bending B matrix
   static Matrix Bshear(2, 3);          // shear B matrix
@@ -1030,7 +1031,7 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
     epsDrill = 0.0;
 
     // j-node loop to compute strain
-    for (int j = 0; j < numnodes; j++) {
+    for (int j = 0; j < NEN; j++) {
 
       // compute B matrix
       Bmembrane = computeBmembrane(j, shp);
@@ -1045,7 +1046,7 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
       assembleB(Bmembrane, Bbend, Bshear, B[j]);
 
       // nodal "displacements"
-      const Vector &ul_tmp = nodePointers[j]->getTrialDisp();
+      const Vector &ul_tmp = theNodes[j]->getTrialDisp();
 
       OPS_STATIC VectorND<6> ul;
 
@@ -1089,7 +1090,7 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
     // residual and tangent calculations node loops
 
     jj = 0;
-    for (int j = 0; j < numnodes; j++) {
+    for (int j = 0; j < NEN; j++) {
       MatrixND<ndf, nstress> BJtran = B[j].transpose();
 
       // multiply bending terms by (-1.0) for correct statement
@@ -1118,7 +1119,7 @@ void ShellMITC4::formResidAndTangent(int tang_flag)
           BdrillJ[p] *= (Ktt * dvol[i]);
 
         kk = 0;
-        for (int k = 0; k < numnodes; k++) {
+        for (int k = 0; k < NEN; k++) {
 
           // drilling B matrix
           computeBdrill(k, shp, BdrillK);
@@ -1204,10 +1205,10 @@ void ShellMITC4::computeBasis()
   // get two vectors (v1, v2) in plane of shell by
   // nodal coordinate differences
 
-  const Vector& coor0 = nodePointers[0]->getCrds();
-  const Vector& coor1 = nodePointers[1]->getCrds();
-  const Vector& coor2 = nodePointers[2]->getCrds();
-  const Vector& coor3 = nodePointers[3]->getCrds();
+  const Vector& coor0 = theNodes[0]->getCrds();
+  const Vector& coor1 = theNodes[1]->getCrds();
+  const Vector& coor2 = theNodes[2]->getCrds();
+  const Vector& coor3 = theNodes[3]->getCrds();
 
   v1.zero();
   // v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
@@ -1249,7 +1250,7 @@ void ShellMITC4::computeBasis()
 
   for (int i = 0; i < 4; i++) {
 
-    const Vector &coorI = nodePointers[i]->getCrds();
+    const Vector &coorI = theNodes[i]->getCrds();
     xl[0][i]            = v1.dot(coorI);
     xl[1][i]            = v2.dot(coorI);
 
@@ -1279,8 +1280,8 @@ void ShellMITC4::updateBasis()
   // nodal coordinate differences
   Vector3D coor[4];
   for (int i=0; i<4; i++) {
-    coor[i] = nodePointers[i]->getCrds();
-    const Vector& displ = nodePointers[i]->getTrialDisp();
+    coor[i] = theNodes[i]->getCrds();
+    const Vector& displ = theNodes[i]->getTrialDisp();
     for (int j=0; j<3; j++)
       coor[i][j] += displ[j] - init_disp[i][j];
   }
@@ -1325,7 +1326,7 @@ void ShellMITC4::updateBasis()
   // local nodal coordinates in plane of shell
   for (int i = 0; i < 4; i++) {
 
-    const Vector &coorI = nodePointers[i]->getCrds();
+    const Vector &coorI = theNodes[i]->getCrds();
     xl[0][i]            = v1.dot(coorI);
     xl[1][i]            = v2.dot(coorI);
 
@@ -1751,3 +1752,16 @@ int ShellMITC4::recvSelf(int commitTag, Channel &theChannel,
   return res;
 }
 
+int
+ShellMITC4::setParameter(const char **argv, int argc, Parameter &param)
+{
+  int res = -1;
+  // Send to all sections
+  for (int i = 0; i < nip; i++) {
+    int secRes = materialPointers[i]->setParameter(argv, argc, param);
+    if (secRes != -1) {
+      res = secRes;
+    }
+  }
+  return res;
+}

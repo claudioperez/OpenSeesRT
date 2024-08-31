@@ -41,8 +41,8 @@
 #include <ErrorHandler.h>
 #include <ShellNLDKGQ.h>
 #include <R3vectors.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
+#include <Parameter.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -2221,6 +2221,12 @@ int ShellNLDKGQ::sendSelf(int commitTag, Channel &theChannel)
     return res;
   }
 
+  res += theChannel.sendVector(dataTag, commitTag, CstrainGauss);
+  if (res < 0) {
+    opserr << "WARNING ShellNLDKGT::sendSelf() - " << this->getTag() << " failed to send committed strains\n";
+    return res;
+  }
+
   // Finally, quad asks its material objects to send themselves
   for (i = 0; i < 4; i++) {
     res += materialPointers[i]->sendSelf(commitTag, theChannel);
@@ -2269,6 +2275,13 @@ int ShellNLDKGQ::recvSelf(int commitTag, Channel &theChannel,
   betaK  = vectData(1);
   betaK0 = vectData(2);
   betaKc = vectData(3);
+
+  res += theChannel.recvVector(dataTag, commitTag, CstrainGauss);
+  if (res < 0) {
+    opserr << "WARNING ShellNLDKGQ::sendSelf() - " << this->getTag() << " failed to send ID\n";
+    return res;
+  }
+  TstrainGauss = CstrainGauss;
 
   int i;
 
@@ -2327,42 +2340,17 @@ int ShellNLDKGQ::recvSelf(int commitTag, Channel &theChannel,
 }
 //**************************************************************************
 
-int ShellNLDKGQ::displaySelf(Renderer &theViewer, int displayMode, float fact,
-                             const char **modes, int numMode)
+
+int
+ShellNLDKGQ::setParameter(const char **argv, int argc, Parameter &param)
 {
-  // get the end point display coords
-  static Vector v1(3);
-  static Vector v2(3);
-  static Vector v3(3);
-  static Vector v4(3);
-  nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-  nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-  nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-  nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
-
-  // place values in coords matrix
-  static Matrix coords(4, 3);
-  for (int i = 0; i < 3; i++) {
-    coords(0, i) = v1(i);
-    coords(1, i) = v2(i);
-    coords(2, i) = v3(i);
-    coords(3, i) = v4(i);
-  }
-
-  // Display mode is positive:
-  // display mode = 0 -> plot no contour
-  // display mode = 1-8 -> plot 1-8 stress resultant
-  static Vector values(4);
-  if (displayMode < 8 && displayMode > 0) {
-    for (int i = 0; i < 4; i++) {
-      const Vector &stress = materialPointers[i]->getStressResultant();
-      values(i)            = stress(displayMode - 1);
+  int res = -1;
+  // Send to all sections
+  for (int i = 0; i < nip; i++) {
+    int secRes = materialPointers[i]->setParameter(argv, argc, param);
+    if (secRes != -1) {
+      res = secRes;
     }
-  } else {
-    for (int i = 0; i < 4; i++)
-      values(i) = 0.0;
   }
-
-  // draw the polygon
-  return theViewer.drawPolygon(coords, values, this->getTag());
+  return res;
 }

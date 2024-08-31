@@ -11,8 +11,8 @@
 // Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 // Created: 03/13
 //
-#ifndef ElasticTimoshenkoBeam3d_h
-#define ElasticTimoshenkoBeam3d_h
+#ifndef PrismShearFrame3d_h
+#define PrismShearFrame3d_h
 //
 #include <Element.h>
 #include <Matrix.h>

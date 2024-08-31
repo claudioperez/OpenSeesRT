@@ -12,6 +12,7 @@ target_sources(OPS_Runtime
 target_sources(OPS_Material
   PRIVATE
     FrameFiberSection3d.cpp
+    FrameSolidSection3d.cpp
     ElasticLinearFrameSection3d.cpp
   PUBLIC
     FrameFiberSection3d.h

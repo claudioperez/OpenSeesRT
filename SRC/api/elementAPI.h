@@ -99,6 +99,8 @@ int         OPS_GetNumRemainingInputArgs();
 int         OPS_ResetCurrentInputArg(int cArg);
 int         OPS_GetIntInput(int* numData, int* data);
 int         OPS_GetDoubleInput(int* numData, double* data);
+int         OPS_GetDoubleListInput(int* size, Vector * data);
+int         OPS_EvalDoubleStringExpression(const char* theExpression, double& current_val);
 const char* OPS_GetString(); // does a strcpy
 const char* OPS_GetStringFromAll(char* buffer, int len); // does a strcpy
 int         OPS_SetString(const char* str);
