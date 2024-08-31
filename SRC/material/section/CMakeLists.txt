@@ -7,6 +7,7 @@
 
 target_sources(OPS_Material
   PRIVATE
+    ASDCoupledHinge3D.cpp
     BiaxialHysteretic.cpp
     Bidirectional.cpp
 #   ElasticBDShearSection2d.cpp
@@ -37,6 +38,7 @@ target_sources(OPS_Material
     SectionForceDeformation.cpp
     TimoshenkoSection3d.cpp
   PUBLIC
+    ASDCoupledHinge3D.h
     BiaxialHysteretic.h
     Bidirectional.h
 #   ElasticBDShearSection2d.h
