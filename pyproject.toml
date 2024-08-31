@@ -1,6 +1,6 @@
 [project]
 name = "opensees"
-version = "0.0.65"
+version = "0.0.67"
 authors = [
   {name="Claudio M. Perez"}
   # <50180406+claudioperez@users.noreply.github.com>"
@@ -23,7 +23,6 @@ classifiers = [
     'Programming Language :: Fortran',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
@@ -82,9 +81,10 @@ docs = [
 ]
 
 [project.urls]
+Repository = "https://github.com/OpenSees/OpenSees"
 Examples = "https://stairlab.github.io/opensees-gallery"
-Repository = "https://github.com/claudioperez/opensees"
-Organization = "https://stairlab.berkeley.edu"
+Homepage = "https://github.com/claudioperez/opensees"
+# Organization = "https://stairlab.berkeley.edu"
 # Documentation = "https://brace2.github.io/OpenSeesRT"
 
 [build-system]
