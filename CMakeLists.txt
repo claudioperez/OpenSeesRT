@@ -50,12 +50,12 @@ elseif(WIN32)
   endif()
   
   include(${CMAKE_BINARY_DIR}/conan.cmake)
-  
+
   conan_cmake_configure(REQUIRES tcl/8.6.11
                         GENERATORS cmake ) # cmake_find_package)
 
   conan_cmake_autodetect(settings)
-  
+
   conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
                       BUILD missing
                       REMOTE conancenter
@@ -103,7 +103,6 @@ if (UNIX)
   if (APPLE)
     message(":: MacOS")
     add_compile_definitions(_LINUX _UNIX _TCL85)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmax-errors=1")
     # Temporary fix for a bug that is currently in Xcode 15
     add_link_options("-Wl,-ld_classic")
   else()
@@ -146,6 +145,7 @@ elseif (WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
   include(OpenSeesDependenciesWin)
   add_compile_definitions(_WIN32 _TCL85)
   add_compile_options(/favor:INTEL64)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   message(STATUS ":: WIN32")
 endif()
 
@@ -168,9 +168,14 @@ endif ()
 # Fortran
 #--------------------------------------
 enable_language(Fortran)
+set(CMAKE_FORTRAN_STANDARD 08)
 
-# C++
+# C/C++
 #--------------------------------------
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
@@ -194,8 +199,8 @@ else ()
  
 endif()
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
+
 
 # Compiler warnings
 add_compile_options(
