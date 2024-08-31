@@ -70,7 +70,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_CFSSSWP)
   numData = 15;
   if (OPS_GetDoubleInput(&numData, dData) != 0) {
     opserr << "WARNING invalid Material parameters\n";
-    return 0;	
+    return 0;    
   }
 
   // 
@@ -91,125 +91,125 @@ void * OPS_ADD_RUNTIME_VPV(OPS_CFSSSWP)
 
 CFSSSWP::CFSSSWP(int tag, double H, int B, double fuf, double fyf,
                           double tf,double Af,double fus, double fys, double ts,
-						  double np, double ds, double Vs,double sc, double A, double L): 
+                          double np, double ds, double Vs,double sc, double A, double L): 
              UniaxialMaterial(tag, MAT_TAG_CFSSSWP), hight(H), width(B), fuf(fuf),
              fyf(fyf), tf(tf),
-	         Af(Af), fus(fus), fys(fys), ts(ts),
+             Af(Af), fus(fus), fys(fys), ts(ts),
              np(np), ds(ds), Vs(Vs),
              screw_Spacing(sc), A(A), L(L),
       envlpPosStress(7), envlpPosStrain(7), envlpNegStress(7), envlpNegStrain(7), tagMat(tag),
       gammaDLimit(0.0),
-	  gammaFLimit(0.0),
-	  gammaE(10.0),
-	  TnCycle(0.0), CnCycle(0.0),
-	  rDispP(0.488), rForceP(0.183), uForceP(-0.08), rDispN(0.488), rForceN(0.244), uForceN(-0.08),
-	  state3Stress(4), state3Strain(4), state4Stress(4), state4Strain(4), 
-	  envlpPosDamgdStress(7), envlpNegDamgdStress(7)
+      gammaFLimit(0.0),
+      gammaE(10.0),
+      TnCycle(0.0), CnCycle(0.0),
+      rDispP(0.488), rForceP(0.183), uForceP(-0.08), rDispN(0.488), rForceN(0.244), uForceN(-0.08),
+      state3Stress(4), state3Strain(4), state4Stress(4), state4Strain(4), 
+      envlpPosDamgdStress(7), envlpNegDamgdStress(7)
 
     {
 
-	 double ddeg;
-	 ddeg = 0.1*((hight/(2*width))*(screw_Spacing/152.0));
-	 gammaDLimit = ddeg;
-	
-	        // set envelope slopes
-	        this->lateralShearStrength();
-	        this->SetEnvelope();
-	        envlpPosDamgdStress = envlpPosStress; envlpNegDamgdStress = envlpNegStress;
-	        state3Stress.Zero(); state3Strain.Zero(); state4Stress.Zero(); state4Strain.Zero();
+     double ddeg;
+     ddeg = 0.1*((hight/(2*width))*(screw_Spacing/152.0));
+     gammaDLimit = ddeg;
+    
+            // set envelope slopes
+            this->lateralShearStrength();
+            this->SetEnvelope();
+            envlpPosDamgdStress = envlpPosStress; envlpNegDamgdStress = envlpNegStress;
+            state3Stress.Zero(); state3Strain.Zero(); state4Stress.Zero(); state4Strain.Zero();
 
-	        // Initialize history variables
-	        this->revertToStart();
-	        this->revertToLastCommit();
+            // Initialize history variables
+            this->revertToStart();
+            this->revertToLastCommit();
 }
 
 void CFSSSWP :: lateralShearStrength(void) 
 {
-	    double Alpha,Alpha1,Alpha2,Beta,Beta1,Beta2,Beta3,Lambda,Wmax,Pns,Pns1,
-		Pns2,Pns3,Pnsed,We,rho,V,V1,V2,Gs,Omega1,Omega2,Omega3,Omega4,Delta1,
+        double Alpha,Alpha1,Alpha2,Beta,Beta1,Beta2,Beta3,Lambda,Wmax,Pns,Pns1,
+        Pns2,Pns3,Pnsed,We,rho,V,V1,V2,Gs,Omega1,Omega2,Omega3,Omega4,Delta1,
         Delta2,Delta3,Delta4,DeltaV,MinPns,MinPns1,MinPns2,N,Pn;
-		Pns=0;
-		MinPns=0;
+        Pns=0;
+        MinPns=0;
         double mu=0.3;
-		E=203000.00;
+        E=203000.00;
         Dy=0;
-		Alpha=hight/width;
-		Alpha1=fus/310.27;
-		Alpha2=fuf/310.27;
-		Beta1=ts/0.4572;
-		Beta2=tf/0.4572;
-		Beta3=screw_Spacing/152.4;
-		Lambda=1.736*(Alpha1*Alpha2)/(Beta1*Beta2*pow(Beta3,2)*Alpha);
-		Wmax=width/(hight/(sqrt(pow(hight,2)+(width*width))));
-		if (tf/ts<=1.0)
-		{
-			Pns1=4.2*sqrt(pow(tf,3)*ds)*fuf;
-			Pns2=2.7*ts*ds*fus;
-			Pns3=2.7*tf*ds*fuf;
-			MinPns=Pns1;
-			MinPns=(Pns2<MinPns)? Pns2:MinPns;
-			MinPns=(Pns3<MinPns)? Pns3:MinPns;
-		}
-		else if (tf/ts>=2.5)
-		{
-			Pns1=2.7*ts*ds*fus;
-			Pns2=2.7*tf*ds*fuf;
-			MinPns=(Pns1<Pns2)? Pns1:Pns2;
-		}
-		else if ((tf/ts)>1.0 && (tf/ts)<2.5)
-		{
-			Pns1=4.2*sqrt(pow(tf,3)*ds)*fuf;
-			Pns2=2.7*ts*ds*fus;
-			Pns3=2.7*tf*ds*fuf;
-			MinPns1=Pns1;
-		  	MinPns1=(Pns2<MinPns)? Pns2:MinPns1;
- 	     	MinPns1=(Pns3<MinPns)? Pns3:MinPns1;
-			MinPns2=(Pns1<Pns2)? Pns2:Pns3;
-			MinPns=MinPns1+(MinPns2-MinPns1)*((tf/ts)-1)/1.5;
+        Alpha=hight/width;
+        Alpha1=fus/310.27;
+        Alpha2=fuf/310.27;
+        Beta1=ts/0.4572;
+        Beta2=tf/0.4572;
+        Beta3=screw_Spacing/152.4;
+        Lambda=1.736*(Alpha1*Alpha2)/(Beta1*Beta2*pow(Beta3,2)*Alpha);
+        Wmax=width/(hight/(sqrt(pow(hight,2)+(width*width))));
+        if (tf/ts<=1.0)
+        {
+            Pns1=4.2*sqrt(pow(tf,3)*ds)*fuf;
+            Pns2=2.7*ts*ds*fus;
+            Pns3=2.7*tf*ds*fuf;
+            MinPns=Pns1;
+            MinPns=(Pns2<MinPns)? Pns2:MinPns;
+            MinPns=(Pns3<MinPns)? Pns3:MinPns;
+        }
+        else if (tf/ts>=2.5)
+        {
+            Pns1=2.7*ts*ds*fus;
+            Pns2=2.7*tf*ds*fuf;
+            MinPns=(Pns1<Pns2)? Pns1:Pns2;
+        }
+        else if ((tf/ts)>1.0 && (tf/ts)<2.5)
+        {
+            Pns1=4.2*sqrt(pow(tf,3)*ds)*fuf;
+            Pns2=2.7*ts*ds*fus;
+            Pns3=2.7*tf*ds*fuf;
+            MinPns1=Pns1;
+              MinPns1=(Pns2<MinPns)? Pns2:MinPns1;
+              MinPns1=(Pns3<MinPns)? Pns3:MinPns1;
+            MinPns2=(Pns1<Pns2)? Pns2:Pns3;
+            MinPns=MinPns1+(MinPns2-MinPns1)*((tf/ts)-1)/1.5;
          }
-			double dis=3*ds;
-			Pnsed=0.5*dis*ts*fus;
-			if (Lambda<=0.0819)
-			We=Wmax;
-		else
-		{
-			rho=(1-0.05*pow((Lambda-0.08),0.12))/pow(Lambda,0.12);
-			We=rho*Wmax;
-		}
-			Pn=(MinPns<Pnsed)? MinPns:Pnsed;
-			V1=(((We/(2*screw_Spacing))*Pn)+((We*width)/(2*screw_Spacing*hight)*Pn)+Vs*(width/(sqrt(pow(hight,2)+(width*width)))));
-			V2=(We*ts*fys)*(width/sqrt(pow(hight,2)+(width*width)));
-			V=(V1<V2)? V1:V2;
-			double r,fo;
-	        r=1/(1+A/(hight*(width-L)));
-	        fo=r/(3-2*r);
-			stress3p=fo*V*np;
-			Beta=500*(ts/0.457);
-			Gs=E/(2*(1+mu));
-    		Omega4=sqrt(227.53/fyf);
-			rho=0.075*(ts/0.457);
-			Delta1=(2*(stress3p/(width*np))*pow(hight,3)/(3*E*Af*width));
+            double dis=3*ds;
+            Pnsed=0.5*dis*ts*fus;
+            if (Lambda<=0.0819)
+            We=Wmax;
+        else
+        {
+            rho=(1-0.05*pow((Lambda-0.08),0.12))/pow(Lambda,0.12);
+            We=rho*Wmax;
+        }
+            Pn=(MinPns<Pnsed)? MinPns:Pnsed;
+            V1=(((We/(2*screw_Spacing))*Pn)+((We*width)/(2*screw_Spacing*hight)*Pn)+Vs*(width/(sqrt(pow(hight,2)+(width*width)))));
+            V2=(We*ts*fys)*(width/sqrt(pow(hight,2)+(width*width)));
+            V=(V1<V2)? V1:V2;
+            double r,fo;
+            r=1/(1+A/(hight*(width-L)));
+            fo=r/(3-2*r);
+            stress3p=fo*V*np;
+            Beta=500*(ts/0.457);
+            Gs=E/(2*(1+mu));
+            Omega4=sqrt(227.53/fyf);
+            rho=0.075*(ts/0.457);
+            Delta1=(2*(stress3p/(width*np))*pow(hight,3)/(3*E*Af*width));
             Omega1=screw_Spacing/152.4;
-			Omega2=0.838/tf; 
-			Delta2=Omega1*Omega2*((stress3p/(width*np))*hight)/(rho*Gs*ts);
-			Omega3=sqrt(hight/(2*width));
-			Delta3=pow(Omega1,(5/4))*Omega2*Omega3*Omega4*pow((stress3p/(width*np)/(0.0029*Beta)),2);
-			Delta4=2.5*hight/width;
+            Omega2=0.838/tf; 
+            Delta2=Omega1*Omega2*((stress3p/(width*np))*hight)/(rho*Gs*ts);
+            Omega3=sqrt(hight/(2*width));
+            Delta3=pow(Omega1,(5/4))*Omega2*Omega3*Omega4*pow((stress3p/(width*np)/(0.0029*Beta)),2);
+            Delta4=2.5*hight/width;
             strain3p=(Delta1+Delta2+Delta3+Delta4)/(1000); 
-        	stress4p=0.8*stress3p;
-			strain4p=1.4*strain3p;
-			stress1p=0.4*stress3p;
-			strain1p=strain3p/9.25;
-			ke=stress1p/strain1p; 
-			stress2p=0.85*stress3p;
-			Dy=(stress2p/ke);
-			strain2p=(stress2p*(strain3p+Dy-2*strain4p-strain1p)+stress3p*strain4p+stress4p*(strain4p-strain3p))/(0.6*stress3p);
-			stress1p=stress1p; stress2p=stress2p; stress3p=stress3p; stress4p=stress4p; 
-			strain1p=strain1p; strain2p=strain2p; strain3p=strain3p; strain4p=strain4p; 
-			strain1n = -strain1p; stress1n = -stress1p; strain2n = -strain2p; stress2n = -stress2p;
-			strain3n = -strain3p; stress3n = -stress3p; strain4n = -strain4p; stress4n = -stress4p;
+            stress4p=0.8*stress3p;
+            strain4p=1.4*strain3p;
+            stress1p=0.4*stress3p;
+            strain1p=strain3p/9.25;
+            ke=stress1p/strain1p; 
+            stress2p=0.85*stress3p;
+            Dy=(stress2p/ke);
+            strain2p=(stress2p*(strain3p+Dy-2*strain4p-strain1p)+stress3p*strain4p+stress4p*(strain4p-strain3p))/(0.6*stress3p);
+            stress1p=stress1p; stress2p=stress2p; stress3p=stress3p; stress4p=stress4p; 
+            strain1p=strain1p; strain2p=strain2p; strain3p=strain3p; strain4p=strain4p; 
+            strain1n = -strain1p; stress1n = -stress1p; strain2n = -strain2p; stress2n = -stress2p;
+            strain3n = -strain3p; stress3n = -stress3p; strain4n = -strain4p; stress4n = -stress4p;
             envlpPosStress.Zero(); envlpPosStrain.Zero(); envlpNegStress.Zero(); envlpNegStrain.Zero(); 
-	        energyCapacity = 0.0; kunload = 0.0; elasticStrainEnergy = 0.0; 
+            energyCapacity = 0.0; kunload = 0.0; elasticStrainEnergy = 0.0; 
 }
 
  CFSSSWP::CFSSSWP():
@@ -244,9 +244,9 @@ int CFSSSWP::setTrialStrain(double strain, double CstrainRate)
          TminStrainDmnd = CminStrainDmnd;
          TmaxStrainDmnd = CmaxStrainDmnd;
          TgammaF = CgammaF;
-		 TgammaFN = CgammaFN;
+         TgammaFN = CgammaFN;
          TgammaD = CgammaD;
-		 TgammaDN = CgammaDN;
+         TgammaDN = CgammaDN;
  
          dstrain = Tstrain - Cstrain;
          if (dstrain<1e-12 && dstrain>-1e-12){
@@ -279,7 +279,7 @@ int CFSSSWP::setTrialStrain(double strain, double CstrainRate)
                          state3Stress(3) = hghTstateStress;
  
                  getState3(state3Strain,state3Stress,kunload); 
-				 SetSpline();
+                 SetSpline();
                  Ttangent = Envlp3Tangent(state3Strain,state3Stress,strain);   
                  Tstress = Envlp3Stress(state3Strain,state3Stress,strain); 
                  break;
@@ -291,7 +291,7 @@ int CFSSSWP::setTrialStrain(double strain, double CstrainRate)
                          state4Stress(3) = hghTstateStress;
 
                  getState4(state4Strain,state4Stress,kunload);
-				 SetSpline();
+                 SetSpline();
                  Ttangent = Envlp4Tangent(state4Strain,state4Stress,strain);
                  Tstress = Envlp4Stress(state4Strain,state4Stress,strain);
                  break;
@@ -301,98 +301,98 @@ int CFSSSWP::setTrialStrain(double strain, double CstrainRate)
          elasticStrainEnergy = (Tstrain>0.0) ? 0.5*Tstress/kElasticPos*Tstress:0.5*Tstress/kElasticNeg*Tstress;
          Tenergy = Cenergy + denergy;
          updateDmg(Tstrain,dstrain);
-		 return 0;
+         return 0;
  }
 
 static int 
 getIndex(Vector v,double value)
 {
-	for(int i = 0; i < v.Size(); i++)
-	{
-		if(v[i] > value) return i;
-	}
-	return -1;
+    for(int i = 0; i < v.Size(); i++)
+    {
+        if(v[i] > value) return i;
+    }
+    return -1;
 }
 static int 
 getIndexNeg(Vector v,double value)
 {
-	for(int i = 0; i < v.Size(); i++)
-	{
-		if(v[i] < value) return i;
-	}
-	return -1;
+    for(int i = 0; i < v.Size(); i++)
+    {
+        if(v[i] < value) return i;
+    }
+    return -1;
 }
 
  void CFSSSWP::SetSpline(void)
  {
-			constexpr int Size = 5;
-			double X[Size]; double Y[Size];
-			
-			int fifth = getIndexNeg(envlpNegStrain,state3Strain(0));
-			if(fifth == -1)
-			{
-				printf("erreur fifth");
-				exit(5);
-			}
-			
-			X[0] = state3Strain(0) - 20;
-			X[1] = state3Strain(0);
-			X[2] = state3Strain(1);
-			X[3] = state3Strain(2);
-			X[4] = state3Strain(3);
+            constexpr int Size = 5;
+            double X[Size]; double Y[Size];
+            
+            int fifth = getIndexNeg(envlpNegStrain,state3Strain(0));
+            if(fifth == -1)
+            {
+                printf("erreur fifth");
+                exit(5);
+            }
+            
+            X[0] = state3Strain(0) - 20;
+            X[1] = state3Strain(0);
+            X[2] = state3Strain(1);
+            X[3] = state3Strain(2);
+            X[4] = state3Strain(3);
 
-			
-			Y[0] = state3Stress(0) - 1;
-			Y[1] = state3Stress(0);
-			Y[2] = state3Stress(1);
-			Y[3] = state3Stress(2);
-			Y[4] = state3Stress(3);
+            
+            Y[0] = state3Stress(0) - 1;
+            Y[1] = state3Stress(0);
+            Y[2] = state3Stress(1);
+            Y[3] = state3Stress(2);
+            Y[4] = state3Stress(3);
 
-			if(X[3] - X[0] < 0)
-			{
-				printf("erreur1\n");	
-			}
-			
-			float a0,an,b0,bn;
+            if(X[3] - X[0] < 0)
+            {
+                printf("erreur1\n");    
+            }
+            
+            float a0,an,b0,bn;
 
-			a0 = GetTangentFromCurve(state3Strain(0));
-			an = GetTangentFromCurve(state3Strain(3));
-			b0 = state3Stress(0) - a0*state3Strain(0);
-			bn = state3Stress(3) - an*state3Strain(3);
-			
-			Spline3.Fit(X,Size,Y,Size);
-		
-			fifth = getIndex(envlpPosStrain,state4Strain(3));
-			if(fifth == -1)
-			{
-				printf("erreur fifth1");
-				exit(5);
-			}
-			
-			X[0] = state4Strain(0);
-			X[1] = state4Strain(1);
-			X[2] = state4Strain(2);
-			X[3] = state4Strain(3);
-			X[4] = state4Strain(3) + 20;
+            a0 = GetTangentFromCurve(state3Strain(0));
+            an = GetTangentFromCurve(state3Strain(3));
+            b0 = state3Stress(0) - a0*state3Strain(0);
+            bn = state3Stress(3) - an*state3Strain(3);
+            
+            Spline3.Fit(X,Size,Y,Size);
+        
+            fifth = getIndex(envlpPosStrain,state4Strain(3));
+            if(fifth == -1)
+            {
+                printf("erreur fifth1");
+                exit(5);
+            }
+            
+            X[0] = state4Strain(0);
+            X[1] = state4Strain(1);
+            X[2] = state4Strain(2);
+            X[3] = state4Strain(3);
+            X[4] = state4Strain(3) + 20;
 
-			Y[0] = state4Stress(0);
-			Y[1] = state4Stress(1);
-			Y[2] = state4Stress(2);
-			Y[3] = state4Stress(3);
-			Y[4] = state4Stress(3) + 1;
-			
-			if(X[3] - X[0] < 0)
-			{
-				printf("erreur2\n");
-				//while(1);
-			}
-			
-			a0 = GetTangentFromCurve(state4Strain(0));
-			an = GetTangentFromCurve(state4Strain(3));
-			b0 = state4Stress(0) - a0 * state4Strain(0);
-			bn = state4Stress(3) - an * state4Strain(3);
-			
-			Spline4.Fit(X,Size,Y,Size);
+            Y[0] = state4Stress(0);
+            Y[1] = state4Stress(1);
+            Y[2] = state4Stress(2);
+            Y[3] = state4Stress(3);
+            Y[4] = state4Stress(3) + 1;
+            
+            if(X[3] - X[0] < 0)
+            {
+                printf("erreur2\n");
+                //while(1);
+            }
+            
+            a0 = GetTangentFromCurve(state4Strain(0));
+            an = GetTangentFromCurve(state4Strain(3));
+            b0 = state4Stress(0) - a0 * state4Strain(0);
+            bn = state4Stress(3) - an * state4Strain(3);
+            
+            Spline4.Fit(X,Size,Y,Size);
  }
  
  double CFSSSWP::getStrain(void)
@@ -423,7 +423,7 @@ getIndexNeg(Vector v,double value)
                  CstrainRate = dstrain;}
          else {
                  CstrainRate = TstrainRate;}
-		 lowCstateStrain = lowTstateStrain;
+         lowCstateStrain = lowTstateStrain;
          lowCstateStress = lowTstateStress;
          hghCstateStrain = hghTstateStrain;
          hghCstateStress = hghTstateStress;
@@ -433,10 +433,10 @@ getIndexNeg(Vector v,double value)
          Cstress = Tstress;
          Cstrain = Tstrain;
          CgammaD = TgammaD;
-		 CgammaDN = TgammaDN;
+         CgammaDN = TgammaDN;
          CgammaF = TgammaF;
-		 CgammaFN = TgammaFN;
-		 CnCycle = TnCycle;
+         CgammaFN = TgammaFN;
+         CnCycle = TnCycle;
          
          // define adjusted strength and stiffness parameters
 
@@ -444,7 +444,7 @@ getIndexNeg(Vector v,double value)
          uMinDamgd = TminStrainDmnd*(1 + CgammaDN);
  
          envlpPosDamgdStress = envlpPosStress*(1-gammaFUsed);
-		 envlpNegDamgdStress = envlpNegStress*(1-gammaFUsed);
+         envlpNegDamgdStress = envlpNegStress*(1-gammaFUsed);
 
          return 0;
  }
@@ -467,10 +467,10 @@ getIndexNeg(Vector v,double value)
          Tstrain = Cstrain; Tstress = Cstress;
  
          TgammaD = CgammaD;
-		 TgammaDN = CgammaDN;
+         TgammaDN = CgammaDN;
          TgammaF = CgammaF;
-		 TgammaFN = CgammaFN;
-		 TnCycle = CnCycle;
+         TgammaFN = CgammaFN;
+         TnCycle = CnCycle;
  
          return 0;
  }
@@ -489,11 +489,11 @@ getIndexNeg(Vector v,double value)
          CmaxStrainDmnd = envlpPosStrain(1);
          Cenergy = 0.0;
          CgammaD = 0.0;
-		 CgammaDN = 0.0;
+         CgammaDN = 0.0;
          CgammaF = 0.0;
-		 CgammaFN = 0.0;
-		 TnCycle = 0.0;
-		 CnCycle = 0.0;
+         CgammaFN = 0.0;
+         TnCycle = 0.0;
+         CnCycle = 0.0;
          Ttangent = envlpPosStress(0)/envlpPosStrain(0);
          dstrain = 0.0;       
          gammaFUsed = 0.0;
@@ -507,7 +507,7 @@ getIndexNeg(Vector v,double value)
  {
          CFSSSWP *theCopy = new CFSSSWP (this->getTag(),
                   hight,  width,  fuf,  fyf, tf,  Af,  fus,  
-				  fys,  ts, np,  ds,  Vs,  screw_Spacing, A, L);
+                  fys,  ts, np,  ds,  Vs,  screw_Spacing, A, L);
          
          theCopy->rDispN = rDispN;
          theCopy->rDispP = rDispP;
@@ -534,10 +534,10 @@ getIndexNeg(Vector v,double value)
          theCopy->CmaxStrainDmnd = CmaxStrainDmnd;
          theCopy->Cenergy = Cenergy;
          theCopy->CgammaD = CgammaD;
-		 theCopy->CgammaDN = CgammaDN;
+         theCopy->CgammaDN = CgammaDN;
          theCopy->CgammaF = CgammaF;
-		 theCopy->CgammaFN = CgammaFN;
-		 theCopy->CnCycle = CnCycle;
+         theCopy->CgammaFN = CgammaFN;
+         theCopy->CnCycle = CnCycle;
          theCopy->gammaFUsed = gammaFUsed;
  
          // trial material history parameters
@@ -551,10 +551,10 @@ getIndexNeg(Vector v,double value)
          theCopy->TmaxStrainDmnd = TmaxStrainDmnd;
          theCopy->Tenergy = Tenergy;
          theCopy->TgammaD = TgammaD;
-		 theCopy->TgammaDN = TgammaDN;
+         theCopy->TgammaDN = TgammaDN;
          theCopy->TgammaF = TgammaF;
-		 theCopy->TgammaFN = TgammaFN;
-		 theCopy->TnCycle = TnCycle;
+         theCopy->TgammaFN = TgammaFN;
+         theCopy->TnCycle = TnCycle;
  
          // Strength and stiffness parameters
          theCopy->kElasticPos = kElasticPos;
@@ -617,7 +617,7 @@ getIndexNeg(Vector v,double value)
          envlpPosStress(0) = u*k;
          envlpNegStrain(0) = -u;
          envlpNegStress(0) = -u*k;
-	
+    
          envlpPosStrain(1) = strain1p;
          envlpPosStrain(2) = strain2p;
          envlpPosStrain(3) = strain3p;
@@ -642,14 +642,14 @@ getIndexNeg(Vector v,double value)
          double k2 = (stress4n - stress3n)/(strain4n - strain3n);
   
         envlpPosStress(5) =0.05*stress3p;
-		envlpPosStrain(5) = strain4p + 3.75*(strain4p-strain3p);
-	    envlpNegStress(5) = 0.05*stress3n;
-		envlpNegStrain(5) = strain4n + 3.75*(strain4n-strain3n);
+        envlpPosStrain(5) = strain4p + 3.75*(strain4p-strain3p);
+        envlpNegStress(5) = 0.05*stress3n;
+        envlpNegStrain(5) = strain4n + 3.75*(strain4n-strain3n);
 
-		envlpPosStrain(6) = 1e+6*envlpPosStress(5);
-	    envlpPosStress(6) = (k1>0.0)? envlpPosStress(5)+k1*(envlpPosStrain(6) - envlpPosStrain(5)):envlpPosStress(5)*1.1;
-	    envlpNegStrain(6) = 1e+6*strain4n;
-	    envlpNegStress(6) = (k2>0.0)? envlpNegStress(5)+k1*(envlpNegStrain(6) - envlpNegStrain(5)):envlpNegStress(5)*1.1;
+        envlpPosStrain(6) = 1e+6*envlpPosStress(5);
+        envlpPosStress(6) = (k1>0.0)? envlpPosStress(5)+k1*(envlpPosStrain(6) - envlpPosStrain(5)):envlpPosStress(5)*1.1;
+        envlpNegStrain(6) = 1e+6*strain4n;
+        envlpNegStress(6) = (k2>0.0)? envlpNegStress(5)+k1*(envlpNegStrain(6) - envlpNegStrain(5)):envlpNegStress(5)*1.1;
        
          // define critical material properties
          kElasticPos = envlpPosStress(1)/envlpPosStrain(1);      
@@ -671,41 +671,41 @@ getIndexNeg(Vector v,double value)
  
          energyCapacity = gammaE*max_energy;
  
-		 // BSpline Adds
+         // BSpline Adds
 
-		 constexpr int Size = 9;
-		 double X[Size]; double Y[Size];
+         constexpr int Size = 9;
+         double X[Size]; double Y[Size];
 
-		 for(int i = 0;i < 2;i++)
-		 {
-			 X[i] = envlpPosStrain(0);
-			 Y[i] = envlpPosStress(0);
-			 X[Size - i - 1] = envlpPosStrain(4);
-			 Y[Size - i - 1] = envlpPosStress(4);
-		 }
+         for(int i = 0;i < 2;i++)
+         {
+             X[i] = envlpPosStrain(0);
+             Y[i] = envlpPosStress(0);
+             X[Size - i - 1] = envlpPosStrain(4);
+             Y[Size - i - 1] = envlpPosStress(4);
+         }
 
-		 for(int i = 0;i < Size - 4;i++)
-		 {
-			 X[i + 2] = envlpPosStrain(i);
-			 Y[i + 2] = envlpPosStress(i);
-		 }
-		 //double *XFit = new double[(Size-3)*Precision+2],*YFit = new double[(Size-3)*Precision+2];
-		 double XFit[(Size-3)*Precision+2]; double YFit[(Size-3)*Precision+2]; 
-		 double a[4]; double b[4];
-			 
-		
-		double p1X,p1Y,p2X,p2Y,p3X,p3Y,p4X,p4Y;
-		
-		for(int i = 0;i < Size-3;i++)
-	{
+         for(int i = 0;i < Size - 4;i++)
+         {
+             X[i + 2] = envlpPosStrain(i);
+             Y[i + 2] = envlpPosStress(i);
+         }
+         //double *XFit = new double[(Size-3)*Precision+2],*YFit = new double[(Size-3)*Precision+2];
+         double XFit[(Size-3)*Precision+2]; double YFit[(Size-3)*Precision+2]; 
+         double a[4]; double b[4];
+             
+        
+        double p1X,p1Y,p2X,p2Y,p3X,p3Y,p4X,p4Y;
+        
+        for(int i = 0;i < Size-3;i++)
+    {
           p1X = X[i];
-		  p1Y = Y[i];
+          p1Y = Y[i];
           p2X = X[i + 1];
-		  p2Y = Y[i + 1];
+          p2Y = Y[i + 1];
           p3X = X[i + 2];
-		  p3Y = Y[i + 2];
+          p3Y = Y[i + 2];
           p4X = X[i + 3];
-		  p4Y = Y[i + 3];
+          p4Y = Y[i + 3];
           a[0] = (-p1X + 3 * p2X - 3 * p3X + p4X) / 6.0f;
           a[1] = (3 * p1X - 6 * p2X + 3 * p3X) / 6.0f;
           a[2] = (-3 * p1X + 3 * p3X) / 6.0f;
@@ -720,91 +720,91 @@ getIndexNeg(Vector v,double value)
                XFit[i*Precision+j] = ((a[2] + t * (a[1] + t * a[0])) * t + a[3]);
                YFit[i*Precision+j] = ((b[2] + t * (b[1] + t * b[0])) * t + b[3]);
           }
-	}
-	
-	double XAdvance = XFit[Precision*(Size-3)-1] - XFit[Precision*(Size-3)-2];
-	double YAdvance = YFit[Precision*(Size-3)-1] - YFit[Precision*(Size-3)-2];
-	double Tangente = (YFit[Precision*(Size-3)-1] - YFit[Precision*(Size-3)-2])/(XFit[Precision*(Size-3)-1] - XFit[Precision*(Size-3)-2]);
-	
-	double Epsilon = 0.1f;
-		
-	YFit[Precision*(Size-3)] = Epsilon;
-	XFit[Precision*(Size-3)] = XFit[Precision*(Size-3) - 1] + (Epsilon - YFit[Precision*(Size-3) - 1]) / Tangente;
-		
-	YFit[Precision*(Size-3)+1] = Epsilon;
-	XFit[Precision*(Size-3)+1] = 10000;
-	
-	BSplineXs = XFit;
-	BSplineYs = YFit;
+    }
+    
+    double XAdvance = XFit[Precision*(Size-3)-1] - XFit[Precision*(Size-3)-2];
+    double YAdvance = YFit[Precision*(Size-3)-1] - YFit[Precision*(Size-3)-2];
+    double Tangente = (YFit[Precision*(Size-3)-1] - YFit[Precision*(Size-3)-2])/(XFit[Precision*(Size-3)-1] - XFit[Precision*(Size-3)-2]);
+    
+    double Epsilon = 0.1f;
+        
+    YFit[Precision*(Size-3)] = Epsilon;
+    XFit[Precision*(Size-3)] = XFit[Precision*(Size-3) - 1] + (Epsilon - YFit[Precision*(Size-3) - 1]) / Tangente;
+        
+    YFit[Precision*(Size-3)+1] = Epsilon;
+    XFit[Precision*(Size-3)+1] = 10000;
+    
+    BSplineXs = XFit;
+    BSplineYs = YFit;
 
-	BSplineXLength = Precision*(Size-3) + 2;
-	BSplineYLength = Precision*(Size-3) + 2;
+    BSplineXLength = Precision*(Size-3) + 2;
+    BSplineYLength = Precision*(Size-3) + 2;
          
  }
 
  double CFSSSWP::GetTangentFromCurve(double Strain)
  {
-		int i = 0;
-		int Neg = 0;
-		while(i < BSplineXLength && BSplineXs[i] < Strain)
-		{
-			i++;
-		}
-		if(i == BSplineXLength && BSplineXs[i-1] < Strain)
-		{
-			if(Neg == 0) return 1;
-			return -1;
-			exit(0);
-		}
-		if(BSplineXs[i] == Strain) 
-		{
-			return (BSplineYs[i+1] - BSplineYs[i-1]) / (BSplineXs[i+1] - BSplineXs[i-1]);
-		}
-		else if (i < BSplineXLength - 2 && BSplineXs[i+1] == Strain)
-		{
-			return (BSplineYs[i+2] - BSplineYs[i]) / (BSplineXs[i+2] - BSplineXs[i]);
-		}
-		else
-		{
-			return (BSplineYs[i] - BSplineYs[i-1]) / (BSplineXs[i] - BSplineXs[i-1]);
-		}
+        int i = 0;
+        int Neg = 0;
+        while(i < BSplineXLength && BSplineXs[i] < Strain)
+        {
+            i++;
+        }
+        if(i == BSplineXLength && BSplineXs[i-1] < Strain)
+        {
+            if(Neg == 0) return 1;
+            return -1;
+            exit(0);
+        }
+        if(BSplineXs[i] == Strain) 
+        {
+            return (BSplineYs[i+1] - BSplineYs[i-1]) / (BSplineXs[i+1] - BSplineXs[i-1]);
+        }
+        else if (i < BSplineXLength - 2 && BSplineXs[i+1] == Strain)
+        {
+            return (BSplineYs[i+2] - BSplineYs[i]) / (BSplineXs[i+2] - BSplineXs[i]);
+        }
+        else
+        {
+            return (BSplineYs[i] - BSplineYs[i-1]) / (BSplineXs[i] - BSplineXs[i-1]);
+        }
  }
  
  double CFSSSWP::GetStressFromCurve(double Strain)
  {
-		int i = 0;
-		int Neg = 0;
-		if (Strain < 0)
-		{
-			Neg = 1;
-			Strain = -Strain;
-		}
-		while(i < BSplineXLength && BSplineXs[i] < Strain)
-		{
-			i++;
-		}
-		if(i == BSplineXLength && BSplineXs[i-1] < Strain)
-		{
-			if(Neg == 0) return -1;
-			return 1;
-		}
-		if(BSplineXs[i] == Strain)
-		{
-			if(Neg == 1)
-				return BSplineYs[i];
-				return BSplineYs[i];
-		}
-		else if (i < BSplineXLength - 1 && BSplineXs[i+1] == Strain)
-		{
-			return BSplineYs[i+1];
-		}
-		else
-		{
-			double Stress = BSplineYs[i-1] + (BSplineYs[i] - BSplineYs[i-1]) / (BSplineXs[i] - BSplineXs[i-1]) * (Strain - BSplineXs[i-1]);
-			if(Neg == 1)
-			return -Stress;
-			return  Stress;
-			}
+        int i = 0;
+        int Neg = 0;
+        if (Strain < 0)
+        {
+            Neg = 1;
+            Strain = -Strain;
+        }
+        while(i < BSplineXLength && BSplineXs[i] < Strain)
+        {
+            i++;
+        }
+        if(i == BSplineXLength && BSplineXs[i-1] < Strain)
+        {
+            if(Neg == 0) return -1;
+            return 1;
+        }
+        if(BSplineXs[i] == Strain)
+        {
+            if(Neg == 1)
+                return BSplineYs[i];
+                return BSplineYs[i];
+        }
+        else if (i < BSplineXLength - 1 && BSplineXs[i+1] == Strain)
+        {
+            return BSplineYs[i+1];
+        }
+        else
+        {
+            double Stress = BSplineYs[i-1] + (BSplineYs[i] - BSplineYs[i-1]) / (BSplineXs[i] - BSplineXs[i-1]) * (Strain - BSplineXs[i-1]);
+            if(Neg == 1)
+            return -Stress;
+            return  Stress;
+            }
  }
    
  void CFSSSWP::getstate(double u,double du)
@@ -972,9 +972,9 @@ double CFSSSWP::posEnvlpStress(double u)
                          double k = 0.0;
                          int i = 0;
                          double f = 0.0;
-						 f = GetStressFromCurve(u);
-						 f = f*(1-gammaFUsed);
-						 return f;
+                         f = GetStressFromCurve(u);
+                         f = f*(1-gammaFUsed);
+                         return f;
                          while (k==0.0 && i<=5){
                                   
                                   if (u<=envlpPosStrain(i+1)){
@@ -1007,8 +1007,8 @@ double CFSSSWP::posEnvlpStress(double u)
  
                          if (k==0.0){
                                  k = (envlpPosDamgdStress(6) - envlpPosDamgdStress(5))/(envlpPosStrain(6) - envlpPosStrain(5));
-						 }
-						 k = GetTangentFromCurve(u);
+                         }
+                         k = GetTangentFromCurve(u);
  
                          return k;
  
@@ -1020,9 +1020,9 @@ double CFSSSWP::posEnvlpStress(double u)
                          double k = 0.0;
                          int i = 0;
                          double f = 0.0;
-						 f = GetStressFromCurve(u);
-						 f = f*(1-gammaFUsed);
-						 return f;
+                         f = GetStressFromCurve(u);
+                         f = f*(1-gammaFUsed);
+                         return f;
                          while (k==0.0 && i<=5){                                  
                                   if (u>=envlpNegStrain(i+1)){
                                           k = (envlpNegDamgdStress(i)-envlpNegDamgdStress(i+1))/(envlpNegStrain(i)-envlpNegStrain(i+1));
@@ -1054,7 +1054,7 @@ double CFSSSWP::posEnvlpStress(double u)
                          if (k==0.0){
                                  k = (envlpNegDamgdStress(5) - envlpNegDamgdStress(6))/(envlpNegStrain(5)-envlpNegStrain(6));
                                  }
-						 k = GetTangentFromCurve(u);
+                         k = GetTangentFromCurve(u);
                          return k;
  
                  }
@@ -1335,13 +1335,13 @@ double CFSSSWP::posEnvlpStress(double u)
  
  double CFSSSWP::Envlp3Tangent(Vector s3Strain, Vector s3Stress, double u)
                          {
-							    double k = 0.0;
-								k = Spline3.EvalT(u);
-								if(k != 10e8)
-								 {
-									 return k;
-								}
-								 int i = 0;
+                                double k = 0.0;
+                                k = Spline3.EvalT(u);
+                                if(k != 10e8)
+                                 {
+                                     return k;
+                                }
+                                 int i = 0;
                                  while ((k==0.0||i<=2) && (i<=2)) 
                                  {
                                          if (u>= s3Strain(i)) {
@@ -1359,7 +1359,7 @@ double CFSSSWP::posEnvlpStress(double u)
                                          k = (s3Stress(i+1)-s3Stress(i))/(s3Strain(i+1)-s3Strain(i));
                                          
                                  }
-								printf("Tangente = %f\n",k);
+                                printf("Tangente = %f\n",k);
                                  return k;
                          }
  
@@ -1367,11 +1367,11 @@ double CFSSSWP::posEnvlpStress(double u)
                          {
                                  double k = 0.0;
                                 int i = 0;
-								k = Spline4.EvalT(u);
-								if(k != 10e8)
-								{
-								return k;
-								}
+                                k = Spline4.EvalT(u);
+                                if(k != 10e8)
+                                {
+                                return k;
+                                }
                                  while ((k==0.0||i<=2) && (i<=2)) 
                                  {
                                          if (u>= s4Strain(i)) {
@@ -1389,7 +1389,7 @@ double CFSSSWP::posEnvlpStress(double u)
                                          k = (s4Stress(i+1)-s4Stress(i))/(s4Strain(i+1)-s4Strain(i));
                                          
                                  }
-								printf("Tangente = %f\n",k);
+                                printf("Tangente = %f\n",k);
                                  return k;
                          }
  
@@ -1413,8 +1413,8 @@ double CFSSSWP::posEnvlpStress(double u)
   while ((k==0.0||i<=2) && (i<=2)) 
     {
       if (u>= s3Strain(i)) {
-	k = (s3Stress(i+1)-s3Stress(i))/(s3Strain(i+1)-s3Strain(i));
-	f = s3Stress(i)+(u-s3Strain(i))*k;
+    k = (s3Stress(i+1)-s3Stress(i))/(s3Strain(i+1)-s3Strain(i));
+    f = s3Stress(i)+(u-s3Strain(i))*k;
       }
       i++;
     }
@@ -1428,7 +1428,7 @@ double CFSSSWP::posEnvlpStress(double u)
     k = (s3Stress(i+1)-s3Stress(i))/(s3Strain(i+1)-s3Strain(i));
     f = s3Stress(i)+(u-s3Strain(i))*k;
   }
-  printf("Strain = %f	Stress = %f	Min = %f, Max = %f\n",u,f,s3Strain(0),s3Strain(3));
+  printf("Strain = %f    Stress = %f    Min = %f, Max = %f\n",u,f,s3Strain(0),s3Strain(3));
   if(u > s3Strain(3))
     {
       //while(1);
@@ -1444,14 +1444,14 @@ double CFSSSWP::Envlp4Stress(Vector s4Strain, Vector s4Stress, double u)
   f = Spline4.Eval(u);
   if(isnan(f))
     {
-										 printf("erreur4");
-										 //while(1);
+                                         printf("erreur4");
+                                         //while(1);
     }
   if(f != 10e8)
-								 {
-								   return f;
-								   return GetStressFromCurve(u);
-								 }
+                                 {
+                                   return f;
+                                   return GetStressFromCurve(u);
+                                 }
   while ((k==0.0||i<=2) && (i<=2)) 
     {
       if (u>= s4Strain(i)) {
@@ -1470,35 +1470,33 @@ double CFSSSWP::Envlp4Stress(Vector s4Strain, Vector s4Stress, double u)
                                          k = (s4Stress(i+1)-s4Stress(i))/(s4Strain(i+1)-s4Strain(i));
                                          f = s4Stress(i)+(u-s4Strain(i))*k;
                                  }
-								 printf("Strain = %f	Stress = %f	Min = %f, Max = %f\n",u,f,s4Strain(0),s4Strain(3));
-								 if(u > s4Strain(3))
-								 {
-									 //while(1);
-								 }
+                                 printf("Strain = %f    Stress = %f    Min = %f, Max = %f\n",u,f,s4Strain(0),s4Strain(3));
+                                 if(u > s4Strain(3))
+                                 {
+                                     //while(1);
+                                 }
                                  return f;
                          }
  
    void CFSSSWP::updateDmg(double strain, double dstrain)
          {
                  double tes = 0.0;
-				 double umaxAbs = (TmaxStrainDmnd>-TminStrainDmnd) ? TmaxStrainDmnd:-TminStrainDmnd;
+                 double umaxAbs = (TmaxStrainDmnd>-TminStrainDmnd) ? TmaxStrainDmnd:-TminStrainDmnd;
                  double uultAbs = (envlpPosStrain(1)>-envlpNegStrain(1)) ? envlpPosStrain(1):-envlpNegStrain(1);
-				 TnCycle = CnCycle;
+                 TnCycle = CnCycle;
                  if ((strain<uultAbs && strain>-uultAbs) && Tenergy < elasticStrainEnergy)
                  {
-                      
-						 TgammaD += TnCycle;
+                         TgammaD += TnCycle;
                          TgammaF += TnCycle;
-
-				 }
-                         if (Tenergy>elasticStrainEnergy) {
-                                 tes = ((Tenergy-elasticStrainEnergy)/energyCapacity);
-                                 TgammaD += tes;
-                                 TgammaF += tes;
                  }
-                       
-						 TgammaDN = TgammaD;
-                         TgammaD = (TgammaD<gammaDLimit) ? TgammaD:gammaDLimit;
-						 TgammaFN = TgammaF;
-                         TgammaF = (TgammaF<gammaFLimit) ? TgammaF:gammaFLimit;
+                 if (Tenergy>elasticStrainEnergy) {
+                         tes = ((Tenergy-elasticStrainEnergy)/energyCapacity);
+                         TgammaD += tes;
+                         TgammaF += tes;
+                 }
+
+                 TgammaDN = TgammaD;
+                 TgammaD = (TgammaD<gammaDLimit) ? TgammaD:gammaDLimit;
+                 TgammaFN = TgammaF;
+                 TgammaF = (TgammaF<gammaFLimit) ? TgammaF:gammaFLimit;
          }
