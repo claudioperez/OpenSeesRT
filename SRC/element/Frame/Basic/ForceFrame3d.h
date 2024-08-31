@@ -38,7 +38,8 @@ class ForceFrame3d: public BasicFrame3d
   
   ~ForceFrame3d();
 
-  const char *getClassType() const final {
+  const char *
+  getClassType() const final {
     return "ForceFrame3d";
   }
 
@@ -90,6 +91,8 @@ class ForceFrame3d: public BasicFrame3d
   // For BasicFrame3d
   virtual VectorND<6>&   getBasicForce();
   virtual MatrixND<6,6>& getBasicTangent(State state, int rate);
+
+  private:
   
  private:
   //
@@ -112,14 +115,9 @@ class ForceFrame3d: public BasicFrame3d
     FrameStress::Mz,
   };
 
-  enum Respond: int {
-    GlobalForce = 1,
-    BasicPlasticDeformation = 4,
-    LocalForce  = 2,
-    BasicForce  = 7,
-    BasicStiff  =19,
-  };
-  
+  //
+  // Functions
+  //
   int setSectionPointers(std::vector<FrameSection*>&);
   int getInitialFlexibility(MatrixND<nq,nq> &fe);
   int getInitialDeformations(Vector &v0);
@@ -129,6 +127,9 @@ class ForceFrame3d: public BasicFrame3d
 
   void compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const;
   void initializeSectionHistoryVariables();
+//void getForceInterpolatMatrix(double xi, Matrix &b, const ID &code);
+//void getDistrLoadInterpolatMatrix(double xi, Matrix &bp, const ID &code);
+
 
   // Sensitivity
   int parameterID;
@@ -136,6 +137,18 @@ class ForceFrame3d: public BasicFrame3d
   const Matrix &computedfedh(int gradNumber);
   void computeSectionForceSensitivity(Vector &dspdh, int isec, int gradNumber);
 
+  //
+  // Data
+  //
+
+  enum Respond: int {
+    GlobalForce = 1,
+    BasicPlasticDeformation = 4,
+    LocalForce  = 2,
+    BasicForce  = 7,
+    BasicStiff  =19,
+  };
+  
  
   //
   // Element State
@@ -144,16 +157,15 @@ class ForceFrame3d: public BasicFrame3d
   double density;                // mass density per unit length
   double twist_mass;
   double total_mass;
-  int  mass_flag;
-  bool mass_initialized;
-  bool use_density;
-
-  Matrix *Ki;
+  int    mass_flag;
+  bool   mass_initialized;
+  bool   use_density;
 
   int    max_iter;               // maximum number of local iterations
   double tol;	                   // tolerance for relative energy norm for local iterations
 
-  // State
+
+  // Element state
   MatrixND<12,12> tangent;
   VectorND<12>    residual,
                   inertia;
@@ -184,8 +196,7 @@ class ForceFrame3d: public BasicFrame3d
   BeamIntegration*        stencil;
   
 
-//void getForceInterpolatMatrix(double xi, Matrix &b, const ID &code);
-//void getDistrLoadInterpolatMatrix(double xi, Matrix &bp, const ID &code);
+  Matrix *Ki;
 };
 
 #endif
