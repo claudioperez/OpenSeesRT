@@ -2,6 +2,8 @@
 
 enum class Field {
   Unit,
+  UnitY,
+  UnitZ,
   UnitXX,
   UnitZZ,
   UnitYY,
