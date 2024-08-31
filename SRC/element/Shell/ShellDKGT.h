@@ -102,7 +102,10 @@ class ShellDKGT : public Element {
   Response* setResponse( const char **argv, int argc, OPS_Stream &output );
   int getResponse( int responseID, Information &eleInfo );
 
+  int setParameter(const char **argv, int argc, Parameter &param);
+
   private : 
+    constexpr static int nip = 4;
 
     //static data
     static Matrix stiff ;
@@ -120,20 +123,19 @@ class ShellDKGT : public Element {
     static const double one_over_four;
     static const double wg1;
     static const double wg2;
-    static double sg[4] ;
-    static double tg[4] ;
-    static double qg[4] ;
-    static double wg[4] ;
+    static double sg[nip] ;
+    static double tg[nip] ;
+    static double qg[nip] ;
+    static double wg[nip] ;
 
     //node information
     ID connectedExternalNodes ;  //four node numbers
     Node *nodePointers[3] ;      //pointers to four nodes
 
     //material information
-    SectionForceDeformation *materialPointers[4] ; //pointers to four materials
+    SectionForceDeformation *materialPointers[nip] ; //pointers to four materials
                       
     //local nodal coordinates, two coordinates for each of four nodes
-    //static double xl[][4] ; 
     double xl[2][3] ; 
 
     //shell basis vectors

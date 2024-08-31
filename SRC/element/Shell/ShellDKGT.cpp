@@ -40,6 +40,7 @@
 #include <Domain.h>
 #include <ShellDKGT.h>
 #include <ElementResponse.h>
+#include <Parameter.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -1226,9 +1227,8 @@ void ShellDKGT::computeBasis()
   //and use those as basis vectors but this is easier
   //and the shell is flat anyway.
 
-  static Vector temp(3);
 
-  Vector3D v1, v2, v3;
+  Vector3D v1, v2, v3, temp;
 
   //get two vectors (v1, v2) in plane of shell by
   // nodal coordinate differences
@@ -1297,9 +1297,6 @@ void ShellDKGT::updateBasis()
   //and use those as basis vectors but this is easier
   //and the shell is flat anyway.
 
-  static Vector temp(3);
-
-  Vector3D v1, v2, v3;
 
   //get two vectors (v1, v2)
   // min plane of shell by
@@ -1314,6 +1311,9 @@ void ShellDKGT::updateBasis()
   const Vector &coor2 =
       nodePointers[2]->getCrds() + nodePointers[2]->getTrialDisp();
 
+
+//static Vector temp(3);
+  Vector3D v1, v2, v3, temp;
   v1.zero();
   //v1 = 0.5 * ( coor2 + coor1 - coor3 - coor0 ) ;
   v1 = coor1;
@@ -1930,4 +1930,18 @@ void ShellDKGT::shapeBend(double ss, double tt, double qq, const double x[2][3],
   }
 
   return;
+}
+
+int
+ShellDKGT::setParameter(const char **argv, int argc, Parameter &param)
+{
+  int res = -1;
+  // Send to all sections
+  for (int i = 0; i < nip; i++) {
+    int secRes = materialPointers[i]->setParameter(argv, argc, param);
+    if (secRes != -1) {
+      res = secRes;
+    }
+  }
+  return res;
 }
