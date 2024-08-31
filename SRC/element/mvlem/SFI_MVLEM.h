@@ -64,7 +64,9 @@ public:
 	// destructor
 	~SFI_MVLEM();
 
-	// public methods to obtain information about dof & comectivity
+  const char *getClassType(void) const {return "SFI_MVLEM2d";}
+  
+	// public methods to obtain information about dof & connectivity
 	int getNumExternalNodes(void) const;
 	const ID &getExternalNodes(void);
 	Node **getNodePtrs(void);
@@ -107,7 +109,8 @@ private:
 	double getShearDef(void);
 	double getCurvature(void);
 	Vector getResistingForce_6DOF(void);
-
+  int setupMacroFibers();
+  
 	// private attributes - a copy for each object of the class
 
 	// input variables
@@ -118,8 +121,8 @@ private:
 	Node *theNd2;						// pointer to top node
 	NDMaterial **theMaterial;			// array of ND materials
 	Vector *theLoad;					// pointer to element load
-	const double c;						// center of rotation
-	const int m;						// no. of RC panels
+	double c;						// center of rotation
+	int m;						// no. of RC panels
 
 	// calculated element parameters
 	ID externalNodes;					// contains the id's of end nodes

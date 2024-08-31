@@ -33,7 +33,6 @@ class ReinfBar
 {
   public:
 
-    ReinfBar();
     ReinfBar(double barArea, int materialID, const Vector &position);
         
     virtual ~ReinfBar();

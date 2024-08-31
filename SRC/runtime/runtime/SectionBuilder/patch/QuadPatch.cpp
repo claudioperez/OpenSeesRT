@@ -124,7 +124,7 @@ void QuadPatch::setVertCoords(const Matrix &vertexCoords)
    vertCoord = vertexCoords;
 }
 
-int QuadPatch::getMaterialID(void) const
+int QuadPatch::getMaterialID() const
 {
    return matID;
 }
@@ -135,18 +135,18 @@ void QuadPatch::getDiscretization(int &numSubdivIJ, int &numSubdivJK) const
    numSubdivJK = nDivJK;
 }
 
-const Matrix & QuadPatch::getVertCoords (void) const
+const Matrix & QuadPatch::getVertCoords() const
 {
    return vertCoord;
 }
 
-int QuadPatch::getNumCells (void) const
+int QuadPatch::getNumCells() const
 {
    return nDivIJ * nDivJK;
 }
 
 Cell **
-QuadPatch::getCells (void) const
+QuadPatch::getCells() const
 {
    double deltaXi;
    double deltaEta; 
@@ -220,7 +220,7 @@ QuadPatch::getCells (void) const
 
 
 Patch * 
-QuadPatch::getCopy (void) const
+QuadPatch::getCopy() const
 {
    QuadPatch *theCopy = new QuadPatch (matID, nDivIJ, nDivJK, vertCoord);
    return theCopy;
