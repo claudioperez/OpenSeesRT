@@ -12,17 +12,28 @@
 struct FrameSectionConstants {
   // n-n
   double A;
-  double Ay, Az;
+  double Ay, 
+         Az;
   // m-m
-  double Iy, Iz, Iyz;
+  double Iy, 
+         Iz, 
+         Iyz;
   // w-w
-  double Cw, Ca;
+  double Cw, 
+         Ca;
   // n-m
-  double Qy, Qz, Qyx, Qzx;
+  double Qy, 
+         Qz, 
+         Qyx, 
+         Qzx;
   // n-w
-  double Rw, Ry, Rz;
+  double Rw, 
+         Ry, 
+         Rz;
   // m-w
-  double Sa, Sy, Sz;
+  double Sa, 
+         Sy, 
+         Sz;
 };
 
 enum FrameStress : int {
@@ -42,8 +53,6 @@ enum FrameStress : int {
 };
 
 typedef       int             FrameStressLayout[10];
-static constexpr FrameStressLayout UnknownScheme {0};
-
 
 
 class FrameSection : public SectionForceDeformation {
@@ -72,62 +81,7 @@ public:
   }
 
   template <int n, const FrameStressLayout& scheme>
-  int setTrialState(OpenSees::VectorND<n, double> e) {
-    double strain_data[FrameStress::Max]{};
-
-    const int m = this->getOrder();
-    Vector trial(strain_data, m);
-
-    const ID& layout = this->getType();
-
-    int elem_twist    = -1,
-        elem_bishear  = -1,
-        elem_bimoment = -1;
-
-    for (int i=0; i<n; i++) {
-      // Save warp location
-      switch (scheme[i]) {
-        case FrameStress::T:
-          elem_twist = i;
-          break;
-        case FrameStress::Bishear:
-          elem_bishear  = i;
-          break;
-        case FrameStress::Bimoment:
-          elem_bimoment  = i;
-          break;
-        default:
-        ;
-      }
-
-      for (int j=0; j<m; j++)
-        if (layout(j) == scheme[i])
-          trial[j] = e[i];
-    }
-
-    // If element has a twisting DOF and no Bishear
-    // DOF, then twist == alpha, where alpha is the
-    // bishear DOF.
-    // Note that elem_twist and elem_bishear are computable,
-    // at compile time, so this branch can theoretically be 
-    // optimized out by the compiler, however this might be 
-    // optimistic
-    if (elem_twist != -1 && elem_bishear == -1) {
-
-      for (int j=0; j<m; j++)
-        switch (layout(j)) {
-          case FrameStress::Bishear:
-            trial[j] = e[elem_twist];
-            break;
-          case FrameStress::Bimoment:
-            if (elem_bimoment != -1)
-              trial[j] = e[elem_bimoment];
-            break;
-        }
-    }
-
-    return this->setTrialSectionDeformation(trial);
-  }
+  int setTrialState(OpenSees::VectorND<n, double> e);
 
   template <int n, const FrameStressLayout& scheme>
   OpenSees::VectorND<n, double> getDeformation() {
@@ -228,37 +182,99 @@ public:
   }
 
   template <int n, const FrameStressLayout& scheme>
-  OpenSees::MatrixND<n,n, double> getFlexibility(State state=State::Pres) {
+  OpenSees::MatrixND<n,n, double> getFlexibility(State state=State::Pres);
 
-
-    OpenSees::MatrixND<n,n,double> fout;
-
-    const ID& layout = this->getType();
-
-    int m = this->getOrder();
-
-    const Matrix& ks = (state == State::Init)
-                      ? this->getInitialFlexibility()
-                      : this->getSectionFlexibility();
-
-    for (int i=0; i<n; i++) {
-      for (int j=0; j<n; j++) {  
-        fout(i,j) = 0.0;
-        for (int k=0; k<m; k++) {
-          if (layout(k) == scheme[i]) {
-            for (int l=0; l<m; l++)
-              if (layout(l) == scheme[j]) {
-                fout(i,j) = ks(k,l);
-              }
-          }
-        }
-      }
-    }
-
-    return fout;
-  }
 private:
   double density;
   bool has_mass;
 };
 
+template <int n, const FrameStressLayout& scheme>
+int 
+FrameSection::setTrialState(OpenSees::VectorND<n, double> e) {
+  double strain_data[FrameStress::Max]{};
+
+  const int m = this->getOrder();
+  Vector trial(strain_data, m);
+
+  const ID& layout = this->getType();
+
+  int elem_twist    = -1,
+      elem_bishear  = -1,
+      elem_bimoment = -1;
+
+  for (int i=0; i<n; i++) {
+    // Save warp location
+    switch (scheme[i]) {
+      case FrameStress::T:
+        elem_twist = i;
+        break;
+      case FrameStress::Bishear:
+        elem_bishear  = i;
+        break;
+      case FrameStress::Bimoment:
+        elem_bimoment  = i;
+        break;
+      default:
+      ;
+    }
+
+    for (int j=0; j<m; j++)
+      if (layout(j) == scheme[i])
+        trial[j] = e[i];
+  }
+
+  // If element has a twisting DOF and no Bishear
+  // DOF, then twist == alpha, where alpha is the
+  // bishear DOF.
+  // Note that elem_twist and elem_bishear are computable,
+  // at compile time, so this branch can theoretically be 
+  // optimized out by the compiler, however this might be 
+  // optimistic
+  if (elem_twist != -1 && elem_bishear == -1) {
+
+    for (int j=0; j<m; j++)
+      switch (layout(j)) {
+        case FrameStress::Bishear:
+          trial[j] = e[elem_twist];
+          break;
+        case FrameStress::Bimoment:
+          if (elem_bimoment != -1)
+            trial[j] = e[elem_bimoment];
+          break;
+      }
+  }
+
+  return this->setTrialSectionDeformation(trial);
+}
+
+template <int n, const FrameStressLayout& scheme>
+OpenSees::MatrixND<n,n, double> 
+FrameSection::getFlexibility(State state)
+{
+  OpenSees::MatrixND<n,n,double> fout;
+
+  const ID& layout = this->getType();
+
+  int m = this->getOrder();
+
+  const Matrix& ks = (state == State::Init)
+                    ? this->getInitialFlexibility()
+                    : this->getSectionFlexibility();
+
+  for (int i=0; i<n; i++) {
+    for (int j=0; j<n; j++) {  
+      fout(i,j) = 0.0;
+      for (int k=0; k<m; k++) {
+        if (layout(k) == scheme[i]) {
+          for (int l=0; l<m; l++)
+            if (layout(l) == scheme[j]) {
+              fout(i,j) = ks(k,l);
+            }
+        }
+      }
+    }
+  }
+
+  return fout;
+}

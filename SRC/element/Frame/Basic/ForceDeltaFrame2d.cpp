@@ -54,6 +54,7 @@
 
 #include <ElementResponse.h>
 #include <CompositeResponse.h>
+#include <BeamIntegration.h>
 #include <ElementalLoad.h>
 
 

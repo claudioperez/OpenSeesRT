@@ -120,12 +120,19 @@ ElasticLinearFrameSection3d::getConstants(FrameSectionConstants& consts) const
   const MatrixND<nr,nr>& K = *Ks;
   // TODO
   consts.A   =  K(0,0)/E;
-  consts.Ay  =  K(1,1)/G;
-  consts.Az  =  K(2,2)/G;
   consts.Iy  =  K(4,4)/E;
   consts.Iyz = -K(4,5)/E;
   consts.Iz  =  K(5,5)/E;
-  consts.Ca  =  K(7,7)/G;
+
+  if (G != 0) {
+    consts.Ay  =  K(1,1)/G;
+    consts.Az  =  K(2,2)/G;
+    consts.Ca  =  K(7,7)/G;
+  } else {
+    consts.Ay  =  0;
+    consts.Az  =  0;
+    consts.Ca  =  0;
+  }
 }
 
 int
@@ -137,6 +144,14 @@ ElasticLinearFrameSection3d::getIntegral(Field field, State state, double& value
   switch (field) {
     case Field::Unit:
       value = consts.A;
+      return 0;
+
+    case Field::UnitY:
+      value = consts.Ay;
+      return 0;
+
+    case Field::UnitZ:
+      value = consts.Az;
       return 0;
 
     case Field::Density:
@@ -463,9 +478,11 @@ ElasticLinearFrameSection3d::Print(OPS_Stream &s, int flag)
     s << OPS_PRINT_JSON_MATE_INDENT << "{";
     s << "\"name\": \"" << this->getTag() << "\", ";
     s << "\"type\": \"ElasticLinearFrameSection3d\", ";
-    s << "\"E\": "  << E  << ", ";
-    s << "\"G\": "  << G  << ", ";
-    s << "\"A\": "  << consts.A  << ", ";
+    s << "\"E\": "   << E  << ", ";
+    s << "\"G\": "   << G  << ", ";
+    s << "\"A\": "   << consts.A  << ", ";
+    s << "\"Ay\": "  << consts.Ay  << ", ";
+    s << "\"Az\": "  << consts.Az  << ", ";
     s << "\"Jx\": " <<        J  << ", ";
     s << "\"Iy\": " << consts.Iy << ", ";
     s << "\"Iz\": " << consts.Iz;

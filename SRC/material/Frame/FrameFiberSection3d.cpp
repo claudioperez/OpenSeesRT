@@ -147,6 +147,14 @@ FrameFiberSection3d::getIntegral(Field field, State state, double& value) const
       }
       return 0;
 
+    case Field::UnitY: // TODO: Centroid
+      for (int i=0; i<numFibers; i++) {
+        const double A  = matData[3*i+2];
+        const double y  = matData[3*i] - yBar;
+        value += A*y;
+      }
+      return 0;
+
 
     case Field::UnitYY:
     case Field::UnitCentroidYY:
