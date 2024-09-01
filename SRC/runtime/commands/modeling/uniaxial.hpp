@@ -17,6 +17,7 @@
 #include <runtimeAPI.h>
 #include <BarSlipMaterial.h>
 extern OPS_Routine OPS_ASD_SMA_3K;
+extern OPS_Routine OPS_ASDConcrete1DMaterial;
 extern OPS_Routine OPS_APDFMD;
 extern OPS_Routine OPS_APDMD;
 extern OPS_Routine OPS_APDVFD;
@@ -129,6 +130,14 @@ extern OPS_Routine OPS_pyUCLA;
 
 extern void *OPS_ConcretewBeta(void);
 
+const char** DeprecatedUniaxialMaterials {
+  "Bilin02", "This material is superceded by \"IMKBilin\" and \"HystereticSM\"",
+  "CFSSSWP", ""
+  "CFSWSWP", ""
+  "APDVFD",  ""
+  "APDMD",   ""
+  "APDFMD",  ""
+};
 
 typedef UniaxialMaterial*(G3_TclUniaxialPackage)(ClientData, Tcl_Interp *, int, TCL_Char ** const);
 G3_TclUniaxialPackage TclBasicBuilder_addFedeasMaterial;
@@ -455,6 +464,8 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
     {"SMA",                    dispatch<OPS_SMAMaterial>               },
 
     {"ASD_SMA_3K",             dispatch<OPS_ASD_SMA_3K>                },
+
+    {"ASDConcrete1D",          dispatch<OPS_ASDConcrete1DMaterial>     },
 
     {"HystereticPoly",         dispatch<OPS_HystereticPoly>            },
 
