@@ -8,7 +8,7 @@ authors = [
 
 license = {file = "about/LICENSE"}
 
-readme = "about/README.md"
+readme = "about/PyPI.README.md"
 
 description = "Fast nonlinear finite element analysis."
 
@@ -81,11 +81,8 @@ docs = [
 ]
 
 [project.urls]
-Repository = "https://github.com/OpenSees/OpenSees"
+Repository = "https://github.com/claudioperez/OpenSeesRT"
 Examples = "https://stairlab.github.io/opensees-gallery"
-Homepage = "https://github.com/claudioperez/opensees"
-# Organization = "https://stairlab.berkeley.edu"
-# Documentation = "https://brace2.github.io/OpenSeesRT"
 
 [build-system]
 requires = [
@@ -97,7 +94,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["SRC"]
 exclude = ["libg3*", "site*"]
 
 [tool.setuptools.package-data]
