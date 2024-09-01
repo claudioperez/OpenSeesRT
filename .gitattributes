@@ -1,8 +1,8 @@
 *.html linguist-documentation
 *.ipynb linguist-documentation
 *.cmake linguist-documentation
-OTHER/** linguist-vendored
 SRC/material/** linguist-vendored
+SRC/element/** linguist-vendored
 tests/**.py linguist-detectable=true
 
 * text=auto !eol
