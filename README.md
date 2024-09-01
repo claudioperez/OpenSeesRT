@@ -21,34 +21,44 @@ Optimized kernel for the experimental [`opensees`](https://github.com/claudioper
 
 </div>
 
+<br>
 
 
+### Support
 
-## Support
+<table align="center" style="border: 0;">
+ <tr style="background-color:rgba(0, 0, 0, 0);">
+  <td style="background-color:rgba(0, 0, 0, 0);" colspan="3">
+    <a>
+    <img src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/opensees.svg" 
+         width="600" alt="OpenSeesRT Logo">
+    </a>
+  </td>
+ </tr>
 
-<table align="center">
 <tr>
-
   <td>
     <a href="https://peer.berkeley.edu">
     <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/peer-black-300.png"
-         alt="PEER Logo" width="120"/>
+         alt="PEER Logo" width="200"/>
     </a>
   </td>
 
   <td>
     <a href="https://dot.ca.gov/">
     <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/Caltrans.svg.png"
-         alt="Caltrans Logo" width="120"/>
+         alt="Caltrans Logo" width="200"/>
     </a>
   </td>
 
   <td>
-    <a href="https://github.com/BRACE2">
-    <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/brace2_logo-new3_ungrouped.svg"
-         alt="BRACE2 Logo" width="120"/>
+    <!-- <a href="https://brace2.herokuapp.com"> -->
+    <a href="https://stairlab.berkeley.edu">
+    <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/stairlab.svg"
+         alt="STAIRlab Logo" width="200"/>
     </a>
   </td>
  
  </tr>
 </table>
+
