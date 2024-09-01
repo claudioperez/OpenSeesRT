@@ -9,7 +9,7 @@
  *                                                                         *
  *                                                                         *
  ***************************************************************************/
-
+#include <Logging.h>
 #include <OPS_Stream.h>
 #include "PeakOriented2D02.h"
 
