@@ -17,7 +17,7 @@ project(OpenSees
 set(OPS_BUNDLED_DIR   "${CMAKE_CURRENT_LIST_DIR}/OTHER/")
 set(OPS_SRC_DIR       "${CMAKE_CURRENT_LIST_DIR}/SRC/")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
-                      "${CMAKE_CURRENT_LIST_DIR}/BuildTools/cmake")
+                      "${CMAKE_CURRENT_LIST_DIR}/tools/cmake")
 
 enable_testing()
 
@@ -63,11 +63,11 @@ elseif(WIN32)
 
 
   # Load Conan build info
-  if (EXISTS  "${CMAKE_BINARY_DIR}/src/libg3/conanbuildinfo.cmake")
-    include(${CMAKE_BINARY_DIR}/src/libg3/conanbuildinfo.cmake)
-  else()
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-  endif()
+  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+ #if (EXISTS  "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+ #else()
+ #  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+ #endif()
   conan_basic_setup() # TARGETS)
 
 
@@ -479,3 +479,13 @@ get_target_property(OPS_Element_COMPILE_OPTIONS OPS_Element COMPILE_OPTIONS)
   string(REPLACE "-Wextra" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
   set_target_properties(OPS_Element PROPERTIES COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
 
+#
+#
+#
+if (TARGET OpenSeesPyRT)
+  install(TARGETS 
+      OpenSeesRT OpenSeesPyRT LIBRARY DESTINATION .)
+else()
+  install(TARGETS 
+      OpenSeesRT LIBRARY DESTINATION .)
+endif()
