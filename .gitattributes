@@ -3,9 +3,10 @@
 *.cmake linguist-documentation
 
 SRC/quadrature/** linguist-vendored
+SRC/reliability/** linguist-vendored
 SRC/material/**   linguist-vendored
-SRC/runtime/**    linguist-vendored
 SRC/element/**    linguist-vendored
+SRC/runtime/**    linguist-vendored
 
 OTHER/arpack-ng/** linguist-vendored
 OTHER/CBLAS/**     linguist-vendored
