@@ -3,6 +3,7 @@
 *.cmake linguist-documentation
 OTHER/** linguist-vendored
 SRC/material/** linguist-vendored
+tests/**.py linguist-detectable=true
 
 * text=auto !eol
 DEVELOPER/coreList -text
