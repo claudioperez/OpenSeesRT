@@ -115,7 +115,7 @@ struct MatrixND {
   template <typename F> void map(F func, MatrixND<NR,NC,T>& destination);
 
   int invert(MatrixND<NR, NC> &) const;
-  int invert() {return Matrix(*this).Invert();};
+  int invert() {return Matrix(*this).Invert();}
 
   template<class VecT> MatrixND<NR,NC,T>& addSpin(const VecT& V);
   template<class VecT> MatrixND<NR,NC,T>& addSpin(const VecT& V, double scale);
@@ -267,9 +267,20 @@ struct MatrixND {
     DGESV(&nr, &nrhs, &work(0,0), &nr, &pivot_ind[0], &res(0,0), &nc, &info);
     return -abs(info);
   }
+ 
 
+  template <int row0, int row1, int col0, int col1>
+  inline MatrixND<row1-row0,col1-col0>
+  extract()
+  {
+    MatrixND<row1-row0,col1-col0> m;
+    for (int i=0; i<row1-row0; i++)
+      for (int j=0; j<col1-col0; i++)
+        m(i,j) = (*this)(row0+i, col0+j);
+    return m;
+  }
 
-  template<int nr, int nc> inline void
+  template <int nr, int nc> inline void
   assemble(const MatrixND<nr, nc, double> &M, int init_row, int init_col, double fact) 
   {
  
@@ -545,7 +556,7 @@ template<> inline int
 MatrixND<6,6>::invert(MatrixND<6,6> &M) const
 {
   int status;
-  cmx_inv6(&this->values[0][0], &M.values[0][0], &status);
+    cmx_inv6(&this->values[0][0], &M.values[0][0], &status);
   return status;
 }
 
