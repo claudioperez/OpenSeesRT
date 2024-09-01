@@ -1,4 +1,5 @@
 *.html linguist-documentation
+*.ipynb linguist-documentation
 * text=auto !eol
 DEVELOPER/coreList -text
 DEVELOPER/element/c/example1.tcl -text
