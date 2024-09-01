@@ -1,6 +1,7 @@
-*.html linguist-documentation
+*.html  linguist-documentation
 *.ipynb linguist-documentation
 *.cmake linguist-documentation
+*.txt   linguist-documentation
 
 SRC/quadrature/**  linguist-vendored
 SRC/reliability/** linguist-vendored
