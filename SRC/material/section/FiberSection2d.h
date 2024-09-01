@@ -88,6 +88,7 @@ class FiberSection2d : public FrameSection
     // AddingSensitivity:END ///////////////////////////////////////////
 
     double getEnergy() const; // by SAJalali
+    int   getIntegral(Field field, State state, double& value) const override final;
 
   protected:
     

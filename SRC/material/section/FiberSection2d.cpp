@@ -174,6 +174,53 @@ FiberSection2d::~FiberSection2d()
     delete ks;
 }
 
+
+int
+FiberSection2d::getIntegral(Field field, State state, double& value) const
+{
+  value = 0.0;
+
+  switch (field) {
+    case Field::Unit:
+      for (int i=0; i<numFibers; i++) {
+        const double A  = matData[2*i+2];
+        value += A;
+      }
+      return 0;
+
+    case Field::Density:
+      // First check if density has been specified for the section
+      if (this->FrameSection::getIntegral(field, state, value) == 0) 
+        return 0;
+
+      for (int i=0; i<numFibers; i++) {
+        double density;
+        const double A  = matData[2*i+2];
+        if (theMaterials[i]->getRho() != 0)
+          value += A*density;
+        else
+          return -1;
+      }
+      return 0;
+
+
+    case Field::UnitYY:
+    case Field::UnitCentroidYY:
+      for (int i=0; i<numFibers; i++) {
+        const double A  = matData[2*i+2];
+        const double y  = matData[2*i]
+                        - yBar*(Field::UnitCentroidYY == field);
+        value += A*y*y;
+      }
+      return 0;
+
+
+    default:
+      return -1;
+  }
+  return -1;
+}
+
 int
 FiberSection2d::setTrialSectionDeformation (const Vector &deforms)
 {
