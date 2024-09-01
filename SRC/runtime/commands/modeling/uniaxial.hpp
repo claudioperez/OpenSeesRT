@@ -130,6 +130,8 @@ extern OPS_Routine OPS_pyUCLA;
 
 extern void *OPS_ConcretewBeta(void);
 
+
+#if 0
 const char** DeprecatedUniaxialMaterials {
   "Bilin02", "This material is superceded by \"IMKBilin\" and \"HystereticSM\"",
   "CFSSSWP", ""
@@ -138,6 +140,7 @@ const char** DeprecatedUniaxialMaterials {
   "APDMD",   ""
   "APDFMD",  ""
 };
+#endif
 
 typedef UniaxialMaterial*(G3_TclUniaxialPackage)(ClientData, Tcl_Interp *, int, TCL_Char ** const);
 G3_TclUniaxialPackage TclBasicBuilder_addFedeasMaterial;
