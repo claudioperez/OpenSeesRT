@@ -1,13 +1,13 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the implementation of the GeneralizedNewmark class.
 //
 // Written : cmp
-// Created : 11/98
-// Modified: 02/05 ahs
+// Created : 06/2024
 // Revision: A
 //
 #include <stdexcept>
@@ -416,7 +416,7 @@ GeneralizedNewmark::getVel()
 int GeneralizedNewmark::revertToLastStep()
 {
   // set response at t+deltaT to be that at t .. for next newStep
-  if (U != 0)  {
+  if (U != nullptr)  {
     (*U) = *Ut;        
     (*Udot) = *Utdot;  
     (*Udotdot) = *Utdotdot;  
@@ -633,20 +633,20 @@ void GeneralizedNewmark::Print(OPS_Stream &s, int flag)
 }
 
 
-// AddingSensitivity:BEGIN //////////////////////////////
+
 int GeneralizedNewmark::revertToStart()
 {
-    if (Ut != 0) 
+    if (Ut != nullptr) 
         Ut->Zero();
-    if (Utdot != 0) 
+    if (Utdot != nullptr) 
         Utdot->Zero();
-    if (Utdotdot != 0) 
+    if (Utdotdot != nullptr) 
         Utdotdot->Zero();
-    if (U != 0) 
+    if (U != nullptr) 
         U->Zero();
-    if (Udot != 0) 
+    if (Udot != nullptr) 
         Udot->Zero();
-    if (Udotdot != 0) 
+    if (Udotdot != nullptr) 
         Udotdot->Zero();
     
     return 0;
@@ -838,14 +838,14 @@ GeneralizedNewmark::formSensitivityRHS(int passedGradNumber)
     // Loop through nodes to zero the unbalaced load
     Node *nodePtr;
     NodeIter &theNodeIter = theDomain->getNodes();
-    while ((nodePtr = theNodeIter()) != 0)
+    while ((nodePtr = theNodeIter()) != nullptr)
       nodePtr->zeroUnbalancedLoad();
 
     // Loop through load patterns to add external load sensitivity
     LoadPattern *loadPatternPtr;
     LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
     double time;
-    while((loadPatternPtr = thePatterns()) != 0) {
+    while((loadPatternPtr = thePatterns()) != nullptr) {
       time = theDomain->getCurrentTime();
       loadPatternPtr->applyLoadSensitivity(time);
     }
@@ -854,14 +854,14 @@ GeneralizedNewmark::formSensitivityRHS(int passedGradNumber)
     // Loop through FE elements
     FE_Element *elePtr;
     FE_EleIter &theEles = theModel->getFEs();    
-    while((elePtr = theEles()) != 0) {
+    while((elePtr = theEles()) != nullptr) {
       theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
     }
 
     // Loop through DOF groups (IT IS IMPORTANT THAT THIS IS DONE LAST!)
     DOF_Group *dofPtr;
     DOF_GrpIter &theDOFs = theModel->getDOFs();
-    while((dofPtr = theDOFs()) != 0) {
+    while((dofPtr = theDOFs()) != nullptr) {
       theSOE->addB(  dofPtr->getUnbalance(this),  dofPtr->getID()  );
     }
 
@@ -1086,7 +1086,7 @@ GeneralizedNewmark::computeSensitivities(void)
 
   paramIter = theDomain->getParameters();
   
-  while ((theParam = paramIter()) != 0) {
+  while ((theParam = paramIter()) != nullptr) {
     
     // Activate this parameter
     theParam->activate(true);

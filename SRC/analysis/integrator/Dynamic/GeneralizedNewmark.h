@@ -1,17 +1,16 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
 //
-// Written : fmk 
-// Created : 11/98
-// Modified: 02/05 ahs
-// Revision: A
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 // Description: This file contains the class definition for GeneralizedNewmark.
 // GeneralizedNewmark is an algorithmic class for performing a transient analysis
 // using the GeneralizedNewmark integration scheme.
+//
+// Written : cmp
+// Created : 06/2024
+// Adapted from Newmark.cpp
 //
 #ifndef GeneralizedNewmark_h
 #define GeneralizedNewmark_h
@@ -98,7 +97,6 @@ private:
     Vector independentRHS;
     Vector dUn, dVn, dAn;
     //////////////////////
-
 };
 
 #endif
