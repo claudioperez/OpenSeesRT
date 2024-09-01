@@ -43,7 +43,7 @@
 #include <ElasticMaterial.h>
 #include <Message.h>
 #include <cmath>
-#include <algorithm>
+#include <limits>
 #include <sstream>
 #include <iomanip>
 #include <vector>
