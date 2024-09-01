@@ -29,15 +29,17 @@ enum {
  CRDTR_TAG_PDeltaFrameTransf3d
 };
 
-typedef int BasicFrameLayout[10];
-
+//
 // 2D
+//
 class FrameTransform2d : public CrdTransf {
   public:
   FrameTransform2d(int tag, int classTag) : CrdTransf(tag, classTag) {};
 };
 
+//
 // 3D
+//
 class FrameTransform3d : public CrdTransf {
 public:
   enum {
@@ -45,11 +47,13 @@ public:
   };
 
 public:
-  FrameTransform3d(int tag, int classTag) : CrdTransf(tag, classTag) {};
+  FrameTransform3d(int tag, int classTag) : CrdTransf(tag, classTag) {}
 
 
   // TODO(cmp) : make almost everything pure virtual
-  virtual FrameTransform3d *getCopy() { return nullptr;};
+  virtual FrameTransform3d *getCopy() {
+    return nullptr;
+  }
 
   virtual CrdTransf *getCopy3d() {
     return getCopy();
@@ -94,6 +98,7 @@ public:
     static MatrixND<12,12> empty{};
     return empty;
   }
+
 
   template<int nn, int ndf=6>
   VectorND<nn*ndf> push(const VectorND<nn*ndf>&q) {
@@ -203,4 +208,4 @@ protected:
 
 };
 
-#endif
+#endif // include guard
