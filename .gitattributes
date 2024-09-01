@@ -1,15 +1,19 @@
 *.html linguist-documentation
 *.ipynb linguist-documentation
 *.cmake linguist-documentation
-SRC/material/** linguist-vendored
-SRC/runtime/** linguist-vendored
-SRC/element/** linguist-vendored
+
+SRC/quadrature/** linguist-vendored
+SRC/material/**   linguist-vendored
+SRC/runtime/**    linguist-vendored
+SRC/element/**    linguist-vendored
+
 OTHER/arpack-ng/** linguist-vendored
-OTHER/CBLAS/** linguist-vendored
-OTHER/Tetgen/** linguist-vendored
-OTHER/AMD/** linguist-vendored
-OTHER/eigenAPI/** linguist-vendored
-tests/**.py linguist-detectable=true
+OTHER/CBLAS/**     linguist-vendored
+OTHER/Tetgen/**    linguist-vendored
+OTHER/AMD/**       linguist-vendored
+OTHER/eigenAPI/**  linguist-vendored
+
+tests/** linguist-detectable=true
 
 * text=auto !eol
 DEVELOPER/coreList -text
