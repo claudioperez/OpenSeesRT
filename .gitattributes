@@ -6,6 +6,8 @@ SRC/runtime/** linguist-vendored
 SRC/element/** linguist-vendored
 OTHER/arpack-ng/** linguist-vendored
 OTHER/CBLAS/** linguist-vendored
+OTHER/Tetgen/** linguist-vendored
+OTHER/AMD/** linguist-vendored
 OTHER/eigenAPI/** linguist-vendored
 tests/**.py linguist-detectable=true
 
