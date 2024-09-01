@@ -2,10 +2,11 @@
 *.ipynb linguist-documentation
 *.cmake linguist-documentation
 SRC/material/** linguist-vendored
+SRC/runtime/** linguist-vendored
+SRC/element/** linguist-vendored
 OTHER/arpack-ng/** linguist-vendored
 OTHER/CBLAS/** linguist-vendored
 OTHER/eigenAPI/** linguist-vendored
-SRC/element/** linguist-vendored
 tests/**.py linguist-detectable=true
 
 * text=auto !eol
