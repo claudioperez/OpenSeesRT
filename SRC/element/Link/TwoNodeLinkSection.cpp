@@ -48,7 +48,7 @@ Vector TwoNodeLinkSection::TwoNodeLinkSectionV4(4);
 Vector TwoNodeLinkSection::TwoNodeLinkSectionV6(6);
 Vector TwoNodeLinkSection::TwoNodeLinkSectionV12(12);
 
-void* OPS_TwoNodeLinkSection()
+void* OPS_ADD_RUNTIME_VPV(OPS_TwoNodeLinkSection)
 {
     int ndm = OPS_GetNDM();
     if (OPS_GetNumRemainingInputArgs() < 4) {
