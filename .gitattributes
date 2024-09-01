@@ -2,6 +2,7 @@
 *.ipynb linguist-documentation
 *.cmake linguist-documentation
 SRC/material/** linguist-vendored
+OTHER/arpack-ng/** linguist-vendored
 SRC/element/** linguist-vendored
 tests/**.py linguist-detectable=true
 
