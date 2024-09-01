@@ -180,6 +180,7 @@ FireLoadPattern::addSP_Constraint(SP_Constraint *)
   opserr << "FireLoadPattern::addSP_Constraint() - cannot add SP_Constraint to FireLoadPattern\n";
   return false;
 }
+
 /*
 bool
 FireLoadPattern::addNodalLoad(NodalLoad *)
