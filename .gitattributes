@@ -2,6 +2,7 @@
 *.ipynb linguist-documentation
 *.cmake linguist-documentation
 *.txt   linguist-documentation
+*.tex   linguist-documentation
 
 SRC/quadrature/**  linguist-vendored
 SRC/reliability/** linguist-vendored
