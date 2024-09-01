@@ -19,13 +19,12 @@ Written by: Quan Gu_1,  Yongdou Liu_1, Wei Guo_23, Weiquan Li_1, Zhiwu Yu_23, Li
 #include <Node.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <Renderer.h>
 #include <OPS_Globals.h>
 #include <OPS_Stream.h>
 
 #include <cmath>
 
-#include <elementAPI.h>
+// #include <elementAPI.h>
 
 //--------------------
 #include <Matrix.h>
@@ -417,13 +416,6 @@ WheelRail::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBro
 }
 
 
-int
-WheelRail::displaySelf(Renderer &theViewer, int displayMode, float fact)
-{
-  return 0;   //ok
-}
-
-
 void
 WheelRail::Print(OPS_Stream &s, int flag)
 {
@@ -436,14 +428,14 @@ WheelRail::setResponse(const char **argv, int argc, OPS_Stream &output)
 {
 	Response *theResponse = 0;
   //
-  char outputData[32];
+  char outputData[124];
 
   output.tag("ElementOutput");
   output.attr("eleType","WheelRail");
   output.attr("eleTag",this->getTag());
 
   for(int i=0;i<numRailNodeList+1;i++){
-	sprintf(outputData,"node%d",i);
+	snprintf(outputData, 124, "node%d",i);
 	output.attr(outputData,connectedExternalNodes[i]);
   }
 
