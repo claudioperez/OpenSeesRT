@@ -1,0 +1,6 @@
+
+
+- `BasicLegendreQuadr`
+- `PlaneLegendreQuadr`
+- `PlaneTriangleQuadr`
+
