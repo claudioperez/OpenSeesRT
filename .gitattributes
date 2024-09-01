@@ -2,6 +2,7 @@
 *.ipynb linguist-documentation
 *.cmake linguist-documentation
 OTHER/* linguist-vendored
+SRC/material/* linguist-vendored
 
 * text=auto !eol
 DEVELOPER/coreList -text
