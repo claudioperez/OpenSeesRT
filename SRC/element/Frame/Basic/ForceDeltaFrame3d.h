@@ -8,17 +8,17 @@
 #ifndef ForceDeltaFrame3d_h
 #define ForceDeltaFrame3d_h
 
+#include <array>
+#include <vector>
 #include <element/Frame/BasicFrame3d.h>
-#include <Node.h>
-#include <Matrix.h>
 #include <Vector.h>
 #include <Channel.h>
-#include <BeamIntegration.h>
 #include <FrameSection.h>
 #include <FrameTransform.h>
 
 class Response;
 class ElementalLoad;
+class BeamIntegration;
 
 class ForceDeltaFrame3d : public BasicFrame3d {
 public:
@@ -37,13 +37,11 @@ public:
   ~ForceDeltaFrame3d();
 
   const char*
-  getClassType() const
-  {
+  getClassType() const final {
     return "ForceDeltaFrame3d";
   }
 
   int setNodes();
-
   int commitState();
   int revertToLastCommit();
   int revertToStart();
@@ -84,9 +82,6 @@ protected:
   virtual VectorND<6>&   getBasicForce();
   virtual MatrixND<6,6>& getBasicTangent(State state, int rate);
 
-  void setSectionPointers(int numSections, FrameSection** secPtrs);
-  int getInitialFlexibility(Matrix& fe);
-  int getInitialDeformations(Vector& v0);
 
 private:
   constexpr static int
@@ -95,8 +90,9 @@ private:
          ndm = 3 ,              // dimension of the problem (2d)
          ndf = 6 ,              // dofs per node
          nq = 6 ,               // number of element dof's in the basic system
+         maxNumSections = 20,
          maxNumEleLoads = 100;
-  enum { maxNumSections = 20 };
+//  enum { maxNumSections = 20 };
 
   static constexpr FrameStressLayout scheme = {
     FrameStress::N,
@@ -107,10 +103,9 @@ private:
     FrameStress::Mz,
   };
 
-  // TODO
-  double wt[maxNumSections];
-  double xi[maxNumSections];
-
+  void setSectionPointers(int numSections, FrameSection** secPtrs);
+  int getInitialFlexibility(Matrix& fe);
+  int getInitialDeformations(Vector& v0);
 
 //void getForceInterpolatMatrix(double xi, Matrix& b, const ID& code);
 //void getDistrLoadInterpolatMatrix(double xi, Matrix& bp, const ID& code);
@@ -133,17 +128,23 @@ private:
 
   // Section forces due to element loads
   void computeSectionForces(VectorND<nsr>& sp, int isec);
+  // TODO
+  double wt[maxNumSections];
+  double xi[maxNumSections];
+
+
 
   // Parameters
-  int    shear_flag;
   double density;                // mass density per unit length
   double twist_mass;
   double total_mass;
-  int  mass_flag;
-  bool mass_initialized;
-  bool use_density;
+  int    mass_flag;
+  bool   mass_initialized;
+  bool   use_density;
+
   int max_iter;            // maximum number of local iterations
   double tol;              // tolerance for relative energy norm for local iterations
+  int    shear_flag;
 
   // Element State
   MatrixND<6,6> K_pres,          // stiffness matrix in the basic system 
@@ -168,7 +169,7 @@ private:
   };
 
   std::vector<GaussPoint> points;
-  BeamIntegration* stencil;
+  BeamIntegration*        stencil;
 
   Matrix* Ki;
 

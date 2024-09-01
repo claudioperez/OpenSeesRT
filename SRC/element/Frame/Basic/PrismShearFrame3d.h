@@ -33,12 +33,11 @@ public:
 
   ~ElasticTimoshenkoBeam3d();
 
-  // method to get class type
   const char*
   getClassType() const
   {
     return "ElasticTimoshenkoBeam3d";
-  };
+  }
 
   // public methods to obtain information about dof & connectivity
   int getNumExternalNodes() const;

@@ -28,7 +28,8 @@
 PrismFrame3d::PrismFrame3d()
   :BasicFrame3d(0,ELE_TAG_ElasticBeam3d),
    A(0.0), E(0.0), G(0.0), Jx(0.0), Iy(0.0), Iz(0.0),
-   total_mass(0.0), twist_mass(0.0)
+   total_mass(0.0), twist_mass(0.0),
+   geom_flag(0)
 {
   q.zero();
 }
@@ -37,12 +38,14 @@ PrismFrame3d::PrismFrame3d(int tag, std::array<int, 2>& nodes,
                            double  a, double  e, double  g, 
                            double jx, double iy, double iz,
                            FrameTransform3d &coordTransf, 
-                           double r, int cm, int rz, int ry)
+                           double r, int cm, int rz, int ry,
+                           int geom)
 
   :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
    A(a), E(e), G(g), Jx(jx), Iy(iy), Iz(iz), 
    mass_flag(cm), density(r),
    releasez(rz), releasey(ry),
+   geom_flag(geom),
    section_tag(-1)
 {
   q.zero();
@@ -53,11 +56,13 @@ PrismFrame3d::PrismFrame3d(int tag,
                            FrameSection &section,  
                            FrameTransform3d &coordTransf, 
                            double rho_, int cMass, bool use_mass, 
-                           int rz, int ry
+                           int rz, int ry,
+                           int geom
                            )
   :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
    mass_flag(cMass), density(rho_),
-   releasez(rz), releasey(ry)
+   releasez(rz), releasey(ry),
+   geom_flag(geom)
 {
   q.zero();
 
@@ -190,47 +195,118 @@ PrismFrame3d::update()
   // Form the axial force
   double N = E*A/L*v[0];
 
-  switch (geom_flag) {
-    case 0:
-      ke = km ;
+  if (std::fabs(N) < 1e-8)
+    ke = km;
 
-      break;
+  else
+    switch (geom_flag) {
+      case 0:
+        ke = km ;
 
-    case 1:
-      kg.zero();
-      kg(1,1) = kg(2,2) =  4.0*N*L/30.0;
-      kg(1,2) = kg(2,1) = -1.0*N*L/30.0;
-      ke = km + kg;
-      break;
+        break;
 
-    case 2:
-      kg.zero();
-      { // zz
-        double psi = L*std::sqrt(std::fabs(N)/(E*Iz));
-        if (psi > 1e-12) {
-          double cs = std::cos(psi);
-          double sn = std::sin(psi);
-          double C  = E*Iz/(L*(2.0 - 2.0*cs - psi*sn));
-          ke(1,1) = ke(2,2) =  C*psi*(sn - psi*cs);
-          ke(1,2) = ke(2,1) =  C*psi*(psi - sn);
-        } else {
-          ke = km;
+      case 1:
+        kg.zero();
+        kg(1,1) = kg(2,2) =  4.0*N*L/30.0;
+        kg(1,2) = kg(2,1) = -1.0*N*L/30.0;
+        ke = km + kg;
+        break;
+
+      case 2:
+        {
+          MatrixND<8,8> Y;
+
+          // Y is composed of 2x2 blocks:
+          //
+          // Y = [O  I     O    O 
+          //      O  O     I    O
+          //      O  O     O    I
+          //      O  O  -ks\P   O];
+          //
+          Y.zero();
+
+          for (int i=0; i<6; i++)
+            Y(i, i+2) = L;
+
+          double Iyz = 0;
+
+          // Form ks = kf*[0 -1; 1 0]*(eye(2) - N*inv(kv))
+          MatrixND<2,2> Ks;
+          {
+            MatrixND<2,2> Kf {{
+                             {E*Iz,  E*Iyz},
+                             {E*Iyz, E*Iy }
+                             }};
+            Ks = Kf;
+
+//          if (G*Ay != 0 && G*Az != 0) {
+//            MatrixND<2,2> Kv {{
+//              {     0      ,-1 + N/(G*Az) },
+//              {1 - N/(G*Ay),      0       }}};
+
+//            Ks = Kf*Kv;
+
+//          } else {
+//            Ks = Kf;
+//          }
+          }
+
+          Ks.invert();
+          Y.assemble(Ks, 6, 4, L*N);
+          Ks.invert();
+
+
+          MatrixND<8,8> eY  = ExpGLn(Y);
+          opserr << Matrix(eY) << "\n";
+
+          MatrixND<2,2> E12 = eY.extract<0,2,  2,4>();
+          MatrixND<2,2> E13 = eY.extract<0,2,  4,6>();
+          MatrixND<2,2> E14 = eY.extract<0,2,  6,8>();
+
+          MatrixND<2,2> E22 = eY.extract<2,4,  2,4>();
+          MatrixND<2,2> E23 = eY.extract<2,4,  4,6>();
+          MatrixND<2,2> E24 = eY.extract<2,4,  6,8>();
+
+          MatrixND<2,2> E32 = eY.extract<4,6,  2,4>();
+          MatrixND<2,2> E33 = eY.extract<4,6,  4,6>();
+          MatrixND<2,2> E34 = eY.extract<4,6,  6,8>();
+
+          MatrixND<2,2> E44 = eY.extract<6,8,  6,8>();
+          
+
+          E12.invert();
+          MatrixND<2,2> H3 = E12*E13,
+                        H4 = E12*E14;
+
+          H3 *= -1;
+          H4 *= -1;
+
+          MatrixND<4,4> F1{};
+          F1.assemble(H3,         0, 0, 1);
+          F1.assemble(H4,         0, 2, 1);
+          F1.assemble(E22*H3+E23, 2, 0, 1);
+          F1.assemble(E22*H4+E24, 2, 2, 1);
+          F1.invert();
+
+          MatrixND<4,4> F2{};
+          F2.assemble(Ks,               0, 0, 1);
+          F2.assemble(Ks*E32*H3+Ks*E33, 2, 0, 1);
+          F2.assemble(Ks*E32*H4+Ks*E34, 2, 2, 1);
+
+          MatrixND<4,4> Kb = F2*F1;
+
+          ke = {{{E*A/L,      0  ,       0  ,    0  ,       0   ,     0   },
+                 {   0 , -Kb(0,0),  -Kb(0,2),    0  ,   -Kb(0,1), -Kb(1,4)},  // i theta_z
+                 {   0 ,  Kb(2,0),   Kb(2,2),    0  ,    Kb(2,1),  Kb(3,4)},  // j
+                 {   0 ,      0  ,       0  , G*Jx/L,       0   ,     0   },  //   theta_x
+                 {   0 , -Kb(1,0),  -Kb(1,2),    0  ,   -Kb(1,1), -Kb(2,4)},  // i theta_y
+                 {   0 ,  Kb(3,0),   Kb(3,2),    0  ,    Kb(3,1),  Kb(4,4)}}};// j
+                                                                              //
+          opserr << Matrix(ke) << "\n";
+
         }
-      }
-      { // yy
-        double psi = L*std::sqrt(std::fabs(N)/(E*Iy));
-        if (psi > 1e-12) {
-          double cs = std::cos(psi);
-          double sn = std::sin(psi);
-          double C  = E*Iy/(L*(2.0 - 2.0*cs - psi*sn));
-          ke(3,3) = ke(4,4) =  C*psi*(sn - psi*cs);
-          ke(4,3) = ke(3,4) =  C*psi*(psi - sn);
-        } else {
-          ke = km;
-        }
-      }
-      break;
-  }
+        break;
+    }
 
   q = ke*v;
   q += q0;
@@ -943,7 +1019,6 @@ void
 kg_expm(double L, double GAy, double GAz, double EIy, double EIz)
 {
 
-  MatrixND<8,8> Y;
   Y.addDiagonal(1)
 }
 #endif

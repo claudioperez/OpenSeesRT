@@ -32,14 +32,16 @@ class PrismFrame3d : public BasicFrame3d
 		             double Jx, double Iy, double Iz,
                  FrameTransform3d &theTransf,
                  double density, int mass_flag,
-		             int releasez, int releasey);
+		             int releasez, int releasey,
+                 int geom);
 
     PrismFrame3d(int tag,
                  std::array<int,2>& nodes,
                  FrameSection &section, 
 		             FrameTransform3d &theTransf,
                  double density, int mass_flag, bool use_mass,
-		             int releasez, int releasey);
+		             int releasez, int releasey,
+                 int geom);
 
     PrismFrame3d();
 

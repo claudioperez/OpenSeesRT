@@ -242,7 +242,7 @@ PrismFrame2d::formBasicStiffness(OpenSees::MatrixND<3,3>& kb) const
                  (double)(release&0b001),
                  (double)(release&0b010)};
 
-  MatrixND<3,3> as {{
+  MatrixND<3,3> ah {{
     {1-r[0],        0,                  0          },
     {  0   ,      1-r[1],       -0.5*(1-r[2])*r[1] },
     {  0   ,-0.5*(1-r[1])*r[2],       1-r[2]       }}};
@@ -252,10 +252,10 @@ int
 PrismFrame2d::commitState()
 {
   int retVal = 0;
-  // call element commitState to do any base class stuff
+  // call base class stuff
   if ((retVal = this->Element::commitState()) != 0) {
     opserr << "PrismFrame2d::commitState () - failed in base class";
-  }    
+  }
   retVal += theCoordTransf->commitState();
   return retVal;
 }
@@ -281,7 +281,6 @@ PrismFrame2d::update()
   L = theCoordTransf->getInitialLength();
 
   double N = E*A/L*v[0];
-
 
   switch (geom_flag) {
     case 0:
