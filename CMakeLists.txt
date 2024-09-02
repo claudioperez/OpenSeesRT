@@ -104,7 +104,7 @@ if (UNIX)
     message(":: MacOS")
     add_compile_definitions(_LINUX _UNIX _TCL85)
     # Temporary fix for a bug that is currently in Xcode 15
-    add_link_options("-Wl,-ld_classic")
+#   add_link_options("-Wl,-ld_classic")
   else()
     message(":: LINUX")
     add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
