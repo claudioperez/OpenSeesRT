@@ -81,18 +81,18 @@ BasicModelBuilder::~BasicModelBuilder()
 
 
 int
-BasicModelBuilder::buildFE_Model() {return 0;}
+BasicModelBuilder::buildFE_Model() {
+  return 0;
+}
 
 int
-BasicModelBuilder::getNDM() const {return ndm;}
+BasicModelBuilder::getNDM() const {
+  return ndm;
+}
 
 int
-BasicModelBuilder::getNDF() const {return ndf;}
-
-LoadPattern*
-BasicModelBuilder::getCurrentLoadPattern() 
-{
-  return m_current_load_pattern;
+BasicModelBuilder::getNDF() const {
+  return ndf;
 }
 
 

@@ -51,16 +51,12 @@ public:
   int  getCurrentSectionBuilder(int&);
   void setCurrentSectionBuilder(int);
 
-  LoadPattern *getCurrentLoadPattern();
   LoadPattern* getEnclosingPattern();
   int setEnclosingPattern(LoadPattern*);
 
   int incrNodalLoadTag();
   int decrNodalLoadTag();
   int getNodalLoadTag();
-  // newCount
-  // getCount
-
 
   //
   // Managing tagged objects
@@ -71,7 +67,6 @@ public:
 
   template<class T> int addTaggedObject(T& obj) {
     int tag = obj.getTag();
-//  m_registry[typeid(T).name()][tag] = &obj;
     return addRegistryObject(typeid(T).name(), tag, &obj);
   }
 
@@ -102,13 +97,11 @@ public:
 
 // 
 private:
-  // find/remove/insert
-  // TODO: make private
-  int addRegistryObject(const char*, int tag, void* obj); 
+  int   addRegistryObject(const char*, int tag, void* obj); 
   void* getRegistryObject(const char*, int tag, int flags) const;
   int   removeRegistryObject(const char*, int tag, int flags);
   int   findFreeTag(const char*, int& tag) const;
-  int printRegistry(const char *, OPS_Stream& stream, int flag) const ;
+  int   printRegistry(const char *, OPS_Stream& stream, int flag) const ;
 
 
   int ndm; // space dimension of the mesh
@@ -117,16 +110,15 @@ private:
   Tcl_Interp *theInterp;
   Domain *theDomain     = nullptr;
 
-//int eleArgStart             = 0;
   int next_node_load          = 0;
   int next_elem_load          = 0;
 
   // Options
   bool no_clobber = true;
 
-// previously extern variables
+  // previously extern variables
   LoadPattern *tclEnclosingPattern = nullptr;
-  LoadPattern* m_current_load_pattern = nullptr;
+//LoadPattern* m_current_load_pattern = nullptr;
   MultiSupportPattern *theTclMultiSupportPattern = nullptr;
 
   bool  section_builder_is_set   = false;
