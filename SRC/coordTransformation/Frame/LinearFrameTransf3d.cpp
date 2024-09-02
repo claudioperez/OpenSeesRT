@@ -70,7 +70,8 @@ form_offsets(const double R[3][3], const double nodeIOffset[3], const double nod
 
 // constructor:
 LinearFrameTransf3d::LinearFrameTransf3d(int tag, const Vector &vecInLocXZPlane)
-    : FrameTransform3d(tag, CRDTR_TAG_LinearFrameTransf3d), nodeIPtr(0), nodeJPtr(0),
+    : FrameTransform3d(tag, CRDTR_TAG_LinearFrameTransf3d),
+      nodeIPtr(nullptr), nodeJPtr(nullptr),
       nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
 {
@@ -85,10 +86,12 @@ LinearFrameTransf3d::LinearFrameTransf3d(int tag, const Vector &vecInLocXZPlane)
 
 // constructor:
 LinearFrameTransf3d::LinearFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
-                                     const Vector &rigJntOffset1,
-                                     const Vector &rigJntOffset2)
+                                         const Vector &rigJntOffset1,
+                                         const Vector &rigJntOffset2)
+
     : FrameTransform3d(tag, CRDTR_TAG_LinearFrameTransf3d), nodeIPtr(0), nodeJPtr(0),
-      nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
+      nodeIOffset(nullptr), nodeJOffset(nullptr), 
+      L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
 {
   for (int i = 0; i < 2; i++)
@@ -267,10 +270,8 @@ LinearFrameTransf3d::computeElemtLengthAndOrient()
   // calculate the element length
   L = dx.Norm();
 
-  if (L == 0.0) {
-    opserr << "\nLinearFrameTransf3d::computeElemtLengthAndOrien: 0 length\n";
+  if (L == 0.0)
     return -2;
-  }
 
   // calculate the element local x axis components (direction cosines)
   // wrt to the global coordinates
@@ -338,11 +339,12 @@ LinearFrameTransf3d::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
   YAxis(2) = yAxis(2);
 
   // Compute z = x cross y
-  static Vector zAxis(3);
+  Vector3D zAxis;
 
   zAxis(0) = xAxis(1) * yAxis(2) - xAxis(2) * yAxis(1);
   zAxis(1) = xAxis(2) * yAxis(0) - xAxis(0) * yAxis(2);
   zAxis(2) = xAxis(0) * yAxis(1) - xAxis(1) * yAxis(0);
+
   ZAxis(0) = zAxis(0);
   ZAxis(1) = zAxis(1);
   ZAxis(2) = zAxis(2);
