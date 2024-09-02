@@ -118,7 +118,6 @@ private:
 
   // previously extern variables
   LoadPattern *tclEnclosingPattern = nullptr;
-//LoadPattern* m_current_load_pattern = nullptr;
   MultiSupportPattern *theTclMultiSupportPattern = nullptr;
 
   bool  section_builder_is_set   = false;
