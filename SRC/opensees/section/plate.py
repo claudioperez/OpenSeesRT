@@ -1,10 +1,10 @@
-# ------------------------------------------------------------------------
-# The following Python code is implemented by Professor Terje Haukaas at
-# the University of British Columbia in Vancouver, Canada. It is made
-# freely available online at terje.civil.ubc.ca together with notes,
-# examples, and additional Python code. Please be cautious when using
-# this code; it may contain bugs and comes without warranty of any form.
-# ------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# The following Python code is adapted from the work of Professor Terje Haukaas
+# at the University of British Columbia in Vancouver, Canada. It is made freely
+# available online at terje.civil.ubc.ca together with notes, examples, and
+# additional Python code. Please be cautious when using this code; it may
+# contain bugs and comes without warranty of any form.
+# -----------------------------------------------------------------------------
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,9 +30,7 @@ class Edge:
 
         self.area = self.thickness*self.length
 
-# ------------------------------------------------------------------------
-# FUNCTION THAT SEARCHES THE OMEGA DIAGRAM
-# ------------------------------------------------------------------------
+
 def _omega_lookup(diagram, node):
     for i in range(len(diagram)):
         index = 0
@@ -881,12 +879,10 @@ def warping_constant(edges, vertices, omega):
 def plot(edges, vertices, omegaFinal, Cw, sc, minmax):
     A, areas, thicknesses, lengths, thetas, centroids, centroid = geometry(edges, vertices)
     (yCentroid, zCentroid) = centroid
-    thetaPrincipal, (Iy, Iz), (IyRotated, IzRotated) = moi(edges, lengths, thicknesses, thetas, centroid, centroids, areas)
+    thetaPrincipal, (Iy, Iz), (IyRotated, IzRotated) = \
+            moi(edges, lengths, thicknesses, thetas, centroid, centroids, areas)
     zsc, ysc = sc
     (minWarp, maxWarp) = minmax
-    # ------------------------------------------------------------------------
-    # PLOT
-    # ------------------------------------------------------------------------
 
     for i in range(len(edges)):
 
