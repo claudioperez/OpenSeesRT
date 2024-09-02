@@ -14,7 +14,7 @@
 #include <assert.h>
 #include <string.h>
 
-// convergence tests
+// Convergence tests
 #include <CTestNormUnbalance.h>
 #include <CTestNormDispIncr.h>
 #include <CTestEnergyIncr.h>
