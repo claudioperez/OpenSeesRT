@@ -313,7 +313,9 @@ TclCommand_addSP(ClientData clientData, Tcl_Interp *interp, int argc,
     opserr << nodeId << " dofID value\n";
     return TCL_ERROR;
   }
-  dofId--; // DECREMENT THE DOF VALUE BY 1 TO GO TO OUR C++ INDEXING
+
+  // Decrement the DOF index by 1 to go to C/C++ 0-indexing
+  dofId--; 
 
   if (Tcl_GetDouble(interp, argv[3], &value) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "invalid value: " << argv[3] << " -  sp ";
@@ -582,7 +584,6 @@ TclCommand_addImposedMotionSP(ClientData clientData, Tcl_Interp *interp,
   //
   // check valid node & dof
   //
-
   Node *theNode = domain->getNode(nodeId);
   if (theNode == nullptr) {
     opserr << G3_ERROR_PROMPT << "invalid node " << argv[2] << " node not found\n ";
