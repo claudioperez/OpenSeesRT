@@ -1,7 +1,7 @@
 //BkStressLimSurface2D
 //
 //////////////////////////////////////////////////////////////////////
-
+#include <Logging.h>
 #include "BkStressLimSurface2D.h"
 #include <YieldSurface_BC.h>
 #include <math.h>
