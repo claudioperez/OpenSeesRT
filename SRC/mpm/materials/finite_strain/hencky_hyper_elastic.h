@@ -3,7 +3,8 @@
 
 #include <limits>
 
-#include "Eigen/Dense"
+#include "MatrixND.h"
+#include "VectorND.h"
 
 #include "material.h"
 #include "math_utility.h"
@@ -18,9 +19,9 @@ template <unsigned Tdim>
 class HenckyHyperElastic : public Material<Tdim> {
  public:
   //! Define a vector of 6 dof
-  using Vector6d = Eigen::Matrix<double, 6, 1>;
+  using Vector6d = OpenSees::VectorND<6>;
   //! Define a Matrix of 6 x 6
-  using Matrix6x6 = Eigen::Matrix<double, 6, 6>;
+  using Matrix6x6 = OpenSees::MatrixND<6, 6>;
 
   //! Constructor with id
   //! \param[in] material_properties Material properties
