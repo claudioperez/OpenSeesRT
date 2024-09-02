@@ -77,20 +77,13 @@ This includes the abstract `TaggedObjectStorage`, the implementation
 These store the objects in `Domain` and `AnalysisModel`.
 
 </dd>
+ 
 
-<dt><a href="./modelbuilder"><code>modelbuilder</code></a></dt>
-<dd>contains ModelBuilder class and some others.
-        
-</dd>
 
 <dt><a href="./runtime"><code>runtime</code></a></dt>
 <dd>contains stuff for the interpreter.
 </dd>
 
-<!--
-<dt><a href="./utility"><code>utility</code></a></dt>
-<dd>contains the `Timer` class.</dd>
--->
 
 <dt><a href="./material"><code>material</code></a></dt>
 <dd>Material, UniaxialMaterial and some concrete classes need by
