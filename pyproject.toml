@@ -108,15 +108,26 @@ opensees = ["site*", "docs*", "*.html", "*.cmake"]
 # manylinux-x86_64-image="manylinux_2_28"
 # manylinux-x86_64-image="manylinux_2_24"
 manylinux-x86_64-image="manylinux2014"
+manylinux-aarch64-image="manylinux2014"
+before-build = "bash {project}/tools/wheels/cibw_before_build.sh {project}"
+skip=["pp*", "i686*", "UNKNOWN*", "cp3[67]*"]
 
 [tool.cibuildwheel.windows]
-skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*", "cp37*", "cp38*", "cp39*", "cp310*", "cp311*"] # "cp38*", "cp37*", "cp39*"] # "cp311*", "cp312*"
+skip = ["*musllinux*", "cp31[9]*"]
 
 [tool.cibuildwheel.macos]
-skip = ["*arm64*", "pp*", "cp36*", "*i686*", "UNKNOWN*", "cp37*"] # "cp311*", "cp312*"
+skip = []
 
 [tool.cibuildwheel.linux]
-skip = ["pp*", "*musllinux*", "cp36*", "*i686*", "UNKNOWN*"] # "cp38*", "cp37*", "cp39*"] # "cp311*", "cp312*"
+skip = ["*musllinux*"]
 before-all = "yum install -y tcl-devel mysql-devel openblas-devel" # lapack-devel
 repair-wheel-command = "auditwheel repair --exclude libOpenSeesRT.so  -w {dest_dir} {wheel}"
+
+
+[tool.cibuildwheel.linux.environment]
+# RUNNER_OS is a GitHub Actions specific env var; define it here so it works on Cirrus CI too
+RUNNER_OS="Linux"
+# /project will be the $PWD equivalent inside the docker used to build the wheel
+PKG_CONFIG_PATH="/project/.openblas"
+LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/project/.openblas/lib"
 
