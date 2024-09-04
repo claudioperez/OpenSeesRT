@@ -4,12 +4,10 @@
 #
 #===----------------------------------------------------------------------===#
 #
-__version__  = "0.0.65"
+__version__  = "0.1.0"
 
 # Imports for this module
 import math
-import fnmatch
-# from . import pattern
 from .library.obj import *
 from .library import pattern
 
