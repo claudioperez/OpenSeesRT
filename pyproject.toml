@@ -116,7 +116,7 @@ skip=["pp*", "i686*", "UNKNOWN*", "cp3[67]*"]
 skip = ["*musllinux*", "cp31[9]*"]
 
 [tool.cibuildwheel.macos]
-skip = []
+skip = ["cp3[89]*"]
 
 
 [tool.cibuildwheel.linux]
