@@ -119,13 +119,15 @@ if (UNIX)
         $<$<LINK_LANG_AND_ID:CXX,GNU>:-fsanitize=address,undefined> # , leak
       )
     elseif (CMAKE_BUILD_TYPE STREQUAL "RELEASE")
-      # Some x86_64 optimizations
-      add_compile_options(
-        $<$<CONFIG:RELEASE>:-march=haswell>
-        $<$<CONFIG:RELEASE>:-msse4>
-        $<$<CONFIG:RELEASE>:-mtune=native>
-        $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-mavx2>
-      )
+      if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+        # Some x86_64 optimizations
+        add_compile_options(
+          $<$<CONFIG:RELEASE>:-march=haswell>
+          $<$<CONFIG:RELEASE>:-msse4>
+          $<$<CONFIG:RELEASE>:-mtune=native>
+          $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-mavx2>
+        )
+      endif()
     endif()
   endif()
 
