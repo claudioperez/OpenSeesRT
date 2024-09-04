@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <Domain.h>
 #include <Matrix.h>
+#include <MatrixND.h>
 #include <Node.h>
 #include <NodeND.h>
 #include <ID.h>
@@ -26,6 +27,7 @@
 #include "Block2D.h"
 #include "Block3D.h"
 
+using OpenSees::MatrixND;
 
 int
 TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -71,8 +73,8 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
 
-  static Matrix Coordinates(9,3);
-  Coordinates.Zero();
+  MatrixND<9,3> Coordinates;
+  Coordinates.zero();
 
   static ID     haveNode(9);
   for (int k=0; k<9; k++)
@@ -160,9 +162,11 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
       Node *theNode = nullptr;
 
       if (ndm == 2) {
+//      theNode = new HeapNode(nodeID, ndf, nodeCoords(0), nodeCoords(1));
         theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1));
 
       } else if (ndm == 3) {
+#if 0
         if (getenv("NODE")) {
           switch (ndf) {
             case 3:
@@ -172,12 +176,13 @@ TclCommand_doBlock2D(ClientData clientData, Tcl_Interp *interp, int argc,
               theNode = new NodeND<3, 6>(nodeID, nodeCoords(0), nodeCoords(1), nodeCoords(2));
               break;
             default:
-              theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+              theNode = new HeapNode(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
               break;
           }
         } else
-          theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
-        // theNode = new Node(nodeID,ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+#endif
+//        theNode = new HeapNode(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+          theNode = new Node(nodeID,ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
       }
 
       if (theTclDomain->addNode(theNode) == false) {
@@ -279,10 +284,11 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  static Matrix Coordinates(27,3);
+  MatrixND<27,3> Coordinates;
   static ID     haveNode(27);
-  Coordinates.Zero();
-  for (int k=0; k<27; k++) haveNode(k) = -1;
+  Coordinates.zero();
+  for (int k=0; k<27; k++)
+    haveNode(k) = -1;
 
   TCL_Char *nodalInfo = argv[8];
   TCL_Char ** argvNodes;
@@ -340,6 +346,7 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
         const Vector &nodeCoords = theBlock.getNodalCoords(ii,jj,kk);
         //
         Node* theNode = nullptr;
+#if 0
         if (getenv("NODE")) {
           switch (ndf) {
             case 3:
@@ -349,13 +356,13 @@ TclCommand_doBlock3D(ClientData clientData, Tcl_Interp *interp, int argc,
               theNode = new NodeND<3, 6>(nodeID, nodeCoords(0), nodeCoords(1), nodeCoords(2));
               break;
             default:
-              theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+              theNode = new HeapNode(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
               break;
           }
         } else
-          theNode = new Node(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
-
-        // theNode = new Node(nodeID,ndf,nodeCoords(0),nodeCoords(1),nodeCoords(2));
+#endif
+//        theNode = new HeapNode(nodeID, ndf, nodeCoords(0), nodeCoords(1), nodeCoords(2));
+          theNode = new Node(nodeID,ndf,nodeCoords(0),nodeCoords(1),nodeCoords(2));
 
         if (theTclDomain->addNode(theNode) == false) {
           opserr << G3_ERROR_PROMPT << "failed to add node to the domain\n";
