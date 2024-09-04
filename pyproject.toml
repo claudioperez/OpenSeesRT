@@ -118,9 +118,11 @@ skip = ["*musllinux*", "cp31[9]*"]
 [tool.cibuildwheel.macos]
 skip = []
 
+
 [tool.cibuildwheel.linux]
 skip = ["*musllinux*"]
-before-all = "yum install -y tcl-devel mysql-devel openblas-devel" # lapack-devel
+before-all = "yum install -y epel-release"
+before-build = "yum install -y tcl-devel mysql-devel openblas-devel" # lapack-devel
 repair-wheel-command = "auditwheel repair --exclude libOpenSeesRT.so  -w {dest_dir} {wheel}"
 
 
