@@ -5,7 +5,7 @@
 //===----------------------------------------------------------------------===//
 //
 // Description: This file implements commands that configure a 
-// `ModelBuider`.
+// `ModelBuider`, including "model"
 //
 // Author: cmp
 //
