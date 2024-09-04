@@ -109,7 +109,7 @@ opensees = ["site*", "docs*", "*.html", "*.cmake"]
 # manylinux-x86_64-image="manylinux_2_24"
 manylinux-x86_64-image="manylinux2014"
 manylinux-aarch64-image="manylinux2014"
-before-build = "bash {project}/tools/wheels/cibw_before_build.sh {project}"
+#before-build = "bash {project}/tools/wheels/cibw_before_build.sh {project}"
 skip=["pp*", "i686*", "UNKNOWN*", "cp3[67]*"]
 
 [tool.cibuildwheel.windows]
