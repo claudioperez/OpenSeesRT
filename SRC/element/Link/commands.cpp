@@ -35,9 +35,10 @@
 #include <ID.h>
 #include <Vector.h>
 #include <UniaxialMaterial.h>
-
+#include <SectionForceDeformation.h>
 #include <BasicModelBuilder.h>
 #include <TwoNodeLink.h>
+#include <TwoNodeLinkSection.h>
 
 
 int
@@ -63,7 +64,7 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // get the id and end nodes
-  int tag, iNode, jNode, numMat, matTag, numDir, dirID, i, j;
+  int tag, iNode, jNode, numMat, matTag, numDir, dirID;
   int argi = eleArgStart + 1;
   Vector Mratio(0), shearDistI(0);
   int doRayleigh = 0;
@@ -94,7 +95,7 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
   argi++;
-  i = argi;
+  int i = argi;
   while (i < argc && strcmp(argv[i], "-dir") != 0) {
     numMat++;
     i++;
@@ -106,8 +107,8 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
   }
   // create array of uniaxial materials
   UniaxialMaterial **theMaterials = new UniaxialMaterial *[numMat];
-  for (i = 0; i < numMat; i++) {
-    theMaterials[i] = 0;
+  for (int i = 0; i < numMat; i++) {
+    theMaterials[i] = nullptr;
     if (Tcl_GetInt(interp, argv[argi], &matTag) != TCL_OK) {
       opserr << "WARNING invalid matTag\n";
       opserr << "twoNodeLink element: " << tag << endln;
@@ -115,9 +116,6 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
     }
     theMaterials[i] = builder->getTypedObject<UniaxialMaterial>(matTag);
     if (theMaterials[i] == 0) {
-      opserr << "WARNING material model not found\n";
-      opserr << "uniaxialMaterial " << matTag << endln;
-      opserr << "twoNodeLink element: " << tag << endln;
       return TCL_ERROR;
     }
     argi++;
@@ -166,7 +164,7 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
   Vector x(0), y(0);
   for (i = argi; i < argc; i++) {
     if (strcmp(argv[i], "-orient") == 0) {
-      j = i + 1;
+      int j = i + 1;
       int numOrient = 0;
       while (j < argc && strcmp(argv[j], "-pDelta") != 0 &&
              strcmp(argv[j], "-shearDist") != 0 &&
@@ -179,7 +177,7 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
         y.resize(3);
         double value;
         // read the y values
-        for (j = 0; j < 3; j++) {
+        for (int j = 0; j < 3; j++) {
           if (Tcl_GetDouble(interp, argv[i + 1 + j], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value\n";
             opserr << "twoNodeLink element: " << tag << endln;
@@ -193,7 +191,7 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
         y.resize(3);
         double value;
         // read the x values
-        for (j = 0; j < 3; j++) {
+        for (int j = 0; j < 3; j++) {
           if (Tcl_GetDouble(interp, argv[i + 1 + j], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value\n";
             opserr << "twoNodeLink element: " << tag << endln;
@@ -203,7 +201,7 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
           }
         }
         // read the y values
-        for (j = 0; j < 3; j++) {
+        for (int j = 0; j < 3; j++) {
           if (Tcl_GetDouble(interp, argv[i + 4 + j], &value) != TCL_OK) {
             opserr << "WARNING invalid -orient value\n";
             opserr << "twoNodeLink element: " << tag << endln;
@@ -219,13 +217,13 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
       }
     }
   }
-  for (i = argi; i < argc; i++) {
+  for (int i = argi; i < argc; i++) {
     if (i + 1 < argc && strcmp(argv[i], "-pDelta") == 0) {
       double Mr;
       Mratio.resize(4);
       if (ndm == 2) {
         Mratio.Zero();
-        for (j = 0; j < 2; j++) {
+        for (int j = 0; j < 2; j++) {
           if (Tcl_GetDouble(interp, argv[i + 1 + j], &Mr) != TCL_OK) {
             opserr << "WARNING invalid -pDelta value\n";
             opserr << "twoNodeLink element: " << tag << endln;
@@ -234,7 +232,7 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
           Mratio(2 + j) = Mr;
         }
       } else if (ndm == 3) {
-        for (j = 0; j < 4; j++) {
+        for (int j = 0; j < 4; j++) {
           if (Tcl_GetDouble(interp, argv[i + 1 + j], &Mr) != TCL_OK) {
             opserr << "WARNING invalid -pDelta value\n";
             opserr << "twoNodeLink element: " << tag << endln;
@@ -258,7 +256,7 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
         shearDistI(0) = sDI;
         shearDistI(1) = 0.5;
       } else if (ndm == 3) {
-        for (j = 0; j < 2; j++) {
+        for (int j = 0; j < 2; j++) {
           if (Tcl_GetDouble(interp, argv[i + 1 + j], &sDI) != TCL_OK) {
             opserr << "WARNING invalid -shearDist value\n";
             opserr << "twoNodeLink element: " << tag << endln;
@@ -291,11 +289,6 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
   if (theMaterials != 0)
     delete[] theMaterials;
 
-  if (theElement == 0) {
-    opserr << "WARNING ran out of memory creating element\n";
-    opserr << "twoNodeLink element: " << tag << endln;
-    return TCL_ERROR;
-  }
 
   // then add the twoNodeLink to the domain
   if (builder->getDomain()->addElement(theElement) == false) {
@@ -306,6 +299,274 @@ TclCommand_addTwoNodeLink(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   // if get here we have successfully created the twoNodeLink and added it to
+  // the domain
+  return TCL_OK;
+}
+
+int
+TclCommand_addTwoNodeLinkSection(ClientData clientData, Tcl_Interp *interp, int argc,
+                               TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
+  constexpr static int eleArgStart = 1;
+
+
+  int ndm = builder->getNDM();
+
+  // Check the number of arguments is correct
+  if (argc < 5) {
+      opserr << "WARNING insufficient arguments\n";
+      //               0       1           2      3     4     5
+      opserr << "Want: element twoNodeLink eleTag iNode jNode secTag <-orient <x1 x2 x3> y1 y2 y3> <-pDelta Mratios> <-shearDist sDratios> <-doRayleigh> <-mass m>\n";
+    return TCL_ERROR;
+  }
+
+  int argi = eleArgStart + 1;
+  Vector Mratio(0), shearDistI(0), x(0), y(0);
+  int doRayleigh = 0;
+  double mass = 0.0;
+
+  // get the id and end nodes
+  int tag, iNode, jNode, stag;
+  if (Tcl_GetInt(interp, argv[argi], &tag) != TCL_OK) {
+    opserr << "WARNING invalid twoNodeLinkSection eleTag\n";
+    return TCL_ERROR;
+  }
+  argi++;
+  if (Tcl_GetInt(interp, argv[argi], &iNode) != TCL_OK) {
+    opserr << "WARNING invalid iNode\n";
+    return TCL_ERROR;
+  }
+  argi++;
+  if (Tcl_GetInt(interp, argv[argi], &jNode) != TCL_OK) {
+    opserr << "WARNING invalid jNode\n";
+    return TCL_ERROR;
+  }
+  argi++;
+  if (Tcl_GetInt(interp, argv[argi], &stag) != TCL_OK) {
+    opserr << "WARNING invalid section tag\n";
+    return TCL_ERROR;
+  }
+  SectionForceDeformation* theSection = builder->getTypedObject<SectionForceDeformation>(stag);
+  if (theSection == nullptr)
+    return TCL_ERROR;
+  argi++;
+
+  //
+  int numdata;
+  for (int i=argi; i<argc; i++) {
+
+      if (strcmp(argv[i], "-orient") == 0) {
+          if (OPS_GetNumRemainingInputArgs() < 3) {
+              opserr << "WARNING: insufficient arguments after -orient\n";
+              return 0;
+          }
+          numdata = 3;
+          x.resize(3);
+          if (OPS_GetDoubleInput(&numdata, &x(0)) < 0) {
+              opserr << "WARNING: invalid -orient values\n";
+              return 0;
+          }
+          if (OPS_GetNumRemainingInputArgs() < 3) {
+              y = x;
+              x = Vector();
+              continue;
+          }
+          y.resize(3);
+          if (OPS_GetDoubleInput(&numdata, &y(0)) < 0) {
+              y = x;
+              x = Vector();
+              continue;
+          }
+      }
+
+      else if (strcmp(argv[i], "-pDelta") == 0) {
+          Mratio.resize(4);
+          Mratio.Zero();
+          numdata = 4;
+          double* ptr = &Mratio(0);
+          if (ndm == 2) {
+              numdata = 2;
+              ptr += 2;
+          }
+          if (OPS_GetNumRemainingInputArgs() < numdata) {
+              opserr << "WARNING: insufficient data for -pDelta\n";
+              return 0;
+          }
+          if (OPS_GetDoubleInput(&numdata, ptr) < 0) {
+              opserr << "WARNING: invalid -pDelta value\n";
+              return 0;
+          }
+      }
+      else if (strcmp(argv[i], "-shearDist") == 0) {
+          shearDistI.resize(2);
+          numdata = 2;
+          if (ndm == 2) {
+              numdata = 1;
+              shearDistI(1) = 0.5;
+          }
+          if (OPS_GetNumRemainingInputArgs() < numdata) {
+              opserr << "WARNING: insufficient data for -shearDist\n";
+              return 0;
+          }
+          if (OPS_GetDoubleInput(&numdata, &shearDistI(0)) < 0) {
+              opserr << "WARNING: invalid -shearDist value\n";
+              return 0;
+          }
+      }
+
+      else if (strcmp(argv[i], "-doRayleigh") == 0) {
+          doRayleigh = 1;
+      }
+
+      else if (strcmp(argv[i], "-mass") == 0) {
+        if (argc < i + 2) {
+          opserr << G3_ERROR_PROMPT << "not enough arguments, expected -mass $mass\n";
+          return TCL_ERROR;
+        }
+        if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "invalid mass\n";
+          return TCL_ERROR;
+        }
+        i += 1;
+      }
+  }
+
+
+
+  // Check for optional arguments
+  for (int i = argi; i < argc; i++) {
+    if (strcmp(argv[i], "-orient") == 0) {
+      int j = i + 1;
+      int numOrient = 0;
+      while (j < argc && strcmp(argv[j], "-pDelta") != 0 &&
+             strcmp(argv[j], "-shearDist") != 0 &&
+             strcmp(argv[j], "-doRayleigh") != 0 &&
+             strcmp(argv[j], "-mass") != 0) {
+        numOrient++;
+        j++;
+      }
+      if (numOrient == 3) {
+        y.resize(3);
+        double value;
+        // read the y values
+        for (int j = 0; j < 3; j++) {
+          if (Tcl_GetDouble(interp, argv[i + 1 + j], &value) != TCL_OK) {
+            opserr << "WARNING invalid -orient value\n";
+            opserr << "twoNodeLinkSection element: " << tag << endln;
+            return TCL_ERROR;
+          } else {
+            y(j) = value;
+          }
+        }
+      } else if (numOrient == 6) {
+        x.resize(3);
+        y.resize(3);
+        double value;
+        // read the x values
+        for (int j = 0; j < 3; j++) {
+          if (Tcl_GetDouble(interp, argv[i + 1 + j], &value) != TCL_OK) {
+            opserr << "WARNING invalid -orient value\n";
+            opserr << "twoNodeLinkSection element: " << tag << endln;
+            return TCL_ERROR;
+          } else {
+            x(j) = value;
+          }
+        }
+        // read the y values
+        for (int j = 0; j < 3; j++) {
+          if (Tcl_GetDouble(interp, argv[i + 4 + j], &value) != TCL_OK) {
+            opserr << "WARNING invalid -orient value\n";
+            opserr << "twoNodeLinkSection element: " << tag << endln;
+            return TCL_ERROR;
+          } else {
+            y(j) = value;
+          }
+        }
+      } else {
+        opserr << "WARNING insufficient arguments after -orient flag\n";
+        opserr << "twoNodeLinkSection element: " << tag << endln;
+        return TCL_ERROR;
+      }
+
+    }
+
+    else if (i + 1 < argc && strcmp(argv[i], "-pDelta") == 0) {
+      double Mr;
+      Mratio.resize(4);
+      if (ndm == 2) {
+        Mratio.Zero();
+        for (int j = 0; j < 2; j++) {
+          if (Tcl_GetDouble(interp, argv[i + 1 + j], &Mr) != TCL_OK) {
+            opserr << "WARNING invalid -pDelta value\n";
+            opserr << "twoNodeLinkSection element: " << tag << endln;
+            return TCL_ERROR;
+          }
+          Mratio(2 + j) = Mr;
+        }
+      } else if (ndm == 3) {
+        for (int j = 0; j < 4; j++) {
+          if (Tcl_GetDouble(interp, argv[i + 1 + j], &Mr) != TCL_OK) {
+            opserr << "WARNING invalid -pDelta value\n";
+            opserr << "twoNodeLinkSection element: " << tag << endln;
+            return TCL_ERROR;
+          }
+          Mratio(j) = Mr;
+        }
+      }
+    }
+    //
+    else if (i + 1 < argc && strcmp(argv[i], "-shearDist") == 0) {
+      double sDI;
+      shearDistI.resize(2);
+      if (ndm == 2) {
+        if (Tcl_GetDouble(interp, argv[i + 1], &sDI) != TCL_OK) {
+          opserr << "WARNING invalid -shearDist value\n";
+          opserr << "twoNodeLinkSection element: " << tag << endln;
+          return TCL_ERROR;
+        }
+        shearDistI(0) = sDI;
+        shearDistI(1) = 0.5;
+      } else if (ndm == 3) {
+        for (int j = 0; j < 2; j++) {
+          if (Tcl_GetDouble(interp, argv[i + 1 + j], &sDI) != TCL_OK) {
+            opserr << "WARNING invalid -shearDist value\n";
+            opserr << "twoNodeLinkSection element: " << tag << endln;
+            return TCL_ERROR;
+          }
+          shearDistI(j) = sDI;
+        }
+      }
+    }
+
+    else if (strcmp(argv[i], "-doRayleigh") == 0)
+      doRayleigh = 1;
+
+    else if (i + 1 < argc && strcmp(argv[i], "-mass") == 0) {
+      if (Tcl_GetDouble(interp, argv[i + 1], &mass) != TCL_OK) {
+        opserr << "WARNING invalid -mass value\n";
+        opserr << "twoNodeLinkSection element: " << tag << endln;
+        return TCL_ERROR;
+      }
+    }
+  }
+
+  // now create the twoNodeLink
+  Element* theElement = new TwoNodeLinkSection(tag, ndm, iNode, jNode,
+        *theSection, y, x, Mratio, shearDistI, doRayleigh, mass);
+
+
+
+  // then add the twoNodeLinkSection to the domain
+  if (builder->getDomain()->addElement(theElement) == false) {
+    opserr << "WARNING could not add element to the domain\n";
+    opserr << "twoNodeLinkSection element: " << tag << endln;
+    delete theElement;
+    return TCL_ERROR;
+  }
+
+  // if get here we have successfully created the twoNodeLinkSection and added it to
   // the domain
   return TCL_OK;
 }
