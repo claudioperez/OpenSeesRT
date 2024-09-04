@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.1 $
-// $Date: 2009-07-23 23:50:28 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/FourNodeQuadWithSensitivity.h,v $
-
+//
 // Written: MHS
 // Created: Feb 2000
 // Revised: Dec 2000 for efficiency
 // Sensitivity by Quan Gu, Michele Barbato, Joel P. Conte @ UCSD.  2009 July.
 // Description: This file contains the class definition for FourNodeQuadWithSensitivity.
-
+//
 #ifndef FourNodeQuadWithSensitivity_h
 #define FourNodeQuadWithSensitivity_h
 
