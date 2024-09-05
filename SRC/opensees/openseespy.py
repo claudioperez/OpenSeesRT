@@ -77,7 +77,7 @@ def _split_iter(source, sep=None, regex=False):
             yield source[start:idx]
             start = idx + sepsize
 
-class Surface:
+class _Surface:
     def __init__(self, nodes, cells, child, points, split):
         import shps.child, shps.plane
         self.nodes  = nodes
@@ -389,7 +389,11 @@ class OpenSeesPy:
 class Model:
     def __init__(self, *args, echo_file=None, **kwds):
         self._openseespy = OpenSeesPy(echo_file=echo_file)
-        self._openseespy._str_call("model", *args, **kwds)
+        if len(args) > 0 or len(kwds) > 0:
+            self._openseespy._str_call("model", *args, **kwds)
+
+    def eval(self, *args, **kwds):
+        return self._openseespy.eval(*args, **kwds)
 
     def export(self, *args, **kwds):
         return self._openseespy._interp.export(*args, **kwds)
@@ -401,8 +405,6 @@ class Model:
         """April 2024"""
         return self._openseespy._interp.serialize()
 
-    def setFactor(self, factor):
-        pass
 
     def element(self, type, tag, *args, **kwds):
         if tag is None:
@@ -494,7 +496,7 @@ class Model:
             for tag, elem_nodes in elems.items():
                 add_element(element, tag, tuple(map(int,elem_nodes)), *args)
 
-        return Surface(nodes=nodes, cells=elems, child=cell_type, points=points, split=split)
+        return _Surface(nodes=nodes, cells=elems, child=cell_type, points=points, split=split)
 
 
     def __getattr__(self, name: str):

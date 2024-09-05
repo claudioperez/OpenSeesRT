@@ -125,6 +125,36 @@ ElasticSection2d::~ElasticSection2d(void)
   return;
 }
 
+
+int
+ElasticSection2d::getIntegral(Field field, State state, double& value) const
+{
+
+  switch (field) {
+    case Field::Unit:
+      value = A;
+      return 0;
+
+    case Field::Density:
+      if (this->FrameSection::getIntegral(field, state, value) != 0) 
+        return -1;
+      else
+        return  0;
+
+    case Field::UnitYY:
+    case Field::UnitCentroidYY:
+      value = I;
+//    if (field == Field::UnitCentroidYY) {
+//      double yc = centroid[0];
+//      value -= A*yc*yc;
+//    }
+      return 0;
+
+    default:
+      return -1;
+  }
+}
+
 int 
 ElasticSection2d::commitState(void)
 {

@@ -67,7 +67,7 @@ testing = [
     "nbmake"
 ]
 
-py = ["openseespy"]
+# py = ["openseespy"]
 
 # docs = [
 #     "elstir",

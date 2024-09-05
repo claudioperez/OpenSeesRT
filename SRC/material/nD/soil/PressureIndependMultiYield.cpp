@@ -1,7 +1,4 @@
-// $Revision: 1.41 $
-// $Date: 2009-10-07 20:14:00 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/soil/PressureIndependMultiYield.cpp,v $
-
+//
 // Written: ZHY
 // Created: August 2000
 // Last Modified: September 2009
@@ -23,9 +20,9 @@
 
 Matrix PressureIndependMultiYield::theTangent(6,6);
 T2Vector PressureIndependMultiYield::subStrainRate;
-int PressureIndependMultiYield::matCount=0;
-int* PressureIndependMultiYield::loadStagex=0;  //=0 if elastic; =1 if plastic
-int* PressureIndependMultiYield::ndmx=0;        //num of dimensions (2 or 3)
+int     PressureIndependMultiYield::matCount=0;
+int*    PressureIndependMultiYield::loadStagex=0;  //=0 if elastic; =1 if plastic
+int*    PressureIndependMultiYield::ndmx=0;        //num of dimensions (2 or 3)
 double* PressureIndependMultiYield::rhox=0;
 double* PressureIndependMultiYield::frictionAnglex=0;
 double* PressureIndependMultiYield::peakShearStrainx=0;
