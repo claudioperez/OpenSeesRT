@@ -7,7 +7,7 @@ class OpenSeesDependencies(ConanFile):
     description = "provides Software Packages needed to build OpenSees"
     license = "BSD 3-Clause"
     author = "fmk fmckenna@berkeley.edu"
-    # settings = {"os": None, "build_type": None, "compiler": None, "arch": ["x86_64"]}
+    settings = {"os": None, "build_type": None, "compiler": None, "arch": ["x86_64"]}
     options = {"shared": [True, False]}
     default_options = {"mkl-static:threaded": False, "ipp-static:simcenter_backend": True}
     generators = "cmake"
