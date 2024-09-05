@@ -69,16 +69,10 @@ testing = [
 
 py = ["openseespy"]
 
-rt = [
-    "pyparsing",
-    "prompt_toolkit",
-    "pygments"
-]
-
-docs = [
-    "elstir",
-    "mkdocs-material"
-]
+# docs = [
+#     "elstir",
+#     "mkdocs-material"
+# ]
 
 [project.urls]
 Repository = "https://github.com/claudioperez/OpenSeesRT"
