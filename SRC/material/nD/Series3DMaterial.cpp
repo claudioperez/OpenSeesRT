@@ -89,7 +89,7 @@ namespace Series3DUtils {
 			int nrhs = 1;
 			int info;
 #ifdef _WIN32
-			DGETRS("N", &n, &nrhs, A.data(), &n, IPIV.data(), &X(0), &n, &info);
+			DGETRS((char*)"N", &n, &nrhs, A.data(), &n, IPIV.data(), &X(0), &n, &info);
 #else
 			dgetrs_("N", &n, &nrhs, A.data(), &n, IPIV.data(), &X(0), &n, &info);
 #endif
