@@ -1,29 +1,18 @@
-# `opensees`
+# OpenSeesRT
 
 <img align="left" src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/peer-black-300.png" width="150px" alt="PEER Logo">
 
-Fast nonlinear finite element analysis.
+Nonlinear finite element analysis.
 
 <br>
 
 <div style="align:center">
 
-<!--
-[![Latest conda-forge version](https://img.shields.io/conda/vn/conda-forge/opensees?logo=conda-forge&style=for-the-badge)](https://anaconda.org/conda-forge/opensees)
--->
-
-<!-- [![PyPI Downloads][pypi-v-image]][pypi-v-link] -->
-
-[![Latest PyPI version](https://img.shields.io/pypi/v/opensees?logo=pypi&style=for-the-badge)](https://pypi.python.org/pypi/opensees)
-[![](https://img.shields.io/conda/v/opensees/opensees?color=%23660505&style=for-the-badge)](https://anaconda.org/opensees/opensees)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/opensees?style=for-the-badge)](https://pypi.org/project/opensees)
+[![Latest PyPI version](https://img.shields.io/pypi/v/opensees?logo=pypi)](https://pypi.python.org/pypi/opensees)
+[![](https://img.shields.io/conda/v/opensees/opensees?color=%23660505)](https://anaconda.org/opensees/opensees)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/opensees)](https://pypi.org/project/opensees)
 
 </div>
-
-<!-- 
--------------------------------------------------------------------- 
--->
-
 
 `opensees` is a Python package that provides an intuitive API for nonlinear
 finite element analysis, implemented in C++ through the OpenSees framework. 
@@ -43,32 +32,6 @@ OpenSeesPy (see *Getting Started* below), and generally provides a substantial p
 <b>This package is <i>experimental</i> and not yet intended for public use.</b>
 </p>
 
-
-## Features
-
-- **Performance** Switching Python scripts to use `opensees` typically results in a 4x to 5x performance boost.
-- **Interactive Tasks**: Easily return stiffness, mass, and damping matrices as NumPy arrays and join meshes without duplicate nodes and constraints.
-- **Extensive Modeling Library**: State-of-the-art element formulations with over 200 material models to choose from.
-- **Continuation Algorithms**: Robust algorithms for solving highly nonlinear problems.
-- **Intuitive and Reliable** The core OpenSees runtime has been redesigned so that all program 
-  state is encapsulated in user-instantiated classes,
-  and global variables/singletons are avoided. 
-  This eliminates several preexisting vulnerabilities to inadvertent state corruption.
-
-
-<!-- 
-- **Semantics** Unlike interfaces which rely on global state, this package can be used 
-  with true library semantics. 
--->
-
-Additional features include:
-
-- Convert OpenSeesPy scripts into equivalent Tcl files that can be used
-  for faster processing or serialization. Unlike most conversion utilities,
-  this conversion is done *exactly* and does not rely on hand-rolled parsing.
-
-- The package can be installed with `pip` for Python versions 3.7 - 3.12 on Linux, MacOS and
-  Windows, but eigenvalue analysis is currently broken on Windows.
 
 > [!NOTE]
 > This package is independent of the [`openseespy`](https://pypi.org/project/openseespy)
@@ -127,7 +90,7 @@ There are several ways to use the `opensees` package:
 
 ## Development
 
-To compile the project see [help/compiling](https://github.com/claudioperez/opensees/blob/master/help/compiling.md)
+To compile the project see [about/compiling](https://github.com/claudioperez/opensees/blob/main/about/compiling.md)
 
 <!-- Badge links -->
 
@@ -147,18 +110,10 @@ To compile the project see [help/compiling](https://github.com/claudioperez/open
 
 For more projects by the STAIRlab, visit https://github.com/STAIRlab .
 
+
 ## Support
 
 <table align="center" style="border: 0;">
- <tr style="background-color:rgba(0, 0, 0, 0);">
-  <td style="background-color:rgba(0, 0, 0, 0);" colspan="3">
-    <a>
-    <img src="https://raw.githubusercontent.com/claudioperez/opensees/master/docs/figures/opensees.svg" 
-         width="600" alt="OpenSeesRT Logo">
-    </a>
-  </td>
- </tr>
-
 <tr>
   <td>
     <a href="https://peer.berkeley.edu">
