@@ -71,6 +71,9 @@ class ElasticSection2d: public FrameSection
   const Matrix& getInitialTangentSensitivity(int gradIndex);
   const Matrix& getSectionFlexibilitySensitivity(int gradIndex);
   const Matrix& getInitialFlexibilitySensitivity(int gradIndex);
+
+
+  virtual int getIntegral(Field field, State state, double&) const override final;
   
  protected:
   

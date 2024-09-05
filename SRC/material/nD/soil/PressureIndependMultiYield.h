@@ -1,13 +1,9 @@
-// $Revision: 1.20 $
-// $Date: 2009-01-16 19:40:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/soil/PressureIndependMultiYield.h,v $
-                                                                        
+//
 // Written: ZHY
 // Created: August 2000
-
+//
 // Description: This file contains the class prototype for PressureIndependMultiYield.
 //
-// What: "@(#) PressureIndependMultiYield.h, revA" 
 #ifndef PressureIndependMultiYield_h
 #define PressureIndependMultiYield_h
 
