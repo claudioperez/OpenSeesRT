@@ -160,18 +160,15 @@ class Interpreter:
 #           raise e
 
     def serialize(self)->dict:
-        import tempfile
-        tmp = tempfile.NamedTemporaryFile(delete=False)
-        tmp.close()
+        import tempfile, pathlib
+        with tempfile.TemporaryDirectory() as tmp:
+            file = tmp/pathlib.Path("model.json")
+            self.eval(f"print -json -file {file.name}")
 
-        self.eval(f"print -json -file {tmp.name}")
+            # Read in the generated JSON
+            with open(file.name, "r") as f:
+                model = json.load(f)
 
-        # Read in the generated JSON
-        with open(tmp.name, "r") as f:
-            model = json.load(f)
-
-        # Delete the temporary file
-        os.remove(tmp.name)
         return model
 
     def export(self, *args):

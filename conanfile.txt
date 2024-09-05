@@ -1,0 +1,8 @@
+[requires]
+tcl/8.6.11
+
+[options]
+tcl:shared=True
+
+[generators]
+cmake
