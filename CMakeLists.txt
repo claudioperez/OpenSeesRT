@@ -11,8 +11,8 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
 project(OpenSees 
-	DESCRIPTION "Open System For Earthquake Engineering Simulation"
-	LANGUAGES   C CXX Fortran)
+        DESCRIPTION "Open System For Earthquake Engineering Simulation"
+        LANGUAGES   C CXX Fortran)
 
 set(OPS_BUNDLED_DIR   "${CMAKE_CURRENT_LIST_DIR}/OTHER/")
 set(OPS_SRC_DIR       "${CMAKE_CURRENT_LIST_DIR}/SRC/")
@@ -28,7 +28,6 @@ enable_testing()
 # If conan has been run, load generated external dependencies
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
    message(":: Using Conan")
-#  set(USE_CONAN TRUE)
    include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
    conan_basic_setup() # TARGETS)
    set(TCL_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_TCL}")
