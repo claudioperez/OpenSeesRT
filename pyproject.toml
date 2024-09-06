@@ -111,7 +111,7 @@ skip = ["pp*", "*i686*", "UNKNOWN*", "*musllinux*", "cp3[6789]-*"]
 
 
 [tool.cibuildwheel.linux]
-skip = ["pp*", "*i686*", "UNKNOWN*", "*musllinux*", "cp3[67]-*"]
+skip = ["pp*", "*i686*", "UNKNOWN*", "*musllinux*", "cp3[6789]-*"]
 before-all = "yum install -y epel-release"
 before-build = "yum install -y tcl-devel mysql-devel openblas-devel" # lapack-devel
 repair-wheel-command = "auditwheel repair --exclude libOpenSeesRT.so  -w {dest_dir} {wheel}"
