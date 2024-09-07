@@ -45,6 +45,7 @@ Tcl_PeridynamicsCommands(ClientData cd, Tcl_Interp* interp,
     }
   }
 
+  printf("Creating domain with nn=%d, mf=%d\n", totnode, maxfam);
   // Allocate a new domain
   ParticleDomain *domain = new ParticleDomain(totnode, maxfam);
 

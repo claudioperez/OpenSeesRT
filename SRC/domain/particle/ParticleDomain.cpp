@@ -21,9 +21,10 @@ int ParticleDomain::hello(double x)
 
 void ParticleDomain::print(int flag)
 {
-  printf("\"Particles\": [\n\t");
+  printf("  \"Particles\": [\n");
   for (Particle<3>& particle : particles) {
+    printf("    ");
     particle.print(flag);
   }
-  printf("]\n");
+  printf("  ]\n");
 }
