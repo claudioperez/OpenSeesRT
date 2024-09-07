@@ -114,8 +114,10 @@ struct MatrixND {
   template <typename F> void map(F func) const;
   template <typename F> void map(F func, MatrixND<NR,NC,T>& destination);
 
-  int invert(MatrixND<NR, NC> &) const;
-  int invert() {return Matrix(*this).Invert();}
+  int invert(MatrixND<NR, NC, T> &) const;
+  int invert() {
+    return Matrix(*this).Invert();
+  }
 
   template<class VecT> MatrixND<NR,NC,T>& addSpin(const VecT& V);
   template<class VecT> MatrixND<NR,NC,T>& addSpin(const VecT& V, double scale);
@@ -242,6 +244,7 @@ struct MatrixND {
   int solve(const Vector &V, Vector &res) const
     requires(NR == NC)
   {
+
     MatrixND<NR,NC> work = *this;
     int pivot_ind[NR];
     int nrhs = 1;
@@ -257,6 +260,9 @@ struct MatrixND {
   int
   solve(const Matrix &M, Matrix &res)
   {
+    Matrix slver(*this);
+    return slver.Solve(M, res);
+
     MatrixND<NR,NC> work = *this;
     int pivot_ind[NR];
     int nrhs = M.noCols();
@@ -271,11 +277,11 @@ struct MatrixND {
 
   template <int row0, int row1, int col0, int col1>
   inline MatrixND<row1-row0,col1-col0>
-  extract()
+  extract() const
   {
     MatrixND<row1-row0,col1-col0> m;
     for (int i=0; i<row1-row0; i++)
-      for (int j=0; j<col1-col0; i++)
+      for (int j=0; j<col1-col0; j++)
         m(i,j) = (*this)(row0+i, col0+j);
     return m;
   }
@@ -552,11 +558,30 @@ MatrixND<nr, nc, T>::map(F func, MatrixND<nr,nc,T>& destination)
       destination(i,j) = func((*this)(i,j));
 }
 
-template<> inline int
-MatrixND<6,6>::invert(MatrixND<6,6> &M) const
+// template<> inline int
+template <index_t nr, index_t nc, typename T> inline int
+MatrixND<nr,nc,T>::invert(MatrixND<nr,nc,T> &M) const
 {
   int status;
-    cmx_inv6(&this->values[0][0], &M.values[0][0], &status);
+  switch (nr) {
+    case 2:
+      cmx_inv2(&this->values[0][0], &M.values[0][0], &status);
+      break;
+    case 3:
+      cmx_inv3(&this->values[0][0], &M.values[0][0], &status);
+      break;
+    case 4:
+      cmx_inv4(&this->values[0][0], &M.values[0][0], &status);
+      break;
+    case 5:
+      cmx_inv5(&this->values[0][0], &M.values[0][0], &status);
+      break;
+    case 6:
+      cmx_inv6(&this->values[0][0], &M.values[0][0], &status);
+      break;
+    default:
+      return -1;
+  }
   return status;
 }
 
