@@ -51,6 +51,7 @@ PrismFrame3d::PrismFrame3d(int tag, std::array<int, 2>& nodes,
   q.zero();
 }
 
+
 PrismFrame3d::PrismFrame3d(int tag, 
                            std::array<int,2>& nodes,
                            FrameSection &section,  
@@ -59,10 +60,10 @@ PrismFrame3d::PrismFrame3d(int tag,
                            int rz, int ry,
                            int geom
                            )
-  :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
-   mass_flag(cMass), density(rho_),
-   releasez(rz), releasey(ry),
-   geom_flag(geom)
+  : BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
+    mass_flag(cMass), density(rho_),
+    releasez(rz), releasey(ry),
+    geom_flag(geom)
 {
   q.zero();
 
@@ -76,6 +77,7 @@ PrismFrame3d::PrismFrame3d(int tag,
 
   const Matrix &sectTangent = section.getInitialTangent();
   const ID &sectCode = section.getType();
+
   for (int i=0; i<sectCode.Size(); i++) {
     int code = sectCode(i);
     switch(code) {
@@ -124,6 +126,7 @@ PrismFrame3d::setNodes()
   return 0;
 }
 
+
 inline void
 PrismFrame3d::formBasicStiffness(OpenSees::MatrixND<6,6>& kb) const
 {
@@ -156,11 +159,12 @@ PrismFrame3d::formBasicStiffness(OpenSees::MatrixND<6,6>& kb) const
       kb(4,3) = kb(3,4) = EIyoverL2;
     }
     if (releasey == 1)   // release I
-      kb(4,4) = 3.0*Iy*EoverL;
+      kb(4,4) = 3.0*E*Iy/L;
 
     if (releasey == 2)   // release J
-      kb(3,3) = 3.0*Iy*EoverL;
+      kb(3,3) = 3.0*E*Iy/L;
 }
+
 
 int
 PrismFrame3d::commitState()
@@ -172,6 +176,7 @@ PrismFrame3d::commitState()
   retVal += theCoordTransf->commitState();
   return retVal;
 }
+
 
 int
 PrismFrame3d::revertToLastCommit()
@@ -201,8 +206,7 @@ PrismFrame3d::update()
   else
     switch (geom_flag) {
       case 0:
-        ke = km ;
-
+        ke = km;
         break;
 
       case 1:
@@ -214,7 +218,6 @@ PrismFrame3d::update()
 
       case 2:
         {
-          MatrixND<8,8> Y;
 
           // Y is composed of 2x2 blocks:
           //
@@ -223,93 +226,116 @@ PrismFrame3d::update()
           //      O  O     O    I
           //      O  O  -ks\P   O];
           //
+          MatrixND<8,8> Y;
           Y.zero();
 
           for (int i=0; i<6; i++)
             Y(i, i+2) = L;
 
-          double Iyz = 0;
+          double Iyz = 0; // TODO
 
-          // Form ks = kf*[0 -1; 1 0]*(eye(2) - N*inv(kv))
-          MatrixND<2,2> Ks;
+          MatrixND<2,2> Km {{
+                           {E*Iy,  E*Iyz},
+                           {E*Iyz, E*Iz }
+                           }};
+
+          MatrixND<2,2> Dx {{
+                           { 0,  -1},
+                           { 1,   0}}};
+
+          MatrixND<2,2> Phi{0};
+          if (G*Ay != 0 && G*Az != 0) {
+            Phi = {{
+              {  1/(G*Ay),      0      },
+              {        0 ,     1/(G*Az)}}};
+          } 
+
+          MatrixND<2,2> Ak = Dx;
+          Ak.addMatrix(Dx*Phi,  N);
+          MatrixND<2,2> C  = Dx*Km*Ak;
+          MatrixND<2,2> Ci;
+
+          C.invert(Ci);
+          Y.assemble(Ci, 6, 4, -L*N);
+
+
+
+          const MatrixND<8,8> eY  = ExpGLn(Y);
+
+          MatrixND<2,2> B3, B4;
           {
-            MatrixND<2,2> Kf {{
-                             {E*Iz,  E*Iyz},
-                             {E*Iyz, E*Iy }
-                             }};
-            Ks = Kf;
+            MatrixND<2,2> E12 = eY.extract<0,2,  2,4>();
+            MatrixND<2,2> E13 = eY.extract<0,2,  4,6>();
+            MatrixND<2,2> E14 = eY.extract<0,2,  6,8>();
+            E12.invert();
 
-//          if (G*Ay != 0 && G*Az != 0) {
-//            MatrixND<2,2> Kv {{
-//              {     0      ,-1 + N/(G*Az) },
-//              {1 - N/(G*Ay),      0       }}};
+            B3 = E12*E13,
+            B4 = E12*E14;
 
-//            Ks = Kf*Kv;
-
-//          } else {
-//            Ks = Kf;
-//          }
+            B3 *= -1;
+            B4 *= -1;
           }
 
-          Ks.invert();
-          Y.assemble(Ks, 6, 4, L*N);
-          Ks.invert();
+          MatrixND<4,4> Fci{};
+          {
+            MatrixND<2,2> O{};
+            MatrixND<2,2> I{};
+            I.addDiagonal(1.0);
+            MatrixND<2,2> E22 = eY.extract<2,4,  2,4>();
+            MatrixND<2,2> E23 = eY.extract<2,4,  4,6>();
+            MatrixND<2,2> E24 = eY.extract<2,4,  6,8>();
+            MatrixND<2,2> E42 = eY.extract<6,8,  2,4>();
+            MatrixND<2,2> E43 = eY.extract<6,8,  4,6>();
+            MatrixND<2,2> E44 = eY.extract<6,8,  6,8>();
+            MatrixND<8,4> Fa{};
+            Fa.assemble(B3,         0, 0, 1);
+            Fa.assemble(B4,         0, 2, 1);
+            Fa.assemble( O,         2, 0, 1);
+            Fa.assemble( I,         2, 2, 1);
+            Fa.assemble(E22*B3+E23, 4, 0, 1);
+            Fa.assemble(E22*B4+E24, 4, 2, 1);
+            Fa.assemble(E42*B3+E43, 6, 0, 1);
+            Fa.assemble(E42*B4+E44, 6, 2, 1);
+            MatrixND<4,8> Fb{};
+            Fb.assemble(Dx,              0, 0, 1);
+            Fb.assemble(Dx*Phi*Dx*Km*Ak, 0, 2,-1);
+            Fb.assemble(Dx,              2, 4, 1);
+            Fb.assemble(Dx*Phi*Dx*Km*Ak, 2, 6,-1);
+            (Fb*Fa).invert(Fci);
+          }
 
+          MatrixND<4,4> Kc{};
+          {
 
-          MatrixND<8,8> eY  = ExpGLn(Y);
-          opserr << Matrix(eY) << "\n";
+            MatrixND<2,2> E32 = eY.extract<4,6,  2,4>();
+            MatrixND<2,2> E33 = eY.extract<4,6,  4,6>();
+            MatrixND<2,2> E34 = eY.extract<4,6,  6,8>();
 
-          MatrixND<2,2> E12 = eY.extract<0,2,  2,4>();
-          MatrixND<2,2> E13 = eY.extract<0,2,  4,6>();
-          MatrixND<2,2> E14 = eY.extract<0,2,  6,8>();
+            MatrixND<2,2> DxC = Dx*C;
+            DxC *= -1;
 
-          MatrixND<2,2> E22 = eY.extract<2,4,  2,4>();
-          MatrixND<2,2> E23 = eY.extract<2,4,  4,6>();
-          MatrixND<2,2> E24 = eY.extract<2,4,  6,8>();
+            Kc.assemble(DxC,              0, 0, 1);
+            Kc.assemble(DxC*(E32*B3+E33), 2, 0, 1);
+            Kc.assemble(DxC*(E32*B4+E34), 2, 2, 1);
+          }
 
-          MatrixND<2,2> E32 = eY.extract<4,6,  2,4>();
-          MatrixND<2,2> E33 = eY.extract<4,6,  4,6>();
-          MatrixND<2,2> E34 = eY.extract<4,6,  6,8>();
+          MatrixND<4,4> Kb = Kc*Fci;
 
-          MatrixND<2,2> E44 = eY.extract<6,8,  6,8>();
-          
+          ke = {{{E*A/L,      0  ,       0  ,        0   ,     0   ,     0  },
+                 {   0 , -Kb(1,1),  -Kb(1,3),    -Kb(1,0), -Kb(1,2),     0  },  // i theta_z
+                 {   0 ,  Kb(3,1),   Kb(3,3),     Kb(3,0),  Kb(3,2),     0  },  // j
+                 {   0 , -Kb(0,1),  -Kb(0,3),    -Kb(0,0), -Kb(0,2),     0  },  // i theta_y
+                 {   0 ,  Kb(2,1),   Kb(2,3),     Kb(2,0),  Kb(2,2),     0  },
+                 {   0,       0  ,       0  ,        0   ,     0   ,  G*Jx/L}}};//
 
-          E12.invert();
-          MatrixND<2,2> H3 = E12*E13,
-                        H4 = E12*E14;
-
-          H3 *= -1;
-          H4 *= -1;
-
-          MatrixND<4,4> F1{};
-          F1.assemble(H3,         0, 0, 1);
-          F1.assemble(H4,         0, 2, 1);
-          F1.assemble(E22*H3+E23, 2, 0, 1);
-          F1.assemble(E22*H4+E24, 2, 2, 1);
-          F1.invert();
-
-          MatrixND<4,4> F2{};
-          F2.assemble(Ks,               0, 0, 1);
-          F2.assemble(Ks*E32*H3+Ks*E33, 2, 0, 1);
-          F2.assemble(Ks*E32*H4+Ks*E34, 2, 2, 1);
-
-          MatrixND<4,4> Kb = F2*F1;
-
-          ke = {{{E*A/L,      0  ,       0  ,    0  ,       0   ,     0   },
-                 {   0 , -Kb(0,0),  -Kb(0,2),    0  ,   -Kb(0,1), -Kb(1,4)},  // i theta_z
-                 {   0 ,  Kb(2,0),   Kb(2,2),    0  ,    Kb(2,1),  Kb(3,4)},  // j
-                 {   0 ,      0  ,       0  , G*Jx/L,       0   ,     0   },  //   theta_x
-                 {   0 , -Kb(1,0),  -Kb(1,2),    0  ,   -Kb(1,1), -Kb(2,4)},  // i theta_y
-                 {   0 ,  Kb(3,0),   Kb(3,2),    0  ,    Kb(3,1),  Kb(4,4)}}};// j
-                                                                              //
-          opserr << Matrix(ke) << "\n";
-
+//        opserr << Matrix(ke) << "\n";
         }
         break;
     }
 
   q = ke*v;
   q += q0;
+
 
   return ok;
 }
