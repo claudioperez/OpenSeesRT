@@ -1,6 +1,18 @@
 /*
  * Summary of Functions
  *
+ *
+ * void UEL(double *RHS, double *AMATRX, double *SVARS, double *ENERGY, int NDOFEL, int NRHS, int NSVARS,
+ *          double *PROPS, int NPROPS, double *COORDS, int MCRD, int NNODE, double *U, double *DU, double *V, double *A,
+ *          int JTYPE, double *TIME, double DTIME, int KSTEP, int KINC, int JELEM, double *PARAMS, int NDLOAD, int *JDLTYP,
+ *          double *ADLMAG, double *PREDEF, int NPREDF, int *LFLAGS, int MLVARX, double *DDLMAG, int MDLOAD, double *PNEWDT,
+ *          double *JPROPS, int NJPROP, double PERIOD)
+ *
+ *    - Assembles the element stiffness matrix by determining whether the near-field dynamics bond is broken.
+ *    - Inputs: RHS, AMATRX, SVARS, ENERGY, PROPS, COORDS, U, DU, V, A, TIME, DTIME, PARAMS, JDLTYP, ADLMAG, PREDEF, LFLAGS, DDLMAG, PNEWDT, JPROPS
+ *              NDOFEL, NRHS, NSVARS, NPROPS, MCRD, NNODE, JTYPE, KSTEP, KINC, JELEM, NDLOAD, NPREDF, MLVARX, MDLOAD, NJPROP, PERIOD
+ *    - Outputs: RHS, AMATRX, SVARS, ENERGY, PROPS, COORDS, U, DU, V, A, TIME, DTIME, PARAMS, JDLTYP, ADLMAG, PREDEF, LFLAGS, DDLMAG, PNEWDT, JPROPS
+ *
  * void mat_zero(double *mat, int rows, int cols)
  *    - Initializes a matrix to zero.
  *    - Inputs: mat (matrix to be initialized), rows (number of rows), cols (number of columns)
@@ -73,8 +85,10 @@ void mat_tran(double *mat1, double *mat2, int row1, int col1) {
 }
 
 void calc_Jdet(double xRef[2][8], double i_xi, double i_eta, double j_xi, double j_eta, double *i_Jdet, double *j_Jdet) {
-    double i_J[2][2] = {0}, j_J[2][2] = {0};
-    double i_N_diff[2][4], j_N_diff[2][4];
+    double i_J[2][2] = {0}, 
+           j_J[2][2] = {0};
+    double i_N_diff[2][4], 
+           j_N_diff[2][4];
 
     // Partial derivatives of shape functions with respect to parametric coordinates in the main element
     i_N_diff[0][0] = (i_eta - 1.0) / 4.0;
@@ -179,7 +193,8 @@ void calc_gauss_intg(double i_xi, double i_eta,
     mat_mult((double *)tran_peri_B, (double *)peri_DB, (double *)block_stiff, 16, 2, 2, 16);
 }
 
-void gauss_loc(double xCur[2][8], double loc_gauss[2][8]) {
+static void
+gauss_loc(double xCur[2][8], double loc_gauss[2][8]) {
     double x_Gspoint[4] = {-0.577350269189626, 0.577350269189626, 0.577350269189626, -0.577350269189626};
     double y_Gspoint[4] = {-0.577350269189626, -0.577350269189626, 0.577350269189626, 0.577350269189626};
     double u_N[4];
@@ -200,6 +215,224 @@ void gauss_loc(double xCur[2][8], double loc_gauss[2][8]) {
         }
     }
 }
+
+
+#if 1
+#include <math.h>
+#include <stdio.h>
+
+// void mat_zero(double matrix[][8], int rows, int cols);
+// void gauss_loc(const double coords[][8], double gauss[][8]);
+// void calc_gauss_intg(double x1, double y1, const double coords[][8], double x2, double y2, double block_stiff[][16], double prop1, double prop3, double prop4);
+// void mat_mult(const double *A, const double *B, double *C, int rowsA, int colsA, int colsB, int rhs);
+
+void UEL(double *RHS, double *AMATRX, double *SVARS, double *ENERGY, const int NDOFEL, const int NRHS, const int NSVARS,
+         const double *PROPS, const int NPROPS, const double *COORDS, const int MCRD, const int NNODE, const double *U, const double *DU,
+         const double *V, const double *A, const int JTYPE, const double *TIME, const double DTIME, const int KSTEP, const int KINC,
+         const int JELEM, const double *PARAMS, const int NDLOAD, const int *JDLTYP, const double *ADLMAG, const double *PREDEF,
+         const int NPREDF, const int *LFLAGS, const int MLVARX, const double *DDLMAG, const int MDLOAD, const double PNEWDT,
+         const double *JPROPS, const int NJPROP, const double PERIOD) {
+
+    const int ntens = 4;
+    const double x_Gspoint[4] = {-0.577350269189626, 0.577350269189626, 0.577350269189626, -0.577350269189626};
+    const double y_Gspoint[4] = {-0.577350269189626, -0.577350269189626, 0.577350269189626, 0.577350269189626};
+
+    // Initialize global variables
+    if (KINC == 1) {
+        ele_bond_state_pd[1][1][(int)COORDS[2 * 9]][(int)COORDS[1 * 9]] = 0;
+        for (int i = 0; i < NSVARS; i++) {
+            SVARS[i] = 0.0;
+        }
+        for (int i = 0; i < 4; i++) {
+            ele_bond_sum_state_fem[i][1][(int)COORDS[1 * 9]] = 0.0;
+            ele_bond_sum_state_pd[i][1][(int)COORDS[2 * 9]][(int)COORDS[1 * 9]] = 0;
+        }
+    }
+
+    // Initialize matrices
+    double curr_gauss[2][8], ref_gauss[2][8], curr_coord[2][8], block_stiff[16][16];
+    mat_zero((double *)curr_gauss, 2, 8);
+    mat_zero((double *)ref_gauss, 2, 8);
+    mat_zero((double *)curr_coord, 2, 8);
+    mat_zero((double *)AMATRX, NDOFEL, NDOFEL);
+    mat_zero((double *)block_stiff, 16, 16);
+//  mat_zero(curr_gauss, 2, 8);
+//  mat_zero(ref_gauss, 2, 8);
+//  mat_zero(curr_coord, 2, 8);
+//  mat_zero((double (*)[8])AMATRX, NDOFEL, NDOFEL);
+//  mat_zero(block_stiff, 16, 16);
+    double rhsmatrx[NDOFEL];
+//  mat_zero((double (*)[1])rhsmatrx, NDOFEL, NRHS);
+    mat_zero((double *)rhsmatrx, NDOFEL, NRHS);
+
+    // Calculate current node coordinates
+    for (int i = 0; i < 8; i++) {
+        curr_coord[0][i] = COORDS[0 * NNODE + i] + U[i * 2 - 1];
+        curr_coord[1][i] = COORDS[1 * NNODE + i] + U[i * 2];
+    }
+
+    // Calculate Gauss coordinates
+    gauss_loc(curr_coord, curr_gauss);
+    gauss_loc((const double (*)[8])COORDS, ref_gauss);
+
+    // Determine bond breakage
+    int loop_number  = 1,
+        new_bre_bond = 0;
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            double ref_bond  = sqrt(pow(ref_gauss[0][i] - ref_gauss[0][j + 4], 2) 
+                                  + pow(ref_gauss[1][i] - ref_gauss[1][j + 4], 2));
+            double curr_bond = sqrt(pow(curr_gauss[0][i] - curr_gauss[0][j + 4], 2) 
+                                  + pow(curr_gauss[1][i] - curr_gauss[1][j + 4], 2));
+
+            if (SVARS[3 + loop_number] == 0.0) {
+                if (ref_bond != 0.0) {
+                    if (((curr_bond - ref_bond) / ref_bond) >= PROPS[2]) {
+                        new_bre_bond++;
+                        SVARS[3 + loop_number] = 1.0;
+                    }
+                }
+            }
+            loop_number++;
+        }
+    }
+
+    // Assemble element stiffness matrix
+    loop_number = 1;
+    int para_build_bond = 0;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (SVARS[3 + loop_number] != 1.0) {
+                calc_gauss_intg(x_Gspoint[i], y_Gspoint[i], (const double (*)[8])COORDS, x_Gspoint[j], y_Gspoint[j], block_stiff, PROPS[1], PROPS[3], PROPS[4]);
+                for (int k = 0; k < NDOFEL * NDOFEL; k++) {
+                    AMATRX[k] += block_stiff[k / 16][k % 16];
+                }
+                para_build_bond++;
+            }
+            loop_number++;
+        }
+    }
+
+    mat_mult(AMATRX, U, rhsmatrx, NDOFEL, NDOFEL, 1, 1);
+
+    for (int i = 0; i < NDOFEL; i++) {
+        RHS[i] = -rhsmatrx[i];
+    }
+
+    // Update state variables
+    SVARS[0] = new_bre_bond;
+    SVARS[19] = para_build_bond;
+    SVARS[20] = 16 - para_build_bond;
+    SVARS[1] = (16 - para_build_bond) / 16.0;
+
+    // Store the number of broken bonds
+    ele_bond_state_pd[1][1][(int)COORDS[2 * 9]][(int)COORDS[1 * 9]] = 1;
+    ele_bond_sum_state_pd[1][1][(int)COORDS[2 * 9]][(int)COORDS[1 * 9]] = SVARS[20];
+    ele_bond_sum_state_pd[2][1][(int)COORDS[2 * 9]][(int)COORDS[1 * 9]] = SVARS[20];
+    ele_bond_sum_state_pd[3][1][(int)COORDS[2 * 9]][(int)COORDS[1 * 9]] = SVARS[20];
+    ele_bond_sum_state_pd[4][1][(int)COORDS[2 * 9]][(int)COORDS[1 * 9]] = SVARS[20];
+}
+
+
+#else
+void UEL(double *RHS, double *AMATRX, double *SVARS, double *ENERGY, int NDOFEL, int NRHS, int NSVARS,
+         double *PROPS, int NPROPS, double *COORDS, int MCRD, int NNODE, double *U, double *DU, double *V, double *A,
+         int JTYPE, double *TIME, double DTIME, int KSTEP, int KINC, int JELEM, double *PARAMS, int NDLOAD, int *JDLTYP,
+         double *ADLMAG, double *PREDEF, int NPREDF, int *LFLAGS, int MLVARX, double *DDLMAG, int MDLOAD, double *PNEWDT,
+         double *JPROPS, int NJPROP, double PERIOD) {
+
+    // Define Gauss points
+    double x_Gspoint[4] = {-0.577350269189626, 0.577350269189626, 0.577350269189626, -0.577350269189626};
+    double y_Gspoint[4] = {-0.577350269189626, -0.577350269189626, 0.577350269189626, 0.577350269189626};
+
+    // Initialize global variables
+    if (KINC == 1) {
+        ele_bond_state_pd[0][0][(int)COORDS[1 * NNODE + 8]][(int)COORDS[0 * NNODE + 8]] = 0;
+        for (int i = 0; i < NSVARS; i++) {
+            SVARS[i] = 0.0;
+        }
+        for (int i = 0; i < 4; i++) {
+            ele_bond_sum_state_fem[i][0][(int)COORDS[0 * NNODE + 8]] = 0.0;
+            ele_bond_sum_state_pd[i][0][(int)COORDS[1 * NNODE + 8]][(int)COORDS[0 * NNODE + 8]] = 0;
+        }
+    }
+
+    // Initialize matrices
+    double curr_gauss[2][8], ref_gauss[2][8], curr_coord[2][8], block_stiff[16][16], rhsmatrx[NDOFEL][1];
+    mat_zero((double *)curr_gauss, 2, 8);
+    mat_zero((double *)ref_gauss, 2, 8);
+    mat_zero((double *)curr_coord, 2, 8);
+    mat_zero((double *)AMATRX, NDOFEL, NDOFEL);
+    mat_zero((double *)block_stiff, 16, 16);
+    mat_zero((double *)rhsmatrx, NDOFEL, NRHS);
+
+    // Calculate current node coordinates
+    for (int i = 0; i < 8; i++) {
+        curr_coord[0][i] = COORDS[0 * NNODE + i] + U[i * 2];
+        curr_coord[1][i] = COORDS[1 * NNODE + i] + U[i * 2 + 1];
+    }
+
+    // Calculate Gauss coordinates
+    gauss_loc(curr_coord, curr_gauss);
+    gauss_loc((double (*)[8])COORDS, ref_gauss);
+
+    // Determine bond breakage
+    int loop_number = 1;
+    int new_bre_bond = 0;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            double ref_bond = sqrt(pow(ref_gauss[0][i] - ref_gauss[0][j + 4], 2) + pow(ref_gauss[1][i] - ref_gauss[1][j + 4], 2));
+            double curr_bond = sqrt(pow(curr_gauss[0][i] - curr_gauss[0][j + 4], 2) + pow(curr_gauss[1][i] - curr_gauss[1][j + 4], 2));
+            if (SVARS[2 + loop_number] == 0.0) {
+                if (ref_bond != 0.0) {
+                    if (((curr_bond - ref_bond) / ref_bond) >= PROPS[1]) {
+                        new_bre_bond++;
+                        SVARS[2 + loop_number] = 1.0;
+                    }
+                }
+            }
+            loop_number++;
+        }
+    }
+
+    // Assemble element stiffness matrix
+    loop_number = 1;
+    int para_build_bond = 0;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (SVARS[2 + loop_number] != 1.0) {
+                calc_gauss_intg(x_Gspoint[i], y_Gspoint[i], (double (*)[8])COORDS, x_Gspoint[j], y_Gspoint[j], block_stiff, PROPS[0], PROPS[2], PROPS[3]);
+                for (int k = 0; k < NDOFEL; k++) {
+                    for (int l = 0; l < NDOFEL; l++) {
+                        AMATRX[k * NDOFEL + l] += block_stiff[k * 16 + l];
+                    }
+                }
+                para_build_bond++;
+            }
+            loop_number++;
+        }
+    }
+
+    mat_mult((double *)AMATRX, U, (double *)rhsmatrx, NDOFEL, NDOFEL, NDOFEL, 1);
+    for (int i = 0; i < NDOFEL; i++) {
+        RHS[i] = -rhsmatrx[i][0];
+    }
+
+    // Update state variables
+    SVARS[0] = new_bre_bond;
+    SVARS[19] = para_build_bond;
+    SVARS[20] = 16 - para_build_bond;
+    SVARS[1] = (16 - para_build_bond) / 16.0;
+
+    // Store the number of broken bonds
+    ele_bond_state_pd[0][0][(int)COORDS[1 * NNODE + 8]][(int)COORDS[0 * NNODE + 8]] = 1;
+    for (int i = 0; i < 4; i++) {
+        ele_bond_sum_state_pd[i][0][(int)COORDS[1 * NNODE + 8]][(int)COORDS[0 * NNODE + 8]] = SVARS[20];
+    }
+}
+#endif
+
 
 int main() {
     // Example usage of the functions
