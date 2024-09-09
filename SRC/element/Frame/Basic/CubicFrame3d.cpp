@@ -1122,6 +1122,7 @@ CubicFrame3d::Print(OPS_Stream& s, int flag)
     s << "\"sections\": [";
     for (int i = 0; i < numSections - 1; i++)
       s << "\"" << theSections[i]->getTag() << "\", ";
+
     s << "\"" << theSections[numSections - 1]->getTag() << "\"], ";
     s << "\"integration\": ";
     beamInt->Print(s, flag);
