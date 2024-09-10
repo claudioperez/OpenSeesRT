@@ -1,11 +1,11 @@
 #include <tcl.h>
 #include <stdio.h>
 
-#include <ParticleDomain.h>
+#include <PeriDomain.h>
 
 int
-Tcl_PeridynamicsCommands(ClientData cd, Tcl_Interp* interp,
-                         int argc, const char** const argv)
+Tcl_Peri(ClientData cd, Tcl_Interp* interp,
+         int argc, const char** const argv)
 {
 
   //
@@ -35,6 +35,7 @@ Tcl_PeridynamicsCommands(ClientData cd, Tcl_Interp* interp,
     // parsed as an integer.
     if (Tcl_GetInt(interp, argv[1], &totnode) == TCL_ERROR) {
       printf("ERROR: Couldnt parse argv[1] as an integer\n");
+      return -1;
     }
   }
 
@@ -42,12 +43,13 @@ Tcl_PeridynamicsCommands(ClientData cd, Tcl_Interp* interp,
   if (argc > 2) {
     if (Tcl_GetInt(interp, argv[2], &maxfam) == TCL_ERROR) {
       printf("ERROR: Couldnt parse argv[2] as an integer\n");
+      return -1;
     }
   }
 
   printf("Creating domain with nn=%d, mf=%d\n", totnode, maxfam);
   // Allocate a new domain
-  ParticleDomain *domain = new ParticleDomain(totnode, maxfam);
+  PeriDomain *domain = new PeriDomain(totnode, maxfam);
 
   // Print the domain
   domain->print(0);

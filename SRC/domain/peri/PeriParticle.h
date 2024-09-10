@@ -7,7 +7,7 @@ using OpenSees::VectorND;
 using OpenSees::MatrixND;
 
 template<int ndm>
-class Particle {
+class PeriParticle {
 public:
 
   // Print a representation of the domain
@@ -27,7 +27,7 @@ public:
 //
 template <int ndm>
 void
-Particle<ndm>::print(int flag)
+PeriParticle<ndm>::print(int flag)
 {
 
   printf("{\"Coordinates\": [");

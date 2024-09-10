@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include <ParticleDomain.h>
+#include <PeriDomain.h>
   
 
-ParticleDomain::ParticleDomain(int totnode, int maxfam)
+PeriDomain::PeriDomain(int totnode, int maxfam)
   // Call the constructors for our member data
   : particles(totnode) // initialize the container of particles with size `totnode`
 {
@@ -10,7 +10,7 @@ ParticleDomain::ParticleDomain(int totnode, int maxfam)
 }
 
 
-int ParticleDomain::hello(double x)
+int PeriDomain::hello(double x)
 {
   // print the given double
   printf("hello, %lf\n", x);
@@ -19,10 +19,10 @@ int ParticleDomain::hello(double x)
   return 32;
 }
 
-void ParticleDomain::print(int flag)
+void PeriDomain::print(int flag)
 {
   printf("  \"Particles\": [\n");
-  for (Particle<3>& particle : particles) {
+  for (PeriParticle<3>& particle : particles) {
     printf("    ");
     particle.print(flag);
   }
