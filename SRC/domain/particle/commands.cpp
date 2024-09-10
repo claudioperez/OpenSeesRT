@@ -35,6 +35,7 @@ Tcl_PeridynamicsCommands(ClientData cd, Tcl_Interp* interp,
     // parsed as an integer.
     if (Tcl_GetInt(interp, argv[1], &totnode) == TCL_ERROR) {
       printf("ERROR: Couldnt parse argv[1] as an integer\n");
+      return -1;
     }
   }
 
@@ -42,6 +43,7 @@ Tcl_PeridynamicsCommands(ClientData cd, Tcl_Interp* interp,
   if (argc > 2) {
     if (Tcl_GetInt(interp, argv[2], &maxfam) == TCL_ERROR) {
       printf("ERROR: Couldnt parse argv[2] as an integer\n");
+      return -1;
     }
   }
 
