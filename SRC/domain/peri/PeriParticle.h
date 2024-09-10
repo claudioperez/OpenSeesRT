@@ -1,37 +1,47 @@
 #pragma once
 #include <stdio.h>
-#include <VectorND.h>
-#include <MatrixND.h>
+#include <vector>
 
-using OpenSees::VectorND;
-using OpenSees::MatrixND;
+// ============================================
+// VectorND and MatrixND are not required here
+// because the linear algebra operations are not used
+// --------------------------------------------
+// #include <VectorND.h>
+// #include <MatrixND.h>
+// using OpenSees::VectorND;
+// using OpenSees::MatrixND;
+// ============================================
 
-template<int ndm>
 class PeriParticle {
 public:
 
-  // Print a representation of the domain
-  void print(int flag);
-
+  // // Print a representation of the domain
+  // void print(int flag);
+  // ============================================
   // DATA
-  VectorND<ndm> coord, 
-                pforce, bforce, bdisp, 
-                disp, vel, acc;
-
-  double energy, vol_h, vol;
-
+  // ============================================
+  int                 numfam;
+  std::vector<int>    nodefam;
+  std::vector<double> coord, vol;
+  double              vol_h;
+  std::vector<double> correction, bond_dmg;
+  std::vector<int>    is_force_bound, is_disp_bound;
+  std::vector<double> bforce, bdisp, pforce, stress, strain,
+                      disp, vel, acc;
+  double              energy;
+  std::vector<double> misc;
 };
 
 //
 // Implementation
 //
-template <int ndm>
-void
-PeriParticle<ndm>::print(int flag)
-{
+// template <int ndm>
+// void
+// PeriParticle<ndm>::print(int flag)
+// {
 
-  printf("{\"Coordinates\": [");
-  for (int i=0; i<ndm; i++)
-    printf("%f ", coord[i]);
-  printf("]}\n");
-}
+//   printf("{\"Coordinates\": [");
+//   for (int i=0; i<ndm; i++)
+//     printf("%f ", coord[i]);
+//   printf("]}\n");
+// }
