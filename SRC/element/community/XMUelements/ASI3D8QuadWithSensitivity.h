@@ -54,38 +54,41 @@ class ASI3D8QuadWithSensitivity: public Element
     ASI3D8QuadWithSensitivity ();
     ~ASI3D8QuadWithSensitivity();
 
-    int getNumExternalNodes(void) const;
-    const ID &getExternalNodes(void);
-    Node **getNodePtrs(void);
-    int getNumDOF(void);
+    const char* getClassType() const {
+      return "ASI3D8QuadWithSensitivity";
+    }
+
+    int getNumExternalNodes() const;
+    const ID &getExternalNodes();
+    Node **getNodePtrs();
+    int getNumDOF();
     
     void setDomain(Domain *theDomain);
 
     // public methods to set the state of the element
-    int commitState(void);
-    int revertToLastCommit(void);
-    int revertToStart(void);
+    int commitState();
+    int revertToLastCommit();
+    int revertToStart();
     
-    int update(void);
+    int update();
 
     // public methods to obtain stiffness, mass, damping and residual information
-    const Matrix &getTangentStiff(void);
-    const Matrix &getInitialStiff(void);
-    const Matrix &getMass(void);
-    const Matrix &getConsMass(void);
+    const Matrix &getTangentStiff();
+    const Matrix &getInitialStiff();
+    const Matrix &getMass();
+    const Matrix &getConsMass();
 
-    void zeroLoad(void);
+    void zeroLoad();
     int addLoad(ElementalLoad *theLoad, double loadFactor);
     int addInertiaLoadToUnbalance(const Vector &accel);
 
-    const Vector &getResistingForce(void);
-    const Vector &getResistingForceIncInertia(void);
+    const Vector &getResistingForce();
+    const Vector &getResistingForceIncInertia();
 
     // public methods for element output
     int sendSelf (int commitTag, Channel &theChannel);
     int recvSelf (int commitTag, Channel &theChannel, FEM_ObjectBroker
 		  &theBroker);
-    int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode);
 
     void Print(OPS_Stream &s, int flag =0);
     Response *setResponse (const char **argv, int argc, OPS_Stream &theHandler);
@@ -103,7 +106,7 @@ class ASI3D8QuadWithSensitivity: public Element
 
 
     
-    // const Vector &getExternalLoadIncInertia(void);
+    // const Vector &getExternalLoadIncInertia();
     
     double get_Gauss_p_c(short order, short point_numb);
     double get_Gauss_p_w(short order, short point_numb);
@@ -111,6 +114,17 @@ class ASI3D8QuadWithSensitivity: public Element
   protected:
 
   private:
+    constexpr static int NEN = 8,          // number of element nodes
+                         NIP = 0;          // NOTE: 4 and 8 were being used????
+    static const int numDOF;               // DOF number of element
+    static const int nodes_in_quad;        // number of nodes in quad
+    static const int r_integration_order;  // Gauss-Legendre integration order in r direction
+    static const int s_integration_order;  // Gauss-Legendre integration order in s direction
+    static const int dim;                  // spatial dimension
+    static const int numGP;                // number of Gauss point
+    static const int numSDOF;              // number of structure DOF
+    static const int numFDOF;              // number of fluid DOF
+
     // private attributes - a copy for each object of the class
     ID  connectedExternalNodes; // Tags of quad nodes
 
@@ -138,15 +152,6 @@ class ASI3D8QuadWithSensitivity: public Element
     static ID integFlags;  // integrator flags
     static ID actDOFs;     // activated element dofs, add Yichao Gao
     
-    static const int numDOF;               // DOF number of element
-    static const int nodes_in_elem;        // number of nodes in element
-    static const int nodes_in_quad;        // number of nodes in quad
-    static const int r_integration_order;  // Gauss-Legendre integration order in r direction
-    static const int s_integration_order;  // Gauss-Legendre integration order in s direction
-    static const int dim;                  // spatial dimension
-    static const int numGP;                // number of Gauss point
-    static const int numSDOF;              // number of structure DOF
-    static const int numFDOF;              // number of fluid DOF
     
     static Matrix **H;  // Matrix array holds h
     static Matrix **DH;  // Matrix array holds h
@@ -171,33 +176,31 @@ class ASI3D8QuadWithSensitivity: public Element
     // Matrix Jacobian(Matrix dh, Matrix h);
     // double Jacobian_det(Matrix Jac);
     
-    int computeH(void);
-    // int computeHH(void);
-    // int computeDiff(void);
+    int computeH();
+    // int computeHH();
+    // int computeDiff();
     
     // get nodal coordinates
-    Matrix getNodalCoords(void);
+    Matrix getNodalCoords();
     
     // get nodal forces from stress
-    // Matrix getNodalForces(void);
+    // Matrix getNodalForces();
     
     // get total displacement
-    // Matrix getTotalDisp(void);
+    // Matrix getTotalDisp();
     
     // get [Q] Matrix
-    Matrix &getQMatrix(void);
+    Matrix &getQMatrix();
     
     // ///////////////////////////////////////////////////////////////
     
-    ID *getActiveDofs(void);
-    int getIntegrateFlag(void);
-    ID *getIntegrateFlags(void);
+    ID *getActiveDofs();
+    int getIntegrateFlag();
+    ID *getIntegrateFlags();
     
     // int setNDMaterial(NDMaterial *Globalmmodel);
     
     ASI3D8QuadWithSensitivity & operator[](int subscript);
-    
-    
 
 };
 
