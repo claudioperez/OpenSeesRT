@@ -265,9 +265,22 @@ int  Brick::revertToStart( )
   return success ;
 }
 
-//print out element data
+// print out element data
 void  Brick::Print(OPS_Stream &s, int flag)
 {
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+        s << "\"name\": " << this->getTag() << ", ";
+        s << "\"type\": \"Brick\", ";
+        s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
+        for (int i = 1; i < 7; i++)
+            s << connectedExternalNodes(i) << ", ";
+        s << connectedExternalNodes(7) << "], ";
+        s << "\"bodyForces\": [" << b[0] << ", " << b[1] << ", " << b[2] << "], ";
+        s << "\"material\": \"" << materialPointers[0]->getTag() << "\"}";
+
+        return;
+    }
     if (flag == 2) {
         
         s << "#Brick\n";
@@ -340,17 +353,6 @@ void  Brick::Print(OPS_Stream &s, int flag)
         s << "Resisting Force (no inertia): " << this->getResistingForce();
     }
     
-    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\t{";
-        s << "\"name\": " << this->getTag() << ", ";
-        s << "\"type\": \"Brick\", ";
-        s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-        for (int i = 1; i < 7; i++)
-            s << connectedExternalNodes(i) << ", ";
-        s << connectedExternalNodes(7) << "], ";
-        s << "\"bodyForces\": [" << b[0] << ", " << b[1] << ", " << b[2] << "], ";
-        s << "\"material\": \"" << materialPointers[0]->getTag() << "\"}";
-    }
 }
  
  
