@@ -766,7 +766,7 @@ FourNodeQuad::Print(OPS_Stream &s, int flag)
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
       s << OPS_PRINT_JSON_ELEM_INDENT << "{";
       s << "\"name\": " << this->getTag() << ", ";
-      s << "\"type\": \"" << this->class_name << "\", ";
+      s << "\"type\": \"" << this->getClassType() << "\", ";
       s << "\"nodes\": [";
       for (int i=0; i < NEN-1; i++)
           s << node_tags(i) << ", ";
@@ -776,10 +776,11 @@ FourNodeQuad::Print(OPS_Stream &s, int flag)
       s << "\"surfacePressure\": " << pressure << ", ";
       s << "\"masspervolume\": " << rho << ", ";
       s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
-      s << "\"material\": ";
+      s << "\"material\": [";
       for (int i = 0; i < nip - 1; i++)
         s << theMaterial[i]->getTag() << ", ";
-      s << theMaterial[nip - 1]->getTag() << "], ";
+      s << theMaterial[nip - 1]->getTag() << "] ";
+      s << "}";
   }
 
   if (flag == 2) {
