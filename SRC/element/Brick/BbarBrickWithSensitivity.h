@@ -59,7 +59,11 @@ class BbarBrickWithSensitivity : public Element {
 			double b1 = 0.0, double b2 = 0.0, double b3 = 0.0 ) ;
 
     //destructor
-    virtual ~BbarBrickWithSensitivity( ) ;
+    virtual ~BbarBrickWithSensitivity();
+
+    const char* getClassType() const {
+      return "BbarBrickWithSensitivity";
+    }
 
     //set domain
     void setDomain( Domain *theDomain ) ;
@@ -69,7 +73,7 @@ class BbarBrickWithSensitivity : public Element {
 
     //return connected external nodes
     const ID &getExternalNodes( ) ;
-    Node **getNodePtrs(void);
+    Node **getNodePtrs();
 
     //return number of dofs
     int getNumDOF( ) ;
