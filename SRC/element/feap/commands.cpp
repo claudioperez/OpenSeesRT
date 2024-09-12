@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2003-02-25 23:32:51 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/feap/TclFeapElementCommand.cpp,v
-// $
-
+//
 // File: ~/element/TclElementCommands.C
 //
 // Written: fmk
@@ -34,28 +29,35 @@
 // TclBasicBuilder.
 //
 // What: "@(#) TclBasicBuilder.C, revA"
-
+#include <tcl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Domain.h>
 
 #include <fElmt02.h>
-class TclBasicBuilder;
-#include <BasicModelBuilder
+#include <BasicModelBuilder.h>
+
+
+
+extern "C" int elmt04_(double *d, double *ul, double *xl, int *ix, double *tl, 
+                       double *s, double *r, int *ndf, int *ndm, int *nst, int *isw, 
+                       double *dm, int *nen, int *n, int *nh1, int *nh2, int *nh3, 
+                       double *h, double *ctan, int *ior, int *iow);
+
+
+
+extern "C" int elmt05_(double *d, double *ul, double *xl, int *ix, double *tl, 
+                       double *s, double *r, int *ndf, int *ndm, int *nst, int *isw, 
+                       double *dm, int *nen, int *n, int *nh1, int *nh2, int *nh3, 
+                       double *h, double *ctan, int *ior, int *iow);
 
 
 int
 TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp, int argc,
-                             TCL_Char ** const argv, Domain *theTclDomain,
-                             TclBasicBuilder *theTclBuilder, int eleArgStart)
+                             TCL_Char ** const argv, int eleArgStart)
 {
-  // ensure the destructor has not been called -
+  // Ensure the destructor has not been called -
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (theTclBuilder == 0 || clientData == 0) {
-    opserr << "WARNING builder has been destroyed\n";
-    return TCL_ERROR;
-  }
 
   int ndm = builder->getNDM();
   int ndf = builder->getNDF();
@@ -74,7 +76,7 @@ TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp, int argc
     return TCL_ERROR;
   }
 
-  // get the id and end nodes
+  // Get the id and end nodes
   int trussId, iNode, jNode;
   double A, E;
   if (Tcl_GetInt(interp, argv[1 + eleArgStart], &trussId) != TCL_OK) {
@@ -110,7 +112,7 @@ TclBasicBuilder_addFeapTruss(ClientData clientData, Tcl_Interp *interp, int argc
     return TCL_ERROR;
   }
 
-  if (theTclDomain->addElement(theTruss) == false) {
+  if (builder->getDomain()->addElement(theTruss) == false) {
     opserr << "WARNING could not add element to the domain\n";
     opserr << "truss element: " << trussId << endln;
     delete theTruss;
