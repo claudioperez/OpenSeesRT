@@ -58,6 +58,7 @@
 #include <elementAPI.h>
 #include <stdlib.h>
 
+#undef OPS_Export
 #ifdef _USRDLL
 #define OPS_Export extern "C" _declspec(dllexport)
 #elif _MACOSX
