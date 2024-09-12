@@ -1,11 +1,11 @@
 #include <tcl.h>
 #include <stdio.h>
 
-#include <ParticleDomain.h>
+#include <PeriDomain.h>
 
 int
-Tcl_PeridynamicsCommands(ClientData cd, Tcl_Interp* interp,
-                         int argc, const char** const argv)
+Tcl_Peri(ClientData cd, Tcl_Interp* interp,
+         int argc, const char** const argv)
 {
 
   //
@@ -49,7 +49,7 @@ Tcl_PeridynamicsCommands(ClientData cd, Tcl_Interp* interp,
 
   printf("Creating domain with nn=%d, mf=%d\n", totnode, maxfam);
   // Allocate a new domain
-  ParticleDomain *domain = new ParticleDomain(totnode, maxfam);
+  PeriDomain *domain = new PeriDomain(totnode, maxfam);
 
   // Print the domain
   domain->print(0);

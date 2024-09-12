@@ -3,19 +3,19 @@
 #include <Vector.h>
 #include <VectorND.h>
 #include <MatrixND.h>
-#include <Particle.h>
+#include <PeriParticle.h>
 
 using OpenSees::VectorND;
 using OpenSees::MatrixND;
 
-class ParticleDomain {
+class PeriDomain {
 public:
   //
   // MEMBER FUNCTIONS
   //
 
   // the special "constructor" member function; no return type declared
-  ParticleDomain(int totnode, int maxfam);
+  PeriDomain(int totnode, int maxfam);
 
 
 
@@ -31,8 +31,7 @@ public:
   //
 
   // container of particles
-  std::vector<Particle<3>> particles;
-
+  std::vector<PeriParticle<3>> particles;
 
   int     ndim, totnode, maxfam;
   double  space, delta, vol;
