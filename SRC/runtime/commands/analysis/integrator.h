@@ -143,18 +143,6 @@ dispatch(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** const ar
 //
 //
 //
-#if 0
-std::unordered_map<std::string, StaticIntegrator* (*)(ClientData, Tcl_Interp*, int argc, TCL_Char ** const)> 
-StaticIntegratorLibrary = {
-  {"LoadControl",                  G3Parse_newLoadControl},
-//{"StagedLoadControl",            G3Parse_newStagedLoadControlIntegrator},
-  {"EQPath",                       G3Parse_newEQPathIntegrator},
-  {"ArcLength",                    G3Parse_newArcLengthIntegrator},
-  {"MinUnbalDispNorm",             G3Parse_newMinUnbalDispNormIntegrator},
-  {"DisplacementControl",          G3Parse_newDisplacementControlIntegrator},
-};
-#endif
-
 
 std::unordered_map<std::string, Tcl_CmdProc*> 
 StaticIntegratorLibrary = {
@@ -185,35 +173,35 @@ TransientIntegratorLibrary = {
   {"ParkLMS3",        DISPATCH(TransientIntegrator, ParkLMS3)},
 
   // MCK
-  {"GimmeMCK",                dispatch<TransientIntegrator, OPS_GimmeMCK> },
-  {"MCK",                     dispatch<TransientIntegrator, OPS_GimmeMCK> },
-  {"ZZTop",                   dispatch<TransientIntegrator, OPS_GimmeMCK> },
+  {"GimmeMCK",                  dispatch<TransientIntegrator, OPS_GimmeMCK> },
+  {"MCK",                       dispatch<TransientIntegrator, OPS_GimmeMCK> },
+  {"ZZTop",                     dispatch<TransientIntegrator, OPS_GimmeMCK> },
 
-  {"Newmark",                 dispatch<TransientIntegrator, TclCommand_newNewmarkIntegrator> },
+  {"Newmark",                   dispatch<TransientIntegrator, TclCommand_newNewmarkIntegrator> },
 
-  {"NewmarkExplicit",         dispatch<TransientIntegrator, OPS_NewmarkExplicit>},
+  {"NewmarkExplicit",           dispatch<TransientIntegrator, OPS_NewmarkExplicit>},
 
-  {"Newmark1",                dispatch<TransientIntegrator, G3Parse_newNewmark1Integrator>},
+  {"Newmark1",                  dispatch<TransientIntegrator, G3Parse_newNewmark1Integrator>},
 
-  {"NewmarkHSIncrReduct",     dispatch<TransientIntegrator, OPS_NewmarkHSIncrReduct>},
+  {"NewmarkHSIncrReduct",       dispatch<TransientIntegrator, OPS_NewmarkHSIncrReduct>},
 
-  {"NewmarkHSIncrLimit",      dispatch<TransientIntegrator, OPS_NewmarkHSIncrLimit>},
+  {"NewmarkHSIncrLimit",        dispatch<TransientIntegrator, OPS_NewmarkHSIncrLimit>},
 
-  {"NewmarkHSFixedNumIter",   dispatch<TransientIntegrator, OPS_NewmarkHSFixedNumIter>},
+  {"NewmarkHSFixedNumIter",     dispatch<TransientIntegrator, OPS_NewmarkHSFixedNumIter>},
 
-  {"HHT",                     dispatch<TransientIntegrator, OPS_HHT>},
+  {"HHT",                       dispatch<TransientIntegrator, OPS_HHT>},
 
-  {"HHT_TP",                  dispatch<TransientIntegrator, OPS_HHT_TP>},
+  {"HHT_TP",                    dispatch<TransientIntegrator, OPS_HHT_TP>},
 
-  {"HHTGeneralized",          dispatch<TransientIntegrator, OPS_HHTGeneralized>},
+  {"HHTGeneralized",            dispatch<TransientIntegrator, OPS_HHTGeneralized>},
 
-  {"HHTGeneralized_TP",       dispatch<TransientIntegrator, OPS_HHTGeneralized_TP>},
+  {"HHTGeneralized_TP",         dispatch<TransientIntegrator, OPS_HHTGeneralized_TP>},
 
-  {"HHTExplicit",             dispatch<TransientIntegrator, OPS_HHTExplicit>},
+  {"HHTExplicit",               dispatch<TransientIntegrator, OPS_HHTExplicit>},
 
-  {"HHTExplicit_TP",          dispatch<TransientIntegrator, OPS_HHTExplicit_TP>},
+  {"HHTExplicit_TP",            dispatch<TransientIntegrator, OPS_HHTExplicit_TP>},
 
-  {"HHTGeneralizedExplicit",  dispatch<TransientIntegrator, OPS_HHTGeneralizedExplicit>},
+  {"HHTGeneralizedExplicit",    dispatch<TransientIntegrator, OPS_HHTGeneralizedExplicit>},
 
   {"HHTGeneralizedExplicit_TP", dispatch<TransientIntegrator, OPS_HHTGeneralizedExplicit_TP>},
 
@@ -221,33 +209,33 @@ TransientIntegratorLibrary = {
 
   {"HHTHSIncrLimit_TP",         dispatch<TransientIntegrator, OPS_HHTHSIncrLimit_TP>},
 
-  {"HHTHSIncrReduct",         dispatch<TransientIntegrator, OPS_HHTHSIncrReduct>},
+  {"HHTHSIncrReduct",           dispatch<TransientIntegrator, OPS_HHTHSIncrReduct>},
 
-  {"HHTHSIncrReduct_TP",      dispatch<TransientIntegrator, OPS_HHTHSIncrReduct_TP>},
+  {"HHTHSIncrReduct_TP",        dispatch<TransientIntegrator, OPS_HHTHSIncrReduct_TP>},
 
-  {"HHTHSFixedNumIter",       dispatch<TransientIntegrator, OPS_HHTHSFixedNumIter>},
+  {"HHTHSFixedNumIter",         dispatch<TransientIntegrator, OPS_HHTHSFixedNumIter>},
 
-  {"HHTHSFixedNumIter_TP",    dispatch<TransientIntegrator, OPS_HHTHSFixedNumIter_TP>},
+  {"HHTHSFixedNumIter_TP",      dispatch<TransientIntegrator, OPS_HHTHSFixedNumIter_TP>},
 
-  {"GeneralizedAlpha",        dispatch<TransientIntegrator, OPS_GeneralizedAlpha>},
+  {"GeneralizedAlpha",          dispatch<TransientIntegrator, OPS_GeneralizedAlpha>},
 
-  {"KRAlphaExplicit",         dispatch<TransientIntegrator, OPS_KRAlphaExplicit>},
+  {"KRAlphaExplicit",           dispatch<TransientIntegrator, OPS_KRAlphaExplicit>},
 
-  {"KRAlphaExplicit_TP",      dispatch<TransientIntegrator, OPS_KRAlphaExplicit_TP>},
+  {"KRAlphaExplicit_TP",        dispatch<TransientIntegrator, OPS_KRAlphaExplicit_TP>},
 
-  {"AlphaOS",                 dispatch<TransientIntegrator, OPS_AlphaOS>},
+  {"AlphaOS",                   dispatch<TransientIntegrator, OPS_AlphaOS>},
 
-  {"AlphaOS_TP",              dispatch<TransientIntegrator, OPS_AlphaOS_TP>},
+  {"AlphaOS_TP",                dispatch<TransientIntegrator, OPS_AlphaOS_TP>},
 
-  {"AlphaOSGeneralized",      dispatch<TransientIntegrator, OPS_AlphaOSGeneralized>},
+  {"AlphaOSGeneralized",        dispatch<TransientIntegrator, OPS_AlphaOSGeneralized>},
 
-  {"AlphaOSGeneralized_TP",   dispatch<TransientIntegrator, OPS_AlphaOSGeneralized_TP>},
+  {"AlphaOSGeneralized_TP",     dispatch<TransientIntegrator, OPS_AlphaOSGeneralized_TP>},
 
-  {"Collocation",             dispatch<TransientIntegrator, OPS_Collocation>},
+  {"Collocation",               dispatch<TransientIntegrator, OPS_Collocation>},
 
-  {"CollocationHSIncrReduct", dispatch<TransientIntegrator, OPS_CollocationHSIncrReduct>},
+  {"CollocationHSIncrReduct",   dispatch<TransientIntegrator, OPS_CollocationHSIncrReduct>},
 
-  {"CollocationHSIncrLimit",  dispatch<TransientIntegrator, OPS_CollocationHSIncrLimit>},
+  {"CollocationHSIncrLimit",       dispatch<TransientIntegrator, OPS_CollocationHSIncrLimit>},
 
   {"CollocationHSFixedNumIter",    dispatch<TransientIntegrator, OPS_CollocationHSFixedNumIter>},
 
@@ -263,4 +251,16 @@ TransientIntegratorLibrary = {
   {"CentralDifferenceNoDamping",   dispatch<TransientIntegrator, OPS_CentralDifferenceNoDamping>},
 
 };
+
+#if 0
+std::unordered_map<std::string, StaticIntegrator* (*)(ClientData, Tcl_Interp*, int argc, TCL_Char ** const)> 
+StaticIntegratorLibrary = {
+  {"LoadControl",                  G3Parse_newLoadControl},
+//{"StagedLoadControl",            G3Parse_newStagedLoadControlIntegrator},
+  {"EQPath",                       G3Parse_newEQPathIntegrator},
+  {"ArcLength",                    G3Parse_newArcLengthIntegrator},
+  {"MinUnbalDispNorm",             G3Parse_newMinUnbalDispNormIntegrator},
+  {"DisplacementControl",          G3Parse_newDisplacementControlIntegrator},
+};
+#endif
 
