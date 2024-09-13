@@ -18,169 +18,156 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// File: StraightReinfLayer.C 
-// Written by Remo M. de Souza 
+// File: StraightReinfLayer.C
+// Written by Remo M. de Souza
 // December 1998
 //
+#include <Matrix.h>
+#include <OPS_Stream.h>
+#include <Vector.h>
 #include <math.h>
 #include <string>
-#include <OPS_Stream.h>
-#include <Matrix.h>
-#include <Vector.h>
 
 #include <ReinfBar.h>
 #include <StraightReinfLayer.h>
 
-
-StraightReinfLayer::StraightReinfLayer(int materialID, int numReinfBars, 
-                                       double reinfBarArea,
-                                       const Vector &InitialPosition,
-                                       const Vector &FinalPosition):
-                                         nReinfBars(numReinfBars),
-                                         matID(materialID),
-                                         area(reinfBarArea),
-                                         barDiam(0.0),
-                                         initPosit(InitialPosition),
-                                         finalPosit(FinalPosition)
+StraightReinfLayer::StraightReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
+                                       const Vector& InitialPosition, const Vector& FinalPosition)
+ : nReinfBars(numReinfBars),
+   matID(materialID),
+   area(reinfBarArea),
+   barDiam(0.0),
+   initPosit(InitialPosition),
+   finalPosit(FinalPosition)
 {
 }
 
+StraightReinfLayer::~StraightReinfLayer() {}
 
-StraightReinfLayer::~StraightReinfLayer()
+void
+StraightReinfLayer::setNumReinfBars(int numReinfBars)
 {
-
+  nReinfBars = numReinfBars;
 }
 
-
-void StraightReinfLayer::setNumReinfBars(int numReinfBars)
+void
+StraightReinfLayer::setMaterialID(int materialID)
 {
-   nReinfBars = numReinfBars;
+  matID = materialID;
 }
 
-void StraightReinfLayer::setMaterialID (int materialID)
+void
+StraightReinfLayer::setReinfBarDiameter(double reinfBarDiameter)
 {
-   matID = materialID;
+  barDiam   = reinfBarDiameter;
+  double pi = acos(-1.0);
+  area      = pi * barDiam * barDiam / 4.0;
 }
 
-void StraightReinfLayer::setReinfBarDiameter (double reinfBarDiameter)
+void
+StraightReinfLayer::setReinfBarArea(double reinfBarArea)
 {
-   barDiam = reinfBarDiameter;
-   double pi = acos(-1.0);
-   area = pi * barDiam*barDiam/4.0;
+  area = reinfBarArea;
 }
 
-void StraightReinfLayer::setReinfBarArea(double reinfBarArea)
+void
+StraightReinfLayer::setInitialPosition(const Vector& initialPosition)
 {
-   area = reinfBarArea;
+  initPosit = initialPosition;
 }
 
-void StraightReinfLayer::setInitialPosition (const Vector &initialPosition)
+void
+StraightReinfLayer::setFinalPosition(const Vector& finalPosition)
 {
-   initPosit = initialPosition;
+  finalPosit = finalPosition;
 }
 
-void StraightReinfLayer::setFinalPosition (const Vector &finalPosition)
+int
+StraightReinfLayer::getNumReinfBars(void) const
 {
-   finalPosit = finalPosition;
+  return nReinfBars;
 }
 
-
-int StraightReinfLayer::getNumReinfBars (void) const
+int
+StraightReinfLayer::getMaterialID(void) const
 {
-   return nReinfBars;
+  return matID;
 }
 
-int StraightReinfLayer::getMaterialID (void) const
+double
+StraightReinfLayer::getReinfBarDiameter(void) const
 {
-   return matID;
+  return barDiam;
 }
 
-double StraightReinfLayer::getReinfBarDiameter (void) const
+double
+StraightReinfLayer::getReinfBarArea(void) const
 {
-   return barDiam;
+  return area;
 }
 
-double StraightReinfLayer::getReinfBarArea (void) const
+ReinfBar*
+StraightReinfLayer::getReinfBars(void) const
 {
-   return area;
+  Vector barPosit(2);
+  ReinfBar* reinfBars;
+
+  if (nReinfBars == 1) {
+    barPosit(0) = (initPosit(0) + finalPosit(0)) / 2;
+    barPosit(1) = (initPosit(1) + finalPosit(1)) / 2;
+
+    reinfBars = new ReinfBar[1];
+
+    reinfBars[0].setPosition(barPosit);
+    reinfBars[0].setArea(this->area);
+  }
+
+  else if (nReinfBars > 1) {
+    double dy = (finalPosit(0) - initPosit(0)) / (nReinfBars - 1);
+    double dz = (finalPosit(1) - initPosit(1)) / (nReinfBars - 1);
+
+    reinfBars = new ReinfBar[nReinfBars];
+
+    for (int i = 0; i < nReinfBars; i++) {
+      barPosit(0) = initPosit(0) + dy * i;
+      barPosit(1) = initPosit(1) + dz * i;
+
+      reinfBars[i].setPosition(barPosit);
+      reinfBars[i].setArea(this->area);
+    }
+  } else
+    return 0;
+
+  return reinfBars;
 }
 
-ReinfBar * 
-StraightReinfLayer::getReinfBars (void) const
+const Vector&
+StraightReinfLayer::getInitialPosition(void) const
 {
-   Vector barPosit(2);
-   ReinfBar *reinfBars;
-
-   if (nReinfBars == 1) {
-      barPosit(0) = (initPosit(0) + finalPosit(0)) / 2;
-      barPosit(1) = (initPosit(1) + finalPosit(1)) / 2;
-    
-      reinfBars = new ReinfBar [1];
-
-      reinfBars[0].setPosition(barPosit);
-      reinfBars[0].setArea(this->area);
-   }
-
-   else if (nReinfBars > 1)
-   {
-      double dy = (finalPosit(0) - initPosit(0))/(nReinfBars - 1);
-      double dz = (finalPosit(1) - initPosit(1))/(nReinfBars - 1);
-
-      reinfBars = new ReinfBar [nReinfBars];
-
-      for (int i = 0; i < nReinfBars; i++)
-      {
-         barPosit(0) = initPosit(0) + dy * i;
-         barPosit(1) = initPosit(1) + dz * i;
-
-         reinfBars[i].setPosition(barPosit);
-         reinfBars[i].setArea(this->area);
-      }
-   }
-   else
-     return 0;
-
-   return reinfBars;         
+  return initPosit;
 }
 
-const Vector & 
-StraightReinfLayer::getInitialPosition (void) const
+const Vector&
+StraightReinfLayer::getFinalPosition(void) const
 {
-   return initPosit;
+  return finalPosit;
 }
 
-const Vector & 
-StraightReinfLayer::getFinalPosition   (void) const
+ReinfLayer*
+StraightReinfLayer::getCopy(void) const
 {
-   return finalPosit;
+  StraightReinfLayer* theCopy =
+      new StraightReinfLayer(matID, nReinfBars, area, initPosit, finalPosit);
+  return theCopy;
 }
 
-
-ReinfLayer * 
-StraightReinfLayer::getCopy (void) const
+void
+StraightReinfLayer::Print(OPS_Stream& s, int flag) const
 {
-   StraightReinfLayer *theCopy = new StraightReinfLayer (matID,
-                                                 nReinfBars, area,
-                                                 initPosit, finalPosit);
-   return theCopy;
+  s << "\nReinforcing Layer type:  Straight";
+  s << "\nMaterial ID: " << matID;
+  s << "\nReinf. bar diameter: " << barDiam;
+  s << "\nReinf. bar area: " << area;
+  s << "\nInitial Position: " << initPosit;
+  s << "\nFinal Position: " << finalPosit;
 }
-
-
-
-void StraightReinfLayer::Print(OPS_Stream &s, int flag) const
-{
-   s << "\nReinforcing Layer type:  Straight";
-   s << "\nMaterial ID: " << matID;
-   s << "\nReinf. bar diameter: " << barDiam;
-   s << "\nReinf. bar area: " << area;
-   s << "\nInitial Position: " << initPosit;
-   s << "\nFinal Position: " << finalPosit;
-}
-
-
-OPS_Stream &operator<<(OPS_Stream &s, const StraightReinfLayer &straightReinfLayer)
-{  
-   straightReinfLayer.Print(s);
-   return s;
-}
- 

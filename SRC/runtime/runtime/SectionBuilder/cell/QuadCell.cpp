@@ -21,145 +21,112 @@
 // File: QuadCell.C
 // Written by Remo M. de Souza
 // December 1998
-
+//
 #include <Matrix.h>
 #include <Vector.h>
+#include <OPS_Stream.h>
 
 #include <QuadCell.h>
 
+QuadCell::QuadCell() : vertCoord(4, 2), Centroid(2) {}
 
-QuadCell::QuadCell():
-                   vertCoord(4,2), Centroid(2)                 
-{
+QuadCell::QuadCell(const Matrix& vertexCoords) : vertCoord(vertexCoords), Centroid(2) {}
 
-}
+QuadCell::~QuadCell() {}
 
-
-QuadCell::QuadCell(const Matrix &vertexCoords): 
-                   vertCoord(vertexCoords), Centroid(2)
-{
-
-}
-
-
-QuadCell::~QuadCell()
-{
-
-}
-
-const Matrix &
+const Matrix&
 QuadCell::getVertCoords() const
 {
-   return vertCoord;
+  return vertCoord;
 }
 
-double QuadCell::getdValue() const
+double
+QuadCell::getdValue() const
 {
-    double dVa = vertCoord(0,0);
-    return dVa;
+  double dVa = vertCoord(0, 0);
+  return dVa;
 }
 
-void QuadCell::setVertCoords (const Matrix &vertexCoords)
+void
+QuadCell::setVertCoords(const Matrix& vertexCoords)
 {
-   vertCoord = vertexCoords;
+  vertCoord = vertexCoords;
 }
 
-
-double QuadCell::getArea() const
+double
+QuadCell::getArea() const
 {
-   double area;
-   double x0, y0, x1, y1, x2, y2, x3, y3;
 
-//   opserr << "cell vertCoord: " << vertCoord;
- 
-   x0 = vertCoord(0,0);
-   y0 = vertCoord(0,1);
-   x1 = vertCoord(1,0);
-   y1 = vertCoord(1,1);
-   x2 = vertCoord(2,0);
-   y2 = vertCoord(2,1);
-   x3 = vertCoord(3,0);
-   y3 = vertCoord(3,1);
 
-   area = ((x2-x1)*(y0-y1) - (x0-x1)*(y2-y1) +
-           (x0-x3)*(y2-y3) - (x2-x3)*(y0-y3)) / 2.0; 
+  double x0 = vertCoord(0, 0);
+  double y0 = vertCoord(0, 1);
+  double x1 = vertCoord(1, 0);
+  double y1 = vertCoord(1, 1);
+  double x2 = vertCoord(2, 0);
+  double y2 = vertCoord(2, 1);
+  double x3 = vertCoord(3, 0);
+  double y3 = vertCoord(3, 1);
 
-//   opserr << "area1=" << area;
+  double area = ((x2 - x1) * (y0 - y1) - (x0 - x1) * (y2 - y1) + (x0 - x3) * (y2 - y3) -
+                 (x2 - x3) * (y0 - y3)) /
+                2.0;
 
-   int i, i1;
-   double yi, zi, yi1, zi1;
-   area = 0;
 
-   for (i = 0; i < 4; i++)
-   {
-      i1 = (i+1)%4;
-      yi  = vertCoord(i,0);
-      zi  = vertCoord(i,1);
-      yi1 = vertCoord(i1,0);
-      zi1 = vertCoord(i1,1);
+  double yi, zi, yi1, zi1;
+  area = 0;
 
-      area += (zi1 - zi) * (yi1 + yi); 
-   }
-   area /= 2.0;
+  for (int i = 0; i < 4; i++) {
+    int i1 = (i + 1) % 4;
+    yi     = vertCoord(i, 0);
+    zi     = vertCoord(i, 1);
+    yi1    = vertCoord(i1, 0);
+    zi1    = vertCoord(i1, 1);
 
-//   opserr << "area2= " << area << endln;
+    area += (zi1 - zi) * (yi1 + yi);
+  }
+  area /= 2.0;
 
-   return area;
-                
+
+  return area;
 }
 
 
-const Vector & 
+const Vector&
 QuadCell::getCentroidPosition()
 {
-   int i, i1;
-   double yi, zi, yi1, zi1, dyi, dzi;
-   double area, integ;
-   double CGy = 0.0, CGz = 0.0;
+  double CGy = 0.0, CGz = 0.0;
 
-   area = this->getArea();
+  double area = this->getArea();
 
-   for (i = 0; i < 4; i++)
-   {
-      i1 = (i+1)%4;
-        
-      yi  = vertCoord(i,0);
-      zi  = vertCoord(i,1);
-      yi1 = vertCoord(i1,0);
-      zi1 = vertCoord(i1,1);
+  for (int i = 0; i < 4; i++) {
+    int i1 = (i + 1) % 4;
 
-      dyi = yi1 - yi;
-      dzi = zi1 - zi;
-   
-      integ = yi*zi + (yi*dzi + zi*dyi)/2.0 + dyi*dzi/3.0;
+    double yi  = vertCoord(i, 0);
+    double zi  = vertCoord(i, 1);
+    double yi1 = vertCoord(i1, 0);
+    double zi1 = vertCoord(i1, 1);
 
-      CGy -= dyi * integ;
-      CGz += dzi * integ;
-   }
-   
-   CGy /= area;
-   CGz /= area;
+    double dyi = yi1 - yi;
+    double dzi = zi1 - zi;
 
-   Centroid(0) = CGy;
-   Centroid(1) = CGz;
+    double integ = yi * zi + (yi * dzi + zi * dyi) / 2.0 + dyi * dzi / 3.0;
 
-//   opserr << "\narea : " << area << " centroid: " << Centroid;
- 
-   return Centroid;
+    CGy -= dyi * integ;
+    CGz += dzi * integ;
+  }
+
+  CGy /= area;
+  CGz /= area;
+
+  Centroid(0) = CGy;
+  Centroid(1) = CGz;
+
+  return Centroid;
 }
 
-
-
-void QuadCell::Print(OPS_Stream &s, int flag) const
+void
+QuadCell::Print(OPS_Stream& s, int flag) const
 {
-   s << "\nCell Type: QuadCell";
-   s << "\nVertex Coordinates: " << vertCoord;
+  s << "\nCell Type: QuadCell";
+  s << "\nVertex Coordinates: " << vertCoord;
 }
-
-
-OPS_Stream &operator<<(OPS_Stream &s, const QuadCell &quadCell)
-{
-   quadCell.Print(s);
-   return s;
-}    
-

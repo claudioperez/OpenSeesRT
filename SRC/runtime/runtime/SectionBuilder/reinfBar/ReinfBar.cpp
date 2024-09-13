@@ -22,77 +22,72 @@
 // Written by Remo M. de Souza
 // December 1998
 
-#include <math.h>
-#include <string>
 #include <Matrix.h>
-#include <Vector.h>
 #include <OPS_Stream.h>
 #include <ReinfBar.h>
+#include <Vector.h>
+#include <math.h>
+#include <string>
 
+ReinfBar::ReinfBar() : diameter(0.0), area(0.0), matID(0), posit(2) {}
 
-ReinfBar::ReinfBar():
-                   diameter(0.0), area(0.0), matID(0), posit(2)
-{
-
-}
-
-
-ReinfBar::ReinfBar(double barArea, int materialID, const Vector &position):
-                   diameter(0.0), area(barArea),
-                   matID(materialID), posit(position)
+ReinfBar::ReinfBar(double barArea, int materialID, const Vector& position)
+ : diameter(0.0), area(barArea), matID(materialID), posit(position)
 {
 }
 
-ReinfBar::~ReinfBar()
-{
+ReinfBar::~ReinfBar() {}
 
+void
+ReinfBar::setDiameter(double barDiameter)
+{
+  double pi = acos(-1.0);
+  diameter  = barDiameter;
+  area      = pi * diameter * diameter / 4.0;
 }
 
-void ReinfBar::setDiameter (double barDiameter)
+void
+ReinfBar::setArea(double barArea)
 {
-   double pi = acos(-1.0);
-   diameter = barDiameter;
-   area = pi * diameter*diameter/4.0;     
+  area = barArea;
 }
 
-void ReinfBar::setArea (double barArea)
+void
+ReinfBar::setMaterial(int materialID)
 {
-   area = barArea;
+  matID = materialID;
 }
 
-void ReinfBar::setMaterial (int materialID)
+void
+ReinfBar::setPosition(const Vector& position)
 {
-   matID = materialID;
+  posit = position;
 }
 
-void ReinfBar::setPosition (const Vector &position)
+double
+ReinfBar::getDiameter() const
 {
-   posit = position;
+  return diameter;
 }
 
-double ReinfBar::getDiameter() const
+double
+ReinfBar::getArea() const
 {
-   return diameter;
+  return area;
 }
 
-double ReinfBar::getArea() const
+const Vector&
+ReinfBar::getPosition() const
 {
-   return area;
+  return posit;
 }
 
-
-const Vector & ReinfBar::getPosition() const
+void
+ReinfBar::Print(OPS_Stream& s, int flag) const
 {
-   return posit;
+  s << "\nReinforcing Bar area: " << area;
+  s << "\nMaterial ID: " << matID;
+  s << "\nDiameter: " << diameter;
+  s << "\nArea: " << area;
+  s << "\nPosition: " << posit;
 }
-
-
-void ReinfBar::Print(OPS_Stream &s, int flag) const
-{
-   s << "\nReinforcing Bar area: " << area;
-   s << "\nMaterial ID: " << matID;
-   s << "\nDiameter: " << diameter;
-   s << "\nArea: " << area;
-   s << "\nPosition: " << posit;
-}
-
