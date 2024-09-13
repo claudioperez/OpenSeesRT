@@ -71,7 +71,6 @@ BasicModelBuilder::~BasicModelBuilder()
 
   // set the pointers to 0
   theDomain = nullptr;
-//theTclBuilder = nullptr;
   tclEnclosingPattern = nullptr;
 
   static int ncmd = sizeof(tcl_char_cmds)/sizeof(char_cmd);
@@ -81,34 +80,54 @@ BasicModelBuilder::~BasicModelBuilder()
 
 
 int
-BasicModelBuilder::buildFE_Model() {
+BasicModelBuilder::buildFE_Model()
+{
   return 0;
 }
 
 int
-BasicModelBuilder::getNDM() const {
+BasicModelBuilder::getNDM() const
+{
   return ndm;
 }
 
 int
-BasicModelBuilder::getNDF() const {
+BasicModelBuilder::getNDF() const
+{
   return ndf;
 }
 
 
 void
-BasicModelBuilder::letClobber(bool let_clobber) {
+BasicModelBuilder::letClobber(bool let_clobber)
+{
   no_clobber = !let_clobber;
 }
 
 bool
-BasicModelBuilder::canClobber() {
+BasicModelBuilder::canClobber()
+{
   return !no_clobber;
 }
 
-int BasicModelBuilder::incrNodalLoadTag(){return ++next_node_load;};
-int BasicModelBuilder::decrNodalLoadTag(){return --next_node_load;};
-int BasicModelBuilder::getNodalLoadTag() {return   next_node_load;};
+int
+BasicModelBuilder::incrNodalLoadTag()
+{
+  return ++next_node_load;
+}
+
+int
+BasicModelBuilder::decrNodalLoadTag()
+{
+  return --next_node_load;
+}
+
+int
+BasicModelBuilder::getNodalLoadTag() 
+{
+  return   next_node_load;
+}
+
 
 int
 BasicModelBuilder::addSP_Constraint(int axisDirn, double axisValue, const ID &fixityCodes, double tol)
