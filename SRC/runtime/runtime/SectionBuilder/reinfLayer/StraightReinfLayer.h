@@ -35,7 +35,7 @@ public:
   StraightReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
                      const Vector& initialPosition, const Vector& finalPosition);
 
-  ~StraightReinfLayer();
+  virtual ~StraightReinfLayer();
 
   // edition functions
 

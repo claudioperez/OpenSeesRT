@@ -60,7 +60,7 @@ CircPatch::setAngles(double initialAngle, double finalAngle)
 }
 
 int
-CircPatch::getMaterialID(void) const
+CircPatch::getMaterialID() const
 {
   return matID;
 }

@@ -30,6 +30,7 @@ class OPS_Stream;
 
 class ReinfLayer {
 public:
+  virtual ~ReinfLayer() = 0;
   // edition functions
   virtual void setNumReinfBars(int numReinfBars)            = 0;
   virtual void setMaterialID(int materialID)                = 0;
@@ -46,7 +47,6 @@ public:
   virtual ReinfBar* getReinfBars() const     = 0;
 
   virtual void Print(OPS_Stream& s, int flag = 0) const = 0;
-  friend OPS_Stream& operator<<(OPS_Stream& s, const ReinfLayer& ReinfLayer);
 
 protected:
 private:

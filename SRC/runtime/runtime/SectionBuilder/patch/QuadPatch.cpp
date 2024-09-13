@@ -23,11 +23,15 @@
 // December 1998
 //
 #include <Matrix.h>
+#include <Vector.h>
+#include <VectorND.h>
 #include <OPS_Stream.h>
 #include <Patch.h>
 #include <QuadCell.h>
 #include <QuadPatch.h>
 #include <string>
+
+using OpenSees::VectorND;
 
 QuadPatch::QuadPatch() : matID(0), nDivIJ(1), nDivJK(1), vertCoord(4, 2) {}
 
@@ -89,9 +93,8 @@ QuadPatch::getCells() const
   double deltaXi;
   double deltaEta;
   Matrix cellVertCoord(4, 2);
-  Vector N(4);
+  VectorND<4> N;
   double xi, eta;
-  int r, s;
   int numCells;
   Cell** cells;
 

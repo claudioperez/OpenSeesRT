@@ -41,7 +41,7 @@ public:
   CircReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
                  const Vector& centerPosition, double radius);
 
-  ~CircReinfLayer();
+  virtual ~CircReinfLayer();
 
   // edition functions
 

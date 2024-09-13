@@ -83,31 +83,31 @@ StraightReinfLayer::setFinalPosition(const Vector& finalPosition)
 }
 
 int
-StraightReinfLayer::getNumReinfBars(void) const
+StraightReinfLayer::getNumReinfBars() const
 {
   return nReinfBars;
 }
 
 int
-StraightReinfLayer::getMaterialID(void) const
+StraightReinfLayer::getMaterialID() const
 {
   return matID;
 }
 
 double
-StraightReinfLayer::getReinfBarDiameter(void) const
+StraightReinfLayer::getReinfBarDiameter() const
 {
   return barDiam;
 }
 
 double
-StraightReinfLayer::getReinfBarArea(void) const
+StraightReinfLayer::getReinfBarArea() const
 {
   return area;
 }
 
 ReinfBar*
-StraightReinfLayer::getReinfBars(void) const
+StraightReinfLayer::getReinfBars() const
 {
   Vector barPosit(2);
   ReinfBar* reinfBars;
@@ -142,19 +142,19 @@ StraightReinfLayer::getReinfBars(void) const
 }
 
 const Vector&
-StraightReinfLayer::getInitialPosition(void) const
+StraightReinfLayer::getInitialPosition() const
 {
   return initPosit;
 }
 
 const Vector&
-StraightReinfLayer::getFinalPosition(void) const
+StraightReinfLayer::getFinalPosition() const
 {
   return finalPosit;
 }
 
 ReinfLayer*
-StraightReinfLayer::getCopy(void) const
+StraightReinfLayer::getCopy() const
 {
   StraightReinfLayer* theCopy =
       new StraightReinfLayer(matID, nReinfBars, area, initPosit, finalPosit);
