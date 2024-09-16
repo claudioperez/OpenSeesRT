@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2003-04-02 22:02:36 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/feap/fElement.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/element/fortran/fElement.C
 // 
 // Written: fmk 
@@ -64,11 +59,11 @@ static int sizeWork = 0;
 //  responsible for allocating the necessary space needed by each object
 //  and storing the tags of the fElement end nodes.
 fElement::fElement(int tag, 
-		   int classTag,
-		   int EleType,
-		   int sizeD, int NEN,
-		   int NDM, int NDF,
-		   int numNh1, int numNh3)
+                   int classTag,
+                   int EleType,
+                   int sizeD, int NEN,
+                   int NDM, int NDF,
+                   int numNh1, int numNh3)
 :Element(tag,classTag), nh1(numNh1), nh3(numNh3), h(0), eleType(EleType),
   theNodes(0), u(0), nen(NEN), ndf(NDF), ndm(NDM), d(0), data(0), 
  connectedNodes(0),nrCount(0), theLoad(0), Ki(0)
@@ -78,60 +73,42 @@ fElement::fElement(int tag,
     if (nh1 < 0) nh1 = 0;
     if (nh3 < 0) nh3 = 0;
     if (nh1 != 0 || nh3 != 0) {
-	int sizeH = 2*nh1 + nh3;
-	h = new double[sizeH];
-	if (sizeWork < sizeH) {
-	  if (work != 0)
-	    delete [] work;
-	  work = new double[sizeH];
-	  if (work == 0) {
-	    opserr << "FATAL: fElement::fElement() - eleTag: " << tag;
-	    opserr << " ran out of memory creating h of size " << 2*nh1+nh3 << endln;
-	    exit(-1);
-	  }	    
-	  sizeWork = sizeH;
-	}
-	if (h == 0 || work == 0) {
-	    opserr << "FATAL: fElement::fElement() - eleTag: " << tag;
-	    opserr << " ran out of memory creating h of size " << 2*nh1+nh3 << endln;
-	    exit(-1);
-	}	    
+        int sizeH = 2*nh1 + nh3;
+        h = new double[sizeH];
+        if (sizeWork < sizeH) {
+          if (work != 0)
+            delete [] work;
+          work = new double[sizeH];
+          sizeWork = sizeH;
+        }
 
-	for (int i=0; i<sizeH; i++) 
-	  h[i] = 0.0;
+        for (int i=0; i<sizeH; i++) 
+          h[i] = 0.0;
     }
 
     connectedNodes = new ID(NEN);
     d = new double[sizeD];
-    for (int i=0; i<sizeD; i++) d[i] = 0.0;
+    for (int i=0; i<sizeD; i++)
+      d[i] = 0.0;
     data = new Vector(d, sizeD);
 
     // allocate space for static variables on creation of first instance
     if (numfElements == 0) {
-	fElementM = new Matrix *[MAX_NST+1];
-	fElementV = new Vector *[MAX_NST+1];
-	s = new double[(MAX_NST+1)*(MAX_NST+1)];
-	r = new double[MAX_NST+1];
-	ul = new double[(MAX_NST+1)*6];
-	xl = new double[MAX_NST+1];
-	tl = new double[MAX_NST+1];
-	ix = new int[MAX_NST+1];	
-
-	// check space was available -- otherwise exit
-	if (fElementM == 0 || fElementV == 0 || ix == 0 ||
-	    r == 0 || s == 0 || ul == 0 || xl == 0 || tl == 0) {
-
-	    opserr << "FATAL: fElement::fElement() - eleTag: " << tag;
-	    opserr << " ran out of memory initialising static stuff\n";
-	    exit(-1);	    
-	}
-	
-	for (int i=0; i<MAX_NST+1; i++) {
-	    fElementM[i] = 0;
-	    fElementV[i] = 0;
-	}
-        fElementM[0] = new Matrix(1,1); // dummy for error
-	fElementV[0] = new Vector(1);
+        fElementM = new Matrix *[MAX_NST+1];
+        fElementV = new Vector *[MAX_NST+1];
+        s = new double[(MAX_NST+1)*(MAX_NST+1)];
+        r = new double[MAX_NST+1];
+        ul = new double[(MAX_NST+1)*6];
+        xl = new double[MAX_NST+1];
+        tl = new double[MAX_NST+1];
+        ix = new int[MAX_NST+1];        
+        
+        for (int i=0; i<MAX_NST+1; i++) {
+            fElementM[i] = 0;
+            fElementV[i] = 0;
+        }
+            fElementM[0] = new Matrix(1,1); // dummy for error
+        fElementV[0] = new Vector(1);
     }
     
     // increment number of elements
@@ -140,23 +117,19 @@ fElement::fElement(int tag,
 
 
 fElement::fElement(int tag, 
-		   int classTag,
-		   int EleType,
-		   int sizeD, int NEN,
-		   int NDM, int NDF, int iow)
+                   int classTag,
+                   int EleType,
+                   int sizeD, int NEN,
+                   int NDM, int NDF, int iow)
 :Element(tag,classTag), nh1(0), nh3(0), h(0), eleType(EleType),
   theNodes(0), u(0), nen(NEN), ndf(NDF), ndm(NDM), d(0), data(0), 
  connectedNodes(0), nrCount(0), theLoad(0), Ki(0)
 {
     connectedNodes = new ID(NEN);
     d = new double[sizeD];
-    data = new Vector(d, sizeD);
-    if (d == 0 || data == 0) {
-	opserr << "FATAL: fElement::fElement() - eleTag: " << tag;
-	opserr << " ran out of memory creating d of size " << sizeD << endln;
-	exit(-1);
-    }	    
-    for (int i=0; i<sizeD; i++) d[i] = 0.0;    
+    data = new Vector(d, sizeD);        
+    for (int i=0; i<sizeD; i++) 
+        d[i] = 0.0;    
 
     // invoke the elmt() routine with isw == 1 to read in the element data
     // and create room for the h array stuff needed by the element
@@ -166,54 +139,37 @@ fElement::fElement(int tag,
     if (nh1 < 0) nh1 = 0;
     if (nh3 < 0) nh3 = 0;
     if (nh1 != 0 || nh3 != 0) {
-	int sizeH = 2*nh1+nh3;
-	h = new double[sizeH];
-	if (sizeWork < sizeH) {
-	  if (work != 0)
-	    delete [] work;
-	  work = new double[sizeH];
-	  if (work == 0) {
-	    opserr << "FATAL: fElement::fElement() - eleTag: " << tag;
-	    opserr << " ran out of memory creating h of size " << 2*nh1+nh3 << endln;
-	    exit(-1);
-	  }	    
-	  sizeWork = sizeH;
-	}
-	if (h == 0 || work == 0) {
-	    opserr << "FATAL: fElement::fElement() - eleTag: " << this->getTag();
-	    opserr << " ran out of memory creating h of size " << sizeH << endln;
-	    exit(-1);
-	}	    
-	else
-	    for (int i=0; i<sizeH; i++) h[i] = 0.0;
+        int sizeH = 2*nh1+nh3;
+        h = new double[sizeH];
+        if (sizeWork < sizeH) {
+          if (work != 0)
+            delete [] work;
+          work = new double[sizeH];
+
+          sizeWork = sizeH;
+        }
+
+        for (int i=0; i<sizeH; i++)
+            h[i] = 0.0;
     }
 
-    // allocate space for static variables on creation of first instance
+    // Allocate space for static variables on creation of first instance
     if (numfElements == 0) {
-	fElementM = new Matrix *[MAX_NST+1];
-	fElementV = new Vector *[MAX_NST+1];
-	s = new double[(MAX_NST+1)*(MAX_NST+1)];
-	r = new double[MAX_NST+1];
-	ul = new double[(MAX_NST+1)*6];
-	xl = new double[MAX_NST+1];
-	tl = new double[MAX_NST+1];
-	ix = new int[MAX_NST+1];	
+        fElementM = new Matrix *[MAX_NST+1];
+        fElementV = new Vector *[MAX_NST+1];
+        s = new double[(MAX_NST+1)*(MAX_NST+1)];
+        r = new double[MAX_NST+1];
+        ul = new double[(MAX_NST+1)*6];
+        xl = new double[MAX_NST+1];
+        tl = new double[MAX_NST+1];
+        ix = new int[MAX_NST+1];        
 
-	// check space was available -- otherwise exit
-	if (fElementM == 0 || fElementV == 0 || ix == 0 ||
-	    r == 0 || s == 0 || ul == 0 || xl == 0 || tl == 0) {
-
-	    opserr << "FATAL: fElement::fElement() - eleTag: " << tag;
-	    opserr << " ran out of memory initialising static stuff\n";
-	    exit(-1);	    
-	}
-	
-	for (int i=0; i<MAX_NST+1; i++) {
-	    fElementM[i] = 0;
-	    fElementV[i] = 0;
-	}
+        for (int i=0; i<MAX_NST+1; i++) {
+            fElementM[i] = 0;
+            fElementV[i] = 0;
+        }
         fElementM[0] = new Matrix(1,1); // dummy for error
-	fElementV[0] = new Vector(1);
+        fElementV[0] = new Vector(1);
     }
 
     // increment number of elements
@@ -239,18 +195,18 @@ fElement::~fElement()
     // clear up any space allocated for individual object
 
     if (h != 0)
-	delete [] h;
+        delete [] h;
     if (u != 0)
-	delete [] u;
+        delete [] u;
     if (theNodes != 0)
-	delete [] theNodes;
+        delete [] theNodes;
 
     if (data != 0)
-	delete  data;
+        delete  data;
     if (connectedNodes != 0)
-	delete  connectedNodes;
+        delete  connectedNodes;
     if (d != 0)
-	delete [] d;
+        delete [] d;
     if (theLoad != 0)
       delete theLoad;
 
@@ -261,41 +217,43 @@ fElement::~fElement()
 
     numfElements --;    
     if (numfElements == 0) {
-	for (int i=0; i<MAX_NST+1; i++) {
-	    if (fElementM[i] != 0) delete fElementM[i];
-	    if (fElementV[i] != 0) delete fElementV[i];
-	}
-	delete [] fElementM;
-	delete [] fElementV;
-	delete [] s;
-	delete [] r;
-	delete [] ul;
-	delete [] xl;
-	delete [] tl;
-	delete [] ix;	
+        for (int i=0; i<MAX_NST+1; i++) {
+            if (fElementM[i] != 0) 
+                delete fElementM[i];
+            if (fElementV[i] != 0) 
+                delete fElementV[i];
+        }
+        delete [] fElementM;
+        delete [] fElementV;
+        delete [] s;
+        delete [] r;
+        delete [] ul;
+        delete [] xl;
+        delete [] tl;
+        delete [] ix;        
     }
 }
 
 int
-fElement::getNumExternalNodes(void) const
+fElement::getNumExternalNodes() const
 {
     return connectedNodes->Size();
 }
 
 const ID &
-fElement::getExternalNodes(void)
+fElement::getExternalNodes()
 {
     return *connectedNodes;
 }
 
 Node **
-fElement::getNodePtrs(void)
+fElement::getNodePtrs()
 {
     return theNodes;
 }
 
 int
-fElement::getNumDOF(void)
+fElement::getNumDOF()
 {
     return ndf*nen;
 }
@@ -305,14 +263,14 @@ fElement::setDomain(Domain *theDomain)
 {
     // check Domain is not null - invoked when object removed from a domain
     if (theDomain == 0) {
-	ndm = 0;
-	nen = 0;
-	ndf = 0;
-	if (theNodes != 0) {
-	    delete [] theNodes;
-	    theNodes = 0;
-	}
-	return;
+        ndm = 0;
+        nen = 0;
+        ndf = 0;
+        if (theNodes != 0) {
+            delete [] theNodes;
+            theNodes = 0;
+        }
+        return;
     }    
 
     // set up the pointers to the nodes
@@ -321,38 +279,38 @@ fElement::setDomain(Domain *theDomain)
     int numNodes = theNodeTags.Size();
     theNodes = new Node *[numNodes];
     for (int i=0; i<numNodes; i++) {
-	Node *theNode = theDomain->getNode(theNodeTags(i));
-	if (theNode == 0) {
-	    opserr << "WARNING fElement::setDomain(Domain *theDomain) - node: ";
-	    opserr << theNodeTags(i) << " does not exist in domain for ele " << *this;
-	    ndm = 0; nen = 0; ndf = 0;
-	    return;
-	}
-	// set up the pointer to the node
-	theNodes[i] = theNode;
+        Node *theNode = theDomain->getNode(theNodeTags(i));
+        if (theNode == nullptr) {
+            opserr << "WARNING fElement::setDomain(Domain *theDomain) - node: ";
+            opserr << theNodeTags(i) << " does not exist in domain for ele " << *this;
+            ndm = 0; nen = 0; ndf = 0;
+            return;
+        }
+        // Set up the pointer to the node
+        theNodes[i] = theNode;
 
-	
-	// check the dimension and number of dof at the node 
-	// is the same as all the other nodes of the element
-	if (i == 0) {
-	    const Vector &crds = theNode->getCrds();
-	    ndm = crds.Size();	              // ndm = dimesion of mesh
-	    ndf = theNode->getNumberDOF();    // ndf = number of dof at nodes
-	} else {
-	    const Vector &crds = theNode->getCrds();	
-	    if (ndm != crds.Size()) {
-		opserr << "WARNING fElement::setDomain(Domain *theDomain) - node: ";
-		opserr << theNodeTags(i) << " not in correct dimension " << *this;
-		ndm = 0; nen = 0; ndf = 0;
-		return;		
-	    }
-	    if (ndf != theNode->getNumberDOF()) {
-		opserr << "WARNING fElement::setDomain(Domain *theDomain) - node: ";
-		opserr << theNodeTags(i) << " does not have correct #DOF " << *this;
-		ndm = 0; nen = 0; ndf = 0;
-		return;		
-	    }
-	}
+        
+        // Check the dimension and number of dof at the node 
+        // is the same as all the other nodes of the element
+        if (i == 0) {
+            const Vector &crds = theNode->getCrds();
+            ndm = crds.Size();                      // ndm = dimesion of mesh
+            ndf = theNode->getNumberDOF();    // ndf = number of dof at nodes
+        } else {
+            const Vector &crds = theNode->getCrds();        
+            if (ndm != crds.Size()) {
+                opserr << "WARNING fElement::setDomain(Domain *theDomain) - node: ";
+                opserr << theNodeTags(i) << " not in correct dimension " << *this;
+                ndm = 0; nen = 0; ndf = 0;
+                return;                
+            }
+            if (ndf != theNode->getNumberDOF()) {
+                opserr << "WARNING fElement::setDomain(Domain *theDomain) - node: ";
+                opserr << theNodeTags(i) << " does not have correct #DOF " << *this;
+                ndm = 0; nen = 0; ndf = 0;
+                return;                
+            }
+        }
     }
 
     
@@ -366,22 +324,18 @@ fElement::setDomain(Domain *theDomain)
     int nst = ndf*nen;    
     u = new double[nst]; 
     if (u == 0) {
-	opserr << "WARNING fElement::setDomain(Domain *theDomain) -  ";
-	opserr << " ran out of memory creating u of size: " << nen*ndf << *this;
-	ndm = 0; nen = 0; ndf = 0;
-	return;			
+        opserr << "WARNING fElement::setDomain(Domain *theDomain) -  ";
+        opserr << " ran out of memory creating u of size: " << nen*ndf << *this;
+        ndm = 0; nen = 0; ndf = 0;
+        return;                        
     }
     // zero u
     for (int ii=0; ii<nst; ii++) 
-	u[ii] = 0.0;
+        u[ii] = 0.0;
 
 
     theLoad = new Vector(nst);
-    if (theLoad == 0) {
-      opserr << "Truss::setDomain - truss " << this->getTag() << 
-	"out of memory creating vector of size" << nst << endln;
-      exit(-1);
-    }          
+
 
     // allocate the Matrix and Vector objects if none yet for this size nst
    if (fElementM[nst] == 0) {
@@ -389,10 +343,10 @@ fElement::setDomain(Domain *theDomain)
        fElementV[nst] = new Vector(r,nst);       
 
        if ((fElementM[nst] == 0) || (fElementV[nst] == 0)) {
-	   opserr << "WARNING fElement::setDomain(Domain *theDomain) -  ";
-	   opserr << " ran out of memory creating Matrix and Vector for " << *this;
-	   ndm = 0; nen = 0; ndf = 0;
-	   return;			
+           opserr << "WARNING fElement::setDomain(Domain *theDomain) -  ";
+           opserr << " ran out of memory creating Matrix and Vector for " << *this;
+           ndm = 0; nen = 0; ndf = 0;
+           return;                        
        }
    }
 }
@@ -419,8 +373,8 @@ int
 fElement::revertToLastCommit()
 {
     if (nh1 != 0) 
-	for (int i=0; i<nh1; i++)
-	    h[i+nh1] = h[i];    
+        for (int i=0; i<nh1; i++)
+            h[i+nh1] = h[i];    
 
     nrCount = 0;
     return 0;
@@ -435,12 +389,12 @@ fElement::revertToStart()
 
 
 const Matrix &
-fElement::getTangentStiff(void)
+fElement::getTangentStiff()
 {
 
     // check for quick return
     if (nen == 0)
-	return (*fElementM[0]);
+        return (*fElementM[0]);
     
     // get the current load factor
     Domain *theDomain=this->getDomain();
@@ -463,9 +417,9 @@ fElement::getTangentStiff(void)
     
     // check nst is as determined in readyfRoutine()
     if (nstI != nstR) {
-	opserr << "FATAL fElement::getTangentStiff() problems with incompatible nst";
-	opserr << " ready: " << nstR << " invoke: " << nstI << endln;
-	exit(-1);
+        opserr << "FATAL fElement::getTangentStiff() problems with incompatible nst";
+        opserr << " ready: " << nstR << " invoke: " << nstI << endln;
+        exit(-1);
     }
 
     // return the matrix
@@ -476,11 +430,11 @@ fElement::getTangentStiff(void)
 
 
 const Matrix &
-fElement::getDamp(void)
+fElement::getDamp()
 {
     // check for quick return
     if (nen == 0)
-	return (*fElementM[0]);
+        return (*fElementM[0]);
     
     // get the current load factor
     Domain *theDomain=this->getDomain();
@@ -506,9 +460,9 @@ fElement::getDamp(void)
     
     // check nst is as determined in readyfRoutine()
     if (nstI != nstR) {
-	opserr << "FATAL fElement::getTangentStiff() problems with incompatible nst";
-	opserr << " ready: " << nstR << " invoke: " << nstI << endln;
-	exit(-1);
+        opserr << "FATAL fElement::getTangentStiff() problems with incompatible nst";
+        opserr << " ready: " << nstR << " invoke: " << nstI << endln;
+        exit(-1);
     }
     
     // return the matrix
@@ -517,11 +471,11 @@ fElement::getDamp(void)
 
 
 const Matrix &
-fElement::getMass(void)
+fElement::getMass()
 {
     // check for quick return
     if (nen == 0)
-	return (*fElementM[0]);
+        return (*fElementM[0]);
     
     // get the current load factor
     Domain *theDomain=this->getDomain();
@@ -546,9 +500,9 @@ fElement::getMass(void)
     
     // check nst is as determined in readyfRoutine()
     if (nstI != nstR) {
-	opserr << "FATAL fElement::getTangentStiff() problems with incompatible nst";
-	opserr << " ready: " << nstR << " invoke: " << nstI << endln;
-	exit(-1);
+        opserr << "FATAL fElement::getTangentStiff() problems with incompatible nst";
+        opserr << " ready: " << nstR << " invoke: " << nstI << endln;
+        exit(-1);
     }
     
     // return the matrix
@@ -558,7 +512,7 @@ fElement::getMass(void)
 
 
 void 
-fElement::zeroLoad(void)
+fElement::zeroLoad()
 {
   // does nothing now
   if (theLoad != 0)
@@ -591,7 +545,7 @@ fElement::addInertiaLoadToUnbalance(const Vector &accel)
   }
 
   // create the load vector if one does not exist
-  if (theLoad == 0) 
+  if (theLoad == nullptr) 
     theLoad = new Vector(nstR);
 
   // add -M * RV(accel) to the load vector
@@ -604,10 +558,10 @@ fElement::addInertiaLoadToUnbalance(const Vector &accel)
 
 const Vector &
 fElement::getResistingForce()
-{		
+{                
     // check for quick return
     if (nen == 0)
-	return (*fElementV[0]);
+        return (*fElementV[0]);
     
     // get the current load factor
     Domain *theDomain=this->getDomain();
@@ -631,9 +585,9 @@ fElement::getResistingForce()
     
     // check nst is as determined in readyfRoutine()
     if (nstI != nstR) {
-	opserr << "FATAL fElement::getTangentStiff() problems with incompatible nst";
-	opserr << " ready: " << nstR << " invoke: " << nstI << endln;
-	exit(-1);
+        opserr << "FATAL fElement::getTangentStiff() problems with incompatible nst";
+        opserr << " ready: " << nstR << " invoke: " << nstI << endln;
+        exit(-1);
     }
 
     // negate the sign of the loads -- feap elements return -ku
@@ -649,10 +603,10 @@ fElement::getResistingForce()
 
 const Vector &
 fElement::getResistingForceIncInertia()
-{	
+{        
     // check for quick return
     if (nen == 0)
-	return (*fElementV[0]);
+        return (*fElementV[0]);
     
     // get the current load factor
     Domain *theDomain=this->getDomain();
@@ -676,9 +630,9 @@ fElement::getResistingForceIncInertia()
     
     // check nst is as determined in readyfRoutine()
     if (nstI != nstR) {
-	opserr << "FATAL fElement::getTangentStiff() problems with incompatible nst";
-	opserr << " ready: " << nstR << " invoke: " << nstI << endln;
-	exit(-1);
+        opserr << "FATAL fElement::getTangentStiff() problems with incompatible nst";
+        opserr << " ready: " << nstR << " invoke: " << nstI << endln;
+        exit(-1);
     }
 
     // negate the sign of the loads -- feap elements return -ku
@@ -704,8 +658,8 @@ fElement::sendSelf(int commitTag, Channel &theChannel)
 
 int
 fElement::recvSelf(int commitTag, 
-		   Channel &theChannel, 
-		   FEM_ObjectBroker &theBroker)
+                   Channel &theChannel, 
+                   FEM_ObjectBroker &theBroker)
 {
   int res = 0;
   static ID sizeData(2);
@@ -766,42 +720,42 @@ fElement::Print(OPS_Stream &s, int flag)
 #ifdef _WIN32
 
 extern "C" int GETCOMMON(int *mynh1, int *mynh3, int *sizeH, 
-				  double *myh);
+                                  double *myh);
 
 
 extern "C" int FILLCOMMON(int *mynen, double *mydm, int *myn, 
-				   int *myior, int *myiow, int *mynh1, 
-				   int *mynh2, int *mynh3, int *sumnh, 
-				   double *myh, double *myctan,
-				   int *nrCount);
+                                   int *myior, int *myiow, int *mynh1, 
+                                   int *mynh2, int *mynh3, int *sumnh, 
+                                   double *myh, double *myctan,
+                                   int *nrCount);
 
 extern "C" int ELMT01(double *d, double *ul, double *xl, int *ix, 
-			       double *tl, double *s, double *r, int *ndf, 
-			       int *ndm, int *nst, int *isw);
+                               double *tl, double *s, double *r, int *ndf, 
+                               int *ndm, int *nst, int *isw);
 
 extern "C" int ELMT02(double *d, double *ul, double *xl, int *ix, 
-			       double *tl, double *s, double *r, int *ndf, 
-			       int *ndm, int *nst, int *isw);
-		       
+                               double *tl, double *s, double *r, int *ndf, 
+                               int *ndm, int *nst, int *isw);
+                       
 extern "C" int ELMT03(double *d, double *ul, double *xl, int *ix, 
-			       double *tl, double *s, double *r, int *ndf, 
-			       int *ndm, int *nst, int *isw);
-		       
+                               double *tl, double *s, double *r, int *ndf, 
+                               int *ndm, int *nst, int *isw);
+                       
 extern "C" int ELMT04(double *d, double *ul, double *xl, int *ix, 
-			       double *tl, double *s, double *r, int *ndf, 
-			       int *ndm, int *nst, int *isw);
-		       
+                               double *tl, double *s, double *r, int *ndf, 
+                               int *ndm, int *nst, int *isw);
+                       
 extern "C" int ELMT05(double *d, double *ul, double *xl, int *ix, 
-			       double *tl, double *s, double *r, int *ndf, 
-			       int *ndm, int *nst, int *isw);		       
+                               double *tl, double *s, double *r, int *ndf, 
+                               int *ndm, int *nst, int *isw);                       
 
-#define getcommon_ 	GETCOMMON
-#define fillcommon_	FILLCOMMON
-#define elmt01_		ELMT01
-#define elmt02_		ELMT02
-#define elmt03_		ELMT03
-#define elmt04_		ELMT03
-#define elmt05_		ELMT05
+#define getcommon_         GETCOMMON
+#define fillcommon_        FILLCOMMON
+#define elmt01_                ELMT01
+#define elmt02_                ELMT02
+#define elmt03_                ELMT03
+#define elmt04_                ELMT03
+#define elmt05_                ELMT05
 
 #else
 extern "C" int getcommon_(int *mynh1, int *mynh3, int *sizeH, double *myh);
@@ -810,28 +764,28 @@ extern "C" int getcommon_(int *mynh1, int *mynh3, int *sizeH, double *myh);
 extern "C" int fillcommon_(int *mynen, double *mydm, int *myn, int *myior, 
                            int *myiow, int *mynh1, int *mynh2, int *mynh3,
                            int *sumnh, double *myh, double *myctan,
-			   int *nrCount);
+                           int *nrCount);
 
 extern "C" int elmt01_(double *d, double *ul, double *xl, int *ix, double *tl, 
                        double *s, double *r, int *ndf, int *ndm, int *nst, 
-		       int *isw);
+                       int *isw);
 
 extern "C" int elmt02_(double *d, double *ul, double *xl, int *ix, double *tl, 
                        double *s, double *r, int *ndf, int *ndm, int *nst, 
-		       int *isw);
-		       
+                       int *isw);
+                       
 extern "C" int elmt03_(double *d, double *ul, double *xl, int *ix, double *tl, 
                        double *s, double *r, int *ndf, int *ndm, int *nst, 
-		       int *isw);
-		       
+                       int *isw);
+                       
 extern "C" int elmt04_(double *d, double *ul, double *xl, int *ix, double *tl, 
                        double *s, double *r, int *ndf, int *ndm, int *nst, 
-		       int *isw);
-		       
+                       int *isw);
+                       
 extern "C" int elmt05_(double *d, double *ul, double *xl, int *ix, double *tl, 
                        double *s, double *r, int *ndf, int *ndm, int *nst, 
-		       int *isw); 
-#endif	       
+                       int *isw); 
+#endif               
 
 int
 fElement::invokefRoutine(int ior, int iow, double *ctan, int isw)
@@ -840,13 +794,13 @@ fElement::invokefRoutine(int ior, int iow, double *ctan, int isw)
     // determine position in h of nh1, nh2 and nh3 - remember Fortarn indexing
     int NH1, NH2, NH3;
     if (nh1 != 0) { 
-	NH1 = 1; 
-	NH2 = nh1 + NH1; 
-	NH3 = nh1 + NH2; 
+        NH1 = 1; 
+        NH2 = nh1 + NH1; 
+        NH3 = nh1 + NH2; 
     } else {
-	NH1 = 1;
-	NH2 = 1;
-	NH3 = 1;
+        NH1 = 1;
+        NH2 = 1;
+        NH3 = 1;
     }
     
     int NDM = ndm;
@@ -860,29 +814,29 @@ fElement::invokefRoutine(int ior, int iow, double *ctan, int isw)
     double dm = 0.0; // load factor
 
     fillcommon_(&nen, &dm, &n, &ior, &iow, &NH1, &NH2, &NH3, &sum, 
-		h, ctan, &count);
+                h, ctan, &count);
 
     // invoke the fortran subroutine
 
     int nst = nen*ndf;
     if (nst != 0) {
-	if (eleType == 1)
-	    elmt01_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);
-	else if (eleType == 2)
-	    elmt02_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);	    
-	else if (eleType == 3)
-	    elmt03_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);	    
-	else if (eleType == 4)
-	    elmt04_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);	    
-	else if (eleType == 5) 
-	    elmt05_(d,ul,xl,ix,tl,s,r,&ndf,&NDM,&nst,&isw);	    
-	else {
-	    opserr << "fElement::invokefRoutine() unknown element type ";
-	    opserr << eleType << endln;
-	}
-	
-	// now copy the stuff from common block to h array
-	getcommon_(&NH1,&NH3,&sum,h);
+        if (eleType == 1)
+            elmt01_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);
+        else if (eleType == 2)
+            elmt02_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);            
+        else if (eleType == 3)
+            elmt03_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);            
+        else if (eleType == 4)
+            elmt04_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);            
+        else if (eleType == 5) 
+            elmt05_(d,ul,xl,ix,tl,s,r,&ndf,&NDM,&nst,&isw);            
+        else {
+            opserr << "fElement::invokefRoutine() unknown element type ";
+            opserr << eleType << endln;
+        }
+        
+        // now copy the stuff from common block to h array
+        getcommon_(&NH1,&NH3,&sum,h);
     }
 
     return nst;
@@ -910,39 +864,33 @@ fElement::invokefInit(int isw, int iow)
     double dm = 0.0;
     
     fillcommon_(&nen, &dm, &n, &ior, &iow, &NH1, &NH2, &NH3, &sum, 
-		h, ctan, &count);
+                h, ctan, &count);
 
-    // invoke the fortran subroutine
+    // Invoke the fortran subroutine
 
     int nst = nen*ndf;
     if (nst != 0) {
-	if (eleType == 1)
-	    elmt01_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);
-	else if (eleType == 2)
-	    elmt02_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);	    
-	else if (eleType == 3)
-	    elmt03_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);	    
-	else if (eleType == 4)
-	    elmt04_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);	    
-	else if (eleType == 5)
-	    elmt05_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);	    
-	else {
-	    opserr << "fElement::invokefRoutine() unknown element type ";
-	    opserr << eleType << endln;
-	}
-
-	if (nst < 0) {
-	    opserr << "FATAL: fElement::fElement() - eleTag: " << this->getTag();
-	    opserr << " ran out of memory creating h of size " << nst << endln;
-	    exit(-1);
-	}
+        if (eleType == 1)
+            elmt01_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);
+        else if (eleType == 2)
+            elmt02_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);            
+        else if (eleType == 3)
+            elmt03_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);            
+        else if (eleType == 4)
+            elmt04_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);            
+        else if (eleType == 5)
+            elmt05_(d,ul,xl,ix,tl,s,r,&NDF,&NDM,&nst,&isw);            
+        else {
+            opserr << "fElement::invokefRoutine() unknown element type ";
+            opserr << eleType << endln;
+        }
     }
 
-    // now get the size of the state info needed by the element
+    // Now get the size of the state info needed by the element
     sum = 0;
     getcommon_(&NH1,&NH3,&sum,h);
     nh1 = NH1; nh3=NH3;
-	return 0;
+        return 0;
 }
 
 int
@@ -955,66 +903,60 @@ fElement::readyfRoutine(bool incInertia)
     int posUl = 0;
     int posXl = 0;
     for (int j=0; j<nen; j++) {
-	Node *theNode = theNodes[j];
+        Node *theNode = theNodes[j];
 
         // add the node tag to ix
-	ix[j] = theNode->getTag();
+        ix[j] = theNode->getTag();
         
-        // add displacement, velocity, accel and  increments to ul
-	// Note: we get nodal vel and accel only if inertia is true, this
-	// will save memory in static analysis -- look at Node implementation	
-	const Vector &trialDisp = theNode->getTrialDisp();
-	const Vector &commitDisp = theNode->getDisp();        
+        // Add displacement, velocity, accel and  increments to ul
+        // Note: we get nodal vel and accel only if inertia is true, this
+        // will save memory in static analysis -- look at Node implementation        
+        const Vector &trialDisp = theNode->getTrialDisp();
+        const Vector &commitDisp = theNode->getDisp();        
         const Vector &crd = theNode->getCrds();
 
-	// add the coordinates to xl		
-	int crdSize = crd.Size();
+        // add the coordinates to xl                
+        int crdSize = crd.Size();
 
-	for (int i=0; i<crdSize; i++) {
-	    xl[posXl] = crd(i);	    
-	    posXl++;
-	}
-	
-	if (incInertia == true) { 
-	    const Vector &trialVel = theNode->getTrialVel();
-	    const Vector &trialAccel = theNode->getTrialAccel();
-	    const Vector &commitVel = theNode->getVel();        
-	    for (int i=0; i<trialDisp.Size(); i++) {
-		double trialDispI = trialDisp(i);
-		ul[posUl] = trialDispI;
-		ul[posUl+nst] = trialDispI - commitDisp(i);
-		ul[posUl+2*nst] = trialDispI - u[posUl];	    	    
-		ul[posUl+3*nst] = trialVel(i);
-		ul[posUl+4*nst] = trialAccel(i);	    
-		ul[posUl+5*nst] = commitVel(i);	    	    		
-		u[posUl] = trialDispI; // u(k-1) on next call
-		posUl++;				    
-	    }
-	} else {
-	    for (int i=0; i<trialDisp.Size(); i++) {
-		double trialDispI = trialDisp(i);
-		ul[posUl] = trialDispI;
-		ul[posUl+nst] = trialDispI - commitDisp(i);
-		ul[posUl+2*nst] = trialDispI - u[posUl];	    	    
-		ul[posUl+3*nst] = 0.0;
-		ul[posUl+4*nst] = 0.0;	    
-		ul[posUl+5*nst] = 0.0;	    	    
-		u[posUl] = trialDispI;	    
-		posUl++;
-	    }
-	}
+        for (int i=0; i<crdSize; i++) {
+            xl[posXl] = crd(i);            
+            posXl++;
+        }
+        
+        if (incInertia == true) { 
+            const Vector &trialVel = theNode->getTrialVel();
+            const Vector &trialAccel = theNode->getTrialAccel();
+            const Vector &commitVel = theNode->getVel();        
+            for (int i=0; i<trialDisp.Size(); i++) {
+                double trialDispI = trialDisp(i);
+                ul[posUl] = trialDispI;
+                ul[posUl+nst] = trialDispI - commitDisp(i);
+                ul[posUl+2*nst] = trialDispI - u[posUl];                        
+                ul[posUl+3*nst] = trialVel(i);
+                ul[posUl+4*nst] = trialAccel(i);            
+                ul[posUl+5*nst] = commitVel(i);                                        
+                u[posUl] = trialDispI; // u(k-1) on next call
+                posUl++;                                    
+            }
+        } else {
+            for (int i=0; i<trialDisp.Size(); i++) {
+                double trialDispI = trialDisp(i);
+                ul[posUl] = trialDispI;
+                ul[posUl+nst] = trialDispI - commitDisp(i);
+                ul[posUl+2*nst] = trialDispI - u[posUl];                        
+                ul[posUl+3*nst] = 0.0;
+                ul[posUl+4*nst] = 0.0;            
+                ul[posUl+5*nst] = 0.0;                        
+                u[posUl] = trialDispI;            
+                posUl++;
+            }
+        }
     }
 
-    // check we have a matrix and vector created for an object of this size
-    if (fElementM[nst] == 0) {
-	fElementM[nst] = new Matrix(s,nst,nst);
-    	fElementV[nst] = new Vector(r,nst);
-    
-	if (fElementM[nst] == 0 || fElementV[nst] == 0) {
-	    opserr << "FATAL fElement::getTangentStiff() nst: " << nst;
-	    opserr << "ran out of memory\n";
-	    exit(-1);
-	}  
+    // Check we have a matrix and vector created for an object of this size
+    if (fElementM[nst] == nullptr) {
+        fElementM[nst] = new Matrix(s,nst,nst);
+        fElementV[nst] = new Vector(r,nst);
     }
     return nst;
 }
@@ -1024,7 +966,7 @@ fElement::readyfRoutine(bool incInertia)
 int
 fElement::update()
 {
-    // determine nst 
+    // determine nst
     int nst = ndf*nen;
 
     // increment the newton-raphson count -- needed for Prof. Fillipou's element
@@ -1035,16 +977,10 @@ fElement::update()
 
 
 const Matrix &
-fElement::getInitialStiff(void)
+fElement::getInitialStiff()
 {
-  if (Ki == 0)
+  if (Ki == nullptr)
     Ki = new Matrix(this->getTangentStiff());
-
-  if (Ki == 0) {
-    opserr << "FATAL fElement::getInitialStiff() -";
-    opserr << "ran out of memory\n";
-    exit(-1);
-  }  
     
   return *Ki;
 }

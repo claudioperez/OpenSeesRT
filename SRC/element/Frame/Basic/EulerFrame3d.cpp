@@ -669,15 +669,16 @@ EulerFrame3d::Print(OPS_Stream &s, int flag)
       s << "\"nodes\": [" << connectedExternalNodes(0) << ", " 
                           << connectedExternalNodes(1) << "]";
       s << ", ";
+
       // Mass
       double mass;
       if (getIntegral(Field::Density, State::Init, mass) == 0)
-        s << ", \"mass\": " << mass << ", ";
+        s << "\"mass\": " << mass;
       else
-        s << ", \"massperlength\": " << density << ", ";
-
-
+        s << "\"massperlength\": " << density;
       s << ", ";
+
+      // Transform
       s << "\"crdTransformation\": \"" << theCoordTransf->getTag();
       s << ", ";
 

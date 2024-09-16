@@ -428,9 +428,9 @@ EulerDeltaFrame3d::Print(OPS_Stream &s, int flag)
     // Mass
     double mass;
     if (getIntegral(Field::Density, State::Init, mass) == 0)
-      s << ", \"mass\": " << mass << ", ";
+      s << "\"mass\": " << mass << ", ";
     else
-      s << ", \"massperlength\": " << density << ", ";
+      s << "\"massperlength\": " << density << ", ";
 
     s << "\"sections\": [";
     for (int i = 0; i < numSections - 1; i++)

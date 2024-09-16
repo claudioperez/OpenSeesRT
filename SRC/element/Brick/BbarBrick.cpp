@@ -263,6 +263,19 @@ int  BbarBrick::revertToStart( )
 //print out element data
 void  BbarBrick::Print( OPS_Stream &s, int flag )
 {
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+        s << "\"name\": " << this->getTag() << ", ";
+        s << "\"type\": \"" << this->getClassType() << "\", ";
+        s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
+        for (int i = 1; i < 7; i++)
+            s << connectedExternalNodes(i) << ", ";
+        s << connectedExternalNodes(7) << "], ";
+        s << "\"bodyForces\": [" << b[0] << ", " << b[1] << ", " << b[2] << "], ";
+        s << "\"material\": \"" << materialPointers[0]->getTag() << "\"}";
+        return;
+    }
+
     if (flag == OPS_PRINT_CURRENTSTATE) {
         s << endln;
         s << "Volume/Pressure Eight Node BbarBrick \n";
@@ -282,17 +295,6 @@ void  BbarBrick::Print( OPS_Stream &s, int flag )
         s << endln;
     }
 
-    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\t{";
-        s << "\"name\": " << this->getTag() << ", ";
-        s << "\"type\": \"BbarBrick\", ";
-        s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-        for (int i = 1; i < 7; i++)
-            s << connectedExternalNodes(i) << ", ";
-        s << connectedExternalNodes(7) << "], ";
-        s << "\"bodyForces\": [" << b[0] << ", " << b[1] << ", " << b[2] << "], ";
-        s << "\"material\": \"" << materialPointers[0]->getTag() << "\"}";
-    }
 }
 
 //return stiffness matrix

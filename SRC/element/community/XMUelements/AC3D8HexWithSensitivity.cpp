@@ -18,12 +18,10 @@
 
 // static variables
 const int AC3D8HexWithSensitivity::numDOF = 8;
-const int AC3D8HexWithSensitivity::nodes_in_elem = 8;
 const int AC3D8HexWithSensitivity::r_integration_order = FixedOrder;
 const int AC3D8HexWithSensitivity::s_integration_order = FixedOrder;
 const int AC3D8HexWithSensitivity::t_integration_order = FixedOrder;
 const int AC3D8HexWithSensitivity::dim = 3;
-const int AC3D8HexWithSensitivity::numGP = 8;
 
 
 Matrix AC3D8HexWithSensitivity::K(numDOF,numDOF);
@@ -90,7 +88,7 @@ AC3D8HexWithSensitivity::AC3D8HexWithSensitivity(int element_number,
   int node_numb_5,  int node_numb_6,  int node_numb_7,  int node_numb_8,
   NDMaterial * Globalmmodel)
   :Element(element_number, ELE_TAG_AC3D8HexWithSensitivity), hasConstrained(0), 
-  connectedExternalNodes(nodes_in_elem), Ki(0), Q(numDOF), impVals(0), 
+  connectedExternalNodes(NEN), Ki(0), Q(numDOF), impVals(0), 
   L(0), detJ(0), theMaterial(0)
 {
   // Set connected external node IDs 
@@ -110,13 +108,13 @@ AC3D8HexWithSensitivity::AC3D8HexWithSensitivity(int element_number,
   }
   
   // Allocate arrays of pointers to NDMaterials
-  theMaterial = new NDMaterial *[numGP];
+  theMaterial = new NDMaterial *[NIP];
   if (theMaterial == 0) {
     opserr << "AC3D8HexWithSensitivity::AC3D8HexWithSensitivity - failed allocate material model pointer\n";
     exit(-1);
   }
   
-  for (int i = 0; i < numGP; i++) {
+  for (int i = 0; i < NIP; i++) {
     // Get copies of the material model for each integration point
     theMaterial[i] = Globalmmodel->getCopy();
       
@@ -128,7 +126,7 @@ AC3D8HexWithSensitivity::AC3D8HexWithSensitivity(int element_number,
   }
   
   // zero node pointers
-  for (int i = 0; i < nodes_in_elem; i++)
+  for (int i = 0; i < NEN; i++)
     theNodes[i] = 0;
 
   // AddingSensitivity:BEGIN ////////////////////////////////
@@ -141,7 +139,7 @@ AC3D8HexWithSensitivity::AC3D8HexWithSensitivity(int element_number,
   int node_numb_1,  int node_numb_2,  int node_numb_3,  int node_numb_4,
   int node_numb_5,  int node_numb_6,  int node_numb_7,  int node_numb_8)
   :Element(element_number, ELE_TAG_AC3D8HexWithSensitivity),
-  connectedExternalNodes(nodes_in_elem), Ki(0), Q(numDOF), theMaterial(0), impVals(0), 
+  connectedExternalNodes(NEN), Ki(0), Q(numDOF), theMaterial(0), impVals(0), 
   L(0), detJ(0), hasConstrained(0)
 {
   // Set connected external node IDs
@@ -155,16 +153,16 @@ AC3D8HexWithSensitivity::AC3D8HexWithSensitivity(int element_number,
   connectedExternalNodes( 7) = node_numb_8;
   
   // zero node pointers
-  for (int i = 0; i < nodes_in_elem; i++)
+  for (int i = 0; i < NEN; i++)
     theNodes[i] = 0;
 }
 
 AC3D8HexWithSensitivity::AC3D8HexWithSensitivity ()
-  :Element(0, ELE_TAG_AC3D8HexWithSensitivity), connectedExternalNodes(nodes_in_elem), 
+  :Element(0, ELE_TAG_AC3D8HexWithSensitivity), connectedExternalNodes(NEN), 
   Ki(0), Q(numDOF), impVals(0), L(0), detJ(0), hasConstrained(0), theMaterial(0)
 {
   // zero node pointers
-  for (int i = 0; i < nodes_in_elem; i++)
+  for (int i = 0; i < NEN; i++)
     theNodes[i] = 0;
 
   // AddingSensitivity:BEGIN ////////////////////////////////
@@ -178,7 +176,7 @@ AC3D8HexWithSensitivity::~AC3D8HexWithSensitivity ()
   if (Ki != 0)
     delete Ki;
   
-  for (int i = 0; i < numGP; i++) {
+  for (int i = 0; i < NIP; i++) {
     if (theMaterial[i])
       delete theMaterial[i];
     
@@ -214,7 +212,7 @@ AC3D8HexWithSensitivity::operator[](int subscript)
 int 
 AC3D8HexWithSensitivity::getNumExternalNodes () const
 {
-  return nodes_in_elem;
+  return NEN;
 }
 
 const ID& 
@@ -244,12 +242,12 @@ AC3D8HexWithSensitivity::setDomain (Domain *theDomain)
 {
   // Check Domain is not null - invoked when object removed from a domain
   if (theDomain == 0) {
-    for (int i = 0; i < nodes_in_elem; i++) {
+    for (int i = 0; i < NEN; i++) {
       theNodes[i] = 0;
     }
   }
   else {
-    for (int i = 0; i < nodes_in_elem; i++) {
+    for (int i = 0; i < NEN; i++) {
       theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
       if (theNodes[i] == 0) {
         opserr << "FATAL ERROR AC3D8HexWithSensitivity (tag: " << this->getTag();
@@ -277,7 +275,7 @@ AC3D8HexWithSensitivity::update()
   //opserr<<"trial_disp"<<trial_disp<<endln;
   this->computeDiff();
   
-  for(i = 0; i < numGP; i++) {
+  for(i = 0; i < NIP; i++) {
     const Matrix &dhGlobal = *L[i];
     
     sstrain.addMatrixProduct(0.0, dhGlobal, trial_disp, 1.0);
@@ -305,7 +303,7 @@ AC3D8HexWithSensitivity::commitState ()
   }
   
   // Loop over the integration points and commit the material states
-  for (int i = 0; i < numGP; i++)
+  for (int i = 0; i < NIP; i++)
     retVal += theMaterial[i]->commitState();
   
   return retVal;
@@ -317,7 +315,7 @@ AC3D8HexWithSensitivity::revertToLastCommit ()
   int retVal = 0;
 
   // Loop over the integration points and revert to last committed material states
-  for (int i = 0; i < numGP; i++)      
+  for (int i = 0; i < NIP; i++)      
     retVal += theMaterial[i]->revertToLastCommit(); 
   
   return retVal;
@@ -329,7 +327,7 @@ AC3D8HexWithSensitivity::revertToStart ()
   int retVal = 0;
 
   // Loop over the integration points and revert to initial material states
-  for (int i = 0; i < numGP; i++)      
+  for (int i = 0; i < NIP; i++)      
     retVal +=theMaterial[i]->revertToStart(); 
   
   return retVal;
@@ -369,7 +367,7 @@ AC3D8HexWithSensitivity::getResistingForce(void)
   
   int i, counter = 0;
   //converting nodalforce matrix to vector
-  for (i = 0; i < nodes_in_elem; i++){
+  for (i = 0; i < NEN; i++){
     P(i) = nodalforces(0,i);
   }
 
@@ -406,7 +404,7 @@ const Vector &AC3D8HexWithSensitivity::getResistingForceIncInertia(void)
   this->getDamp();
   this->getTangentStiff();
   
-  for(i = 0; i < nodes_in_elem; i++) {
+  for(i = 0; i < NEN; i++) {
     const Vector &accel = theNodes[i]->getTrialAccel();
     const Vector &vel = theNodes[i]->getTrialVel();
     const Vector &disp = theNodes[i]->getTrialDisp();
@@ -476,7 +474,24 @@ AC3D8HexWithSensitivity::displaySelf (Renderer &theViewer, int displayMode, floa
 
 void AC3D8HexWithSensitivity::Print(OPS_Stream &s, int flag)
 {
-  if(flag == 1) {
+  const ID& node_tags = this->getExternalNodes();
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": " << this->getTag() << ", ";
+      s << "\"type\": \"" << this->getClassType() << "\", ";
+      s << "\"nodes\": [";
+      for (int i=0; i < NEN-1; i++)
+          s << node_tags(i) << ", ";
+      s << node_tags(NEN-1) << "], ";
+
+      s << "\"material\": [";
+      for (int i = 0; i < NIP - 1; i++)
+        s << theMaterial[i]->getTag() << ", ";
+      s << theMaterial[NIP - 1]->getTag() << "] ";
+      s << "}";
+  }
+  else if(flag == 1) {
     s << "AC3D8HexWithSensitivity, element id:  " << this->getTag() << endln;
     s << "Connected external nodes:  " << connectedExternalNodes;
     s << this->getResistingForce();
@@ -484,7 +499,7 @@ void AC3D8HexWithSensitivity::Print(OPS_Stream &s, int flag)
   else {
     s << "AC3D8HexWithSensitivity, element id:  " << this->getTag() << endln;
     s << "Connected external nodes:  " << connectedExternalNodes;
-    for(int i = 0; i < numGP; i++) {
+    for(int i = 0; i < NIP; i++) {
       theNodes[i]->Print(s);
     }
   }
@@ -505,7 +520,7 @@ AC3D8HexWithSensitivity::setResponse (const char **argv, int argc, OPS_Stream &o
   output.attr("eleType","AC3D8HexWithSensitivity");
   output.attr("eleTag",this->getTag());
   
-  for(int i = 1; i <= nodes_in_elem; i++) {
+  for(int i = 1; i <= NEN; i++) {
     sprintf(outputData,"node%d",i);
     output.attr(outputData,theNodes[i-1]->getTag());
   }
@@ -542,7 +557,7 @@ ID *
 AC3D8HexWithSensitivity::getActiveDofs(void)
 {
   if (actDOFs.Size() == 0){
-    for (int i = 0; i < nodes_in_elem; i++){
+    for (int i = 0; i < NEN; i++){
      actDOFs[i] = 8;
     }
   }
@@ -565,13 +580,13 @@ AC3D8HexWithSensitivity::setNDMaterial(NDMaterial *Globalmmodel)
     return -4;
   }
   
-  theMaterial = new NDMaterial*[numGP];
+  theMaterial = new NDMaterial*[NIP];
   if (theMaterial == 0) {
     opserr << "AC3D8HexWithSensitivity::setNDMaterial - out of memory!\n";
     return -2;
   }
   
-  for (int i = 0; i < numGP; i++) {
+  for (int i = 0; i < NIP; i++) {
     theMaterial[i] = Globalmmodel->getCopy();
     if (theMaterial[i] == 0) {
       opserr << "AC3D8HexWithSensitivity::setNDMaterial -- failed to get a copy of material model\n";
@@ -595,9 +610,9 @@ AC3D8HexWithSensitivity::getIntegrateFlag(void)
 Matrix 
 AC3D8HexWithSensitivity::getNodalCoords(void)
 {
-  Matrix N_Coord(nodes_in_elem,dim);
+  Matrix N_Coord(NEN,dim);
   
-  for(int i = 0; i < nodes_in_elem; i++) {
+  for(int i = 0; i < NEN; i++) {
     const Vector &ndCrds = theNodes[i]->getCrds();
     N_Coord(i,0) = ndCrds(0);
     N_Coord(i,1) = ndCrds(1);
@@ -610,15 +625,15 @@ AC3D8HexWithSensitivity::getNodalCoords(void)
 Matrix 
 AC3D8HexWithSensitivity::getTotalDisp(void)
 {
-  Matrix total_disp(nodes_in_elem, 1);
+  Matrix total_disp(NEN, 1);
 
   int i;
-  for(i = 0; i < nodes_in_elem; i++) {
+  for(i = 0; i < NEN; i++) {
     const Vector &TotDis = theNodes[i]->getTrialDisp();
     total_disp(i,0) = TotDis(0);
   }
   
-  // for(i = 0; i < nodes_in_elem; i++) {
+  // for(i = 0; i < NEN; i++) {
   //   printf("total_disp(%d) = %g\n", i+1, total_disp(i,0));
   // }
 
@@ -641,7 +656,7 @@ AC3D8HexWithSensitivity::getNodalForces(void)
   short where = 0;
   
   Matrix sigma(1,3);
-  Matrix NF(1,nodes_in_elem);
+  Matrix NF(1,NEN);
   
   this->computeDiff();
   NF.Zero();
@@ -877,7 +892,7 @@ AC3D8HexWithSensitivity::getDamp(void)
 //   B.Zero();
 //   
 //   int i, counter = 0;
-//   for(i = 0; i < nodes_in_elem; i++) {
+//   for(i = 0; i < NEN; i++) {
 //     B(0,counter) = dhGlobal(0,i);
 //     B(2,counter) = dhGlobal(1,i);
 //     counter++;
@@ -897,7 +912,7 @@ AC3D8HexWithSensitivity::getDamp(void)
 Matrix 
 AC3D8HexWithSensitivity::interp_fun(double r1, double r2, double r3)
 {
-  Matrix h(1,nodes_in_elem);
+  Matrix h(1,NEN);
 
   // influence of the node number 8
   h(0,7)=(1.0-r1)*(1.0+r2)*(1.0+r3)*0.125;
@@ -923,7 +938,7 @@ AC3D8HexWithSensitivity::interp_fun(double r1, double r2, double r3)
 Matrix 
 AC3D8HexWithSensitivity::diff_interp_fun(double r1, double r2, double r3)
 {
-  Matrix dh(3,nodes_in_elem);
+  Matrix dh(3,NEN);
 
   // influence of the node number 8
   //dh(0,7)= (1.0-r2)*(1.0-r3)/8.0;
@@ -967,8 +982,8 @@ int
 AC3D8HexWithSensitivity::computeH(void)
 {
   if (H == 0 || DH == 0) {
-    H = new Matrix*[numGP];
-    DH = new Matrix*[numGP];
+    H = new Matrix*[NIP];
+    DH = new Matrix*[NIP];
     if (H == 0 || DH == 0) {
       opserr << "AC3D8HexWithSensitivity::computeH - out of memory!\n";
       return -3;
@@ -986,8 +1001,8 @@ AC3D8HexWithSensitivity::computeH(void)
         for(short GP_c_t = 1; GP_c_t <= t_integration_order; GP_c_t++) {
           t = get_Gauss_p_c(t_integration_order, GP_c_t);
           
-          H[where] = new Matrix(1, nodes_in_elem);
-          DH[where] = new Matrix(dim, nodes_in_elem);
+          H[where] = new Matrix(1, NEN);
+          DH[where] = new Matrix(dim, NEN);
           if(H[where] == 0 || DH[where] == 0) {
             opserr << "AC3D8HexWithSensitivity::computeH - out of memory!\n";
             return -3;
@@ -1009,7 +1024,7 @@ int
 AC3D8HexWithSensitivity::computeHH(void)
 {
   if (HH == 0) {
-    HH = new Matrix*[numGP];
+    HH = new Matrix*[NIP];
     if (HH == 0) {
       opserr << "AC3D8HexWithSensitivity::computeHH - out of memory!\n";
       return -3;
@@ -1018,8 +1033,8 @@ AC3D8HexWithSensitivity::computeHH(void)
     // compute H first
     this->computeH();
     
-    for(int i = 0; i < numGP; i++) {
-      HH[i] = new Matrix(nodes_in_elem, nodes_in_elem);
+    for(int i = 0; i < NIP; i++) {
+      HH[i] = new Matrix(NEN, NEN);
       if (HH[i] == 0) {
         opserr << "AC3D8HexWithSensitivity::computeHH - out of memory!\n";
         return -3;
@@ -1037,8 +1052,8 @@ int
 AC3D8HexWithSensitivity::computeDiff(void)
 {
   if (L == 0 || detJ == 0) {
-    L = new Matrix*[numGP];
-    detJ = new double[numGP];
+    L = new Matrix*[NIP];
+    detJ = new double[NIP];
     if (L == 0 || detJ == 0) {
       opserr << "AC3D8HexWithSensitivity::computeDiff - out of memory!\n";
       return -3;
@@ -1049,8 +1064,8 @@ AC3D8HexWithSensitivity::computeDiff(void)
     this->computeH();
     Matrix NC = getNodalCoords();
     
-    for(int i = 0; i < numGP; i++) {
-      L[i] = new Matrix(3, nodes_in_elem);
+    for(int i = 0; i < NIP; i++) {
+      L[i] = new Matrix(3, NEN);
       if(L[i] == 0) {
         opserr << "AC3D8HexWithSensitivity::computDiff() - out of memory!\n";
         return -3;
@@ -1469,14 +1484,14 @@ AC3D8HexWithSensitivity::nodal_forces_from_displacement(const Vector &u)
   short where = 0;
   
   Matrix sigma(1,3);
-  Matrix NF(1,nodes_in_elem);
+  Matrix NF(1,NEN);
   
   Vector epsilon(3);
   Matrix sstrain(3,1);
-  Matrix tmp_disp(nodes_in_elem, 1);
+  Matrix tmp_disp(NEN, 1);
   
   int i;
-  for(i = 0; i < nodes_in_elem; i++) {
+  for(i = 0; i < NEN; i++) {
     tmp_disp(i,0) = u(i);
   }
   
@@ -1517,7 +1532,7 @@ AC3D8HexWithSensitivity::nodal_forces_from_displacement(const Vector &u)
     }
   }
   
-  for(i = 1; i <= nodes_in_elem; i++) {
+  for(i = 1; i <= NEN; i++) {
     nodalF(i) = NF(0,i);
   }
   
@@ -1697,7 +1712,7 @@ AC3D8HexWithSensitivity::getResistingForceSensitivity(int gradNumber)
   short where = 0;
   
   Matrix sigma(1,3);
-  Matrix NF(1,nodes_in_elem);
+  Matrix NF(1,NEN);
   
   this->computeDiff();
   NF.Zero();
@@ -1741,7 +1756,7 @@ AC3D8HexWithSensitivity::getResistingForceSensitivity(int gradNumber)
   
   int i, counter = 0;
   //converting nodalforce matrix to vector
-  for (i = 0; i < nodes_in_elem; i++){
+  for (i = 0; i < NEN; i++){
     P(i) = NF(0,i);
   }
         
@@ -1776,7 +1791,7 @@ AC3D8HexWithSensitivity::commitSensitivity(int gradNumber, int numGrads)
   short where = 0;
   
   Matrix sigma(1,3);
-  Matrix NF(1,nodes_in_elem);
+  Matrix NF(1,NEN);
   
   this->computeDiff();
   NF.Zero();
@@ -1813,9 +1828,8 @@ AC3D8HexWithSensitivity::commitSensitivity(int gradNumber, int numGrads)
   ul(0,0)= theNodes[0]->getDispSensitivity(1,gradNumber);
   ul(0,1)= theNodes[1]->getDispSensitivity(2,gradNumber);
   ul(0,2)= theNodes[2]->getDispSensitivity(3,gradNumber);
- // opserr<<"ul"<<ul<<endln;
 
-  for(i = 0; i < numGP; i++) {
+  for(i = 0; i < NIP; i++) {
     const Matrix &dhGlobal = *L[i];
     
     sstrain.addMatrixProduct(0.0, dhGlobal, ul, 1.0);

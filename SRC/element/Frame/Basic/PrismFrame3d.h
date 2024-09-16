@@ -47,7 +47,9 @@ class PrismFrame3d : public BasicFrame3d
 
 //  ~PrismFrame3d();
 
-    const char *getClassType() const {return "PrismFrame3d";};
+    const char *getClassType() const {
+      return "PrismFrame3d";
+    }
 /*
 //  void zeroLoad();	
 //  int addLoad(ElementalLoad *theLoad, double loadFactor);

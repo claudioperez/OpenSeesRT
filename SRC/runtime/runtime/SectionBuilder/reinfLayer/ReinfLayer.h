@@ -22,40 +22,34 @@
 // Written by Remo M. de Souza
 // December 1998
 //
-#ifndef ReinfLayer_h 
-#define ReinfLayer_h 
-
-// #include <OPS_Globals.h>
+#ifndef ReinfLayer_h
+#define ReinfLayer_h
 
 class ReinfBar;
 class OPS_Stream;
 
-class ReinfLayer
-{
-  public:
- 
-    // edition functions
-    virtual void setNumReinfBars     (int numReinfBars)        = 0;
-    virtual void setMaterialID       (int materialID)          = 0;
-    virtual void setReinfBarDiameter (double reinfBarDiemater) = 0;
-    virtual void setReinfBarArea     (double reinfBarArea)     = 0;
+class ReinfLayer {
+public:
+  virtual ~ReinfLayer() = 0;
+  // edition functions
+  virtual void setNumReinfBars(int numReinfBars)            = 0;
+  virtual void setMaterialID(int materialID)                = 0;
+  virtual void setReinfBarDiameter(double reinfBarDiemater) = 0;
+  virtual void setReinfBarArea(double reinfBarArea)         = 0;
 
-    // reinforcing layer inquiring functions
-    
-    virtual int         getNumReinfBars() const = 0;
-    virtual int         getMaterialID() const = 0; 
-    virtual double      getReinfBarDiameter() const = 0;
-    virtual double      getReinfBarArea() const = 0;
-    virtual ReinfLayer *getCopy() const = 0;
-    virtual ReinfBar   *getReinfBars() const = 0;     
-   
-    virtual void Print(OPS_Stream &s, int flag =0) const = 0;   
-    friend OPS_Stream &operator<<(OPS_Stream &s, const ReinfLayer &ReinfLayer);    
-    
-  protected:
-    
-  private:
+  // reinforcing layer inquiring functions
+
+  virtual int getNumReinfBars() const        = 0;
+  virtual int getMaterialID() const          = 0;
+  virtual double getReinfBarDiameter() const = 0;
+  virtual double getReinfBarArea() const     = 0;
+  virtual ReinfLayer* getCopy() const        = 0;
+  virtual ReinfBar* getReinfBars() const     = 0;
+
+  virtual void Print(OPS_Stream& s, int flag = 0) const = 0;
+
+protected:
+private:
 };
-
 
 #endif

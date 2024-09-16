@@ -23,48 +23,42 @@
 // Written by Remo M. de Souza
 // November 1998
 
-
-#ifndef ReinfBar_h 
-#define ReinfBar_h 
+#ifndef ReinfBar_h
+#define ReinfBar_h
 
 #include <Vector.h>
 
-class ReinfBar
-{
-  public:
+class ReinfBar {
+public:
+  ReinfBar();
+  ReinfBar(double barArea, int materialID, const Vector& position);
 
-    ReinfBar();
-    ReinfBar(double barArea, int materialID, const Vector &position);
-        
-    virtual ~ReinfBar();
-    
-    // edition functions
+  virtual ~ReinfBar();
 
-    void setDiameter (double barDiameter);
-    void setArea     (double barArea);
-    void setMaterial (int materialID);
-    void setPosition (const Vector &position);
+  // edition functions
 
-    // reinforcing bar inquiring functions
-    
-    double getDiameter() const;
-    double getArea() const;
-    int    getMaterial() const; 
+  void setDiameter(double barDiameter);
+  void setArea(double barArea);
+  void setMaterial(int materialID);
+  void setPosition(const Vector& position);
 
-    const Vector & getPosition() const;
+  // reinforcing bar inquiring functions
 
-    virtual void Print(OPS_Stream &s, int flag =0) const;   
-    friend OPS_Stream &operator<<(OPS_Stream &s, const ReinfBar &reinfBar);    
-    
-  protected:
-    
-  private:
-    int    matID;
-    double diameter;
-    double area;
-    Vector posit;
+  double getDiameter() const;
+  double getArea() const;
+  int getMaterial() const;
+
+  const Vector& getPosition() const;
+
+  virtual void Print(OPS_Stream& s, int flag = 0) const;
+  friend OPS_Stream& operator<<(OPS_Stream& s, const ReinfBar& reinfBar);
+
+protected:
+private:
+  int matID;
+  double diameter;
+  double area;
+  Vector posit;
 };
 
-
 #endif
-

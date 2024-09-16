@@ -2169,13 +2169,17 @@ ForceDeltaFrame3d::Print(OPS_Stream& s, int flag)
     s << "\"type\": \"ForceDeltaFrame3d\", ";
     s << "\"nodes\": [" << connectedExternalNodes(0) << ", " 
                         << connectedExternalNodes(1) << "], ";
+
     s << "\"sections\": [";
     for (int i = 0; i < numSections - 1; i++)
       s << points[i].material->getTag() << ", ";
     s << points[numSections - 1].material->getTag() << "], ";
+
     s << "\"integration\": ";
     stencil->Print(s, flag);
-    s << ", \"massperlength\": " << density << ", ";
+    s << ", ";
+
+    s << "\"massperlength\": " << density << ", ";
     s << "\"crdTransformation\": \"" << theCoordTransf->getTag() << "\"}";
 
     return;

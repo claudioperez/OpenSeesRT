@@ -240,17 +240,17 @@ TwentyEightNodeBrickUP::~TwentyEightNodeBrickUP( )
 //set domain
 void  TwentyEightNodeBrickUP::setDomain( Domain *theDomain )
 {
-  int i,dof ;
+  int dof ;
 
   // Check Domain is not null - invoked when object removed from a domain
   if (theDomain == 0) {
-    for ( i=0; i<nenu; i++ )
-      nodePointers[i] = 0;
+    for (int i=0; i<nenu; i++ )
+      nodePointers[i] = nullptr;
     return;
   }
 
   //node pointers
-  for ( i=0; i<nenu; i++ ) {
+  for (int i=0; i<nenu; i++ ) {
     nodePointers[i] = theDomain->getNode( connectedExternalNodes(i) ) ;
     if (nodePointers[i] == 0) {
       opserr << "FATAL ERROR TwentyEightNodeBrickUP ("<<this->getTag()<<"): node not found in domain"<<endln;
@@ -388,21 +388,21 @@ void  TwentyEightNodeBrickUP::Print( OPS_Stream &s, int flag )
         s << materialPointers[i]->getStress();
         }
         */
-
-    } else if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        const int numNodes = 20;
-        s << "\t\t\t{";
+    }
+    else if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        constexpr static int NEN = 20;
+        s << OPS_PRINT_JSON_ELEM_INDENT << "{";
         s << "\"name\": " << this->getTag() << ", ";
-        s << "\"type\": \"ShellANDeS\", ";
+        s << "\"type\": \"" << this->getClassType() << "\", ";
         s << "\"material\":" << materialPointers[0]->getTag() << ", ";
         s << "\"nodes\": [";
-        for (int i=0; i<numNodes-1; i++)
+        for (int i=0; i<NEN-1; i++)
           s << nodePointers[i]->getTag() << ", ";
-        s << nodePointers[numNodes-1]->getTag();
-        s << "], ";
+        s << nodePointers[NEN-1]->getTag();
+        s << "]";
         // s << "\"masspervolume\": " << rho << "\"}";
-
-    } else {
+    }
+    else {
 
         s << endln ;
         s << "20-8 Noded TwentyEightNodeBrickUP \n" ;
