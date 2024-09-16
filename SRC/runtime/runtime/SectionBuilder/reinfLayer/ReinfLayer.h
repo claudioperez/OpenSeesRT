@@ -30,7 +30,7 @@ class OPS_Stream;
 
 class ReinfLayer {
 public:
-  virtual ~ReinfLayer() = 0;
+  virtual ~ReinfLayer() {};
   // edition functions
   virtual void setNumReinfBars(int numReinfBars)            = 0;
   virtual void setMaterialID(int materialID)                = 0;
