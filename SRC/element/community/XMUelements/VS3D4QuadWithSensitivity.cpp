@@ -17,12 +17,10 @@
 
 // static variables
 const int VS3D4QuadWithSensitivity::numDOF = 12;
-const int VS3D4QuadWithSensitivity::nodes_in_elem = 4;
 const int VS3D4QuadWithSensitivity::nodes_in_quad = 4;
 const int VS3D4QuadWithSensitivity::r_integration_order = FixedOrder;
 const int VS3D4QuadWithSensitivity::s_integration_order = FixedOrder;
 const int VS3D4QuadWithSensitivity::dim = 3;
-const int VS3D4QuadWithSensitivity::numGP = 4;
 
 ID VS3D4QuadWithSensitivity::integFlags(0,numDOF);
 ID VS3D4QuadWithSensitivity::actDOFs(0,numDOF);
@@ -91,7 +89,7 @@ VS3D4QuadWithSensitivity::VS3D4QuadWithSensitivity(int element_number,
   double _E, double _G, double _rho, double _R, double _alphaN, 
   double _alphaT)
 :Element(element_number, ELE_TAG_VS3D4QuadWithSensitivity),
-connectedExternalNodes(nodes_in_elem), Ki(0), E(_E), G(_G), rho(_rho), 
+connectedExternalNodes(NEN), Ki(0), E(_E), G(_G), rho(_rho), 
 R(_R), alphaN(_alphaN), alphaT(_alphaT), area(0.0), NdotN(3,3), 
 hasConstrained(0)
 {
@@ -102,7 +100,7 @@ hasConstrained(0)
   connectedExternalNodes(3) = node_numb_4;
   
   // zero node pointers
-  for (int i = 0; i < nodes_in_elem; i++)
+  for (int i = 0; i < NEN; i++)
     theNodes[i] = 0;
 
   // AddingSensitivity:BEGIN ////////////////////////////////
@@ -113,12 +111,12 @@ hasConstrained(0)
 
 VS3D4QuadWithSensitivity::VS3D4QuadWithSensitivity ()
 :Element(0, ELE_TAG_VS3D4QuadWithSensitivity ),
-connectedExternalNodes(nodes_in_elem), Ki(0), E(0.0), G(0.0), rho(1.0), 
+connectedExternalNodes(NEN), Ki(0), E(0.0), G(0.0), rho(1.0), 
 R(1.0), alphaN(1.33), alphaT(0.67), area(0.0), NdotN(3,3), 
 hasConstrained(0)
 {
   // zero node pointers
-  for (int i = 0; i < nodes_in_elem; i++)
+  for (int i = 0; i < NEN; i++)
     theNodes[i] = 0;
   // AddingSensitivity:BEGIN ////////////////////////////////
 	parameterID = 0;
@@ -145,7 +143,7 @@ VS3D4QuadWithSensitivity::operator[](int subscript)
 int 
 VS3D4QuadWithSensitivity::getNumExternalNodes () const
 {
-  return nodes_in_elem;
+  return NEN;
 }
 
 const ID& 
@@ -175,12 +173,12 @@ VS3D4QuadWithSensitivity::setDomain (Domain *theDomain)
 {
   // Check Domain is not null - invoked when object removed from a domain
   if (theDomain == 0) {
-    for (int i = 0; i < nodes_in_elem; i++) {
+    for (int i = 0; i < NEN; i++) {
       theNodes[i] = 0;
     }
   }
   else {
-    for (int i = 0; i < nodes_in_elem; i++) {
+    for (int i = 0; i < NEN; i++) {
       theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
       if (theNodes[i] == 0) {
         opserr << "FATAL ERROR VS3D4QuadWithSensitivity (tag: " << this->getTag();
@@ -283,7 +281,7 @@ P.Zero();
   
   // int counter = 0;
   pos = 0;
-  for(i = 0; i < nodes_in_elem; i++) {
+  for(i = 0; i < NEN; i++) {
     const Vector &disp = theNodes[i]->getTrialDisp();
     const Vector &vel = theNodes[i]->getTrialVel();
     
@@ -347,7 +345,20 @@ int VS3D4QuadWithSensitivity::displaySelf (Renderer &theViewer, int displayMode,
 
 void VS3D4QuadWithSensitivity::Print(OPS_Stream &s, int flag)
 {
-  if(flag == 1) {
+  const ID& node_tags = this->getExternalNodes();
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": " << this->getTag() << ", ";
+      s << "\"type\": \"" << this->getClassType() << "\", ";
+      s << "\"nodes\": [";
+      for (int i=0; i < NEN-1; i++)
+          s << node_tags(i) << ", ";
+      s << node_tags(NEN-1) << "] ";
+
+      s << "}";
+  }
+  else if(flag == 1) {
     s << "VS3D4QuadWithSensitivity, element id:  " << this->getTag() << endln;
     s << "Connected external nodes:  " << connectedExternalNodes;
     s << this->getResistingForce();
@@ -355,7 +366,7 @@ void VS3D4QuadWithSensitivity::Print(OPS_Stream &s, int flag)
   else {
     s << "VS3D4QuadWithSensitivity, element id:  " << this->getTag() << endln;
     s << "Connected external nodes:  " << connectedExternalNodes;
-    for(int i = 0; i < numGP; i++) {
+    for(int i = 0; i < NIP; i++) {
       theNodes[i]->Print(s);
     }
   }
@@ -375,7 +386,7 @@ VS3D4QuadWithSensitivity::setResponse (const char **argv, int argc, OPS_Stream &
   output.tag("ElementOutput");
   output.attr("eleType","VS3D4QuadWithSensitivity");
   output.attr("eleTag",this->getTag());
-  for(int i = 1; i <= nodes_in_elem; i++) {
+  for(int i = 1; i <= NEN; i++) {
     sprintf(outputData,"node%d",i);
     output.attr(outputData,theNodes[i-1]->getTag());
   }
@@ -415,7 +426,7 @@ VS3D4QuadWithSensitivity::getActiveDofs(void)
 {
   if( actDOFs.Size() == 0){
     int counter = 0;
-    for(int i = 0; i < nodes_in_elem; i++){
+    for(int i = 0; i < NEN; i++){
      actDOFs[counter++] = 1;
      actDOFs[counter++] = 2;
      actDOFs[counter++] = 3;
@@ -435,7 +446,7 @@ ID *
 VS3D4QuadWithSensitivity::getIntegrateFlags(void)
 {
   // if (integFlags.Size() == 0){
-  //   for (int i = 0; i < nodes_in_elem; i++){
+  //   for (int i = 0; i < NEN; i++){
   //     integFlags[i] = 1;
   //   }
   // }
@@ -612,8 +623,8 @@ int
 VS3D4QuadWithSensitivity::computeH(void)
 {
   if(H == 0 || DH == 0) {
-    H = new Matrix*[numGP];
-    DH = new Matrix*[numGP];
+    H = new Matrix*[NIP];
+    DH = new Matrix*[NIP];
     if (H == 0 || DH == 0) {
       opserr << "VS3D4QuadWithSensitivity::computeH - out of memory!\n";
       return -3;
@@ -737,7 +748,7 @@ int
 VS3D4QuadWithSensitivity::computeHH(void)
 {
   if (HH == 0) {
-    HH = new Matrix*[numGP];
+    HH = new Matrix*[NIP];
     if (HH == 0) {
       opserr << "VS3D4QuadWithSensitivity::computeHH - out of memory!\n";
       return -3;
@@ -746,8 +757,8 @@ VS3D4QuadWithSensitivity::computeHH(void)
     // compute H first
     this->computeH();
     
-    for(int i = 0; i < numGP; i++) {
-      HH[i] = new Matrix(nodes_in_elem, nodes_in_elem);
+    for(int i = 0; i < NIP; i++) {
+      HH[i] = new Matrix(NEN, NEN);
       if (HH[i] == 0) {
         opserr << "VS3D4QuadWithSensitivity::computeHH - out of memory!\n";
         return -3;
@@ -767,7 +778,7 @@ int
 VS3D4QuadWithSensitivity::computeDetJ(void)
 {
   if(detJ == 0) {
-    detJ = new double[numGP];
+    detJ = new double[NIP];
     if(detJ == 0) {
       opserr << "VS3D4QuadWithSensitivity::computeDetJ - out of memory!\n";
       return -3;
@@ -779,7 +790,7 @@ VS3D4QuadWithSensitivity::computeDetJ(void)
     this->computeH();
     Matrix NC = getNodalCoords();
     
-    for(int i = 0; i < numGP; i++) {
+    for(int i = 0; i < NIP; i++) {
       Jacobian = (*DH[i])*NC;
       
       // pointer to the fluid
@@ -809,8 +820,8 @@ int
 VS3D4QuadWithSensitivity::computeDiff(void)
 {
   if (L == 0 || detJ == 0) {
-    L = new Matrix*[numGP];
-    detJ = new double[numGP];
+    L = new Matrix*[NIP];
+    detJ = new double[NIP];
     if (L == 0 || detJ == 0) {
       opserr << "VS3D4QuadWithSensitivity::computeDiff - out of memory!\n";
       return -3;
@@ -821,8 +832,8 @@ VS3D4QuadWithSensitivity::computeDiff(void)
     this->computeH();
     Matrix NC = getNodalCoords();
     
-    for(int i = 0; i < numGP; i++) {
-      L[i] = new Matrix(3, nodes_in_elem);
+    for(int i = 0; i < NIP; i++) {
+      L[i] = new Matrix(3, NEN);
       if(L[i] == 0) {
         opserr << "VS3D4QuadWithSensitivity::computDiff() - out of memory!\n";
         return -3;
@@ -929,12 +940,9 @@ int
 VS3D4QuadWithSensitivity::setParameter(const char **argv, int argc, Parameter &param)
 {
 
-
-	int numberGauss=4;
-
     if (strstr(argv[0],"material") != 0) {
 		int ok;
-		for (int i=0; i<numberGauss; i++) {
+		for (int i=0; i<NIP; i++) {
 			ok = theMaterial[i]->setParameter(&argv[1], argc-1, param);
 			if (ok < 0 ) {
 				opserr<<"VS3D4QuadWithSensitivity::setParameter() can not setParameter for "<<i<<"th Gauss Point\n";
@@ -963,7 +971,6 @@ VS3D4QuadWithSensitivity::updateParameter(int parameterID, Information &info)
 VS3D4QuadWithSensitivity::activateParameter(int passedParameterID)
 {
 
-	int numberGauss = 4;
 	parameterID = passedParameterID;
 
 	if (parameterID == 1) {
@@ -973,7 +980,7 @@ VS3D4QuadWithSensitivity::activateParameter(int passedParameterID)
 	else if (parameterID==0) {
 		// Go down to the materials and zero out the identifier
 		int ok;
-		for (int i=0; i<numberGauss; i++) {
+		for (int i=0; i<NIP; i++) {
 			ok = theMaterial[i]->activateParameter(parameterID);
 			if (ok < 0 ) {
 				return -1;
@@ -983,7 +990,7 @@ VS3D4QuadWithSensitivity::activateParameter(int passedParameterID)
 	else if (parameterID > 100) {
 		// In this case the parameter belongs to the material
 		int ok;
-		for (int i=0; i<numberGauss; i++) {
+		for (int i=0; i<NIP; i++) {
 			ok = theMaterial[i]->activateParameter(parameterID-100);
 			if (ok < 0 ) {
 				return -1;

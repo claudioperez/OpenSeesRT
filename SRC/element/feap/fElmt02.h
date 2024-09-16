@@ -17,12 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:20 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/feap/fElmt02.h,v $
-                                                                        
-                                                                        
 #ifndef fElmt02_h
 #define fElmt02_h
 

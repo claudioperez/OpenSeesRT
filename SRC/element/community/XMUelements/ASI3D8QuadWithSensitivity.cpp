@@ -13,12 +13,10 @@
 
 // static variables
 const int ASI3D8QuadWithSensitivity::numDOF = 16;
-const int ASI3D8QuadWithSensitivity::nodes_in_elem = 8;
 const int ASI3D8QuadWithSensitivity::nodes_in_quad = 4;
 const int ASI3D8QuadWithSensitivity::r_integration_order = FixedOrder;
 const int ASI3D8QuadWithSensitivity::s_integration_order = FixedOrder;
 const int ASI3D8QuadWithSensitivity::dim = 3;
-const int ASI3D8QuadWithSensitivity::numGP = 4;
 const int ASI3D8QuadWithSensitivity::numSDOF = 12;
 const int ASI3D8QuadWithSensitivity::numFDOF = 4;
 
@@ -76,7 +74,7 @@ ASI3D8QuadWithSensitivity::ASI3D8QuadWithSensitivity(int element_number,
   int node_numb_1, int node_numb_2, int node_numb_3, int node_numb_4, 
   int node_numb_5, int node_numb_6, int node_numb_7, int node_numb_8)
 :Element(element_number, ELE_TAG_ASI3D8QuadWithSensitivity),
-connectedExternalNodes(nodes_in_elem), Ki(0), hasConstrained(0)
+connectedExternalNodes(NEN), Ki(0), hasConstrained(0)
 {
   // Set connected external node IDs
   connectedExternalNodes(0) = node_numb_1;
@@ -90,8 +88,8 @@ connectedExternalNodes(nodes_in_elem), Ki(0), hasConstrained(0)
   connectedExternalNodes(7) = node_numb_8;
   
   // zero node pointers
-  for (int i = 0; i < nodes_in_elem; i++)
-    theNodes[i] = 0;
+  for (int i = 0; i < NEN; i++)
+    theNodes[i] = nullptr;
 
   // AddingSensitivity:BEGIN ////////////////////////////////
 	parameterID = 0;
@@ -101,10 +99,10 @@ connectedExternalNodes(nodes_in_elem), Ki(0), hasConstrained(0)
 
 ASI3D8QuadWithSensitivity::ASI3D8QuadWithSensitivity ()
 :Element(0, ELE_TAG_ASI3D8QuadWithSensitivity ),
-connectedExternalNodes(nodes_in_elem), Ki(0), hasConstrained(0)
+connectedExternalNodes(NEN), Ki(0), hasConstrained(0)
 {
   // zero node pointers
-  for (int i = 0; i < nodes_in_elem; i++)
+  for (int i = 0; i < NEN; i++)
     theNodes[i] = 0;
   // AddingSensitivity:BEGIN ////////////////////////////////
 	parameterID = 0;
@@ -131,7 +129,7 @@ ASI3D8QuadWithSensitivity::operator[](int subscript)
 int 
 ASI3D8QuadWithSensitivity::getNumExternalNodes () const
 {
-  return nodes_in_elem;
+  return NEN;
 }
 
 const ID& 
@@ -161,12 +159,12 @@ ASI3D8QuadWithSensitivity::setDomain (Domain *theDomain)
 {
   // Check Domain is not null - invoked when object removed from a domain
   if (theDomain == 0) {
-    for (int i = 0; i < nodes_in_elem; i++) {
+    for (int i = 0; i < NEN; i++) {
       theNodes[i] = 0;
     }
   }
   else {
-    for (int i = 0; i < nodes_in_elem; i++) {
+    for (int i = 0; i < NEN; i++) {
       theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
       if (theNodes[i] == 0) {
         opserr << "FATAL ERROR ASI3D8QuadWithSensitivity (tag: " << this->getTag();
@@ -251,7 +249,7 @@ ASI3D8QuadWithSensitivity::getResistingForce(void)
   
   int i, loc;
   loc = 0;
-  for(i = nodes_in_quad; i < nodes_in_elem; i++) {
+  for(i = nodes_in_quad; i < NEN; i++) {
     const Vector &TotDisp = theNodes[i]->getTrialDisp();
     pa(loc++) = TotDisp(0);
 
@@ -297,7 +295,7 @@ ASI3D8QuadWithSensitivity::getResistingForceIncInertia(void)
   }
 
   counter = 0;
-  for(i = nodes_in_quad; i < nodes_in_elem; i++) {
+  for(i = nodes_in_quad; i < NEN; i++) {
     const Vector &TotDisp = theNodes[i]->getTrialDisp();
     pa(counter++) = TotDisp(0);
 	//opserr<<"TotDisp(0) is "<<TotDisp(0)<<endln;
@@ -346,17 +344,22 @@ ASI3D8QuadWithSensitivity::recvSelf (int commitTag, Channel &theChannel,
   return 0;
 }
 
-int ASI3D8QuadWithSensitivity::displaySelf (Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-  int error = 0;
-  
-  return error;
-
-}     
 
 void ASI3D8QuadWithSensitivity::Print(OPS_Stream &s, int flag)
 {
-  if(flag == 1) {
+  const ID& node_tags = this->getExternalNodes();
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": " << this->getTag() << ", ";
+      s << "\"type\": \"" << this->getClassType() << "\", ";
+      s << "\"nodes\": [";
+      for (int i=0; i < NEN-1; i++)
+          s << node_tags(i) << ", ";
+      s << node_tags(NEN-1) << "]";
+      s << "}";
+  }
+  else if(flag == 1) {
     s << "ASI3D8QuadWithSensitivity, element id:  " << this->getTag() << endln;
     s << "Connected external nodes:  " << connectedExternalNodes;
     s << this->getResistingForce();
@@ -364,7 +367,7 @@ void ASI3D8QuadWithSensitivity::Print(OPS_Stream &s, int flag)
   else {
     s << "ASI3D8QuadWithSensitivity, element id:  " << this->getTag() << endln;
     s << "Connected external nodes:  " << connectedExternalNodes;
-    for(int i = 0; i < numGP; i++) {
+    for(int i = 0; i < NIP; i++) {
       theNodes[i]->Print(s);
     }
   }
@@ -384,7 +387,7 @@ ASI3D8QuadWithSensitivity::setResponse (const char **argv, int argc, OPS_Stream 
   output.tag("ElementOutput");
   output.attr("eleType","ASI3D8QuadWithSensitivity");
   output.attr("eleTag",this->getTag());
-  for(int i = 1; i <= nodes_in_elem; i++) {
+  for(int i = 1; i <= NEN; i++) {
     sprintf(outputData,"node%d",i);
     output.attr(outputData,theNodes[i-1]->getTag());
   }
@@ -424,7 +427,7 @@ ASI3D8QuadWithSensitivity::getActiveDofs(void)
 {
   if( actDOFs.Size() == 0){
     int counter = 0;
-    for (int i = 0; i < nodes_in_elem; i++){
+    for (int i = 0; i < NEN; i++){
      actDOFs[counter++] = 1;
      actDOFs[counter++] = 2;
      actDOFs[counter++] = 3;
@@ -446,7 +449,7 @@ ASI3D8QuadWithSensitivity::getIntegrateFlags(void)
 {
   if (integFlags.Size() == 0){
     int counter = 0;
-    for (int i = 0; i < nodes_in_elem; i++){
+    for (int i = 0; i < NEN; i++){
       integFlags[counter++] = 0;
       integFlags[counter++] = 0;
       integFlags[counter++] = 0;
@@ -504,7 +507,7 @@ ASI3D8QuadWithSensitivity::getTangentStiff(void)
     counter++;
   }
   
-  // for(i = 0; i < nodes_in_elem; i++) {
+  // for(i = 0; i < NEN; i++) {
   //   rows(pos++) = counter++;
   //   rows(pos++) = counter++;
   //   rows(pos++) = counter++;
@@ -570,7 +573,7 @@ ASI3D8QuadWithSensitivity::getMass(void)
   }
   
   
-  // for(i = 0; i < nodes_in_elem; i++) {
+  // for(i = 0; i < NEN; i++) {
   //   cols(pos++) = counter++;
   //   cols(pos++) = counter++;
   //   cols(pos++) = counter++;
@@ -712,9 +715,9 @@ ASI3D8QuadWithSensitivity::diff_interp_fun(double r1, double r2)
 int
 ASI3D8QuadWithSensitivity::computeH(void)
 {
-  if(H == 0 || DH == 0) {
-    H = new Matrix*[numGP];
-    DH = new Matrix*[numGP];
+  if (H == nullptr || DH == nullptr) {
+    H = new Matrix*[NIP];
+    DH = new Matrix*[NIP];
     if (H == 0 || DH == 0) {
       opserr << "ASI3D8QuadWithSensitivity::computeH - out of memory!\n";
       return -3;
@@ -834,13 +837,9 @@ ASI3D8QuadWithSensitivity::get_Gauss_p_w(short order, short point_numb)
 int
 ASI3D8QuadWithSensitivity::setParameter(const char **argv, int argc, Parameter &param)
 {
-
-
-	int numberGauss=8;
-
     if (strstr(argv[0],"material") != 0) {
 		int ok;
-		for (int i=0; i<numberGauss; i++) {
+		for (int i=0; i<NIP; i++) {
 			ok = theMaterial[i]->setParameter(&argv[1], argc-1, param);
 			if (ok < 0 ) {
 				opserr<<"ASI3D8QuadWithSensitivityWithSensitivity::setParameter() can not setParameter for "<<i<<"th Gauss Point\n";
@@ -869,7 +868,6 @@ ASI3D8QuadWithSensitivity::updateParameter(int parameterID, Information &info)
 ASI3D8QuadWithSensitivity::activateParameter(int passedParameterID)
 {
 
-	int numberGauss = 4;
 	parameterID = passedParameterID;
 
 	if (parameterID == 1) {
@@ -879,7 +877,7 @@ ASI3D8QuadWithSensitivity::activateParameter(int passedParameterID)
 	else if (parameterID==0) {
 		// Go down to the materials and zero out the identifier
 		int ok;
-		for (int i=0; i<numberGauss; i++) {
+		for (int i=0; i<NIP; i++) {
 			ok = theMaterial[i]->activateParameter(parameterID);
 			if (ok < 0 ) {
 				return -1;
@@ -889,7 +887,7 @@ ASI3D8QuadWithSensitivity::activateParameter(int passedParameterID)
 	else if (parameterID > 100) {
 		// In this case the parameter belongs to the material
 		int ok;
-		for (int i=0; i<numberGauss; i++) {
+		for (int i=0; i<NIP; i++) {
 			ok = materialPointers[i]->activateParameter(parameterID-100);
 			if (ok < 0 ) {
 				return -1;

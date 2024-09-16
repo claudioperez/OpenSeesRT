@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2009-10-13 21:14:21 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/FourNodeQuadWithSensitivity.cpp,v $
-
+//
 // Written: MHS
 // Created: Feb 2000
 // Revised: Dec 2000 for efficiency
 // Sensitivity by Quan Gu , Michele Barbato and Joel P. pconte  @ UCSD 2009 July.
 // Description: This file contains the class definition for FourNodeQuadWithSensitivity.
-
+//
 #include <FourNodeQuadWithSensitivity.h>
 #include <Node.h>
 #include <NDMaterial.h>

@@ -23,31 +23,24 @@
 // Written by Remo M. de Souza
 // December 1998
 
-#ifndef Cell_h 
-#define Cell_h 
-
-#include <OPS_Globals.h>
+#ifndef Cell_h
+#define Cell_h
 
 class Vector;
 
-class Cell
-{
-  public:
+class Cell {
+public:
+  // reinforcing bar inquiring functions
 
-    // reinforcing bar inquiring functions
-    
-    virtual        double getArea() const = 0;
-    virtual        double getdValue() const = 0;
-    virtual const  Vector &getCentroidPosition() = 0;
- 
-    virtual void   Print(OPS_Stream &s, int flag =0) const = 0;   
-    friend OPS_Stream &operator<<(OPS_Stream &s, const Cell &Cell);    
-    
-  protected:
-    
-  private:
+  virtual double getArea() const              = 0;
+  virtual double getdValue() const            = 0;
+  virtual const Vector& getCentroidPosition() = 0;
+
+  virtual void Print(OPS_Stream& s, int flag = 0) const = 0;
+  friend OPS_Stream& operator<<(OPS_Stream& s, const Cell& Cell);
+
+protected:
+private:
 };
 
-
 #endif
-

@@ -3365,6 +3365,22 @@ int TwentyNodeBrick::displaySelf (Renderer &theViewer, int displayMode, float fa
 //=============================================================================
 void TwentyNodeBrick::Print(OPS_Stream &s, int flag)
 {
+  const ID& node_tags = this->getExternalNodes();
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      constexpr static int NEN = 20;
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": " << this->getTag() << ", ";
+      s << "\"type\": \"" << this->getClassType() << "\", ";
+      s << "\"nodes\": [";
+      for (int i=0; i < NEN-1; i++)
+          s << node_tags(i) << ", ";
+      s << node_tags(NEN-1) << "] ";
+
+      s << "}";
+      return;
+  }
+
     //report(" TwentyNodeBrick ");
     s << "TwentyNodeBrick, element id:  " << this->getTag() << endln;
     s << "Connected external nodes:  " << connectedExternalNodes;
@@ -3413,9 +3429,6 @@ void TwentyNodeBrick::Print(OPS_Stream &s, int flag)
            s << "\n where = " << where << endln;
            s << " GP_c_r= " << GP_c_r << "GP_c_s = " << GP_c_s << " GP_c_t = " << GP_c_t << endln;
            matpoint[where]->report("Material Point\n");
-           //GPstress[where].reportshort("stress at Gauss Point");
-           //GPstrain[where].reportshort("strain at Gauss Point");
-           //matpoint[where].report("Material model  at Gauss Point");
         }
       }
     }
