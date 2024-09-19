@@ -24,6 +24,7 @@
 #include <AnalysisModel.h>
 #include <TimeSeries.h>
 #include <LoadPattern.h>
+#include <float.h>
 
 // For eigen()
 #include <FE_EleIter.h>
@@ -69,7 +70,6 @@ BasicAnalysisBuilder::BasicAnalysisBuilder(Domain* domain)
   theStaticIntegrator(nullptr),
   theTransientIntegrator(nullptr),
   theTest(nullptr),
-  theVariableTimeStepTransientAnalysis(nullptr),
  CurrentAnalysisFlag(EMPTY_ANALYSIS)
 {
   theAnalysisModel = new AnalysisModel();
@@ -125,7 +125,6 @@ BasicAnalysisBuilder::wipe()
     delete theAnalysisModel;
     theAnalysisModel = new AnalysisModel();
   }
-  theVariableTimeStepTransientAnalysis = nullptr;
 }
 
 void
@@ -489,6 +488,120 @@ BasicAnalysisBuilder::analyzeStep(double dT)
   return result;
 }
 
+
+static double 
+determineDt(double dT, 
+            double dtMin, 
+            double dtMax, 
+            int Jd,
+            ConvergenceTest *theTest)
+{
+  double newDt = dT;
+    
+  // get the number of trial steps in the last solveCurrentStep()
+  double numLastIter = 1.0;
+  if (theTest != 0)
+    numLastIter = theTest->getNumTests();
+  
+  
+  // determine new dT based on last dT and Jd and #iter of last step
+  double factor = Jd/numLastIter;
+  newDt *= factor;
+  
+  // ensure: dtMin <~~ dT <= dtMax
+  if (newDt < dtMin)
+    newDt = dtMin - DBL_EPSILON;  // to ensure we get out of the analysis 
+                               // loop if can't converge on next step
+  else if (newDt > dtMax)
+    newDt = dtMax;
+    
+  return newDt;
+}
+
+
+int 
+BasicAnalysisBuilder::analyzeVariable(int numSteps, double dT, double dtMin, double dtMax, int Jd)
+{
+
+  // set some variables
+  int result = 0;  
+  double totalTimeIncr = numSteps * dT;
+  double currentTimeIncr = 0.0;
+  double currentDt = dT;
+
+  // loop until analysis has performed the total time incr requested
+  while (currentTimeIncr < totalTimeIncr) {
+
+    if (theAnalysisModel->analysisStep(currentDt) < 0) {
+      opserr << "DirectIntegrationAnalysis::analyze() - the AnalysisModel failed in newStepDomain";
+      opserr << " at time " << theDomain->getCurrentTime() << "\n";
+      theDomain->revertToLastCommit();
+      return -2;
+    }
+
+    // check if domain has undergone change
+    int stamp = theDomain->hasDomainChanged();
+    if (stamp != domainStamp) {
+      domainStamp = stamp;
+      if (this->domainChanged() < 0) {
+        opserr << "DirectIntegrationAnalysis::analyze() - domainChanged() failed\n";
+        return -1;
+      }
+    }
+
+    //
+    // do newStep(), solveCurrentStep() and commit() as in regular
+    // DirectINtegrationAnalysis - difference is we do not return
+    // if a failure - we stop the analysis & resize time step if failure
+    //
+
+    if (theTransientIntegrator->newStep(currentDt) < 0) {
+      result = -2;
+    }
+
+
+    if (result >= 0) {
+      result = theAlgorithm->solveCurrentStep();
+      if (result < 0) 
+        result = -3;
+    }    
+
+    if (result >= 0) {
+      result = theTransientIntegrator->commit();
+      if (result < 0) 
+        result = -4;
+    }
+
+    // if the time step was successful increment delta T for the analysis
+    // otherwise revert the Domain to last committed state & see if can go on
+
+    if (result >= 0) 
+      currentTimeIncr += currentDt;
+    else {
+
+      // invoke the revertToLastCommit
+      theDomain->revertToLastCommit();
+      theTransientIntegrator->revertToLastStep();
+
+      // if last dT was <= min specified the analysis FAILS - return FAILURE
+      if (currentDt <= dtMin) {
+        opserr << "VariableTimeStepDirectIntegrationAnalysis::analyze() - ";
+        opserr << " failed at time " << theDomain->getCurrentTime() << endln;
+        return result;
+      }
+
+      
+      // if still here reset result for next loop
+      result = 0;
+    }
+
+    // now we determine a new delta T for next loop
+    currentDt = determineDt(currentDt, dtMin, dtMax, Jd, theTest);
+  }
+
+
+  return 0;
+}
 
 
 void
