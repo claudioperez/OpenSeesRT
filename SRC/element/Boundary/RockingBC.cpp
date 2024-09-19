@@ -55,7 +55,6 @@
 #include <Information.h>
 #include <Parameter.h>
 #include <ElementResponse.h>
-#include <Renderer.h>
 
 #include <elementAPI.h>
 #include <OPS_Globals.h>
@@ -5160,14 +5159,3 @@ bool RockingBC::bilin_one(const RBCVec& YP, const RBCVec& P, RBCVec& YPn, RBCVec
 
 }
 
-int 
-RockingBC::displaySelf(Renderer& theViewer, int displayMode, float fact, const char** modes, int numMode)
-{
-	static Vector v1(3);
-	static Vector v2(3);
-
-	theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-	theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-	return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}

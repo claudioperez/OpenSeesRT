@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.3 $
-// $Date: 2009-08-25 22:34:49 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/analysis/StaticDomainDecompositionAnalysis.h,v $
-                                                                        
+//
 // Written: fmk 
 // Revision: A
 //
@@ -67,28 +63,20 @@ class StaticDomainDecompositionAnalysis: public DomainDecompositionAnalysis
 				      bool setLinks = true);
 
     ~StaticDomainDecompositionAnalysis();
-    void clearAll(void);	    
-    int initialize(void);
-    int domainChanged(void);
+    void clearAll();	    
+    int initialize();
+    int domainChanged();
 
     // methods for non standard domain deomposition analysis
     int analyze(double dT);
     int eigen(int numMode, bool generalized, bool findSmallest);
-    bool doesIndependentAnalysis(void);    
+    bool doesIndependentAnalysis();    
 
     // methods for standard domain deomposition analysis
     // that do some form of condensation to the tangent
-    int  getNumExternalEqn(void);
-    int  getNumInternalEqn(void);
     virtual int  analysisStep(double dT) final;
     int  eigenAnalysis(int numMode, bool generalized, bool findSmallest);
-    int  computeInternalResponse(void);
-    int  formTangent(void);
-    int  formResidual(void);
-    int  formTangVectProduct(Vector &force);
-    const Matrix &getTangent(void);
-    const Vector &getResidual(void);
-    const Vector &getTangVectProduct(void);
+    int  computeInternalResponse();
 
     // methods to change the analysis aggregates
     int setAlgorithm(EquiSolnAlgo &theAlgorithm);
