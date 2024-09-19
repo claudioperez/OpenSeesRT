@@ -7,28 +7,28 @@
 target_sources(OPS_Analysis
     PRIVATE
       Analysis.cpp 
-      DirectIntegrationAnalysis.cpp 
+#     DirectIntegrationAnalysis.cpp 
       DomainDecompositionAnalysis.cpp
       DomainUser.cpp 
       EigenAnalysis.cpp
       ResponseSpectrumAnalysis.cpp
-      StaticAnalysis.cpp 
+#     StaticAnalysis.cpp 
       StaticDomainDecompositionAnalysis.cpp 
       SubstructuringAnalysis.cpp    
-      TransientAnalysis.cpp
+#     TransientAnalysis.cpp
       TransientDomainDecompositionAnalysis.cpp 
 #     VariableTimeStepDirectIntegrationAnalysis.cpp
     PUBLIC
       Analysis.h 
-      DirectIntegrationAnalysis.h 
+#     DirectIntegrationAnalysis.h 
       DomainDecompositionAnalysis.h
       DomainUser.h 
       EigenAnalysis.h
       ResponseSpectrumAnalysis.h
-      StaticAnalysis.h 
+#     StaticAnalysis.h 
       StaticDomainDecompositionAnalysis.h 
       SubstructuringAnalysis.h    
-      TransientAnalysis.h
+#     TransientAnalysis.h
       TransientDomainDecompositionAnalysis.h 
 #     VariableTimeStepDirectIntegrationAnalysis.h
 )
