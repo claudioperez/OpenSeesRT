@@ -20,6 +20,8 @@
 
 #include "BasicAnalysisBuilder.h"
 
+#include <VariableTimeStepDirectIntegrationAnalysis.h>
+
 #include <EigenSOE.h>
 #include <LinearSOE.h>
 // for printA
@@ -142,9 +144,6 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
-  VariableTimeStepDirectIntegrationAnalysis* theVariableTimeStepTransientAnalysis =
-      builder->getVariableTimeStepDirectIntegrationAnalysis();
-
   int result = 0;
   switch (builder->CurrentAnalysisFlag) {
     case BasicAnalysisBuilder::STATIC_ANALYSIS: {
@@ -182,14 +181,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
         if (Tcl_GetInt(interp, argv[5], &Jd) != TCL_OK)
           return TCL_ERROR;
 
-        if (theVariableTimeStepTransientAnalysis != nullptr)
-          result = theVariableTimeStepTransientAnalysis->analyze(
-              numIncr, dT, dtMin, dtMax, Jd);
-        else {
-          opserr << G3_ERROR_PROMPT << "analyze - no variable time step transient analysis "
-                    "object constructed\n";
-          return TCL_ERROR;
-        }
+        result = builder->analyzeVariable(numIncr, dT, dtMin, dtMax, Jd);
 
       } else {
   //    result = theTransientAnalysis->analyze(numIncr, dT);
