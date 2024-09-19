@@ -41,8 +41,6 @@
 
 #include <ExpressNewton.h>
 #include <AnalysisModel.h>
-#include <StaticAnalysis.h>
-#include <StaticIntegrator.h>
 #include <LinearSOE.h>
 #include <Vector.h>
 #include <Channel.h>
@@ -51,7 +49,6 @@
 #include <ID.h>
 
 #include <elementAPI.h>
-#include <string>
 
 void *
 OPS_ADD_RUNTIME_VPV(OPS_ExpressNewton)
