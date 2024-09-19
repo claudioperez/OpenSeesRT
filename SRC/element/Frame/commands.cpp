@@ -615,6 +615,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       removeHingeIntegr = false;
     }
     else {
+      // If we fail to parse an integer tag, treat it like an inline definition
       builder->findFreeTag<BeamIntegrationRule>(itg_tag);
       std::string integrCommand{argv[positions[1]]};
       integrCommand.insert(integrCommand.find(" "), " "+std::to_string(itg_tag)+" ");
