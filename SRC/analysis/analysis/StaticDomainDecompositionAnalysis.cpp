@@ -108,7 +108,7 @@ StaticDomainDecompositionAnalysis::~StaticDomainDecompositionAnalysis()
 }    
 
 void
-StaticDomainDecompositionAnalysis::clearAll(void)
+StaticDomainDecompositionAnalysis::clearAll()
 {
   // invoke the destructor on all the objects in the aggregation
   if (theAnalysisModel != 0)     
@@ -141,7 +141,7 @@ StaticDomainDecompositionAnalysis::clearAll(void)
 
 
 bool 
-StaticDomainDecompositionAnalysis::doesIndependentAnalysis(void)
+StaticDomainDecompositionAnalysis::doesIndependentAnalysis()
 {
   return true;
 }
@@ -333,7 +333,7 @@ StaticDomainDecompositionAnalysis::eigen(int numMode, bool generalized, bool fin
 
 
 int 
-StaticDomainDecompositionAnalysis::initialize(void)
+StaticDomainDecompositionAnalysis::initialize()
 {
     Domain *the_Domain = this->getDomainPtr();
     
@@ -356,7 +356,7 @@ StaticDomainDecompositionAnalysis::initialize(void)
 }
 
 int
-StaticDomainDecompositionAnalysis::domainChanged(void)
+StaticDomainDecompositionAnalysis::domainChanged()
 {
   Domain *the_Domain = this->getDomainPtr();
   int stamp = the_Domain->hasDomainChanged();
@@ -436,13 +436,13 @@ StaticDomainDecompositionAnalysis::domainChanged(void)
 
 
 int  
-StaticDomainDecompositionAnalysis::getNumExternalEqn(void)
+StaticDomainDecompositionAnalysis::getNumExternalEqn()
 {
   opserr << "StaticDomainDecompositionAnalysis::getNumExternalEqn() - should never be called\n";
   return 0;
 }
 int  
-StaticDomainDecompositionAnalysis::getNumInternalEqn(void)
+StaticDomainDecompositionAnalysis::getNumInternalEqn()
 {
   opserr << "StaticDomainDecompositionAnalysis::getNumInternalEqn() - should never be called\n";
   return 0;
@@ -463,32 +463,15 @@ StaticDomainDecompositionAnalysis::eigenAnalysis(int numMode, bool generalized, 
 
 
 int  
-StaticDomainDecompositionAnalysis::computeInternalResponse(void)
+StaticDomainDecompositionAnalysis::computeInternalResponse()
 {
   opserr << "StaticDomainDecompositionAnalysis::computeInternalResponse() - should never be called\n";
   return 0;
 }
-int  
-StaticDomainDecompositionAnalysis::formTangent(void)
-{
-  opserr << "StaticDomainDecompositionAnalysis::formTangent() - should never be called\n";
-  return 0;
-}
-int  
-StaticDomainDecompositionAnalysis::formResidual(void)
-{
-  opserr << "StaticDomainDecompositionAnalysis::formResidual() - should never be called\n";
-  return 0;
-}
-int  
-StaticDomainDecompositionAnalysis::formTangVectProduct(Vector &force)
-{
-  opserr << "StaticDomainDecompositionAnalysis::formTangVectProduct() - should never be called\n";
-  return 0;
-}
+
 
 const Matrix &
-StaticDomainDecompositionAnalysis::getTangent(void)
+StaticDomainDecompositionAnalysis::getTangent()
 {
   static Matrix errMatrix;
   opserr << "StaticDomainDecompositionAnalysis::getTangent() - should never be called\n";
@@ -496,7 +479,7 @@ StaticDomainDecompositionAnalysis::getTangent(void)
 }
 
 const Vector &
-StaticDomainDecompositionAnalysis::getResidual(void)
+StaticDomainDecompositionAnalysis::getResidual()
 {
   static Vector errVector;
   opserr << "StaticDomainDecompositionAnalysis::getResidual() - should never be called\n";
@@ -504,7 +487,7 @@ StaticDomainDecompositionAnalysis::getResidual(void)
 }
 
 const Vector &
-StaticDomainDecompositionAnalysis::getTangVectProduct(void)
+StaticDomainDecompositionAnalysis::getTangVectProduct()
 {
   static Vector errVector;
   opserr << "StaticDomainDecompositionAnalysis::getTangVectProduct() - should never be called\n";

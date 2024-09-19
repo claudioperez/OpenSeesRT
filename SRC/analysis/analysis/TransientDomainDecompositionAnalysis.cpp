@@ -55,28 +55,28 @@
 
 TransientDomainDecompositionAnalysis::TransientDomainDecompositionAnalysis(Subdomain &the_Domain)
   :DomainDecompositionAnalysis(ANALYSIS_TAGS_TransientDomainDecompositionAnalysis, the_Domain), 
-   theConstraintHandler(0),
-   theDOF_Numberer(0), 
-   theAnalysisModel(0), 
-   theAlgorithm(0), 
-   theSOE(0),
-   theEigenSOE(0),
-   theIntegrator(0), 
-   theTest(0),
+   theConstraintHandler(nullptr),
+   theDOF_Numberer(nullptr), 
+   theAnalysisModel(nullptr), 
+   theAlgorithm(nullptr), 
+   theSOE(nullptr),
+   theEigenSOE(nullptr),
+   theIntegrator(nullptr), 
+   theTest(nullptr),
    domainStamp(0)
 {
 
 }    
 
 TransientDomainDecompositionAnalysis::TransientDomainDecompositionAnalysis(Subdomain &the_Domain,
-									   ConstraintHandler &theHandler,
-									   DOF_Numberer &theNumberer,
-									   AnalysisModel &theModel,
-									   EquiSolnAlgo &theSolnAlgo,		   
-									   LinearSOE &theLinSOE,
-									   TransientIntegrator &theTransientIntegrator,
-									   ConvergenceTest *theConvergenceTest,
-									   bool setLinks)
+                                                                           ConstraintHandler &theHandler,
+                                                                           DOF_Numberer &theNumberer,
+                                                                           AnalysisModel &theModel,
+                                                                           EquiSolnAlgo &theSolnAlgo,                   
+                                                                           LinearSOE &theLinSOE,
+                                                                           TransientIntegrator &theTransientIntegrator,
+                                                                           ConvergenceTest *theConvergenceTest,
+                                                                           bool setLinks)
   :DomainDecompositionAnalysis(ANALYSIS_TAGS_TransientDomainDecompositionAnalysis, the_Domain), 
    theConstraintHandler(&theHandler),
    theDOF_Numberer(&theNumberer), 
@@ -110,7 +110,7 @@ TransientDomainDecompositionAnalysis::~TransientDomainDecompositionAnalysis()
 }    
 
 void
-TransientDomainDecompositionAnalysis::clearAll(void)
+TransientDomainDecompositionAnalysis::clearAll()
 {
   // invoke the destructor on all the objects in the aggregation
   if (theAnalysisModel != 0)     
@@ -131,19 +131,19 @@ TransientDomainDecompositionAnalysis::clearAll(void)
     delete theTest;
   
   // now set the pointers to NULL
-  theAnalysisModel =0;
-  theConstraintHandler =0;
-  theDOF_Numberer =0;
-  theIntegrator =0;
-  theAlgorithm =0;
-  theSOE =0;
-  theEigenSOE =0;
-  theTest = 0;
+  theAnalysisModel =nullptr;
+  theConstraintHandler =nullptr;
+  theDOF_Numberer =nullptr;
+  theIntegrator =nullptr;
+  theAlgorithm =nullptr;
+  theSOE =nullptr;
+  theEigenSOE =nullptr;
+  theTest = nullptr;
 }    
 
 
 bool 
-TransientDomainDecompositionAnalysis::doesIndependentAnalysis(void)
+TransientDomainDecompositionAnalysis::doesIndependentAnalysis()
 {
   return true;
 }
@@ -168,7 +168,7 @@ TransientDomainDecompositionAnalysis::analyze(double dT)
     if (result < 0) {
       opserr << "TransientDomainDecompositionAnalysis::analyze() - domainChanged failed";
       return -1;
-    }	
+    }        
   }
   // opserr << "TransientDomainDecomp - newStep\n";
   // result = theAnalysisModel->newStepDomain();
@@ -201,7 +201,7 @@ TransientDomainDecompositionAnalysis::analyze(double dT)
     opserr << "TransientDomainDecompositionAnalysis::analyze() - the Algorithm failed";
     opserr << " with domain at load factor ";
     opserr << the_Domain->getCurrentTime() << endln;
-    the_Domain->revertToLastCommit();	    
+    the_Domain->revertToLastCommit();            
     theIntegrator->revertToLastStep();
     
     return -3;
@@ -213,11 +213,11 @@ TransientDomainDecompositionAnalysis::analyze(double dT)
     opserr << "the Integrator failed to commit";
     opserr << " with domain at load factor ";
     opserr << the_Domain->getCurrentTime() << endln;
-    the_Domain->revertToLastCommit();	    
+    the_Domain->revertToLastCommit();            
     theIntegrator->revertToLastStep();
     
     return -4;
-  }    	
+  }            
 
   return 0;
 }
@@ -226,37 +226,37 @@ TransientDomainDecompositionAnalysis::analyze(double dT)
 int 
 TransientDomainDecompositionAnalysis::eigen(int numMode, bool generalized, bool findSmallest)
 {
-  int result = 0;
-  Domain *the_Domain = this->getDomainPtr();
+    int result = 0;
+    Domain *the_Domain = this->getDomainPtr();
 
 
-  if (theEigenSOE == 0) {
-    opserr << "TransientDomainDecompositionAnalysis::eigen() - no eigen solver has been set\n";
-    return -1;
-  }
-
-  // check for change in Domain since last step. As a change can
-
-
-  // occur in a commit() in a domaindecomp with load balancing
-  // this must now be inside the loop
-  int stamp = the_Domain->hasDomainChanged();
-
-  if (stamp != domainStamp) {
-    domainStamp = stamp;
-    result = this->domainChanged();
-    if (result < 0) {
-      opserr << "TransientDomainDecompositionAnalysis::eigen() - domainChanged failed";
+    if (theEigenSOE == 0) {
+      opserr << "TransientDomainDecompositionAnalysis::eigen() - no eigen solver has been set\n";
       return -1;
-    }	
-  }
+    }
+
+    // check for change in Domain since last step. As a change can
+
+
+    // occur in a commit() in a domaindecomp with load balancing
+    // this must now be inside the loop
+    int stamp = the_Domain->hasDomainChanged();
+
+    if (stamp != domainStamp) {
+      domainStamp = stamp;
+      result = this->domainChanged();
+      if (result < 0) {
+        opserr << "TransientDomainDecompositionAnalysis::eigen() - domainChanged failed";
+        return -1;
+      }        
+    }
 
     //
     // zero A and M
     //
 
-  theEigenSOE->zeroA();
-  theEigenSOE->zeroM();
+    theEigenSOE->zeroA();
+    theEigenSOE->zeroM();
 
     //
     // form K
@@ -269,9 +269,9 @@ TransientDomainDecompositionAnalysis::eigen(int numMode, bool generalized, bool 
       elePtr->zeroTangent();
       elePtr->addKtToTang(1.0);
       if (theEigenSOE->addA(elePtr->getTangent(0), elePtr->getID()) < 0) {
-	opserr << "WARNING TransientDomainDecomposition::eigen() -";
-	opserr << " failed in addA for ID " << elePtr->getID();	    
-	result = -2;
+        opserr << "WARNING TransientDomainDecomposition::eigen() -";
+        opserr << " failed in addA for ID " << elePtr->getID();            
+        result = -2;
       }
     }
 
@@ -282,25 +282,25 @@ TransientDomainDecompositionAnalysis::eigen(int numMode, bool generalized, bool 
     if (generalized == true) {
       FE_EleIter &theEles2 = theAnalysisModel->getFEs();    
       while((elePtr = theEles2()) != 0) {     
-	elePtr->zeroTangent();
-	elePtr->addMtoTang(1.0);
-	if (theEigenSOE->addM(elePtr->getTangent(0), elePtr->getID()) < 0) {
-	  opserr << "WARNING TransientDomainDecomposition::eigen() -";
-	  opserr << " failed in addA for ID " << elePtr->getID();	    
-	  result = -2;
-	}
+        elePtr->zeroTangent();
+        elePtr->addMtoTang(1.0);
+        if (theEigenSOE->addM(elePtr->getTangent(0), elePtr->getID()) < 0) {
+          opserr << "WARNING TransientDomainDecomposition::eigen() -";
+          opserr << " failed in addA for ID " << elePtr->getID();            
+          result = -2;
+        }
       }
       
       DOF_Group *dofPtr;
       DOF_GrpIter &theDofs = theAnalysisModel->getDOFs();    
       while((dofPtr = theDofs()) != 0) {
-	dofPtr->zeroTangent();
-	dofPtr->addMtoTang(1.0);
-	if (theEigenSOE->addM(dofPtr->getTangent(0),dofPtr->getID()) < 0) {
-	  opserr << "WARNING TransientDomainDecomposition::eigen() -";
-	  opserr << " failed in addM for ID " << dofPtr->getID();	    
-	  result = -3;
-	}
+        dofPtr->zeroTangent();
+        dofPtr->addMtoTang(1.0);
+        if (theEigenSOE->addM(dofPtr->getTangent(0),dofPtr->getID()) < 0) {
+          opserr << "WARNING TransientDomainDecomposition::eigen() -";
+          opserr << " failed in addM for ID " << dofPtr->getID();            
+          result = -3;
+        }
       }
     }
     
@@ -308,8 +308,8 @@ TransientDomainDecompositionAnalysis::eigen(int numMode, bool generalized, bool 
     // solve for the eigen values & vectors
     //
     if (theEigenSOE->solve(numMode, generalized, findSmallest) < 0) {
-	opserr << "WARNING TransientDomainDecomposition::eigen() - EigenSOE failed in solve()\n";
-	return -4;
+        opserr << "WARNING TransientDomainDecomposition::eigen() - EigenSOE failed in solve()\n";
+        return -4;
     }
 
     //
@@ -329,22 +329,22 @@ TransientDomainDecompositionAnalysis::eigen(int numMode, bool generalized, bool 
 
 
 int 
-TransientDomainDecompositionAnalysis::initialize(void)
+TransientDomainDecompositionAnalysis::initialize()
 {
     Domain *the_Domain = this->getDomainPtr();
     
     // check if domain has undergone change
     int stamp = the_Domain->hasDomainChanged();
     if (stamp != domainStamp) {
-      domainStamp = stamp;	
+      domainStamp = stamp;        
       if (this->domainChanged() < 0) {
-	opserr << "DirectIntegrationAnalysis::initialize() - domainChanged() failed\n";
-	return -1;
-      }	
+        opserr << "DirectIntegrationAnalysis::initialize() - domainChanged() failed\n";
+        return -1;
+      }        
     }
     if (theIntegrator->initialize() < 0) {
-	opserr << "DirectIntegrationAnalysis::initialize() - integrator initialize() failed\n";
-	return -2;
+        opserr << "DirectIntegrationAnalysis::initialize() - integrator initialize() failed\n";
+        return -2;
     } else
       theIntegrator->commit();
     
@@ -352,7 +352,7 @@ TransientDomainDecompositionAnalysis::initialize(void)
 }
 
 int
-TransientDomainDecompositionAnalysis::domainChanged(void)
+TransientDomainDecompositionAnalysis::domainChanged()
 {
   int result = 0;
   theAnalysisModel->clearAll();    
@@ -366,7 +366,7 @@ TransientDomainDecompositionAnalysis::domainChanged(void)
     opserr << "TransientDomainDecompositionAnalysis::handle() - ";
     opserr << "ConstraintHandler::handle() failed";
     return -1;
-  }	
+  }        
 
   // we now invoke number() on the numberer which causes
   // equation numbers to be assigned to all the DOFs in the
@@ -376,7 +376,7 @@ TransientDomainDecompositionAnalysis::domainChanged(void)
     opserr << "TransientDomainDecompositionAnalysis::handle() - ";
     opserr << "DOF_Numberer::numberDOF() failed";
     return -2;
-  }	    
+  }            
 
   result = theConstraintHandler->doneNumberingDOF();
   
@@ -388,7 +388,7 @@ TransientDomainDecompositionAnalysis::domainChanged(void)
     opserr << "TransientDomainDecompositionAnalysis::handle() - ";
     opserr << "LinearSOE::setSize() failed";
     return -3;
-  }	    
+  }            
 
   if (theEigenSOE != 0) {
     result = theEigenSOE->setSize(theGraph);
@@ -396,7 +396,7 @@ TransientDomainDecompositionAnalysis::domainChanged(void)
       opserr << "TransientDomainDecompositionAnalysis::handle() - ";
       opserr << "EigenSOE::setSize() failed";
       return -3;
-    }	    
+    }            
   }
 
   theAnalysisModel->clearDOFGraph();
@@ -409,14 +409,14 @@ TransientDomainDecompositionAnalysis::domainChanged(void)
     opserr << "TransientDomainDecompositionAnalysis::setAlgorithm() - ";
     opserr << "Integrator::domainChanged() failed";
     return -4;
-  }	    
+  }            
   
 //  result = theAlgorithm->domainChanged();
 //  if (result < 0) {
 //    opserr << "TransientDomainDecompositionAnalysis::setAlgorithm() - ";
 //    opserr << "Algorithm::domainChanged() failed";
 //    return -5;
-//  }	        
+//  }                
 
   // if get here successful
   return 0;
@@ -424,13 +424,13 @@ TransientDomainDecompositionAnalysis::domainChanged(void)
 
 
 int  
-TransientDomainDecompositionAnalysis::getNumExternalEqn(void)
+TransientDomainDecompositionAnalysis::getNumExternalEqn()
 {
   opserr << "TransientDomainDecompositionAnalysis::getNumExternalEqn() - should never be called\n";
   return 0;
 }
 int  
-TransientDomainDecompositionAnalysis::getNumInternalEqn(void)
+TransientDomainDecompositionAnalysis::getNumInternalEqn()
 {
   opserr << "TransientDomainDecompositionAnalysis::getNumInternalEqn() - should never be called\n";
   return 0;
@@ -452,32 +452,15 @@ TransientDomainDecompositionAnalysis::eigenAnalysis(int numMode, bool generalize
 
 
 int  
-TransientDomainDecompositionAnalysis::computeInternalResponse(void)
+TransientDomainDecompositionAnalysis::computeInternalResponse()
 {
   opserr << "TransientDomainDecompositionAnalysis::computeInternalResponse() - should never be called\n";
   return 0;
 }
-int  
-TransientDomainDecompositionAnalysis::formTangent(void)
-{
-  opserr << "TransientDomainDecompositionAnalysis::formTangent() - should never be called\n";
-  return 0;
-}
-int  
-TransientDomainDecompositionAnalysis::formResidual(void)
-{
-  opserr << "TransientDomainDecompositionAnalysis::formResidual() - should never be called\n";
-  return 0;
-}
-int  
-TransientDomainDecompositionAnalysis::formTangVectProduct(Vector &force)
-{
-  opserr << "TransientDomainDecompositionAnalysis::formTangVectProduct() - should never be called\n";
-  return 0;
-}
+
 
 const Matrix &
-TransientDomainDecompositionAnalysis::getTangent(void)
+TransientDomainDecompositionAnalysis::getTangent()
 {
   static Matrix errMatrix;
   opserr << "TransientDomainDecompositionAnalysis::getTangent() - should never be called\n";
@@ -485,7 +468,7 @@ TransientDomainDecompositionAnalysis::getTangent(void)
 }
 
 const Vector &
-TransientDomainDecompositionAnalysis::getResidual(void)
+TransientDomainDecompositionAnalysis::getResidual()
 {
   static Vector errVector;
   opserr << "TransientDomainDecompositionAnalysis::getResidual() - should never be called\n";
@@ -493,7 +476,7 @@ TransientDomainDecompositionAnalysis::getResidual(void)
 }
 
 const Vector &
-TransientDomainDecompositionAnalysis::getTangVectProduct(void)
+TransientDomainDecompositionAnalysis::getTangVectProduct()
 {
   static Vector errVector;
   opserr << "TransientDomainDecompositionAnalysis::getTangVectProduct() - should never be called\n";
@@ -579,7 +562,7 @@ TransientDomainDecompositionAnalysis::sendSelf(int commitTag, Channel &theChanne
 }
 int 
 TransientDomainDecompositionAnalysis::recvSelf(int commitTag, Channel &theChannel, 
-					    FEM_ObjectBroker &theBroker)
+                                            FEM_ObjectBroker &theBroker)
 {
 
   myChannel = &theChannel;
@@ -690,9 +673,9 @@ TransientDomainDecompositionAnalysis::recvSelf(int commitTag, Channel &theChanne
     if (data(7) != -1) {
       theTest = theBroker.getNewConvergenceTest(data(7));
       if (theTest == 0) {
-	opserr << "TransientDomainDecompositionAnalysis::recvSelf";
-	opserr << " - failed to get the ConvergenceTest\n";
-	return -1;
+        opserr << "TransientDomainDecompositionAnalysis::recvSelf";
+        opserr << " - failed to get the ConvergenceTest\n";
+        return -1;
       }
     }
   }
@@ -738,7 +721,7 @@ int
 TransientDomainDecompositionAnalysis::setIntegrator(IncrementalIntegrator &theNewIntegrator) 
 {
   // invoke the destructor on the old one
-  if (theIntegrator != 0) {
+  if (theIntegrator != nullptr) {
     delete theIntegrator;
   }
   
@@ -755,6 +738,7 @@ TransientDomainDecompositionAnalysis::setIntegrator(IncrementalIntegrator &theNe
 
   // cause domainChanged to be invoked on next analyze
   domainStamp = 0;
+
   /*
   if (domainStamp != 0)
     theIntegrator->domainChanged();
@@ -767,8 +751,8 @@ int
 TransientDomainDecompositionAnalysis::setLinearSOE(LinearSOE &theNewSOE)
 {
     // invoke the destructor on the old one
-    if (theSOE != 0)
-	delete theSOE;
+    if (theSOE != nullptr)
+      delete theSOE;
 
     // set the links needed by the other objects in the aggregation
     theSOE = &theNewSOE;

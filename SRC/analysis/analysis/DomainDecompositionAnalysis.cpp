@@ -18,20 +18,17 @@
 **                                                                    **
 ** ****************************************************************** */
 //
+// Description: This file contains the class definition for 
+// DomainDecompositionAnalysis. DomainDecompositionAnalysis is a subclass 
+// of AnalysisAnalysis, it is used to perform the static condensation process
+// on a subdomain.
+//
 // File: ~/analysis/Analysis/DomainDecompositionAnalysis.C
 // 
 // Written: fmk 
 // Created: Tue Sept 17 16:34:47: 1996
 // Revision: A
 //
-// Description: This file contains the class definition for 
-// DomainDecompositionAnalysis. DomainDecompositionAnalysis is a subclass 
-// of AnalysisAnalysis, it is used to perform the static condensation process
-// on a subdomain.
-//
-// What: "@(#) DomainDecompositionAnalysis.C, revA"
-
-
 #include <DomainDecompositionAnalysis.h>
 #include <ConstraintHandler.h>
 #include <DOF_Numberer.h>
@@ -58,13 +55,13 @@ DomainDecompositionAnalysis::DomainDecompositionAnalysis(Subdomain &the_Domain)
 :Analysis(the_Domain),
  MovableObject(DomDecompANALYSIS_TAGS_DomainDecompositionAnalysis),
  theSubdomain(&the_Domain),
- theHandler(0),
- theNumberer(0),
- theModel(0),
- theAlgorithm(0),
- theIntegrator(0),
- theSOE(0),
- theSolver(0),
+ theHandler(nullptr),
+ theNumberer(nullptr),
+ theModel(nullptr),
+ theAlgorithm(nullptr),
+ theIntegrator(nullptr),
+ theSOE(nullptr),
+ theSolver(nullptr),
  theResidual(0),numEqn(0),numExtEqn(0),tangFormed(false),tangFormedCount(0),
  domainStamp(0),
  myChannel(0)
@@ -74,7 +71,7 @@ DomainDecompositionAnalysis::DomainDecompositionAnalysis(Subdomain &the_Domain)
 
 
 DomainDecompositionAnalysis::DomainDecompositionAnalysis(int clsTag,
-							 Subdomain &the_Domain)
+                                                         Subdomain &the_Domain)
 :Analysis(the_Domain),
  MovableObject(clsTag),
  theSubdomain(&the_Domain),
@@ -93,14 +90,14 @@ DomainDecompositionAnalysis::DomainDecompositionAnalysis(int clsTag,
 }
 
 DomainDecompositionAnalysis::DomainDecompositionAnalysis(Subdomain &the_Domain,
-							 ConstraintHandler &handler,
-							 DOF_Numberer &numberer,
-							 AnalysisModel &model,
-							 DomainDecompAlgo &theSolnAlgo,
-							 IncrementalIntegrator &integrator,
-							 LinearSOE &theLinSOE,
-							 DomainSolver &theDDSolver,
-							 ConvergenceTest *theTest)
+                                                         ConstraintHandler &handler,
+                                                         DOF_Numberer &numberer,
+                                                         AnalysisModel &model,
+                                                         DomainDecompAlgo &theSolnAlgo,
+                                                         IncrementalIntegrator &integrator,
+                                                         LinearSOE &theLinSOE,
+                                                         DomainSolver &theDDSolver,
+                                                         ConvergenceTest *theTest)
 
 
 :Analysis(the_Domain),
@@ -120,7 +117,7 @@ DomainDecompositionAnalysis::DomainDecompositionAnalysis(Subdomain &the_Domain,
     theNumberer->setLinks(*theModel);
     theIntegrator->setLinks(*theModel,*theSOE, theTest);
     theAlgorithm->setLinks(*theModel,*theIntegrator,*theSOE,
-			   *theSolver,*theSubdomain);
+                           *theSolver,*theSubdomain);
 
     theSubdomain->setDomainDecompAnalysis(*this);
 }    
@@ -133,7 +130,7 @@ DomainDecompositionAnalysis::~DomainDecompositionAnalysis()
 }    
 
 void
-DomainDecompositionAnalysis::clearAll(void)
+DomainDecompositionAnalysis::clearAll()
 {
     // invoke the destructor on all the objects in the aggregation
   if (theModel != 0)
@@ -165,20 +162,20 @@ DomainDecompositionAnalysis::analyze(double dT)
 }
 
 int 
-DomainDecompositionAnalysis::initialize(void)
+DomainDecompositionAnalysis::initialize()
 {
     return 0;
 }
 
 
 bool
-DomainDecompositionAnalysis::doesIndependentAnalysis(void)
+DomainDecompositionAnalysis::doesIndependentAnalysis()
 {
     return false;
 }
 
 int
-DomainDecompositionAnalysis::domainChanged(void)
+DomainDecompositionAnalysis::domainChanged()
 {
     // remove existing FE_elements and DOF_Groups from the Analysis
     theModel->clearAll();
@@ -202,19 +199,19 @@ DomainDecompositionAnalysis::domainChanged(void)
     // create an ID containing the tags of the DOF_Groups that are to
     // be numbered last
     for (int i=0; i<idSize; i++) {
-	int nodeTag = theExtNodes(i);
-	Node *nodePtr = theSubdomain->getNode(nodeTag);
-	DOF_Group *dofGrpPtr = nodePtr->getDOF_GroupPtr();
-	if (dofGrpPtr != 0) {
-	    const ID theID = dofGrpPtr->getID();
-	    int size = theID.Size();
-	    for (int j=0; j<size; j++)
-		if (theID(j) == -3) {
-		    theLastDOFs[cnt]  = dofGrpPtr->getTag();
-		    cnt++;
-		    j = size;
-		}
-	}
+        int nodeTag = theExtNodes(i);
+        Node *nodePtr = theSubdomain->getNode(nodeTag);
+        DOF_Group *dofGrpPtr = nodePtr->getDOF_GroupPtr();
+        if (dofGrpPtr != 0) {
+            const ID theID = dofGrpPtr->getID();
+            int size = theID.Size();
+            for (int j=0; j<size; j++)
+                if (theID(j) == -3) {
+                    theLastDOFs[cnt]  = dofGrpPtr->getTag();
+                    cnt++;
+                    j = size;
+                }
+        }
     }
 
     // we now invoke number() on the numberer which causes
@@ -225,19 +222,19 @@ DomainDecompositionAnalysis::domainChanged(void)
 
     /*************************
     for (int i=0; i<idSize; i++) {
-	int nodeTag = theExtNodes(i);
-	Node *nodePtr = theSubdomain->getNode(nodeTag);
-	DOF_Group *dofPtr = nodePtr->getDOF_GroupPtr();
-	if (dofPtr != 0) {
-	    const ID theID = dofPtr->getID();
-	    int size = theID.Size();
-	    for (int j=0; j<size; j++)
-		if (theID(j) == -3) {
-		    theLastDOF = dofPtr->getTag();
-	            i = idSize;
+        int nodeTag = theExtNodes(i);
+        Node *nodePtr = theSubdomain->getNode(nodeTag);
+        DOF_Group *dofPtr = nodePtr->getDOF_GroupPtr();
+        if (dofPtr != 0) {
+            const ID theID = dofPtr->getID();
+            int size = theID.Size();
+            for (int j=0; j<size; j++)
+                if (theID(j) == -3) {
+                    theLastDOF = dofPtr->getTag();
+                    i = idSize;
                     j=size;
-		}
-	}
+                }
+        }
     }
     theNumberer->numberDOF(theLastDOF);
     **********************/
@@ -264,13 +261,13 @@ DomainDecompositionAnalysis::domainChanged(void)
 
 
 int
-DomainDecompositionAnalysis::getNumExternalEqn(void)
+DomainDecompositionAnalysis::getNumExternalEqn()
 {
     return numExtEqn;
 }
 
 int
-DomainDecompositionAnalysis::getNumInternalEqn(void)
+DomainDecompositionAnalysis::getNumInternalEqn()
 {
   return numEqn-numExtEqn;
 }
@@ -304,14 +301,14 @@ DomainDecompositionAnalysis::setEigenSOE(EigenSOE &theSOE)
 }
 
 int  
-DomainDecompositionAnalysis::computeInternalResponse(void)
+DomainDecompositionAnalysis::computeInternalResponse()
 {
   return theAlgorithm->solveCurrentStep();
 }
 
 
 int  
-DomainDecompositionAnalysis::formTangent(void)
+DomainDecompositionAnalysis::formTangent()
 {
     int result =0;
 
@@ -320,8 +317,8 @@ DomainDecompositionAnalysis::formTangent(void)
     // we check to see if the domain has changed 
     int stamp = the_Domain->hasDomainChanged();
     if (stamp != domainStamp) {
-	domainStamp = stamp;
-	this->domainChanged();
+        domainStamp = stamp;
+        this->domainChanged();
     }
     
     // if tangFormed == -1 then formTangent has already been
@@ -329,14 +326,14 @@ DomainDecompositionAnalysis::formTangent(void)
     // so we won't be doing it again.
 
     if (tangFormedCount != -1) {
-	result = theIntegrator->formTangent();
-	if (result < 0)
-	    return result;
-	result = theSolver->condenseA(numEqn-numExtEqn);
-	if (result < 0)
-	    return result;
+        result = theIntegrator->formTangent();
+        if (result < 0)
+            return result;
+        result = theSolver->condenseA(numEqn-numExtEqn);
+        if (result < 0)
+            return result;
     }
-	
+        
     tangFormed = true;
     tangFormedCount++;
     
@@ -346,7 +343,7 @@ DomainDecompositionAnalysis::formTangent(void)
 
 
 int  
-DomainDecompositionAnalysis::formResidual(void)
+DomainDecompositionAnalysis::formResidual()
 {
     int result =0;
     Domain *the_Domain = this->getDomainPtr();    
@@ -354,22 +351,23 @@ DomainDecompositionAnalysis::formResidual(void)
     // we check to see if the domain has changed 
     int stamp = the_Domain->hasDomainChanged();
     if (stamp != domainStamp) {
-	domainStamp = stamp;
-	this->domainChanged();
+        domainStamp = stamp;
+        this->domainChanged();
     }
     
     if (tangFormed == false) {
-	result = this->formTangent();
-	if (result < 0)
-	    return result;
-	tangFormedCount = -1; // set to minus number so tangent 
-	                      // is not formed twice at same state
+        result = this->formTangent();
+        if (result < 0)
+            return result;
+        tangFormedCount = -1; // set to minus number so tangent 
+                              // is not formed twice at same state
     }
 
     result = theIntegrator->formUnbalance();
 
     if (result < 0)
-	return result;
+        return result;
+
     return theSolver->condenseRHS(numEqn-numExtEqn);
 }
 
@@ -385,16 +383,16 @@ DomainDecompositionAnalysis::formTangVectProduct(Vector &u)
     // we check to see if the domain has changed 
     int stamp = the_Domain->hasDomainChanged();
     if (stamp != domainStamp) {
-	domainStamp = stamp;
-	this->domainChanged();
+        domainStamp = stamp;
+        this->domainChanged();
     }
     
     if (tangFormed == false) {
-	result = this->formTangent();
-	if (result < 0)
-	    return result;
-	tangFormedCount = -1; // set to minus number so tangent 
-	                      // is not formed twice at same state
+        result = this->formTangent();
+        if (result < 0)
+            return result;
+        tangFormedCount = -1; // set to minus number so tangent 
+                              // is not formed twice at same state
     }    
 
     return theSolver->computeCondensedMatVect(numEqn-numExtEqn,u);
@@ -410,12 +408,12 @@ DomainDecompositionAnalysis::getTangent()
     // we check to see if the domain has changed 
     int stamp = the_Domain->hasDomainChanged();
     if (stamp != domainStamp) {
-	domainStamp = stamp;
-	this->domainChanged();
+        domainStamp = stamp;
+        this->domainChanged();
     }
 
     if (tangFormed == false) {
-	this->formTangent();
+        this->formTangent();
     }
     
     return (theSolver->getCondensedA());
@@ -433,22 +431,22 @@ DomainDecompositionAnalysis::getResidual()
     // we check to see if the domain has changed 
     int stamp = the_Domain->hasDomainChanged();
     if (stamp != domainStamp) {
-	domainStamp = stamp;
-	this->domainChanged();
-	this->formResidual();	
+        domainStamp = stamp;
+        this->domainChanged();
+        this->formResidual();        
     }
     
     if (theResidual == 0) {
-	theResidual = new Vector(theSolver->getCondensedRHS());
-	return *theResidual;	
+        theResidual = new Vector(theSolver->getCondensedRHS());
+        return *theResidual;        
     }
     else if (theResidual->Size() != numExtEqn) {
-	delete theResidual;
-	theResidual = new Vector(theSolver->getCondensedRHS());
-	return *theResidual;		    
+        delete theResidual;
+        theResidual = new Vector(theSolver->getCondensedRHS());
+        return *theResidual;                    
     }
     else {
-	(*theResidual) = theSolver->getCondensedRHS();
+        (*theResidual) = theSolver->getCondensedRHS();
     }
 
     return *theResidual;
@@ -465,8 +463,8 @@ DomainDecompositionAnalysis::getTangVectProduct()
     // we check to see if the domain has changed 
     int stamp = the_Domain->hasDomainChanged();
     if (stamp != domainStamp) {
-	domainStamp = stamp;
-	this->domainChanged();
+        domainStamp = stamp;
+        this->domainChanged();
     }
     
     return theSolver->getCondensedMatVect();
@@ -477,7 +475,7 @@ DomainDecompositionAnalysis::getTangVectProduct()
 
 
 Subdomain  *
-DomainDecompositionAnalysis::getSubdomainPtr(void) const
+DomainDecompositionAnalysis::getSubdomainPtr() const
 {
     return theSubdomain;
 }
@@ -486,7 +484,7 @@ DomainDecompositionAnalysis::getSubdomainPtr(void) const
 
 
 ConstraintHandler *
-DomainDecompositionAnalysis::getConstraintHandlerPtr(void) const
+DomainDecompositionAnalysis::getConstraintHandlerPtr() const
 {
     return theHandler;
 }
@@ -494,7 +492,7 @@ DomainDecompositionAnalysis::getConstraintHandlerPtr(void) const
 
 
 DOF_Numberer *
-DomainDecompositionAnalysis::getDOF_NumbererPtr(void) const
+DomainDecompositionAnalysis::getDOF_NumbererPtr() const
 {
     return theNumberer;
 }
@@ -502,7 +500,7 @@ DomainDecompositionAnalysis::getDOF_NumbererPtr(void) const
 
 
 AnalysisModel  *
-DomainDecompositionAnalysis::getAnalysisModelPtr(void) const
+DomainDecompositionAnalysis::getAnalysisModelPtr() const
 {
     return theModel;
 }
@@ -510,7 +508,7 @@ DomainDecompositionAnalysis::getAnalysisModelPtr(void) const
 
 
 DomainDecompAlgo  *
-DomainDecompositionAnalysis::getDomainDecompAlgoPtr(void) const
+DomainDecompositionAnalysis::getDomainDecompAlgoPtr() const
 {
     return theAlgorithm;
 }
@@ -518,7 +516,7 @@ DomainDecompositionAnalysis::getDomainDecompAlgoPtr(void) const
 
 
 IncrementalIntegrator *
-DomainDecompositionAnalysis::getIncrementalIntegratorPtr(void) const
+DomainDecompositionAnalysis::getIncrementalIntegratorPtr() const
 {
     return theIntegrator;
 }
@@ -526,7 +524,7 @@ DomainDecompositionAnalysis::getIncrementalIntegratorPtr(void) const
 
 
 LinearSOE *
-DomainDecompositionAnalysis::getLinSOEPtr(void) const
+DomainDecompositionAnalysis::getLinSOEPtr() const
 {
     return theSOE;    
 }
@@ -534,7 +532,7 @@ DomainDecompositionAnalysis::getLinSOEPtr(void) const
 
 
 DomainSolver *
-DomainDecompositionAnalysis::getDomainSolverPtr(void) const
+DomainDecompositionAnalysis::getDomainSolverPtr() const
 {
     return theSolver;
 }
@@ -542,7 +540,7 @@ DomainDecompositionAnalysis::getDomainSolverPtr(void) const
 
 int 
 DomainDecompositionAnalysis::sendSelf(int commitTag,
-				      Channel &theChannel)
+                                      Channel &theChannel)
 {
     // determine the type of each object in the aggregation,
     // store it in an ID and send the info off.
@@ -580,8 +578,8 @@ DomainDecompositionAnalysis::sendSelf(int commitTag,
 
 int 
 DomainDecompositionAnalysis::recvSelf(int commitTag, 
-				      Channel &theChannel, 
-				      FEM_ObjectBroker &theBroker)
+                                      Channel &theChannel, 
+                                      FEM_ObjectBroker &theBroker)
 {
     // receive the data identifyng the objects in the aggregation
     ID data(14);
@@ -595,75 +593,75 @@ DomainDecompositionAnalysis::recvSelf(int commitTag,
 
     theHandler = theBroker.getNewConstraintHandler(data(0));
     if (theHandler != 0) {
-	theHandler->setDbTag(data(7));
-	theHandler->recvSelf(commitTag, theChannel,theBroker);
+        theHandler->setDbTag(data(7));
+        theHandler->recvSelf(commitTag, theChannel,theBroker);
     }
     else {
-	opserr << "DomainDecompositionAnalysis::recvSelf";
-	opserr << " - failed to get the ConstraintHandler\n";
-	return -1;
+        opserr << "DomainDecompositionAnalysis::recvSelf";
+        opserr << " - failed to get the ConstraintHandler\n";
+        return -1;
     }
 
 
 
     theNumberer = theBroker.getNewNumberer(data(1));
     if (theNumberer != 0) {
-	theNumberer->setDbTag(data(8));	
-	theNumberer->recvSelf(commitTag, theChannel,theBroker);
+        theNumberer->setDbTag(data(8));        
+        theNumberer->recvSelf(commitTag, theChannel,theBroker);
     }
     else {
-	opserr << "DomainDecompositionAnalysis::recvSelf";
-	opserr << " - failed to get the DOF Numberer\n";
-	return -1;
+        opserr << "DomainDecompositionAnalysis::recvSelf";
+        opserr << " - failed to get the DOF Numberer\n";
+        return -1;
     }    
 
 
     theModel = theBroker.getNewAnalysisModel(data(2));
     if (theModel != 0) {
-	theModel->setDbTag(data(9));
-	theModel->recvSelf(commitTag, theChannel,theBroker);
+        theModel->setDbTag(data(9));
+        theModel->recvSelf(commitTag, theChannel,theBroker);
     }
     else {
-	opserr << "DomainDecompositionAnalysis::recvSelf";
-	opserr << " - failed to get the AnalysisModel\n";
-	return -1;
+        opserr << "DomainDecompositionAnalysis::recvSelf";
+        opserr << " - failed to get the AnalysisModel\n";
+        return -1;
     }        
 
 
     theAlgorithm = theBroker.getNewDomainDecompAlgo(data(3));
     if (theAlgorithm != 0) {
-	theAlgorithm->setDbTag(data(10));
-	theAlgorithm->recvSelf(commitTag, theChannel,theBroker);
+        theAlgorithm->setDbTag(data(10));
+        theAlgorithm->recvSelf(commitTag, theChannel,theBroker);
     }
     else {
-	opserr << "DomainDecompositionAnalysis::recvSelf";
-	opserr << " - failed to get the Domain Decomp Algo\n";
-	return -1;
+        opserr << "DomainDecompositionAnalysis::recvSelf";
+        opserr << " - failed to get the Domain Decomp Algo\n";
+        return -1;
     }            
 
     theIntegrator = theBroker.getNewIncrementalIntegrator(data(4));
     if (theIntegrator != 0) {
-	theIntegrator->setDbTag(data(11));
-	theIntegrator->recvSelf(commitTag, theChannel,theBroker);
+        theIntegrator->setDbTag(data(11));
+        theIntegrator->recvSelf(commitTag, theChannel,theBroker);
     }
     else {
-	opserr << "DomainDecompositionAnalysis::recvSelf";
-	opserr << " - failed to get the IncrementalIntegrator\n";
-	return -1;
-    }        	
+        opserr << "DomainDecompositionAnalysis::recvSelf";
+        opserr << " - failed to get the IncrementalIntegrator\n";
+        return -1;
+    }                
 
     theSOE = theBroker.getPtrNewDDLinearSOE(data(5),data(6));
     theSolver = theBroker.getNewDomainSolver();
 
-    if (theSOE == 0 || theSolver == 0) {
-	opserr << "DomainDecompositionAnalysis::recvSelf";
-	opserr << " - failed to get the LinearSOE and the DomainSolver \n";
-	return -1;
+    if (theSOE == nullptr || theSolver == nullptr) {
+        opserr << "DomainDecompositionAnalysis::recvSelf";
+        opserr << " - failed to get the LinearSOE and the DomainSolver \n";
+        return -1;
     }  else {
-	theSOE->setDbTag(data(12));
-	theSolver->setDbTag(data(13));
-	theSOE->recvSelf(commitTag, theChannel,theBroker);
-	theSolver->recvSelf(commitTag, theChannel,theBroker);
+        theSOE->setDbTag(data(12));
+        theSolver->setDbTag(data(13));
+        theSOE->recvSelf(commitTag, theChannel,theBroker);
+        theSolver->recvSelf(commitTag, theChannel,theBroker);
     }
 
     // set the links in all the objects
@@ -673,7 +671,7 @@ DomainDecompositionAnalysis::recvSelf(int commitTag,
     theNumberer->setLinks(*theModel);
     theIntegrator->setLinks(*theModel,*theSOE, theTest);
     theAlgorithm->setLinks(*theModel,*theIntegrator,*theSOE,
-			   *theSolver,*theSubdomain);
+                           *theSolver,*theSubdomain);
 
     theSubdomain->setDomainDecompAnalysis(*this);
 
