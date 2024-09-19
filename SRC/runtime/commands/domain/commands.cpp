@@ -45,8 +45,6 @@
 #include <ElementStateParameter.h>
 #include <Pressure_Constraint.h>
 // Analysis
-#include <DirectIntegrationAnalysis.h>
-#include <VariableTimeStepDirectIntegrationAnalysis.h>
 #include <AnalysisModel.h>
 #include <EquiSolnAlgo.h>
 #include <Integrator.h>
@@ -64,8 +62,6 @@
 //
 class ModelBuilder;
 ModelBuilder          *theBuilder         = nullptr;
-VariableTimeStepDirectIntegrationAnalysis
-                      *theVariableTimeStepTransientAnalysis = nullptr;
 //
 // Forward declarations
 //
