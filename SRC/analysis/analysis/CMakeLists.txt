@@ -14,7 +14,7 @@ target_sources(OPS_Analysis
       ResponseSpectrumAnalysis.cpp
 #     StaticAnalysis.cpp 
       StaticDomainDecompositionAnalysis.cpp 
-      SubstructuringAnalysis.cpp    
+#     SubstructuringAnalysis.cpp    
 #     TransientAnalysis.cpp
       TransientDomainDecompositionAnalysis.cpp 
 #     VariableTimeStepDirectIntegrationAnalysis.cpp
@@ -27,7 +27,7 @@ target_sources(OPS_Analysis
       ResponseSpectrumAnalysis.h
 #     StaticAnalysis.h 
       StaticDomainDecompositionAnalysis.h 
-      SubstructuringAnalysis.h    
+#     SubstructuringAnalysis.h    
 #     TransientAnalysis.h
       TransientDomainDecompositionAnalysis.h 
 #     VariableTimeStepDirectIntegrationAnalysis.h
