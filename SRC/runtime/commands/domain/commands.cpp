@@ -175,6 +175,18 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "InitialStateAnalysis", &InitialStateAnalysis, nullptr, nullptr);
 
 
+  // sensitivity
+  Tcl_CreateCommand(interp, "computeGradients",      &computeGradients, (ClientData)domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensitivityAlgorithm",  &TclCommand_sensitivityAlgorithm, (ClientData)domain, (Tcl_CmdDeleteProc *)NULL);
+//Tcl_CreateCommand(interp, "sensitivityIntegrator", &sensitivityIntegrator, (ClientData)domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensNodeDisp",          &sensNodeDisp, (ClientData)domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensLambda",            &sensLambda, (ClientData)domain, (Tcl_CmdDeleteProc *)NULL); // Abbas
+  Tcl_CreateCommand(interp, "sensNodeVel",           &sensNodeVel, (ClientData)domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensNodeAccel",         &sensNodeAccel, (ClientData)domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensSectionForce",      &sensSectionForce, (ClientData)domain, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "sensNodePressure",      &sensNodePressure, (ClientData)domain, (Tcl_CmdDeleteProc *)NULL);
+
+
 //   TODO: cmp, moved definition to packages/optimization; need to link in optionally
 //   Tcl_CreateCommand(interp, "setParameter", &setParameter, nullptr, nullptr);
 

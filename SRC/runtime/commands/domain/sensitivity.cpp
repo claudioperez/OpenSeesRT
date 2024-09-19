@@ -48,13 +48,13 @@ sensNodeDisp(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Node *theNode = theDomain->getNode(tag);
-  if (theNode == 0) {
+  if (theNode == nullptr) {
     opserr << "sensNodeDisp: node " << tag << " not found" << endln;
     return TCL_ERROR;
   }
 
   Parameter *theParam = theDomain->getParameter(paramTag);
-  if (theParam == 0) {
+  if (theParam == nullptr) {
     opserr << "sensNodeDisp: parameter " << paramTag << " not found" << endln;
     return TCL_ERROR;
   }
@@ -108,7 +108,7 @@ sensNodeVel(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   Parameter *theParam = theDomain->getParameter(paramTag);
-  if (theParam == 0) {
+  if (theParam == nullptr) {
     opserr << "sensNodeVel: parameter " << paramTag << " not found" << endln;
     return TCL_ERROR;
   }
@@ -145,11 +145,13 @@ sensNodeAccel(ClientData clientData, Tcl_Interp *interp, int argc,
               "nodeTag? \n";
     return TCL_ERROR;
   }
+
   if (Tcl_GetInt(interp, argv[2], &dof) != TCL_OK) {
     opserr << "WARNING sensNodeAccel nodeTag? dof? paramTag? - could not read "
               "dof? \n";
     return TCL_ERROR;
   }
+
   if (Tcl_GetInt(interp, argv[3], &paramTag) != TCL_OK) {
     opserr << "WARNING sendNodeAccel nodeTag? dof? paramTag? - could not read "
               "paramTag? \n";
@@ -389,7 +391,4 @@ sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
 
   return TCL_OK;
 }
-
-
-
 
