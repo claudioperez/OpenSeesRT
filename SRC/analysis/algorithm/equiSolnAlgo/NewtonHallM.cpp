@@ -25,15 +25,14 @@
 
 #include <NewtonHallM.h>
 #include <AnalysisModel.h>
-#include <StaticAnalysis.h>
 #include <IncrementalIntegrator.h>
 #include <LinearSOE.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <ConvergenceTest.h>
 #include <ID.h>
+
 #include <elementAPI.h>
-#include <string>
 #include <math.h>
 
 void *
