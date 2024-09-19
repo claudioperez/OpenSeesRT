@@ -21,44 +21,45 @@
 **   Armen Der Kiureghian (adk@ce.berkeley.edu)                       **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.4 $
-// $Date: 2008-02-29 19:47:19 $
-// $Source: /usr/local/cvs/OpenSees/SRC/reliability/FEsensitivity/SensitivityIntegrator.h,v $
-
-
+//
 //
 // Written by Terje Haukaas (haukaas@ce.berkeley.edu)
 //
+// $Date: 2008-12-03 23:47:46 $
+//
+#ifndef SensitivityAlgorithm_h
+#define SensitivityAlgorithm_h
 
-#ifndef SensitivityIntegrator_h
-#define SensitivityIntegrator_h
-
-#include <AnalysisModel.h>
-#include <LinearSOE.h>
-#include <Vector.h>
-
-class SensitivityIntegrator
+class Domain;
+class ReliabilityDomain;
+class EquiSolnAlgo;
+class Integrator;
+//class SensitivityIntegrator;
+class SensitivityAlgorithm
 {
-public:
+ public:
 
-    SensitivityIntegrator();
-    virtual ~SensitivityIntegrator();
-    
-	virtual int formSensitivityRHS(int gradNum) = 0;
-	virtual int formIndependentSensitivityRHS() = 0;
-	virtual int saveSensitivity   (const Vector &v, int gradNum, int numGrads) = 0;
-    virtual int commitSensitivity (int gradNum, int numGrads) = 0;
-	///////S added by K Fujimura ////////////////
-	virtual int updateGradNumber(int passedGradNumber)=0;
-	virtual int sensitivityDomainChanged(int NumGrads)=0;
-	virtual bool staticSensitivity(void)=0;
-	virtual bool NewSensitivity(void)=0;
-	///////E added by K Fujimura ////////////////
-protected:
-    
-private:
-	AnalysisModel *theAnalysisModel;
+    SensitivityAlgorithm(Domain *passedDomain,
+               EquiSolnAlgo *passedAlgorithm,
+               Integrator *passedSensitivityIntegrator,
+                                     
+               int analysisTypeTag);
+
+  ~SensitivityAlgorithm();
+//  int computeSensitivities();
+//  bool shouldComputeAtEachStep();
+//  int sensitivityDomainChanged() {return 0;}
+  // This method needs to go -- MHS
+//  bool newAlgorithm() {return true;};
+  
+ protected:
+ //int gradNumber;//Abbas......... 
+ private:
+    Domain *theDomain;
+    ReliabilityDomain *theReliabilityDomain;
+    EquiSolnAlgo *theAlgorithm;
+    //  SensitivityIntegrator *theSensitivityIntegrator;
+    int analysisTypeTag; 
 };
 
 #endif

@@ -66,10 +66,10 @@ StaticSensitivityIntegrator::~StaticSensitivityIntegrator()
 int
 StaticSensitivityIntegrator::formEleResidual(FE_Element *theEle)
 {
-	theEle->zeroResidual();
-	theEle->addResistingForceSensitivity(gradNumber); 
+    theEle->zeroResidual();
+    theEle->addResistingForceSensitivity(gradNumber); 
 
-	return 0;
+    return 0;
 }
 
 
@@ -78,61 +78,61 @@ StaticSensitivityIntegrator::formEleResidual(FE_Element *theEle)
 int 
 StaticSensitivityIntegrator::formIndependentSensitivityRHS()
 {
-	// For now everything is done each time in the static case
-	return 0;
+    // For now everything is done each time in the static case
+    return 0;
 }
 
 
 int 
 StaticSensitivityIntegrator::formSensitivityRHS(int passedGradNumber)
 {
-	// Set a couple of data members
-	gradNumber = passedGradNumber;
+    // Set a couple of data members
+    gradNumber = passedGradNumber;
 
 
-	// Loop through elements
-	FE_Element *elePtr;
-	FE_EleIter &theEles = theAnalysisModel->getFEs();    
-	while((elePtr = theEles()) != 0) {
-		theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
-	}
+    // Loop through elements
+    FE_Element *elePtr;
+    FE_EleIter &theEles = theAnalysisModel->getFEs();    
+    while((elePtr = theEles()) != 0) {
+        theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
+    }
 
-	// Loop through the loadPatterns and add the dPext/dh contributions
-	static Vector oneDimVectorWithOne(1);
-	oneDimVectorWithOne(0) = 1.0;
-	static ID oneDimID(1);
+    // Loop through the loadPatterns and add the dPext/dh contributions
+    static Vector oneDimVectorWithOne(1);
+    oneDimVectorWithOne(0) = 1.0;
+    static ID oneDimID(1);
 
-	Node *aNode;
-	DOF_Group *aDofGroup;
-	int nodeNumber, dofNumber, relevantID, i, sizeRandomLoads, numRandomLoads;
-	LoadPattern *loadPatternPtr;
-	Domain *theDomain = theAnalysisModel->getDomainPtr();
-	LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
+    Node *aNode;
+    DOF_Group *aDofGroup;
+    int nodeNumber, dofNumber, relevantID, i, sizeRandomLoads, numRandomLoads;
+    LoadPattern *loadPatternPtr;
+    Domain *theDomain = theAnalysisModel->getDomainPtr();
+    LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
     while((loadPatternPtr = thePatterns()) != 0) {
-		const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(gradNumber);
-		sizeRandomLoads = randomLoads.Size();
-		if (sizeRandomLoads == 1) {
-			// No random loads in this load pattern
-		}
-		else {
-			// Random loads: add contributions to the 'B' vector
-			numRandomLoads = (int)(sizeRandomLoads/2);
-			for (i=0; i<numRandomLoads*2; i=i+2) {
-				nodeNumber = (int)randomLoads(i);
-				dofNumber = (int)randomLoads(i+1);
-				aNode = theDomain->getNode(nodeNumber);
-				aDofGroup = aNode->getDOF_GroupPtr();
-				const ID &anID = aDofGroup->getID();
-				relevantID = anID(dofNumber-1);
-				oneDimID(0) = relevantID;
-				theSOE->addB(oneDimVectorWithOne, oneDimID);
-			}
-		}
-	}
+        const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(gradNumber);
+        sizeRandomLoads = randomLoads.Size();
+        if (sizeRandomLoads == 1) {
+            // No random loads in this load pattern
+        }
+        else {
+            // Random loads: add contributions to the 'B' vector
+            numRandomLoads = (int)(sizeRandomLoads/2);
+            for (i=0; i<numRandomLoads*2; i=i+2) {
+                nodeNumber = (int)randomLoads(i);
+                dofNumber = (int)randomLoads(i+1);
+                aNode = theDomain->getNode(nodeNumber);
+                aDofGroup = aNode->getDOF_GroupPtr();
+                const ID &anID = aDofGroup->getID();
+                relevantID = anID(dofNumber-1);
+                oneDimID(0) = relevantID;
+                theSOE->addB(oneDimVectorWithOne, oneDimID);
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
-		
+        
 
 
 
@@ -140,7 +140,7 @@ int
 StaticSensitivityIntegrator::saveSensitivity(const Vector &v, int gradNum, int numGrads)
 {
   DOF_GrpIter &theDOFGrps = theAnalysisModel->getDOFs();
-  DOF_Group 	*dofPtr;
+  DOF_Group     *dofPtr;
   
   while ( (dofPtr = theDOFGrps() ) != 0)  {
     //dofPtr->saveSensitivity(vNewPtr,0,0,gradNum,numGrads);
@@ -155,14 +155,14 @@ StaticSensitivityIntegrator::saveSensitivity(const Vector &v, int gradNum, int n
 int 
 StaticSensitivityIntegrator::commitSensitivity(int gradNum, int numGrads)
 {
-	// Loop through the FE_Elements and set unconditional sensitivities
+    // Loop through the FE_Elements and set unconditional sensitivities
     FE_Element *elePtr;
     FE_EleIter &theEles = theAnalysisModel->getFEs();    
     while((elePtr = theEles()) != 0) {
-		elePtr->commitSensitivity(gradNum, numGrads);
-	}
+        elePtr->commitSensitivity(gradNum, numGrads);
+    }
 
-	return 0;
+    return 0;
 }
 
 
@@ -170,29 +170,29 @@ StaticSensitivityIntegrator::commitSensitivity(int gradNum, int numGrads)
 
 
 int 
-StaticSensitivityIntegrator::newStep(void)
+StaticSensitivityIntegrator::newStep()
 {
-	return 0;
+    return 0;
 }
 int 
 StaticSensitivityIntegrator::update(const Vector &deltaU)
 {
-	return 0;
+    return 0;
 }
 int 
 StaticSensitivityIntegrator::setDeltaLambda(double newDeltaLambda)
 {
-	return 0;
+    return 0;
 }
 int 
 StaticSensitivityIntegrator::sendSelf(int commitTag, Channel &theChannel)
 {
-	return 0;
+    return 0;
 }
 int 
 StaticSensitivityIntegrator::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
-	return 0;
+    return 0;
 }
 void 
 StaticSensitivityIntegrator::Print(OPS_Stream &s, int flag)  
@@ -203,30 +203,30 @@ StaticSensitivityIntegrator::Print(OPS_Stream &s, int flag)
 int 
 StaticSensitivityIntegrator::updateGradNumber(int passedGradNumber)
 {
-		opserr << "Fatal NewmarkSensitivityIntegrator::updateGradNumber";
-		opserr << "This function should not be called from this object\n";
-		opserr << "This function should be called from NewNewmarkSensitivityIntegrator\n";
-		return -1;
+        opserr << "Fatal NewmarkSensitivityIntegrator::updateGradNumber";
+        opserr << "This function should not be called from this object\n";
+        opserr << "This function should be called from NewNewmarkSensitivityIntegrator\n";
+        return -1;
 }
 int 
 StaticSensitivityIntegrator::sensitivityDomainChanged(int NumGrads)
 {
-		opserr << "Fatal NewmarkSensitivityIntegrator::updateGradNumber";
-		opserr << "This function should not be called from this object\n";
-		opserr << "This function should be called from NewNewmarkSensitivityIntegrator\n";
-		return -1;
+        opserr << "Fatal NewmarkSensitivityIntegrator::updateGradNumber";
+        opserr << "This function should not be called from this object\n";
+        opserr << "This function should be called from NewNewmarkSensitivityIntegrator\n";
+        return -1;
 }
 
 
 bool 
-StaticSensitivityIntegrator::staticSensitivity(void)
+StaticSensitivityIntegrator::staticSensitivity()
 {
-	return true;
+    return true;
 }
 bool 
-StaticSensitivityIntegrator::NewSensitivity(void)
+StaticSensitivityIntegrator::NewSensitivity()
 {
-	return false;
+    return false;
 }
 
 

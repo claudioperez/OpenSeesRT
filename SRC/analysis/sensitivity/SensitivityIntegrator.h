@@ -22,61 +22,43 @@
 **                                                                    **
 ** ****************************************************************** */
                                                                         
-// $Revision: 1.0 $
-// $Date: 2014-01-16 10:03:47 $
-// $Source: /usr/local/cvs/OpenSees/SRC/reliability/FEsensitivity/PFEMSensitivityIntegrator.h,v $
+// $Revision: 1.4 $
+// $Date: 2008-02-29 19:47:19 $
+// $Source: /usr/local/cvs/OpenSees/SRC/reliability/FEsensitivity/SensitivityIntegrator.h,v $
 
 
 //
-// Written by Minjie Zhu (Oregon State University)
+// Written by Terje Haukaas (haukaas@ce.berkeley.edu)
 //
 
-#ifndef PFEMSensitivityIntegrator_h
-#define PFEMSensitivityIntegrator_h
+#ifndef SensitivityIntegrator_h
+#define SensitivityIntegrator_h
 
-#include <PFEMIntegrator.h>
-#include <SensitivityIntegrator.h>
-class FE_Element;
-class DOF_Group;
-class Vector;
-class Information;
+#include <AnalysisModel.h>
+#include <LinearSOE.h>
+#include <Vector.h>
 
-
-class PFEMSensitivityIntegrator : public SensitivityIntegrator , public PFEMIntegrator
+class SensitivityIntegrator
 {
 public:
-    PFEMSensitivityIntegrator();
-    explicit PFEMSensitivityIntegrator(int assemblyFlag);
-    ~PFEMSensitivityIntegrator();
+
+    SensitivityIntegrator();
+    virtual ~SensitivityIntegrator();
     
-    int setParameter      (char **argv, int argc, Information &info);
-    int updateParameter   (int parameterID, Information &info);
-    int activateParameter (int parameterID);
-
-    int formEleResidual(FE_Element *theEle);
-    int formNodUnbalance(DOF_Group *theDof);
-
-    int formSensitivityRHS(int gradNum);
-    int formIndependentSensitivityRHS();
-    int saveSensitivity   (const Vector &v, int gradNum, int numGrads);
-    int commitSensitivity (int gradNum, int numGrads);  
-    /////S added by K Fujimura /////
-    int updateGradNumber(int passedGradNumber);
-    int sensitivityDomainChanged(int NumGrads);
-    bool staticSensitivity(void);
-    bool NewSensitivity(void);
-    /////E added by K Fujimura /////
-
+    virtual int formSensitivityRHS(int gradNum) = 0;
+    virtual int formIndependentSensitivityRHS() = 0;
+    virtual int saveSensitivity   (const Vector &v, int gradNum, int numGrads) = 0;
+    virtual int commitSensitivity (int gradNum, int numGrads) = 0;
+    ///////S added by K Fujimura ////////////////
+    virtual int updateGradNumber(int passedGradNumber)=0;
+    virtual int sensitivityDomainChanged(int NumGrads)=0;
+    virtual bool staticSensitivity()=0;
+    virtual bool NewSensitivity()=0;
+    ///////E added by K Fujimura ////////////////
 protected:
     
 private:
-
-    int parameterID;
-    int sensitivityFlag;
-    int gradNumber;
-    int assemblyFlag;
-    Vector independentRHS;
-    Vector dVn;
+    AnalysisModel *theAnalysisModel;
 };
 
 #endif

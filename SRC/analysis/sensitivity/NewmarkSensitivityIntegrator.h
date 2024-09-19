@@ -21,49 +21,62 @@
 **   Armen Der Kiureghian (adk@ce.berkeley.edu)                       **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2008-12-03 23:47:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/reliability/FEsensitivity/SensitivityAlgorithm.h,v $
-
-
 //
 // Written by Terje Haukaas (haukaas@ce.berkeley.edu)
 //
 
-#ifndef SensitivityAlgorithm_h
-#define SensitivityAlgorithm_h
+#ifndef NewmarkSensitivityIntegrator_h
+#define NewmarkSensitivityIntegrator_h
 
-class Domain;
-class ReliabilityDomain;
-class EquiSolnAlgo;
-class Integrator;
-//class SensitivityIntegrator;
-class SensitivityAlgorithm
+#include <Newmark.h>
+#include <SensitivityIntegrator.h>
+class FE_Element;
+class DOF_Group;
+class Vector;
+class Information;
+
+
+class NewmarkSensitivityIntegrator : public SensitivityIntegrator , public Newmark
 {
- public:
+  public:
+    NewmarkSensitivityIntegrator();
+    NewmarkSensitivityIntegrator(int assemblyFlag, double gamma, double beta, bool disp = true);
+    NewmarkSensitivityIntegrator(int assemblyFlag, double gamma, double beta, double alphaM, double betaKcurrent,
+        double betaKinit, double betaKlastCommit, bool disp = true);
+    ~NewmarkSensitivityIntegrator();
+    
+    int setParameter      (char **argv, int argc, Information &info);
+    int updateParameter   (int parameterID, Information &info);
+    int activateParameter (int parameterID);
 
-    SensitivityAlgorithm(Domain *passedDomain,
-		       EquiSolnAlgo *passedAlgorithm,
-		       Integrator *passedSensitivityIntegrator,
-                       		      
-		       int analysisTypeTag);
+    int formEleResidual(FE_Element *theEle);
+    int formNodUnbalance(DOF_Group *theDof);
 
-  ~SensitivityAlgorithm();
-//  int computeSensitivities(void);
-//  bool shouldComputeAtEachStep(void);
-//  int sensitivityDomainChanged(void) {return 0;}
-  // This method needs to go -- MHS
-//  bool newAlgorithm(void) {return true;};
-  
- protected:
- //int gradNumber;//Abbas......... 
- private:
-    Domain *theDomain;
-    ReliabilityDomain *theReliabilityDomain;
-    EquiSolnAlgo *theAlgorithm;
-    //  SensitivityIntegrator *theSensitivityIntegrator;
-    int analysisTypeTag; 
+    int formSensitivityRHS(int gradNum);
+    int formIndependentSensitivityRHS();
+    int saveSensitivity   (const Vector &v, int gradNum, int numGrads);
+    int commitSensitivity (int gradNum, int numGrads);  
+   /////S added by K Fujimura /////
+    int updateGradNumber(int passedGradNumber);
+    int sensitivityDomainChanged(int NumGrads);
+    bool staticSensitivity();
+    bool NewSensitivity();
+    /////E added by K Fujimura /////
+
+  protected:
+    
+  private:
+
+    int parameterID;
+    int sensitivityFlag;
+    int gradNumber;
+    Vector *massMatrixMultiplicator;
+    Vector *dampingMatrixMultiplicator;
+    int assemblyFlag;
+    Vector independentRHS;
+    double alphaM;
+    double betaK;
+
 };
 
 #endif

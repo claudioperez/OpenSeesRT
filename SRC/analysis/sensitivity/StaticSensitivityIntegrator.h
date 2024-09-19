@@ -39,40 +39,40 @@
 class AnalysisModel;
 
 class StaticSensitivityIntegrator : public SensitivityIntegrator,
-									public StaticIntegrator
+                                    public StaticIntegrator
 {
   public:
     StaticSensitivityIntegrator(AnalysisModel *theModel, LinearSOE *theLinSOE);
     ~StaticSensitivityIntegrator();
     
 
-	// Methods promised by the ordinary integrator
-    int newStep(void);    
+    // Methods promised by the ordinary integrator
+    int newStep();    
     int update(const Vector &deltaU);
     int setDeltaLambda(double newDeltaLambda);
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
     void Print(OPS_Stream &s, int flag =0);    
 
-	// Sensitivity related methods
-	int formEleResidual(FE_Element *theEle);
-	int formSensitivityRHS(int gradNum);
-	int formIndependentSensitivityRHS();
-	int saveSensitivity(const Vector &v, int gradNum, int numGrads);
-	int commitSensitivity(int gradNum, int numGrads);
+    // Sensitivity related methods
+    int formEleResidual(FE_Element *theEle);
+    int formSensitivityRHS(int gradNum);
+    int formIndependentSensitivityRHS();
+    int saveSensitivity(const Vector &v, int gradNum, int numGrads);
+    int commitSensitivity(int gradNum, int numGrads);
  /////S added by K Fujimura /////
-	int updateGradNumber(int passedGradNumber);
-	int sensitivityDomainChanged(int NumGrads);
-	bool staticSensitivity(void);
-	bool NewSensitivity(void);
+    int updateGradNumber(int passedGradNumber);
+    int sensitivityDomainChanged(int NumGrads);
+    bool staticSensitivity();
+    bool NewSensitivity();
  /////E added by K Fujimura /////
 
   protected:
     
   private:
-	int gradNumber;
-	AnalysisModel *theAnalysisModel;
-	LinearSOE *theSOE;
+    int gradNumber;
+    AnalysisModel *theAnalysisModel;
+    LinearSOE *theSOE;
 };
 
 #endif

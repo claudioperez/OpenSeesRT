@@ -130,7 +130,7 @@ PFEMSensitivityIntegrator::formEleResidual(FE_Element *theEle)
 
         // The term -dC/dh*vel
         theEle->addD_ForceSensitivity(gradNumber, *Udot,-1.0);
-		
+        
     }
 
     return 0;
@@ -206,7 +206,7 @@ PFEMSensitivityIntegrator::formSensitivityRHS(int passedGradNumber)
     Node *nodePtr;
     NodeIter &theNodeIter = theDomain->getNodes();
     while ((nodePtr = theNodeIter()) != 0)
-	nodePtr->zeroUnbalancedLoad();
+    nodePtr->zeroUnbalancedLoad();
 
 
     // Loop through load patterns to add external load sensitivity
@@ -241,7 +241,7 @@ PFEMSensitivityIntegrator::formSensitivityRHS(int passedGradNumber)
 
     return 0;
 }
-		
+        
 
 
 
@@ -252,7 +252,7 @@ PFEMSensitivityIntegrator::formIndependentSensitivityRHS()
 {
     return 0;
 }
-		
+        
 
 
 
@@ -269,23 +269,23 @@ PFEMSensitivityIntegrator::saveSensitivity(const Vector & dVNew,int gradNum,int 
     DOF_GrpIter &theDOFs = myModel->getDOFs();
     DOF_Group *dofPtr;
     while ((dofPtr = theDOFs()) != 0) {
-	  
+      
         const ID &id = dofPtr->getID();
         int idSize = id.Size();
-        const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);	
+        const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);    
         for (int i=0; i < idSize; i++) {
-	    int loc = id(i);
-	    if (loc >= 0) {
-                dUn(loc) = dispSens(i);		
-	    }
+        int loc = id(i);
+        if (loc >= 0) {
+                dUn(loc) = dispSens(i);        
         }
-	  
+        }
+      
         const Vector &velSens = dofPtr->getVelSensitivity(gradNumber);
         for (int i=0; i < idSize; i++) {
-	    int loc = id(i);
-	    if (loc >= 0) {
+        int loc = id(i);
+        if (loc >= 0) {
                 dVn(loc) = velSens(i);
-	    }
+        }
         }
 
     }
@@ -305,11 +305,11 @@ PFEMSensitivityIntegrator::saveSensitivity(const Vector & dVNew,int gradNum,int 
 
     // Now we can save vNew, vdotNew and vdotdotNew
     DOF_GrpIter &theDOFGrps = myModel->getDOFs();
-    DOF_Group 	*dofPtr1;
+    DOF_Group     *dofPtr1;
     while ( (dofPtr1 = theDOFGrps() ) != 0)  {
         dofPtr1->saveSensitivity(dUNew,dVNew,dANew,gradNum,numGrads);
     }
-	
+    
     return 0;
 }
 
@@ -373,12 +373,12 @@ PFEMSensitivityIntegrator::sensitivityDomainChanged(int NumGrads)
     return -1;
 }
 bool 
-PFEMSensitivityIntegrator::staticSensitivity(void)
+PFEMSensitivityIntegrator::staticSensitivity()
 {
     return false;
 }
 bool 
-PFEMSensitivityIntegrator::NewSensitivity(void)
+PFEMSensitivityIntegrator::NewSensitivity()
 {
     return false;
 }

@@ -22,19 +22,19 @@
 **                                                                    **
 ** ****************************************************************** */
                                                                         
-// $Revision: 1.3 $
-// $Date: 2010-02-04 20:12:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/reliability/FEsensitivity/NewmarkSensitivityIntegrator.h,v $
+// $Revision: 1.0 $
+// $Date: 2014-01-16 10:03:47 $
+// $Source: /usr/local/cvs/OpenSees/SRC/reliability/FEsensitivity/PFEMSensitivityIntegrator.h,v $
 
 
 //
-// Written by Terje Haukaas (haukaas@ce.berkeley.edu)
+// Written by Minjie Zhu (Oregon State University)
 //
 
-#ifndef NewmarkSensitivityIntegrator_h
-#define NewmarkSensitivityIntegrator_h
+#ifndef PFEMSensitivityIntegrator_h
+#define PFEMSensitivityIntegrator_h
 
-#include <Newmark.h>
+#include <PFEMIntegrator.h>
 #include <SensitivityIntegrator.h>
 class FE_Element;
 class DOF_Group;
@@ -42,47 +42,41 @@ class Vector;
 class Information;
 
 
-class NewmarkSensitivityIntegrator : public SensitivityIntegrator , public Newmark
+class PFEMSensitivityIntegrator : public SensitivityIntegrator , public PFEMIntegrator
 {
-  public:
-    NewmarkSensitivityIntegrator();
-    NewmarkSensitivityIntegrator(int assemblyFlag, double gamma, double beta, bool disp = true);
-    NewmarkSensitivityIntegrator(int assemblyFlag, double gamma, double beta, double alphaM, double betaKcurrent,
-	    double betaKinit, double betaKlastCommit, bool disp = true);
-    ~NewmarkSensitivityIntegrator();
+public:
+    PFEMSensitivityIntegrator();
+    explicit PFEMSensitivityIntegrator(int assemblyFlag);
+    ~PFEMSensitivityIntegrator();
     
     int setParameter      (char **argv, int argc, Information &info);
     int updateParameter   (int parameterID, Information &info);
-	int activateParameter (int parameterID);
+    int activateParameter (int parameterID);
 
-	int formEleResidual(FE_Element *theEle);
-	int formNodUnbalance(DOF_Group *theDof);
+    int formEleResidual(FE_Element *theEle);
+    int formNodUnbalance(DOF_Group *theDof);
 
-	int formSensitivityRHS(int gradNum);
-	int formIndependentSensitivityRHS();
-	int saveSensitivity   (const Vector &v, int gradNum, int numGrads);
-	int commitSensitivity (int gradNum, int numGrads);  
-   /////S added by K Fujimura /////
-	int updateGradNumber(int passedGradNumber);
-	int sensitivityDomainChanged(int NumGrads);
-	bool staticSensitivity(void);
-	bool NewSensitivity(void);
+    int formSensitivityRHS(int gradNum);
+    int formIndependentSensitivityRHS();
+    int saveSensitivity   (const Vector &v, int gradNum, int numGrads);
+    int commitSensitivity (int gradNum, int numGrads);  
+    /////S added by K Fujimura /////
+    int updateGradNumber(int passedGradNumber);
+    int sensitivityDomainChanged(int NumGrads);
+    bool staticSensitivity();
+    bool NewSensitivity();
     /////E added by K Fujimura /////
 
-  protected:
+protected:
     
-  private:
+private:
 
-	int parameterID;
-	int sensitivityFlag;
-	int gradNumber;
-	Vector *massMatrixMultiplicator;
-	Vector *dampingMatrixMultiplicator;
-	int assemblyFlag;
-	Vector independentRHS;
-	double alphaM;
-	double betaK;
-
+    int parameterID;
+    int sensitivityFlag;
+    int gradNumber;
+    int assemblyFlag;
+    Vector independentRHS;
+    Vector dVn;
 };
 
 #endif
