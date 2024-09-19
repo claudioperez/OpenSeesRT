@@ -20,8 +20,6 @@
 
 #include "BasicAnalysisBuilder.h"
 
-#include <VariableTimeStepDirectIntegrationAnalysis.h>
-
 #include <EigenSOE.h>
 #include <LinearSOE.h>
 // for printA
@@ -184,7 +182,6 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
         result = builder->analyzeVariable(numIncr, dT, dtMin, dtMax, Jd);
 
       } else {
-  //    result = theTransientAnalysis->analyze(numIncr, dT);
         result = builder->analyze(numIncr, dT);
       }
       break;
