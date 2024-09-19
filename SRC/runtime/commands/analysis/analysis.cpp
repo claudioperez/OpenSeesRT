@@ -20,10 +20,6 @@
 
 #include "BasicAnalysisBuilder.h"
 
-#include <StaticAnalysis.h>
-#include <DirectIntegrationAnalysis.h>
-#include <VariableTimeStepDirectIntegrationAnalysis.h>
-
 #include <EigenSOE.h>
 #include <LinearSOE.h>
 // for printA
