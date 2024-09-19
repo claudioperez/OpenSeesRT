@@ -31,15 +31,15 @@
 //
 #include <NewtonRaphson.h>
 #include <AnalysisModel.h>
-#include <StaticAnalysis.h>
 #include <IncrementalIntegrator.h>
 #include <LinearSOE.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <ConvergenceTest.h>
 #include <ID.h>
-#include <elementAPI.h>
 
+
+#include <elementAPI.h>
 
 void *
 OPS_ADD_RUNTIME_VPV(OPS_NewtonRaphsonAlgorithm)
@@ -50,19 +50,27 @@ OPS_ADD_RUNTIME_VPV(OPS_NewtonRaphsonAlgorithm)
 
     while (OPS_GetNumRemainingInputArgs() > 0) {
       const char* type = OPS_GetString();
-      if(strcmp(type,"-secant")==0 || strcmp(type,"-Secant")==0) {
+      if (strcmp(type,"-secant")==0 || 
+          strcmp(type,"-Secant")==0) {
         formTangent = CURRENT_SECANT;
         iFactor = 0;
         cFactor = 1.0;
-      } else if(strcmp(type,"-initial")==0 || strcmp(type,"-Initial")==0) {
+
+      } else if (strcmp(type,"-initial")==0 || 
+                 strcmp(type,"-Initial")==0) {
         formTangent = INITIAL_TANGENT;
         iFactor = 1.;
         cFactor = 0;
-      } else if(strcmp(type,"-intialThenCurrent")==0 || strcmp(type,"-intialCurrent")==0) {
+
+      } else if (strcmp(type,"-intialThenCurrent")==0 || 
+                 strcmp(type,"-intialCurrent")==0) {
         formTangent = INITIAL_THEN_CURRENT_TANGENT;
         iFactor = 0;
         cFactor = 1.0;
-      } else if(strcmp(type,"-hall")==0 || strcmp(type,"-Hall")==0) {
+
+      } else if (strcmp(type,"-hall")==0 || 
+                 strcmp(type,"-Hall")==0) {
+
         formTangent = HALL_TANGENT;
         iFactor = 0.1;
         cFactor = 0.9;

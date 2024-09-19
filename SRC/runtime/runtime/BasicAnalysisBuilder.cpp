@@ -18,8 +18,6 @@
 #include <StaticIntegrator.h>
 #include <TransientIntegrator.h>
 #include <LinearSOE.h>
-#include <StaticAnalysis.h>
-#include <DirectIntegrationAnalysis.h>
 #include <DOF_Numberer.h>
 #include <ConstraintHandler.h>
 #include <ConvergenceTest.h>

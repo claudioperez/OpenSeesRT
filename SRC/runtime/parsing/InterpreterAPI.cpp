@@ -26,8 +26,6 @@
 #include <CrdTransf.h>
 #include <FrictionModel.h>
 
-#include <DirectIntegrationAnalysis.h>
-#include <StaticAnalysis.h>
 
 #include <TimeSeries.h>
 
@@ -444,20 +442,6 @@ OPS_GetFEDatastore() {return theDatabase;}
 const char *
 OPS_GetInterpPWD() {return getInterpPWD(theInterp);}
 
-#if 0
-EquiSolnAlgo **
-OPS_GetAlgorithm(void) {return &theAlgorithm;}
-
-EigenSOE **
-OPS_GetEigenSOE(void) {return &theEigenSOE;}
-
-LinearSOE **
-OPS_GetSOE(void) {return &theSOE;}
-
-StaticAnalysis **
-OPS_GetStaticAnalysis(void) {return &theStaticAnalysis;}
-#endif
-
 #if 0 && !defined(OPS_USE_RUNTIME)
 
 modelState theModelState;
@@ -482,12 +466,6 @@ OPS_GetStaticIntegrator(void) {return &theStaticIntegrator;}
 
 TransientIntegrator **
 OPS_GetTransientIntegrator(void) {return &theTransientIntegrator;}
-
-DirectIntegrationAnalysis **
-OPS_GetTransientAnalysis(void) {return &theTransientAnalysis;}
-
-ConvergenceTest **
-OPS_GetTest(void) {return &theTest;}
 
 ConstraintHandler **
 OPS_GetHandler(void) {return &theHandler;}
