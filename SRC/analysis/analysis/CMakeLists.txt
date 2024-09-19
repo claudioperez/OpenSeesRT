@@ -17,7 +17,7 @@ target_sources(OPS_Analysis
       SubstructuringAnalysis.cpp    
       TransientAnalysis.cpp
       TransientDomainDecompositionAnalysis.cpp 
-      VariableTimeStepDirectIntegrationAnalysis.cpp
+#     VariableTimeStepDirectIntegrationAnalysis.cpp
     PUBLIC
       Analysis.h 
       DirectIntegrationAnalysis.h 
@@ -30,7 +30,7 @@ target_sources(OPS_Analysis
       SubstructuringAnalysis.h    
       TransientAnalysis.h
       TransientDomainDecompositionAnalysis.h 
-      VariableTimeStepDirectIntegrationAnalysis.h
+#     VariableTimeStepDirectIntegrationAnalysis.h
 )
 
 #add_subdirectory(analysis)
