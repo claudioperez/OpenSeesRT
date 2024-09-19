@@ -424,19 +424,6 @@ TransientDomainDecompositionAnalysis::domainChanged()
 
 
 int  
-TransientDomainDecompositionAnalysis::getNumExternalEqn()
-{
-  opserr << "TransientDomainDecompositionAnalysis::getNumExternalEqn() - should never be called\n";
-  return 0;
-}
-int  
-TransientDomainDecompositionAnalysis::getNumInternalEqn()
-{
-  opserr << "TransientDomainDecompositionAnalysis::getNumInternalEqn() - should never be called\n";
-  return 0;
-}
-
-int  
 TransientDomainDecompositionAnalysis::analysisStep(double dT) 
 {
   this->analyze(dT);
@@ -459,30 +446,6 @@ TransientDomainDecompositionAnalysis::computeInternalResponse()
 }
 
 
-const Matrix &
-TransientDomainDecompositionAnalysis::getTangent()
-{
-  static Matrix errMatrix;
-  opserr << "TransientDomainDecompositionAnalysis::getTangent() - should never be called\n";
-  return errMatrix;
-}
-
-const Vector &
-TransientDomainDecompositionAnalysis::getResidual()
-{
-  static Vector errVector;
-  opserr << "TransientDomainDecompositionAnalysis::getResidual() - should never be called\n";
-  return errVector;
-}
-
-const Vector &
-TransientDomainDecompositionAnalysis::getTangVectProduct()
-{
-  static Vector errVector;
-  opserr << "TransientDomainDecompositionAnalysis::getTangVectProduct() - should never be called\n";
-  return errVector;
-}
-    
 int 
 TransientDomainDecompositionAnalysis::sendSelf(int commitTag, Channel &theChannel)
 {

@@ -436,18 +436,6 @@ StaticDomainDecompositionAnalysis::domainChanged()
 
 
 int  
-StaticDomainDecompositionAnalysis::getNumExternalEqn()
-{
-  opserr << "StaticDomainDecompositionAnalysis::getNumExternalEqn() - should never be called\n";
-  return 0;
-}
-int  
-StaticDomainDecompositionAnalysis::getNumInternalEqn()
-{
-  opserr << "StaticDomainDecompositionAnalysis::getNumInternalEqn() - should never be called\n";
-  return 0;
-}
-int  
 StaticDomainDecompositionAnalysis::analysisStep(double dT) 
 {
   this->analyze(dT);
@@ -470,30 +458,6 @@ StaticDomainDecompositionAnalysis::computeInternalResponse()
 }
 
 
-const Matrix &
-StaticDomainDecompositionAnalysis::getTangent()
-{
-  static Matrix errMatrix;
-  opserr << "StaticDomainDecompositionAnalysis::getTangent() - should never be called\n";
-  return errMatrix;
-}
-
-const Vector &
-StaticDomainDecompositionAnalysis::getResidual()
-{
-  static Vector errVector;
-  opserr << "StaticDomainDecompositionAnalysis::getResidual() - should never be called\n";
-  return errVector;
-}
-
-const Vector &
-StaticDomainDecompositionAnalysis::getTangVectProduct()
-{
-  static Vector errVector;
-  opserr << "StaticDomainDecompositionAnalysis::getTangVectProduct() - should never be called\n";
-  return errVector;
-}
-    
 int 
 StaticDomainDecompositionAnalysis::sendSelf(int commitTag, Channel &theChannel)
 {

@@ -52,19 +52,19 @@
 #include <FEM_ObjectBroker.h>
 
 DomainDecompositionAnalysis::DomainDecompositionAnalysis(Subdomain &the_Domain)
-:Analysis(the_Domain),
- MovableObject(DomDecompANALYSIS_TAGS_DomainDecompositionAnalysis),
- theSubdomain(&the_Domain),
- theHandler(nullptr),
- theNumberer(nullptr),
- theModel(nullptr),
- theAlgorithm(nullptr),
- theIntegrator(nullptr),
- theSOE(nullptr),
- theSolver(nullptr),
- theResidual(0),numEqn(0),numExtEqn(0),tangFormed(false),tangFormedCount(0),
- domainStamp(0),
- myChannel(0)
+ : Analysis(the_Domain),
+   MovableObject(DomDecompANALYSIS_TAGS_DomainDecompositionAnalysis),
+   theSubdomain(&the_Domain),
+   theHandler(nullptr),
+   theNumberer(nullptr),
+   theModel(nullptr),
+   theAlgorithm(nullptr),
+   theIntegrator(nullptr),
+   theSOE(nullptr),
+   theSolver(nullptr),
+   theResidual(0),numEqn(0),numExtEqn(0),tangFormed(false),tangFormedCount(0),
+   domainStamp(0),
+   myChannel(0)
 {
     theSubdomain->setDomainDecompAnalysis(*this);
 }
@@ -72,19 +72,19 @@ DomainDecompositionAnalysis::DomainDecompositionAnalysis(Subdomain &the_Domain)
 
 DomainDecompositionAnalysis::DomainDecompositionAnalysis(int clsTag,
                                                          Subdomain &the_Domain)
-:Analysis(the_Domain),
- MovableObject(clsTag),
- theSubdomain(&the_Domain),
- theHandler(0),
- theNumberer(0),
- theModel(0),
- theAlgorithm(0),
- theIntegrator(0),
- theSOE(0),
- theSolver(0),
- theResidual(0),numEqn(0),numExtEqn(0),tangFormed(false),tangFormedCount(0),
- domainStamp(0),
- myChannel(0)
+ : Analysis(the_Domain),
+   MovableObject(clsTag),
+   theSubdomain(&the_Domain),
+   theHandler(0),
+   theNumberer(0),
+   theModel(0),
+   theAlgorithm(0),
+   theIntegrator(0),
+   theSOE(0),
+   theSolver(0),
+   theResidual(0),numEqn(0),numExtEqn(0),tangFormed(false),tangFormedCount(0),
+   domainStamp(0),
+   myChannel(0)
 {
 
 }
@@ -428,7 +428,6 @@ DomainDecompositionAnalysis::getResidual()
     Domain *the_Domain = this->getDomainPtr();
     
     // we check to see if the domain has changed 
-    // we check to see if the domain has changed 
     int stamp = the_Domain->hasDomainChanged();
     if (stamp != domainStamp) {
         domainStamp = stamp;
@@ -707,7 +706,6 @@ DomainDecompositionAnalysis::setConvergenceTest(ConvergenceTest &theTest)
   opserr << "DomainDecompositionAnalysis::setConvergenceTest() - not implemented\n";
   return -1;
 }
-
 
 
 int 
