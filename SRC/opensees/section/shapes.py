@@ -1,6 +1,8 @@
-import numpy as np
 from . import patch
 layer = patch.layer
+from opensees.section import FiberSection
+import numpy as np
+from numpy import pi, sin, cos
 
 def RegularPolygon():
     pass

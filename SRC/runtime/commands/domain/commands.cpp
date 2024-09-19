@@ -45,7 +45,6 @@
 #include <ElementStateParameter.h>
 #include <Pressure_Constraint.h>
 // Analysis
-#include <StaticAnalysis.h>
 #include <DirectIntegrationAnalysis.h>
 #include <VariableTimeStepDirectIntegrationAnalysis.h>
 #include <AnalysisModel.h>

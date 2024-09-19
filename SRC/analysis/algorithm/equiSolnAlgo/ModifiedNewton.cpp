@@ -29,7 +29,6 @@
 //
 #include <ModifiedNewton.h>
 #include <AnalysisModel.h>
-#include <StaticAnalysis.h>
 #include <IncrementalIntegrator.h>
 #include <LinearSOE.h>
 #include <ID.h>

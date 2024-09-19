@@ -204,8 +204,33 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
       if (numPrinted < numToPrint)
         s << ",\n";
     }
-    s << "\n" << tab << tab << "]\n";
+    s << "\n" << tab << tab << "],\n";
 
+    {
+      s << tab << tab << "\"constraints\": [\n";
+      MP_ConstraintIter &theMPs = theDomain->getMPs();
+      MP_Constraint *theMP;
+      bool first_mp = true;
+      while ((theMP = theMPs()) != nullptr) {
+        if (!first_mp)
+          s << ",\n";
+
+        theMP->Print(s, flag);
+        first_mp = false;
+      }
+
+      SP_ConstraintIter &theSPs = theDomain->getSPs();
+      SP_Constraint *theSP;
+      bool first_sp = true;
+      while ((theSP = theSPs()) != nullptr) {
+        if (!first_sp || !first_mp)
+          s << ",\n";
+        theSP->Print(s, flag);
+        first_sp = false;
+      }
+
+      s << "\n" << tab << tab << "]\n";
+    }
 
     s << tab << "}\n";
     s << "}\n";

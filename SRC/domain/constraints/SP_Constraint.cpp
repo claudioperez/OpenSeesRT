@@ -242,11 +242,11 @@ void
 SP_Constraint::Print(OPS_Stream &s, int flag) 
 {
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "            {";
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
     s << "\"name\": " << this->getTag() << ", ";
     s << "\"node\": " << nodeTag << ", ";
-    s << "\"DOF\": " << dofNumber+1 << ", ";
-    s << "\"ref value\": " << valueR << "}";
+    s << "\"dof\": " << dofNumber+1 << ", ";
+    s << "\"ref_value\": " << valueR << "}";
 
   } else {
     s << "SP_Constraint: " << this->getTag();
