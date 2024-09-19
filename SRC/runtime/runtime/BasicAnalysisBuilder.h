@@ -38,7 +38,6 @@ class EigenSOE;
 class StaticIntegrator;
 class TransientIntegrator;
 class ConvergenceTest;
-class VariableTimeStepDirectIntegrationAnalysis;
 
 class BasicAnalysisBuilder
 {
@@ -77,10 +76,6 @@ public:
 
     int formUnbalance();
 
-    VariableTimeStepDirectIntegrationAnalysis* getVariableTimeStepDirectIntegrationAnalysis() {
-      return theVariableTimeStepTransientAnalysis;
-    }
-
     EquiSolnAlgo*        getAlgorithm();
     StaticIntegrator*    getStaticIntegrator();
     TransientIntegrator* getTransientIntegrator();
@@ -95,6 +90,7 @@ public:
     int analyzeTransient(int numSteps, double dT);
     int analyzeStep(double dT);
     int analyzeSubLevel(int level, double dT);
+    int analyzeVariable(int numSteps, double dT, double dtMin, double dtMax, int Jd);
 
     void wipe();
 
@@ -115,7 +111,6 @@ private:
     StaticIntegrator          *theStaticIntegrator;
     TransientIntegrator       *theTransientIntegrator;
     ConvergenceTest           *theTest;
-    VariableTimeStepDirectIntegrationAnalysis *theVariableTimeStepTransientAnalysis;
 
     int domainStamp;
     int numEigen = 0;

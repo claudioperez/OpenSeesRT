@@ -43,9 +43,10 @@ public:
   AnalysisModel  *m_analysis_model     = nullptr;
   AnalysisModel **m_analysis_model_ptr = &m_analysis_model;
 
-
+#if 0
   void *newStaticAnalysis(G3_Config);
   void *newTransientAnalysis(G3_Config);
+#endif
 
 // IO
   FILE* streams[3] = {stdin,stdout,stderr};
