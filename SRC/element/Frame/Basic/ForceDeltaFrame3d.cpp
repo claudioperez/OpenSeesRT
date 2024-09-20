@@ -454,12 +454,10 @@ ForceDeltaFrame3d::update()
       kappay(i) = 0.0;
       gammaz(i) = 0.0;
       for (int j = 0; j < nsr; j++) {
-        if (scheme[j] == SECTION_RESPONSE_VY) {
+        if (scheme[j] == SECTION_RESPONSE_VY)
           gamma(i) += es_trial[i][j];
-        }
-        if (scheme[j] == SECTION_RESPONSE_VZ) {
+        if (scheme[j] == SECTION_RESPONSE_VZ)
           gammaz(i) += es_trial[i][j];
-        }
         if (scheme[j] == SECTION_RESPONSE_MY)
           kappay(i) += es_trial[i][j];
         if (scheme[j] == SECTION_RESPONSE_MZ)
