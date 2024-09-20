@@ -17,18 +17,16 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-// 
-// Written: fmk 
-// Created: Tue Sept 17 15:54:47: 1996
-// Revision: A
 //
 // Description: This file contains the class definition for TransientIntegrator.
 // TransientIntegrator is an algorithmic class for setting up the finite element
 // equations for a static analysis and for Incrementing the nodal displacements
 // with the values in the soln vector to the LinearSOE object. 
 //
-// What: "@(#) TransientIntegrator.C, revA"
-
+// Written: fmk 
+// Created: Tue Sept 17 15:54:47: 1996
+// Revision: A
+//
 #include <TransientIntegrator.h>
 #include <FE_Element.h>
 #include <LinearSOE.h>
@@ -39,7 +37,7 @@
 #include <DOF_GrpIter.h>
 
 TransientIntegrator::TransientIntegrator(int clasTag)
-:IncrementalIntegrator(clasTag)
+ : IncrementalIntegrator(clasTag)
 {
 
 }
