@@ -9,10 +9,14 @@
 #include <Parsing.h>
 #include <Integrator.h>
 #include <StaticIntegrator.h>
+#include <Domain.h>
+#include <LoadPattern.h>
+#include <Parameter.h>
+#include <ParameterIter.h>
 #include <TransientIntegrator.h>
 #include <BasicAnalysisBuilder.h>
 
-#if 1
+
 int 
 computeGradients(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char**const argv)
 {
@@ -27,18 +31,63 @@ computeGradients(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char**
     }
 
     if (theIntegrator == nullptr) {
-        opserr << "WARNING: No integrator is created\n";
+        opserr << OpenSees::PromptValueError << "No integrator is created\n";
         return TCL_ERROR;
     }
 
     if (theIntegrator->computeSensitivities() < 0) {
-      opserr << "WARNING: failed to compute sensitivities\n";
+      opserr << OpenSees::PromptValueError << "failed to compute sensitivities\n";
       return TCL_ERROR;
     }
     
     return TCL_OK;
 }
-#endif
+
+
+int
+TclCommand_sensLambda(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
+{
+  BasicAnalysisBuilder* builder = static_cast<BasicAnalysisBuilder*>(clientData);
+
+  if (argc < 3) {
+    opserr << OpenSees::PromptValueError << "insufficient arguments\n";
+    return TCL_ERROR;
+  }
+
+  int pattern, paramTag;
+  if (Tcl_GetInt(interp, argv[1], &pattern) != TCL_OK) {
+    opserr << "ERROR reading load pattern tag\n";
+    return TCL_ERROR;
+  }
+
+  LoadPattern *thePattern = builder->getDomain()->getLoadPattern(pattern);
+  if (thePattern == nullptr) {
+    opserr << "ERROR load pattern with tag " << pattern
+           << " not found in domain\n";
+    return TCL_ERROR;
+  }
+
+  if (Tcl_GetInt(interp, argv[2], &paramTag) != TCL_OK) {
+    opserr << OpenSees::PromptValueError 
+           << "sensLambda patternTag?  paramTag? - could not read "
+              "paramTag? ";
+    return TCL_ERROR;
+  }
+
+  Parameter *theParam = builder->getDomain()->getParameter(paramTag);
+  if (theParam == nullptr) {
+    opserr << OpenSees::PromptValueError 
+           << "sensLambda: parameter " << paramTag << " not found" << "\n";
+    return TCL_ERROR;
+  }
+
+  int gradIndex = theParam->getGradIndex();
+  double value = thePattern->getLoadFactorSensitivity(gradIndex);
+
+  Tcl_SetObjResult(interp, Tcl_NewDoubleObj(value));
+
+  return TCL_OK;
+}
 
 
 int

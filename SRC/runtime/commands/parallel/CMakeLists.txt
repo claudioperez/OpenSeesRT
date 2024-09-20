@@ -1,9 +1,20 @@
 
+find_package(MPI)
+
+add_library(OpenSeesRT_Parallel OBJECT)
+
+target_include_directories(OpenSeesRT_Parallel
+  PRIVATE
+  ${OPS_SRC_DIR}/domain/partitioner/
+  ${OPS_SRC_DIR}/domain/partitioner/
+  ${OPS_SRC_DIR}/analysis/analysis/
+)
+
 target_compile_definitions(OpenSeesRT_Parallel PRIVATE 
   _PARALLEL_INTERPRETERS
   _PARALLEL_PROCESSING     # OpenSeesSP
 )
-target_link_libraries(OpenSeesRT_Parallel PRIVATE OPS_Parallel OPS_Actor)
+target_link_libraries(OpenSeesRT_Parallel PRIVATE OPS_Runtime OPS_Parallel OPS_Actor ${MPI_CXX_LIBRARIES})
 
 target_sources(OpenSeesRT_Parallel PRIVATE
   parallel_commands.cpp
