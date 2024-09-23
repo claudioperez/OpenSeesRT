@@ -523,6 +523,7 @@ LinearCrdTransf2d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
   return pg;
 }
 
+#if 0
 const Vector &
 LinearCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &pb,
                                                            const Vector &p0)
@@ -603,6 +604,7 @@ LinearCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &pb,
 
   return pg;
 }
+#endif 
 
 const Matrix &
 LinearCrdTransf2d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
@@ -1188,7 +1190,6 @@ LinearCrdTransf2d::Print(OPS_Stream &s, int flag)
   }
 }
 
-// AddingSensitivity:BEGIN ///////////////////////////////
 // -- keep MHS function
 const Vector &
 LinearCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &pb,

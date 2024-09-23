@@ -404,6 +404,7 @@ LinearCrdTransf2d02::getGlobalResistingForce(const Vector &pb, const Vector &p0)
   return pg;
 }
 
+#if 0
 const Vector &
 LinearCrdTransf2d02::getGlobalResistingForceShapeSensitivity(const Vector &pb,
                                                            const Vector &p0)
@@ -483,6 +484,7 @@ LinearCrdTransf2d02::getGlobalResistingForceShapeSensitivity(const Vector &pb,
 
   return pg;
 }
+#endif
 
 const Matrix &
 LinearCrdTransf2d02::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
