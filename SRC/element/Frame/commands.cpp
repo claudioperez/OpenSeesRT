@@ -179,6 +179,8 @@
 #include <HingeRadauTwoBeamIntegration.h>
 #endif
 
+using namespace OpenSees;
+
 struct Options {
   int mass_flag;
   int shear_flag;
@@ -189,10 +191,6 @@ struct Options {
 extern BeamIntegration*     GetBeamIntegration(TCL_Char* type);
 extern BeamIntegrationRule* GetHingeStencil(int argc, TCL_Char ** const argv);
 
-//    // Check if we are being called from OpenSeesPy, in which case we need to parse 
-//    // things a little differently
-//    const char *openseespy = Tcl_GetVar(interp, "opensees::pragma::openseespy", 0);
-//    if (openseespy == nullptr || strcmp(openseespy, "0")==0) { 
 
 #if 0
 Element*

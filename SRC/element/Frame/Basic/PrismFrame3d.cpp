@@ -1118,14 +1118,14 @@ PrismFrame3d::getBasicForceGrad(int gradNumber)
 
   double d1oLdh = theCoordTransf->getd1overLdh();
 
-  static Vector dqdh(6);
-
   double
       dEIy = 0.0,
       dEIz = 0.0,
       dEA  = 0.0,
       dGAy = 0.0,
+      dGJ  = 0.0,
       dGAz = 0.0;
+
   switch (parameterID) {
     case Param::E:
       dEIy = this->Iy;
@@ -1140,11 +1140,40 @@ PrismFrame3d::getBasicForceGrad(int gradNumber)
     default:
       ;
   }
+ 
+  MatrixND<6,6> dK;
+  dK.zero();
+  dK(0,0) = dEA/L;
+  dK(5,5) = dGJ/L;
+  if (releasez == 0) {
+    dK(1,1) = dK(2,2) = 4.0*dEIz/L;
+    dK(2,1) = dK(1,2) = 2.0*dEIz/L;
+  }
+  if (releasez == 1)   // release I
+    dK(2,2) = 3.0*dEIz/L;
 
-#if 0
-  dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
-#endif
+  if (releasez == 2)   // release J
+    dK(1,1) = 3.0*dEIz/L;
 
-  return dqdh;
+
+  if (releasey == 0) {
+    dK(3,3) = dK(4,4) = 4.0*dEIy/L;
+    dK(4,3) = dK(3,4) = 2.0*dEIy/L;
+  }
+  if (releasey == 1)   // release I
+    dK(4,4) = 3.0*dEIy/L;
+
+  if (releasey == 2)   // release J
+    dK(3,3) = 3.0*dEIy/L;
+
+  const Vector &v  = theCoordTransf->getBasicTrialDisp();
+
+  VectorND<NBV> dq = dK*v;
+//if (theCoordTransf->isShapeSensitivity()) {
+//  const Vector &dv = theCoordTransf->getBasicDisplFixedGrad();
+//  dq += ke*dv;
+//}
+
+  return dq;
 }
 

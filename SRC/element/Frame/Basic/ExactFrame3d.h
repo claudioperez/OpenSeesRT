@@ -21,8 +21,8 @@
 #include <Rotations.hpp>
 //#include <BeamIntegration.h>
 
-using OpenSees::VectorND;
-using OpenSees::MatrixND;
+
+namespace OpenSees {
 
 template<int nen, int nip>
 class ExactFrame3d: 
@@ -531,3 +531,4 @@ ExactFrame3d<nen,nip>::Print(OPS_Stream& stream, int flag)
   }
 }
 
+} // namespace OpenSees

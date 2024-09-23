@@ -21,7 +21,7 @@ class FrameTransform3d;
 class BeamIntegration;
 class Response;
 using namespace OpenSees;
-
+namespace OpenSees {
 class CubicFrame3d : public Element {
 public:
   CubicFrame3d(int tag, 
@@ -32,11 +32,12 @@ public:
   CubicFrame3d();
   ~CubicFrame3d();
 
+
   const char*
   getClassType() const final
   {
     return "CubicFrame3d";
-  };
+  }
 
   int getNumExternalNodes() const;
   const ID& getExternalNodes();
@@ -109,7 +110,7 @@ private:
   double phizs[maxNumSections]; // Shear term 12EIz/(GA L^2)
   double phiys[maxNumSections]; // Shear term 12EIy/(GA L^2)
 
-  ID connectedExternalNodes; // Tags of quad nodes
+  ID connectedExternalNodes;    // Tags of nodes
 
   Node* theNodes[NEN];
 
@@ -136,5 +137,5 @@ private:
       FrameStress::T, FrameStress::My, FrameStress::Mz,
   };
 };
-
+}
 #endif
