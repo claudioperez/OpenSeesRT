@@ -74,9 +74,15 @@ class PrismFrame3d : public BasicFrame3d
     // Parameter
     virtual int setParameter(const char **argv, int argc, Parameter &) final;
     virtual int updateParameter(int parameterID, Information &) final;
+    virtual int activateParameter(int param)
+    {
+      parameterID = param; 
+      return 0;
+    }
 
     // Sensitivity
     virtual int getResponseSensitivity(int response, int grad, Information&);
+    virtual const Vector& getResistingForceSensitivity(int gradNumber);
 
   protected:
     // For BasicFrame3d
@@ -87,9 +93,14 @@ class PrismFrame3d : public BasicFrame3d
 
   private:
     constexpr static int NEN = 2;
+    constexpr static int NBV = 6;
+    struct Param {
+      enum {E, G, A, Ay, Az, Iy, Iz, J};
+    };
 
     void formBasicStiffness(OpenSees::MatrixND<6,6>& kb) const;
-    const Vector& getBasicForceGrad(int gradNumber);
+    VectorND<NBV> getBasicForceGrad(int grad);
+
 
     double E;    // elastic modulus
     double G;    // shear modulus
@@ -115,6 +126,7 @@ class PrismFrame3d : public BasicFrame3d
     int releasey; // same for y-axis
     int mass_flag;
     int shear_flag = 0;
+    int parameterID;
 
     double total_mass,
            twist_mass,

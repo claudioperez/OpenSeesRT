@@ -400,11 +400,11 @@ ForceFrame3d::getInitialStiff()
   if (Ki != nullptr)
     return *Ki;
 
-  THREAD_LOCAL MatrixND<nq,nq> F_init;
+  THREAD_LOCAL MatrixND<NBV,NBV> F_init;
   this->getInitialFlexibility(F_init);
 
   // calculate element stiffness matrix
-  THREAD_LOCAL MatrixND<nq, nq> K_init;
+  THREAD_LOCAL MatrixND<NBV, NBV> K_init;
   if (F_init.invert(K_init) < 0)
     opserr << "ForceFrame3d::getInitialStiff -- could not invert flexibility";
 
@@ -452,20 +452,20 @@ ForceFrame3d::update()
   // get basic displacements and increments
   const Vector& v = theCoordTransf->getBasicTrialDisp();
 
-  THREAD_LOCAL VectorND<nq> dv{0.0};
+  THREAD_LOCAL VectorND<NBV> dv{0.0};
   dv = theCoordTransf->getBasicIncrDeltaDisp();
 
   if (state_flag != 0 && (dv.norm() <= DBL_EPSILON) && (eleLoads.size()==0))
     return 0;
 
-  THREAD_LOCAL VectorND<nq> Dv;
+  THREAD_LOCAL VectorND<NBV> Dv;
   Dv  = v;
   Dv -= dv;
 
 
-  THREAD_LOCAL VectorND<nq> vr;      // element residual displacements
-  THREAD_LOCAL MatrixND<nq, nq> F;   // element flexibility matrix
-  THREAD_LOCAL VectorND<nq> dvToDo,
+  THREAD_LOCAL VectorND<NBV> vr;      // element residual displacements
+  THREAD_LOCAL MatrixND<NBV, NBV> F;   // element flexibility matrix
+  THREAD_LOCAL VectorND<NBV> dvToDo,
                             dv_trial;
 
   dvToDo  = dv;
@@ -512,8 +512,8 @@ ForceFrame3d::update()
       if (state_flag == 2)
         continue;
 
-      VectorND<nq>     q_trial = q_pres;
-      MatrixND<nq, nq> K_trial = K_pres;
+      VectorND<NBV>     q_trial = q_pres;
+      MatrixND<NBV, NBV> K_trial = K_pres;
 
       // calculate nodal force increments and update nodal forces
       q_trial += K_pres*dv;
@@ -640,7 +640,7 @@ ForceFrame3d::update()
             //    F += (B' * Fs * B) * wi * L;
             //
             {
-              MatrixND<nsr,nq> FsB;
+              MatrixND<nsr,NBV> FsB;
               FsB.zero();
               for (int jj = 0; jj < nsr; jj++) {
                   // SECTION_RESPONSE_P:
@@ -666,7 +666,7 @@ ForceFrame3d::update()
                   FsB(jj, 2) += xL  * Fs(jj, 5)*wtL;
               }
 
-              for (int jj = 0; jj < nq; jj++) {
+              for (int jj = 0; jj < NBV; jj++) {
                   double tmp;
                   // SECTION_RESPONSE_P:
                   F(0, jj) += FsB( 0, jj);
@@ -746,7 +746,7 @@ ForceFrame3d::update()
         dv += dv_trial;
         dv -= vr;
 
-        VectorND<nq> dqe = K_trial * dv;
+        VectorND<NBV> dqe = K_trial * dv;
       //dqe.addMatrixVector(0.0, K_trial, dv, 1.0);
 
         dW = dqe.dot(dv);
@@ -1299,7 +1299,7 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
     secDefSize += size;
   }
 
-  Vector dData(1 + 1 + 1 + nq + nq * nq + secDefSize + 4);
+  Vector dData(1 + 1 + 1 + NBV + NBV * NBV + secDefSize + 4);
   loc = 0;
 
   // place double variables into Vector
@@ -1311,12 +1311,12 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   //dData(loc++) = distrLoadcommit(i);
 
   // place K_save into vector
-  for (int i = 0; i < nq; i++)
+  for (int i = 0; i < NBV; i++)
     dData(loc++) = q_save[i];
 
   // place K_save into vector
-  for (int i = 0; i < nq; i++)
-    for (int j = 0; j < nq; j++)
+  for (int i = 0; i < NBV; i++)
+    for (int j = 0; j < NBV; j++)
       dData(loc++) = K_save(i, j);
 
   // place es_save into vector
@@ -1510,7 +1510,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   // into a vector place distrLoadCommit, rho, UeCommit, q_save and K_save
   int secDefSize = nsr*points.size();
 
-  Vector dData(1 + 1 + nq + nq * nq + secDefSize + 4);
+  Vector dData(1 + 1 + NBV + NBV * NBV + secDefSize + 4);
 
   if (theChannel.recvVector(dbTag, commitTag, dData) < 0) {
     opserr << "ForceFrame3d::recvSelf() - failed to send Vector data\n";
@@ -1528,12 +1528,12 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   // distrLoad(i) = dData(loc++);
 
   // place q_save into vector
-  for (int i = 0; i < nq; i++)
+  for (int i = 0; i < NBV; i++)
     q_save[i] = dData(loc++);
 
   // place K_save into matrix
-  for (int i = 0; i < nq; i++)
-    for (int j = 0; j < nq; j++)
+  for (int i = 0; i < NBV; i++)
+    for (int j = 0; j < NBV; j++)
       K_save(i, j) = dData(loc++);
 
   K_pres = K_save;
@@ -1558,7 +1558,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
 
 // addBFsB(F, s, i)
 int
-ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
+ForceFrame3d::getInitialFlexibility(MatrixND<NBV,NBV>& fe)
 {
   fe.zero();
 
@@ -1580,7 +1580,7 @@ ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
 
     const MatrixND<nsr,nsr> fSec = points[i].material->getFlexibility<nsr, scheme>(State::Init);
 
-    THREAD_LOCAL MatrixND<nsr, nq> FB;
+    THREAD_LOCAL MatrixND<nsr, NBV> FB;
     FB.zero();
     double tmp;
     int ii, jj;
@@ -1629,39 +1629,39 @@ ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
     for (int ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (int jj = 0; jj < nq; jj++)
+        for (int jj = 0; jj < NBV; jj++)
           fe(0, jj) += FB(ii, jj);
         break;
       case SECTION_RESPONSE_MZ:
-        for (int jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = FB(ii, jj);
           fe(1, jj) += xL1 * tmp;
           fe(2, jj) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (int jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = jsx * FB(ii, jj);
           fe(1, jj) += tmp;
           fe(2, jj) += tmp;
         }
         break;
       case SECTION_RESPONSE_MY:
-        for (int jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = FB(ii, jj);
           fe(3, jj) += xL1 * tmp;
           fe(4, jj) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VZ:
-        for (int jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = jsx * FB(ii, jj);
           fe(3, jj) += tmp;
           fe(4, jj) += tmp;
         }
         break;
       case SECTION_RESPONSE_T:
-        for (int jj = 0; jj < nq; jj++)
+        for (int jj = 0; jj < NBV; jj++)
           fe(5, jj) += FB(ii, jj);
         break;
       default: break;
@@ -1733,7 +1733,7 @@ void
 ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
 {
   // get basic displacements and increments
-  THREAD_LOCAL Vector ub(nq);
+  THREAD_LOCAL Vector ub(NBV);
   ub = theCoordTransf->getBasicTrialDisp();
 
   double L = theCoordTransf->getInitialLength();
@@ -1832,7 +1832,7 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
     s << points[points.size() - 1].material->getTag() << "]";
     s << ", ";
 
-    s << "\"crdTransformation\": \"" << theCoordTransf->getTag() ;
+    s << "\"crdTransformation\": " << theCoordTransf->getTag();
     s << ", ";
 
     s << "\"integration\": ";
@@ -1922,47 +1922,6 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
       << MY1 << ' ' << MZ1 << "\n";
     s << "#END_FORCES " << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << ' ' << T << ' ' << MY2
       << ' ' << MZ2 << "\n";
-
-    // plastic hinge rotation
-    static Vector vp(6);
-    static MatrixND<nq,nq> fe;
-    this->getInitialFlexibility(fe);
-    vp = theCoordTransf->getBasicTrialDisp();
-    vp.addMatrixVector(1.0, fe, q_pres, -1.0);
-    s << "#PLASTIC_HINGE_ROTATION " << vp[1] << " " << vp[2] << " " << vp[3] << " " << vp[4] << " "
-      << 0.1 * L << " " << 0.1 * L << "\n";
-
-    // Allocate array of vectors to store section coordinates and displacements
-    static int maxNumSections = 0;
-    static Vector* coords     = 0;
-    static Vector* displs     = 0;
-    if (maxNumSections < nip) {
-      if (coords != 0)
-        delete[] coords;
-      if (displs != 0)
-        delete[] displs;
-
-      coords = new Vector[nip];
-      displs = new Vector[nip];
-
-      for (int i = 0; i < nip; i++)
-        coords[i] = Vector(ndm);
-
-      for (int i = 0; i < nip; i++)
-        displs[i] = Vector(ndm);
-
-      maxNumSections = nip;
-    }
-
-    // compute section location & displacements
-    this->compSectionDisplacements(coords, displs);
-
-    // print the section location & invoke print on the section
-    for (int i = 0; i < nip; i++) {
-      s << "#SECTION " << (coords[i])(0) << " " << (coords[i])(1) << " " << (coords[i])(2);
-      s << " " << (displs[i])(0) << " " << (displs[i])(1) << " " << (displs[i])(2) << "\n";
-      points[i].material->Print(s, flag);
-    }
   }
 
   if (flag == OPS_PRINT_CURRENTSTATE) {
@@ -2008,18 +1967,19 @@ Response*
 ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
   Response* theResponse = nullptr;
+  const ID& node_tags = this->getExternalNodes();
 
   output.tag("ElementOutput");
-  output.attr("eleType", "ForceFrame3d");
+  output.attr("eleType", this->getClassType());
   output.attr("eleTag", this->getTag());
-  output.attr("node1", connectedExternalNodes[0]);
-  output.attr("node2", connectedExternalNodes[1]);
+  output.attr("node1",  node_tags(0));
+  output.attr("node2",  node_tags(1));
 
   //
   // compare argv[0] for known response types
   //
 
-  // global force
+  // Global forces
   if (strcmp(argv[0], "forces") == 0 || 
       strcmp(argv[0], "force") == 0 ||
       strcmp(argv[0], "globalForce") == 0 ||
@@ -2057,7 +2017,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "My_2");
     output.tag("ResponseType", "Mz_2");
 
-    theResponse = new ElementResponse(this, Respond::LocalForce, Vector(12));
+    theResponse = new ElementResponse(this, Respond::LocalForce, Vector(NEN*NDF));
 
   // Basic force
   } else if (strcmp(argv[0], "basicForce") == 0 || 
@@ -2070,7 +2030,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "My_2");
     output.tag("ResponseType", "T");
 
-    theResponse = new ElementResponse(this, Respond::BasicForce, Vector(6));
+    theResponse = new ElementResponse(this, Respond::BasicForce, Vector(NBV));
 
   // basic stiffness
   } else if (strcmp(argv[0], "basicStiffness") == 0) {
@@ -2255,7 +2215,7 @@ int
 ForceFrame3d::getResponse(int responseID, Information& info)
 {
   THREAD_LOCAL Vector vp(6);
-  THREAD_LOCAL MatrixND<nq,nq> fe;
+  THREAD_LOCAL MatrixND<NBV,NBV> fe;
 
   if (responseID == 1)
     return info.setVector(this->getResistingForce());
@@ -2794,7 +2754,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
 
     dvpdh = dvdh;
 
-    static MatrixND<nq,nq> fe;
+    static MatrixND<NBV,NBV> fe;
     this->getInitialFlexibility(fe);
 
     const Vector& dqdh = this->getBasicForceGrad(gradNumber);
@@ -2960,7 +2920,7 @@ ForceFrame3d::getResistingForceSensitivity(int gradNumber)
   static Vector P(12);
   P.Zero();
 
-  VectorND<nq> dqdh = this->getBasicForceGrad(gradNumber);
+  VectorND<NBV> dqdh = this->getBasicForceGrad(gradNumber);
 
   // Transform forces
   double dp0dh[6];
@@ -3085,7 +3045,6 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
 VectorND<6>
 ForceFrame3d::getBasicForceGrad(int gradNumber)
 {
-//VectorND<nq> dqdh;
 
   double L   = theCoordTransf->getInitialLength();
   double jsx = 1.0 / L;
@@ -3229,9 +3188,6 @@ ForceFrame3d::getBasicForceGrad(int gradNumber)
     dvdh.addMatrixVector(1.0, dfedh, q_pres, -1.0);
 
 
-//dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
-
-
   return K_pres*dvdh;
 }
 
@@ -3261,8 +3217,8 @@ ForceFrame3d::computedfedh(int gradNumber)
     int order      = points[i].material->getOrder();
     const ID& code = points[i].material->getType();
 
-    Matrix fb(order, nq);
-    Matrix fb2(order, nq);
+    Matrix fb(order, NBV);
+    Matrix fb2(order, NBV);
 
     double xL  = points[i].point;
     double xL1 = xL - 1.0;
@@ -3321,11 +3277,11 @@ ForceFrame3d::computedfedh(int gradNumber)
     for (int ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (int jj = 0; jj < nq; jj++)
+        for (int jj = 0; jj < NBV; jj++)
           dfedh(0, jj) += fb(ii, jj);
         break;
       case SECTION_RESPONSE_MZ:
-        for (int jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = fb(ii, jj); // 1,2,3
           dfedh(1, jj) += xL1 * tmp;
           dfedh(2, jj) += xL * tmp;
@@ -3336,7 +3292,7 @@ ForceFrame3d::computedfedh(int gradNumber)
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (int jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = jsx * fb(ii, jj);
           dfedh(1, jj) += tmp;
           dfedh(2, jj) += tmp;
