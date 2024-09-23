@@ -62,9 +62,11 @@ public:
     const Vector &getBasicTrialVel();
     const Vector &getBasicTrialAccel();
     
-    // AddingSensitivity:BEGIN //////////////////////////////////
+    // Sensitivity
     const Vector &getBasicDisplTotalGrad(int gradNumber);
+    #if 0
     const Vector &getGlobalResistingForceShapeSensitivity(const Vector &basicForce, const Vector &p0);
+    #endif
     const Vector &getBasicDisplFixedGrad();
 
     // ---MHS
@@ -73,9 +75,8 @@ public:
 							   int gradNumber);
     bool isShapeSensitivity();
     double getLengthGrad();
-    double getd1overLdh();    
-    
-    // AddingSensitivity:END //////////////////////////////////
+    double getd1overLdh();
+
     
     const Vector &getGlobalResistingForce(const Vector &basicForce, const Vector &p0);
     const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce);

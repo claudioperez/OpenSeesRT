@@ -168,6 +168,7 @@ CrdTransf::getGlobalResistingForceShapeSensitivity(const Vector &pb,
     return dummy;
 }
 
+#if 0
 const Vector &
 CrdTransf::getGlobalResistingForceShapeSensitivity(const Vector &pb,
 						   const Vector &p0)
@@ -178,12 +179,13 @@ CrdTransf::getGlobalResistingForceShapeSensitivity(const Vector &pb,
     static Vector dummy(1);
     return dummy;
 }
+#endif
 
 const Vector &
 CrdTransf::getBasicDisplFixedGrad()
 {
     opserr << "ERROR CrdTransf::getBasicDisplFixedGrad() - has not been"
-        << " implemented yet for the chosen transformation." << endln;
+           << " implemented yet for the chosen transformation." << endln;
     
     static Vector dummy(1);
     return dummy;

@@ -63,12 +63,12 @@ public:
     const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce);
     const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff);
     
-// AddingSensitivity:BEGIN //////////////////////////////////
+    // Sensitivity
+    const Vector &getBasicDisplFixedGrad();
     const Vector &getBasicDisplTotalGrad(int gradNumber);
     const Vector &getGlobalResistingForceShapeSensitivity(const Vector &q,
 							  const Vector &p0,
 							  int gradNumber);
-    const Vector &getBasicDisplFixedGrad();
     bool isShapeSensitivity();
     double getLengthGrad();
     double getd1overLdh();

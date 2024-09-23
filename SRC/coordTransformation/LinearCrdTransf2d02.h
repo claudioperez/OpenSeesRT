@@ -65,12 +65,14 @@ public:
     const Vector &getGlobalResistingForce(const Vector &basicForce, const Vector &p0);
     const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce);
     const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff);
-    
+
     CrdTransf *getCopy2d();
     
-    // AddingSensitivity:BEGIN //////////////////////////////////
+    // Sensitivity
     const Vector &getBasicDisplTotalGrad(int gradNumber);
+    #if 0
     const Vector &getGlobalResistingForceShapeSensitivity(const Vector &basicForce, const Vector &p0);
+    #endif
     const Vector &getBasicDisplFixedGrad();
     const Vector & getGlobalResistingForceShapeSensitivity(const Vector &pb,
 							   const Vector &p0,
