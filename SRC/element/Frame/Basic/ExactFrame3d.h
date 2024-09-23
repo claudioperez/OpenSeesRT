@@ -516,16 +516,17 @@ ExactFrame3d<nen,nip>::Print(OPS_Stream& stream, int flag)
     stream << "\"name\": " << this->getTag() << ", ";
     stream << "\"type\": \"" << this->getClassType() << "\", ";
     stream << "\"nodes\": [" << node_tags(0) << ", " 
-                             << node_tags(1) << "], ";
+                             << node_tags(1) << "]";
+    stream << ", ";
 
 
     stream << "\"sections\": [";
     for (decltype(points.size()) i = 0; i < points.size() - 1; i++)
       stream << points[i].material->getTag() << ", ";
-    stream << points[points.size() - 1].material->getTag() << "], ";
-    stream << "\"crdTransformation\": " << transform->getTag()  ; // << ", ";
-//  stream << "\"integration\": {}";
-//  stencil->Print(s, flag);
+    stream << points[points.size() - 1].material->getTag() << "]";
+    stream << ", ";
+
+    stream << "\"crdTransformation\": " << transform->getTag()  ;
     stream << "}";
   }
 }

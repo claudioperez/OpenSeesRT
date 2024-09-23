@@ -59,7 +59,7 @@ class LinearShearTransf2d: public FrameTransform2d
   // AddingSensitivity:BEGIN //////////////////////////////////
   const Vector &getBasicDisplSensitivity (int gradNumber);
   const Vector &getGlobalResistingForceShapeSensitivity (const Vector &basicForce, const Vector &p0);
-  const Vector &getBasicTrialDispShapeSensitivity     (void);
+  const Vector &getBasicTrialDispShapeSensitivity(void);
   // AddingSensitivity:END //////////////////////////////////
 
   const Vector &getBasicTrialDisp(void);

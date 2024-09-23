@@ -1401,7 +1401,7 @@ TimoshenkoBeamColumn2d::getResponse(int responseID, Information &eleInfo)
 
   // Basic deformation sensitivity
   else if (responseID == 6) {
-    const Vector &dvdh = crdTransf->getBasicDisplSensitivity(1);
+    const Vector &dvdh = crdTransf->getBasicDisplTotalGrad(1);
     return eleInfo.setVector(dvdh);
   }
 
@@ -1567,7 +1567,7 @@ TimoshenkoBeamColumn2d::getResistingForceSensitivity(int gradNumber)
     double wti = wt[i];
 
     // Some extra declarations
-    double dLdh = crdTransf->getdLdh();
+    double dLdh = crdTransf->getLengthGrad();
 
     const Matrix &ks = theSections[i]->getSectionTangent();
     double EI        = 0.0;
@@ -1742,13 +1742,13 @@ TimoshenkoBeamColumn2d::getResistingForceSensitivity(int gradNumber)
     }
 
     const Vector &A_u = crdTransf->getBasicTrialDisp();
-    double dLdh       = crdTransf->getdLdh();
+    double dLdh       = crdTransf->getLengthGrad();
     double d1overLdh  = -dLdh / (L * L);
     // a^T k_s dadh v
     dqdh.addMatrixVector(1.0, kbmine, A_u, d1overLdh);
 
     // k dAdh u
-    const Vector &dAdh_u = crdTransf->getBasicTrialDispShapeSensitivity();
+    const Vector &dAdh_u = crdTransf->getBasicDisplFixedGrad();
     dqdh.addMatrixVector(1.0, kbmine, dAdh_u, oneOverL);
 
     // dAdh^T q
@@ -1769,7 +1769,7 @@ TimoshenkoBeamColumn2d::commitSensitivity(int gradNumber, int numGrads)
   const Vector &v = crdTransf->getBasicTrialDisp();
 
   static Vector dvdh(3);
-  dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+  dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
 
   double L        = crdTransf->getInitialLength();
   double oneOverL = 1.0 / L;
@@ -1779,7 +1779,7 @@ TimoshenkoBeamColumn2d::commitSensitivity(int gradNumber, int numGrads)
 
   // Some extra declarations
   double d1oLdh = crdTransf->getd1overLdh();
-  double dLdh   = crdTransf->getdLdh();
+  double dLdh   = crdTransf->getLengthGrad();
 
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {

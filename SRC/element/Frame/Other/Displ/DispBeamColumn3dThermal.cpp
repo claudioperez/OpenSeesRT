@@ -2107,13 +2107,13 @@ DispBeamColumn3dThermal::getResistingForceSensitivity(int gradNumber)
     }
 
     const Vector &A_u = crdTransf->getBasicTrialDisp();
-    double dLdh       = crdTransf->getdLdh();
+    double dLdh       = crdTransf->getLengthGrad();
     double d1overLdh  = -dLdh / (L * L);
     // a^T k_s dadh v
     dqdh.addMatrixVector(1.0, kbmine, A_u, d1overLdh);
 
     // k dAdh u
-    const Vector &dAdh_u = crdTransf->getBasicTrialDispShapeSensitivity();
+    const Vector &dAdh_u = crdTransf->getBasicDisplFixedGrad();
     dqdh.addMatrixVector(1.0, kbmine, dAdh_u, oneOverL);
 
     // dAdh^T q
@@ -2134,7 +2134,7 @@ DispBeamColumn3dThermal::commitSensitivity(int gradNumber, int numGrads)
   const Vector &v = crdTransf->getBasicTrialDisp();
 
   static Vector dvdh(6);
-  dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+  dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
 
   double L        = crdTransf->getInitialLength();
   double oneOverL = 1.0 / L;
