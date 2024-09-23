@@ -71,10 +71,8 @@
   
   #include <DispBeamColumn2d.h>
   #include <DispBeamColumn2dThermal.h>
-  #include <DispBeamColumn2dWithSensitivity.h>
   #include <DispBeamColumn3d.h>
   #include <DispBeamColumn3dThermal.h>
-  #include <DispBeamColumn3dWithSensitivity.h>
   #include <DispBeamColumnNL2d.h>
   
   #include <ElasticForceBeamColumn2d.h>
@@ -153,10 +151,8 @@
 
 #include <DispBeamColumn2d.h>
 #include <DispBeamColumn2dThermal.h>
-#include <DispBeamColumn2dWithSensitivity.h>
 #include <DispBeamColumn3d.h>
 #include <DispBeamColumn3dThermal.h>
-#include <DispBeamColumn3dWithSensitivity.h>
 #include <DispBeamColumnNL2d.h>
 
 #include <ElasticForceBeamColumn2d.h>
@@ -762,7 +758,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         theElement = new DispBeamColumn2dThermal(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
 
       else if (strcmp(argv[1], "dispBeamColumnWithSensitivity") == 0)
-        theElement = new DispBeamColumn2dWithSensitivity(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
+        theElement = new DispBeamColumn2d(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
 
 
       // Force formulations
@@ -846,7 +842,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
                                           mass, options.mass_flag);
 
       else if (strcmp(argv[1], "dispBeamColumnWithSensitivity") == 0)
-        theElement = new DispBeamColumn3dWithSensitivity(
+        theElement = new DispBeamColumn3d(
             tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf3d, mass);
 
       else if (strcmp(argv[1], "dispBeamColumnThermal") == 0)
