@@ -805,9 +805,9 @@ DispBeamColumn2dThermal::addLoad(ElementalLoad *theLoad, double loadFactor)
       }
     }
 
-    q0[0] -= q0Temperature[0];
-    q0[1] -= q0Temperature[1];
-    q0[2] -= q0Temperature[2];
+    // q0[0] -= q0Temperature[0];
+    // q0[1] -= q0Temperature[1];
+    // q0[2] -= q0Temperature[2];
 
   } else if (type == LOAD_TAG_NodalThermalAction) {
     //NodalLoad* theNodalThermal0,theNodalThermal1;
@@ -898,9 +898,9 @@ DispBeamColumn2dThermal::addLoad(ElementalLoad *theLoad, double loadFactor)
       }
     }
 
-    q0[0] -= q0Temperature[0];
-    q0[1] -= q0Temperature[1];
-    q0[2] -= q0Temperature[2];
+    // q0[0] -= q0Temperature[0];
+    // q0[1] -= q0Temperature[1];
+    // q0[2] -= q0Temperature[2];
   }
   //----------------------------------------------
   else if (type == LOAD_TAG_ThermalActionWrapper) {
@@ -980,9 +980,9 @@ DispBeamColumn2dThermal::addLoad(ElementalLoad *theLoad, double loadFactor)
     }
     //end of for loop
 
-    q0[0] -= q0Temperature[0];
-    q0[1] -= q0Temperature[1];
-    q0[2] -= q0Temperature[2];
+    // q0[0] -= q0Temperature[0];
+    // q0[1] -= q0Temperature[1];
+    // q0[2] -= q0Temperature[2];
   }
   //----------------------------------------
   else {
