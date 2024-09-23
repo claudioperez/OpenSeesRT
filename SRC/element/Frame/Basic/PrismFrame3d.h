@@ -82,7 +82,7 @@ class PrismFrame3d : public BasicFrame3d
 
     // Sensitivity
     virtual int getResponseSensitivity(int response, int grad, Information&);
-    virtual const Vector& getResistingForceSensitivity(int gradNumber);
+    virtual const Vector& getResistingForceSensitivity(int gradNumber) override;
 
   protected:
     // For BasicFrame3d

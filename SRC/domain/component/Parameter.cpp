@@ -47,7 +47,7 @@ Parameter::Parameter(int passedTag,
     parameterID[i] = 0;
   }
 
-  if (parentObject != 0) {
+  if (parentObject != nullptr) {
     ok = parentObject->setParameter(argv, argc, *this);
     theComponents[0] = parentObject;
     numComponents = 1;
@@ -211,7 +211,6 @@ Parameter::activate(bool active)
 double
 Parameter::getSensitivity(int index)
 {
-  //return 1.0;
   return (index == gradIndex) ? 1.0 : 0.0;
 }
 
@@ -221,8 +220,15 @@ Parameter::Print(OPS_Stream &s, int flag)
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
       s << OPS_PRINT_JSON_ELEM_INDENT << "{";
       s << "\"name\": " << this->getTag() << "," << " ";
-      s << "\"value\": " << this->getValue() << "," << " ";
-      s << "\"index\": " << gradIndex << "," << " ";
+      s << "\"value\": " << this->getValue();
+      s << ", ";
+      s << "\"index\": " << gradIndex ;
+      s << ", ";
+      s << "\"objects\": [" ;
+//    for (int i=0; i<numObjects-1; i++)
+//      s << "\"" << theObjects[i]->getClassType() << "\", ";
+//    s << "\"" << theObjects[numObjects-1]->getClassType() << "\"";
+      s << "]";
       s << "}";
 
       return;

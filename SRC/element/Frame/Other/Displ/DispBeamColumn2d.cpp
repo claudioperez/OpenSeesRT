@@ -1570,7 +1570,7 @@ DispBeamColumn2d::setParameter(const char **argv, int argc, Parameter &param)
   int ok = 0;
   for (int i = 0; i < numSections; i++) {
     ok = theSections[i]->setParameter(argv, argc, param);
-    if (ok != -1) 
+    if (ok != -1)
       result = ok;
   }
   ok = beamInt->setParameter(argv, argc, param);

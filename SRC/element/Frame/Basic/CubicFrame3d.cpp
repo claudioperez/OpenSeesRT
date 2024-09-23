@@ -30,6 +30,7 @@
 
 Matrix CubicFrame3d::K(12, 12);
 Vector CubicFrame3d::P(12);
+using namespace OpenSees;
 
 #define ELE_TAG_CubicFrame3d 0
 
@@ -1136,7 +1137,9 @@ CubicFrame3d::Print(OPS_Stream& s, int flag)
 
     s << "\"crdTransformation\": " << theCoordTransf->getTag() ;
     s << "}";
+    return;
   }
+
   if (flag == OPS_PRINT_CURRENTSTATE) {
     s << "\nCubicFrame3d, element id:  " << this->getTag() << "\n";
     s << "\tConnected external nodes:  " << connectedExternalNodes;
@@ -1166,8 +1169,6 @@ CubicFrame3d::Print(OPS_Stream& s, int flag)
     for (int i = 0; i < numSections; i++) {
       theSections[i]->Print(s, flag);
     }
-    //  if (density != 0)
-    //    opserr << "Mass: \n" << this->getMass();
   }
 
 }
