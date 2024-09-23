@@ -1253,7 +1253,6 @@ Response* MixedBeamColumn2d::setResponse(const char **argv, int argc,
     theResponse =  new ElementResponse(this, 5, Vector(2*numSections));
 
   }
-#endif
 
   else if (strcmp(argv[0],"sectionStiffness") == 0) {
 
@@ -1268,8 +1267,10 @@ Response* MixedBeamColumn2d::setResponse(const char **argv, int argc,
     delete [] q;
 
     theResponse =  new ElementResponse(this, 6, Vector(2*numSections));
+  }
+#endif
 
-  } else if (strcmp(argv[0],"integrationPoints") == 0) {
+  else if (strcmp(argv[0],"integrationPoints") == 0) {
     theResponse =  new ElementResponse(this, 100, Vector(numSections));
 
   } else if (strcmp(argv[0],"integrationWeights") == 0) {
