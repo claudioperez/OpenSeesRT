@@ -65,9 +65,6 @@
 #define THREAD_LOCAL static
 #define ELE_TAG_ForceDeltaFrame3d 0 // TODO
 
-Vector ForceDeltaFrame3d::theVector(12);
-
-
 void
 ForceDeltaFrame3d::getHk(int n, double xi[], Matrix& H)
 {
@@ -2184,11 +2181,11 @@ ForceDeltaFrame3d::Print(OPS_Stream& s, int flag)
     s << points[numSections - 1].material->getTag() << "]";
     s << ", ";
 
-    s << "\"integration\": ";
-    stencil->Print(s, flag);
+    s << "\"crdTransformation\": " << theCoordTransf->getTag();
     s << ", ";
 
-    s << "\"crdTransformation\": " << theCoordTransf->getTag() ;
+    s << "\"integration\": ";
+    stencil->Print(s, flag);
     s << "}";
 
     return;
@@ -2300,11 +2297,17 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
               strcmp(argv[0],"localForces") == 0) {
 
     output.tag("ResponseType", "N_1");
-    output.tag("ResponseType", "V_1");
-    output.tag("ResponseType", "M_1");
+    output.tag("ResponseType", "Vy_1");
+    output.tag("ResponseType", "Vz_1");
+    output.tag("ResponseType", "T_1");
+    output.tag("ResponseType", "My_1");
+    output.tag("ResponseType", "Mz_1");
     output.tag("ResponseType", "N_2");
-    output.tag("ResponseType", "V_2");
-    output.tag("ResponseType", "M_2");
+    output.tag("ResponseType", "Vy_2");
+    output.tag("ResponseType", "Vz_2");
+    output.tag("ResponseType", "T_2");
+    output.tag("ResponseType", "My_2");
+    output.tag("ResponseType", "Mz_2");
 
     theResponse = new ElementResponse(this, 2, Vector(12));
 
@@ -2497,24 +2500,45 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& info)
     return info.setVector(this->getResistingForce());
 
   else if (responseID == 2) {
-    double p0[6];
-    p0[0] = 0.0;
-    p0[1] = 0.0;
-    p0[2] = 0.0;
-    p0[3] = 0.0;
-    p0[4] = 0.0;
-    p0[5] = 0.0;
+    THREAD_LOCAL VectorND<12> v_resp{0.0};
+    THREAD_LOCAL Vector v_wrap(v_resp);
+
+    double p0[5];
+    p0[0] = p0[1] = p0[2] = p0[3] = p0[4] = 0.0;
     if (eleLoads.size() > 0)
       this->computeReactions(p0);
 
-    theVector(3) =  q_pres[0];
-    theVector(0) = -q_pres[0] + p0[0];
-    theVector(2) =  q_pres[1];
-    theVector(5) =  q_pres[2];
-    double V     = (q_pres[1] + q_pres[2]) / theCoordTransf->getInitialLength();
-    theVector(1) = V + p0[1];
-    theVector(4) = -V + p0[2];
-    return info.setVector(theVector);
+    // Axial
+    double N     = q_pres[0];
+    v_resp(6) =  N;
+    v_resp(0) = -N + p0[0];
+
+    // Torsion
+    double T     = q_pres[5];
+    v_resp(9) =  T;
+    v_resp(3) = -T;
+
+    // Moments about z and shears along y
+    double M1     = q_pres[1];
+    double M2     = q_pres[2];
+    v_resp(5)  = M1;
+    v_resp(11) = M2;
+    double L      = theCoordTransf->getInitialLength();
+    double V      = (M1 + M2) / L;
+    v_resp(1)  =  V + p0[1];
+    v_resp(7)  = -V + p0[2];
+
+    // Moments about y and shears along z
+    M1            = q_pres[3];
+    M2            = q_pres[4];
+    v_resp(4)  = M1;
+    v_resp(10) = M2;
+    V             = (M1 + M2) / L;
+    v_resp(2)  = -V + p0[3];
+    v_resp(8)  =  V + p0[4];
+
+    return info.setVector(v_wrap);
+
   }
 
 

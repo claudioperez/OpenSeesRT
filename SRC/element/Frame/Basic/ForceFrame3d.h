@@ -99,10 +99,11 @@ class ForceFrame3d: public BasicFrame3d
   // Constexpr
   //
   constexpr static int 
+        NDF = 6,
         nsr = 6,              // number of section resultants
         ndm = 3,              // dimension of the problem (3D)
-        nen = 2,              // number of element nodes
-        nq  = 6,              // number of element dof's in the basic system
+        NEN = 2,              // number of element nodes
+        NBV = 6,              // number of element dof's in the basic system
         maxNumSections = 20,
         maxSubdivisions= 10;
 
@@ -119,7 +120,7 @@ class ForceFrame3d: public BasicFrame3d
   // Functions
   //
   int setSectionPointers(std::vector<FrameSection*>&);
-  int getInitialFlexibility(MatrixND<nq,nq> &fe);
+  int getInitialFlexibility(MatrixND<NBV,NBV> &fe);
   int getInitialDeformations(Vector &v0);
   
   // Add section forces due to element loads
@@ -133,7 +134,7 @@ class ForceFrame3d: public BasicFrame3d
 
   // Sensitivity
   int parameterID;
-  VectorND<nq> getBasicForceGrad(int gradNumber);
+  VectorND<NBV> getBasicForceGrad(int gradNumber);
   const Matrix &computedfedh(int gradNumber);
   void getStressGrad(VectorND<nsr> &dspdh, int isec, int gradNumber);
 
