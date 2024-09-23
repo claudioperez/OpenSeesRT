@@ -112,8 +112,9 @@ Integrator::computeSensitivityAtEachIteration()
   return false ;
 }
 
+
 bool 
-Integrator::shouldComputeAtEachStep(void)
+Integrator::shouldComputeAtEachStep()
 {
   return (analysisTypeTag == 1);
 }

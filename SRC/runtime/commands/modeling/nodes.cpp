@@ -20,7 +20,9 @@
 #include <Domain.h>
 #include <BasicModelBuilder.h>
 
-#define G3_MAX_NUM_DOFS 1000000000000
+#define HeapNode Node
+
+// #define G3_MAX_NUM_DOFS 1000000000000
 #define G3_NUM_DOF_BUFFER 20
 
 int
@@ -43,7 +45,7 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-  Node *theNode = 0;
+  Node *theNode = nullptr;
 
   // read the node id
   int nodeId;
@@ -112,12 +114,13 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
   //
   switch (ndm) {
   case 1:
-    theNode = new Node(nodeId, ndf, xLoc);
+    theNode = new HeapNode(nodeId, ndf, xLoc);
     break;
   case 2:
-    theNode = new Node(nodeId, ndf, xLoc, yLoc);
+    theNode = new HeapNode(nodeId, ndf, xLoc, yLoc);
     break;
   case 3:
+#if 0
     if (getenv("NODE")) {
       switch (ndf) {
         case 3:
@@ -127,11 +130,12 @@ TclCommand_addNode(ClientData clientData, Tcl_Interp *interp, int argc,
           theNode = new NodeND<3, 6>(nodeId, xLoc, yLoc, zLoc);
           break;
         default:
-          theNode = new Node(nodeId, ndf, xLoc, yLoc, zLoc);
+          theNode = new HeapNode(nodeId, ndf, xLoc, yLoc, zLoc);
           break;
       }
     } else
-      theNode = new Node(nodeId, ndf, xLoc, yLoc, zLoc);
+#endif
+      theNode = new HeapNode(nodeId, ndf, xLoc, yLoc, zLoc);
     break;
   }
 

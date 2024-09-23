@@ -25,4 +25,5 @@ target_sources(OPS_Domain
 
 target_link_libraries(OPS_Domain PRIVATE OPS_Algorithm)
 
-target_include_directories(OPS_Domain PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Domain PUBLIC "${OPS_SRC_DIR}/analysis/analysis" ${CMAKE_CURRENT_LIST_DIR})
+

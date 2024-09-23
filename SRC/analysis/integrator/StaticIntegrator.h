@@ -41,12 +41,16 @@ enum class ReferencePattern {
   Full
 };
 
+
+
 class StaticIntegrator : public IncrementalIntegrator
 {
   public:
     StaticIntegrator(int classTag);    
 
     virtual ~StaticIntegrator();
+
+    virtual int newStep() = 0;
 
     // methods which define what the FE_Element and DOF_Groups add
     // to the system of equation object.
@@ -57,12 +61,23 @@ class StaticIntegrator : public IncrementalIntegrator
     virtual int formNodUnbalance(DOF_Group *theDof)   final;    
     virtual int formEleTangentSensitivity(FE_Element *theEle,int gradNumber); 
 
-    virtual int newStep() = 0;
-
   protected:
+    enum class ResidualType {
+      StaticUnbalance,
+      StaticSensitivity,
+      TransientUnbalance,
+//    TransientSensitivity
+    };
+    void setResidualType(ResidualType tag) {residualType = tag;}
+    ResidualType  getResidualType() { return residualType;}
+
+    void setGradIndex(int index) {gradIndex = index;}
+    int  getGradIndex() { return gradIndex;}
 
  
   private:
+    ResidualType residualType;
+    int gradIndex;
 };
 
 #endif

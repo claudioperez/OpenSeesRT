@@ -377,6 +377,18 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
         return -3;
       }
 
+      if (theStaticIntegrator->shouldComputeAtEachStep()) {
+        result = theStaticIntegrator->computeSensitivities();
+        if (result < 0) {
+          opserr << "StaticAnalysis::analyze() - the SensitivityAlgorithm failed";
+          opserr << " at step: " << i << " with domain at load factor ";
+          opserr << theDomain->getCurrentTime() << "\n";
+          theDomain->revertToLastCommit();
+          theStaticIntegrator->revertToLastStep();
+          return -5;
+        }    
+      }
+
       result = theStaticIntegrator->commit();
       if (result < 0) {
         opserr << "StaticAnalysis::analyze - ";
@@ -474,6 +486,16 @@ BasicAnalysisBuilder::analyzeStep(double dT)
     return -3;
   }
 
+  if (theTransientIntegrator->shouldComputeAtEachStep()) {
+    result = theTransientIntegrator->computeSensitivities();
+    if (result < 0) {
+      opserr << "TransientAnalysis::analyze() - the SensitivityAlgorithm failed";
+      opserr << " at time " << theDomain->getCurrentTime() << "\n";
+      theDomain->revertToLastCommit();
+      theTransientIntegrator->revertToLastStep();
+      return -5;
+    }    
+  }
 
   result = theTransientIntegrator->commit();
   if (result < 0) {

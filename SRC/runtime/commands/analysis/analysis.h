@@ -44,6 +44,10 @@ extern Tcl_CmdProc getCTestNorms;
 extern Tcl_CmdProc getCTestIter;
 extern Tcl_CmdProc TclCommand_algorithmRecorder;
 
+// from commands/analysis/sensitivity.cpp
+extern Tcl_CmdProc TclCommand_sensitivityAlgorithm;
+extern Tcl_CmdProc TclCommand_sensLambda;
+
 struct char_cmd {
   const char* name;
   Tcl_CmdProc*  func;
@@ -78,5 +82,9 @@ struct char_cmd {
     {"solveCPU",            &TclCommand_solveCPU},
   // recorder.cpp
     {"algorithmRecorder",   &TclCommand_algorithmRecorder},
+
+  // sensitivity
+    {"sensitivityAlgorithm", TclCommand_sensitivityAlgorithm},
+    {"sensLambda",           TclCommand_sensLambda},
 };
 

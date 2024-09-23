@@ -218,8 +218,18 @@ Parameter::getSensitivity(int index)
 void
 Parameter::Print(OPS_Stream &s, int flag)  
 {
-  s << "Parameter, tag = " << this->getTag() << " " << this->getValue() << endln;
-  //s << "\tparameterID = " << parameterID << endln;
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": " << this->getTag() << "," << " ";
+      s << "\"value\": " << this->getValue() << "," << " ";
+      s << "\"index\": " << gradIndex << "," << " ";
+      s << "}";
+
+      return;
+
+    } else {
+      s << "Parameter, tag = " << this->getTag() << " " << this->getValue() << endln;
+  }
 }
 
 
@@ -275,13 +285,13 @@ Parameter::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBro
 }
 
 int 
-Parameter::clean(void)
+Parameter::clean()
 {
   for (int i = 0; i < numObjects; i++) {
-    theObjects[i] = 0;
+    theObjects[i] = nullptr;
   }
   for (int i = 0; i < numComponents; i++) {
-    theComponents[i] = 0;
+    theComponents[i] = nullptr;
   }
 
   numObjects = 0;

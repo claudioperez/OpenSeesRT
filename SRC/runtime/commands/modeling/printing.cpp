@@ -32,6 +32,9 @@
 #include <MP_Constraint.h>
 #include <MP_ConstraintIter.h>
 
+#include <Parameter.h>
+#include <ParameterIter.h>
+
 #include <UniaxialMaterial.h>
 #include <NDMaterial.h>
 #include <SectionForceDeformation.h>
@@ -166,11 +169,6 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
     s << "\n" << tab << tab << "]";
 //  builder->printRegistry<CrdTransf>(s, flag);
 
-    // s << ",\n";
-    // //
-    // s << tab << tab << "\"constraints\": [\n";
-    // theDomain->Print(s, flag);
-    // s << "\n" << tab << tab << "]";
     s << "\n";
     //
     s << tab << "},\n";
@@ -193,18 +191,22 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
     s << "\n" << tab << tab << "],\n";
 
 
-    Element *theEle;
-    ElementIter &theElementss = theDomain->getElements();
-    numToPrint = theDomain->getNumElements();
-    numPrinted = 0;
-    s << tab << tab << "\"elements\": [\n";
-    while ((theEle = theElementss()) != nullptr) {
-      theEle->Print(s, flag);
-      numPrinted += 1;
-      if (numPrinted < numToPrint)
-        s << ",\n";
+    {
+      s << tab << tab << "\"elements\": [\n";
+      Element *theEle;
+      ElementIter &theElementss = theDomain->getElements();
+      numToPrint = theDomain->getNumElements();
+      numPrinted = 0;
+      while ((theEle = theElementss()) != nullptr) {
+        theEle->Print(s, flag);
+        numPrinted += 1;
+        if (numPrinted < numToPrint)
+          s << ",\n";
+      }
+      s << "\n" << tab << tab << "]";
     }
-    s << "\n" << tab << tab << "],\n";
+
+    s << ",\n";
 
     {
       s << tab << tab << "\"constraints\": [\n";
@@ -229,8 +231,28 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
         first_sp = false;
       }
 
+      s << "\n" << tab << tab << "]";
+    }
+
+    s << ",\n";
+
+    {
+      s << tab << tab << "\"parameters\": [\n";
+      ParameterIter &params = theDomain->getParameters();
+      Parameter *param;
+      bool first_mp = true;
+      while ((param = params()) != nullptr) {
+        if (!first_mp)
+          s << ",\n";
+
+        param->Print(s, flag);
+        first_mp = false;
+      }
       s << "\n" << tab << tab << "]\n";
     }
+
+    // END
+    s << "\n";
 
     s << tab << "}\n";
     s << "}\n";

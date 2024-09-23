@@ -145,7 +145,7 @@ TclCommand_parameter(ClientData clientData, Tcl_Interp *interp, int argc,
   if (strcmp(argv[0], "parameter") == 0 ||
       strcmp(argv[0], "addToParameter") == 0) {
     // RandomVariable *theRV = 0;
-    void *theRV = 0;
+    void *theRV = nullptr;
 
     MovableObject *theObject = nullptr;
 
