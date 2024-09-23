@@ -133,9 +133,9 @@ class ForceFrame3d: public BasicFrame3d
 
   // Sensitivity
   int parameterID;
-  const Vector &computedqdh(int gradNumber);
+  VectorND<nq> getBasicForceGrad(int gradNumber);
   const Matrix &computedfedh(int gradNumber);
-  void computeSectionForceSensitivity(Vector &dspdh, int isec, int gradNumber);
+  void getStressGrad(VectorND<nsr> &dspdh, int isec, int gradNumber);
 
   //
   // Data

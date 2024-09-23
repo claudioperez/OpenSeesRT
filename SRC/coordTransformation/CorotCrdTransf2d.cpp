@@ -1168,6 +1168,7 @@ CorotCrdTransf2d::Print(OPS_Stream &s, int flag)
   }
 }
 
+
 const Vector &
 CorotCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &q,
                                                           const Vector &p0,
@@ -1284,6 +1285,10 @@ CorotCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &q,
 const Vector &
 CorotCrdTransf2d::getBasicDisplSensitivity(int gradNumber)
 {
+  //
+  // Called in commit
+  //
+
   static Vector dvdh(3);
   dvdh.Zero();
 
@@ -1295,42 +1300,31 @@ CorotCrdTransf2d::getBasicDisplSensitivity(int gradNumber)
   double dcosThetadh = 0.0;
   double dsinThetadh = 0.0;
 
-  // double dx = cosTheta * L;
-  // double dy = sinTheta * L;
-
   double dLdh = this->getdLdh();
 
   if (nodeIid == 1) { // here x1 is random
-    //dcosThetadh = (-L+dx*dx/L)/(L*L);
-    //dsinThetadh = dx*dy/(L*L*L);
     dcosThetadh = -1 / L - cosTheta / L * dLdh;
     dsinThetadh = -sinTheta / L * dLdh;
   }
   if (nodeIid == 2) { // here y1 is random
-    //dsinThetadh = (-L+dy*dy/L)/(L*L);
-    //dcosThetadh = dx*dy/(L*L*L);
     dcosThetadh = -cosTheta / L * dLdh;
     dsinThetadh = -1 / L - sinTheta / L * dLdh;
   }
 
   if (nodeJid == 1) { // here x2 is random
-    //dcosThetadh = (L-dx*dx/L)/(L*L);
-    //dsinThetadh = -dx*dy/(L*L*L);
     dcosThetadh = 1 / L - cosTheta / L * dLdh;
     dsinThetadh = -sinTheta / L * dLdh;
   }
   if (nodeJid == 2) { // here y2 is random
-    //dsinThetadh = (L-dy*dy/L)/(L*L);
-    //dcosThetadh = -dx*dy/(L*L*L);
     dcosThetadh = -cosTheta / L * dLdh;
     dsinThetadh = 1 / L - sinTheta / L * dLdh;
   }
 
-  static Vector U(6);
-  static Vector dUdh(6);
-
   const Vector &disp1 = nodeIPtr->getTrialDisp();
   const Vector &disp2 = nodeJPtr->getTrialDisp();
+
+  static Vector U(6);
+  static Vector dUdh(6);
   for (int i = 0; i < 3; i++) {
     U(i)        = disp1(i);
     U(i + 3)    = disp2(i);
@@ -1340,29 +1334,37 @@ CorotCrdTransf2d::getBasicDisplSensitivity(int gradNumber)
 
   static Vector dudh(6);
 
-  dudh(0) = cosTheta * dUdh(0) + sinTheta * dUdh(1);
+  dudh(0) =  cosTheta * dUdh(0) + sinTheta * dUdh(1);
   dudh(1) = -sinTheta * dUdh(0) + cosTheta * dUdh(1);
-  dudh(2) = dUdh(2);
-  dudh(3) = cosTheta * dUdh(3) + sinTheta * dUdh(4);
+  dudh(2) =  dUdh(2);
+  dudh(3) =  cosTheta * dUdh(3) + sinTheta * dUdh(4);
   dudh(4) = -sinTheta * dUdh(3) + cosTheta * dUdh(4);
-  dudh(5) = dUdh(5);
+  dudh(5) =  dUdh(5);
 
+  //
+  // dudh += dAdh * U
+  //
   if (nodeIid != 0 || nodeJid != 0) {
-    dudh(0) += dcosThetadh * U(0) + dsinThetadh * U(1);
+    dudh(0) +=  dcosThetadh * U(0) + dsinThetadh * U(1);
     dudh(1) += -dsinThetadh * U(0) + dcosThetadh * U(1);
-    dudh(3) += dcosThetadh * U(3) + dsinThetadh * U(4);
+    dudh(3) +=  dcosThetadh * U(3) + dsinThetadh * U(4);
     dudh(4) += -dsinThetadh * U(3) + dcosThetadh * U(4);
   }
 
-  double duxdh = dudh(3) - dudh(0);
-  double duydh = dudh(4) - dudh(1);
+  //
+  //
+  //
+  double dalphadh, dLndh;
+  {
+    double duxdh = dudh(3) - dudh(0);
+    double duydh = dudh(4) - dudh(1);
 
-  //double dLdh  = this->getdLdh();
-  double dLndh = cosAlpha * (dLdh + duxdh) + sinAlpha * duydh;
+    dLndh = cosAlpha * (dLdh + duxdh) + sinAlpha * duydh;
 
-  double dalphadh = (cosAlpha * duydh - sinAlpha * (dLdh + duxdh)) / Ln;
+    dalphadh = (cosAlpha * duydh - sinAlpha * (dLdh + duxdh)) / Ln;
+  }
 
-  // direct differentiation of v(u) wrt theta
+  // direct differentiation of v(u) wrt theta, Eq. (23)
   dvdh(0) = dLndh - dLdh;
   dvdh(1) = dudh(2) - dalphadh;
   dvdh(2) = dudh(5) - dalphadh;
@@ -1373,6 +1375,9 @@ CorotCrdTransf2d::getBasicDisplSensitivity(int gradNumber)
 const Vector &
 CorotCrdTransf2d::getBasicTrialDispShapeSensitivity(void)
 {
+  //
+  // Called in getResistingForceSensitivity
+
   static Vector dvdh(3);
   dvdh.Zero();
 
@@ -1382,41 +1387,27 @@ CorotCrdTransf2d::getBasicTrialDispShapeSensitivity(void)
   if (nodeIid == 0 && nodeJid == 0)
     return dvdh;
 
-  static Matrix Abl(3, 6);
-
   this->update();
-  this->compTransfMatrixBasicLocal(Abl);
 
   double dcosThetadh = 0.0;
   double dsinThetadh = 0.0;
 
-  // double dx = cosTheta * L;
-  // double dy = sinTheta * L;
-
   double dLdh = this->getdLdh();
 
   if (nodeIid == 1) { // here x1 is random
-    //dcosThetadh = (-L+dx*dx/L)/(L*L);
-    //dsinThetadh = dx*dy/(L*L*L);
     dcosThetadh = -1 / L - cosTheta / L * dLdh;
     dsinThetadh = -sinTheta / L * dLdh;
   }
   if (nodeIid == 2) { // here y1 is random
-    //dsinThetadh = (-L+dy*dy/L)/(L*L);
-    //dcosThetadh = dx*dy/(L*L*L);
     dcosThetadh = -cosTheta / L * dLdh;
     dsinThetadh = -1 / L - sinTheta / L * dLdh;
   }
 
   if (nodeJid == 1) { // here x2 is random
-    //dcosThetadh = (L-dx*dx/L)/(L*L);
-    //dsinThetadh = -dx*dy/(L*L*L);
     dcosThetadh = 1 / L - cosTheta / L * dLdh;
     dsinThetadh = -sinTheta / L * dLdh;
   }
   if (nodeJid == 2) { // here y2 is random
-    //dsinThetadh = (L-dy*dy/L)/(L*L);
-    //dcosThetadh = -dx*dy/(L*L*L);
     dcosThetadh = -cosTheta / L * dLdh;
     dsinThetadh = 1 / L - sinTheta / L * dLdh;
   }
@@ -1430,19 +1421,24 @@ CorotCrdTransf2d::getBasicTrialDispShapeSensitivity(void)
     U(i + 3) = disp2(i);
   }
 
+  // Eq. (27)
   dvdh(0) = (cosAlpha - 1.0) * dLdh;
   dvdh(1) = (sinAlpha / Ln) * dLdh;
   dvdh(2) = (sinAlpha / Ln) * dLdh;
 
   static Vector dAdh_U(6);
   // dAdh * U
-  dAdh_U(0) = dcosThetadh * U(0) + dsinThetadh * U(1);
+  dAdh_U(0) =  dcosThetadh * U(0) + dsinThetadh * U(1);
   dAdh_U(1) = -dsinThetadh * U(0) + dcosThetadh * U(1);
   dAdh_U(2) = 0.0;
-  dAdh_U(3) = dcosThetadh * U(3) + dsinThetadh * U(4);
+  dAdh_U(3) =  dcosThetadh * U(3) + dsinThetadh * U(4);
   dAdh_U(4) = -dsinThetadh * U(3) + dcosThetadh * U(4);
   dAdh_U(5) = 0.0;
 
+
+  //
+  static Matrix Abl(3, 6);
+  this->compTransfMatrixBasicLocal(Abl);
   dvdh += Abl * dAdh_U;
 
   return dvdh;

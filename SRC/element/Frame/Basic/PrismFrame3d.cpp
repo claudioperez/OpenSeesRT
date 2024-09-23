@@ -890,7 +890,6 @@ PrismFrame3d::getResponse(int responseID, Information &info)
   double oneOverL = 1.0/L;
   static Vector Res(12);
   Res = this->getResistingForce();
-  opserr << Res << "\n";
   static Vector s(6);
   
   switch (responseID) {
@@ -955,6 +954,32 @@ PrismFrame3d::getResponse(int responseID, Information &info)
     break;
   }
   return -1;
+}
+
+int
+PrismFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information& info)
+{
+  // Basic deformation sensitivity
+  if (responseID == 3) {
+    const Vector& dvdh = theCoordTransf->getBasicDisplTotalGrad(gradNumber);
+    return info.setVector(dvdh);
+  }
+
+  // Basic force sensitivity
+  else if (responseID == 7) {
+    static Vector dqdh(6);
+
+    const Vector& dvdh = theCoordTransf->getBasicDisplTotalGrad(gradNumber);
+#if 0
+    dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
+#endif
+    dqdh.addVector(1.0, this->getBasicForceGrad(gradNumber), 1.0);
+
+    return info.setVector(dqdh);
+  }
+
+  else
+    return -1;
 }
 
 
@@ -1040,11 +1065,26 @@ PrismFrame3d::updateParameter(int parameterID, Information &info)
     formBasicStiffness(km);
 }
 
-#if 0
-void
-kg_expm(double L, double GAy, double GAz, double EIy, double EIz)
+
+const Vector&
+PrismFrame3d::getBasicForceGrad(int gradNumber)
 {
 
-  Y.addDiagonal(1)
-}
+  double L   = theCoordTransf->getInitialLength();
+  double jsx = 1.0 / L;
+
+  double dLdh = theCoordTransf->getLengthGrad();
+
+  double d1oLdh = theCoordTransf->getd1overLdh();
+
+  static Vector dvdh(6);
+  dvdh.Zero();
+
+  static Vector dqdh(6);
+#if 0
+  dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
 #endif
+
+  return dqdh;
+}
+

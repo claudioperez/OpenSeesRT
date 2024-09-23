@@ -180,7 +180,7 @@ CrdTransf::getGlobalResistingForceShapeSensitivity(const Vector &pb,
 }
 
 const Vector &
-CrdTransf::getBasicTrialDispShapeSensitivity(void)
+CrdTransf::getBasicTrialDispShapeSensitivity()
 {
     opserr << "ERROR CrdTransf::getBasicTrialDispShapeSensitivity() - has not been"
         << " implemented yet for the chosen transformation." << endln;
@@ -189,15 +189,3 @@ CrdTransf::getBasicTrialDispShapeSensitivity(void)
     return dummy;
 }
 
-
-
-// --Quan
-const Vector &
-CrdTransf::getBasicDisplSensitivity(int gradNumber, int)
-{
-    opserr << "WARNING CrdTransf::getBasicDisplSensitivity() - this method "
-        << " should not be called." << endln;
-    
-    static Vector dummy(1);
-    return dummy;
-}

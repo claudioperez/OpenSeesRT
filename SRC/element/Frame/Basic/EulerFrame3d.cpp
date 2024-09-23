@@ -1089,7 +1089,7 @@ EulerFrame3d::getResponse(int responseID, Information &info)
   return -1;
 }
 
-// AddingSensitivity:BEGIN ///////////////////////////////////
+
 int
 EulerFrame3d::setParameter(const char **argv, int argc, Parameter &param)
 {
@@ -1170,22 +1170,22 @@ EulerFrame3d::getInitialStiffSensitivity(int gradNumber)
   return K;
 }
 
-const Vector &
-EulerFrame3d::getResistingForceSensitivity(int gradNumber)
+VectorND<6>
+EulerFrame3d::getBasicForceGrad(int gradNumber)
 {
-  double L = theCoordTransf->getInitialLength();
-  double jsx = 1.0/L;
-
-  int ok = this->setState(State::Init);
-  assert(ok == 0);
-
-  // Zero for integration
-  static Vector dqdh(6);
-  dqdh.Zero();
+  //
+  // Return the *conditional* derivative:
+  //   dqdh|_v
+  //
+  //
+  // See Haukaas and Scott (2006)
+  //
+  VectorND<6> dqdh;
+  dqdh.zero();
   
-  // Loop over the integration points
+  // Perform numerical integration
   for (int i = 0; i < numSections; i++) {
-    
+
     int order = points[i].material->getOrder();
     const ID &code = points[i].material->getType();
     
@@ -1193,12 +1193,11 @@ EulerFrame3d::getResistingForceSensitivity(int gradNumber)
     double wti = wt[i];
     
     // Get section stress resultant gradient
-    const Vector &dsdh = points[i].material->getStressResultantSensitivity(gradNumber,true);
+    const Vector &dsdh = points[i].material->getStressResultantSensitivity(gradNumber, true);
     
     // Perform numerical integration on internal force gradient
-    double sensi;
     for (int j = 0; j < order; j++) {
-      sensi = dsdh(j)*wti;
+      double sensi = dsdh(j)*wti;
       switch(code(j)) {
       case SECTION_RESPONSE_P:
         dqdh(0) += sensi; 
@@ -1219,122 +1218,49 @@ EulerFrame3d::getResistingForceSensitivity(int gradNumber)
       }
     }
   }
-  
-  // Transform forces
-  static Vector dp0dh(6);                // No distributed loads
 
-  P.Zero();
-
-  //////////////////////////////////////////////////////////////
-
-  if (theCoordTransf->isShapeSensitivity()) {
-    
-    // Perform numerical integration to obtain basic stiffness matrix
-    // Some extra declarations
-    static Matrix kbmine(6,6);
-    kbmine.Zero();
-    q.zero();
-    
-
-    for (int i = 0; i < numSections; i++) {
-      
-      int order = points[i].material->getOrder();
-      const ID &code = points[i].material->getType();
-
-      double xi6 = 6.0*points[i].point;
-      double wti =     points[i].weight;
-      
-      const Vector &s = points[i].material->getStressResultant();
-      const Matrix &ks = points[i].material->getSectionTangent();
-      
-      Matrix ka(order, 6);
-      ka.Zero();
-      
-      for (int j = 0; j < order; j++) {
-        double tmp;
-        double si = s[j]*wti;
-        switch(code(j)) {
-        case SECTION_RESPONSE_P:
-          q[0] += si;
-          for (int k = 0; k < nsr; k++)
-            ka(k,0) += ks(k,j)*wti;
-          break;
-        case SECTION_RESPONSE_MZ:
-          q[1] += (xi6-4.0)*si; 
-          q[2] += (xi6-2.0)*si;
-          for (int k = 0; k < order; k++) {
-            tmp = ks(k,j)*wti;
-            ka(k,1) += (xi6-4.0)*tmp;
-            ka(k,2) += (xi6-2.0)*tmp;
-          }
-          break;
-        case SECTION_RESPONSE_MY:
-          q[3] += (xi6-4.0)*si; 
-          q[4] += (xi6-2.0)*si;
-          for (int k = 0; k < nsr; k++) {
-            tmp = ks(k,j)*wti;
-            ka(k,3) += (xi6-4.0)*tmp;
-            ka(k,4) += (xi6-2.0)*tmp;
-          }
-          break;
-        case SECTION_RESPONSE_T:
-          q[5] += si;
-          for (int k = 0; k < order; k++) {
-            ka(k,5) += ks(k,j)*wti;
-          }
-          break;
-        default:
-          break;
-        }
-      }
-      //
-      for (int j = 0; j < order; j++) {
-        double tmp;
-        switch (code(j)) {
-        case SECTION_RESPONSE_P:
-          for (int k = 0; k < 6; k++) {
-            kbmine(0,k) += ka(j,k);
-          }
-          break;
-        case SECTION_RESPONSE_MZ:
-          for (int k = 0; k < 6; k++) {
-            tmp = ka(j,k);
-            kbmine(1,k) += (xi6-4.0)*tmp;
-            kbmine(2,k) += (xi6-2.0)*tmp;
-          }
-          break;
-        case SECTION_RESPONSE_MY:
-          for (int k = 0; k < 6; k++) {
-            tmp = ka(j,k);
-            kbmine(3,k) += (xi6-4.0)*tmp;
-            kbmine(4,k) += (xi6-2.0)*tmp;
-          }
-          break;
-        case SECTION_RESPONSE_T:
-          for (int k = 0; k < 6; k++) {
-            kbmine(5,k) += ka(j,k);
-          }
-          break;
-        default:
-          break;
-        }
-      }
-    }      
+  if (theCoordTransf->isShapeSensitivity()) { 
+ 
+    MatrixND<6,6> &Kb = getBasicTangent(State::Pres, 0);
+    double L   = theCoordTransf->getInitialLength();
     
     const Vector &A_u = theCoordTransf->getBasicTrialDisp();
-    double dLdh = theCoordTransf->getdLdh();
+    double dLdh = theCoordTransf->getLengthGrad();
     double d1overLdh = -dLdh/(L*L);
-    // a^T k_s dadh v
-    dqdh.addMatrixVector(1.0, kbmine, A_u, d1overLdh);
 
+    // a^T k_s dadh v
+    dqdh.addMatrixVector(1.0, Kb, A_u, d1overLdh);
+  }
+
+  return dqdh;
+}
+
+const Vector &
+EulerFrame3d::getResistingForceSensitivity(int gradNumber)
+{
+  //
+  // dAdh^T q + A^T (dqdh + k dAdh u)
+  //
+  static Vector P(12);
+  P.Zero();
+
+  VectorND<6> dqdh = getBasicForceGrad(gradNumber);
+
+  double jsx = 1.0/theCoordTransf->getInitialLength();
+
+  // TODO: No distributed loads
+  static Vector dp0dh(6);   
+
+  if (theCoordTransf->isShapeSensitivity()) {
     // k dAdh u
-    const Vector &dAdh_u = theCoordTransf->getBasicTrialDispShapeSensitivity();
-    dqdh.addMatrixVector(1.0, kbmine, dAdh_u, jsx);
+    const Vector &dAdh_u = theCoordTransf->getBasicDisplFixedGrad();
+    dqdh.addMatrixVector(1.0, kb, dAdh_u, jsx);
 
     // dAdh^T q
-    P += theCoordTransf->getGlobalResistingForceShapeSensitivity(q, dp0dh, gradNumber);
+    P = theCoordTransf->getGlobalResistingForceShapeSensitivity(q, dp0dh, gradNumber);
   }
-  
+
+
   // A^T (dqdh + k dAdh u)
   P += theCoordTransf->getGlobalResistingForce(dqdh, dp0dh);
   
@@ -1349,12 +1275,11 @@ EulerFrame3d::commitSensitivity(int gradNumber, int numGrads)
   const Vector &v = theCoordTransf->getBasicTrialDisp();
   
   static Vector dvdh(6);
-  dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
+  dvdh = theCoordTransf->getBasicDisplTotalGrad(gradNumber);
   
   double L = theCoordTransf->getInitialLength();
   double jsx = 1.0/L;
 
-  // Some extra declarations
   double d1oLdh = theCoordTransf->getd1overLdh();
   
   // Loop over the integration points

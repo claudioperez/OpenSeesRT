@@ -93,21 +93,21 @@ LinearShearTransf2d::~LinearShearTransf2d()
 
 
 int
-LinearShearTransf2d::commitState(void)        
+LinearShearTransf2d::commitState()        
 {
    return 0;
 }
 
 
 int
-LinearShearTransf2d::revertToLastCommit(void)    
+LinearShearTransf2d::revertToLastCommit()    
 {
    return 0;
 }
 
 
 int
-LinearShearTransf2d::revertToStart(void)    
+LinearShearTransf2d::revertToStart()    
 {
    return 0;
 }
@@ -137,7 +137,7 @@ LinearShearTransf2d::initialize(Node *nodeIPointer, Node *nodeJPointer)
 
 
 int
-LinearShearTransf2d::update(void)    
+LinearShearTransf2d::update()    
 {       
    return 0;
 }
@@ -204,21 +204,21 @@ LinearShearTransf2d::compTransfMatrixLocalGlobal(Matrix &Tlg)
 
 
 double 
-LinearShearTransf2d::getInitialLength(void)    
+LinearShearTransf2d::getInitialLength()    
 {
    return L;
 }
 
 
 double 
-LinearShearTransf2d::getDeformedLength(void)
+LinearShearTransf2d::getDeformedLength()
 {
    return L;
 }
 
 
 const Vector &
-LinearShearTransf2d::getBasicTrialDisp(void)
+LinearShearTransf2d::getBasicTrialDisp()
 {
     // determine global displacements
     const Vector &disp1 = nodeIPtr->getTrialDisp();
@@ -264,7 +264,7 @@ LinearShearTransf2d::getBasicTrialDisp(void)
 
 
 const Vector &
-LinearShearTransf2d::getBasicTrialDispInt(void)    //LMS
+LinearShearTransf2d::getBasicTrialDispInt()    //LMS
 {
     // determine global displacements
     const Vector &disp1 = nodeIPtr->getTrialDisp();
@@ -297,7 +297,7 @@ LinearShearTransf2d::getBasicTrialDispInt(void)    //LMS
 
 
 const Vector &
-LinearShearTransf2d::getBasicTrialDispShapeSensitivity(void)
+LinearShearTransf2d::getBasicTrialDispShapeSensitivity()
 {
     // Want to return dAdh * u
 
@@ -368,7 +368,7 @@ LinearShearTransf2d::getBasicTrialDispShapeSensitivity(void)
 
 
 const Vector &
-LinearShearTransf2d::getBasicIncrDisp(void)
+LinearShearTransf2d::getBasicIncrDisp()
 {
     // determine global displacements
     const Vector &disp1 = nodeIPtr->getIncrDisp();
@@ -413,7 +413,7 @@ LinearShearTransf2d::getBasicIncrDisp(void)
 
 
 const Vector &
-LinearShearTransf2d::getBasicIncrDeltaDisp(void)
+LinearShearTransf2d::getBasicIncrDeltaDisp()
 {
     // determine global displacements
     const Vector &disp1 = nodeIPtr->getIncrDeltaDisp();
@@ -1008,7 +1008,7 @@ LinearShearTransf2d::getInitialGlobalStiffMatrixInt(const Matrix &kb)    //LMS
 
 
 CrdTransf *
-LinearShearTransf2d::getCopy2d(void)        
+LinearShearTransf2d::getCopy2d()        
 {
   // create a new instance of LinearShearTransf2d 
 
@@ -1306,7 +1306,7 @@ LinearShearTransf2d::getBasicDisplSensitivity(int gradNumber)
 // AddingSensitivity:END /////////////////////////////////////
 
 const Vector &
-LinearShearTransf2d::getBasicTrialVel(void)
+LinearShearTransf2d::getBasicTrialVel()
 {
     // determine global velocities
     const Vector &vel1 = nodeIPtr->getTrialVel();
@@ -1351,7 +1351,7 @@ LinearShearTransf2d::getBasicTrialVel(void)
 
 
 const Vector &
-LinearShearTransf2d::getBasicTrialAccel(void)
+LinearShearTransf2d::getBasicTrialAccel()
 {
     // determine global accelerations
     const Vector &accel1 = nodeIPtr->getTrialAccel();

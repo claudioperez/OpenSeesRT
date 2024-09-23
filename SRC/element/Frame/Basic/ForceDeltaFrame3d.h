@@ -181,11 +181,11 @@ private:
   // Sensitivity
   //
   int parameterID;
-  const Vector& computedqdh(int gradNumber);
+  const Vector& getBasicForceGrad(int gradNumber);
   const Matrix& computedfedh(int gradNumber);
   void computedwdh(double dwidh[], int gradNumber, const Vector& q);
 //void computeReactionSensitivity(double* dp0dh, int gradNumber);
-  void computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNumber);
+  void getStressGrad(VectorND<nsr>& dspdh, int isec, int gradNumber);
 
 };
 

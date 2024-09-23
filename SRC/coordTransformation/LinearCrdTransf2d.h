@@ -48,36 +48,32 @@ public:
     const char *getClassType() const {return "LinearCrdTransf2d";};
     
     int initialize(Node *node1Pointer, Node *node2Pointer);
-    int update(void);
-    double getInitialLength(void);
-    double getDeformedLength(void);
+    int update();
+    double getInitialLength();
+    double getDeformedLength();
     
-    int commitState(void);
-    int revertToLastCommit(void);        
-    int revertToStart(void);
+    int commitState();
+    int revertToLastCommit();        
+    int revertToStart();
     
-    const Vector &getBasicTrialDisp(void);
-    const Vector &getBasicIncrDisp(void);
-    const Vector &getBasicIncrDeltaDisp(void);
-    const Vector &getBasicTrialVel(void);
-    const Vector &getBasicTrialAccel(void);
+    const Vector &getBasicTrialDisp();
+    const Vector &getBasicIncrDisp();
+    const Vector &getBasicIncrDeltaDisp();
+    const Vector &getBasicTrialVel();
+    const Vector &getBasicTrialAccel();
     
     // AddingSensitivity:BEGIN //////////////////////////////////
     const Vector &getBasicDisplSensitivity(int gradNumber);
     const Vector &getGlobalResistingForceShapeSensitivity(const Vector &basicForce, const Vector &p0);
-    const Vector &getBasicTrialDispShapeSensitivity(void);
+    const Vector &getBasicTrialDispShapeSensitivity();
 
     // ---MHS
     const Vector & getGlobalResistingForceShapeSensitivity(const Vector &pb,
 							   const Vector &p0,
 							   int gradNumber);
-    bool isShapeSensitivity(void);
-    double getdLdh(void);
-    double getd1overLdh(void);
-    
-    // --Quan. no shape sensitivity
-    const Vector & getBasicDisplSensitivity(int gradNumber, int flag); 
-    
+    bool isShapeSensitivity();
+    double getdLdh();
+    double getd1overLdh();    
     
     // AddingSensitivity:END //////////////////////////////////
     
@@ -85,7 +81,7 @@ public:
     const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce);
     const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff);
     
-    CrdTransf *getCopy2d(void);
+    CrdTransf *getCopy2d();
     
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
@@ -103,7 +99,7 @@ public:
     int getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
     
 private:
-    int computeElemtLengthAndOrient(void);
+    int computeElemtLengthAndOrient();
     void compTransfMatrixLocalGlobal(Matrix &Tlg);
     
     // internal data

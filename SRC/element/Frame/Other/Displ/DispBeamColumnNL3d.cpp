@@ -1714,7 +1714,7 @@ DispBeamColumnNL3d::getResponse(int responseID, Information &eleInfo)
 
   // Basic deformation sensitivity
   else if (responseID == 6) {
-    const Vector &dvdh = crdTransf->getBasicDisplSensitivity(1);
+    const Vector &dvdh = crdTransf->getBasicDisplTotalGrad(1);
     return eleInfo.setVector(dvdh);
   }
 
@@ -1802,7 +1802,7 @@ DispBeamColumnNL3d::getResponseSensitivity(int responseID, int gradNumber,
 {
   // Basic deformation sensitivity
   if (responseID == 3) {
-    const Vector &dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+    const Vector &dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
     return eleInfo.setVector(dvdh);
   }
 
@@ -1826,7 +1826,7 @@ DispBeamColumnNL3d::getResponseSensitivity(int responseID, int gradNumber,
     dsdh = theSections[sectionNum - 1]->getStressResultantSensitivity(gradNumber, true);
 
     const Vector &v    = crdTransf->getBasicTrialDisp();
-    const Vector &dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+    const Vector &dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
 
     double L        = crdTransf->getInitialLength();
     double oneOverL = 1.0 / L;
@@ -2115,7 +2115,7 @@ DispBeamColumnNL3d::getResistingForceSensitivity(int gradNumber)
   }
 
   if (crdTransf->isShapeSensitivity()) {
-    double dLdh = crdTransf->getdLdh();
+    double dLdh = crdTransf->getLengthGrad();
 
     double dptsdh[maxNumSections];
     beamInt->getLocationsDeriv(numSections, L, dLdh, dptsdh);
@@ -2240,7 +2240,7 @@ DispBeamColumnNL3d::getResistingForceSensitivity(int gradNumber)
     this->getBasicStiff(kbmine);
 
     // k dAdh u
-    const Vector &dAdh_u = crdTransf->getBasicTrialDispShapeSensitivity();
+    const Vector &dAdh_u = crdTransf->getBasicDisplFixedGrad();
     //dqdh.addMatrixVector(1.0, kbmine, dAdh_u, oneOverL);
     dqdh.addMatrixVector(1.0, kbmine, dAdh_u, 1.0);
 
@@ -2262,7 +2262,7 @@ DispBeamColumnNL3d::commitSensitivity(int gradNumber, int numGrads)
   const Vector &v = crdTransf->getBasicTrialDisp();
 
   static Vector dvdh(6);
-  dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+  dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
 
   double L        = crdTransf->getInitialLength();
   double oneOverL = 1.0 / L;

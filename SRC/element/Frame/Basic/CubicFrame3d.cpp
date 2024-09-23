@@ -1116,18 +1116,26 @@ CubicFrame3d::Print(OPS_Stream& s, int flag)
     s << OPS_PRINT_JSON_ELEM_INDENT << "{";
     s << "\"name\": " << this->getTag() << ", ";
     s << "\"type\": \"" << this->getClassType() << "\", ";
+
     s << "\"nodes\": [" << node_tags(0) << ", " 
-                        << node_tags(1) << "], ";
+                        << node_tags(1) << "]";
+    s << ", ";
+
+    s << "\"massperlength\": " << density;
+    s << ", ";
 
     s << "\"sections\": [";
     for (int i = 0; i < numSections - 1; i++)
-      s << "\"" << theSections[i]->getTag() << "\", ";
+      s << theSections[i]->getTag() << ", ";
+    s << theSections[numSections - 1]->getTag() << "]";
+    s << ", ";
 
-    s << "\"" << theSections[numSections - 1]->getTag() << "\"], ";
     s << "\"integration\": ";
     beamInt->Print(s, flag);
-    s << ", \"massperlength\": " << density << ", ";
-    s << "\"crdTransformation\": \"" << theCoordTransf->getTag() << "\"}";
+    s << ", ";
+
+    s << "\"crdTransformation\": " << theCoordTransf->getTag() ;
+    s << "}";
   }
   if (flag == OPS_PRINT_CURRENTSTATE) {
     s << "\nCubicFrame3d, element id:  " << this->getTag() << "\n";
@@ -1476,7 +1484,7 @@ CubicFrame3d::getResponse(int responseID, Information& eleInfo)
     return -1;
 }
 
-// AddingSensitivity:BEGIN ///////////////////////////////////
+
 int
 CubicFrame3d::setParameter(const char** argv, int argc, Parameter& param)
 {
@@ -1632,14 +1640,8 @@ CubicFrame3d::getResistingForceSensitivity(int gradNumber)
     for (int j = 0; j < nsr; j++) {
       sensi = dsdh(j) * wti;
       switch (scheme[j]) {
-      case SECTION_RESPONSE_P: dqdh(0) += sensi; break;
-      case SECTION_RESPONSE_MZ:
-        dqdh(1) += 1.0 / (1 + phiz) * (xi6 - 4.0 - phiz) * sensi;
-        dqdh(2) += 1.0 / (1 + phiz) * (xi6 - 2.0 + phiz) * sensi;
-        break;
-      case SECTION_RESPONSE_MY:
-        dqdh(3) += 1.0 / (1 + phiy) * (xi6 - 4.0 - phiy) * sensi;
-        dqdh(4) += 1.0 / (1 + phiy) * (xi6 - 2.0 + phiy) * sensi;
+      case SECTION_RESPONSE_P:
+        dqdh(0) += sensi;
         break;
       case SECTION_RESPONSE_VY:
         dqdh(1) += 0.5 * phiz * L / (1 + phiz) * sensi;
@@ -1648,6 +1650,14 @@ CubicFrame3d::getResistingForceSensitivity(int gradNumber)
       case SECTION_RESPONSE_VZ:
         dqdh(3) += 0.5 * phiy * L / (1 + phiy) * sensi;
         dqdh(4) += 0.5 * phiy * L / (1 + phiy) * sensi;
+        break;
+      case SECTION_RESPONSE_MZ:
+        dqdh(1) += 1.0 / (1 + phiz) * (xi6 - 4.0 - phiz) * sensi;
+        dqdh(2) += 1.0 / (1 + phiz) * (xi6 - 2.0 + phiz) * sensi;
+        break;
+      case SECTION_RESPONSE_MY:
+        dqdh(3) += 1.0 / (1 + phiy) * (xi6 - 4.0 - phiy) * sensi;
+        dqdh(4) += 1.0 / (1 + phiy) * (xi6 - 2.0 + phiy) * sensi;
         break;
       case SECTION_RESPONSE_T: dqdh(5) += sensi; break;
       default:                 break;
@@ -1660,7 +1670,7 @@ CubicFrame3d::getResistingForceSensitivity(int gradNumber)
 
   P.Zero();
 
-  //////////////////////////////////////////////////////////////
+
 
   if (theCoordTransf->isShapeSensitivity()) {
 
@@ -1786,13 +1796,15 @@ CubicFrame3d::getResistingForceSensitivity(int gradNumber)
     }
 
     const Vector& A_u = theCoordTransf->getBasicTrialDisp();
-    double dLdh       = theCoordTransf->getdLdh();
+    double dLdh       = theCoordTransf->getLengthGrad();
     double d1overLdh  = -dLdh / (L * L);
     // a^T k_s dadh v
     dqdh.addMatrixVector(1.0, kbmine, A_u, d1overLdh);
 
+
+
     // k dAdh u
-    const Vector& dAdh_u = theCoordTransf->getBasicTrialDispShapeSensitivity();
+    const Vector& dAdh_u = theCoordTransf->getBasicDisplFixedGrad();
     dqdh.addMatrixVector(1.0, kbmine, dAdh_u, jsx);
 
     // dAdh^T q
@@ -1814,7 +1826,7 @@ CubicFrame3d::commitSensitivity(int gradNumber, int numGrads)
   const Vector& v = theCoordTransf->getBasicTrialDisp();
 
   static Vector dvdh(6);
-  dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
+  dvdh = theCoordTransf->getBasicDisplTotalGrad(gradNumber);
 
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;

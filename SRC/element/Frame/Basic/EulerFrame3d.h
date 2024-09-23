@@ -93,6 +93,8 @@ private:
         maxNumSections = 20;
   constexpr static int max_nip = 20;
 
+  VectorND<nq> getBasicForceGrad(int index);
+
 //  const Matrix &getInitialBasicStiff();
 
     int numSections;

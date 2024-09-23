@@ -113,21 +113,21 @@ LinearCrdTransf2dInt::~LinearCrdTransf2dInt()
 
 
 int
-LinearCrdTransf2dInt::commitState(void)		
+LinearCrdTransf2dInt::commitState()		
 {
    return 0;
 }
 
 
 int
-LinearCrdTransf2dInt::revertToLastCommit(void)	
+LinearCrdTransf2dInt::revertToLastCommit()	
 {
    return 0;
 }
 
 
 int
-LinearCrdTransf2dInt::revertToStart(void)	
+LinearCrdTransf2dInt::revertToStart()	
 {
    return 0;
 }
@@ -157,7 +157,7 @@ LinearCrdTransf2dInt::initialize(Node *nodeIPointer, Node *nodeJPointer)
 
 
 int
-LinearCrdTransf2dInt::update(void)	
+LinearCrdTransf2dInt::update()	
 {       
    return 0;
 }
@@ -224,21 +224,21 @@ LinearCrdTransf2dInt::compTransfMatrixLocalGlobal(Matrix &Tlg)
 
 
 double 
-LinearCrdTransf2dInt::getInitialLength(void)	
+LinearCrdTransf2dInt::getInitialLength()	
 {
    return L;
 }
 
 
 double 
-LinearCrdTransf2dInt::getDeformedLength(void)
+LinearCrdTransf2dInt::getDeformedLength()
 {
    return L;
 }
 
 
 const Vector &
-LinearCrdTransf2dInt::getBasicTrialDisp(void)
+LinearCrdTransf2dInt::getBasicTrialDisp()
 {
 	// determine global displacements
 	const Vector &disp1 = nodeIPtr->getTrialDisp();
@@ -284,7 +284,7 @@ LinearCrdTransf2dInt::getBasicTrialDisp(void)
 
 
 const Vector &
-LinearCrdTransf2dInt::getBasicTrialDispInt(void)	//LMS
+LinearCrdTransf2dInt::getBasicTrialDispInt()	//LMS
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getTrialDisp();
@@ -311,7 +311,7 @@ LinearCrdTransf2dInt::getBasicTrialDispInt(void)	//LMS
 
 
 const Vector &
-LinearCrdTransf2dInt::getBasicTrialDispShapeSensitivity(void)
+LinearCrdTransf2dInt::getBasicTrialDispShapeSensitivity()
 {
 	// Want to return dAdh * u
 
@@ -382,7 +382,7 @@ LinearCrdTransf2dInt::getBasicTrialDispShapeSensitivity(void)
 
 
 const Vector &
-LinearCrdTransf2dInt::getBasicIncrDisp(void)
+LinearCrdTransf2dInt::getBasicIncrDisp()
 {
 	// determine global displacements
 	const Vector &disp1 = nodeIPtr->getIncrDisp();
@@ -427,7 +427,7 @@ LinearCrdTransf2dInt::getBasicIncrDisp(void)
 
 
 const Vector &
-LinearCrdTransf2dInt::getBasicIncrDeltaDisp(void)
+LinearCrdTransf2dInt::getBasicIncrDeltaDisp()
 {
 	// determine global displacements
 	const Vector &disp1 = nodeIPtr->getIncrDeltaDisp();
@@ -1022,7 +1022,7 @@ LinearCrdTransf2dInt::getInitialGlobalStiffMatrixInt(const Matrix &kb)	//LMS
 
 
 CrdTransf *
-LinearCrdTransf2dInt::getCopy2d(void)		
+LinearCrdTransf2dInt::getCopy2d()		
 {
   // create a new instance of LinearCrdTransf2dInt 
 
@@ -1320,7 +1320,7 @@ LinearCrdTransf2dInt::getBasicDisplSensitivity(int gradNumber)
 // AddingSensitivity:END /////////////////////////////////////
 
 const Vector &
-LinearCrdTransf2dInt::getBasicTrialVel(void)
+LinearCrdTransf2dInt::getBasicTrialVel()
 {
 	// determine global velocities
 	const Vector &vel1 = nodeIPtr->getTrialVel();
@@ -1365,7 +1365,7 @@ LinearCrdTransf2dInt::getBasicTrialVel(void)
 
 
 const Vector &
-LinearCrdTransf2dInt::getBasicTrialAccel(void)
+LinearCrdTransf2dInt::getBasicTrialAccel()
 {
 	// determine global accelerations
 	const Vector &accel1 = nodeIPtr->getTrialAccel();

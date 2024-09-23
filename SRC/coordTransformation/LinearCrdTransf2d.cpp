@@ -1452,7 +1452,7 @@ LinearCrdTransf2d::getd1overLdh(void)
 }
 
 const Vector &
-LinearCrdTransf2d::getBasicTrialDispShapeSensitivity(void)
+LinearCrdTransf2d::getBasicTrialDispShapeSensitivity()
 {
   // Want to return dAdh * u
 
@@ -1530,55 +1530,7 @@ LinearCrdTransf2d::getBasicTrialDispShapeSensitivity(void)
 
   return ub;
 }
-//--- End MHS
 
-//-- Quan
-
-// flag =1; to distinguish from MHS's function
-const Vector &
-LinearCrdTransf2d::getBasicDisplSensitivity(int gradNumber, int flag)
-{
-
-  // This method is created by simply copying the
-  // getBasicTrialDisp method. Instead of picking
-  // up the nodal displacements we just pick up
-  // the nodal displacement sensitivities.
-
-  static double ug[6];
-  for (int i = 0; i < 3; i++) {
-    ug[i]     = nodeIPtr->getDispSensitivity((i + 1), gradNumber);
-    ug[i + 3] = nodeJPtr->getDispSensitivity((i + 1), gradNumber);
-  }
-
-  static Vector ub(3);
-
-  double oneOverL = 1.0 / L;
-  double sl       = sinTheta * oneOverL;
-  double cl       = cosTheta * oneOverL;
-
-  ub(0) = -cosTheta * ug[0] - sinTheta * ug[1] + cosTheta * ug[3] +
-          sinTheta * ug[4];
-
-  ub(1) = -sl * ug[0] + cl * ug[1] + ug[2] + sl * ug[3] - cl * ug[4];
-
-  if (nodeIOffset != 0) {
-    double t02 = -cosTheta * nodeIOffset[1] + sinTheta * nodeIOffset[0];
-    double t12 = sinTheta * nodeIOffset[1] + cosTheta * nodeIOffset[0];
-    ub(0) -= t02 * ug[2];
-    ub(1) += oneOverL * t12 * ug[2];
-  }
-
-  if (nodeJOffset != 0) {
-    double t35 = -cosTheta * nodeJOffset[1] + sinTheta * nodeJOffset[0];
-    double t45 = sinTheta * nodeJOffset[1] + cosTheta * nodeJOffset[0];
-    ub(0) += t35 * ug[5];
-    ub(1) -= oneOverL * t45 * ug[5];
-  }
-
-  ub(2) = ub(1) + ug[5] - ug[2];
-
-  return ub;
-}
 
 int
 LinearCrdTransf2d::getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis)
