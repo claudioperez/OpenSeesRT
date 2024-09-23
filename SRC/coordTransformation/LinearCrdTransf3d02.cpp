@@ -34,50 +34,12 @@
 #include <Matrix.h>
 #include <Node.h>
 #include <Channel.h>
-#include <elementAPI.h>
 #include <string>
 #include <LinearCrdTransf3d02.h>
 
 // initialize static variables
 Matrix LinearCrdTransf3d02::Tlg(12, 12);
 Matrix LinearCrdTransf3d02::kg(12, 12);
-
-void *
-OPS_ADD_RUNTIME_VPV(OPS_LinearCrdTransf3d)
-{
-  if (OPS_GetNumRemainingInputArgs() < 4) {
-    opserr << "insufficient arguments for LinearCrdTransf3d\n";
-    return 0;
-  }
-
-  // get tag
-  int tag;
-  int numData = 1;
-  if (OPS_GetIntInput(&numData, &tag) < 0)
-    return 0;
-
-  // get vector
-  Vector vec(3);
-  double *vptr = &vec(0);
-  numData      = 3;
-  if (OPS_GetDoubleInput(&numData, vptr) < 0)
-    return 0;
-
-  // get option
-  Vector jntOffsetI(3), jntOffsetJ(3);
-  double *iptr = &jntOffsetI(0), *jptr = &jntOffsetJ(0);
-  while (OPS_GetNumRemainingInputArgs() > 6) {
-    std::string type = OPS_GetString();
-    if (type == "-jntOffset") {
-      if (OPS_GetDoubleInput(&numData, iptr) < 0)
-        return 0;
-      if (OPS_GetDoubleInput(&numData, jptr) < 0)
-        return 0;
-    }
-  }
-
-  return new LinearCrdTransf3d02(tag, vec, jntOffsetI, jntOffsetJ);
-}
 
 static inline void 
 form_offsets(const double R[3][3], const double nodeIOffset[3], const double nodeJOffset[3], 
@@ -1294,7 +1256,7 @@ LinearCrdTransf3d02::Print(OPS_Stream &s, int flag)
 
 ////////////////////////////////// sensitivity //////////////////////////////////
 const Vector &
-LinearCrdTransf3d02::getBasicDisplSensitivity(int gradNumber)
+LinearCrdTransf3d02::getBasicDisplTotalGrad(int gradNumber)
 {
 
   static double ug[12];

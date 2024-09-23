@@ -58,9 +58,9 @@ class LinearCrdTransf2dInt: public FrameTransform2d
   int revertToStart(void);
   
   // AddingSensitivity:BEGIN //////////////////////////////////
-  const Vector &getBasicDisplSensitivity (int gradNumber);
+  const Vector &getBasicDisplTotalGrad (int gradNumber);
   const Vector &getGlobalResistingForceShapeSensitivity (const Vector &basicForce, const Vector &p0);
-  const Vector &getBasicTrialDispShapeSensitivity     (void);
+  const Vector &getBasicDisplFixedGrad     (void);
   // AddingSensitivity:END //////////////////////////////////
 
   const Vector &getBasicTrialDisp(void);

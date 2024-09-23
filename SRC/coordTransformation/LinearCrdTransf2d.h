@@ -63,16 +63,16 @@ public:
     const Vector &getBasicTrialAccel();
     
     // AddingSensitivity:BEGIN //////////////////////////////////
-    const Vector &getBasicDisplSensitivity(int gradNumber);
+    const Vector &getBasicDisplTotalGrad(int gradNumber);
     const Vector &getGlobalResistingForceShapeSensitivity(const Vector &basicForce, const Vector &p0);
-    const Vector &getBasicTrialDispShapeSensitivity();
+    const Vector &getBasicDisplFixedGrad();
 
     // ---MHS
     const Vector & getGlobalResistingForceShapeSensitivity(const Vector &pb,
 							   const Vector &p0,
 							   int gradNumber);
     bool isShapeSensitivity();
-    double getdLdh();
+    double getLengthGrad();
     double getd1overLdh();    
     
     // AddingSensitivity:END //////////////////////////////////

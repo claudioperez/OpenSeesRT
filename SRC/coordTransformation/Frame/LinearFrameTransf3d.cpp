@@ -21,7 +21,7 @@
 #include <Matrix3D.h>
 #include <Node.h>
 #include <Channel.h>
-#include <elementAPI.h>
+#include <Logging.h>
 #include <string>
 #include <LinearFrameTransf3d.h>
 #include "blk3x12x3.h"
@@ -1247,17 +1247,6 @@ LinearFrameTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
 void
 LinearFrameTransf3d::Print(OPS_Stream &s, int flag)
 {
-  if (flag == OPS_PRINT_CURRENTSTATE) {
-    s << "\nFrameTransform: " << this->getTag() << " Type: LinearFrameTransf3d\n";
-    s << "\tOrientation: " << Matrix(&R[0][0], 3,3) << "\n";
-    if (nodeIOffset)
-      s << "\tNode I offset: " << nodeIOffset[0] << " " << nodeIOffset[1] << " "
-        << nodeIOffset[2] << "\n";
-    if (nodeJOffset)
-      s << "\tNode J offset: " << nodeJOffset[0] << " " << nodeJOffset[1] << " "
-        << nodeJOffset[2] << "\n";
-  }
-
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << OPS_PRINT_JSON_MATE_INDENT << "{";
     s << "\"name\": \"" << this->getTag()
@@ -1271,12 +1260,25 @@ LinearFrameTransf3d::Print(OPS_Stream &s, int flag)
       s << ", \"jOffset\": [" << nodeJOffset[0] << ", " << nodeJOffset[1]
         << ", " << nodeJOffset[2] << "]";
     s << "}";
+
+    return;
+  }
+
+  if (flag == OPS_PRINT_CURRENTSTATE) {
+    s << "\nFrameTransform: " << this->getTag() << " Type: LinearFrameTransf3d\n";
+    s << "\tOrientation: " << Matrix(&R[0][0], 3,3) << "\n";
+    if (nodeIOffset)
+      s << "\tNode I offset: " << nodeIOffset[0] << " " << nodeIOffset[1] << " "
+        << nodeIOffset[2] << "\n";
+    if (nodeJOffset)
+      s << "\tNode J offset: " << nodeJOffset[0] << " " << nodeJOffset[1] << " "
+        << nodeJOffset[2] << "\n";
   }
 }
 
-////////////////////////////////// sensitivity //////////////////////////////////
+// Sensitivity
 const Vector &
-LinearFrameTransf3d::getBasicDisplSensitivity(int gradNumber)
+LinearFrameTransf3d::getBasicDisplTotalGrad(int gradNumber)
 {
 
   static double ug[12];

@@ -43,8 +43,7 @@
 #include <Matrix.h>
 #include <Node.h>
 #include <Channel.h>
-#include <elementAPI.h>
-#include <string>
+#include <Logging.h>
 #include <CorotCrdTransf2d.h>
 
 // initialize static variables
@@ -55,37 +54,6 @@ Vector CorotCrdTransf2d::pg(6);
 Vector CorotCrdTransf2d::dub(3);
 Vector CorotCrdTransf2d::Dub(3);
 Matrix CorotCrdTransf2d::kg(6, 6);
-
-void *
-OPS_ADD_RUNTIME_VPV(OPS_CorotCrdTransf2d)
-{
-  if (OPS_GetNumRemainingInputArgs() < 1) {
-    opserr << "insufficient arguments for CorotCrdTransf2d\n";
-    return 0;
-  }
-
-  // get tag
-  int tag;
-  int numData = 1;
-  if (OPS_GetIntInput(&numData, &tag) < 0)
-    return 0;
-
-  // get option
-  Vector jntOffsetI(2), jntOffsetJ(2);
-  double *iptr = &jntOffsetI(0), *jptr = &jntOffsetJ(0);
-  while (OPS_GetNumRemainingInputArgs() > 4) {
-    std::string type = OPS_GetString();
-    if (type == "-jntOffset") {
-      numData = 2;
-      if (OPS_GetDoubleInput(&numData, iptr) < 0)
-        return 0;
-      if (OPS_GetDoubleInput(&numData, jptr) < 0)
-        return 0;
-    }
-  }
-
-  return new CorotCrdTransf2d(tag, jntOffsetI, jntOffsetJ);
-}
 
 // constructor:
 CorotCrdTransf2d::CorotCrdTransf2d(int tag, const Vector &rigJntOffsetI,
@@ -1196,7 +1164,7 @@ CorotCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &q,
   // double dx = cosTheta * L;
   // double dy = sinTheta * L;
 
-  double dLdh = this->getdLdh();
+  double dLdh = this->getLengthGrad();
 
   if (nodeIid == 1) { // here x1 is random
     //dcosThetadh = (-L+dx*dx/L)/(L*L);
@@ -1238,7 +1206,7 @@ CorotCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &q,
   // double dux = cosTheta * (U(3) - U(0)) + sinTheta * (U(4) - U(1));
   // double duy = -sinTheta * (U(3) - U(0)) + cosTheta * (U(4) - U(1));
 
-  //double dLdh = this->getdLdh();
+  //double dLdh = this->getLengthGrad();
 
   double dcosAlphadh = sinAlpha * sinAlpha / Ln;
   double dsinAlphadh = -cosAlpha * sinAlpha / Ln;
@@ -1283,7 +1251,7 @@ CorotCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &q,
 }
 
 const Vector &
-CorotCrdTransf2d::getBasicDisplSensitivity(int gradNumber)
+CorotCrdTransf2d::getBasicDisplTotalGrad(int gradNumber)
 {
   //
   // Called in commit
@@ -1300,7 +1268,7 @@ CorotCrdTransf2d::getBasicDisplSensitivity(int gradNumber)
   double dcosThetadh = 0.0;
   double dsinThetadh = 0.0;
 
-  double dLdh = this->getdLdh();
+  double dLdh = this->getLengthGrad();
 
   if (nodeIid == 1) { // here x1 is random
     dcosThetadh = -1 / L - cosTheta / L * dLdh;
@@ -1373,7 +1341,7 @@ CorotCrdTransf2d::getBasicDisplSensitivity(int gradNumber)
 }
 
 const Vector &
-CorotCrdTransf2d::getBasicTrialDispShapeSensitivity(void)
+CorotCrdTransf2d::getBasicDisplFixedGrad(void)
 {
   //
   // Called in getResistingForceSensitivity
@@ -1392,7 +1360,7 @@ CorotCrdTransf2d::getBasicTrialDispShapeSensitivity(void)
   double dcosThetadh = 0.0;
   double dsinThetadh = 0.0;
 
-  double dLdh = this->getdLdh();
+  double dLdh = this->getLengthGrad();
 
   if (nodeIid == 1) { // here x1 is random
     dcosThetadh = -1 / L - cosTheta / L * dLdh;
@@ -1454,7 +1422,7 @@ CorotCrdTransf2d::isShapeSensitivity(void)
 }
 
 double
-CorotCrdTransf2d::getdLdh(void)
+CorotCrdTransf2d::getLengthGrad(void)
 {
   int nodeIid = nodeIPtr->getCrdsSensitivity();
   int nodeJid = nodeJPtr->getCrdsSensitivity();

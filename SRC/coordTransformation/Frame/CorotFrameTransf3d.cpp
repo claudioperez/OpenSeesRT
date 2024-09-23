@@ -36,7 +36,7 @@
 
 #include <Node.h>
 #include <Channel.h>
-#include <elementAPI.h>
+#include <Logging.h>
 #include <CorotFrameTransf3d.h>
 
 #include <Triad.h>
@@ -414,7 +414,7 @@ CorotFrameTransf3d::getCopy()
   // create a new instance of CorotFrameTransf3d
 
   CorotFrameTransf3d *theCopy =
-    new CorotFrameTransf3d (this->getTag(), vAxis, nodeIOffset, nodeJOffset);
+    new CorotFrameTransf3d(this->getTag(), vAxis, nodeIOffset, nodeJOffset);
 
   if (!theCopy) {
     opserr << "CorotFrameTransf3d::getCopy() - out of memory creating copy\n";

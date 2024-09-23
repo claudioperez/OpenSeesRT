@@ -33,7 +33,7 @@
 #include <Matrix.h>
 #include <Node.h>
 #include <Channel.h>
-#include <elementAPI.h>
+#include <Logging.h>
 #include <string>
 #include <PDeltaCrdTransf3d.h>
 
@@ -41,44 +41,7 @@
 Matrix PDeltaCrdTransf3d::Tlg(12, 12);
 Matrix PDeltaCrdTransf3d::kg(12, 12);
 
-void *
-OPS_ADD_RUNTIME_VPV(OPS_PDeltaCrdTransf3d)
-{
-  if (OPS_GetNumRemainingInputArgs() < 4) {
-    opserr << "insufficient arguments for PDeltaCrdTransf3d\n";
-    return 0;
-  }
 
-  // get tag
-  int tag;
-  int numData = 1;
-  if (OPS_GetIntInput(&numData, &tag) < 0)
-    return 0;
-
-  // get vector
-  Vector vec(3);
-  double *vptr = &vec(0);
-  numData      = 3;
-  if (OPS_GetDoubleInput(&numData, vptr) < 0)
-    return 0;
-
-  // get option
-  Vector jntOffsetI(3), jntOffsetJ(3);
-  double *iptr = &jntOffsetI(0), *jptr = &jntOffsetJ(0);
-  while (OPS_GetNumRemainingInputArgs() > 6) {
-    std::string type = OPS_GetString();
-    if (type == "-jntOffset") {
-      if (OPS_GetDoubleInput(&numData, iptr) < 0)
-        return 0;
-      if (OPS_GetDoubleInput(&numData, jptr) < 0)
-        return 0;
-    }
-  }
-
-  return new PDeltaCrdTransf3d(tag, vec, jntOffsetI, jntOffsetJ);
-}
-
-// constructor:
 PDeltaCrdTransf3d::PDeltaCrdTransf3d(int tag, const Vector &vecInLocXZPlane)
     : FrameTransform3d(tag, CRDTR_TAG_PDeltaCrdTransf3d), nodeIPtr(0), nodeJPtr(0),
       nodeIOffset(0), nodeJOffset(0), L(0), ul17(0), ul28(0),
@@ -91,11 +54,9 @@ PDeltaCrdTransf3d::PDeltaCrdTransf3d(int tag, const Vector &vecInLocXZPlane)
   R[2][0] = vecInLocXZPlane(0);
   R[2][1] = vecInLocXZPlane(1);
   R[2][2] = vecInLocXZPlane(2);
-
-  // Does nothing
 }
 
-// constructor:
+
 PDeltaCrdTransf3d::PDeltaCrdTransf3d(int tag, const Vector &vecInLocXZPlane,
                                      const Vector &rigJntOffset1,
                                      const Vector &rigJntOffset2)
