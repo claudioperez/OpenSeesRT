@@ -1222,7 +1222,9 @@ Response* MixedBeamColumn2d::setResponse(const char **argv, int argc,
 
     theResponse = new ElementResponse(this, 3, Vector(3));
 
-  } else if (strcmp(argv[0],"sectionDeformation_Force") == 0) {
+  }
+#if 0
+  else if (strcmp(argv[0],"sectionDeformation_Force") == 0) {
 
     int i;
     char *q  = new char[15];
@@ -1250,7 +1252,10 @@ Response* MixedBeamColumn2d::setResponse(const char **argv, int argc,
 
     theResponse =  new ElementResponse(this, 5, Vector(2*numSections));
 
-  } else if (strcmp(argv[0],"sectionStiffness") == 0) {
+  }
+#endif
+
+  else if (strcmp(argv[0],"sectionStiffness") == 0) {
 
     int i;
     char *q  = new char[15];
