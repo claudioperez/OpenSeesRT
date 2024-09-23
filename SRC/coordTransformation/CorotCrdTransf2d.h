@@ -40,7 +40,9 @@ public:
     CorotCrdTransf2d();
     ~CorotCrdTransf2d();
     
-    const char *getClassType() const {return "CorotCrdTransf2d";}
+    const char *getClassType() const {
+        return "CorotCrdTransf2d";
+    }
     
     int initialize(Node *nodeIPointer, Node *nodeJPointer);
     int update();
@@ -62,15 +64,14 @@ public:
     const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff);
     
 // AddingSensitivity:BEGIN //////////////////////////////////
-    const Vector &getBasicDisplSensitivity(int gradNumber);
+    const Vector &getBasicDisplTotalGrad(int gradNumber);
     const Vector &getGlobalResistingForceShapeSensitivity(const Vector &q,
 							  const Vector &p0,
 							  int gradNumber);
-    const Vector &getBasicTrialDispShapeSensitivity();
+    const Vector &getBasicDisplFixedGrad();
     bool isShapeSensitivity();
-    double getdLdh();
+    double getLengthGrad();
     double getd1overLdh();
-// AddingSensitivity:END //////////////////////////////////
 
     CrdTransf *getCopy2d();
     

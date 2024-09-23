@@ -19,7 +19,7 @@
 #include <Matrix3D.h>
 #include <Node.h>
 #include <Channel.h>
-#include <elementAPI.h>
+#include <Logging.h>
 #include <PDeltaFrameTransf3d.h>
 #include "blk3x12x3.h"
 

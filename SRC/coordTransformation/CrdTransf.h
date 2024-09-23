@@ -101,16 +101,14 @@ public:
     virtual const Vector &getPointGlobalDisplFromBasic(double xi, const Vector &basicDisps) = 0;
     virtual const Vector &getPointLocalDisplFromBasic(double xi, const Vector &basicDisps) = 0;
 
-    // AddingSensitivity:BEGIN //////////////////////////////////
-    virtual const Vector &getBasicDisplSensitivity(int grad); 
-    //virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &basicForce, const Vector &uniformLoad);
+    // Sensitivity
+    virtual const Vector &getBasicDisplTotalGrad(int grad);
+    virtual const Vector &getBasicDisplFixedGrad();
     virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &pb, const Vector &p0, int gradNumber);
     virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &pb, const Vector &p0);
-    virtual const Vector &getBasicTrialDispShapeSensitivity();
     virtual bool   isShapeSensitivity() {return false;}
-    virtual double getdLdh() {return 0.0;}
+    virtual double getLengthGrad() {return 0.0;}
     virtual double getd1overLdh() {return 0.0;}
-    // AddingSensitivity:END //////////////////////////////////
     //
 protected:
     

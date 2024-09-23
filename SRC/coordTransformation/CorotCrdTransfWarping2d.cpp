@@ -919,7 +919,7 @@ CorotCrdTransfWarping2d::getGlobalResistingForceShapeSensitivity(
   // double dx = cosTheta * L;
   // double dy = sinTheta * L;
 
-  double dLdh = this->getdLdh();
+  double dLdh = this->getLengthGrad();
 
   if (nodeIid == 1) { // here x1 is random
     //dcosThetadh = (-L+dx*dx/L)/(L*L);
@@ -961,7 +961,7 @@ CorotCrdTransfWarping2d::getGlobalResistingForceShapeSensitivity(
   // double dux = cosTheta * (U(4) - U(0)) + sinTheta * (U(5) - U(1));
   // double duy = -sinTheta * (U(4) - U(0)) + cosTheta * (U(5) - U(1));
 
-  //double dLdh = this->getdLdh();
+  //double dLdh = this->getLengthGrad();
 
   double dcosAlphadh = sinAlpha * sinAlpha / Ln;
   double dsinAlphadh = -cosAlpha * sinAlpha / Ln;
@@ -1016,7 +1016,7 @@ CorotCrdTransfWarping2d::getGlobalResistingForceShapeSensitivity(
 }
 
 const Vector &
-CorotCrdTransfWarping2d::getBasicDisplSensitivity(int gradNumber)
+CorotCrdTransfWarping2d::getBasicDisplTotalGrad(int gradNumber)
 {
   static Vector dvdh(5);
   dvdh.Zero();
@@ -1032,7 +1032,7 @@ CorotCrdTransfWarping2d::getBasicDisplSensitivity(int gradNumber)
   // double dx = cosTheta * L;
   // double dy = sinTheta * L;
 
-  double dLdh = this->getdLdh();
+  double dLdh = this->getLengthGrad();
 
   if (nodeIid == 1) { // here x1 is random
     //dcosThetadh = (-L+dx*dx/L)/(L*L);
@@ -1093,7 +1093,7 @@ CorotCrdTransfWarping2d::getBasicDisplSensitivity(int gradNumber)
   double duxdh = dudh(4) - dudh(0);
   double duydh = dudh(5) - dudh(1);
 
-  //double dLdh  = this->getdLdh();
+  //double dLdh  = this->getLengthGrad();
   double dLndh = cosAlpha * (dLdh + duxdh) + sinAlpha * duydh;
 
   double dalphadh = (cosAlpha * duydh - sinAlpha * (dLdh + duxdh)) / Ln;
@@ -1107,7 +1107,7 @@ CorotCrdTransfWarping2d::getBasicDisplSensitivity(int gradNumber)
 }
 
 const Vector &
-CorotCrdTransfWarping2d::getBasicTrialDispShapeSensitivity(void)
+CorotCrdTransfWarping2d::getBasicDisplFixedGrad(void)
 {
   static Vector dvdh(5);
   dvdh.Zero();
@@ -1129,7 +1129,7 @@ CorotCrdTransfWarping2d::getBasicTrialDispShapeSensitivity(void)
   // double dx = cosTheta * L;
   // double dy = sinTheta * L;
 
-  double dLdh = this->getdLdh();
+  double dLdh = this->getLengthGrad();
 
   if (nodeIid == 1) { // here x1 is random
     //dcosThetadh = (-L+dx*dx/L)/(L*L);
@@ -1196,7 +1196,7 @@ CorotCrdTransfWarping2d::isShapeSensitivity(void)
 }
 
 double
-CorotCrdTransfWarping2d::getdLdh(void)
+CorotCrdTransfWarping2d::getLengthGrad(void)
 {
   int nodeIid = nodeIPtr->getCrdsSensitivity();
   int nodeJid = nodeJPtr->getCrdsSensitivity();

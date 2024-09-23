@@ -311,7 +311,7 @@ LinearCrdTransf2dInt::getBasicTrialDispInt()	//LMS
 
 
 const Vector &
-LinearCrdTransf2dInt::getBasicTrialDispShapeSensitivity()
+LinearCrdTransf2dInt::getBasicDisplFixedGrad()
 {
 	// Want to return dAdh * u
 
@@ -1273,7 +1273,7 @@ LinearCrdTransf2dInt::Print(OPS_Stream &s, int flag)
 
 // AddingSensitivity:BEGIN ///////////////////////////////
 const Vector &
-LinearCrdTransf2dInt::getBasicDisplSensitivity(int gradNumber)
+LinearCrdTransf2dInt::getBasicDisplTotalGrad(int gradNumber)
 {
 
 	// This method is created by simply copying the 

@@ -297,7 +297,7 @@ LinearShearTransf2d::getBasicTrialDispInt()    //LMS
 
 
 const Vector &
-LinearShearTransf2d::getBasicTrialDispShapeSensitivity()
+LinearShearTransf2d::getBasicDisplFixedGrad()
 {
     // Want to return dAdh * u
 
@@ -1259,7 +1259,7 @@ LinearShearTransf2d::Print(OPS_Stream &s, int flag)
 
 // AddingSensitivity:BEGIN ///////////////////////////////
 const Vector &
-LinearShearTransf2d::getBasicDisplSensitivity(int gradNumber)
+LinearShearTransf2d::getBasicDisplTotalGrad(int gradNumber)
 {
 
     // This method is created by simply copying the 
