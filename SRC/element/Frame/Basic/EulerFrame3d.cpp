@@ -1195,9 +1195,8 @@ EulerFrame3d::getBasicForceGrad(int gradNumber)
     // Get section stress resultant gradient
     const Vector &dsdh = points[i].material->getStressResultantSensitivity(gradNumber, true);
     
-    // Perform numerical integration on internal force gradient
     for (int j = 0; j < order; j++) {
-      double sensi = dsdh(j)*wti;
+      double sensi = dsdh[j]*wti;
       switch(code(j)) {
       case SECTION_RESPONSE_P:
         dqdh(0) += sensi; 
@@ -1244,7 +1243,7 @@ EulerFrame3d::getResistingForceSensitivity(int gradNumber)
   static Vector P(12);
   P.Zero();
 
-  VectorND<6> dqdh = getBasicForceGrad(gradNumber);
+  VectorND<6> dqdh = this->getBasicForceGrad(gradNumber);
 
   double jsx = 1.0/theCoordTransf->getInitialLength();
 
