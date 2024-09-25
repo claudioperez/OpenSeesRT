@@ -34,9 +34,7 @@ PDeltaFrameTransf3d::PDeltaFrameTransf3d(int tag, const Vector &vecInLocXZPlane)
       nodeIOffset(0), nodeJOffset(0), L(0), ul17(0), ul28(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
-  for (int i = 0; i < 2; i++)
-    for (int j = 0; j < 3; j++)
-      R(j,i) = 0.0;
+  R.zero();
 
   R(0,2) = vecInLocXZPlane(0);
   R(1,2) = vecInLocXZPlane(1);
@@ -51,9 +49,7 @@ PDeltaFrameTransf3d::PDeltaFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
       nodeIOffset(0), nodeJOffset(0), L(0), ul17(0), ul28(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
-  for (int i = 0; i < 2; i++)
-    for (int j = 0; j < 3; j++)
-      R(j,i) = 0.0;
+  R.zero();
 
   R(0,2) = vecInLocXZPlane(0);
   R(1,2) = vecInLocXZPlane(1);
@@ -403,6 +399,9 @@ PDeltaFrameTransf3d::getBasicTrialDisp()
 
   static Vector ub(6);
 
+  VectorND<12> ul = getLocal(ug, R, nodeIOffset, nodeJOffset);
+
+#if 0
   static double ul[12];
 
   ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
@@ -441,6 +440,7 @@ PDeltaFrameTransf3d::getBasicTrialDisp()
     ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
     ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
+#endif
 
   ub(0) = ul[6] - ul[0];
   double tmp;
@@ -471,7 +471,9 @@ PDeltaFrameTransf3d::getBasicIncrDisp()
   double oneOverL = 1.0 / L;
 
   static Vector ub(6);
+  VectorND<12> ul = getLocal(ug, R, nodeIOffset, nodeJOffset);
 
+#if 0
   static double ul[12];
 
   ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
@@ -510,7 +512,7 @@ PDeltaFrameTransf3d::getBasicIncrDisp()
     ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
     ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
-
+#endif
   ub(0) = ul[6] - ul[0];
   double tmp;
   tmp   = oneOverL * (ul[1] - ul[7]);
@@ -1111,9 +1113,7 @@ PDeltaFrameTransf3d::getCopy()
   theCopy->L        = L;
   theCopy->ul17     = ul17;
   theCopy->ul28     = ul28;
-  for (int i = 0; i < 3; i++)
-    for (int j = 0; j < 3; j++)
-      theCopy->R(j,i) = R(j,i);
+  theCopy->R        = R;
 
   return theCopy;
 }

@@ -40,9 +40,7 @@ LinearFrameTransf3d::LinearFrameTransf3d(int tag, const Vector &vecInLocXZPlane)
       nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
 {
-  for (int i = 0; i < 2; i++)
-    for (int j = 0; j < 3; j++)
-      R(j,i) = 0.0;
+  R.zero();
 
   for (int i=0; i<3; i++)
     vz[i] = vecInLocXZPlane[i];
@@ -57,15 +55,14 @@ LinearFrameTransf3d::LinearFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
                                          const Vector &rigJntOffset1,
                                          const Vector &rigJntOffset2)
 
-    : FrameTransform3d(tag, CRDTR_TAG_LinearFrameTransf3d), nodeIPtr(0), nodeJPtr(0),
-      nodeIOffset(nullptr), nodeJOffset(nullptr), 
-      L(0),
-      nodeIInitialDisp(0),
-      nodeJInitialDisp(0), initialDispChecked(false)
+  : FrameTransform3d(tag, CRDTR_TAG_LinearFrameTransf3d), 
+    nodeIPtr(0), nodeJPtr(0),
+    nodeIOffset(nullptr), nodeJOffset(nullptr), 
+    L(0),
+    nodeIInitialDisp(0),
+    nodeJInitialDisp(0), initialDispChecked(false)
 {
-  for (int i = 0; i < 2; i++)
-    for (int j = 0; j < 3; j++)
-      R(j,i) = 0.0;
+  R.zero();
 
   for (int i=0; i<3; i++)
     vz[i] = vecInLocXZPlane[i];
@@ -108,9 +105,7 @@ LinearFrameTransf3d::LinearFrameTransf3d()
       nodeIOffset(0), nodeJOffset(0), L(0), nodeIInitialDisp(0),
       nodeJInitialDisp(0), initialDispChecked(false)
 {
-  for (int i = 0; i < 3; i++)
-    for (int j = 0; j < 3; j++)
-      R(j,i) = 0.0;
+  R.zero();
 }
 
 // destructor:
@@ -143,6 +138,13 @@ LinearFrameTransf3d::revertToStart()
 {
   return 0;
 }
+
+int
+LinearFrameTransf3d::update()
+{
+  return 0;
+}
+
 
 int
 LinearFrameTransf3d::initialize(Node *nodeIPointer, Node *nodeJPointer)
@@ -196,11 +198,6 @@ LinearFrameTransf3d::initialize(Node *nodeIPointer, Node *nodeJPointer)
   return 0;
 }
 
-int
-LinearFrameTransf3d::update()
-{
-  return 0;
-}
 
 int
 LinearFrameTransf3d::computeElemtLengthAndOrient()
@@ -484,23 +481,11 @@ VectorND<12>
 LinearFrameTransf3d::pushConstant(const VectorND<12>&pl) const
 {
   // transform vector from local to global coordinates
-
   VectorND<12> pg;
-  pg[0] = R(0,0) * pl[0] + R(0,1) * pl[1] + R(0,2) * pl[2];
-  pg[1] = R(1,0) * pl[0] + R(1,1) * pl[1] + R(1,2) * pl[2];
-  pg[2] = R(2,0) * pl[0] + R(2,1) * pl[1] + R(2,2) * pl[2];
+  for (int i=0; i<4; i++)
+    for (int j=0; j<3; j++)
+      pg[i*3+j] = R(j,0)*pl[3*i] + R(j,1)*pl[3*i+1] + R(j,2)*pl[3*i+2];
 
-  pg[3] = R(0,0) * pl[3] + R(0,1) * pl[4] + R(0,2) * pl[5];
-  pg[4] = R(1,0) * pl[3] + R(1,1) * pl[4] + R(1,2) * pl[5];
-  pg[5] = R(2,0) * pl[3] + R(2,1) * pl[4] + R(2,2) * pl[5];
-
-  pg[6] = R(0,0) * pl[6] + R(0,1) * pl[7] + R(0,2) * pl[8];
-  pg[7] = R(1,0) * pl[6] + R(1,1) * pl[7] + R(1,2) * pl[8];
-  pg[8] = R(2,0) * pl[6] + R(2,1) * pl[7] + R(2,2) * pl[8];
-
-  pg[9]  = R(0,0) * pl[9] + R(0,1) * pl[10] + R(0,2) * pl[11];
-  pg[10] = R(1,0) * pl[9] + R(1,1) * pl[10] + R(1,2) * pl[11];
-  pg[11] = R(2,0) * pl[9] + R(2,1) * pl[10] + R(2,2) * pl[11];
 
   if (nodeIOffset) {
     pg[3] += -nodeIOffset[2] * pg[1] + nodeIOffset[1] * pg[2];
@@ -987,169 +972,21 @@ const Vector &
 LinearFrameTransf3d::getPointGlobalCoordFromLocal(const Vector &xl)
 {
   static Vector xg(3);
-
-  //xg = nodeIPtr->getCrds() + nodeIOffset;
-  xg = nodeIPtr->getCrds();
-
-  if (nodeIOffset) {
-    xg(0) += nodeIOffset[0];
-    xg(1) += nodeIOffset[1];
-    xg(2) += nodeIOffset[2];
-  }
-
-  if (nodeIInitialDisp != 0) {
-    xg(0) -= nodeIInitialDisp[0];
-    xg(1) -= nodeIInitialDisp[1];
-    xg(2) -= nodeIInitialDisp[2];
-  }
-
-  // xg = xg + Rlj'*xl
-  //xg.addMatrixTransposeVector(1.0, Rlj, xl, 1.0);
-  xg(0) += R(0,0) * xl(0) + R(0,1) * xl(1) + R(0,2) * xl(2);
-  xg(1) += R(1,0) * xl(0) + R(1,1) * xl(1) + R(1,2) * xl(2);
-  xg(2) += R(2,0) * xl(0) + R(2,1) * xl(1) + R(2,2) * xl(2);
-
   return xg;
 }
 
 const Vector &
 LinearFrameTransf3d::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
 {
-  // determine global displacements
-  const Vector &disp1 = nodeIPtr->getTrialDisp();
-  const Vector &disp2 = nodeJPtr->getTrialDisp();
-
-  static double ug[12];
-  for (int i = 0; i < 6; i++) {
-    ug[i]     = disp1(i);
-    ug[i + 6] = disp2(i);
-  }
-
-  if (nodeIInitialDisp != 0) {
-    for (int j = 0; j < 6; j++)
-      ug[j] -= nodeIInitialDisp[j];
-  }
-
-  if (nodeJInitialDisp != 0) {
-    for (int j = 0; j < 6; j++)
-      ug[j + 6] -= nodeJInitialDisp[j];
-  }
-
-  //
-  // transform global end displacements to local coordinates
-  //  ul = Tlg *  ug;
-
-  static double ul[12];
-
-  ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
-  ul[1] = R(0,1) * ug[0] + R(1,1) * ug[1] + R(2,1) * ug[2];
-  ul[2] = R(0,2) * ug[0] + R(1,2) * ug[1] + R(2,2) * ug[2];
-
-  ul[7] = R(0,1) * ug[6] + R(1,1) * ug[7] + R(2,1) * ug[8];
-  ul[8] = R(0,2) * ug[6] + R(1,2) * ug[7] + R(2,2) * ug[8];
-
-  static double Wu[3];
-  if (nodeIOffset) {
-    Wu[0] =  nodeIOffset[2] * ug[4] - nodeIOffset[1] * ug[5];
-    Wu[1] = -nodeIOffset[2] * ug[3] + nodeIOffset[0] * ug[5];
-    Wu[2] =  nodeIOffset[1] * ug[3] - nodeIOffset[0] * ug[4];
-
-    ul[0] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
-    ul[1] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
-    ul[2] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
-  }
-
-  if (nodeJOffset) {
-    Wu[0] =  nodeJOffset[2] * ug[10] - nodeJOffset[1] * ug[11];
-    Wu[1] = -nodeJOffset[2] * ug[9] + nodeJOffset[0] * ug[11];
-    Wu[2] =  nodeJOffset[1] * ug[9] - nodeJOffset[0] * ug[10];
-
-    ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
-    ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
-  }
-
-  // compute displacements at point xi, in local coordinates
-  static double uxl[3];
   static Vector uxg(3);
-
-  uxl[0] = uxb(0) + ul[0];
-  uxl[1] = uxb(1) + (1 - xi) * ul[1] + xi * ul[7];
-  uxl[2] = uxb(2) + (1 - xi) * ul[2] + xi * ul[8];
-
-  // rotate displacements to global coordinates
-  // uxg = Rlj'*uxl
-  //uxg.addMatrixTransposeVector(0.0, Rlj, uxl, 1.0);
-  uxg(0) = R(0,0) * uxl[0] + R(0,1) * uxl[1] + R(0,2) * uxl[2];
-  uxg(1) = R(1,0) * uxl[0] + R(1,1) * uxl[1] + R(1,2) * uxl[2];
-  uxg(2) = R(2,0) * uxl[0] + R(2,1) * uxl[1] + R(2,2) * uxl[2];
-
   return uxg;
 }
 
 const Vector &
 LinearFrameTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
 {
-  // determine global displacements
-  const Vector &disp1 = nodeIPtr->getTrialDisp();
-  const Vector &disp2 = nodeJPtr->getTrialDisp();
-
-  static double ug[12];
-  for (int i = 0; i < 6; i++) {
-    ug[i]     = disp1(i);
-    ug[i + 6] = disp2(i);
-  }
-
-  if (nodeIInitialDisp != 0) {
-    for (int j = 0; j < 6; j++)
-      ug[j] -= nodeIInitialDisp[j];
-  }
-
-  if (nodeJInitialDisp != 0) {
-    for (int j = 0; j < 6; j++)
-      ug[j + 6] -= nodeJInitialDisp[j];
-  }
-
-  //
-  // transform global end displacements to local coordinates
-  //  ul = Tlg * ug;
-  //
-
-  static double ul[12];
-
-  ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
-  ul[1] = R(0,1) * ug[0] + R(1,1) * ug[1] + R(2,1) * ug[2];
-  ul[2] = R(0,2) * ug[0] + R(1,2) * ug[1] + R(2,2) * ug[2];
-
-  ul[7] = R(0,1) * ug[6] + R(1,1) * ug[7] + R(2,1) * ug[8];
-  ul[8] = R(0,2) * ug[6] + R(1,2) * ug[7] + R(2,2) * ug[8];
-
-  static double Wu[3];
-  if (nodeIOffset) {
-    Wu[0] = nodeIOffset[2] * ug[4] - nodeIOffset[1] * ug[5];
-    Wu[1] = -nodeIOffset[2] * ug[3] + nodeIOffset[0] * ug[5];
-    Wu[2] = nodeIOffset[1] * ug[3] - nodeIOffset[0] * ug[4];
-
-    ul[0] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
-    ul[1] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
-    ul[2] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
-  }
-
-  if (nodeJOffset) {
-    Wu[0] = nodeJOffset[2] * ug[10] - nodeJOffset[1] * ug[11];
-    Wu[1] = -nodeJOffset[2] * ug[9] + nodeJOffset[0] * ug[11];
-    Wu[2] = nodeJOffset[1] * ug[9] - nodeJOffset[0] * ug[10];
-
-    ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
-    ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
-  }
-
   // compute displacements at point xi, in local coordinates
   static Vector uxl(3);
-
-  uxl(0) = uxb(0) + ul[0];
-  uxl(1) = uxb(1) + (1 - xi) * ul[1] + xi * ul[7];
-  uxl(2) = uxb(2) + (1 - xi) * ul[2] + xi * ul[8];
-
   return uxl;
 }
 
@@ -1206,12 +1043,18 @@ LinearFrameTransf3d::getGlobalResistingForceShapeSensitivity(const Vector &pb,
   int di = nodeIPtr->getCrdsSensitivity();
   int dj = nodeJPtr->getCrdsSensitivity();
 
-  const VectorND<12> pl = pushLocal(pb, p0, L);
+  VectorND<12> pl = pushLocal(pb, L);
+  
+  pl[0] += p0[0];
+  pl[1] += p0[1];
+  pl[7] += p0[2];
+  pl[2] += p0[3];
+  pl[8] += p0[4];
 
   Matrix3D dR = FrameOrientationGradient(xi, xj, vz, di, dj, dv);
   for (int i=0; i<4; i++)
     for (int j=0; j<3; j++)
-      pg(i*3+j) += dR(j,0) * pl(3*i) + dR(j,1) * pl(3*i+1) + dR(j,2) * pl(3*i+2);
+      pg(i*3+j) = dR(j,0) * pl(3*i) + dR(j,1) * pl(3*i+1) + dR(j,2) * pl(3*i+2);
 
   
   //
