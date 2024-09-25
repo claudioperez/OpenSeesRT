@@ -21,14 +21,8 @@
 #include <G3_Logging.h>
 #include <runtimeAPI.h>
 // #include "analysis.h"
-#include <OPS_Globals.h>
 #include "solver.hpp"
 #include "BasicAnalysisBuilder.h"
-
-// analysis
-#include <StaticAnalysis.h>
-#include <DirectIntegrationAnalysis.h>
-#include <VariableTimeStepDirectIntegrationAnalysis.h>
 
 // system of eqn and solvers
 #include <SProfileSPDLinSolver.h>

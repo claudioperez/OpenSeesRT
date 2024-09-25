@@ -552,7 +552,7 @@ ForceBeamColumnWarping2d::computeReactionSensitivity(double *dp0dh, int gradNumb
   int type;
   double L = crdTransf->getInitialLength();
   
-  double dLdh = crdTransf->getdLdh();
+  double dLdh = crdTransf->getLengthGrad();
 
   for (int i = 0; i < numEleLoads; i++) {
     
@@ -1344,7 +1344,7 @@ ForceBeamColumnWarping2d::computeSectionForceSensitivity(Vector &dspdh, int isec
   int type;
 
   double L = crdTransf->getInitialLength();
-  double dLdh = crdTransf->getdLdh();
+  double dLdh = crdTransf->getLengthGrad();
 
   double xi[maxNumSections];
   beamIntegr->getSectionLocations(numSections, L, xi);
@@ -2975,7 +2975,7 @@ ForceBeamColumnWarping2d::getResponseSensitivity(int responseID, int gradNumber,
 {
   // Basic deformation sensitivity
   if (responseID == 3) {  
-    const Vector &dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+    const Vector &dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
     return eleInfo.setVector(dvdh);
   }
 
@@ -2983,7 +2983,7 @@ ForceBeamColumnWarping2d::getResponseSensitivity(int responseID, int gradNumber,
   else if (responseID == 7) {
     static Vector dqdh(5);
 
-    const Vector &dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+    const Vector &dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
 
     dqdh.addMatrixVector(0.0, kv, dvdh, 1.0);
 
@@ -3008,7 +3008,7 @@ ForceBeamColumnWarping2d::getResponseSensitivity(int responseID, int gradNumber,
     //opserr << "FBC2d::getRespSens dspdh: " << dsdh;
     static Vector dqdh(5);
 
-    const Vector &dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+    const Vector &dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
 
     dqdh.addMatrixVector(0.0, kv, dvdh, 1.0);
 
@@ -3050,7 +3050,7 @@ ForceBeamColumnWarping2d::getResponseSensitivity(int responseID, int gradNumber,
       }
     }
     
-    double dLdh = crdTransf->getdLdh();
+    double dLdh = crdTransf->getLengthGrad();
     double d1oLdh = crdTransf->getd1overLdh();
     
     double dptsdh[maxNumSections];
@@ -3098,7 +3098,7 @@ ForceBeamColumnWarping2d::getResponseSensitivity(int responseID, int gradNumber,
   else if (responseID == 4) {
     static Vector dvpdh(5);
 
-    const Vector &dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+    const Vector &dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
 
     dvpdh = dvdh;
     //opserr << dvpdh;
@@ -3270,7 +3270,7 @@ ForceBeamColumnWarping2d::getResistingForceSensitivity(int gradNumber)
   // dAdh^T q
     P = crdTransf->getGlobalResistingForceShapeSensitivity(Se, dp0dhVec, gradNumber);
     // k dAdh u
-    const Vector &dAdh_u = crdTransf->getBasicTrialDispShapeSensitivity();
+    const Vector &dAdh_u = crdTransf->getBasicDisplFixedGrad();
     dqdh.addMatrixVector(1.0, kv, dAdh_u, 1.0);
   }
 
@@ -3294,7 +3294,7 @@ ForceBeamColumnWarping2d::commitSensitivity(int gradNumber, int numGrads)
   double wts[maxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wts);
 
-  double dLdh = crdTransf->getdLdh();
+  double dLdh = crdTransf->getLengthGrad();
 
   double dptsdh[maxNumSections];
   beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
@@ -3305,11 +3305,11 @@ ForceBeamColumnWarping2d::commitSensitivity(int gradNumber, int numGrads)
   dqdh = this->computedqdh(gradNumber);
 
   // dvdh = A dudh + dAdh u
-  const Vector &dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+  const Vector &dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
   dqdh.addMatrixVector(1.0, kv, dvdh, 1.0);  // A dudh
 
   if (crdTransf->isShapeSensitivity()) {
-    //const Vector &dAdh_u = crdTransf->getBasicTrialDispShapeSensitivity();
+    //const Vector &dAdh_u = crdTransf->getBasicDisplFixedGrad();
     //dqdh.addMatrixVector(1.0, kv, dAdh_u, 1.0);  // dAdh u
   }
 
@@ -3402,7 +3402,7 @@ ForceBeamColumnWarping2d::computedqdh(int gradNumber)
   double wts[maxNumSections];
   beamIntegr->getSectionWeights(numSections, L, wts);
 
-  double dLdh = crdTransf->getdLdh();
+  double dLdh = crdTransf->getLengthGrad();
 
   double dptsdh[maxNumSections];
   beamIntegr->getLocationsDeriv(numSections, L, dLdh, dptsdh);
@@ -3563,7 +3563,7 @@ ForceBeamColumnWarping2d::computedfedh(int gradNumber)
   double L = crdTransf->getInitialLength();
   double oneOverL  = 1.0/L;  
 
-  double dLdh = crdTransf->getdLdh();
+  double dLdh = crdTransf->getLengthGrad();
   double d1oLdh = crdTransf->getd1overLdh();
 
   beamIntegr->addElasticFlexDeriv(L, dfedh, dLdh);

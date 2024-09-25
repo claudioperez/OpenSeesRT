@@ -15,8 +15,6 @@ target_sources(OPS_Element
     DispBeamColumnNL2d.cpp
     DispBeamColumnNL3d.cpp
     DispBeamColumnWarping3d.cpp    
-    DispBeamColumn2dWithSensitivity.cpp
-    DispBeamColumn3dWithSensitivity.cpp
     AxEqDispBeamColumn2d.cpp
     TimoshenkoBeamColumn2d.cpp
 #   DispBeamColumn3dID.cpp
@@ -29,8 +27,6 @@ target_sources(OPS_Element
     DispBeamColumnNL2d.h
     DispBeamColumnNL3d.h
     DispBeamColumnWarping3d.h    
-    DispBeamColumn2dWithSensitivity.h
-    DispBeamColumn3dWithSensitivity.h
     AxEqDispBeamColumn2d.h
     TimoshenkoBeamColumn2d.h
 #   DispBeamColumn3dID.h

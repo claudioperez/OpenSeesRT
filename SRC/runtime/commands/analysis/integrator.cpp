@@ -7,7 +7,6 @@
 // Description: This file implements selection of an integrator object.
 //
 #include <G3_Logging.h>
-#include "integrator.h"
 #include <assert.h>
 #include <tcl.h>
 #include <runtimeAPI.h>
@@ -22,6 +21,71 @@
 
 #include <Newmark.h>
 #include <BackwardEuler.h>
+
+//
+// Helpers
+//
+
+// Type 1
+template <typename Type, OPS_Routine fn>
+static int
+dispatch(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** const argv)
+{
+  BasicAnalysisBuilder *builder = static_cast<BasicAnalysisBuilder*>(clientData);
+  Type* theIntegrator = (Type*)fn( G3_getRuntime(interp), argc, argv );
+
+  if (theIntegrator == nullptr)
+    return TCL_ERROR;
+
+
+  opsdbg << G3_DEBUG_PROMPT << "Set integrator to \n";
+  theIntegrator->Print(opsdbg);
+  builder->set(*theIntegrator);
+  return TCL_OK;
+}
+
+// Type 2
+template <typename Type, Type*(*fn)(ClientData, Tcl_Interp*, int, TCL_Char** const)>
+static int
+dispatch(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv)
+{
+  assert(clientData != nullptr);
+
+
+  Type* theIntegrator = fn( clientData, interp, argc, argv );
+
+  if (theIntegrator == nullptr)
+    return TCL_ERROR;
+
+  BasicAnalysisBuilder *builder = static_cast<BasicAnalysisBuilder*>(clientData);
+
+  opsdbg << G3_DEBUG_PROMPT << "Set integrator to \n";
+  theIntegrator->Print(opsdbg);
+  builder->set(*theIntegrator);
+  return TCL_OK;
+}
+
+// Type 3
+template <int (*fn)(ClientData clientData, Tcl_Interp* interp, int, G3_Char** const)> 
+static int
+dispatch(ClientData clientData, Tcl_Interp* interp, int argc, G3_Char** const argv)
+{
+  assert(clientData != nullptr);
+  return fn( clientData, interp, argc, argv );
+}
+
+#define DISPATCH(Type, Class)                                         \
+  (Tcl_CmdProc*)[](ClientData clientData, Tcl_Interp*, int, G3_Char**const)->int{ \
+    BasicAnalysisBuilder *builder = static_cast<BasicAnalysisBuilder*>(clientData); \
+    Type* theIntegrator = new Class();                                \
+    opsdbg << G3_DEBUG_PROMPT << "Set integrator to \n";              \
+    theIntegrator->Print(opsdbg);                                     \
+    builder->set(*theIntegrator);                                     \
+    return TCL_OK;                                                    \
+  }
+
+#include "integrator.h"
+
 
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
@@ -60,7 +124,7 @@ specifyIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char 
 int
 TclCommand_newStaticIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
+  BasicAnalysisBuilder *builder = static_cast<BasicAnalysisBuilder*>(clientData);
 
   auto tcl_cmd = StaticIntegratorLibrary.find(std::string(argv[1]));
   if (tcl_cmd != StaticIntegratorLibrary.end())
@@ -100,7 +164,7 @@ TclCommand_newStaticIntegrator(ClientData clientData, Tcl_Interp *interp, int ar
 int
 TclCommand_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
-  BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
+  BasicAnalysisBuilder *builder = static_cast<BasicAnalysisBuilder*>(clientData);
 
   auto tcl_cmd = TransientIntegratorLibrary.find(std::string(argv[1]));
   if (tcl_cmd != TransientIntegratorLibrary.end())
@@ -136,7 +200,7 @@ TclCommand_newTransientIntegrator(ClientData clientData, Tcl_Interp *interp, int
 }
 
 #include <HSConstraint.h>
-StaticIntegrator*
+int
 G3Parse_newHSIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, const char *argv[])
 {
   double arcLength, psi_u, psi_f, u_ref;
@@ -144,57 +208,78 @@ G3Parse_newHSIntegrator(ClientData clientData, Tcl_Interp *interp, int argc, con
   if (argc < 3) {
     opserr << "WARNING integrator HSConstraint <arcLength> <psi_u> <psi_f> "
               "<u_ref> \n";
-    return nullptr;
+    return TCL_ERROR;;
   }
-  if (argc >= 3 && Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
-    return nullptr;
-  if (argc >= 4 && Tcl_GetDouble(interp, argv[3], &psi_u) != TCL_OK)
-    return nullptr;
-  if (argc >= 5 && Tcl_GetDouble(interp, argv[4], &psi_f) != TCL_OK)
-    return nullptr;
-  if (argc == 6 && Tcl_GetDouble(interp, argv[5], &u_ref) != TCL_OK)
-    return nullptr;
 
+  if (argc >= 3 && Tcl_GetDouble(interp, argv[2], &arcLength) != TCL_OK)
+    return TCL_ERROR;;
+  if (argc >= 4 && Tcl_GetDouble(interp, argv[3], &psi_u) != TCL_OK)
+    return TCL_ERROR;;
+  if (argc >= 5 && Tcl_GetDouble(interp, argv[4], &psi_f) != TCL_OK)
+    return TCL_ERROR;;
+  if (argc == 6 && Tcl_GetDouble(interp, argv[5], &u_ref) != TCL_OK)
+    return TCL_ERROR;;
+
+  // Create the integrator
+  StaticIntegrator* theStaticIntegrator = nullptr;
   switch (argc) {
   case 3:
-    return new HSConstraint(arcLength);
+    theStaticIntegrator = new HSConstraint(arcLength);
+    break;
   case 4:
-    return new HSConstraint(arcLength, psi_u);
+    theStaticIntegrator = new HSConstraint(arcLength, psi_u);
+    break;
   case 5:
-    return new HSConstraint(arcLength, psi_u, psi_f);
+    theStaticIntegrator = new HSConstraint(arcLength, psi_u, psi_f);
+    break;
   case 6:
-    return new HSConstraint(arcLength, psi_u, psi_f, u_ref);
-  default:
-    return nullptr;
+    theStaticIntegrator = new HSConstraint(arcLength, psi_u, psi_f, u_ref);
+    break;
   }
+
+  if (theStaticIntegrator == nullptr)
+    return TCL_ERROR;
+
+
+  BasicAnalysisBuilder *builder = static_cast<BasicAnalysisBuilder*>(clientData);
+
+  builder->set(*theStaticIntegrator);
+  return TCL_OK;
 }
 
-StaticIntegrator*
+int
 G3Parse_newLoadControl(ClientData clientData, Tcl_Interp *interp, int argc, const char *argv[])
 {
-    double dLambda;
-    double minIncr, maxIncr;
-    int numIter;
-    if (argc < 3) {
-      opserr << "WARNING incorrect # args - integrator LoadControl dlam <Jd "
-                "dlamMin dlamMax>\n";
-      return nullptr;
-    }
-    if (Tcl_GetDouble(interp, argv[2], &dLambda) != TCL_OK)
-      return nullptr;
-    if (argc > 5) {
-      if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
-        return nullptr;
-      if (Tcl_GetDouble(interp, argv[4], &minIncr) != TCL_OK)
-        return nullptr;
-      if (Tcl_GetDouble(interp, argv[5], &maxIncr) != TCL_OK)
-        return nullptr;
-    } else {
-      minIncr = dLambda;
-      maxIncr = dLambda;
-      numIter = 1;
-    }
-    return new LoadControl(dLambda, numIter, minIncr, maxIncr);
+  double dLambda;
+  double minIncr, maxIncr;
+  int numIter;
+  if (argc < 3) {
+    opserr << "WARNING incorrect # args - integrator LoadControl dlam <Jd "
+              "dlamMin dlamMax>\n";
+    return TCL_ERROR;;
+  }
+  if (Tcl_GetDouble(interp, argv[2], &dLambda) != TCL_OK)
+    return TCL_ERROR;;
+  if (argc > 5) {
+    if (Tcl_GetInt(interp, argv[3], &numIter) != TCL_OK)
+      return TCL_ERROR;;
+    if (Tcl_GetDouble(interp, argv[4], &minIncr) != TCL_OK)
+      return TCL_ERROR;;
+    if (Tcl_GetDouble(interp, argv[5], &maxIncr) != TCL_OK)
+      return TCL_ERROR;;
+  } else {
+    minIncr = dLambda;
+    maxIncr = dLambda;
+    numIter = 1;
+  }
+
+  StaticIntegrator *theStaticIntegrator =
+    new LoadControl(dLambda, numIter, minIncr, maxIncr);
+
+  BasicAnalysisBuilder *builder = static_cast<BasicAnalysisBuilder*>(clientData);
+
+  builder->set(*theStaticIntegrator);
+  return TCL_OK;
 }
 
 #include <EQPath.h>

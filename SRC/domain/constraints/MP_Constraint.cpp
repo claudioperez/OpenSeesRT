@@ -547,25 +547,27 @@ MP_Constraint::Print(OPS_Stream &s, int flag)
       // const char *indent = "            ";
       const char *indent = " ";
       const char *newln = " ";
-      s << "            {";
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
       s << indent << "\"name\": \"" << this->getTag() << "\"," << newln;
-      s << indent << "\"node_constrained\": " << nodeConstrained << "," << newln;
-      s << indent << "\"node_retained\": " << nodeRetained << "," << newln;
+      s << indent << "\"node\": " << nodeConstrained << "," << newln;
+      s << indent << "\"ref_node\": " << nodeRetained << "," << newln;
       if (constrDOF != 0 && retainDOF != 0) {
-        s << indent << "\"constrained_dof\": [";
+        s << indent << "\"dof\": [";
         const int nc = (*constrDOF).Size();
         for (int i=0; i < nc; i++)
           s << (*constrDOF)(i)+1 << (i < nc-1? ", " : ""); 
         s << "]," << newln;
 
         const int nr = (*retainDOF).Size();
-        s << indent << "\"retained_dof\": [";
+        s << indent << "\"ref_dof\": [";
         for (int i=0; i < nr; i++)
           s << (*retainDOF)(i)+1 << (i < nr-1? ", " : "");
         s << "]," << newln;
 
         if (constraint != 0) {
-          s << indent << "\"constraint_matrix\": [";
+          s << indent << "\"matrix\": [";
+          for (int i=0; i<constraint->noRows(); i++)
+            for (int j=0; j<constraint->noCols(); j++);
           // TODO print constraint matrix
           // : s << *constraint ;
           s << "]";

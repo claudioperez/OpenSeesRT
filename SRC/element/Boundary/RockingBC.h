@@ -51,7 +51,6 @@
 #include <Matrix.h>
 #include <Vector.h>
 #include <fstream>
-#include <Renderer.h>
 
 #include <cmath>
 #include <vector>
@@ -74,7 +73,6 @@ class Channel;
 class Information;
 class CrdTransf;
 class Response;
-class Renderer;
 
 class RockingBC : public Element
 {
@@ -123,7 +121,6 @@ public:
 	int getResponse(int responseID, Information &info);
 
 	const Matrix & inverse3x3matrix(Matrix &A) const;
-	int displaySelf(Renderer& theViewer, int displayMode, float fact, const char** modes = 0, int numModes = 0);
 private:
 
 	Node *theNodes[2];

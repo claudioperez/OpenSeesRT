@@ -48,45 +48,40 @@ public:
     const char *getClassType() const {return "LinearCrdTransf2d02";};
     
     int initialize(Node *node1Pointer, Node *node2Pointer);
-    int update(void);
-    double getInitialLength(void);
-    double getDeformedLength(void);
+    int update();
+    double getInitialLength();
+    double getDeformedLength();
     
-    int commitState(void);
-    int revertToLastCommit(void);
-    int revertToStart(void);
+    int commitState();
+    int revertToLastCommit();
+    int revertToStart();
     
-    const Vector &getBasicTrialDisp(void);
-    const Vector &getBasicIncrDisp(void);
-    const Vector &getBasicIncrDeltaDisp(void);
-    const Vector &getBasicTrialVel(void);
-    const Vector &getBasicTrialAccel(void);
-    
-    // AddingSensitivity:BEGIN //////////////////////////////////
-    const Vector &getBasicDisplSensitivity(int gradNumber);
-    const Vector &getGlobalResistingForceShapeSensitivity(const Vector &basicForce, const Vector &p0);
-    const Vector &getBasicTrialDispShapeSensitivity(void);
+    const Vector &getBasicTrialDisp();
+    const Vector &getBasicIncrDisp();
+    const Vector &getBasicIncrDeltaDisp();
+    const Vector &getBasicTrialVel();
+    const Vector &getBasicTrialAccel();
 
-    // ---MHS
-    const Vector & getGlobalResistingForceShapeSensitivity(const Vector &pb,
-							   const Vector &p0,
-							   int gradNumber);
-    bool isShapeSensitivity(void);
-    double getdLdh(void);
-    double getd1overLdh(void);
-    
-    // --Quan. no shape sensitivity
-    const Vector & getBasicDisplSensitivity(int gradNumber, int flag); 
-    
-    
-    // AddingSensitivity:END //////////////////////////////////
-    
     const Vector &getGlobalResistingForce(const Vector &basicForce, const Vector &p0);
     const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce);
     const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff);
+
+    CrdTransf *getCopy2d();
     
-    CrdTransf *getCopy2d(void);
-    
+    // Sensitivity
+    const Vector &getBasicDisplTotalGrad(int gradNumber);
+    #if 0
+    const Vector &getGlobalResistingForceShapeSensitivity(const Vector &basicForce, const Vector &p0);
+    #endif
+    const Vector &getBasicDisplFixedGrad();
+    const Vector & getGlobalResistingForceShapeSensitivity(const Vector &pb,
+							   const Vector &p0,
+							   int gradNumber);
+    bool isShapeSensitivity();
+    double getLengthGrad();
+    double getd1overLdh();
+
+    // MovableObject
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
     
@@ -104,7 +99,7 @@ public:
     
 private:
     const Vector& makeBasic(const double ug[6], Vector& ub);
-    int computeElemtLengthAndOrient(void);
+    int computeElemtLengthAndOrient();
     void compTransfMatrixLocalGlobal(Matrix &Tlg);
     
     // internal data

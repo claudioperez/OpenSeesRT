@@ -71,7 +71,7 @@ public:
     
 
 
-    const Vector & getBasicDisplSensitivity(int gradNumber);
+    const Vector & getBasicDisplTotalGrad(int gradNumber);
 
     
     // MovableObject

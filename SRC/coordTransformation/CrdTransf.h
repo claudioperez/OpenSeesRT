@@ -62,8 +62,8 @@ public:
     CrdTransf();
     virtual ~CrdTransf();
 
-    virtual CrdTransf *getCopy2d() {return 0;};
-    virtual CrdTransf *getCopy3d() {return 0;};
+    virtual CrdTransf *getCopy2d() {return nullptr;};
+    virtual CrdTransf *getCopy3d() {return nullptr;};
 
     virtual int getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
     virtual int getRigidOffsets(Vector &offsets);
@@ -101,17 +101,16 @@ public:
     virtual const Vector &getPointGlobalDisplFromBasic(double xi, const Vector &basicDisps) = 0;
     virtual const Vector &getPointLocalDisplFromBasic(double xi, const Vector &basicDisps) = 0;
 
-    // AddingSensitivity:BEGIN //////////////////////////////////
-    virtual const Vector &getBasicDisplSensitivity(int gradNumber);
-    virtual const Vector &getBasicDisplSensitivity(int gradNumber,int); // used by Quan 
-    //virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &basicForce, const Vector &uniformLoad);
+    // Sensitivity
+    virtual const Vector &getBasicDisplTotalGrad(int grad);
+    virtual const Vector &getBasicDisplFixedGrad();
     virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &pb, const Vector &p0, int gradNumber);
+    #if 0
     virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &pb, const Vector &p0);
-    virtual const Vector &getBasicTrialDispShapeSensitivity();
+    #endif
     virtual bool   isShapeSensitivity() {return false;}
-    virtual double getdLdh() {return 0.0;}
+    virtual double getLengthGrad() {return 0.0;}
     virtual double getd1overLdh() {return 0.0;}
-    // AddingSensitivity:END //////////////////////////////////
     //
 protected:
     

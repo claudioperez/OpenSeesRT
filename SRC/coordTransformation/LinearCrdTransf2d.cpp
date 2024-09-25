@@ -35,44 +35,12 @@
 #include <Matrix.h>
 #include <Node.h>
 #include <Channel.h>
-#include <elementAPI.h>
 #include <string>
 #include <LinearCrdTransf2d.h>
 
 // initialize static variables
 Matrix LinearCrdTransf2d::Tlg(6, 6);
 Matrix LinearCrdTransf2d::kg(6, 6);
-
-void *
-OPS_ADD_RUNTIME_VPV(OPS_LinearCrdTransf2d)
-{
-  if (OPS_GetNumRemainingInputArgs() < 1) {
-    opserr << "insufficient arguments for LinearCrdTransf2d\n";
-    return 0;
-  }
-
-  // get tag
-  int tag;
-  int numData = 1;
-  if (OPS_GetIntInput(&numData, &tag) < 0)
-    return 0;
-
-  // get option
-  Vector jntOffsetI(2), jntOffsetJ(2);
-  double *iptr = &jntOffsetI(0), *jptr = &jntOffsetJ(0);
-  while (OPS_GetNumRemainingInputArgs() > 4) {
-    std::string type = OPS_GetString();
-    if (type == "-jntOffset") {
-      numData = 2;
-      if (OPS_GetDoubleInput(&numData, iptr) < 0)
-        return 0;
-      if (OPS_GetDoubleInput(&numData, jptr) < 0)
-        return 0;
-    }
-  }
-
-  return new LinearCrdTransf2d(tag, jntOffsetI, jntOffsetJ);
-}
 
 // constructor:
 LinearCrdTransf2d::LinearCrdTransf2d(int tag)
@@ -555,6 +523,7 @@ LinearCrdTransf2d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
   return pg;
 }
 
+#if 0
 const Vector &
 LinearCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &pb,
                                                            const Vector &p0)
@@ -635,6 +604,7 @@ LinearCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &pb,
 
   return pg;
 }
+#endif 
 
 const Matrix &
 LinearCrdTransf2d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
@@ -1220,7 +1190,6 @@ LinearCrdTransf2d::Print(OPS_Stream &s, int flag)
   }
 }
 
-// AddingSensitivity:BEGIN ///////////////////////////////
 // -- keep MHS function
 const Vector &
 LinearCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &pb,
@@ -1305,7 +1274,7 @@ LinearCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &pb,
 }
 
 const Vector &
-LinearCrdTransf2d::getBasicDisplSensitivity(int gradNumber)
+LinearCrdTransf2d::getBasicDisplTotalGrad(int gradNumber)
 {
   static Vector U(6);
   static Vector dUdh(6);
@@ -1374,7 +1343,7 @@ LinearCrdTransf2d::getBasicDisplSensitivity(int gradNumber)
   u(4) = -sinTheta * U(3) + cosTheta * U(4);
   u(5) = U(5);
 
-  double dLdh        = this->getdLdh();
+  double dLdh        = this->getLengthGrad();
   double doneOverLdh = -dLdh / (L * L);
 
   //dvdh = Abl*dudh + dAbldh*u;
@@ -1396,7 +1365,7 @@ LinearCrdTransf2d::isShapeSensitivity(void)
 }
 
 double
-LinearCrdTransf2d::getdLdh(void)
+LinearCrdTransf2d::getLengthGrad(void)
 {
   int nodeParameterI, nodeParameterJ;
   nodeParameterI = nodeIPtr->getCrdsSensitivity();
@@ -1452,7 +1421,7 @@ LinearCrdTransf2d::getd1overLdh(void)
 }
 
 const Vector &
-LinearCrdTransf2d::getBasicTrialDispShapeSensitivity(void)
+LinearCrdTransf2d::getBasicDisplFixedGrad()
 {
   // Want to return dAdh * u
 
@@ -1530,55 +1499,7 @@ LinearCrdTransf2d::getBasicTrialDispShapeSensitivity(void)
 
   return ub;
 }
-//--- End MHS
 
-//-- Quan
-
-// flag =1; to distinguish from MHS's function
-const Vector &
-LinearCrdTransf2d::getBasicDisplSensitivity(int gradNumber, int flag)
-{
-
-  // This method is created by simply copying the
-  // getBasicTrialDisp method. Instead of picking
-  // up the nodal displacements we just pick up
-  // the nodal displacement sensitivities.
-
-  static double ug[6];
-  for (int i = 0; i < 3; i++) {
-    ug[i]     = nodeIPtr->getDispSensitivity((i + 1), gradNumber);
-    ug[i + 3] = nodeJPtr->getDispSensitivity((i + 1), gradNumber);
-  }
-
-  static Vector ub(3);
-
-  double oneOverL = 1.0 / L;
-  double sl       = sinTheta * oneOverL;
-  double cl       = cosTheta * oneOverL;
-
-  ub(0) = -cosTheta * ug[0] - sinTheta * ug[1] + cosTheta * ug[3] +
-          sinTheta * ug[4];
-
-  ub(1) = -sl * ug[0] + cl * ug[1] + ug[2] + sl * ug[3] - cl * ug[4];
-
-  if (nodeIOffset != 0) {
-    double t02 = -cosTheta * nodeIOffset[1] + sinTheta * nodeIOffset[0];
-    double t12 = sinTheta * nodeIOffset[1] + cosTheta * nodeIOffset[0];
-    ub(0) -= t02 * ug[2];
-    ub(1) += oneOverL * t12 * ug[2];
-  }
-
-  if (nodeJOffset != 0) {
-    double t35 = -cosTheta * nodeJOffset[1] + sinTheta * nodeJOffset[0];
-    double t45 = sinTheta * nodeJOffset[1] + cosTheta * nodeJOffset[0];
-    ub(0) += t35 * ug[5];
-    ub(1) -= oneOverL * t45 * ug[5];
-  }
-
-  ub(2) = ub(1) + ug[5] - ug[2];
-
-  return ub;
-}
 
 int
 LinearCrdTransf2d::getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis)

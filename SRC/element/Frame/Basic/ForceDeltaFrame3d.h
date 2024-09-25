@@ -92,7 +92,6 @@ private:
          nq = 6 ,               // number of element dof's in the basic system
          maxNumSections = 20,
          maxNumEleLoads = 100;
-//  enum { maxNumSections = 20 };
 
   static constexpr FrameStressLayout scheme = {
     FrameStress::N,
@@ -122,6 +121,14 @@ private:
   void getHg(int numSections, double xi[], Matrix& H);
   void getHkp(int numSections, double xi[], Matrix& H);
   void getHgp(int numSections, double xi[], Matrix& H);
+  //
+  // Sensitivity
+  //
+  const Vector& getBasicForceGrad(int gradNumber);
+  const Matrix& computedfedh(int gradNumber);
+  void computedwdh(double dwidh[], int gradNumber, const Vector& q);
+//void computeReactionSensitivity(double* dp0dh, int gradNumber);
+  void getStressGrad(VectorND<nsr>& dspdh, int isec, int gradNumber);
 
   // Reactions of basic system due to element loads
 //void computeReactions(double* p0);
@@ -131,8 +138,6 @@ private:
   // TODO
   double wt[maxNumSections];
   double xi[maxNumSections];
-
-
 
   // Parameters
   double density;                // mass density per unit length
@@ -173,20 +178,7 @@ private:
 
   Matrix* Ki;
 
-  static Vector theVector;
-
-
-
-  //
-  // Sensitivity
-  //
   int parameterID;
-  const Vector& computedqdh(int gradNumber);
-  const Matrix& computedfedh(int gradNumber);
-  void computedwdh(double dwidh[], int gradNumber, const Vector& q);
-//void computeReactionSensitivity(double* dp0dh, int gradNumber);
-  void computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNumber);
-
 };
 
 #endif

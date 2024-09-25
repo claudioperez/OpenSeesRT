@@ -70,15 +70,15 @@ FourNodeQuad::FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
     theMaterial = new NDMaterial *[nip];
     
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < NIP; i++) {
       
       // Get copies of the material model for each integration point
       theMaterial[i] = m.getCopy(type);
                         
       // Check allocation
-      if (theMaterial[i] == 0) {
+      if (theMaterial[i] == nullptr) {
         opserr << "FourNodeQuad::FourNodeQuad -- failed to get a copy of material model\n";
-        exit(-1);
+        return;
       }
     }
 
@@ -88,7 +88,7 @@ FourNodeQuad::FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
     connectedExternalNodes(2) = nd3;
     connectedExternalNodes(3) = nd4;
     
-    for (int i=0; i<4; i++)
+    for (int i=0; i<NEN; i++)
       theNodes[i] = nullptr;
 
 }
@@ -98,7 +98,7 @@ FourNodeQuad::FourNodeQuad()
   theMaterial(0), connectedExternalNodes(4), 
  Q(8), pressureLoad(8), thickness(0.0), applyLoad(0), pressure(0.0), Ki(0)
 {
-  for (int i=0; i<4; i++)
+  for (int i=0; i<NEN; i++)
     theNodes[i] = 0;
 }
 
@@ -120,7 +120,7 @@ FourNodeQuad::~FourNodeQuad()
 int
 FourNodeQuad::getNumExternalNodes() const
 {
-  return 4;
+  return NEN;
 }
 
 const ID&
@@ -186,7 +186,7 @@ FourNodeQuad::commitState()
     }    
 
     // Loop over the integration points and commit the material states
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < NIP; i++)
       retVal += theMaterial[i]->commitState();
 
     return retVal;
@@ -198,8 +198,8 @@ FourNodeQuad::revertToLastCommit()
     int retVal = 0;
 
     // Loop over the integration points and revert to last committed state
-    for (int i = 0; i < 4; i++)
-        retVal += theMaterial[i]->revertToLastCommit();
+    for (int i = 0; i < NIP; i++)
+      retVal += theMaterial[i]->revertToLastCommit();
 
     return retVal;
 }
@@ -1075,38 +1075,37 @@ FourNodeQuad::setParameter(const char **argv, int argc, Parameter &param)
 int
 FourNodeQuad::updateParameter(int parameterID, Information &info)
 {
-        int res = -1;
-                int matRes = res;
+  int res = -1;
+  int matRes = res;
   switch (parameterID) {
     case -1:
       return -1;
 
-        case 1:
-                
-                for (int i = 0; i<4; i++) {
-                matRes = theMaterial[i]->updateParameter(parameterID, info);
-                }
-                if (matRes != -1) {
-                        res = matRes;
-                }
-                return res;
-      
-        case 2:
-                pressure = info.theDouble;
-                this->setPressureLoadAtNodes();        // update consistent nodal loads
-                return 0;
+    case 1:
+      for (int i = 0; i<4; i++)
+        matRes = theMaterial[i]->updateParameter(parameterID, info);
 
-        default: 
-          /*          
-          if (parameterID >= 100) { // material parameter
-            int pointNum = parameterID/100;
-            if (pointNum > 0 && pointNum <= 4)
-              return theMaterial[pointNum-1]->updateParameter(parameterID-100*pointNum, info);
-            else
-              return -1;
-          } else // unknown
-          */
-            return -1;
+      if (matRes != -1) {
+        res = matRes;
+      }
+      return res;
+  
+    case 2:
+      pressure = info.theDouble;
+      this->setPressureLoadAtNodes();        // update consistent nodal loads
+      return 0;
+
+    default: 
+      /*          
+      if (parameterID >= 100) { // material parameter
+        int pointNum = parameterID/100;
+        if (pointNum > 0 && pointNum <= 4)
+          return theMaterial[pointNum-1]->updateParameter(parameterID-100*pointNum, info);
+        else
+          return -1;
+      } else // unknown
+      */
+      return -1;
   }
 }
 
@@ -1180,6 +1179,14 @@ double FourNodeQuad::shapeFunction(double xi, double eta)
     return detJ;
 }
 
+int
+FourNodeQuad::activateParameter(int param)
+{
+	parameterID = param;
+	return 0;
+}
+
+
 void 
 FourNodeQuad::setPressureLoadAtNodes()
 {
@@ -1240,4 +1247,79 @@ FourNodeQuad::setPressureLoadAtNodes()
     //pressureLoad = pressureLoad*thickness;
 }
 
+const Vector &
+FourNodeQuad::getResistingForceSensitivity(int gradNumber)
+{
+	P.Zero();
 
+	double dvol;
+
+	// Loop over the integration points
+	for (int i = 0; i < NIP; i++) {
+
+		// Determine Jacobian for this integration point
+		dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+		dvol *= (thickness*wts[i]);
+
+		// Get material stress response
+		const Vector &sigma = theMaterial[i]->getStressSensitivity(gradNumber,true);
+
+		// Perform numerical integration on internal force
+		//P = P + (B^ sigma) * intWt(i)*intWt(j) * detJ;
+		//P.addMatrixTransposeVector(1.0, B, sigma, intWt(i)*intWt(j)*detJ);
+		for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 2) {
+			
+			P(ia) += dvol*(shp[0][alpha]*sigma(0) + shp[1][alpha]*sigma(2));
+			
+			P(ia+1) += dvol*(shp[1][alpha]*sigma(1) + shp[0][alpha]*sigma(2));
+  /*
+			// Subtract equiv. body forces from the nodes
+			//P = P - (N^ b) * intWt(i)*intWt(j) * detJ;
+			//P.addMatrixTransposeVector(1.0, N, b, -intWt(i)*intWt(j)*detJ);
+			P(ia) -= dvol*(shp[2][alpha]*b[0]);
+			P(ia+1) -= dvol*(shp[2][alpha]*b[1]);   
+  */
+		}
+	}
+	return P;
+}
+
+
+int
+FourNodeQuad::commitSensitivity(int gradNumber, int numGrads)
+{
+	
+	static double u[NDM][NEN];
+
+  for (int i=0; i<NEN; i++) {
+	  u[0][i] = theNodes[i]->getDispSensitivity(1,gradNumber);
+	  u[1][i] = theNodes[i]->getDispSensitivity(2,gradNumber);
+  }
+
+	static Vector eps(3);
+
+	int ret = 0;
+
+	// Loop over the integration points
+	for (int i = 0; i < NIP; i++) {
+
+		// Determine Jacobian for this integration point
+		this->shapeFunction(pts[i][0], pts[i][1]);
+
+		// Interpolate strains
+		//eps = B*u;
+		//eps.addMatrixVector(0.0, B, u, 1.0);
+		eps.Zero();
+		for (int beta = 0; beta < 4; beta++) {
+			eps(0) += shp[0][beta]*u[0][beta];
+			eps(1) += shp[1][beta]*u[1][beta];
+			eps(2) += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
+		}
+
+		// Set the material strain
+		//ret += theMaterial[i]->setTrialStrain(eps);
+		theMaterial[i]->commitSensitivity(eps,gradNumber,numGrads);
+	}
+
+	return 0;
+}

@@ -11,31 +11,48 @@
 #include <MachineBroker.h>
 #include <MPI_MachineBroker.h>
 
+// #define _PARALLEL_SP
 #define _PARALLEL_MP
 
 #ifdef _PARALLEL_SP
-#  include <DistributedDisplacementControl.h>
+// #  include <DistributedDisplacementControl.h>
+// #  include <ShedHeaviest.h>
+// #  include <MPIDiagonalSOE.h>
+// #  include <MPIDiagonalSolver.h>
 #  include <ShadowSubdomain.h>
 #  include <Metis.h>
-#  include <ShedHeaviest.h>
 #  include <DomainPartitioner.h>
+#  include <domain/domain/partitioned/PartitionedDomain.h>
 #  include <GraphPartitioner.h>
 #  include <TclPackageClassBroker.h>
 #  include <Subdomain.h>
 #  include <SubdomainIter.h>
 #  include <MachineBroker.h>
-#  include <MPIDiagonalSOE.h>
-#  include <MPIDiagonalSolver.h>
 #  include <StaticDomainDecompositionAnalysis.h>
 #  include <TransientDomainDecompositionAnalysis.h>
 
-#  define MPIPP_H
-#  include <DistributedSuperLU.h>
-#  include <DistributedProfileSPDLinSOE.h>
+// #  define MPIPP_H
+// #  include <DistributedSuperLU.h>
+// #  include <DistributedProfileSPDLinSOE.h>
+
+   struct PartitionRuntime {
+     int  PARALLEL_SP = 0;
+     int  num_subdomains = 0;
+     bool PARTITIONED = false;
+     bool USING_MAIN_DOMAIN = false;
+     bool setMPIDSOEFlag = false;
+     int  MAIN_DOMAIN_PARTITION_ID = 0;
+     PartitionedDomain     theDomain;
+     DomainPartitioner     *DOMAIN_PARTITIONER = nullptr;
+     GraphPartitioner      *GRAPH_PARTITIONER  = nullptr;
+     LoadBalancer          *BALANCER           = nullptr;
+     TclPackageClassBroker *broker             = nullptr;
+     MachineBroker         *machine            = nullptr;
+     Channel               **theChannels       = nullptr;  
+   };
 
 // MachineBroker *theMachineBroker = 0;
    int  OPS_PARALLEL_SP = 0;
-   int  OPS_NUM_SUBDOMAINS = 0;
    bool OPS_PARTITIONED = false;
    bool OPS_USING_MAIN_DOMAIN = false;
    bool setMPIDSOEFlag = false;
@@ -53,7 +70,6 @@
   bool setMPIDSOEFlag = false;
   
   // parallel analysis
-  #include <DistributedDisplacementControl.h>
   
 // Domain theDomain;
 #endif
@@ -73,8 +89,16 @@ void Init_Parallel(Tcl_Interp* interp)
   Tcl_CreateCommand(interp, "getPID",    &getPID,  (ClientData)theMachineBroker, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "send",      &opsSend, (ClientData)theMachineBroker, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "recv",      &opsRecv, (ClientData)theMachineBroker, (Tcl_CmdDeleteProc *)NULL);
+
+#ifdef _PARALLEL_SP
+  PartitionRuntime *part = new PartitionRuntime();
+  Tcl_CreateCommand(interp, "barrier",   &opsBarrier,   (ClientData)part, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "partition", &opsPartition, (ClientData)part, (Tcl_CmdDeleteProc *)NULL);
+  Tcl_CreateCommand(interp, "wipePP",    &wipePP,       (ClientData)part, (Tcl_CmdDeleteProc *)NULL);
+#else
   Tcl_CreateCommand(interp, "barrier",   &opsBarrier, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
   Tcl_CreateCommand(interp, "partition", &opsPartition, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+#endif
 }
 
 
@@ -116,40 +140,39 @@ getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const arg
 
 #ifdef _PARALLEL_SP
 static int
-partitionModel(int eleTag)
+partitionModel(PartitionRuntime& part, int eleTag)
 {
-  if (OPS_PARTITIONED == true)
+  if (part.PARTITIONED == true)
     return 0;
 
   int result = 0;
 
-  if (OPS_theChannels != 0)
-    delete[] OPS_theChannels;
+  if (part.theChannels != nullptr)
+    delete[] part.theChannels;
 
-  OPS_theChannels = new Channel *[OPS_NUM_SUBDOMAINS];
+  part.theChannels = new Channel *[part.num_subdomains];
 
   // create some subdomains
-  for (int i = 1; i <= OPS_NUM_SUBDOMAINS; i++) {
+  for (int i = 1; i <= part.num_subdomains; i++) {
     if (i != OPS_MAIN_DOMAIN_PARTITION_ID) {
       ShadowSubdomain *theSubdomain =
-          new ShadowSubdomain(i, *OPS_MACHINE, *OPS_OBJECT_BROKER);
-      theDomain.addSubdomain(theSubdomain);
+          new ShadowSubdomain(i, *part.machine, *part.broker);
+      part.theDomain.addSubdomain(theSubdomain);
       OPS_theChannels[i - 1] = theSubdomain->getChannelPtr();
     }
   }
 
   // create a partitioner & partition the domain
-  if (OPS_DOMAIN_PARTITIONER == nullptr) {
+  if (part.DOMAIN_PARTITIONER == nullptr) {
     //      OPS_BALANCER = new ShedHeaviest();
-    OPS_GRAPH_PARTITIONER = new Metis;
-    // OPS_DOMAIN_PARTITIONER = new DomainPartitioner(*OPS_GRAPH_PARTITIONER,
-    // *OPS_BALANCER);
-    OPS_DOMAIN_PARTITIONER = new DomainPartitioner(*OPS_GRAPH_PARTITIONER);
-    theDomain.setPartitioner(OPS_DOMAIN_PARTITIONER);
+    part.GRAPH_PARTITIONER = new Metis;
+    // OPS_DOMAIN_PARTITIONER = new DomainPartitioner(*OPS_GRAPH_PARTITIONER, *OPS_BALANCER);
+    part.DOMAIN_PARTITIONER = new DomainPartitioner(*part.GRAPH_PARTITIONER);
+    part.theDomain.setPartitioner(part.DOMAIN_PARTITIONER);
   }
 
-  result = theDomain.partition(OPS_NUM_SUBDOMAINS, OPS_USING_MAIN_DOMAIN,
-                               OPS_MAIN_DOMAIN_PARTITION_ID, eleTag);
+  result = part.theDomain.partition(part.num_subdomains, OPS_USING_MAIN_DOMAIN,
+                                    OPS_MAIN_DOMAIN_PARTITION_ID, eleTag);
 
   if (result < 0)
     return result;
@@ -157,12 +180,14 @@ partitionModel(int eleTag)
   OPS_PARTITIONED = true;
 
   DomainDecompositionAnalysis *theSubAnalysis;
-  SubdomainIter &theSubdomains = theDomain.getSubdomains();
-  Subdomain *theSub = 0;
+  SubdomainIter &theSubdomains = part.theDomain.getSubdomains();
+  Subdomain *theSub = nullptr;
+
+  void* the_static_analysis = nullptr;
 
   // create the appropriate domain decomposition analysis
-  while ((theSub = theSubdomains()) != 0) {
-    if (the_static_analysis != 0) {
+  while ((theSub = theSubdomains()) != nullptr) {
+    if (the_static_analysis != nullptr) {
       theSubAnalysis = new StaticDomainDecompositionAnalysis(
           *theSub, *theHandler, *theNumberer, *the_analysis_model, *theAlgorithm,
           *theSOE, *theStaticIntegrator, theTest, false);
@@ -325,13 +350,15 @@ opsPartition(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char ** const argv)
 {
 #ifdef _PARALLEL_SP
+  PartitionRuntime& part = *static_cast<PartitionRuntime*>(clientData);
+
   int eleTag;
   if (argc == 2) {
     if (Tcl_GetInt(interp, argv[1], &eleTag) != TCL_OK) {
       ;
     }
   }
-  partitionModel(eleTag);
+  partitionModel(part, eleTag);
 #endif
   return TCL_OK;
 }
@@ -341,12 +368,15 @@ wipePP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 {
 
 #ifdef _PARALLEL_SP
-  if (OPS_PARTITIONED == true && OPS_NUM_SUBDOMAINS > 1) {
-    SubdomainIter &theSubdomains = theDomain.getSubdomains();
-    Subdomain *theSub =0;
+
+  PartitionRuntime& part = *static_cast<PartitionRuntime*>(clientData);
+
+  if (OPS_PARTITIONED == true && part.num_subdomains > 1) {
+    SubdomainIter &theSubdomains = part.theDomain.getSubdomains();
+    Subdomain *theSub =nullptr;
     
     // create the appropriate domain decomposition analysis
-    while ((theSub = theSubdomains()) != 0) 
+    while ((theSub = theSubdomains()) != nullptr)
       theSub->wipeAnalysis();
   }
 #endif

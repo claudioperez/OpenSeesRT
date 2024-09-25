@@ -28,7 +28,7 @@
 using namespace OpenSees;
 #include <Node.h>
 #include <Channel.h>
-#include <elementAPI.h>
+#include <Logging.h>
 #include <CorotCrdTransf3d02.h>
 
 #include "RotationLibrary.h"

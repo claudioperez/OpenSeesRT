@@ -21,7 +21,8 @@
 #include <Rotations.hpp>
 //#include <BeamIntegration.h>
 
-using OpenSees::VectorND; using OpenSees::MatrixND;
+
+namespace OpenSees {
 
 template<int nen, int nip>
 class ExactFrame3d: 
@@ -303,9 +304,6 @@ template<int nen, int nip>
 int
 ExactFrame3d<nen,nip>::revertToLastCommit()
 {
-  // TODO
-//opserr << "WARNING: revertToLastCommit is incomplete for this element\n";
-
   points = past;
 
   for (GaussPoint& point : points) {
@@ -408,6 +406,7 @@ ExactFrame3d<nen,nip>::update()
       {0, 0, 0, R(0,1), R(1,1), R(2,1)},
       {0, 0, 0, R(0,2), R(1,2), R(2,2)},
     }};
+
     MatrixND<6,6> B[nen], Bj;
     Bj.zero();
     for (int j=0; j<nen; j++) {
@@ -517,18 +516,19 @@ ExactFrame3d<nen,nip>::Print(OPS_Stream& stream, int flag)
     stream << "\"name\": " << this->getTag() << ", ";
     stream << "\"type\": \"" << this->getClassType() << "\", ";
     stream << "\"nodes\": [" << node_tags(0) << ", " 
-                             << node_tags(1) << "], ";
+                             << node_tags(1) << "]";
+    stream << ", ";
 
 
     stream << "\"sections\": [";
     for (decltype(points.size()) i = 0; i < points.size() - 1; i++)
       stream << points[i].material->getTag() << ", ";
-    stream << points[points.size() - 1].material->getTag() << "], ";
-    stream << "\"crdTransformation\": " << transform->getTag()  ; // << ", ";
-//  stream << "\"integration\": ";
-//  stencil->Print(s, flag);
+    stream << points[points.size() - 1].material->getTag() << "]";
+    stream << ", ";
+
+    stream << "\"crdTransformation\": " << transform->getTag()  ;
     stream << "}";
   }
-
 }
 
+} // namespace OpenSees
