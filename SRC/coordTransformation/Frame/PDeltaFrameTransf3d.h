@@ -15,6 +15,7 @@
 #ifndef PDeltaFrameTransf3d_h
 #define PDeltaFrameTransf3d_h
 
+#include <array>
 #include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -30,7 +31,7 @@ public:
     PDeltaFrameTransf3d();
     ~PDeltaFrameTransf3d();
     
-    const char *getClassType() const {return "PDeltaFrameTransf3d";};
+    const char *getClassType() const {return "PDeltaFrameTransf3d";}
     
     double getInitialLength();
     double getDeformedLength();
@@ -74,16 +75,22 @@ public:
     
     int getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
 
+    // Sensitivity
+    double getLengthGrad();
+
 private:
     int computeElemtLengthAndOrient();
     void compTransfMatrixLocalGlobal(Matrix &Tlg);
     
     // internal data
-    Node *nodeIPtr, *nodeJPtr;  // pointers to the element two endnodes
+    Node *nodeIPtr, *nodeJPtr;       // pointers to the element two endnodes
+    std::array<Node*, 2> nodes;                // pointers to the element two endnodes
     
     double *nodeIOffset, *nodeJOffset;    // rigid joint offsets
+
+    Vector3D xi, xj, vz;
     
-    double R[3][3];      // rotation matrix
+    Matrix3D R;          // rotation matrix
     double L;            // undeformed element length
     double ul17;         // Transverse local displacement offsets of P-Delta
     double ul28;

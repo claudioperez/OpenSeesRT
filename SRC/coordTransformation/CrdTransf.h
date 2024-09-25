@@ -105,9 +105,6 @@ public:
     virtual const Vector &getBasicDisplTotalGrad(int grad);
     virtual const Vector &getBasicDisplFixedGrad();
     virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &pb, const Vector &p0, int gradNumber);
-    #if 0
-    virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &pb, const Vector &p0);
-    #endif
     virtual bool   isShapeSensitivity() {return false;}
     virtual double getLengthGrad() {return 0.0;}
     virtual double getd1overLdh() {return 0.0;}

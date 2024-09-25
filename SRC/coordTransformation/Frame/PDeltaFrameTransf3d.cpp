@@ -34,13 +34,11 @@ PDeltaFrameTransf3d::PDeltaFrameTransf3d(int tag, const Vector &vecInLocXZPlane)
       nodeIOffset(0), nodeJOffset(0), L(0), ul17(0), ul28(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
-  for (int i = 0; i < 2; i++)
-    for (int j = 0; j < 3; j++)
-      R[i][j] = 0.0;
+  R.zero();
 
-  R[2][0] = vecInLocXZPlane(0);
-  R[2][1] = vecInLocXZPlane(1);
-  R[2][2] = vecInLocXZPlane(2);
+  R(0,2) = vecInLocXZPlane(0);
+  R(1,2) = vecInLocXZPlane(1);
+  R(2,2) = vecInLocXZPlane(2);
 }
 
 // constructor:
@@ -51,13 +49,11 @@ PDeltaFrameTransf3d::PDeltaFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
       nodeIOffset(0), nodeJOffset(0), L(0), ul17(0), ul28(0),
       nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
 {
-  for (int i = 0; i < 2; i++)
-    for (int j = 0; j < 3; j++)
-      R[i][j] = 0.0;
+  R.zero();
 
-  R[2][0] = vecInLocXZPlane(0);
-  R[2][1] = vecInLocXZPlane(1);
-  R[2][2] = vecInLocXZPlane(2);
+  R(0,2) = vecInLocXZPlane(0);
+  R(1,2) = vecInLocXZPlane(1);
+  R(2,2) = vecInLocXZPlane(2);
 
   // check rigid joint offset for node I
   if (rigJntOffset1.Size() != 3) {
@@ -92,7 +88,7 @@ PDeltaFrameTransf3d::PDeltaFrameTransf3d()
 {
   for (int i = 0; i < 3; i++)
     for (int j = 0; j < 3; j++)
-      R[i][j] = 0.0;
+      R(j,i) = 0.0;
 }
 
 // destructor:
@@ -201,11 +197,11 @@ PDeltaFrameTransf3d::update()
   }
 
 
-  double ul1 = R[1][0] * ug[0] + R[1][1] * ug[1] + R[1][2] * ug[2];
-  double ul2 = R[2][0] * ug[0] + R[2][1] * ug[1] + R[2][2] * ug[2];
+  double ul1 = R(0,1) * ug[0] + R(1,1) * ug[1] + R(2,1) * ug[2];
+  double ul2 = R(0,2) * ug[0] + R(1,2) * ug[1] + R(2,2) * ug[2];
 
-  double ul7 = R[1][0] * ug[6] + R[1][1] * ug[7] + R[1][2] * ug[8];
-  double ul8 = R[2][0] * ug[6] + R[2][1] * ug[7] + R[2][2] * ug[8];
+  double ul7 = R(0,1) * ug[6] + R(1,1) * ug[7] + R(2,1) * ug[8];
+  double ul8 = R(0,2) * ug[6] + R(1,2) * ug[7] + R(2,2) * ug[8];
 
   static double Wu[3];
 
@@ -214,8 +210,8 @@ PDeltaFrameTransf3d::update()
     Wu[1] = -nodeIOffset[2] * ug[3] + nodeIOffset[0] * ug[5];
     Wu[2] =  nodeIOffset[1] * ug[3] - nodeIOffset[0] * ug[4];
 
-    ul1 += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul2 += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul1 += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul2 += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   if (nodeJOffset) {
@@ -223,8 +219,8 @@ PDeltaFrameTransf3d::update()
     Wu[1] = -nodeJOffset[2] * ug[9] + nodeJOffset[0] * ug[11];
     Wu[2] = nodeJOffset[1] * ug[9] - nodeJOffset[0] * ug[10];
 
-    ul7 += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul8 += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul7 += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul8 += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   ul17 = ul1 - ul7;
@@ -236,27 +232,15 @@ PDeltaFrameTransf3d::update()
 int
 PDeltaFrameTransf3d::computeElemtLengthAndOrient()
 {
-  // element projection
-  static Vector dx(3);
+  const Vector &XI = nodeIPtr->getCrds();
+  const Vector &XJ = nodeJPtr->getCrds();
 
-  const Vector &ndICoords = nodeIPtr->getCrds();
-  const Vector &ndJCoords = nodeJPtr->getCrds();
-
-  dx(0) = ndJCoords(0) - ndICoords(0);
-  dx(1) = ndJCoords(1) - ndICoords(1);
-  dx(2) = ndJCoords(2) - ndICoords(2);
-
-  if (nodeIInitialDisp != 0) {
-    dx(0) -= nodeIInitialDisp[0];
-    dx(1) -= nodeIInitialDisp[1];
-    dx(2) -= nodeIInitialDisp[2];
+  for (int i=0; i<3; i++) {
+    xi[i] = XI[i];
+    xj[i] = XJ[i];
   }
-
-  if (nodeJInitialDisp != 0) {
-    dx(0) += nodeJInitialDisp[0];
-    dx(1) += nodeJInitialDisp[1];
-    dx(2) += nodeJInitialDisp[2];
-  }
+  
+  Vector3D dx = xj - xi;
 
   if (nodeJOffset != 0) {
     dx(0) += nodeJOffset[0];
@@ -270,8 +254,20 @@ PDeltaFrameTransf3d::computeElemtLengthAndOrient()
     dx(2) -= nodeIOffset[2];
   }
 
+  if (nodeIInitialDisp != 0) {
+    dx(0) -= nodeIInitialDisp[0];
+    dx(1) -= nodeIInitialDisp[1];
+    dx(2) -= nodeIInitialDisp[2];
+  }
+
+  if (nodeJInitialDisp != 0) {
+    dx(0) += nodeJInitialDisp[0];
+    dx(1) += nodeJInitialDisp[1];
+    dx(2) += nodeJInitialDisp[2];
+  }
+
   // calculate the element length
-  L = dx.Norm();
+  L = dx.norm();
 
   if (L == 0.0) {
     opserr << "\nPDeltaFrameTransf3d::computeElemtLengthAndOrien: 0 length\n";
@@ -280,9 +276,9 @@ PDeltaFrameTransf3d::computeElemtLengthAndOrient()
 
   // calculate the element local x axis components (direction cossines)
   // wrt to the global coordinates
-  R[0][0] = dx(0) / L;
-  R[0][1] = dx(1) / L;
-  R[0][2] = dx(2) / L;
+  R(0,0) = dx(0) / L;
+  R(1,0) = dx(1) / L;
+  R(2,0) = dx(2) / L;
 
   return 0;
 }
@@ -293,31 +289,31 @@ PDeltaFrameTransf3d::compTransfMatrixLocalGlobal(Matrix &Tlg)
   // setup transformation matrix from local to global
   Tlg.Zero();
 
-  Tlg(0, 0) = Tlg(3, 3) = Tlg(6, 6) = Tlg(9, 9) = R[0][0];
-  Tlg(0, 1) = Tlg(3, 4) = Tlg(6, 7) = Tlg(9, 10) = R[0][1];
-  Tlg(0, 2) = Tlg(3, 5) = Tlg(6, 8) = Tlg(9, 11) = R[0][2];
-  Tlg(1, 0) = Tlg(4, 3) = Tlg(7, 6) = Tlg(10, 9) = R[1][0];
-  Tlg(1, 1) = Tlg(4, 4) = Tlg(7, 7) = Tlg(10, 10) = R[1][1];
-  Tlg(1, 2) = Tlg(4, 5) = Tlg(7, 8) = Tlg(10, 11) = R[1][2];
-  Tlg(2, 0) = Tlg(5, 3) = Tlg(8, 6) = Tlg(11, 9) = R[2][0];
-  Tlg(2, 1) = Tlg(5, 4) = Tlg(8, 7) = Tlg(11, 10) = R[2][1];
-  Tlg(2, 2) = Tlg(5, 5) = Tlg(8, 8) = Tlg(11, 11) = R[2][2];
+  Tlg(0, 0) = Tlg(3, 3) = Tlg(6, 6) = Tlg(9, 9) = R(0,0);
+  Tlg(0, 1) = Tlg(3, 4) = Tlg(6, 7) = Tlg(9, 10) = R(1,0);
+  Tlg(0, 2) = Tlg(3, 5) = Tlg(6, 8) = Tlg(9, 11) = R(2,0);
+  Tlg(1, 0) = Tlg(4, 3) = Tlg(7, 6) = Tlg(10, 9) = R(0,1);
+  Tlg(1, 1) = Tlg(4, 4) = Tlg(7, 7) = Tlg(10, 10) = R(1,1);
+  Tlg(1, 2) = Tlg(4, 5) = Tlg(7, 8) = Tlg(10, 11) = R(2,1);
+  Tlg(2, 0) = Tlg(5, 3) = Tlg(8, 6) = Tlg(11, 9) = R(0,2);
+  Tlg(2, 1) = Tlg(5, 4) = Tlg(8, 7) = Tlg(11, 10) = R(1,2);
+  Tlg(2, 2) = Tlg(5, 5) = Tlg(8, 8) = Tlg(11, 11) = R(2,2);
 }
 
 int
 PDeltaFrameTransf3d::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
 {
   // Compute y = v cross x
-  // Note: v(i) is stored in R[2][i]
+  // Note: v(i) is stored in R(i,2)
   static Vector vAxis(3);
-  vAxis(0) = R[2][0];
-  vAxis(1) = R[2][1];
-  vAxis(2) = R[2][2];
+  vAxis(0) = R(0,2);
+  vAxis(1) = R(1,2);
+  vAxis(2) = R(2,2);
 
   static Vector xAxis(3);
-  xAxis(0) = R[0][0];
-  xAxis(1) = R[0][1];
-  xAxis(2) = R[0][2];
+  xAxis(0) = R(0,0);
+  xAxis(1) = R(1,0);
+  xAxis(2) = R(2,0);
   XAxis(0) = xAxis(0);
   XAxis(1) = xAxis(1);
   XAxis(2) = xAxis(2);
@@ -353,13 +349,13 @@ PDeltaFrameTransf3d::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
   ZAxis(2) = zAxis(2);
 
   // Fill in transformation matrix
-  R[1][0] = yAxis(0);
-  R[1][1] = yAxis(1);
-  R[1][2] = yAxis(2);
+  R(0,1) = yAxis(0);
+  R(1,1) = yAxis(1);
+  R(2,1) = yAxis(2);
 
-  R[2][0] = zAxis(0);
-  R[2][1] = zAxis(1);
-  R[2][2] = zAxis(2);
+  R(0,2) = zAxis(0);
+  R(1,2) = zAxis(1);
+  R(2,2) = zAxis(2);
 
   return 0;
 }
@@ -403,23 +399,26 @@ PDeltaFrameTransf3d::getBasicTrialDisp()
 
   static Vector ub(6);
 
+  VectorND<12> ul = getLocal(ug, R, nodeIOffset, nodeJOffset);
+
+#if 0
   static double ul[12];
 
-  ul[0] = R[0][0] * ug[0] + R[0][1] * ug[1] + R[0][2] * ug[2];
-  ul[1] = R[1][0] * ug[0] + R[1][1] * ug[1] + R[1][2] * ug[2];
-  ul[2] = R[2][0] * ug[0] + R[2][1] * ug[1] + R[2][2] * ug[2];
+  ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
+  ul[1] = R(0,1) * ug[0] + R(1,1) * ug[1] + R(2,1) * ug[2];
+  ul[2] = R(0,2) * ug[0] + R(1,2) * ug[1] + R(2,2) * ug[2];
 
-  ul[3] = R[0][0] * ug[3] + R[0][1] * ug[4] + R[0][2] * ug[5];
-  ul[4] = R[1][0] * ug[3] + R[1][1] * ug[4] + R[1][2] * ug[5];
-  ul[5] = R[2][0] * ug[3] + R[2][1] * ug[4] + R[2][2] * ug[5];
+  ul[3] = R(0,0) * ug[3] + R(1,0) * ug[4] + R(2,0) * ug[5];
+  ul[4] = R(0,1) * ug[3] + R(1,1) * ug[4] + R(2,1) * ug[5];
+  ul[5] = R(0,2) * ug[3] + R(1,2) * ug[4] + R(2,2) * ug[5];
 
-  ul[6] = R[0][0] * ug[6] + R[0][1] * ug[7] + R[0][2] * ug[8];
-  ul[7] = R[1][0] * ug[6] + R[1][1] * ug[7] + R[1][2] * ug[8];
-  ul[8] = R[2][0] * ug[6] + R[2][1] * ug[7] + R[2][2] * ug[8];
+  ul[6] = R(0,0) * ug[6] + R(1,0) * ug[7] + R(2,0) * ug[8];
+  ul[7] = R(0,1) * ug[6] + R(1,1) * ug[7] + R(2,1) * ug[8];
+  ul[8] = R(0,2) * ug[6] + R(1,2) * ug[7] + R(2,2) * ug[8];
 
-  ul[9]  = R[0][0] * ug[9] + R[0][1] * ug[10] + R[0][2] * ug[11];
-  ul[10] = R[1][0] * ug[9] + R[1][1] * ug[10] + R[1][2] * ug[11];
-  ul[11] = R[2][0] * ug[9] + R[2][1] * ug[10] + R[2][2] * ug[11];
+  ul[9]  = R(0,0) * ug[9] + R(1,0) * ug[10] + R(2,0) * ug[11];
+  ul[10] = R(0,1) * ug[9] + R(1,1) * ug[10] + R(2,1) * ug[11];
+  ul[11] = R(0,2) * ug[9] + R(1,2) * ug[10] + R(2,2) * ug[11];
 
   static double Wu[3];
   if (nodeIOffset) {
@@ -427,9 +426,9 @@ PDeltaFrameTransf3d::getBasicTrialDisp()
     Wu[1] = -nodeIOffset[2] * ug[3] + nodeIOffset[0] * ug[5];
     Wu[2] = nodeIOffset[1] * ug[3] - nodeIOffset[0] * ug[4];
 
-    ul[0] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    ul[1] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[2] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul[0] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    ul[1] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[2] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   if (nodeJOffset) {
@@ -437,10 +436,11 @@ PDeltaFrameTransf3d::getBasicTrialDisp()
     Wu[1] = -nodeJOffset[2] * ug[9] + nodeJOffset[0] * ug[11];
     Wu[2] = nodeJOffset[1] * ug[9] - nodeJOffset[0] * ug[10];
 
-    ul[6] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    ul[7] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[8] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul[6] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
+#endif
 
   ub(0) = ul[6] - ul[0];
   double tmp;
@@ -471,24 +471,26 @@ PDeltaFrameTransf3d::getBasicIncrDisp()
   double oneOverL = 1.0 / L;
 
   static Vector ub(6);
+  VectorND<12> ul = getLocal(ug, R, nodeIOffset, nodeJOffset);
 
+#if 0
   static double ul[12];
 
-  ul[0] = R[0][0] * ug[0] + R[0][1] * ug[1] + R[0][2] * ug[2];
-  ul[1] = R[1][0] * ug[0] + R[1][1] * ug[1] + R[1][2] * ug[2];
-  ul[2] = R[2][0] * ug[0] + R[2][1] * ug[1] + R[2][2] * ug[2];
+  ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
+  ul[1] = R(0,1) * ug[0] + R(1,1) * ug[1] + R(2,1) * ug[2];
+  ul[2] = R(0,2) * ug[0] + R(1,2) * ug[1] + R(2,2) * ug[2];
 
-  ul[3] = R[0][0] * ug[3] + R[0][1] * ug[4] + R[0][2] * ug[5];
-  ul[4] = R[1][0] * ug[3] + R[1][1] * ug[4] + R[1][2] * ug[5];
-  ul[5] = R[2][0] * ug[3] + R[2][1] * ug[4] + R[2][2] * ug[5];
+  ul[3] = R(0,0) * ug[3] + R(1,0) * ug[4] + R(2,0) * ug[5];
+  ul[4] = R(0,1) * ug[3] + R(1,1) * ug[4] + R(2,1) * ug[5];
+  ul[5] = R(0,2) * ug[3] + R(1,2) * ug[4] + R(2,2) * ug[5];
 
-  ul[6] = R[0][0] * ug[6] + R[0][1] * ug[7] + R[0][2] * ug[8];
-  ul[7] = R[1][0] * ug[6] + R[1][1] * ug[7] + R[1][2] * ug[8];
-  ul[8] = R[2][0] * ug[6] + R[2][1] * ug[7] + R[2][2] * ug[8];
+  ul[6] = R(0,0) * ug[6] + R(1,0) * ug[7] + R(2,0) * ug[8];
+  ul[7] = R(0,1) * ug[6] + R(1,1) * ug[7] + R(2,1) * ug[8];
+  ul[8] = R(0,2) * ug[6] + R(1,2) * ug[7] + R(2,2) * ug[8];
 
-  ul[9]  = R[0][0] * ug[9] + R[0][1] * ug[10] + R[0][2] * ug[11];
-  ul[10] = R[1][0] * ug[9] + R[1][1] * ug[10] + R[1][2] * ug[11];
-  ul[11] = R[2][0] * ug[9] + R[2][1] * ug[10] + R[2][2] * ug[11];
+  ul[9]  = R(0,0) * ug[9] + R(1,0) * ug[10] + R(2,0) * ug[11];
+  ul[10] = R(0,1) * ug[9] + R(1,1) * ug[10] + R(2,1) * ug[11];
+  ul[11] = R(0,2) * ug[9] + R(1,2) * ug[10] + R(2,2) * ug[11];
 
   static double Wu[3];
   if (nodeIOffset) {
@@ -496,9 +498,9 @@ PDeltaFrameTransf3d::getBasicIncrDisp()
     Wu[1] = -nodeIOffset[2] * ug[3] + nodeIOffset[0] * ug[5];
     Wu[2] = nodeIOffset[1] * ug[3] - nodeIOffset[0] * ug[4];
 
-    ul[0] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    ul[1] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[2] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul[0] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    ul[1] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[2] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   if (nodeJOffset) {
@@ -506,11 +508,11 @@ PDeltaFrameTransf3d::getBasicIncrDisp()
     Wu[1] = -nodeJOffset[2] * ug[9] + nodeJOffset[0] * ug[11];
     Wu[2] = nodeJOffset[1] * ug[9] - nodeJOffset[0] * ug[10];
 
-    ul[6] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    ul[7] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[8] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul[6] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
-
+#endif
   ub(0) = ul[6] - ul[0];
   double tmp;
   tmp   = oneOverL * (ul[1] - ul[7]);
@@ -543,21 +545,21 @@ PDeltaFrameTransf3d::getBasicIncrDeltaDisp()
 
   static double ul[12];
 
-  ul[0] = R[0][0] * ug[0] + R[0][1] * ug[1] + R[0][2] * ug[2];
-  ul[1] = R[1][0] * ug[0] + R[1][1] * ug[1] + R[1][2] * ug[2];
-  ul[2] = R[2][0] * ug[0] + R[2][1] * ug[1] + R[2][2] * ug[2];
+  ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
+  ul[1] = R(0,1) * ug[0] + R(1,1) * ug[1] + R(2,1) * ug[2];
+  ul[2] = R(0,2) * ug[0] + R(1,2) * ug[1] + R(2,2) * ug[2];
 
-  ul[3] = R[0][0] * ug[3] + R[0][1] * ug[4] + R[0][2] * ug[5];
-  ul[4] = R[1][0] * ug[3] + R[1][1] * ug[4] + R[1][2] * ug[5];
-  ul[5] = R[2][0] * ug[3] + R[2][1] * ug[4] + R[2][2] * ug[5];
+  ul[3] = R(0,0) * ug[3] + R(1,0) * ug[4] + R(2,0) * ug[5];
+  ul[4] = R(0,1) * ug[3] + R(1,1) * ug[4] + R(2,1) * ug[5];
+  ul[5] = R(0,2) * ug[3] + R(1,2) * ug[4] + R(2,2) * ug[5];
 
-  ul[6] = R[0][0] * ug[6] + R[0][1] * ug[7] + R[0][2] * ug[8];
-  ul[7] = R[1][0] * ug[6] + R[1][1] * ug[7] + R[1][2] * ug[8];
-  ul[8] = R[2][0] * ug[6] + R[2][1] * ug[7] + R[2][2] * ug[8];
+  ul[6] = R(0,0) * ug[6] + R(1,0) * ug[7] + R(2,0) * ug[8];
+  ul[7] = R(0,1) * ug[6] + R(1,1) * ug[7] + R(2,1) * ug[8];
+  ul[8] = R(0,2) * ug[6] + R(1,2) * ug[7] + R(2,2) * ug[8];
 
-  ul[9]  = R[0][0] * ug[9] + R[0][1] * ug[10] + R[0][2] * ug[11];
-  ul[10] = R[1][0] * ug[9] + R[1][1] * ug[10] + R[1][2] * ug[11];
-  ul[11] = R[2][0] * ug[9] + R[2][1] * ug[10] + R[2][2] * ug[11];
+  ul[9]  = R(0,0) * ug[9] + R(1,0) * ug[10] + R(2,0) * ug[11];
+  ul[10] = R(0,1) * ug[9] + R(1,1) * ug[10] + R(2,1) * ug[11];
+  ul[11] = R(0,2) * ug[9] + R(1,2) * ug[10] + R(2,2) * ug[11];
 
   static double Wu[3];
   if (nodeIOffset) {
@@ -565,9 +567,9 @@ PDeltaFrameTransf3d::getBasicIncrDeltaDisp()
     Wu[1] = -nodeIOffset[2] * ug[3] + nodeIOffset[0] * ug[5];
     Wu[2] = nodeIOffset[1] * ug[3] - nodeIOffset[0] * ug[4];
 
-    ul[0] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    ul[1] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[2] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul[0] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    ul[1] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[2] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   if (nodeJOffset) {
@@ -575,9 +577,9 @@ PDeltaFrameTransf3d::getBasicIncrDeltaDisp()
     Wu[1] = -nodeJOffset[2] * ug[9] + nodeJOffset[0] * ug[11];
     Wu[2] = nodeJOffset[1] * ug[9] - nodeJOffset[0] * ug[10];
 
-    ul[6] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    ul[7] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[8] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul[6] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   ub(0) = ul[6] - ul[0];
@@ -612,21 +614,21 @@ PDeltaFrameTransf3d::getBasicTrialVel()
 
   static double vl[12];
 
-  vl[0] = R[0][0] * vg[0] + R[0][1] * vg[1] + R[0][2] * vg[2];
-  vl[1] = R[1][0] * vg[0] + R[1][1] * vg[1] + R[1][2] * vg[2];
-  vl[2] = R[2][0] * vg[0] + R[2][1] * vg[1] + R[2][2] * vg[2];
+  vl[0] = R(0,0) * vg[0] + R(1,0) * vg[1] + R(2,0) * vg[2];
+  vl[1] = R(0,1) * vg[0] + R(1,1) * vg[1] + R(2,1) * vg[2];
+  vl[2] = R(0,2) * vg[0] + R(1,2) * vg[1] + R(2,2) * vg[2];
 
-  vl[3] = R[0][0] * vg[3] + R[0][1] * vg[4] + R[0][2] * vg[5];
-  vl[4] = R[1][0] * vg[3] + R[1][1] * vg[4] + R[1][2] * vg[5];
-  vl[5] = R[2][0] * vg[3] + R[2][1] * vg[4] + R[2][2] * vg[5];
+  vl[3] = R(0,0) * vg[3] + R(1,0) * vg[4] + R(2,0) * vg[5];
+  vl[4] = R(0,1) * vg[3] + R(1,1) * vg[4] + R(2,1) * vg[5];
+  vl[5] = R(0,2) * vg[3] + R(1,2) * vg[4] + R(2,2) * vg[5];
 
-  vl[6] = R[0][0] * vg[6] + R[0][1] * vg[7] + R[0][2] * vg[8];
-  vl[7] = R[1][0] * vg[6] + R[1][1] * vg[7] + R[1][2] * vg[8];
-  vl[8] = R[2][0] * vg[6] + R[2][1] * vg[7] + R[2][2] * vg[8];
+  vl[6] = R(0,0) * vg[6] + R(1,0) * vg[7] + R(2,0) * vg[8];
+  vl[7] = R(0,1) * vg[6] + R(1,1) * vg[7] + R(2,1) * vg[8];
+  vl[8] = R(0,2) * vg[6] + R(1,2) * vg[7] + R(2,2) * vg[8];
 
-  vl[9]  = R[0][0] * vg[9] + R[0][1] * vg[10] + R[0][2] * vg[11];
-  vl[10] = R[1][0] * vg[9] + R[1][1] * vg[10] + R[1][2] * vg[11];
-  vl[11] = R[2][0] * vg[9] + R[2][1] * vg[10] + R[2][2] * vg[11];
+  vl[9]  = R(0,0) * vg[9] + R(1,0) * vg[10] + R(2,0) * vg[11];
+  vl[10] = R(0,1) * vg[9] + R(1,1) * vg[10] + R(2,1) * vg[11];
+  vl[11] = R(0,2) * vg[9] + R(1,2) * vg[10] + R(2,2) * vg[11];
 
   static double Wu[3];
   if (nodeIOffset) {
@@ -634,9 +636,9 @@ PDeltaFrameTransf3d::getBasicTrialVel()
     Wu[1] = -nodeIOffset[2] * vg[3] + nodeIOffset[0] * vg[5];
     Wu[2] = nodeIOffset[1] * vg[3] - nodeIOffset[0] * vg[4];
 
-    vl[0] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    vl[1] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    vl[2] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    vl[0] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    vl[1] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    vl[2] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   if (nodeJOffset) {
@@ -644,9 +646,9 @@ PDeltaFrameTransf3d::getBasicTrialVel()
     Wu[1] = -nodeJOffset[2] * vg[9] + nodeJOffset[0] * vg[11];
     Wu[2] = nodeJOffset[1] * vg[9] - nodeJOffset[0] * vg[10];
 
-    vl[6] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    vl[7] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    vl[8] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    vl[6] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    vl[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    vl[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   vb(0) = vl[6] - vl[0];
@@ -681,21 +683,21 @@ PDeltaFrameTransf3d::getBasicTrialAccel()
 
   static double al[12];
 
-  al[0] = R[0][0] * ag[0] + R[0][1] * ag[1] + R[0][2] * ag[2];
-  al[1] = R[1][0] * ag[0] + R[1][1] * ag[1] + R[1][2] * ag[2];
-  al[2] = R[2][0] * ag[0] + R[2][1] * ag[1] + R[2][2] * ag[2];
+  al[0] = R(0,0) * ag[0] + R(1,0) * ag[1] + R(2,0) * ag[2];
+  al[1] = R(0,1) * ag[0] + R(1,1) * ag[1] + R(2,1) * ag[2];
+  al[2] = R(0,2) * ag[0] + R(1,2) * ag[1] + R(2,2) * ag[2];
 
-  al[3] = R[0][0] * ag[3] + R[0][1] * ag[4] + R[0][2] * ag[5];
-  al[4] = R[1][0] * ag[3] + R[1][1] * ag[4] + R[1][2] * ag[5];
-  al[5] = R[2][0] * ag[3] + R[2][1] * ag[4] + R[2][2] * ag[5];
+  al[3] = R(0,0) * ag[3] + R(1,0) * ag[4] + R(2,0) * ag[5];
+  al[4] = R(0,1) * ag[3] + R(1,1) * ag[4] + R(2,1) * ag[5];
+  al[5] = R(0,2) * ag[3] + R(1,2) * ag[4] + R(2,2) * ag[5];
 
-  al[6] = R[0][0] * ag[6] + R[0][1] * ag[7] + R[0][2] * ag[8];
-  al[7] = R[1][0] * ag[6] + R[1][1] * ag[7] + R[1][2] * ag[8];
-  al[8] = R[2][0] * ag[6] + R[2][1] * ag[7] + R[2][2] * ag[8];
+  al[6] = R(0,0) * ag[6] + R(1,0) * ag[7] + R(2,0) * ag[8];
+  al[7] = R(0,1) * ag[6] + R(1,1) * ag[7] + R(2,1) * ag[8];
+  al[8] = R(0,2) * ag[6] + R(1,2) * ag[7] + R(2,2) * ag[8];
 
-  al[9]  = R[0][0] * ag[9] + R[0][1] * ag[10] + R[0][2] * ag[11];
-  al[10] = R[1][0] * ag[9] + R[1][1] * ag[10] + R[1][2] * ag[11];
-  al[11] = R[2][0] * ag[9] + R[2][1] * ag[10] + R[2][2] * ag[11];
+  al[9]  = R(0,0) * ag[9] + R(1,0) * ag[10] + R(2,0) * ag[11];
+  al[10] = R(0,1) * ag[9] + R(1,1) * ag[10] + R(2,1) * ag[11];
+  al[11] = R(0,2) * ag[9] + R(1,2) * ag[10] + R(2,2) * ag[11];
 
   static double Wu[3];
   if (nodeIOffset) {
@@ -703,9 +705,9 @@ PDeltaFrameTransf3d::getBasicTrialAccel()
     Wu[1] = -nodeIOffset[2] * ag[3] + nodeIOffset[0] * ag[5];
     Wu[2] = nodeIOffset[1] * ag[3] - nodeIOffset[0] * ag[4];
 
-    al[0] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    al[1] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    al[2] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    al[0] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    al[1] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    al[2] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   if (nodeJOffset) {
@@ -713,9 +715,9 @@ PDeltaFrameTransf3d::getBasicTrialAccel()
     Wu[1] = -nodeJOffset[2] * ag[9] + nodeJOffset[0] * ag[11];
     Wu[2] = nodeJOffset[1] * ag[9] - nodeJOffset[0] * ag[10];
 
-    al[6] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    al[7] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    al[8] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    al[6] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    al[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    al[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   ab(0) = al[6] - al[0];
@@ -805,21 +807,21 @@ PDeltaFrameTransf3d::pushConstant(const VectorND<12>&pl) const
   // transform vector from local to global coordinates
 
   VectorND<12> pg;
-  pg[0] = R[0][0] * pl[0] + R[1][0] * pl[1] + R[2][0] * pl[2];
-  pg[1] = R[0][1] * pl[0] + R[1][1] * pl[1] + R[2][1] * pl[2];
-  pg[2] = R[0][2] * pl[0] + R[1][2] * pl[1] + R[2][2] * pl[2];
+  pg[0] = R(0,0) * pl[0] + R(0,1) * pl[1] + R(0,2) * pl[2];
+  pg[1] = R(1,0) * pl[0] + R(1,1) * pl[1] + R(1,2) * pl[2];
+  pg[2] = R(2,0) * pl[0] + R(2,1) * pl[1] + R(2,2) * pl[2];
 
-  pg[3] = R[0][0] * pl[3] + R[1][0] * pl[4] + R[2][0] * pl[5];
-  pg[4] = R[0][1] * pl[3] + R[1][1] * pl[4] + R[2][1] * pl[5];
-  pg[5] = R[0][2] * pl[3] + R[1][2] * pl[4] + R[2][2] * pl[5];
+  pg[3] = R(0,0) * pl[3] + R(0,1) * pl[4] + R(0,2) * pl[5];
+  pg[4] = R(1,0) * pl[3] + R(1,1) * pl[4] + R(1,2) * pl[5];
+  pg[5] = R(2,0) * pl[3] + R(2,1) * pl[4] + R(2,2) * pl[5];
 
-  pg[6] = R[0][0] * pl[6] + R[1][0] * pl[7] + R[2][0] * pl[8];
-  pg[7] = R[0][1] * pl[6] + R[1][1] * pl[7] + R[2][1] * pl[8];
-  pg[8] = R[0][2] * pl[6] + R[1][2] * pl[7] + R[2][2] * pl[8];
+  pg[6] = R(0,0) * pl[6] + R(0,1) * pl[7] + R(0,2) * pl[8];
+  pg[7] = R(1,0) * pl[6] + R(1,1) * pl[7] + R(1,2) * pl[8];
+  pg[8] = R(2,0) * pl[6] + R(2,1) * pl[7] + R(2,2) * pl[8];
 
-  pg[9]  = R[0][0] * pl[9] + R[1][0] * pl[10] + R[2][0] * pl[11];
-  pg[10] = R[0][1] * pl[9] + R[1][1] * pl[10] + R[2][1] * pl[11];
-  pg[11] = R[0][2] * pl[9] + R[1][2] * pl[10] + R[2][2] * pl[11];
+  pg[9]  = R(0,0) * pl[9] + R(0,1) * pl[10] + R(0,2) * pl[11];
+  pg[10] = R(1,0) * pl[9] + R(1,1) * pl[10] + R(1,2) * pl[11];
+  pg[11] = R(2,0) * pl[9] + R(2,1) * pl[10] + R(2,2) * pl[11];
 
   if (nodeIOffset) {
     pg[3] += -nodeIOffset[2] * pg[1] + nodeIOffset[1] * pg[2];
@@ -925,47 +927,47 @@ PDeltaFrameTransf3d::pushConstant(const MatrixND<12,12>& kl)
 
   if (nodeIOffset) {
     // Compute RWI
-    RWI[0][0] = -R[0][1] * nodeIOffset[2] + R[0][2] * nodeIOffset[1];
-    RWI[1][0] = -R[1][1] * nodeIOffset[2] + R[1][2] * nodeIOffset[1];
-    RWI[2][0] = -R[2][1] * nodeIOffset[2] + R[2][2] * nodeIOffset[1];
+    RWI[0][0] = -R(1,0) * nodeIOffset[2] + R(2,0) * nodeIOffset[1];
+    RWI[1][0] = -R(1,1) * nodeIOffset[2] + R(2,1) * nodeIOffset[1];
+    RWI[2][0] = -R(1,2) * nodeIOffset[2] + R(2,2) * nodeIOffset[1];
 
-    RWI[0][1] = R[0][0] * nodeIOffset[2] - R[0][2] * nodeIOffset[0];
-    RWI[1][1] = R[1][0] * nodeIOffset[2] - R[1][2] * nodeIOffset[0];
-    RWI[2][1] = R[2][0] * nodeIOffset[2] - R[2][2] * nodeIOffset[0];
+    RWI[0][1] = R(0,0) * nodeIOffset[2] - R(2,0) * nodeIOffset[0];
+    RWI[1][1] = R(0,1) * nodeIOffset[2] - R(2,1) * nodeIOffset[0];
+    RWI[2][1] = R(0,2) * nodeIOffset[2] - R(2,2) * nodeIOffset[0];
 
-    RWI[0][2] = -R[0][0] * nodeIOffset[1] + R[0][1] * nodeIOffset[0];
-    RWI[1][2] = -R[1][0] * nodeIOffset[1] + R[1][1] * nodeIOffset[0];
-    RWI[2][2] = -R[2][0] * nodeIOffset[1] + R[2][1] * nodeIOffset[0];
+    RWI[0][2] = -R(0,0) * nodeIOffset[1] + R(1,0) * nodeIOffset[0];
+    RWI[1][2] = -R(0,1) * nodeIOffset[1] + R(1,1) * nodeIOffset[0];
+    RWI[2][2] = -R(0,2) * nodeIOffset[1] + R(1,2) * nodeIOffset[0];
   }
 
   THREAD_LOCAL double RWJ[3][3];
 
   if (nodeJOffset) {
     // Compute RWJ
-    RWJ[0][0] = -R[0][1] * nodeJOffset[2] + R[0][2] * nodeJOffset[1];
-    RWJ[1][0] = -R[1][1] * nodeJOffset[2] + R[1][2] * nodeJOffset[1];
-    RWJ[2][0] = -R[2][1] * nodeJOffset[2] + R[2][2] * nodeJOffset[1];
+    RWJ[0][0] = -R(1,0) * nodeJOffset[2] + R(2,0) * nodeJOffset[1];
+    RWJ[1][0] = -R(1,1) * nodeJOffset[2] + R(2,1) * nodeJOffset[1];
+    RWJ[2][0] = -R(1,2) * nodeJOffset[2] + R(2,2) * nodeJOffset[1];
 
-    RWJ[0][1] = R[0][0] * nodeJOffset[2] - R[0][2] * nodeJOffset[0];
-    RWJ[1][1] = R[1][0] * nodeJOffset[2] - R[1][2] * nodeJOffset[0];
-    RWJ[2][1] = R[2][0] * nodeJOffset[2] - R[2][2] * nodeJOffset[0];
+    RWJ[0][1] = R(0,0) * nodeJOffset[2] - R(2,0) * nodeJOffset[0];
+    RWJ[1][1] = R(0,1) * nodeJOffset[2] - R(2,1) * nodeJOffset[0];
+    RWJ[2][1] = R(0,2) * nodeJOffset[2] - R(2,2) * nodeJOffset[0];
 
-    RWJ[0][2] = -R[0][0] * nodeJOffset[1] + R[0][1] * nodeJOffset[0];
-    RWJ[1][2] = -R[1][0] * nodeJOffset[1] + R[1][1] * nodeJOffset[0];
-    RWJ[2][2] = -R[2][0] * nodeJOffset[1] + R[2][1] * nodeJOffset[0];
+    RWJ[0][2] = -R(0,0) * nodeJOffset[1] + R(1,0) * nodeJOffset[0];
+    RWJ[1][2] = -R(0,1) * nodeJOffset[1] + R(1,1) * nodeJOffset[0];
+    RWJ[2][2] = -R(0,2) * nodeJOffset[1] + R(1,2) * nodeJOffset[0];
   }
 
   // Transform local stiffness to global system
   // First compute kl*T_{lg}
   THREAD_LOCAL double tmp[12][12];  // Temporary storage
   for (int m = 0; m < 12; m++) {
-    tmp[m][0] = kl(m, 0) * R[0][0] + kl(m, 1) * R[1][0] + kl(m, 2) * R[2][0];
-    tmp[m][1] = kl(m, 0) * R[0][1] + kl(m, 1) * R[1][1] + kl(m, 2) * R[2][1];
-    tmp[m][2] = kl(m, 0) * R[0][2] + kl(m, 1) * R[1][2] + kl(m, 2) * R[2][2];
+    tmp[m][0] = kl(m, 0) * R(0,0) + kl(m, 1) * R(0,1) + kl(m, 2) * R(0,2);
+    tmp[m][1] = kl(m, 0) * R(1,0) + kl(m, 1) * R(1,1) + kl(m, 2) * R(1,2);
+    tmp[m][2] = kl(m, 0) * R(2,0) + kl(m, 1) * R(2,1) + kl(m, 2) * R(2,2);
 
-    tmp[m][3] = kl(m, 3) * R[0][0] + kl(m, 4) * R[1][0] + kl(m, 5) * R[2][0];
-    tmp[m][4] = kl(m, 3) * R[0][1] + kl(m, 4) * R[1][1] + kl(m, 5) * R[2][1];
-    tmp[m][5] = kl(m, 3) * R[0][2] + kl(m, 4) * R[1][2] + kl(m, 5) * R[2][2];
+    tmp[m][3] = kl(m, 3) * R(0,0) + kl(m, 4) * R(0,1) + kl(m, 5) * R(0,2);
+    tmp[m][4] = kl(m, 3) * R(1,0) + kl(m, 4) * R(1,1) + kl(m, 5) * R(1,2);
+    tmp[m][5] = kl(m, 3) * R(2,0) + kl(m, 4) * R(2,1) + kl(m, 5) * R(2,2);
 
     if (nodeIOffset) {
       tmp[m][3] += kl(m, 0) * RWI[0][0] + kl(m, 1) * RWI[1][0] + kl(m, 2) * RWI[2][0];
@@ -973,13 +975,13 @@ PDeltaFrameTransf3d::pushConstant(const MatrixND<12,12>& kl)
       tmp[m][5] += kl(m, 0) * RWI[0][2] + kl(m, 1) * RWI[1][2] + kl(m, 2) * RWI[2][2];
     }
 
-    tmp[m][6] = kl(m, 6) * R[0][0] + kl(m, 7) * R[1][0] + kl(m, 8) * R[2][0];
-    tmp[m][7] = kl(m, 6) * R[0][1] + kl(m, 7) * R[1][1] + kl(m, 8) * R[2][1];
-    tmp[m][8] = kl(m, 6) * R[0][2] + kl(m, 7) * R[1][2] + kl(m, 8) * R[2][2];
+    tmp[m][6] = kl(m, 6) * R(0,0) + kl(m, 7) * R(0,1) + kl(m, 8) * R(0,2);
+    tmp[m][7] = kl(m, 6) * R(1,0) + kl(m, 7) * R(1,1) + kl(m, 8) * R(1,2);
+    tmp[m][8] = kl(m, 6) * R(2,0) + kl(m, 7) * R(2,1) + kl(m, 8) * R(2,2);
 
-    tmp[m][9]  = kl(m, 9) * R[0][0] + kl(m, 10) * R[1][0] + kl(m, 11) * R[2][0];
-    tmp[m][10] = kl(m, 9) * R[0][1] + kl(m, 10) * R[1][1] + kl(m, 11) * R[2][1];
-    tmp[m][11] = kl(m, 9) * R[0][2] + kl(m, 10) * R[1][2] + kl(m, 11) * R[2][2];
+    tmp[m][9]  = kl(m, 9) * R(0,0) + kl(m, 10) * R(0,1) + kl(m, 11) * R(0,2);
+    tmp[m][10] = kl(m, 9) * R(1,0) + kl(m, 10) * R(1,1) + kl(m, 11) * R(1,2);
+    tmp[m][11] = kl(m, 9) * R(2,0) + kl(m, 10) * R(2,1) + kl(m, 11) * R(2,2);
 
     if (nodeJOffset) {
       tmp[m][ 9] += kl(m, 6) * RWJ[0][0] + kl(m, 7) * RWJ[1][0] + kl(m, 8) * RWJ[2][0];
@@ -990,13 +992,13 @@ PDeltaFrameTransf3d::pushConstant(const MatrixND<12,12>& kl)
 
   // Now compute T'_{lg}*(kl*T_{lg})
   for (int m = 0; m < 12; m++) {
-    kg(0, m) = R[0][0] * tmp[0][m] + R[1][0] * tmp[1][m] + R[2][0] * tmp[2][m];
-    kg(1, m) = R[0][1] * tmp[0][m] + R[1][1] * tmp[1][m] + R[2][1] * tmp[2][m];
-    kg(2, m) = R[0][2] * tmp[0][m] + R[1][2] * tmp[1][m] + R[2][2] * tmp[2][m];
+    kg(0, m) = R(0,0) * tmp[0][m] + R(0,1) * tmp[1][m] + R(0,2) * tmp[2][m];
+    kg(1, m) = R(1,0) * tmp[0][m] + R(1,1) * tmp[1][m] + R(1,2) * tmp[2][m];
+    kg(2, m) = R(2,0) * tmp[0][m] + R(2,1) * tmp[1][m] + R(2,2) * tmp[2][m];
 
-    kg(3, m) = R[0][0] * tmp[3][m] + R[1][0] * tmp[4][m] + R[2][0] * tmp[5][m];
-    kg(4, m) = R[0][1] * tmp[3][m] + R[1][1] * tmp[4][m] + R[2][1] * tmp[5][m];
-    kg(5, m) = R[0][2] * tmp[3][m] + R[1][2] * tmp[4][m] + R[2][2] * tmp[5][m];
+    kg(3, m) = R(0,0) * tmp[3][m] + R(0,1) * tmp[4][m] + R(0,2) * tmp[5][m];
+    kg(4, m) = R(1,0) * tmp[3][m] + R(1,1) * tmp[4][m] + R(1,2) * tmp[5][m];
+    kg(5, m) = R(2,0) * tmp[3][m] + R(2,1) * tmp[4][m] + R(2,2) * tmp[5][m];
 
     if (nodeIOffset) {
       kg(3, m) += RWI[0][0] * tmp[0][m] + RWI[1][0] * tmp[1][m] + RWI[2][0] * tmp[2][m];
@@ -1004,13 +1006,13 @@ PDeltaFrameTransf3d::pushConstant(const MatrixND<12,12>& kl)
       kg(5, m) += RWI[0][2] * tmp[0][m] + RWI[1][2] * tmp[1][m] + RWI[2][2] * tmp[2][m];
     }
 
-    kg( 6, m) = R[0][0] * tmp[6][m] + R[1][0] * tmp[7][m] + R[2][0] * tmp[8][m];
-    kg( 7, m) = R[0][1] * tmp[6][m] + R[1][1] * tmp[7][m] + R[2][1] * tmp[8][m];
-    kg( 8, m) = R[0][2] * tmp[6][m] + R[1][2] * tmp[7][m] + R[2][2] * tmp[8][m];
+    kg( 6, m) = R(0,0) * tmp[6][m] + R(0,1) * tmp[7][m] + R(0,2) * tmp[8][m];
+    kg( 7, m) = R(1,0) * tmp[6][m] + R(1,1) * tmp[7][m] + R(1,2) * tmp[8][m];
+    kg( 8, m) = R(2,0) * tmp[6][m] + R(2,1) * tmp[7][m] + R(2,2) * tmp[8][m];
 
-    kg( 9, m) = R[0][0] * tmp[9][m] + R[1][0] * tmp[10][m] + R[2][0] * tmp[11][m];
-    kg(10, m) = R[0][1] * tmp[9][m] + R[1][1] * tmp[10][m] + R[2][1] * tmp[11][m];
-    kg(11, m) = R[0][2] * tmp[9][m] + R[1][2] * tmp[10][m] + R[2][2] * tmp[11][m];
+    kg( 9, m) = R(0,0) * tmp[9][m] + R(0,1) * tmp[10][m] + R(0,2) * tmp[11][m];
+    kg(10, m) = R(1,0) * tmp[9][m] + R(1,1) * tmp[10][m] + R(1,2) * tmp[11][m];
+    kg(11, m) = R(2,0) * tmp[9][m] + R(2,1) * tmp[10][m] + R(2,2) * tmp[11][m];
 
     if (nodeJOffset) {
       kg( 9, m) += RWJ[0][0] * tmp[6][m] + RWJ[1][0] * tmp[7][m] + RWJ[2][0] * tmp[8][m];
@@ -1085,9 +1087,9 @@ PDeltaFrameTransf3d::getCopy()
   PDeltaFrameTransf3d *theCopy;
 
   static Vector xz(3);
-  xz(0) = R[2][0];
-  xz(1) = R[2][1];
-  xz(2) = R[2][2];
+  xz(0) = R(0,2);
+  xz(1) = R(1,2);
+  xz(2) = R(2,2);
 
   Vector offsetI(3);
   Vector offsetJ(3);
@@ -1111,9 +1113,7 @@ PDeltaFrameTransf3d::getCopy()
   theCopy->L        = L;
   theCopy->ul17     = ul17;
   theCopy->ul28     = ul28;
-  for (int i = 0; i < 3; i++)
-    for (int j = 0; j < 3; j++)
-      theCopy->R[i][j] = R[i][j];
+  theCopy->R        = R;
 
   return theCopy;
 }
@@ -1179,9 +1179,9 @@ PDeltaFrameTransf3d::sendSelf(int cTag, Channel &theChannel)
     data(19) = 0.0;
   }
 
-  data(20) = R[2][0];
-  data(21) = R[2][1];
-  data(22) = R[2][2];
+  data(20) = R(0,2);
+  data(21) = R(1,2);
+  data(22) = R(2,2);
 
   res += theChannel.sendVector(this->getDbTag(), cTag, data);
   if (res < 0) {
@@ -1251,9 +1251,9 @@ PDeltaFrameTransf3d::recvSelf(int cTag, Channel &theChannel,
     nodeJInitialDisp[5] = data(19);
   }
 
-  R[2][0] = data(20);
-  R[2][1] = data(21);
-  R[2][2] = data(22);
+  R(0,2) = data(20);
+  R(1,2) = data(21);
+  R(2,2) = data(22);
 
   initialDispChecked = true;
 
@@ -1266,7 +1266,7 @@ PDeltaFrameTransf3d::getGlobalMatrixFromLocal(const Matrix &ml)
   Matrix3D Rm;
   for (int i=0; i<3; i++)
     for (int j=0; j<3; j++)
-      Rm(i,j) = R[j][i];
+      Rm(i,j) = R(i,j);
 
 //this->compTransfMatrixLocalGlobal(Tlg);
 //kg.addMatrixTripleProduct(0.0, Tlg, ml, 1.0);
@@ -1293,9 +1293,9 @@ PDeltaFrameTransf3d::getPointGlobalCoordFromLocal(const Vector &xl)
   }
 
   // xg = xg + Rlj'*xl
-  xg(0) += R[0][0] * xl(0) + R[1][0] * xl(1) + R[2][0] * xl(2);
-  xg(1) += R[0][1] * xl(0) + R[1][1] * xl(1) + R[2][1] * xl(2);
-  xg(2) += R[0][2] * xl(0) + R[1][2] * xl(1) + R[2][2] * xl(2);
+  xg(0) += R(0,0) * xl(0) + R(0,1) * xl(1) + R(0,2) * xl(2);
+  xg(1) += R(1,0) * xl(0) + R(1,1) * xl(1) + R(1,2) * xl(2);
+  xg(2) += R(2,0) * xl(0) + R(2,1) * xl(1) + R(2,2) * xl(2);
 
   return xg;
 }
@@ -1327,12 +1327,12 @@ PDeltaFrameTransf3d::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
   //ul.addMatrixVector(0.0, Tlg,  ug, 1.0);       //  ul = Tlg *  ug;
   static double ul[12];
 
-  ul[0] = R[0][0] * ug[0] + R[0][1] * ug[1] + R[0][2] * ug[2];
-  ul[1] = R[1][0] * ug[0] + R[1][1] * ug[1] + R[1][2] * ug[2];
-  ul[2] = R[2][0] * ug[0] + R[2][1] * ug[1] + R[2][2] * ug[2];
+  ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
+  ul[1] = R(0,1) * ug[0] + R(1,1) * ug[1] + R(2,1) * ug[2];
+  ul[2] = R(0,2) * ug[0] + R(1,2) * ug[1] + R(2,2) * ug[2];
 
-  ul[7] = R[1][0] * ug[6] + R[1][1] * ug[7] + R[1][2] * ug[8];
-  ul[8] = R[2][0] * ug[6] + R[2][1] * ug[7] + R[2][2] * ug[8];
+  ul[7] = R(0,1) * ug[6] + R(1,1) * ug[7] + R(2,1) * ug[8];
+  ul[8] = R(0,2) * ug[6] + R(1,2) * ug[7] + R(2,2) * ug[8];
 
   static double Wu[3];
   if (nodeIOffset) {
@@ -1340,9 +1340,9 @@ PDeltaFrameTransf3d::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
     Wu[1] = -nodeIOffset[2] * ug[3] + nodeIOffset[0] * ug[5];
     Wu[2] = nodeIOffset[1] * ug[3] - nodeIOffset[0] * ug[4];
 
-    ul[0] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    ul[1] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[2] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul[0] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    ul[1] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[2] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   if (nodeJOffset) {
@@ -1350,8 +1350,8 @@ PDeltaFrameTransf3d::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
     Wu[1] = -nodeJOffset[2] * ug[ 9] + nodeJOffset[0] * ug[11];
     Wu[2] =  nodeJOffset[1] * ug[ 9] - nodeJOffset[0] * ug[10];
 
-    ul[7] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[8] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   // compute displacements at point xi, in local coordinates
@@ -1365,9 +1365,9 @@ PDeltaFrameTransf3d::getPointGlobalDisplFromBasic(double xi, const Vector &uxb)
   // rotate displacements to global coordinates
   // uxg = Rlj'*uxl
 
-  uxg[0] = R[0][0] * uxl[0] + R[1][0] * uxl[1] + R[2][0] * uxl[2];
-  uxg[1] = R[0][1] * uxl[0] + R[1][1] * uxl[1] + R[2][1] * uxl[2];
-  uxg[2] = R[0][2] * uxl[0] + R[1][2] * uxl[1] + R[2][2] * uxl[2];
+  uxg[0] = R(0,0) * uxl[0] + R(0,1) * uxl[1] + R(0,2) * uxl[2];
+  uxg[1] = R(1,0) * uxl[0] + R(1,1) * uxl[1] + R(1,2) * uxl[2];
+  uxg[2] = R(2,0) * uxl[0] + R(2,1) * uxl[1] + R(2,2) * uxl[2];
 
   return uxg;
 }
@@ -1399,12 +1399,12 @@ PDeltaFrameTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
   //ul.addMatrixVector(0.0, Tlg,  ug, 1.0);       //  ul = Tlg *  ug;
   static double ul[12];
 
-  ul[0] = R[0][0] * ug[0] + R[0][1] * ug[1] + R[0][2] * ug[2];
-  ul[1] = R[1][0] * ug[0] + R[1][1] * ug[1] + R[1][2] * ug[2];
-  ul[2] = R[2][0] * ug[0] + R[2][1] * ug[1] + R[2][2] * ug[2];
+  ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
+  ul[1] = R(0,1) * ug[0] + R(1,1) * ug[1] + R(2,1) * ug[2];
+  ul[2] = R(0,2) * ug[0] + R(1,2) * ug[1] + R(2,2) * ug[2];
 
-  ul[7] = R[1][0] * ug[6] + R[1][1] * ug[7] + R[1][2] * ug[8];
-  ul[8] = R[2][0] * ug[6] + R[2][1] * ug[7] + R[2][2] * ug[8];
+  ul[7] = R(0,1) * ug[6] + R(1,1) * ug[7] + R(2,1) * ug[8];
+  ul[8] = R(0,2) * ug[6] + R(1,2) * ug[7] + R(2,2) * ug[8];
 
   static double Wu[3];
   if (nodeIOffset) {
@@ -1412,9 +1412,9 @@ PDeltaFrameTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
     Wu[1] = -nodeIOffset[2] * ug[3] + nodeIOffset[0] * ug[5];
     Wu[2] = nodeIOffset[1] * ug[3] - nodeIOffset[0] * ug[4];
 
-    ul[0] += R[0][0] * Wu[0] + R[0][1] * Wu[1] + R[0][2] * Wu[2];
-    ul[1] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[2] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul[0] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    ul[1] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[2] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   if (nodeJOffset) {
@@ -1422,8 +1422,8 @@ PDeltaFrameTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
     Wu[1] = -nodeJOffset[2] * ug[9] + nodeJOffset[0] * ug[11];
     Wu[2] = nodeJOffset[1] * ug[9] - nodeJOffset[0] * ug[10];
 
-    ul[7] += R[1][0] * Wu[0] + R[1][1] * Wu[1] + R[1][2] * Wu[2];
-    ul[8] += R[2][0] * Wu[0] + R[2][1] * Wu[1] + R[2][2] * Wu[2];
+    ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
 
   // compute displacements at point xi, in local coordinates
@@ -1436,6 +1436,23 @@ PDeltaFrameTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
   return uxl;
 }
 
+double
+PDeltaFrameTransf3d::getLengthGrad()
+{
+  const int di = nodeIPtr->getCrdsSensitivity();
+  const int dj = nodeJPtr->getCrdsSensitivity();
+
+  Vector3D dxi{0.0};
+  Vector3D dxj{0.0};
+
+  if (di != 0)
+    dxi(di-1) = 1.0;
+  if (dj != 0)
+    dxj(dj-1) = 1.0;
+
+  return 1/L*(xj - xi).dot(dxj - dxi);
+}
+
 void
 PDeltaFrameTransf3d::Print(OPS_Stream &s, int flag)
 {
@@ -1444,8 +1461,8 @@ PDeltaFrameTransf3d::Print(OPS_Stream &s, int flag)
     s << OPS_PRINT_JSON_MATE_INDENT << "{";
     s << "\"name\": \"" << this->getTag()
       << "\", \"type\": \"PDeltaFrameTransf3d\"";
-    s << ", \"vecInLocXZPlane\": [" << R[2][0] << ", " << R[2][1] << ", "
-      << R[2][2] << "]";
+    s << ", \"vecInLocXZPlane\": [" << R(0,2) << ", " << R(1,2) << ", "
+      << R(2,2) << "]";
     if (nodeIOffset != 0)
       s << ", \"iOffset\": [" << nodeIOffset[0] << ", " << nodeIOffset[1]
         << ", " << nodeIOffset[2] << "]";

@@ -106,7 +106,7 @@ protected:
           double         getLength(State flag);
   const   VectorND<6>&   getBasicState(State flag);
   // Reactions of basic system due to element loads
-  void computeReactionSensitivity(double *dp0dh, int gradNumber);
+  void addReactionGrad(double *dp0dh, int gradNumber);
   void computeReactions(double *p0);
 
 // to be made private
