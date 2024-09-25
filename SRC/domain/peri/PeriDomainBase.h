@@ -19,5 +19,7 @@ class PeriDomainBase {
 
 
       int totnode, maxfam;
+      char plane_type;
+      double delta = 0.0, space = 0.0;
 
 };

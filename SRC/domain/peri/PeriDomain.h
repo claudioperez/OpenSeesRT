@@ -29,11 +29,21 @@ public:
 
   void set_coord(int i, const std::array<double, ndim>& coord); // Set the coordinates of the particle at index i
 
+  void create_fam(const double delta); // Create families for each particle
+
+  void set_vols(int i, double vol_i); // Set the volume of the particle i
+
+  void calc_vols(const double space); // Calculate the volume of the horizons
+
+  void calc_surf_correction(); // Calculate the surface correction
+
+  void break_bond(const int node1, const int node2); // Break the bond between two particles
+
   // ============================================
   // MEMBER DATA
   // ============================================
-  int       totnode, maxfam;
-  char      plane_type;
+  // int       totnode, maxfam;
+  // char      plane_type;
   std::vector<PeriParticle<ndim>> pts; // container of particles
 };
 
