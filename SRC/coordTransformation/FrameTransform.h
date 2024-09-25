@@ -215,21 +215,9 @@ getLocal(double ug[12], const Matrix3D& R, double nodeIOffset[], double nodeJOff
 {
   VectorND<12> ul;
 
-  ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
-  ul[1] = R(0,1) * ug[0] + R(1,1) * ug[1] + R(2,1) * ug[2];
-  ul[2] = R(0,2) * ug[0] + R(1,2) * ug[1] + R(2,2) * ug[2];
-
-  ul[3] = R(0,0) * ug[3] + R(1,0) * ug[4] + R(2,0) * ug[5];
-  ul[4] = R(0,1) * ug[3] + R(1,1) * ug[4] + R(2,1) * ug[5];
-  ul[5] = R(0,2) * ug[3] + R(1,2) * ug[4] + R(2,2) * ug[5];
-
-  ul[6] = R(0,0) * ug[6] + R(1,0) * ug[7] + R(2,0) * ug[8];
-  ul[7] = R(0,1) * ug[6] + R(1,1) * ug[7] + R(2,1) * ug[8];
-  ul[8] = R(0,2) * ug[6] + R(1,2) * ug[7] + R(2,2) * ug[8];
-
-  ul[9]  = R(0,0) * ug[9] + R(1,0) * ug[10] + R(2,0) * ug[11];
-  ul[10] = R(0,1) * ug[9] + R(1,1) * ug[10] + R(2,1) * ug[11];
-  ul[11] = R(0,2) * ug[9] + R(1,2) * ug[10] + R(2,2) * ug[11];
+  for (int i=0; i<4; i++)
+    for (int j=0; j<3; j++)
+      ul[i*3+j] = R(0,j)*ug[3*i] + R(1,j)*ug[3*i+1] + R(2,j)*ug[3*i+2];
 
   double Wu[3];
   if (nodeIOffset) {
@@ -259,23 +247,14 @@ static inline VectorND<6>
 getBasic(double ug[12], const Matrix3D& R, double nodeIOffset[], double nodeJOffset[], double oneOverL)
 {
   VectorND<6> ub;
+  VectorND<12> ul = getLocal(ug, R, nodeIOffset, nodeJOffset);
+
+#if 0
   static double ul[12];
 
-  ul[0] = R(0,0) * ug[0] + R(1,0) * ug[1] + R(2,0) * ug[2];
-  ul[1] = R(0,1) * ug[0] + R(1,1) * ug[1] + R(2,1) * ug[2];
-  ul[2] = R(0,2) * ug[0] + R(1,2) * ug[1] + R(2,2) * ug[2];
-
-  ul[3] = R(0,0) * ug[3] + R(1,0) * ug[4] + R(2,0) * ug[5];
-  ul[4] = R(0,1) * ug[3] + R(1,1) * ug[4] + R(2,1) * ug[5];
-  ul[5] = R(0,2) * ug[3] + R(1,2) * ug[4] + R(2,2) * ug[5];
-
-  ul[6] = R(0,0) * ug[6] + R(1,0) * ug[7] + R(2,0) * ug[8];
-  ul[7] = R(0,1) * ug[6] + R(1,1) * ug[7] + R(2,1) * ug[8];
-  ul[8] = R(0,2) * ug[6] + R(1,2) * ug[7] + R(2,2) * ug[8];
-
-  ul[9]  = R(0,0) * ug[9] + R(1,0) * ug[10] + R(2,0) * ug[11];
-  ul[10] = R(0,1) * ug[9] + R(1,1) * ug[10] + R(2,1) * ug[11];
-  ul[11] = R(0,2) * ug[9] + R(1,2) * ug[10] + R(2,2) * ug[11];
+  for (int i=0; i<4; i++)
+    for (int j=0; j<3; j++)
+      ul[i*3+j] = R(0,j)*ug[3*i] + R(1,j)*ug[3*i+1] + R(2,j)*ug[3*i+2];
 
   double Wu[3];
   if (nodeIOffset) {
@@ -297,6 +276,7 @@ getBasic(double ug[12], const Matrix3D& R, double nodeIOffset[], double nodeJOff
     ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
     ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
   }
+#endif
 
   ub[0] = ul[6] - ul[0];
 
@@ -313,7 +293,7 @@ getBasic(double ug[12], const Matrix3D& R, double nodeIOffset[], double nodeJOff
 }
 
 static VectorND<12>
-pushLocal(const Vector& q, const Vector& p0, double L)
+pushLocal(const Vector& q, double L)
 {
   
   VectorND<12> pl;
@@ -340,19 +320,13 @@ pushLocal(const Vector& q, const Vector& p0, double L)
   pl[10] = q4;
   pl[11] = q2;
 
-
-  pl[0] += p0[0];
-  pl[1] += p0[1];
-  pl[7] += p0[2];
-  pl[2] += p0[3];
-  pl[8] += p0[4];
-
   return pl;
 }
 
 static inline void 
 formOffsets(const Matrix3D& R, 
-            const double nodeIOffset[3], const double nodeJOffset[3], 
+            const double nodeIOffset[3], 
+            const double nodeJOffset[3], 
             double RWI[3][3], double RWJ[3][3])
 {
   if (nodeIOffset) {
