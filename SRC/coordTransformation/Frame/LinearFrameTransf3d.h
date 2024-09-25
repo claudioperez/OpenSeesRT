@@ -15,6 +15,7 @@
 #ifndef LinearFrameTransf3d_h
 #define LinearFrameTransf3d_h
 
+#include <array>
 #include <FrameTransform.h>
 #include <Vector.h>
 #include <Matrix.h>
@@ -30,7 +31,7 @@ public:
     LinearFrameTransf3d();
     ~LinearFrameTransf3d();
     
-    const char *getClassType() const {return "LinearFrameTransf3d";};
+    const char *getClassType() const {return "LinearFrameTransf3d";}
     
     virtual int getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
     
@@ -44,7 +45,7 @@ public:
     virtual int commitState() override final;
     virtual int revertToLastCommit() override final;
     virtual int revertToStart() override final;
-    
+
     virtual const Vector &getBasicTrialDisp() override;
     virtual const Vector &getBasicIncrDisp();
     virtual const Vector &getBasicIncrDeltaDisp();
@@ -70,8 +71,14 @@ public:
     const Vector &getPointLocalDisplFromBasic(double xi, const Vector &basicDisps);    
     
 
-
+    // Sensitivity
+    
+    const Vector & getBasicDisplFixedGrad();
     const Vector & getBasicDisplTotalGrad(int gradNumber);
+    const Vector &getGlobalResistingForceShapeSensitivity (const Vector &basicForce, const Vector &p0, int grad);
+    bool isShapeSensitivity();
+    double getLengthGrad();
+    double getd1overLdh();
 
     
     // MovableObject
@@ -108,6 +115,7 @@ protected:
       };
       return l;
     }
+
 private:
 
     int computeElemtLengthAndOrient();
@@ -115,14 +123,17 @@ private:
     
     // internal data
     Node *nodeIPtr, *nodeJPtr;  // pointers to the element two endnodes
+    std::array<Node*, 2> nodes;                // pointers to the element two endnodes
     
     double *nodeIOffset, *nodeJOffset;    // rigid joint offsets
-    
-    double R[3][3];     // rotation matrix
+
+    Vector3D xi, xj, vz;
+
+    Matrix3D R;         // rotation matrix
     double RWI[3][3];
     double RWJ[3][3];
 
-    double L;        // undeformed element length
+    double L;           // undeformed element length
 
 //  static Matrix Tlg;  // matrix that transforms from global to local coordinates
     static Matrix kg;   // global stiffness matrix

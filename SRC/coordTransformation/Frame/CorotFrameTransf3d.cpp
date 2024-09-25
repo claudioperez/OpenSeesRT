@@ -397,14 +397,14 @@ CorotFrameTransf3d::~CorotFrameTransf3d()
 double
 CorotFrameTransf3d::getInitialLength()
 {
-    return L;
+  return L;
 }
 
 
 double
 CorotFrameTransf3d::getDeformedLength()
 {
-    return Ln;
+  return Ln;
 }
 
 
@@ -1623,6 +1623,22 @@ CorotFrameTransf3d::getGlobalMatrixFromLocal(const Matrix &local)
     return Mg;
 }
 
+double
+CorotFrameTransf3d::getLengthGrad()
+{
+  const int di = nodes[0]->getCrdsSensitivity();
+  const int dj = nodes[1]->getCrdsSensitivity();
+
+  Vector3D dxi{0.0};
+  Vector3D dxj{0.0};
+
+  if (di != 0)
+    dxi(di-1) = 1.0;
+  if (dj != 0)
+    dxj(dj-1) = 1.0;
+
+  return 1/L*(xj - xi).dot(dxj - dxi);
+}
 
 
 void
