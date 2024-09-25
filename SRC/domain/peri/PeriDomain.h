@@ -1,52 +1,50 @@
 #include <vector>
-#include <Matrix.h>
-#include <Vector.h>
-#include <VectorND.h>
-#include <MatrixND.h>
+#include <array>
 #include <PeriParticle.h>
+#include <PeriDomainBase.h>
 
-using OpenSees::VectorND;
-using OpenSees::MatrixND;
+// ============================================
+// VectorND and MatrixND are not required here
+// because the linear algebra operations are not used
+// --------------------------------------------
+// #include <Matrix.h>
+// #include <Vector.h>
+// #include <VectorND.h>
+// #include <MatrixND.h>
+// using OpenSees::VectorND;
+// using OpenSees::MatrixND;
+// ============================================
 
-class PeriDomain {
+template <int ndim>
+class PeriDomain : public PeriDomainBase {
 public:
-  //
+  // ============================================
   // MEMBER FUNCTIONS
-  //
+  // ============================================
 
   // the special "constructor" member function; no return type declared
   PeriDomain(int totnode, int maxfam);
+  // override the the getNDM function in PeriDomainBase
+  virtual int getNDM() const { return ndim; } // Return the number of dimensions
 
+  void set_coord(int i, const std::array<double, ndim>& coord); // Set the coordinates of the particle at index i
 
+  void create_fam(const double delta); // Create families for each particle
 
-  // A normal member function
-  int hello(double);
+  void set_vols(int i, double vol_i); // Set the volume of the particle i
 
-  // Print a representation of the domain
-  void print(int flag);
+  void calc_vols(const double space); // Calculate the volume of the horizons
 
+  void calc_surf_correction(); // Calculate the surface correction
 
-  //
+  void break_bond(const int node1, const int node2); // Break the bond between two particles
+
+  // ============================================
   // MEMBER DATA
-  //
-
-  // container of particles
-  std::vector<PeriParticle<3>> particles;
-
-  int     ndim, totnode, maxfam;
-  double  space, delta, vol;
-  int     n_bforce, n_bdisp;
-
-  std::vector<int>   numfam;
-
-  std::vector<std::vector<int>> 
-      is_force_bound, is_disp_bound, nodefam; // integer matrices
-
-  Matrix    correction, bond_dmg;
-  Matrix    bforce_cond, bdisp_cond;
-  Matrix    pforce, stress, strain;
-  Matrix    misc;
-
-  char plane_type;
+  // ============================================
+  // int       totnode, maxfam;
+  // char      plane_type;
+  std::vector<PeriParticle<ndim>> pts; // container of particles
 };
 
+#include <PeriDomain.tpp> // Include the implementation of the template class
