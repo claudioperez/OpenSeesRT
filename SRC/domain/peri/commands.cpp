@@ -7,12 +7,21 @@
 #include <PeriDomainBase.h>
 // #include <typeinfo>
 
+
+Tcl_CmdProc Tcl_Peri;
+
 // Declare the function 'static' to convey that
 // it is not expected to be used outside this file.
 static int
 Tcl_PeriInit(ClientData cd, Tcl_Interp* interp,
              int argc, const char** const argv)
 {
+  // If init has already been called, clean up (free) the previous
+  // domain object.
+  if (cd != nullptr){
+    PeriDomainBase *domain = static_cast<PeriDomainBase*>(cd);
+    delete domain;
+  }
   
   // Parse arguments and create a domain
   // Note that argv[0] holds the name of the command.
@@ -96,20 +105,178 @@ Tcl_PeriInit(ClientData cd, Tcl_Interp* interp,
   }
   
 
-  // clean up memory
-  delete domain;
+  // Store the pointer to the domain in the ClientData
+  Tcl_CreateCommand(interp, "peri", Tcl_Peri, static_cast<ClientData>(domain), nullptr);
 
   return TCL_OK;
 }
 
+static int
+Tcl_PeriSetNode(ClientData cd, Tcl_Interp* interp,
+                 int argc, const char** const argv)
+{
+  // decalre a pointer to a PeriDomainBase object
+  PeriDomainBase* domain_base = static_cast<PeriDomainBase*>(cd);
+  int     ind = 0, ndim = 0, argi = 2;
+
+  ndim = domain_base->getNDM();
+  if (ndim == 2) {
+    // cast the pointer to a PeriDomain<2> object
+    PeriDomain<2>* domain = static_cast<PeriDomain<2>*>(domain_base);
+    std::array<double, 2> coord;
+
+    // Parse arguments and set the coordinates of a particle
+    // Note that argv[0] == "peri", argv[1] == "node"
+    // Therefore, the first argument is argv[2]
+
+    if (argc > argi) {
+      // If this returns TCL_ERROR it means that argv[2] couldnt be
+      // parsed as an integer.
+      if (Tcl_GetInt(interp, argv[argi], &ind) == TCL_ERROR) {
+        printf("ERROR in peri node: Couldnt parse argv[2] as the index\n");
+        return TCL_ERROR;
+      }
+      argi++;
+    }
+
+    for (int j = 0; j < ndim; j++) {
+      if (argc > argi) {
+        if (Tcl_GetDouble(interp, argv[argi], &coord[j]) == TCL_ERROR) {
+          printf("ERROR in peri node: Couldnt parse argv[%d] as a double\n", argi);
+          return TCL_ERROR;
+        }
+        argi++;
+      }else{
+        printf("ERROR in peri node: Not enough arguments\n");
+        return -1;
+      }
+    }
+    // Set the coordinates of the particle at index i
+    domain->set_coord(ind, coord);
+
+  } else if (ndim == 3) {
+    // cast the pointer to a PeriDomain<3> object
+    PeriDomain<3>* domain = static_cast<PeriDomain<3>*>(domain_base);
+    std::array<double, 3> coord;
+
+    // Parse arguments and set the coordinates of a particle
+    // Note that argv[0] == "peri", argv[1] == "node"
+    // Therefore, the first argument is argv[2]
+
+    if (argc > argi) {
+      // If this returns TCL_ERROR it means that argv[2] couldnt be
+      // parsed as an integer.
+      if (Tcl_GetInt(interp, argv[argi], &ind) == TCL_ERROR) {
+        printf("ERROR in peri node: Couldnt parse argv[2] as the index\n");
+        return TCL_ERROR;
+      }
+      argi++;
+    }
+
+    for (int j = 0; j < ndim; j++) {
+      if (argc > argi) {
+        if (Tcl_GetDouble(interp, argv[argi], &coord[j]) == TCL_ERROR) {
+          printf("ERROR in peri node: Couldnt parse argv[%d] as a double\n", argi);
+          return TCL_ERROR;
+        }
+        argi++;
+      }else{
+        printf("ERROR in peri snode: Not enough arguments\n");
+        return -1;  // QUESTION: Is this the correct return value?
+      }
+    }
+    // Set the coordinates of the particle at index i
+    domain->set_coord(ind, coord);
+  }
+
+  return TCL_OK;
+}
+
+static int
+Tcl_PeriPrintNode(ClientData cd, Tcl_Interp* interp,
+                 int argc, const char** const argv)
+{
+  // decalre a pointer to a PeriDomainBase object
+  PeriDomainBase* domain_base = static_cast<PeriDomainBase*>(cd);
+  int     ind = 0, ndim = 0, argi = 3;
+
+  ndim = domain_base->getNDM();
+  if (ndim == 2) {
+    // cast the pointer to a PeriDomain<2> object
+    PeriDomain<2>* domain = static_cast<PeriDomain<2>*>(domain_base);
+    if (argc == 3) {
+      // print the coordinates of all the particles
+      for (int i = 0; i < domain->totnode; i++) {
+        printf("Node %d: (%f, %f)\n", i, domain->pts[i].coord[0], domain->pts[i].coord[1]);
+      }
+    }else if (argc > argi) {
+      // Parse arguments and set the coordinates of a particle
+      // Note that argv[0] == "peri", argv[1] == "prin", argv[2] == "node"
+      // Therefore, the first argument is argv[3]
+
+      // If this returns TCL_ERROR it means that argv[3] couldnt be
+      // parsed as an integer.
+      if (Tcl_GetInt(interp, argv[argi], &ind) == TCL_ERROR) {
+        printf("ERROR in peri prin node: Couldnt parse argv[3] as the index\n");
+        return TCL_ERROR;
+      }
+      // Print the coordinates of the particle at index i
+      printf("Node %d: (%f, %f)\n", ind, domain->pts[ind].coord[0], domain->pts[ind].coord[1]);
+    }else{
+      printf("ERROR in peri prin node: Not enough arguments\n");
+      return -1;
+    }
+  } else if (ndim == 3) {
+    // cast the pointer to a PeriDomain<3> object
+    PeriDomain<3>* domain = static_cast<PeriDomain<3>*>(domain_base);
+
+    if (argc == 3) {
+      // print the coordinates of all the particles
+      for (int i = 0; i < domain->totnode; i++) {
+        printf("Node %d: (%f, %f, %f)\n", i, domain->pts[i].coord[0], domain->pts[i].coord[1], domain->pts[i].coord[2]);
+      }
+    }else if (argc > argi) {
+      // Parse arguments and set the coordinates of a particle
+      // Note that argv[0] == "peri", argv[1] == "prin", argv[2] == "node"
+      // Therefore, the first argument is argv[3]
+
+      // If this returns TCL_ERROR it means that argv[3] couldnt be
+      // parsed as an integer.
+      if (Tcl_GetInt(interp, argv[argi], &ind) == TCL_ERROR) {
+        printf("ERROR in peri prin node: Couldnt parse argv[3] as the index\n");
+        return TCL_ERROR;
+      }
+      // Print the coordinates of the particle at index i
+      printf("Node %d: (%f, %f, %f)\n", ind, domain->pts[ind].coord[0], domain->pts[ind].coord[1], domain->pts[ind].coord[2]);
+    }
+  }
+  return TCL_OK;
+} 
 
 int
 Tcl_Peri(ClientData cd, Tcl_Interp* interp,
          int argc, const char** const argv)
 {
   // TODO Ensure argv[1] exists
-  if (strcmp(argv[1], "init") == 0)
+  if (strcmp(argv[1], "init") == 0){
     return Tcl_PeriInit(cd, interp, argc, argv);
+  }
+  
+  if (cd == nullptr) {
+    printf("ERROR: ClientData is null.\n");
+    return -1;  // QUESTION: Is this the correct return value?
+  }
+
+  if (strcmp(argv[1], "node") == 0){
+    return Tcl_PeriSetNode(cd, interp, argc, argv);
+  }
+
+  if (strcmp(argv[1], "prin") == 0){
+    if (strcmp(argv[2], "node") == 0){
+      return Tcl_PeriPrintNode(cd, interp, argc, argv);
+    }
+  }
     
-  return TCL_ERROR;
+    
+  return TCL_OK;
 }

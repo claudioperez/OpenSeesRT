@@ -7,6 +7,17 @@ class PeriDomainBase {
     public:
       PeriDomainBase(int totnode, int maxfam);
 
+      // virtual destructor
+      // default: explicitly instructs the compiler to generate
+      // the default implementation of the destructor
+      virtual ~PeriDomainBase() = default;
+      
+      // pure virtual function
+      // a function that has no implementation in the base class
+      // and must be overridden in the derived class
+      virtual int getNDM() const = 0; // function to get the number of dimensions
+
+
       int totnode, maxfam;
 
 };
