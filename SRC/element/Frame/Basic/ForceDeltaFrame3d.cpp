@@ -421,31 +421,6 @@ ForceDeltaFrame3d::update()
     F.zero();
     vr.zero();
 
-    {
-      Matrix f(F);
-      if (stencil->addElasticFlexibility(L, f) < 0) {
-        vr[0] += F(0, 0) * q_trial[0];
-        vr[1] += F(1, 1) * q_trial[1] + F(1, 2) * q_trial[2];
-        vr[2] += F(2, 1) * q_trial[1] + F(2, 2) * q_trial[2];
-        vr[3] += F(3, 3) * q_trial[3] + F(3, 4) * q_trial[4];
-        vr[4] += F(4, 3) * q_trial[3] + F(4, 4) * q_trial[4];
-        vr[5] += F(5, 5) * q_trial[5];
-      }
-    }
-
-    // Add effects of element loads
-    double v0[5]{0.0};
-    for (auto[load, factor] : eleLoads)
-      stencil->addElasticDeformations(load, factor, L, v0);
-
-    vr[0] += v0[0];
-    vr[1] += v0[1];
-    vr[2] += v0[2];
-    vr[3] += v0[3];
-    vr[4] += v0[4];
-
-
-
     //
     // Preliminary Gauss Loop
     //
@@ -494,6 +469,7 @@ ForceDeltaFrame3d::update()
       // a. Calculate interpolated section force
       //
       //    si = B*q + Bp*w;
+      //
       for (int j = 0; j < nsr; j++) {
 
         if (scheme[j] == SECTION_RESPONSE_P)
@@ -510,8 +486,10 @@ ForceDeltaFrame3d::update()
           ds_tilde(index) =   w(i) * q_trial[0] + (xL - 1) * q_trial[1] + xL * q_trial[2] - stilde(index);
         index++;
       }
+
       // Add the effects of element loads
       // si += bp*w
+      //
       if (eleLoads.size() > 0) {
         VectorND<nsr> sp{0.0};
         this->computeSectionForces(sp, i);
@@ -1675,9 +1653,6 @@ ForceDeltaFrame3d::getInitialFlexibility(Matrix& fe)
 
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
-
-  // Flexibility from elastic interior
-  stencil->addElasticFlexibility(L, fe);
 
   double xi[maxNumSections];
   stencil->getSectionLocations(numSections, L, xi);
@@ -3095,8 +3070,7 @@ ForceDeltaFrame3d::getMassSensitivity(int igrad)
 const Vector&
 ForceDeltaFrame3d::getResistingForceSensitivity(int igrad)
 {
-  static Vector dqdh(6);
-  dqdh = this->getBasicForceGrad(igrad);
+  VectorND<6> dqdh = this->getBasicForceGrad(igrad);
 
   // Transform forces
   double dp0dh[6];
@@ -3106,7 +3080,7 @@ ForceDeltaFrame3d::getResistingForceSensitivity(int igrad)
   dp0dh[3] = 0.0;
   dp0dh[4] = 0.0;
   dp0dh[5] = 0.0;
-  this->computeReactionSensitivity(dp0dh, igrad);
+  this->addReactionGrad(dp0dh, igrad);
   Vector dp0dhVec(dp0dh, 3);
 
   static Vector P(12);
@@ -3273,7 +3247,8 @@ ForceDeltaFrame3d::commitSensitivity(int igrad, int numGrads)
   return err;
 }
 
-const Vector&
+
+VectorND<6>
 ForceDeltaFrame3d::getBasicForceGrad(int igrad)
 {
   int numSections = points.size();
@@ -3421,15 +3396,9 @@ ForceDeltaFrame3d::getBasicForceGrad(int igrad)
     }
   }
 
-  static Matrix dfedh(6, 6);
-  dfedh.Zero();
 
-  if (stencil->addElasticFlexDeriv(L, dfedh, dLdh) < 0)
-    dvdh.addMatrixVector(1.0, dfedh, q_pres, -1.0);
-
-  static Vector dqdh(3);
+  VectorND<6> dqdh;
   dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
-
 
   return dqdh;
 }
@@ -3447,8 +3416,6 @@ ForceDeltaFrame3d::computedfedh(int igrad)
 
   double dLdh   = theCoordTransf->getLengthGrad();
   double d1oLdh = theCoordTransf->getd1overLdh();
-
-  stencil->addElasticFlexDeriv(L, dfedh, dLdh);
 
   double xi[maxNumSections];
   stencil->getSectionLocations(numSections, L, xi);

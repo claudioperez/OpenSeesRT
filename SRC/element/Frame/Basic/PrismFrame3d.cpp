@@ -977,7 +977,7 @@ PrismFrame3d::getResistingForceSensitivity(int gradNumber)
   dp0dh[3] = 0.0;
   dp0dh[4] = 0.0;
   dp0dh[5] = 0.0;
-  this->computeReactionSensitivity(dp0dh, gradNumber);
+  this->addReactionGrad(dp0dh, gradNumber);
   Vector dp0dhVec(dp0dh, 6);
 
   if (theCoordTransf->isShapeSensitivity()) {
@@ -1046,6 +1046,16 @@ PrismFrame3d::setParameter(const char **argv, int argc, Parameter &param)
     return param.addObject(Param::A,  this);
   }
 
+  if (strcmp(argv[0],"Ay") == 0) {
+    param.setValue(Ay);
+    return param.addObject(Param::Ay,  this);
+  }
+
+  if (strcmp(argv[0],"Az") == 0) {
+    param.setValue(Az);
+    return param.addObject(Param::Az,  this);
+  }
+
   if (strcmp(argv[0],"Iy") == 0) {
     param.setValue(Iy);
     return param.addObject(Param::Iy, this);
@@ -1112,32 +1122,37 @@ PrismFrame3d::getBasicForceGrad(int gradNumber)
 {
 
   double L   = theCoordTransf->getInitialLength();
-  double jsx = 1.0 / L;
-
-  double dLdh = theCoordTransf->getLengthGrad();
-
-  double d1oLdh = theCoordTransf->getd1overLdh();
 
   double
       dEIy = 0.0,
       dEIz = 0.0,
       dEA  = 0.0,
       dGAy = 0.0,
-      dGJ  = 0.0,
-      dGAz = 0.0;
+      dGAz = 0.0,
+      dGJ  = 0.0;
 
   switch (parameterID) {
     case Param::E:
       dEIy = this->Iy;
       dEIz = this->Iz;
       dEA  = this->A;
+      break;
     case Param::A:
       dEA  = this->E;
+      break;
     case Param::Iy:
       dEIy = this->E;
+      break;
     case Param::Iz:
       dEIz = this->E;
+      break;
     default:
+//    if (theCoordTransf->isShapeSensitivity()) {
+//      dEIy = E*Iy*dLi;
+//      dEIz = E*Iz*dLi;
+//      dEA  = E*A*dLi;
+//    }
+      break;
       ;
   }
  
@@ -1169,10 +1184,11 @@ PrismFrame3d::getBasicForceGrad(int gradNumber)
   const Vector &v  = theCoordTransf->getBasicTrialDisp();
 
   VectorND<NBV> dq = dK*v;
-//if (theCoordTransf->isShapeSensitivity()) {
-//  const Vector &dv = theCoordTransf->getBasicDisplFixedGrad();
-//  dq += ke*dv;
-//}
+
+  double dL = theCoordTransf->getLengthGrad();
+
+  if (dL != 0.0)
+    dq.addMatrixVector(1.0, this->getBasicTangent(State::Pres,0), v, -dL/L);
 
   return dq;
 }

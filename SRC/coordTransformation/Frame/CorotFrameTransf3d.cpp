@@ -386,25 +386,25 @@ CorotFrameTransf3d::CorotFrameTransf3d():
 // destructor:
 CorotFrameTransf3d::~CorotFrameTransf3d()
 {
-    if (nodeIInitialDisp != nullptr)
-        delete [] nodeIInitialDisp;
+  if (nodeIInitialDisp != nullptr)
+    delete [] nodeIInitialDisp;
 
-    if (nodeJInitialDisp != nullptr)
-        delete [] nodeJInitialDisp;
+  if (nodeJInitialDisp != nullptr)
+    delete [] nodeJInitialDisp;
 }
 
 
 double
 CorotFrameTransf3d::getInitialLength()
 {
-    return L;
+  return L;
 }
 
 
 double
 CorotFrameTransf3d::getDeformedLength()
 {
-    return Ln;
+  return Ln;
 }
 
 
@@ -441,11 +441,11 @@ CorotFrameTransf3d::getCopy()
 int
 CorotFrameTransf3d::commitState()
 {
-    ulcommit      = ul;
-    alphaIqcommit = alphaIq;
-    alphaJqcommit = alphaJq;
+  ulcommit      = ul;
+  alphaIqcommit = alphaIq;
+  alphaJqcommit = alphaJq;
 
-    return 0;
+  return 0;
 }
 
 
@@ -936,46 +936,46 @@ CorotFrameTransf3d::compTransfMatrixLocalGlobal(Matrix &Tlg)
 const Vector &
 CorotFrameTransf3d::getBasicTrialDisp()
 {
-    static Vector ub(6);
+  static Vector ub(6);
 
-    // use transformation matrix to renumber the degrees of freedom
-    ub.addMatrixVector(0.0, Tp, ul, 1.0);
-    
-    return ub;
+  // use transformation matrix to renumber the degrees of freedom
+  ub.addMatrixVector(0.0, Tp, ul, 1.0);
+  
+  return ub;
 }
 
 
 const Vector &
 CorotFrameTransf3d::getBasicIncrDeltaDisp()
 {
-    static Vector dub(6);
-    static Vector dul(7);
+  static Vector dub(6);
+  static Vector dul(7);
 
-    // dul = ul - ulpr;
-    dul = ul;
-    dul.addVector(1.0, ulpr, -1.0);
+  // dul = ul - ulpr;
+  dul = ul;
+  dul.addVector(1.0, ulpr, -1.0);
 
-    // use transformation matrix to renumber the degrees of freedom
-    dub.addMatrixVector(0.0, Tp, dul, 1.0);
+  // use transformation matrix to renumber the degrees of freedom
+  dub.addMatrixVector(0.0, Tp, dul, 1.0);
 
-    return dub;
+  return dub;
 }
 
 
 const Vector &
 CorotFrameTransf3d::getBasicIncrDisp()
 {
-    static Vector Dub(6);
-    static Vector Dul(7);
+  static Vector Dub(6);
+  static Vector Dul(7);
 
-    // Dul = ul - ulcommit;
-    Dul = ul;
-    Dul.addVector (1.0, ulcommit, -1.0);
+  // Dul = ul - ulcommit;
+  Dul = ul;
+  Dul.addVector(1.0, ulcommit, -1.0);
 
-    // use transformation matrix to renumber the degrees of freedom
-    Dub.addMatrixVector(0.0, Tp, Dul, 1.0);
+  // use transformation matrix to renumber the degrees of freedom
+  Dub.addMatrixVector(0.0, Tp, Dul, 1.0);
 
-    return Dub;
+  return Dub;
 }
 
 
@@ -1004,7 +1004,6 @@ CorotFrameTransf3d::getBasicTrialAccel()
 inline VectorND<12>
 CorotFrameTransf3d::pushResponse(VectorND<12>&pl)
 {
-  // return ag'*pl
   return ag^pl;
 }
 
@@ -1015,6 +1014,7 @@ CorotFrameTransf3d::pushConstant(const MatrixND<12,12>&kl)
   MatrixND<12,12> kg;
   static double RWI[3][3]{};
   static double RWJ[3][3]{};
+
 #if 0
 
   if (joint_offsets & end_i) {
@@ -1123,21 +1123,9 @@ CorotFrameTransf3d::pushConstant(const VectorND<12>&pl) const
   // transform vector from local to global coordinates
 
   VectorND<12> pg;
-  pg[ 0] = R0(0, 0) * pl[0] + R0(0, 1) * pl[1] + R0(0, 2) * pl[2];
-  pg[ 1] = R0(1, 0) * pl[0] + R0(1, 1) * pl[1] + R0(1, 2) * pl[2];
-  pg[ 2] = R0(2, 0) * pl[0] + R0(2, 1) * pl[1] + R0(2, 2) * pl[2];
-
-  pg[ 3] = R0(0, 0) * pl[3] + R0(0, 1) * pl[4] + R0(0, 2) * pl[5];
-  pg[ 4] = R0(1, 0) * pl[3] + R0(1, 1) * pl[4] + R0(1, 2) * pl[5];
-  pg[ 5] = R0(2, 0) * pl[3] + R0(2, 1) * pl[4] + R0(2, 2) * pl[5];
-
-  pg[ 6] = R0(0, 0) * pl[6] + R0(0, 1) * pl[7] + R0(0, 2) * pl[8];
-  pg[ 7] = R0(1, 0) * pl[6] + R0(1, 1) * pl[7] + R0(1, 2) * pl[8];
-  pg[ 8] = R0(2, 0) * pl[6] + R0(2, 1) * pl[7] + R0(2, 2) * pl[8];
-
-  pg[ 9] = R0(0, 0) * pl[9] + R0(0, 1) * pl[10] + R0(0, 2) * pl[11];
-  pg[10] = R0(1, 0) * pl[9] + R0(1, 1) * pl[10] + R0(1, 2) * pl[11];
-  pg[11] = R0(2, 0) * pl[9] + R0(2, 1) * pl[10] + R0(2, 2) * pl[11];
+  for (int i=0; i<4; i++)
+    for (int j=0; j<3; j++)
+      pg[i*3+j] = R0(j,0)*pl[3*i] + R0(j,1)*pl[3*i+1] + R0(j,2)*pl[3*i+2];
 
 //
 // TODO(cmp): joint offsets
@@ -1176,36 +1164,14 @@ CorotFrameTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 #else
     // transform resisting forces from the basic system to local coordinates
     static VectorND<12> pl;
-
-    const double q0 = pb(0);
-    const double q1 = pb(1);
-    const double q2 = pb(2);
-    const double q3 = pb(3);
-    const double q4 = pb(4);
-    const double q5 = pb(5);
-
-    double oneOverL = 1.0 / L;
-
-    pl[0]  = -q0;                    // Ni
-    pl[1]  =  oneOverL * (q1 + q2);  // Viy
-    pl[2]  = -oneOverL * (q3 + q4);  // Viz
-    pl[3]  = -q5;                    // Ti
-    pl[4]  =  q3;
-    pl[5]  =  q1;
-    pl[6]  =  q0;                    // Nj
-    pl[7]  = -pl[1];                 // Vjy
-    pl[8]  = -pl[2];                 // Vjz
-    pl[9]  =  q5;                    // Tj
-    pl[10] =  q4;
-    pl[11] =  q2;
+    pl = pushLocal(pb, L);
 
     pg = pushResponse(pl);
 #endif
 
     // if there are no element loads present, just return
     if (p0 == 0.0)
-        return wrapper;
-
+      return wrapper;
 
     // Add end forces due to element p0 loads
     // assuming member loads are in local system
@@ -1229,57 +1195,44 @@ CorotFrameTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
 const Matrix &
 CorotFrameTransf3d::getInitialGlobalStiffMatrix(const Matrix &kb)
 {
-    // transform tangent stiffness matrix from the basic system to local coordinates
-    static Matrix kl(7,7);
-    kl.addMatrixTripleProduct(0.0, Tp, kb, 1.0);      // kl = Tp ^ kb * Tp;
+  // transform tangent stiffness matrix from the basic system to local coordinates
+  static Matrix kl(7,7);
+  kl.addMatrixTripleProduct(0.0, Tp, kb, 1.0);      // kl = Tp ^ kb * Tp;
 
-    // transform tangent  stiffness matrix from local to global coordinates
-    static Matrix kg(12,12);
+  // transform tangent  stiffness matrix from local to global coordinates
+  static Matrix kg(12,12);
 
-    // compute the tangent stiffness matrix in global coordinates
-    kg.addMatrixTripleProduct(0.0, T, kl, 1.0);
+  // compute the tangent stiffness matrix in global coordinates
+  kg.addMatrixTripleProduct(0.0, T, kl, 1.0);
 
-    return kg;
+  return kg;
 }
 
 const Matrix &
 CorotFrameTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
 {
-    // transform kb from the basic system to local coordinates
-    static MatrixND<7,7> kl;
-    static Matrix Kl(kl);
+  // transform kb from the basic system to local coordinates
+  static MatrixND<7,7> kl;
+  static Matrix Kl(kl);
 
-    // transform basic stiffness to 7x7 Remo layout
-    Kl.addMatrixTripleProduct(0.0, Tp, kb, 1.0);      // kl = Tp ^ kb * Tp;
+  // transform basic stiffness to 7x7 Remo layout
+  Kl.addMatrixTripleProduct(0.0, Tp, kb, 1.0);      // kl = Tp ^ kb * Tp;
 
 
-    // transform resisting forces from the basic system to local coordinates
-    static VectorND<12> pl;
-    const double oneOverL = 1.0/L;
-    pl[0]  = -pb[0];                       // Ni
-    pl[1]  =  oneOverL * (pb[1] + pb[2]);  // Viy
-    pl[2]  = -oneOverL * (pb[3] + pb[4]);  // Viz
-    pl[3]  = -pb[5];                       // Ti
-    pl[4]  =  pb[3];
-    pl[5]  =  pb[1];
-    pl[6]  =  pb[0];                       // Nj
-    pl[7]  = -pl[1];                       // Vjy
-    pl[8]  = -pl[2];                       // Vjz
-    pl[9]  =  pb[5];                       // Tj
-    pl[10] =  pb[4];
-    pl[11] =  pb[2];
+  // transform resisting forces from the basic system to local coordinates
+  VectorND<12> pl = pushLocal(pb, L);
 
-    //
-    // Transform kl from local to global system
-    //
+  //
+  // Transform kl from local to global system
+  //
 
-    THREAD_LOCAL MatrixND<12,12> kg;
-    static Matrix Wrapper(kg);
+  THREAD_LOCAL MatrixND<12,12> kg;
+  static Matrix Wrapper(kg);
 //  Wrapper.addMatrixTripleProduct(0.0, Matrix(T), Kl, 1.0);
-    kg.addMatrixTripleProduct(0.0, T, kl, 1.0);
-    
-    this->addTangent(kg, pl);
-    return Wrapper;
+  kg.addMatrixTripleProduct(0.0, T, kl, 1.0);
+  
+  this->addTangent(kg, pl);
+  return Wrapper;
 }
 
 
@@ -1287,16 +1240,14 @@ CorotFrameTransf3d::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
 //    K = ag'*k*ag + kg
 MatrixND<12,12>
 CorotFrameTransf3d::pushResponse(MatrixND<12,12>& kl, const VectorND<12>& pl)
-{
-    
-    MatrixND<12,12> K;
-    K.addMatrixTripleProduct(0.0, ag, kl, 1.0);
-    
+{    
+  MatrixND<12,12> K;
+  K.addMatrixTripleProduct(0.0, ag, kl, 1.0);
 
-    // Add geometric part kg
-    this->addTangent(K, pl);
+  // Add geometric part kg
+  this->addTangent(K, pl);
 
-    return K;
+  return K;
 }
 
 
@@ -1359,7 +1310,7 @@ CorotFrameTransf3d::addTangent(MatrixND<12,12>& kg, const VectorND<12>& pl)
     //
     //    kbar4 =  Lr2*(m(3)*S(rJ3) - m(4)*S(rJ1)) - ...
     //             Lr3*(m(3)*S(rJ2) + m(5)*S(rJ1));
-
+    //
     static Matrix3D Sm;
     static MatrixND<12,3> kbar;
 
@@ -1536,77 +1487,75 @@ CorotFrameTransf3d::addTangent(MatrixND<12,12>& kg, const VectorND<12>& pl)
 int
 CorotFrameTransf3d::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
 {
-    // element projection
+  static Vector dx(3);
 
-    static Vector dx(3);
+  dx = (nodes[1]->getCrds() + nodeJOffset) - (nodes[0]->getCrds() + nodeIOffset);
+  if (nodeIInitialDisp != 0) {
+      dx(0) -= nodeIInitialDisp[0];
+      dx(1) -= nodeIInitialDisp[1];
+      dx(2) -= nodeIInitialDisp[2];
+  }
 
-    dx = (nodes[1]->getCrds() + nodeJOffset) - (nodes[0]->getCrds() + nodeIOffset);
-    if (nodeIInitialDisp != 0) {
-        dx(0) -= nodeIInitialDisp[0];
-        dx(1) -= nodeIInitialDisp[1];
-        dx(2) -= nodeIInitialDisp[2];
-    }
+  if (nodeJInitialDisp != 0) {
+      dx(0) += nodeJInitialDisp[0];
+      dx(1) += nodeJInitialDisp[1];
+      dx(2) += nodeJInitialDisp[2];
+  }
 
-    if (nodeJInitialDisp != 0) {
-        dx(0) += nodeJInitialDisp[0];
-        dx(1) += nodeJInitialDisp[1];
-        dx(2) += nodeJInitialDisp[2];
-    }
+  // calculate the element length
 
-    // calculate the element length
+  L = dx.Norm();
 
-    L = dx.Norm();
+  if (L == 0.0) {
+      opserr << "\nCorotFrameTransf3d::computeElemtLengthAndOrien: 0 length\n";
+      return -2;
+  }
 
-    if (L == 0.0) {
-        opserr << "\nCorotFrameTransf3d::computeElemtLengthAndOrien: 0 length\n";
-        return -2;
-    }
+  // calculate the element local x axis components (direction cossines)
+  // wrt to the global coordinates
+  xAxis = dx/L;
 
-    // calculate the element local x axis components (direction cossines)
-    // wrt to the global coordinates
-    xAxis = dx/L;
+  XAxis(0) = xAxis(0);
+  XAxis(1) = xAxis(1);
+  XAxis(2) = xAxis(2);
 
-    XAxis(0) = xAxis(0);
-    XAxis(1) = xAxis(1);
-    XAxis(2) = xAxis(2);
+  // calculate the cross-product y = v * x
+  static Vector yAxis(3), zAxis(3);
 
-    // calculate the cross-product y = v * x
-    static Vector yAxis(3), zAxis(3);
+  yAxis(0) = vAxis(1)*xAxis(2) - vAxis(2)*xAxis(1);
+  yAxis(1) = vAxis(2)*xAxis(0) - vAxis(0)*xAxis(2);
+  yAxis(2) = vAxis(0)*xAxis(1) - vAxis(1)*xAxis(0);
 
-    yAxis(0) = vAxis(1)*xAxis(2) - vAxis(2)*xAxis(1);
-    yAxis(1) = vAxis(2)*xAxis(0) - vAxis(0)*xAxis(2);
-    yAxis(2) = vAxis(0)*xAxis(1) - vAxis(1)*xAxis(0);
+  const double ynorm = yAxis.Norm();
 
-    const double ynorm = yAxis.Norm();
+  if (ynorm == 0.0) {
+      opserr << "\nCorotFrameTransf3d::getElementLengthAndOrientation";
+      opserr << "\nvector v that defines plane xz is parallel to x axis\n";
+      return -3;
+  }
 
-    if (ynorm == 0.0) {
-        opserr << "\nCorotFrameTransf3d::getElementLengthAndOrientation";
-        opserr << "\nvector v that defines plane xz is parallel to x axis\n";
-        return -3;
-    }
+  yAxis /= ynorm;
+  YAxis(0) = yAxis(0);
+  YAxis(1) = yAxis(1);
+  YAxis(2) = yAxis(2);
 
-    yAxis /= ynorm;
-    YAxis(0) = yAxis(0);
-    YAxis(1) = yAxis(1);
-    YAxis(2) = yAxis(2);
+  // calculate the cross-product z = x * y
 
-    // calculate the cross-product z = x * y
+  zAxis(0) = xAxis(1)*yAxis(2) - xAxis(2)*yAxis(1);
+  zAxis(1) = xAxis(2)*yAxis(0) - xAxis(0)*yAxis(2);
+  zAxis(2) = xAxis(0)*yAxis(1) - xAxis(1)*yAxis(0);
 
-    zAxis(0) = xAxis(1)*yAxis(2) - xAxis(2)*yAxis(1);
-    zAxis(1) = xAxis(2)*yAxis(0) - xAxis(0)*yAxis(2);
-    zAxis(2) = xAxis(0)*yAxis(1) - xAxis(1)*yAxis(0);
+  ZAxis(0) = zAxis(0);
+  ZAxis(1) = zAxis(1);
+  ZAxis(2) = zAxis(2);
 
-    ZAxis(0) = zAxis(0);
-    ZAxis(1) = zAxis(1);
-    ZAxis(2) = zAxis(2);
+  for (int i = 0; i < 3; i++) {
+      R0(i,0) = xAxis[i];
+      R0(i,1) = yAxis[i];
+      R0(i,2) = zAxis[i];
+  }
 
-    for (int i = 0; i < 3; i++) {
-        R0(i,0) = xAxis[i];
-        R0(i,1) = yAxis[i];
-        R0(i,2) = zAxis[i];
-    }
-
-    return 0;
+  return 0;
 }
 
 
@@ -1623,6 +1572,22 @@ CorotFrameTransf3d::getGlobalMatrixFromLocal(const Matrix &local)
     return Mg;
 }
 
+double
+CorotFrameTransf3d::getLengthGrad()
+{
+  const int di = nodes[0]->getCrdsSensitivity();
+  const int dj = nodes[1]->getCrdsSensitivity();
+
+  Vector3D dxi{0.0};
+  Vector3D dxj{0.0};
+
+  if (di != 0)
+    dxi(di-1) = 1.0;
+  if (dj != 0)
+    dxj(dj-1) = 1.0;
+
+  return 1/L*(xj - xi).dot(dxj - dxi);
+}
 
 
 void

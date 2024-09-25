@@ -20,6 +20,8 @@
 #include <Vector.h>
 #include <Matrix.h>
 #include <Matrix3D.h>
+#include <Vector3D.h>
+
 
 class Triad;
 
@@ -33,7 +35,7 @@ public:
     CorotFrameTransf3d();
     ~CorotFrameTransf3d();
 
-    const char *getClassType() const {return "CorotFrameTransf3d";};
+    const char *getClassType() const {return "CorotFrameTransf3d";}
 
     FrameTransform3d *getCopy();
 
@@ -42,6 +44,7 @@ public:
     int commitState();
     int revertToLastCommit();        
     int revertToStart();
+    int  getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
 
     double getInitialLength();
 //  double getPresentLength();
@@ -69,9 +72,10 @@ public:
     // methods used in post-processing only
     const Vector &getPointGlobalCoordFromLocal(const Vector &localCoords);
     const Vector &getPointGlobalDisplFromBasic(double xi, const Vector &basicDisps);
-    const Vector &getPointLocalDisplFromBasic(double xi, const Vector &basicDisps);    
-    
-    int  getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
+    const Vector &getPointLocalDisplFromBasic(double xi, const Vector &basicDisps);
+
+    // Sensitivity
+    double getLengthGrad();
 
     // Movable Object
     int sendSelf(int cTag, Channel &theChannel);
@@ -121,6 +125,7 @@ private:
 
     Vector xAxis;                              // local x axis
     Vector vAxis;                              // Vector that lies in local plane xz
+    Vector3D xi, xj, vz;
 
     // Rigid joint offsets
     enum {
