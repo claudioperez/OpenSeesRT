@@ -148,7 +148,7 @@ Tcl_PeriSetNode(ClientData cd, Tcl_Interp* interp,
         argi++;
       }else{
         printf("ERROR in peri node: Not enough arguments\n");
-        return -1;
+        return -1; // **QUESTION: Is this the correct return value?**
       }
     }
     // Set the coordinates of the particle at index i
@@ -182,7 +182,7 @@ Tcl_PeriSetNode(ClientData cd, Tcl_Interp* interp,
         argi++;
       }else{
         printf("ERROR in peri snode: Not enough arguments\n");
-        return -1;  // QUESTION: Is this the correct return value?
+        return -1;  // **QUESTION: Is this the correct return value?**
       }
     }
     // Set the coordinates of the particle at index i
@@ -224,7 +224,7 @@ Tcl_PeriPrintNode(ClientData cd, Tcl_Interp* interp,
       printf("Node %d: (%f, %f)\n", ind, domain->pts[ind].coord[0], domain->pts[ind].coord[1]);
     }else{
       printf("ERROR in peri prin node: Not enough arguments\n");
-      return -1;
+      return -1; // **QUESTION: Is this the correct return value?**
     }
   } else if (ndim == 3) {
     // cast the pointer to a PeriDomain<3> object
@@ -264,7 +264,7 @@ Tcl_Peri(ClientData cd, Tcl_Interp* interp,
   
   if (cd == nullptr) {
     printf("ERROR: ClientData is null.\n");
-    return -1;  // QUESTION: Is this the correct return value?
+    return -1;  // **QUESTION: Is this the correct return value?**
   }
 
   if (strcmp(argv[1], "node") == 0){
