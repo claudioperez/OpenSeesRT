@@ -5,7 +5,11 @@
 #include <cstring>
 #include <PeriDomain.h>
 #include <PeriDomainBase.h>
-// #include <typeinfo>
+
+#include "mate/ElasticIsotropic.h"
+#include <PeriParticle.h>
+#include <NosbProj.h>
+
 
 Tcl_CmdProc Tcl_Peri;
 
@@ -436,6 +440,50 @@ Tcl_PeriPrintVol(PeriDomain<ndim> *domain, Tcl_Interp *interp,
 		return -1; // **QUESTION: Is this the correct return value?**
 	}
 	return TCL_OK;
+}
+
+
+
+int
+Analyze(PeriDomain<3>& domain)
+{
+  constexpr int ndim = 3;
+
+  std::vector<NosbProj<3,10>> nodefam;
+
+  // Create families for specific NOSB type
+  for (PeriParticle<3>& particle : domain.pts) {
+    nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(29e3, 0.2));
+  }
+
+  // Initialize shape tensor
+  for (NosbBase<3>& fam_i : nodefam)
+    fam_i.init_shape();
+
+  // Form deformation gradients for trial
+  for (NosbBase<3>& fam_i : nodefam)
+    fam_i.form_trial();
+
+
+  // Form force
+  for (NosbProj<3,10>& fam_i : nodefam) {
+
+    MatrixND<ndim,ndim> Q = fam_i.sum_PKinv();
+
+    for (int j=0; j < fam_i.numfam; j++) {
+      const VectorND<ndim> T_j = fam_i.bond_force(j, Q);
+
+      fam_i.center->pforce   += T_j;
+      fam_i.neigh[j]->pforce -= T_j;
+
+    }
+  }
+
+  // Update disp
+  //
+
+  //
+  return 0;
 }
 
 int Tcl_Peri(ClientData cd, Tcl_Interp *interp,
