@@ -15,51 +15,51 @@ static int
 Tcl_PeriInit(ClientData cd, Tcl_Interp *interp,
              int argc, const char **const argv)
 {
-  // If init has already been called, clean up (free) the previous
-  // domain object.
-  if (cd != nullptr)
-  {
-    PeriDomainBase *domain = static_cast<PeriDomainBase *>(cd);
-    delete domain;
-  }
-
-  // Parse arguments and create a domain
-  // Note that argv[0] holds the name of the command.
-
-  // default values
-  int ndim = 0;
-  int totnode = 0;
-  int maxfam = 0;
-  char plane_type = 'x';
-  PeriDomainBase *domain;
-
-  int argi = 2;
-
-  // if the size of argv is greater than 2, convert
-  // the 3rd element of the array (ie argv[2]) to an integer
-  // and store it in totnode
-  if (argc > argi)
-  {
-    // If this returns TCL_ERROR it means that argv[2] couldnt be
-    // parsed as an integer.
-    if (Tcl_GetInt(interp, argv[argi], &ndim) == TCL_ERROR)
+    // If init has already been called, clean up (free) the previous
+    // domain object.
+    if (cd != nullptr)
     {
-      printf("ERROR in peri init: Couldnt parse argv[2] as an integer\n");
-      return TCL_ERROR;
+        PeriDomainBase *domain = static_cast<PeriDomainBase *>(cd);
+        delete domain;
     }
-    argi++;
-  }
 
-  // Now do the same for the 4th argument (argv[3])
-  if (argc > argi)
-  {
-    if (Tcl_GetInt(interp, argv[argi], &totnode) == TCL_ERROR)
+    // Parse arguments and create a domain
+    // Note that argv[0] holds the name of the command.
+
+    // default values
+    int ndim = 0;
+    int totnode = 0;
+    int maxfam = 0;
+    char plane_type = 'x';
+    PeriDomainBase *domain;
+
+    int argi = 2;
+
+    // if the size of argv is greater than 2, convert
+    // the 3rd element of the array (ie argv[2]) to an integer
+    // and store it in totnode
+    if (argc > argi)
     {
-      printf("ERROR in peri init: Couldnt parse argv[3] as an integer\n");
-      return TCL_ERROR;
+        // If this returns TCL_ERROR it means that argv[2] couldnt be
+        // parsed as an integer.
+        if (Tcl_GetInt(interp, argv[argi], &ndim) == TCL_ERROR)
+        {
+          printf("ERROR in peri init: Couldnt parse argv[2] as an integer\n");
+          return TCL_ERROR;
+        }
+        argi++;
     }
+
+    // Now do the same for the 4th argument (argv[3])
+    if (argc > argi)
+    {
+        if (Tcl_GetInt(interp, argv[argi], &totnode) == TCL_ERROR)
+        {
+            printf("ERROR in peri init: Couldnt parse argv[3] as an integer\n");
+            return TCL_ERROR;
+        }
     argi++;
-  }
+    } 
 
   // Now do the same for the 5th argument (argv[4])
   if (argc > argi)
