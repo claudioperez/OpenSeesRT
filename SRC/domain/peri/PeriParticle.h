@@ -13,24 +13,24 @@
 // using OpenSees::MatrixND;
 // ============================================
 template <int ndim>
-class PeriParticle {
+class PeriParticle
+{
 public:
-
-  // // Print a representation of the domain
-  // void print(int flag);
-  // ============================================
-  // DATA
-  // ============================================
-  int                 numfam;
-  std::vector<int>    nodefam;
-  std::array<double, ndim> coord;
-  std::vector<double> vol;
-  double              vol_h;
-  std::vector<double> correction, bond_dmg;
-  std::array<int, ndim>    is_force_bound, is_disp_bound;
-  std::array<double, ndim> bforce, bdisp, pforce;
-  std::array<double, (ndim-1)*3> stress, strain;
-  std::array<double, ndim> disp, vel, acc;
-  double              energy;
-  std::array<double, 6> misc;
+	// // Print a representation of the domain
+	// void print(int flag);
+	// ============================================
+	// DATA
+	// ============================================
+	int numfam;
+	std::vector<int> nodefam;
+	std::array<double, ndim> coord;
+	std::vector<double> vol;
+	double vol_h;
+	std::vector<double> correction, bond_dmg;
+	std::array<int, ndim> is_force_bound, is_disp_bound;
+	std::array<double, ndim> bforce, bdisp, pforce;
+	std::array<double, (ndim - 1) * 3> stress, strain;
+	std::array<double, ndim> disp, vel, acc;
+	double energy;
+	std::array<double, 6> misc;
 };
