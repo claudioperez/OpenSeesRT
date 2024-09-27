@@ -1,3 +1,4 @@
+#pragma once
 #include <Matrix3D.h>
 using OpenSees::Matrix3D;
 
