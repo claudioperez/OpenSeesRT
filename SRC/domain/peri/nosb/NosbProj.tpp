@@ -6,7 +6,7 @@
 #include <Matrix3D.h>
 
 template <int ndim, int maxfam>
-NosbProj<ndim, maxfam>::NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &domain, Mate *material)
+NosbProj<ndim, maxfam>::NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &domain, Mate<ndim> *material)
     : center(center), numfam(center->numfam)
 {
     for (int i = 0; i < numfam; i++)
@@ -68,7 +68,7 @@ template <int ndim, int maxfam>
 VectorND<ndim>
 NosbProj<ndim, maxfam>::get_T2(int i, const VectorND<ndim> &xi)
 {
-    const MatrixND<ndim, ndim> &P = materials[i]->get_stress();
+          MatrixND<ndim, ndim> P;// = materials[i]->get_stress();
     VectorND<ndim> B = P * xi;
     B /= xi.dot(xi);
     return B;
@@ -115,7 +115,7 @@ NosbProj<ndim, maxfam>::sum_PKinv()
     for (int i = 0; i < numfam; i++)
     {
         const VectorND<ndim> xi = neigh[i]->coord - center->coord;
-        const MatrixND<ndim, ndim> P = materials[i]->get_stress();
+              MatrixND<ndim, ndim> P ; //= materials[i]->get_stress();
         const MatrixND<ndim, ndim> A = this->get_A(xi);
         // the correct formula for Qmat is 
         // Qmat += sum_1^numfam { w[i] * P * A * Kinv * vol[i] }

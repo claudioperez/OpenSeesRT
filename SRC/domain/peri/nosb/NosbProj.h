@@ -16,12 +16,12 @@ public:
 	MatrixND<ndim, ndim> Kinv;	// note that Kmat is invariant in this formulation, but may not be in general
 	PeriParticle<ndim>* center;
 	std::array<PeriParticle<ndim>*, maxfam> neigh;
-	std::array<Mate *, maxfam> materials;
+	std::array<Mate<ndim> *, maxfam> materials;
 	std::array<double, maxfam> omega;
 
 public:
 	
-	NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &domain, Mate *material);
+	NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &domain, Mate<ndim> *material);
 	
 	double bond_omega(int i);
 
