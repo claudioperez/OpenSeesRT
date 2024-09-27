@@ -37,9 +37,9 @@ void PeriDomain<ndim>::set_coord(int i, const std::array<double, ndim>& coord) {
 }
 
 template <int ndim>
-void PeriDomain<ndim>::create_fam(const double delta) {
+void PeriDomain<ndim>::create_fam(const double delta_in) {
     // Set the size of horizon delta
-    this->delta = delta;
+    this->delta = delta_in;
     // Create families for each particle
     for (int i = 0; i < totnode; i++) {
         for (int j = i+1; j < totnode; j++) {
@@ -50,7 +50,7 @@ void PeriDomain<ndim>::create_fam(const double delta) {
             }
             dist = std::sqrt(dist);
             // If the distance is less than delta, add the particle to the family
-            if (dist < delta && dist > 1.0e-8*delta) {
+            if (dist < delta_in && dist > 1.0e-8*delta_in) {
                 pts[i].nodefam[pts[i].numfam] = j;
                 pts[i].numfam++;
                 pts[j].nodefam[pts[j].numfam] = i;

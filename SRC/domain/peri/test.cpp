@@ -1,4 +1,3 @@
-
 #include <PeriParticle.h>
 #include <PeriDomain.h>
 
@@ -33,8 +32,8 @@ test(PeriDomain<3>& domain)
     for (int j=0; j < fam_i.numfam; j++) {
       const VectorND<ndim> T_j = fam_i.bond_force(j, Q);
 
-      fam_i.center.pforce     += T_j;
-      fam_i.family[j]->pforce -= T_j;
+      fam_i.center->pforce     += T_j;
+      fam_i.neigh[j]->pforce -= T_j;
 
     }
   }

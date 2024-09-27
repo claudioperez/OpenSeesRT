@@ -1,3 +1,4 @@
+#pragma once
 #include <Matrix3D.h>
 #include <MatrixSD.h>
 #include <MatrixND.h>
