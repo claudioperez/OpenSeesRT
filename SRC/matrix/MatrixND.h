@@ -161,6 +161,7 @@ struct MatrixND {
     return values[index_c][index_r];
   }
 
+#if 0
   constexpr VectorND<NR>
   column(index_t index) const {
     assert(index >= 0);
@@ -186,6 +187,7 @@ struct MatrixND {
   size() const {
     return {NR, NC};
   }
+#endif
 
   //
   //
@@ -466,7 +468,7 @@ struct MatrixND {
       return result;
   }
 
-
+#if 1
   constexpr friend  VectorND<NR>
   operator*(const MatrixND<NR, NC> &left, const VectorND<NC> &right) {
     VectorND<NR> prod;
@@ -478,7 +480,7 @@ struct MatrixND {
     }
     return prod;
   }
-
+#endif
 
   friend  VectorND<NR>
   operator*(const MatrixND<NR, NC> &left, const Vector &right) {

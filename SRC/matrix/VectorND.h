@@ -86,12 +86,18 @@ struct VectorND {
     return N;
   }
 
+
+  consteval inline void
+  fill(double value) {
+    for (T& item : values)
+      item = value;
+  }
+
+
   consteval inline void
   zero() {
     for (T& item : values )
       item = 0.0;
-//  for (index_t i = 0; i < N; ++i)
-//    values[i] = 0.0;
   }
 
   int
@@ -398,7 +404,7 @@ struct VectorND {
         }
       }
     }
-    
+
     // successfull
     return 0;
   }
