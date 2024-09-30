@@ -3,7 +3,6 @@ target_sources(OPS_Runtime PRIVATE commands.cpp)
 target_sources(OPS_Domain
   PRIVATE
     PeriDomainBase.cpp
-    test.cpp
   PUBLIC
     PeriDomain.h
 )
