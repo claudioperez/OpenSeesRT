@@ -203,12 +203,15 @@ endif()
 
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 
-
 # Compiler warnings
 add_compile_options(
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>"
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-parameter>"
-  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-Wno-reorder>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-reorder>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-unused-parameter>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-deprecated-declarations>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-ignored-optimization-argument>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-inconsistent-missing-override>"
   "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-reorder>"
   "$<$<COMPILE_LANG_AND_ID:Fortran,GNU>:-Wno-unused-dummy-argument>"
 )
