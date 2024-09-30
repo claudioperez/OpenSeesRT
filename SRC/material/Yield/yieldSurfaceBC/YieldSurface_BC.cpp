@@ -53,7 +53,9 @@ YieldSurface_BC::YieldSurface_BC(int tag, int classtag, YS_Evolution &model,
 {
    dimension = 1;
    hModel = model.getCopy();
-   theView = 0;
+#ifdef _GRAPHICS
+   theView = nullptr;
+#endif
    T = 0;
    S = 0;
    capX_orig = capx;
@@ -75,7 +77,9 @@ isLoading(true), ele_Tag(-1), ele_Location(-1)
 {
    dimension = 2;
    hModel = model.getCopy();
-   theView = 0;
+#ifdef _GRAPHICS
+   theView = nullptr;
+#endif
    T = 0;
    S = 0;
    capX_orig = capx;
@@ -94,7 +98,9 @@ YieldSurface_BC::YieldSurface_BC(int tag, int classtag, YS_Evolution &model,
 {
    dimension = 3;
    hModel = model.getCopy();
-   theView = 0;
+#ifdef _GRAPHICS
+   theView = nullptr;
+#endif
    T = 0;
    S = 0;
    capX_orig = capX;
@@ -727,16 +733,6 @@ int YieldSurface_BC::checkT(void)
 // Other
 //////////////////////////////////////////////////////////////////////
 
-void YieldSurface_BC::setView(Renderer *theRenderer)
-{
-	theView = theRenderer;
-}
-
-int YieldSurface_BC::displaySelf(Renderer &theViewer, int displayMode, float fact)
-{
-
-	return -1;
-}
 
 int	YieldSurface_BC::displayForcePoint(Vector &force, int color)
 {

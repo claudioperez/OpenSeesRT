@@ -790,7 +790,7 @@ double x, y;
     yj = y2;
 
     hModel->toOriginalCoord(xj, yj);
-
+#ifdef _GRAPHICS
     if(color != 0)
     {
         theView->clearImage();
@@ -798,6 +798,7 @@ double x, y;
         theView->startImage();
         this->displayForcePoint(false, xj, yj, color);
     }
+#endif
 
 
     if(returnDebug)
@@ -874,14 +875,14 @@ double x, y;
         t =  interpolate(xi, yi, xj, yj);
         x =  xi + t*dx;
         y =  yi + t*dy;
-
+#ifdef _GRAPHICS
         if(color != 0)
         {
             this->displayForcePoint(false, x, y, color);
             theView->doneImage();
             opserr << "\a";
         }
-
+#endif
         hModel->toDeformedCoord(x, y);
 
         toElementSystem(force, x, y, true);
@@ -889,6 +890,7 @@ double x, y;
         return t;
 }
 
+#ifdef _GRAPHICS
 int YieldSurface_BC2D::displaySelf(Renderer &theViewer, int displayMode, float fact)
 {
     if(displayMode == this->SurfOnly)
@@ -996,6 +998,7 @@ rgb(0) = 0.8; rgb(1) = 0.8; rgb(2) = 0.8;
     return 0;
 }
 
+
 int YieldSurface_BC2D::displayCommitForcePoint(Renderer &theViewer, int displayMode, float fact)
 {
 Vector p1(3), p2(3);
@@ -1041,6 +1044,7 @@ int YieldSurface_BC2D::displayForcePoint(Vector &force, int color)
 
     return 0;
 }
+
 
 // color can be r, g or b
 int YieldSurface_BC2D::displayForcePoint(bool toDeformed, double f_x, double f_y, int color)
@@ -1098,5 +1102,6 @@ int YieldSurface_BC2D::displayForcePoint(bool toDeformed, double f_x, double f_y
 #endif
   return 0;
 }
+#endif
 
 
