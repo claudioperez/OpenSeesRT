@@ -54,11 +54,14 @@ public:
 	virtual int		revertToLastCommit(void);
 
 	virtual YieldSurface_BC *getCopy(void) = 0;
+#ifdef _GRAPHICS
 	virtual int		displaySelf(Renderer &theViewer, int displayMode, float fact);
 
 			int		displayCommitForcePoint(Renderer &theViewer, int displayMode, float fact);
 	        int 	displayForcePoint(bool toDeformed, double f_x, double f_y, int color);
 	        int		displayForcePoint(Vector &force, int color = 4);
+#endif
+
 //protected:
 	virtual Vector&	translationTo(Vector &f_new, Vector &f_dir);
 	virtual double	getDrift(double x, double y);

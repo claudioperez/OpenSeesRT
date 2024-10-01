@@ -452,11 +452,12 @@ Tcl_PeriFormThreads(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const c
   std::mutex resp_mutex;
 
   constexpr int ndim = 3;
+  constexpr int maxfam = 1024;
 
-  std::vector<NosbProj<3,10>> nodefam;
+  std::vector<NosbProj<3,maxfam>> nodefam;
 
   // Create families for specific NOSB type
-  for (PeriParticle<3>& particle : domain.pts) {
+  for (PeriParticle<ndim>& particle : domain.pts) {
     nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(29e3, 0.2));
   }
 
@@ -505,8 +506,9 @@ int
 Tcl_PeriForm(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const char** const argv)
 {
   constexpr int ndim = 3;
+  constexpr int maxfam = 1024;
 
-  std::vector<NosbProj<3,10>> nodefam;
+  std::vector<NosbProj<ndim,maxfam>> nodefam;
 
   // Create families for specific NOSB type
   for (PeriParticle<3>& particle : domain.pts) {
@@ -514,16 +516,16 @@ Tcl_PeriForm(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const char** c
   }
 
   // Initialize shape tensor
-  for (NosbBase<3>& fam_i : nodefam)
+  for (NosbProj<ndim,maxfam>& fam_i : nodefam)
     fam_i.init_shape();
 
   // Form deformation gradients for trial
-  for (NosbBase<3>& fam_i : nodefam)
+  for (NosbProj<ndim,maxfam>& fam_i : nodefam)
     fam_i.form_trial();
 
 
   // Form force
-  for (NosbProj<3,10>& fam_i : nodefam) {
+  for (NosbProj<3,maxfam>& fam_i : nodefam) {
 
     MatrixND<ndim,ndim> Q = fam_i.sum_PKinv();
 

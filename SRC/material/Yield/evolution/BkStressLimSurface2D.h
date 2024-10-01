@@ -27,7 +27,6 @@ public:
 	virtual int 	commitState();
 	virtual int		revertToLastCommit(void);
 
-	virtual int	 displaySelf(Renderer &theViewer, int displayMode, float fact);
 	virtual void	Print(OPS_Stream &s, int flag =0);
 	        void    setResidual(double res=1.0);
 	virtual YS_Evolution *getCopy(void)=0;

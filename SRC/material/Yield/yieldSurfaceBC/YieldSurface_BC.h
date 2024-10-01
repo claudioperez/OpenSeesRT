@@ -5,7 +5,6 @@
 #if !defined YIELDSURFACE_BC_H
 #define YIELDSURFACE_BC_H
 
-#include <Renderer.h>
 #include <Vector.h>
 #include <Matrix.h>
 #include <ID.h>
@@ -80,8 +79,6 @@ public:
 	virtual int		revertToLastCommit(void)=0;
 
 	virtual YieldSurface_BC *getCopy(void) = 0;
-	virtual int	 displaySelf(Renderer &theViewer, int displayMode, float fact);
-	virtual void	setView(Renderer *theRenderer);
 
 	// required for debugging only
 	virtual int	displayForcePoint(Vector &force, int color = 4);
@@ -111,7 +108,6 @@ public:
 YS_Evolution *hModel;
 
 protected:
-	Renderer *theView;
     ID       *T;
     ID       *S;
     double   capX_orig, capY_orig, capZ_orig;

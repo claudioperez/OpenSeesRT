@@ -46,9 +46,9 @@ class TaggedObject
     TaggedObject(int tag);
     virtual ~TaggedObject();
 
-    inline int getTag(void) const;
+    inline int getTag() const;
 
-    virtual void inline Print(OPS_Stream &s, int flag =0) {}
+    virtual void inline Print(OPS_Stream &, [[maybe_unused]] int flag =0) {}
 
     friend OPS_Stream &operator<<(OPS_Stream &s, TaggedObject &m);        
 
