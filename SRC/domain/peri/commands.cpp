@@ -1,4 +1,5 @@
 #include <tcl.h>
+#include <cmath>
 #include <stdio.h>
 #include <vector>
 #include <string>
@@ -505,66 +506,72 @@ Tcl_PeriFormThreads(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const c
 int
 Tcl_PeriStep(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const char** const argv)
 {
-  constexpr int ndim = 3;
-  const int nn = domain.pts.size();
+    constexpr int ndim = 3;
+    const int nn = domain.pts.size();
 
-  double eps_val = 1e-8;
-
-  const double dt_hs = 0.1;
-  Matrix velhalf(nn,ndim),
-         velhalfold(nn, ndim),
-         pforceold(nn, ndim);
-  Vector dens(nn);
+    double eps_val = 1e-8;
 
 
+    const int tt = 0;
+    const double dt_hs = 0.1,
+          damp_ratio = 0.1;
 
-  double cdamp = 0.0, cdamp1 = 0.0, cdamp2 = 0.0;
+    Matrix velhalf(nn,ndim),
+           velhalfold(nn, ndim),
+           pforceold(nn, ndim);
+    Vector dens(nn);
 
-  // calculate damping coefficient cdamp
-  for (PeriParticle<ndim>& particle : domain.pts) {
-      for(int j = 0; j < ndim; j++) {
-          if (abs(velhalfold(i, j)) > eps_val)  {
-              double Kii = (pforce(i, j) - pforceold(i, j)) / (velhalfold(i, j)*dt_hs)
-              cdamp1 += particle.disp[j] * 1.0/dens(i) * (-Kii) * particle.disp[j]
-          }
-          cdamp2 = cdamp2 + particle.disp[j] * particle.disp[j];
-      }
-  }
-  if (cdamp2 > eps_val)  {
-      if ((cdamp1 / cdamp2) > 0.0)
-          cdamp = 2.0 * sqrt(cdamp1 / cdamp2);
-      else
-          cdamp = 0.0;
 
-  } else {
-      cdamp = 0.0;
-  }
 
-  cdamp = min(cdamp, 1.9) * damp_ratio;
+    double cdamp = 0.0, cdamp1 = 0.0, cdamp2 = 0.0;
 
-  for (PeriParticle<ndim>& particle : domain.pts) {
-      for(int j = 0; j < ndim; j++) {
-          if (is_disp_bound(i, j) == 0)  {
-              if (tt == 1)  {
-                    velhalf(i,j) = vel(i, j) + 0.5 * dt_hs * (particle.pforce[j] + particle.bforce[j]) / dens(i);
+    // calculate damping coefficient cdamp
+    for (int i=0; i<nn; i++) {
+        PeriParticle<ndim>& particle = domain.pts[i];
+        for(int j = 0; j < ndim; j++) {
+            if (abs(velhalfold(i, j)) > eps_val)  {
+                double Kii = (particle.pforce[j] - pforceold(i, j)) / (velhalfold(i, j)*dt_hs);
+                cdamp1 += particle.disp[j] * 1.0/dens(i) * (-Kii) * particle.disp[j];
+            }
+            cdamp2 = cdamp2 + particle.disp[j] * particle.disp[j];
+        }
+    }
+    if (cdamp2 > eps_val)  {
+        if ((cdamp1 / cdamp2) > 0.0)
+            cdamp = 2.0 * sqrt(cdamp1 / cdamp2);
+        else
+            cdamp = 0.0;
 
-              } else {
-                    velhalf(i,j) = ((2.0 - cdamp * dt_hs) * velhalfold(i,j) +
-                                     2.0 * dt_hs * (particle.pforce[j] + particle.bforce[j]) / dens(i))
-                                   / (2.0 + cdamp * dt_hs);
-              }
-              particle.vel[j] = 0.5 * (velhalfold(i,j) + velhalf(i,j));
-              particle.disp[j] = particle.disp[j] + velhalf(i,j) * dt_hs;
-              velhalfold(i,j) = velhalf(i,j);
-          } else  {
-              vel(i, j)         = particle.bdisp[j];
-              velhalf(i, j)     = particle.bdisp[j];
-              velhalfold(i, j)  = particle.bdisp[j];
-              particle.disp[j] += particle.bdisp[j] * dt_hs;
-          }
-          pforceold(i, j) = particle.pforce[j];
-      }
-  }
+    } else {
+        cdamp = 0.0;
+    }
+
+    cdamp = std::min(cdamp, 1.9) * damp_ratio;
+
+    for (int i=0; i<nn; i++) {
+        PeriParticle<ndim>& particle = domain.pts[i];
+        for(int j = 0; j < ndim; j++) {
+            if (particle.is_disp_bound[j] == 0)  {
+                if (tt == 1)  {
+                      velhalf(i,j) = particle.vel[j] + 0.5 * dt_hs * (particle.pforce[j] + particle.bforce[j]) / dens(i);
+
+                } else {
+                      velhalf(i,j) = ((2.0 - cdamp * dt_hs) * velhalfold(i,j) +
+                                       2.0 * dt_hs * (particle.pforce[j] + particle.bforce[j]) / dens(i))
+                                     / (2.0 + cdamp * dt_hs);
+                }
+                particle.vel[j] = 0.5 * (velhalfold(i,j) + velhalf(i,j));
+                particle.disp[j] = particle.disp[j] + velhalf(i,j) * dt_hs;
+                velhalfold(i,j) = velhalf(i,j);
+            } else  {
+                particle.vel[j]   = particle.bdisp[j];
+                velhalf(i, j)     = particle.bdisp[j];
+                velhalfold(i, j)  = particle.bdisp[j];
+                particle.disp[j] += particle.bdisp[j] * dt_hs;
+            }
+            pforceold(i, j) = particle.pforce[j];
+        }
+    }
 
 }
 
