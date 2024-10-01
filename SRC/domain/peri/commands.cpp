@@ -9,7 +9,7 @@
 #include <PeriElement.h>
 #include <PeriDomainBase.h>
 
-#include "mate/ElasticIsotropic.h"
+#include <ElasticIsotropic.h>
 #include <PeriParticle.h>
 #include <NosbProj.h>
 
@@ -477,7 +477,7 @@ Tcl_PeriFormThreads(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const c
 
   // Create families for specific NOSB type
   for (PeriParticle<ndim>& particle : domain.pts) {
-    nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(29e3, 0.2));
+    nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(1, 29e3, 0.2, 0.0));
   }
 
 
@@ -603,7 +603,7 @@ Tcl_PeriForm(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const char** c
 
   // Create families for specific NOSB type
   for (PeriParticle<3>& particle : domain.pts) {
-    nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(29e3, 0.2));
+    nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(1, 29e3, 0.2, 0.0));
   }
 
   // Initialize shape tensor

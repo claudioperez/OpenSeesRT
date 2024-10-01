@@ -2120,7 +2120,7 @@ TclPackageClassBroker::getPtrNewDDLinearSOE(int classTagSOE,
 
 DomainDecompositionAnalysis *
 TclPackageClassBroker::getNewDomainDecompAnalysis(int classTag,
-                                                  Subdomain &theSubdomain)
+                                                  [[maybe_unused]] Subdomain &theSubdomain)
 {
   switch (classTag) {
 //case DomDecompANALYSIS_TAGS_DomainDecompositionAnalysis:

@@ -5,6 +5,7 @@
 #include <Matrix3D.h>
 #include <MatrixSD.h>
 #include <MatrixND.h>
+#include <TaggedObject.h>
 using OpenSees::Matrix3D;
 using OpenSees::MatrixND;
 using OpenSees::MatrixSD;
@@ -13,8 +14,10 @@ class Response;
 class Information;
 
 template <int ndim>
-class Mate {
+class Mate : public TaggedObject {
   public:
+
+  Mate(int tag) : TaggedObject(tag) {}
 
   virtual Mate<ndim>* getCopy() = 0;
 
