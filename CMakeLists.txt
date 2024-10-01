@@ -273,7 +273,7 @@ include_directories(
   ${OPS_SRC_DIR}/system_of_eqn/eigenSOE
 
   ${OPS_SRC_DIR}/analysis/algorithm
-  ${OPS_SRC_DIR}/analysis/analysis
+# ${OPS_SRC_DIR}/analysis/analysis
   ${OPS_SRC_DIR}/analysis/dof_grp
   ${OPS_SRC_DIR}/analysis/fe_ele
   ${OPS_SRC_DIR}/analysis/handler
