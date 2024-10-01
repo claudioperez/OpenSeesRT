@@ -20,7 +20,7 @@ with pygmsh.geo.Geometry() as geom:
 
 coord = mesh.points[:, :2]
 
-ndim = 2
+ndim = 3
 plane_type = 'e'
 totnode = coord.shape[0]
 delta = 4.01*meshsz
@@ -28,11 +28,14 @@ maxfam = int((2*delta/meshsz)**ndim)
 print(totnode, maxfam, delta)
 
 model = ops.Model('basic', '-ndm', ndim)
-model.eval(f"peri init {ndim} {totnode} {maxfam} {plane_type}")
+if ndim == 2:
+    model.eval(f"peri init {ndim} {totnode} {maxfam} {plane_type}")
+else:
+    model.eval(f"peri init {ndim} {totnode} {maxfam}")
 
 for i, node in enumerate(coord):
     x, y = node
-    model.eval(f"peri node {i} {x} {y}")
+    model.eval(f"peri node {i} {x} {y} 0.0")
 
 model.eval(f"peri fam {delta}")
 model.eval(f"peri prin node 0 1 2 3")
@@ -53,6 +56,10 @@ for i in range(totnode):
 
 model.eval(f"peri cvol {meshsz}")
 model.eval(f"peri prin vol 0 1 2 3")
+
+print(model.eval("peri form"))
+
+#print(model.eval("peri form 8"))
 
 
 # model.eval(f"peri prin node {5} {int(totnode/2)} {totnode-1}")
