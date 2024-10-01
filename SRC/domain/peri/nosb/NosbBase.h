@@ -7,6 +7,7 @@ template <int ndim>
 class NosbBase
 {
 public:
+  virtual ~NosbBase() {};
 	// ============================================
 	// MEMBER FUNCTIONS
 	// ============================================
