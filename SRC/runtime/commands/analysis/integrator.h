@@ -16,7 +16,6 @@ OPS_Routine OPS_AlphaOS;
 OPS_Routine OPS_AlphaOS_TP;
 OPS_Routine OPS_AlphaOSGeneralized;
 OPS_Routine OPS_AlphaOSGeneralized_TP;
-OPS_Routine OPS_ExplicitDifference;
 OPS_Routine OPS_CentralDifference;
 OPS_Routine OPS_CentralDifferenceAlternative;
 OPS_Routine OPS_CentralDifferenceNoDamping;
@@ -67,6 +66,8 @@ OPS_Routine OPS_WilsonTheta;
 #include <Houbolt.h>
 #include <ParkLMS3.h>
 #include <BackwardEuler.h>
+#include <ExplicitDifference.h>
+// OPS_Routine OPS_ExplicitDifference;
 
 
 Tcl_CmdProc G3Parse_newHSIntegrator;
@@ -183,7 +184,7 @@ TransientIntegratorLibrary = {
 
   {"WilsonTheta",                  dispatch<TransientIntegrator, OPS_WilsonTheta>},
 
-  {"ExplicitDifference",           dispatch<TransientIntegrator, OPS_ExplicitDifference>},
+  {"ExplicitDifference",           DISPATCH(TransientIntegrator, ExplicitDifference)},
 
   {"CentralDifference",            dispatch<TransientIntegrator, OPS_CentralDifference>},
 
