@@ -57,7 +57,7 @@ MatrixND<ndim, ndim>
 NosbProj<ndim, maxfam>::get_A(const VectorND<ndim> &xi)
 {
     // Initialize with zeros
-    MatrixND<ndim, ndim> A{0.0};
+    MatrixND<ndim, ndim> A{{0.0}};
 
     A.addDiagonal(1.0);
 
@@ -82,7 +82,7 @@ NosbProj<ndim, maxfam>::form_trial()
 {
     // update materials (materials)
 
-    MatrixND<ndim, ndim> Nmat{0.0};
+    MatrixND<ndim, ndim> Nmat{{0.0}};
 
     for (int i = 0; i < numfam; i++)
     {
@@ -113,7 +113,7 @@ MatrixND<ndim, ndim>
 NosbProj<ndim, maxfam>::sum_PKinv()
 {
 
-    MatrixND<ndim, ndim> Qmat{0.0};
+    MatrixND<ndim, ndim> Qmat{{0.0}};
     for (int i = 0; i < numfam; i++)
     {
         const VectorND<ndim> xi = neigh[i]->coord - center->coord;

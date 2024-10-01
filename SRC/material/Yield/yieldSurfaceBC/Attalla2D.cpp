@@ -124,6 +124,7 @@ YieldSurface_BC *Attalla2D::getCopy(void)
     return theCopy;
 }
 
+#ifdef _GRAPHICS
 int Attalla2D::displaySelf(Renderer &theViewer, int displayMode, float fact)
 {
  	this->YieldSurface_BC2D::displaySelf(theViewer, displayMode, fact);
@@ -236,6 +237,7 @@ double t;
 	// displayForcePoint(theViewer, displayMode, fact);
 	return 0;
 }
+#endif
 
 void Attalla2D::Print(OPS_Stream &s, int flag)
 {

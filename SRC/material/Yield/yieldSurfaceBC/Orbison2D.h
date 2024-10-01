@@ -16,9 +16,12 @@ public:
 	virtual ~Orbison2D();
 
 	virtual YieldSurface_BC *getCopy(void);
-	virtual int		displaySelf(Renderer &theViewer, int displayMode, float fact);
 
 	virtual void	Print(OPS_Stream &s, int flag =0);
+
+#ifdef _GRAPHICS
+	virtual int		displaySelf(Renderer &theViewer, int displayMode, float fact);
+#endif
 
 //protected:
 //  For the following 2 methods, x, y already non-dimensionalized

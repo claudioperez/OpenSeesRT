@@ -311,6 +311,7 @@ YieldSurface_BC *ElTawil2DUnSym::getCopy(void)
     return theCopy;
 }
 
+#ifdef _GRAPHICS
 int ElTawil2DUnSym::displaySelf(Renderer &theViewer, int displayMode, float fact)
 {
  	this->YieldSurface_BC2D::displaySelf(theViewer, displayMode, fact);
@@ -461,6 +462,7 @@ rgb(0) = 0.1; rgb(1) = 0.5; rgb(2) = 0.5;
 	//displayForcePoint(theViewer, displayMode, fact);
 	return 0;
 }
+#endif
 
 void ElTawil2DUnSym::Print(OPS_Stream &s, int flag)
 {

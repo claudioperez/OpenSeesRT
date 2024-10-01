@@ -799,21 +799,23 @@ void
 PrismFrame2d::Print(OPS_Stream &s, int flag)
 {
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << OPS_PRINT_JSON_ELEM_INDENT << "{";
-        s << "\"name\": " << this->getTag() << ", ";
-        s << "\"type\": \"PrismFrame2d\", ";
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+    s << "\"name\": " << this->getTag() << ", ";
+    s << "\"type\": \"PrismFrame2d\", ";
     s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
-        s << "\"E\": " << E << ", ";
-        s << "\"G\": " << G << ", ";
-        s << "\"A\": " << A << ", ";
-        s << "\"Ay\": " << Ay << ", ";
+    s << "\"E\": " << E << ", ";
+    s << "\"G\": " << G << ", ";
+    s << "\"A\": " << A << ", ";
+    s << "\"Ay\": " << Ay << ", ";
     s << "\"Iz\": "<< Iz << ", ";
     s << "\"massperlength\": "<< rho << ", ";
     s << "\"release\": "<< release << ", ";
     s << "\"kinematics\": "<< geom_flag << ", ";
     s << "\"mass_flag\": "<< mass_flag << ", ";
     s << "\"crdTransformation\": \"" << theCoordTransf->getTag() << "\"}";
+    return;
   }
+
   if (flag == -1) {
     int eleTag = this->getTag();
     s << "EL_BEAM\t" << eleTag << "\t";
@@ -854,8 +856,10 @@ PrismFrame2d::setResponse(const char **argv, int argc, OPS_Stream &output)
   output.attr("node2",connectedExternalNodes[1]);
 
     // global forces
-  if (strcmp(argv[0],"force") == 0 || strcmp(argv[0],"forces") == 0 ||
-      strcmp(argv[0],"globalForce") == 0 || strcmp(argv[0],"globalForces") == 0) {
+  if (strcmp(argv[0],"force") == 0 || 
+      strcmp(argv[0],"forces") == 0 ||
+      strcmp(argv[0],"globalForce") == 0 || 
+      strcmp(argv[0],"globalForces") == 0) {
 
     output.tag("ResponseType","Px_1");
     output.tag("ResponseType","Py_1");

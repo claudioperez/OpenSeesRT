@@ -358,12 +358,6 @@ Vector& BkStressLimSurface2D::getEvolDirection(Vector &f_new)
 	return v2;
 }
 
-int BkStressLimSurface2D::displaySelf(Renderer &theViewer, int displayMode, float fact)
-{
-	
-	limSurface->displaySelf(theViewer, limSurface->SurfOnly, fact);
-	return  0;
-}
 
 void BkStressLimSurface2D::Print(OPS_Stream &s, int flag)
 {

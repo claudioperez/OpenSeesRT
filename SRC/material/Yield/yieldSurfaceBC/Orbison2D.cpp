@@ -82,6 +82,7 @@ YieldSurface_BC *Orbison2D::getCopy(void)
     return theCopy;
 }
 
+#ifdef _GRAPHICS
 int Orbison2D::displaySelf(Renderer &theViewer, int displayMode, float fact)
 {
  	this->YieldSurface_BC2D::displaySelf(theViewer, displayMode, fact);
@@ -183,6 +184,7 @@ double x1, y1, xOld, yOld, x2, y2;
 
 	return 0;
 }
+#endif
 
 
 void Orbison2D::Print(OPS_Stream &s, int flag)

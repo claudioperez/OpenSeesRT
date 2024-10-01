@@ -631,14 +631,18 @@ GeneralizedNewmark::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &th
 void
 GeneralizedNewmark::Print(OPS_Stream &s, int flag)
 {
-    AnalysisModel *theModel = this->getAnalysisModel();
-    if (theModel != nullptr) {
-        double currentTime = theModel->getCurrentDomainTime();
-        s << "\t GeneralizedNewmark - currentTime: " << currentTime;
-    }
-    s << "\t gamma: " << gamma << "  beta: " << beta << "\n";
-    s << "\t alphaF: " << alphaF << "  alphaM: " << alphaM << "\n";
-    s << "\t unknown: " << unknown << "  initialization: " << unknown_initialize << "\n";
+  if (flag == OPS_PRINT_PRINTMODEL_JSON)
+    return;
+
+
+  AnalysisModel *theModel = this->getAnalysisModel();
+  if (theModel != nullptr) {
+      double currentTime = theModel->getCurrentDomainTime();
+      s << "\t GeneralizedNewmark - currentTime: " << currentTime;
+  }
+  s << "\t gamma: " << gamma << "  beta: " << beta << "\n";
+  s << "\t alphaF: " << alphaF << "  alphaM: " << alphaM << "\n";
+  s << "\t unknown: " << unknown << "  initialization: " << unknown_initialize << "\n";
 }
 
 

@@ -24,9 +24,6 @@ class ConstraintHandler;
 class LinearSOE;
 class EigenSOE;
 class DOF_Numberer;
-class ConvergenceTest;
-class StaticIntegrator;
-class TransientIntegrator;
 
 
 class G3_Runtime {
@@ -43,20 +40,9 @@ public:
   AnalysisModel  *m_analysis_model     = nullptr;
   AnalysisModel **m_analysis_model_ptr = &m_analysis_model;
 
-#if 0
-  void *newStaticAnalysis(G3_Config);
-  void *newTransientAnalysis(G3_Config);
-#endif
-
 // IO
   FILE* streams[3] = {stdin,stdout,stderr};
 };
 
-
-class G3_ParallelRuntime : public G3_Runtime {
-  bool is_partitioned=false;
-  int num_subdomains = 0;
-  bool flag_MPID_SOE = false;
-};
 
 
