@@ -1,9 +1,11 @@
 #include <Mate.h>
 #include <NosbBase.h>
+#include <Logging.h>
 #include <VectorND.h>
 #include <MatrixND.h>
 #include <Vector3D.h>
 #include <Matrix3D.h>
+
 
 template <int ndim, int maxfam>
 NosbProj<ndim, maxfam>::NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &domain, Mate<ndim> *material)
@@ -121,6 +123,9 @@ NosbProj<ndim, maxfam>::sum_PKinv()
         // Qmat += sum_1^numfam { w[i] * P * A * Kinv * vol[i] }
         // Since w[i] and omega[i] are the same in this formulation, we can use omega[i] instead
         Qmat.addMatrix(P * A * Kinv, omega[i] * center->vol[i]);
+
+
+        opserr  << Matrix(Qmat) << "\n";
     }
     return Qmat;
 }
