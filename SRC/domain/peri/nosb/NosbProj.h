@@ -22,20 +22,24 @@ public:
 public:
 	
 	NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &domain, Mate<ndim> *material);
+  virtual ~NosbProj() {};
 	
-	double bond_omega(int i);
 
-	virtual void init_shape() final;
-
-	MatrixND<ndim, ndim> get_A(const VectorND<ndim> &xi);
-
-	VectorND<ndim> get_T2(int i, const VectorND<ndim> &xi);
+	virtual void init_shape() override final;
 
 	virtual void form_trial() final;
 
 	virtual MatrixND<ndim, ndim> sum_PKinv() final;
 
 	virtual VectorND<ndim> bond_force(int i, MatrixND<ndim, ndim> &Qmat) final;
+
+	double bond_omega(int i);
+
+private:
+	MatrixND<ndim, ndim> get_A(const VectorND<ndim> &xi);
+
+	VectorND<ndim> get_T2(int i, const VectorND<ndim> &xi);
+
 
 };
 

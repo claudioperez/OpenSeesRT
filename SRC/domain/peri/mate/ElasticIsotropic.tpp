@@ -1,9 +1,16 @@
 
-  template<int ndim>
+template<int ndim>
 ElasticIsotropic<ndim>::ElasticIsotropic(double E, double nu) 
-    : E(E), nu(nu)
+  : E(E), nu(nu)
 {
 
+}
+
+template <int ndim>
+Mate<ndim>*
+ElasticIsotropic<ndim>::getCopy()
+{
+  return new ElasticIsotropic<ndim>(E, nu);
 }
 
 template<int ndim>
