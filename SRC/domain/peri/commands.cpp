@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <Logging.h>
 #include <PeriDomain.h>
 #include <PeriDomainBase.h>
 
@@ -10,6 +11,7 @@
 #include <PeriParticle.h>
 #include <NosbProj.h>
 
+#include <threads/thread_pool.hpp>
 
 Tcl_CmdProc Tcl_Peri;
 
@@ -443,9 +445,64 @@ Tcl_PeriPrintVol(PeriDomain<ndim> *domain, Tcl_Interp *interp,
 }
 
 
+int
+Tcl_PeriFormThreads(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const char** const argv)
+{
+  OpenSees::thread_pool threads{6};
+  std::mutex resp_mutex;
+
+  constexpr int ndim = 3;
+
+  std::vector<NosbProj<3,10>> nodefam;
+
+  // Create families for specific NOSB type
+  for (PeriParticle<3>& particle : domain.pts) {
+    nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(29e3, 0.2));
+  }
+
+
+  // Initialize shape tensor
+  threads.submit_loop<unsigned int>(0, nodefam.size(), [&](int i){
+    nodefam[i].init_shape();
+  }).wait();
+
+
+  // Form deformation gradients for trial
+  threads.submit_loop<unsigned int>(0, nodefam.size(), [&](int i){
+    nodefam[i].form_trial();
+  }).wait();
+
+  // Form force
+  threads.submit_loop<unsigned int>(0, nodefam.size(), [&](int i){
+    MatrixND<ndim,ndim> Q = nodefam[i].sum_PKinv();
+
+    for (int j=0; j < nodefam[i].numfam; j++) {
+      const VectorND<ndim> T_j = nodefam[i].bond_force(j, Q);
+
+      const std::lock_guard<std::mutex> lock(resp_mutex);
+      nodefam[i].center->pforce   += T_j;
+      nodefam[i].neigh[j]->pforce -= T_j;
+    }
+
+  }).wait();
+
+  //
+  // TODO: Update disp
+  //
+
+  // Create and return force vector
+  Tcl_Obj* list = Tcl_NewListObj(nodefam.size()*ndim, nullptr);
+  for (PeriParticle<ndim>& particle : domain.pts) 
+    for (int j = 0; j<ndim; j++)
+      Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(particle.pforce[j]));
+
+  Tcl_SetObjResult(interp, list);
+  return TCL_OK;
+}
+
 
 int
-Analyze(PeriDomain<3>& domain)
+Tcl_PeriForm(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const char** const argv)
 {
   constexpr int ndim = 3;
 
@@ -479,11 +536,18 @@ Analyze(PeriDomain<3>& domain)
     }
   }
 
-  // Update disp
+  //
+  // TODO: Update disp
   //
 
-  //
-  return 0;
+  // Create and return force vector
+  Tcl_Obj* list = Tcl_NewListObj(nodefam.size()*ndim, nullptr);
+  for (PeriParticle<ndim>& particle : domain.pts) 
+    for (int j = 0; j<ndim; j++)
+      Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(particle.pforce[j]));
+
+  Tcl_SetObjResult(interp, list);
+  return TCL_OK;
 }
 
 int Tcl_Peri(ClientData cd, Tcl_Interp *interp,
@@ -570,6 +634,21 @@ int Tcl_Peri(ClientData cd, Tcl_Interp *interp,
 			return Tcl_PeriCalcVols(domain, interp, argc, argv);
 		}
 	}
+
+	if (strcmp(argv[1], "form") == 0)
+	{
+		int ndim = domain_base->getNDM();
+		if (ndim == 3)
+		{
+			// cast the pointer to a PeriDomain<3> object
+			PeriDomain<3> *domain = static_cast<PeriDomain<3> *>(domain_base);
+      if (argc > 2)
+        return Tcl_PeriFormThreads(*domain, interp, argc, argv);
+      else
+        return Tcl_PeriForm(*domain, interp, argc, argv);
+    }
+
+  }
 
 	if (strcmp(argv[1], "prin") == 0)
 	{
