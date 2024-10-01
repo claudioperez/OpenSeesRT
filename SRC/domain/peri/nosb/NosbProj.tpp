@@ -47,9 +47,11 @@ NosbProj<ndim, maxfam>::init_shape()
         const VectorND<ndim> xi = neigh[i]->coord - center->coord;
         Kinv += omega[i] * xi.bun(xi) * center->vol[i];
     }
+    opserr << Matrix(Kinv) << "\n";
 
     // Invert K
     Kinv.invert();
+    opserr << Matrix(Kinv) << "\n";
 }
 
 template <int ndim, int maxfam>
@@ -125,7 +127,7 @@ NosbProj<ndim, maxfam>::sum_PKinv()
         Qmat.addMatrix(P * A * Kinv, omega[i] * center->vol[i]);
 
 
-        opserr  << Matrix(Qmat) << "\n";
+//      opserr  << Matrix(Qmat) << "\n";
     }
     return Qmat;
 }
