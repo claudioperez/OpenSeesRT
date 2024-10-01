@@ -14,7 +14,7 @@ NosbProj<ndim, maxfam>::NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &d
     for (int i = 0; i < numfam; i++)
     {
         neigh[i] = &domain.pts[center->nodefam[i]];
-        materials[i] = material;
+        materials[i] = material->getCopy();
     }
 }
 

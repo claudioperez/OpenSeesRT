@@ -16,6 +16,8 @@ template <int ndim>
 class Mate {
   public:
 
+  virtual Mate<ndim>* getCopy() = 0;
+
   virtual int commit()
   {
     return 0;
