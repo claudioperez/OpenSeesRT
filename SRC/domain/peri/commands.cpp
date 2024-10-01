@@ -405,8 +405,7 @@ static int
 Tcl_PeriElem(ClientData clientData, Tcl_Interp *interp,
                    int argc, const char **const argv)
 {
-//PeriDomain<ndim> *pdomain;
-    PeriDomainBase *domain = static_cast<PeriDomainBase *>(clientData);
+  PeriDomain<ndim> *pdomain = static_cast<PeriDomain<ndim> *>(clientData);
   PeriElement(1, pdomain);
 
   return TCL_OK;
