@@ -23,7 +23,7 @@ double
 NosbProj<ndim, maxfam>::bond_omega(int i)
 {
     // in this formulation, omega is constant 
-	// for computing all the bond-associated quantities
+    // for computing all the bond-associated quantities
     
     return 1.0; // omega[i];
 }

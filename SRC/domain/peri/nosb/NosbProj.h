@@ -11,34 +11,34 @@ template <int ndim, int maxfam>
 class NosbProj : public NosbBase<ndim>
 {
 public:
-	int numfam;
-	double scale;
-	MatrixND<ndim, ndim> Kinv;	// note that Kmat is invariant in this formulation, but may not be in general
-	PeriParticle<ndim>* center;
-	std::array<PeriParticle<ndim>*, maxfam> neigh;
-	std::array<Mate<ndim> *, maxfam> materials;
-	std::array<double, maxfam> omega;
+    int numfam;
+    double scale;
+    MatrixND<ndim, ndim> Kinv;    // note that Kmat is invariant in this formulation, but may not be in general
+    PeriParticle<ndim>* center;
+    std::array<PeriParticle<ndim>*, maxfam> neigh;
+    std::array<Mate<ndim> *, maxfam> materials;
+    std::array<double, maxfam> omega;
 
 public:
-	
-	NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &domain, Mate<ndim> *material);
+    
+    NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &domain, Mate<ndim> *material);
   virtual ~NosbProj() {};
-	
+    
 
-	virtual void init_shape() override final;
+    virtual void init_shape() override final;
 
-	virtual void form_trial() final;
+    virtual void form_trial() final;
 
-	virtual MatrixND<ndim, ndim> sum_PKinv() final;
+    virtual MatrixND<ndim, ndim> sum_PKinv() final;
 
-	virtual VectorND<ndim> bond_force(int i, MatrixND<ndim, ndim> &Qmat) final;
+    virtual VectorND<ndim> bond_force(int i, MatrixND<ndim, ndim> &Qmat) final;
 
-	double bond_omega(int i);
+    double bond_omega(int i);
 
 private:
-	MatrixND<ndim, ndim> get_A(const VectorND<ndim> &xi);
+    MatrixND<ndim, ndim> get_A(const VectorND<ndim> &xi);
 
-	VectorND<ndim> get_T2(int i, const VectorND<ndim> &xi);
+    VectorND<ndim> get_T2(int i, const VectorND<ndim> &xi);
 
 
 };
