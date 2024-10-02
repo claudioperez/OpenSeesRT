@@ -22,8 +22,8 @@ public:
 public:
 	
 	NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &domain, Mate<ndim> *material);
-  virtual ~NosbProj() {};
-	
+  	
+	virtual ~NosbProj() {};
 
 	virtual void init_shape() override final;
 

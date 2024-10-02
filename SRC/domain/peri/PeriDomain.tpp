@@ -71,13 +71,13 @@ void PeriDomain<ndim>::set_vols(int i, double vol_i) {
 }
 
 template <int ndim>
-void PeriDomain<ndim>::calc_vols(double space) {
+void PeriDomain<ndim>::calc_vols(double space_in) {
     
     int j;
     double fam_vol_i = 0.0, dist = 0.0;
     double vol_init = 0.0, coeff_mod = 0.0;
 
-    this->space = space;
+    this->space = space_in;
 
     // calculate the volume of horizon of particle i
     for (int i = 0; i < totnode; i++) {
@@ -165,6 +165,35 @@ void PeriDomain<ndim>::break_bond(const int node1, const int node2) {
             pts[node2].nodefam[pts[node2].numfam-1] = -1;
             pts[node2].numfam--;
             break;
+        }
+    }
+}
+
+template <int ndim>
+void PeriDomain<ndim>::set_bound(const std::array<double, 2*ndim+1>& cond, const int ndof, 
+                                 const char btype) 
+{
+    int is_in = 1;
+    for (int i = 0; i < totnode; i++) {
+        is_in = 1;
+        for (int j = 0; j < ndim; j++) {
+            if (pts[i].coord[j] < cond[j] || pts[i].coord[j] > cond[j+ndim]) {
+                is_in = 0;
+                break;
+            }
+        }
+        if (is_in == 1) {
+            if (btype == 'f') {
+                pts[i].is_force_bound[ndof] = 1;
+                pts[i].bforce[ndof] = cond[2*ndim];
+                printf("Node %d is on the force boundary\n", i);
+                printf("  with force of %f on %d direction\n", cond[2*ndim], ndof);
+            }else if (btype == 'd') {
+                pts[i].is_disp_bound[ndof] = 1;
+                pts[i].bdisp[ndof] = cond[2*ndim];
+                printf("Node %d is on the displacement boundary\n", i);
+                printf("  with displ. of %f on %d direction\n", cond[2*ndim], ndof);
+            }
         }
     }
 }

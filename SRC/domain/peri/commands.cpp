@@ -445,6 +445,157 @@ Tcl_PeriPrintVol(PeriDomain<ndim> *domain, Tcl_Interp *interp,
 	return TCL_OK;
 }
 
+template <int ndim>
+static int
+Tcl_PeriPrintCorr(PeriDomain<ndim> *domain, Tcl_Interp *interp,
+				 int argc, const char **const argv)
+{
+	int argi = 3, idx = 0;
+
+	if (argc == 3)
+	{
+		// print the volume of all the particles
+		for (int i = 0; i < domain->totnode; i++)
+		{
+			printf("Node %d:\n", i);
+			for (int ind = 0; ind < domain->pts[i].numfam; ind++)
+			{
+				printf("%7.2E ", domain->pts[i].correction[ind]);
+			}
+			printf("\n");
+		}
+	}
+	else if (argc > argi)
+	{
+		// Parse arguments and set the coordinates of a particle
+		// Note that argv[0] == "peri", argv[1] == "prin", argv[2] == "vol"
+		// Therefore, the first argument is argv[3]
+		for (int k = argi; k < argc; k++)
+		{
+			// If this returns TCL_ERROR it means that argv[3] couldnt be
+			// parsed as an integer.
+			if (Tcl_GetInt(interp, argv[k], &idx) == TCL_ERROR)
+			{
+				printf("ERROR in peri prin vol: Couldnt parse argv[3] as the index\n");
+				return TCL_ERROR;
+			}
+			// Print the volume of the particle at index idx
+			printf("Node %d:\n", idx);
+			for (int ind = 0; ind < domain->pts[idx].numfam; ind++)
+			{
+				printf("%7.2E ", domain->pts[idx].correction[ind]);
+			}
+			printf("\n");
+		}
+	}
+	else
+	{
+		printf("ERROR in peri prin vol: Not enough arguments\n");
+		return -1; // **QUESTION: Is this the correct return value?**
+	}
+	return TCL_OK;
+}
+
+template <int ndim>
+static int
+Tcl_PeriSetBoun(PeriDomain<ndim> *domain, Tcl_Interp *interp,
+				 int argc, const char **const argv)
+{
+	int ndof = 0;
+	char btype;
+	std::array<double, 2*ndim + 1> cond;
+
+	// Parse arguments and set the boundary conditions
+	// Note that argv[0] == "peri", argv[1] == "boun"
+	// Therefore, the first argument is argv[2]
+	// the syntax is: `peri boun xlow ylow zlow xhi yhi zhi val ndof btype` for 3D
+	// and `peri boun xlow ylow xhi yhi val ndof btype` for 2D
+	if (argc != 2 + 2*ndim + 3)
+	{
+		printf("ERROR in peri boun: Incorrect number of arguments\n");
+		return TCL_ERROR;
+	}
+	for (int i = 2; i < 2 + 2*ndim + 1; i++)
+	{
+		if (Tcl_GetDouble(interp, argv[i], &cond[i-2]) == TCL_ERROR)
+		{
+			printf("ERROR in peri boun: Couldnt parse argv[%d] as a double\n", i);
+			return TCL_ERROR;
+		}
+	}
+	if (Tcl_GetInt(interp, argv[2 + 2*ndim + 1], &ndof) == TCL_ERROR)
+	{
+		printf("ERROR in peri boun: Couldnt parse argv[%d] as an integer\n", 2 + 2*ndim + 1);
+		return TCL_ERROR;
+	}
+	btype = argv[2 + 2*ndim + 2][0];
+	if (btype != 'f' && btype != 'd')
+	{
+		printf("ERROR in peri boun: btype should be 'f' or 'd'\n");
+		return TCL_ERROR;
+	}
+
+	// Set the boundary conditions
+	domain->set_bound(cond, ndof, btype);
+
+	return TCL_OK;
+}
+
+// template <int ndim>
+// static int
+// Tcl_PeriPrintBoun(PeriDomain<ndim> *domain, Tcl_Interp *interp,
+// 				  int argc, const char **const argv)
+// {
+// 	int argi = 3, idx = 0;
+
+// 	if (argc == 3)
+// 	{
+// 		printf("ERROR in peri prin boun: Not enough arguments\n");
+// 		return TCL_ERROR;
+// 	}
+// 	else if (argc > argi)
+// 	{
+// 		// Parse arguments and set the coordinates of a particle
+// 		// Note that argv[0] == "peri", argv[1] == "prin", argv[2] == "vol"
+// 		// Therefore, the first argument is argv[3]
+// 		for (int k = argi; k < argc; k++)
+// 		{
+// 			// If this returns TCL_ERROR it means that argv[3] couldnt be
+// 			// parsed as an integer.
+// 			if (Tcl_GetInt(interp, argv[k], &idx) == TCL_ERROR)
+// 			{
+// 				printf("ERROR in peri prin vol: Couldnt parse argv[3] as the index\n");
+// 				return TCL_ERROR;
+// 			}
+// 			// Print the volume of the particle at index idx
+// 			printf("force condition on Node %d: \n", idx);
+// 			for (int j = 0; j < ndim; j++) {
+// 				printf("%d ", domain->pts[idx].is_force_bound[j]);
+// 			}
+// 			printf("\n");
+// 			for (int j = 0; j < ndim; j++) {
+// 				printf("%7.2e ", domain->pts[idx].bforce[j]);
+// 			}
+// 			printf("\n");
+// 			printf("disp condition on Node %d: \n", idx);
+// 			for (int j = 0; j < ndim; j++) {
+// 				printf("%d ", domain->pts[idx].is_disp_bound[j]);
+// 			}
+// 			printf("\n");
+// 			for (int j = 0; j < ndim; j++) {
+// 				printf("%7.2e ", domain->pts[idx].bdisp[j]);
+// 			}
+// 			printf("\n");
+// 		}
+// 		return TCL_OK;
+// 	}
+// 	else
+// 	{
+// 		printf("ERROR in peri prin boun: Incorrect numbers of input arguments\n");
+// 		return TCL_ERROR; // **QUESTION: Is this the correct return value?**
+// 	}
+// 	return TCL_OK;
+// }
 
 int
 Tcl_PeriFormThreads(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const char** const argv)
@@ -575,8 +726,10 @@ Tcl_PeriStep(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const char** c
 
 }
 
-int
-Tcl_PeriForm(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const char** const argv)
+
+template <int ndim>
+static int
+Tcl_PeriForm(PeriDomain<ndim>& domain, Tcl_Interp* interp, int argc, const char** const argv)
 {
   constexpr int ndim = 3;
   constexpr int maxfam = 1024;
@@ -584,7 +737,7 @@ Tcl_PeriForm(PeriDomain<3>& domain, Tcl_Interp* interp, int argc, const char** c
   std::vector<NosbProj<ndim,maxfam>> nodefam;
 
   // Create families for specific NOSB type
-  for (PeriParticle<3>& particle : domain.pts) {
+  for (PeriParticle<ndim>& particle : domain.pts) {
     nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(29e3, 0.2));
   }
 
@@ -710,6 +863,39 @@ int Tcl_Peri(ClientData cd, Tcl_Interp *interp,
 		}
 	}
 
+	if (strcmp(argv[1], "suco") == 0)
+	{
+		int ndim = domain_base->getNDM();
+		if (ndim == 2)
+		{
+			// cast the pointer to a PeriDomain<2> object
+			PeriDomain<2> *domain = static_cast<PeriDomain<2> *>(domain_base);
+			domain->calc_surf_correction();
+		}
+		else if (ndim == 3)
+		{
+			// cast the pointer to a PeriDomain<3> object
+			PeriDomain<3> *domain = static_cast<PeriDomain<3> *>(domain_base);
+			domain->calc_surf_correction();
+		}
+	}
+
+	if (strcmp(argv[1], "boun") == 0)
+	{
+		int ndim = domain_base->getNDM();
+		if (ndim == 2)
+		{
+			// cast the pointer to a PeriDomain<2> object
+			PeriDomain<2> *domain = static_cast<PeriDomain<2> *>(domain_base);
+			return Tcl_PeriSetBoun(domain, interp, argc, argv);
+		}else if (ndim == 3)
+		{
+			// cast the pointer to a PeriDomain<3> object
+			PeriDomain<3> *domain = static_cast<PeriDomain<3> *>(domain_base);
+			return Tcl_PeriSetBoun(domain, interp, argc, argv);
+		}
+	}
+
 	if (strcmp(argv[1], "form") == 0)
 	{
 		int ndim = domain_base->getNDM();
@@ -717,11 +903,19 @@ int Tcl_Peri(ClientData cd, Tcl_Interp *interp,
 		{
 			// cast the pointer to a PeriDomain<3> object
 			PeriDomain<3> *domain = static_cast<PeriDomain<3> *>(domain_base);
-      if (argc > 2)
-        return Tcl_PeriFormThreads(*domain, interp, argc, argv);
-      else
-        return Tcl_PeriForm(*domain, interp, argc, argv);
-    }
+			if (argc > 2)
+				return Tcl_PeriFormThreads(*omain, interp, argc, argv);
+			else
+				return Tcl_PeriForm(*domain, interp, argc, argv);
+    	} else if (ndim == 2)
+		{
+			// cast the pointer to a PeriDomain<2> object
+			PeriDomain<2> *domain = static_cast<PeriDomain<2> *>(domain_base);
+			if (argc > 2)
+				return Tcl_PeriFormThreads(*domain, interp, argc, argv);
+			else
+				return Tcl_PeriForm(*domain, interp, argc, argv);
+		}
 
   }
 
@@ -745,6 +939,14 @@ int Tcl_Peri(ClientData cd, Tcl_Interp *interp,
 			{
 				return Tcl_PeriPrintVol(domain, interp, argc, argv);
 			}
+			else if (strcmp(argv[2], "corr") == 0)
+			{
+				return Tcl_PeriPrintCorr(domain, interp, argc, argv);
+			}
+			// else if (strcmp(argv[2], "boun") == 0)
+			// {
+			// 	return Tcl_PeriPrintBoun(domain, interp, argc, argv);
+			// }
 		}
 		else if (ndim == 3)
 		{
@@ -762,6 +964,14 @@ int Tcl_Peri(ClientData cd, Tcl_Interp *interp,
 			{
 				return Tcl_PeriPrintVol(domain, interp, argc, argv);
 			}
+			else if (strcmp(argv[2], "corr") == 0)
+			{
+				return Tcl_PeriPrintCorr(domain, interp, argc, argv);
+			}
+			// else if (strcmp(argv[2], "boun") == 0)
+			// {
+			// 	return Tcl_PeriPrintBoun(domain, interp, argc, argv);
+			// }
 		}
 	}
 	return TCL_OK;

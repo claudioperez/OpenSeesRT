@@ -40,6 +40,9 @@ public:
 
 	void break_bond(const int node1, const int node2); // Break the bond between two particles
 
+	void set_bound(const std::array<double, 2*ndim+1>& cond, const int ndof, 
+                                 const char btype); // Set the boundary conditions
+
 	// ============================================
 	// MEMBER DATA
 	// ============================================
