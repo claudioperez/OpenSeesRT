@@ -13,6 +13,8 @@ using OpenSees::MatrixSD;
 class Response;
 class Information;
 
+namespace OpenSees {
+
 template <int ndim>
 class Mate : public TaggedObject {
   public:
@@ -39,9 +41,9 @@ class Mate : public TaggedObject {
   virtual Response *setResponse (const char **argv, int argc, OPS_Stream &s);
   virtual int getResponse (int responseID, Information &matInformation);
 #endif
-  virtual const MatrixSD<ndim>& get_stress() = 0;
+  virtual const MatrixSD<ndim>& getStress() = 0;
 
-  virtual void set_strain(const MatrixND<ndim,ndim>&) = 0;
+  virtual void setStrain(const MatrixND<ndim,ndim>&) = 0;
 
 #if 0
   virtual MatrixSD<ndim> get_tangent()
@@ -49,4 +51,5 @@ class Mate : public TaggedObject {
   }
 #endif
 };
+}
 

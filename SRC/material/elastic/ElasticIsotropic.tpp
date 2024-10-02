@@ -1,6 +1,8 @@
 #include <MatrixND.h>
 #include <OPS_Stream.h>
 
+using namespace OpenSees;
+
 template<int ndim, PlaneType type>
 ElasticIsotropic<ndim,type>::ElasticIsotropic(int tag, double E, double nu, double rho)
   : Mate<ndim>(tag), E(E), nu(nu), rho(rho)
@@ -26,14 +28,14 @@ ElasticIsotropic<ndim,type>::getCopy()
 
 template<int ndim, PlaneType type>
 const MatrixSD<ndim>& 
-ElasticIsotropic<ndim,type>::get_stress()
+ElasticIsotropic<ndim,type>::getStress()
 {
   return Smat;
 }
 
 template<int ndim, PlaneType type>
 void
-ElasticIsotropic<ndim,type>::set_strain(const MatrixND<ndim,ndim>& F) 
+ElasticIsotropic<ndim,type>::setStrain(const MatrixND<ndim,ndim>& F) 
 {
   MatrixSD<ndim> Emat;
   Emat.addMatrixTransposeProduct(0.0, F, F, 0.5);
