@@ -70,7 +70,7 @@ template <int ndim, int maxfam>
 VectorND<ndim>
 NosbProj<ndim, maxfam>::get_T2(int i, const VectorND<ndim> &xi)
 {
-    const MatrixSD<ndim>& P = materials[i]->get_stress();
+    const MatrixSD<ndim>& P = materials[i]->getStress();
     VectorND<ndim> B = P * xi;
     B /= xi.dot(xi);
     return B;
@@ -104,7 +104,7 @@ NosbProj<ndim, maxfam>::form_trial()
         const MatrixND<ndim, ndim> Amat = this->get_A(xi);
         const MatrixND<ndim, ndim> Bmat = zeta.bun(xi) / xi.dot(xi);
         // Fmat <- Fmat * (I - xi\otimes xi / |xi|^2) + zeta\otimes xi / |xi|^2
-        materials[i]->set_strain(Fmat * Amat + Bmat);
+        materials[i]->setStrain(Fmat * Amat + Bmat);
     }
 }
 
@@ -117,7 +117,7 @@ NosbProj<ndim, maxfam>::sum_PKinv()
     for (int i = 0; i < numfam; i++)
     {
         const VectorND<ndim> xi = neigh[i]->coord - center->coord;
-        const MatrixSD<ndim>& P = materials[i]->get_stress();
+        const MatrixSD<ndim>& P = materials[i]->getStress();
         const MatrixND<ndim, ndim> A = this->get_A(xi);
         // the correct formula for Qmat is 
         // Qmat += sum_1^numfam { w[i] * P * A * Kinv * vol[i] }
