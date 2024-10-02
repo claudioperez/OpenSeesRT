@@ -9,21 +9,20 @@
 
 namespace OpenSees {
 
-template <int n>
+template <int n, bool half=false>
 struct MatrixSD {
   constexpr static int nd = n*(n+1)/2;
   constexpr static int nr = n;
 
+public:
   VectorND<n*(n+1)/2> vector;
 
-public:
 
-  constexpr double& operator()(int i, int j) {
-    return vector[vector_index(i, j, n)];
-  }
-
-  constexpr const double& operator()(int i, int j) const {
-    return vector[vector_index(i, j, n)];
+  constexpr void
+  zero()
+  {
+    for (int i = 0; i<nd; i++)
+      vector[i] = 0.0;
   }
 
   constexpr MatrixND<n,n>
@@ -35,8 +34,16 @@ public:
     return S;
   }
 
-  constexpr friend  VectorND<n>
-  operator*(const MatrixSD<n> &left, const VectorND<n> &right) {
+  constexpr inline double& operator()(int i, int j) {
+    return vector[vector_index(i, j, n)]; // *((half && i!=j)*(-0.5) + 1.0);
+  }
+
+  constexpr inline const double& operator()(int i, int j) const {
+    return vector[vector_index(i, j, n)]*((half && i!=j)*(-0.5) + 1.0);
+  }
+
+  constexpr friend inline VectorND<n>
+  operator*(const MatrixSD<n,half> &left, const VectorND<n> &right) {
     VectorND<n> prod;
     for (index_t i = 0; i < n; ++i) {
         prod[i] = 0.0;
@@ -50,7 +57,7 @@ public:
 
   template <index_t NR>
   inline constexpr friend MatrixND<NR, n>
-  operator*(const MatrixND<NR, n> &left, const MatrixSD<n> &right) {
+  operator*(const MatrixND<NR, n> &left, const MatrixSD<n,half> &right) {
     MatrixND<NR, n> prod;
     for (index_t i = 0; i < NR; ++i) {
       for (index_t j = 0; j < n; ++j) {
@@ -65,7 +72,7 @@ public:
 
   template <index_t J>
   inline constexpr friend MatrixND<n, J>
-  operator*(const MatrixSD<n> &left, const MatrixND<n, J> &right) {
+  operator*(const MatrixSD<n,half> &left, const MatrixND<n, J> &right) {
     MatrixND<n, J> prod;
     for (index_t i = 0; i < n; ++i) {
       for (index_t j = 0; j < J; ++j) {
@@ -82,7 +89,7 @@ public:
   template <class MatT, int nk> void 
     addMatrixTransposeProduct(double thisFact, const MatrixND<nk, n, double> &, const MatT&, double scale);
 
-  MatrixSD<n>& addDiagonal(const double vol);
+  MatrixSD<n,half>& addDiagonal(const double vol);
 
 private:
 
@@ -97,27 +104,30 @@ private:
 };
 
 
-template <index_t n> inline
-MatrixSD<n>& 
-MatrixSD<n>::addDiagonal(const double diag)
+template <index_t n, bool h>
+inline
+MatrixSD<n,h>& 
+MatrixSD<n,h>::addDiagonal(const double diag)
 {
   for (int i=0; i<n; i++)
-    (*this)(i,i) += diag;
+    vector[i] += diag;
 
   return *this;
 }
 
+
 // B'*C
-template <int n> 
+template <int n, bool h>
 template <class MatT, int nk> inline
 void
-MatrixSD<n>::addMatrixTransposeProduct(double thisFact,
+MatrixSD<n,h>::addMatrixTransposeProduct(double thisFact,
                                        const MatrixND<nk, n>& B,
                                        const MatT& C,
                                        const double otherFact)
 {
+  MatrixSD<n,h>& self = *this;
+
   if (thisFact == 1.0) {
-    double *aijPtr = &(*this)(0,0);
     for (int j=0; j<n; j++) {
       for (int i=0; i<n; i++) {
         const double *bkiPtr  = &(&B(0,0))[i*nk];
@@ -126,12 +136,14 @@ MatrixSD<n>::addMatrixTransposeProduct(double thisFact,
         for (int k=0; k<nk; k++) {
           sum += *bkiPtr++ * *cjkPtr++;
         }
-        *aijPtr++ += sum * otherFact;
+        self(i,j) = self(i,j) + sum * otherFact;
       }
     }
 
-  } else if (thisFact == 0.0) {
-    double *aijPtr = &(*this)(0,0);
+  }
+
+  // Set form
+  else if (thisFact == 0.0) {
     for (int j=0; j<nr; j++) {
       for (int i=0; i<nr; i++) {
         const double *bkiPtr  = &(&B(0,0))[i*nk];
@@ -140,11 +152,14 @@ MatrixSD<n>::addMatrixTransposeProduct(double thisFact,
         for (int k=0; k<nk; k++) {
           sum += *bkiPtr++ * *cjkPtr++;
         }
-        *aijPtr++ = sum * otherFact;
+        self(i,j) = sum * otherFact;
       }
     } 
-  } else {
-    double *aijPtr = &(*this)(0,0);
+
+  }
+
+  // General form with BOTH thisFact and otherFact
+  else {
     for (int j=0; j<nr; j++) {
       for (int i=0; i<nr; i++) {
         const double *bkiPtr  = &(&B(0,0))[i*nk];
@@ -153,8 +168,7 @@ MatrixSD<n>::addMatrixTransposeProduct(double thisFact,
         for (int k=0; k<nk; k++) {
           sum += *bkiPtr++ * *cjkPtr++;
         }
-        *aijPtr = *aijPtr * thisFact + sum * otherFact;
-        aijPtr++;
+        self(i,j) = self(i,j) * thisFact + sum * otherFact;
       }
     } 
   }
