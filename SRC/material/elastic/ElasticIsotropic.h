@@ -14,7 +14,8 @@ class ElasticIsotropic : public Mate<ndim> {
   virtual const char* getClassType() const final;
 //virtual MatrixND<ndim,ndim> getStress_matrix() final;
   virtual const MatrixSD<ndim>& getStress() final;
-  virtual void setStrain(const MatrixND<ndim,ndim>& F) final;
+  virtual int setTrialStrain(const MatrixSD<ndim,true>& E) final;
+  virtual int setTrialStrain(const MatrixND<ndim,ndim>& F) final;
 
   virtual void Print(OPS_Stream& s, int flag);
 

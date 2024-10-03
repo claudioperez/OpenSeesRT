@@ -34,15 +34,22 @@ ElasticIsotropic<ndim,type>::getStress()
 }
 
 template<int ndim, PlaneType type>
-void
-ElasticIsotropic<ndim,type>::setStrain(const MatrixND<ndim,ndim>& F) 
+int
+ElasticIsotropic<ndim,type>::setTrialStrain(const MatrixND<ndim,ndim>& F) 
 {
-  MatrixSD<ndim> Emat;
-  Emat.addMatrixTransposeProduct(0.0, F, F, 0.5);
-  Emat.addDiagonal(-0.5);
+  // Convert deformation gradient F to small strain tensor e
+  MatrixSD<ndim,true> e;
+  e.addMatrixTransposeProduct(0.0, F, F, 0.5);
+  e.addDiagonal(-0.5);
+  return setTrialStrain(e);
+}
 
+template<int ndim, PlaneType type>
+int
+ElasticIsotropic<ndim,type>::setTrialStrain(const MatrixSD<ndim,true>& e)
+{
   if constexpr (ndim == 3) {
-    static MatrixND<6,6> ddsdde{0.0};
+    static MatrixND<6,6> ddsdde{{{0.0}}};
 
     double tmp = E / (1.0+nu) / (1.0-2.0*nu);
     ddsdde(0, 0) = (1.0-nu) * tmp;
@@ -58,7 +65,7 @@ ElasticIsotropic<ndim,type>::setStrain(const MatrixND<ndim,ndim>& F)
     ddsdde(4, 4) = ddsdde(4, 4);
     ddsdde(5, 5) = ddsdde(4, 4);
 
-    Smat.vector.addMatrixVector(0.0, ddsdde, Emat.vector, 1.0);
+    Smat.vector = ddsdde * e.vector;
   }
 }
 
