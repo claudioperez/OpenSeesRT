@@ -943,6 +943,8 @@ ElasticBeam2d::getResistingForce()
   Vector p0Vec(p0);
   
   P = theCoordTransf->getGlobalResistingForce(q, p0Vec);
+  if (rho != 0)
+    P.addVector(1.0, Q, -1.0);
 
   return P;
 }
