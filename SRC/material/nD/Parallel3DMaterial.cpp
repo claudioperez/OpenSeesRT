@@ -589,7 +589,7 @@ Response* Parallel3DMaterial::setResponse(const char** argv, int argc, OPS_Strea
 					for (const auto& item : wres->components)
 						output.tag("ResponseType", item.c_str());
 					Vector data(static_cast<int>(wres->components.size()));
-					MaterialResponse* resp = new MaterialResponse(this, wres_id, data);
+					MaterialResponse<NDMaterial>* resp = new MaterialResponse<NDMaterial>(this, wres_id, data);
 					output.endTag();
 					return resp;
 				}
