@@ -186,13 +186,17 @@ void PeriDomain<ndim>::set_bound(const std::array<double, 2*ndim+1>& cond, const
             if (btype == 'f') {
                 pts[i].is_force_bound[ndof] = 1;
                 pts[i].bforce[ndof] = cond[2*ndim];
-                printf("Node %d is on the force boundary\n", i);
-                printf("  with force of %f on %d direction\n", cond[2*ndim], ndof);
+                // --------FOR DEBUGGING PURPOSES--------
+                // printf("Node %d is on the force boundary\n", i);
+                // printf("  with force of %f on %d direction\n", cond[2*ndim], ndof);
+                // -------------------------------------
             }else if (btype == 'd') {
                 pts[i].is_disp_bound[ndof] = 1;
                 pts[i].bdisp[ndof] = cond[2*ndim];
-                printf("Node %d is on the displacement boundary\n", i);
-                printf("  with displ. of %f on %d direction\n", cond[2*ndim], ndof);
+                // --------FOR DEBUGGING PURPOSES--------
+                // printf("Node %d is on the displacement boundary\n", i);
+                // printf("  with displ. of %f on %d direction\n", cond[2*ndim], ndof);
+                // -------------------------------------
             }
         }
     }

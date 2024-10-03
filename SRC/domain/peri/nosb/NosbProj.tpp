@@ -11,6 +11,7 @@ template <int ndim, int maxfam>
 NosbProj<ndim, maxfam>::NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &domain, Mate<ndim> *material)
     : center(center), numfam(center->numfam)
 {
+    delta = domain.delta;
     for (int i = 0; i < numfam; i++)
     {
         neigh[i] = &domain.pts[center->nodefam[i]];
@@ -19,24 +20,40 @@ NosbProj<ndim, maxfam>::NosbProj(PeriParticle<ndim> *center, PeriDomain<ndim> &d
 }
 
 template <int ndim, int maxfam>
-double 
-NosbProj<ndim, maxfam>::bond_omega(int i)
+void
+NosbProj<ndim, maxfam>::bond_omega(int i, int w_type)
 {
     // in this formulation, omega is constant 
 	// for computing all the bond-associated quantities
+    double deno = 0.0;
     
-    return 1.0; // omega[i];
+    omega.fill(0.0);
+    for (int ind=0; ind<numfam; ind++)
+    {
+        const VectorND<ndim> xi = neigh[ind]->coord - center->coord;
+        double dist = xi.norm();
+        double x0 = dist / delta;
+        if (w_type == 1){
+            omega[ind] = 1.0;
+        }else if (w_type == 2)
+        {
+            omega[ind] = std::exp(-std::pow(3.0*x0, 2));
+        }
+        deno += omega[ind] * center->vol[ind];
+    }
+    for (int ind=0; ind<numfam; ind++)
+    {
+        omega[ind] /= deno;
+    }
+    // return 1.0; // omega[i];
 }
 
 template <int ndim, int maxfam>
 void 
 NosbProj<ndim, maxfam>::init_shape()
 {
-    // First populate omega
-    for (int i = 0; i < numfam; i++)
-    {
-        omega[i] = bond_omega(i) / center->vol_h;
-    }
+
+    bond_omega(0, 1);
 
     // Integrate K
     // note that Kinv is invariant in this formulation, but may not be in general
@@ -45,7 +62,8 @@ NosbProj<ndim, maxfam>::init_shape()
     for (int i = 0; i < numfam; i++)
     {
         const VectorND<ndim> xi = neigh[i]->coord - center->coord;
-        Kinv += omega[i] * xi.bun(xi) * center->vol[i];
+        Kinv.addTensorProduct(xi, xi, omega[i] * center->vol[i]);
+        // Kinv += omega[i] * xi.bun(xi) * center->vol[i];
     }
 
     // Invert K
@@ -64,6 +82,18 @@ NosbProj<ndim, maxfam>::get_A(const VectorND<ndim> &xi)
     A.addTensorProduct(xi, xi, -1.0 / xi.dot(xi));
 
     return A;
+}
+
+template <int ndim, int maxfam>
+MatrixND<ndim, ndim>
+NosbProj<ndim, maxfam>::get_B(const VectorND<ndim> &xi, const VectorND<ndim> &zeta)
+{
+    // Initialize with zeros
+    MatrixND<ndim, ndim> B{{0.0}};
+
+    B.addTensorProduct(zeta, xi, 1.0 / xi.dot(xi));
+
+    return B;
 }
 
 template <int ndim, int maxfam>
@@ -90,9 +120,9 @@ NosbProj<ndim, maxfam>::form_trial()
         const VectorND<ndim> eta = neigh[i]->disp - center->disp;
         const VectorND<ndim> xi = neigh[i]->coord - center->coord;
         const VectorND<ndim> zeta = xi + eta;
-        Nmat += omega[i] * zeta.bun(xi) * center->vol[i];
+        Nmat.addTensorProduct(zeta, xi, omega[i] * center->vol[i]);
+        // Nmat += omega[i] * zeta.bun(xi) * center->vol[i];
     }
-
     MatrixND<ndim, ndim> Fmat = Nmat * Kinv;
 
     for (int i = 0; i < numfam; i++)
@@ -102,10 +132,22 @@ NosbProj<ndim, maxfam>::form_trial()
         const VectorND<ndim> zeta = xi + eta;
 
         const MatrixND<ndim, ndim> Amat = this->get_A(xi);
-        const MatrixND<ndim, ndim> Bmat = zeta.bun(xi) / xi.dot(xi);
+        const MatrixND<ndim, ndim> Bmat = this->get_B(xi, zeta);
         // Fmat <- Fmat * (I - xi\otimes xi / |xi|^2) + zeta\otimes xi / |xi|^2
         materials[i]->set_strain(Fmat * Amat + Bmat);
+        // -------- FOR DEBUGGING --------
+        // -------- check F --------------
+        // MatrixND<ndim, ndim> Fmat2 = Fmat * Amat + Bmat;
+        // for (int j = 0; j < ndim; j++)
+        //     for (int k = 0; k < ndim; k++) 
+        //         printf("%7.2e ", Fmat2(j, k));
+        // printf("\n");
+        // -------- check S --------------
+        const MatrixSD<ndim>& Smat = materials[i]->get_stress();
+        printf("%7.2e %7.2e %7.2e\n", Smat(0, 0), Smat(1, 1), Smat(0, 1));
+        // ------------------------------
     }
+    
 }
 
 template <int ndim, int maxfam>
