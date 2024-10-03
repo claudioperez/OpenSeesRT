@@ -105,6 +105,7 @@ public:
   const MatrixSD<n>& getStress();
   const Matrix& getTangent();
   const Matrix& getInitialTangent();
+
 #if 0
   //sending and receiving
   virtual int sendSelf(int tag, Channel&);
@@ -118,8 +119,7 @@ public:
   virtual PlaneType getType() const;
   virtual int getOrder() const;
 
-  double
-  getRho()
+  double getRho()
   {
     return rho;
   }
