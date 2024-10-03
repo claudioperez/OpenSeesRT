@@ -32,6 +32,7 @@
 
 #include <Response.h>
 #include <Information.h>
+#include <GenericResponse.h>
 
 class Material;
 
@@ -39,6 +40,12 @@ class ID;
 class Vector;
 class Matrix;
 
+#if 1
+
+template <typename T>
+using MaterialResponse = GenericResponse<T>;
+
+#else
 class MaterialResponse : public Response
 {
  public:
@@ -57,5 +64,5 @@ private:
   Material *theMaterial;
   int responseID;
 };
-
+#endif
 #endif
