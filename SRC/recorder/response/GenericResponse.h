@@ -29,11 +29,28 @@ class GenericResponse : public Response
   GenericResponse(T &obj, int id, const Vector &val) : Response(val), theObject(obj), responseID(id) {};
   GenericResponse(T &obj, int id, const Matrix &val) : Response(val), theObject(obj), responseID(id) {};
 
+  GenericResponse(T *obj, int id)                    : Response(),    theObject(*obj), responseID(id) {};
+  GenericResponse(T *obj, int id, int val)           : Response(val), theObject(*obj), responseID(id) {};
+  GenericResponse(T *obj, int id, double val)        : Response(val), theObject(*obj), responseID(id) {};
+  GenericResponse(T *obj, int id, const ID &val)     : Response(val), theObject(*obj), responseID(id) {};
+  GenericResponse(T *obj, int id, const Vector &val) : Response(val), theObject(*obj), responseID(id) {};
+  GenericResponse(T *obj, int id, const Matrix &val) : Response(val), theObject(*obj), responseID(id) {};
+
   ~GenericResponse() {};
   
-  int getResponse(void) {
+  int
+  getResponse() 
+  {
     return theObject.getResponse(responseID, myInfo);
   }
+
+#if 0
+  int
+  getResponseSensitivity(int gradNumber)
+  {
+    return theObject.getResponseSensitivity(responseID, gradNumber, myInfo);
+  }
+#endif
 
 protected:
   T & theObject;
