@@ -65,7 +65,6 @@
 #include <Graph.h>
 #include <Recorder.h>
 #include <MeshRegion.h>
-#include <Analysis.h>
 #include <FE_Datastore.h>
 #include <FEM_ObjectBroker.h>
 
@@ -2239,52 +2238,6 @@ Domain::Print(OPS_Stream &s, int flag)
 {
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
 
-    /*
-    s << "\t\"properties\": {\n";
-    OPS_printUniaxialMaterial(s, flag);
-    s << ",\n";   
-    OPS_printNDMaterial(s, flag);
-    s << ",\n";
-    OPS_printSectionForceDeformation(s, flag);
-    s << ",\n";   
-    OPS_printCrdTransf(s, flag);
-    s << "\n\t},\n";
-    s << "\t\"geometry\": {\n";
-
-    int numToPrint = theNodes->getNumComponents();
-    NodeIter &theNodess = this->getNodes();
-    Node *theNode;
-    int numPrinted = 0;
-    s << "\t\t\"nodes\": [\n";
-    while ((theNode = theNodess()) != 0) {    
-      theNode->Print(s, flag);
-      numPrinted += 1;
-      if (numPrinted < numToPrint)
-	s << ",\n";
-      else
-	s << "\n\t\t],\n";
-    }
-
-
-    Element *theEle;
-    ElementIter &theElementss = this->getElements();
-    numToPrint = theElements->getNumComponents();
-    numPrinted = 0;
-    s << "\t\t\"elements\": [\n";
-    while ((theEle = theElementss()) != 0) {
-      theEle->Print(s, flag);
-      numPrinted += 1;
-      if (numPrinted < numToPrint)
-	s << ",\n";
-      else
-	s << "\n\t\t]\n";
-      }
-
-	s << "\t}\n";
-	s << "}\n";
-    s << "}\n";
-    */
-
     theMPs->Print(s, flag);
 
     return;
@@ -2323,7 +2276,7 @@ void Domain::Print(OPS_Stream &s, ID *nodeTags, ID *eleTags, int flag)
     for (int i=0; i<numNodes; i++) {
       int nodeTag = (*nodeTags)(i);
       TaggedObject *theNode = theNodes->getComponentPtr(nodeTag);
-      if (theNode != 0)
+      if (theNode != nullptr)
 	theNode->Print(s, flag);
     }
   }
@@ -2497,11 +2450,8 @@ Domain::buildEleGraph(Graph *theEleGraph)
       theEleToVertexMap.insert(MAP_INT_TYPE(eleTag, count));
 
       // check if successfully added
-      theEleToVertexMapEle = theEleToVertexMap.find(eleTag);
-      if (theEleToVertexMapEle == theEleToVertexMap.end()) {
-        opserr << "Domain::buildEleGraph - map STL failed to add object with tag : " << eleTag << endln;
-        return false;
-      }
+
+      assert(theEleToVertexMap.find(eleTag) != theEleToVertexMap.end());
 
       count++;
     }
@@ -2516,7 +2466,6 @@ Domain::buildEleGraph(Graph *theEleGraph)
   // will not be adding vertices but element tags.
   //
   MAP_ID theNodeToVertexMap;
-  MAP_ID_ITERATOR theNodeEle;
   Node *nodPtr;
 
   // now create the vertices with a reference equal to the node number.
@@ -2528,16 +2477,12 @@ Domain::buildEleGraph(Graph *theEleGraph)
     int nodeTag = nodPtr->getTag();
     ID *eleTags = new ID(0, 4);
 
-    theNodeEle = theNodeToVertexMap.find(nodeTag);
+    MAP_ID_ITERATOR theNodeEle = theNodeToVertexMap.find(nodeTag);
     if (theNodeEle == theNodeToVertexMap.end()) {
       theNodeToVertexMap.insert(MAP_ID_TYPE(nodeTag, eleTags));
 
       // check if successfully added
-      theNodeEle = theNodeToVertexMap.find(nodeTag);
-      if (theNodeEle == theNodeToVertexMap.end()) {
-        opserr << "Domain::buildEleGraph - map STL failed to add object with tag : " << nodeTag << endln;
-        return false;
-      }
+      assert(theNodeToVertexMap.find(nodeTag) != theNodeToVertexMap.end());
     }
   }
 
