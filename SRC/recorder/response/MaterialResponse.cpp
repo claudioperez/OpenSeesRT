@@ -72,7 +72,7 @@ MaterialResponse::~MaterialResponse()
 }
 
 int
-MaterialResponse::getResponse(void)
+MaterialResponse::getResponse()
 {
 	return theMaterial->getResponse(responseID, myInfo);
 }

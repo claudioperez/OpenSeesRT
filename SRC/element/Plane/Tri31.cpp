@@ -39,7 +39,6 @@ using OpenSees::VectorND;
 #include <FEM_ObjectBroker.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
-#include <map>
 
 double Tri31::matrixData[36];
 Matrix Tri31::K(matrixData, 6, 6);

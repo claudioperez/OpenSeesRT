@@ -51,7 +51,7 @@
 #include <TransformationConstraintHandler.h>
 
 
-static std::unordered_map<int, std::string> SolveFailedMessage {
+static std::unordered_map<int, std::string> AnalyzeFailedMessage {
    {SolutionAlgorithm::BadFormResidual, "Failed to form residual\n"},
    {SolutionAlgorithm::BadFormTangent,  "Failed to form tangent\n"},
    {SolutionAlgorithm::BadLinearSolve,  "Failed to solve system, tangent may be singular\n"},
@@ -369,8 +369,8 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
       result = theAlgorithm->solveCurrentStep();
       if (result < 0) {
         // Print error message if we have one
-        if (SolveFailedMessage.find(result) != SolveFailedMessage.end()) {
-            opserr << OpenSees::PromptAnalysisFailure << SolveFailedMessage[result];
+        if (AnalyzeFailedMessage.find(result) != AnalyzeFailedMessage.end()) {
+            opserr << OpenSees::PromptAnalysisFailure << AnalyzeFailedMessage[result];
         }
         theDomain->revertToLastCommit();
         theStaticIntegrator->revertToLastStep();
@@ -478,8 +478,8 @@ BasicAnalysisBuilder::analyzeStep(double dT)
 
   result = theAlgorithm->solveCurrentStep();
   if (result < 0) {
-    if (SolveFailedMessage.find(result) != SolveFailedMessage.end()) {
-        opserr << OpenSees::PromptAnalysisFailure << SolveFailedMessage[result];
+    if (AnalyzeFailedMessage.find(result) != AnalyzeFailedMessage.end()) {
+        opserr << OpenSees::PromptAnalysisFailure << AnalyzeFailedMessage[result];
     }
     theDomain->revertToLastCommit();
     theTransientIntegrator->revertToLastStep();
@@ -854,6 +854,7 @@ BasicAnalysisBuilder::newEigenAnalysis(int typeSolver, double shift)
   // this->CurrentAnalysisFlag = TRANSIENT_ANALYSIS;
   if (this->CurrentAnalysisFlag == EMPTY_ANALYSIS)
     this->CurrentAnalysisFlag = TRANSIENT_ANALYSIS;
+
   this->fillDefaults(this->CurrentAnalysisFlag); //TRANSIENT_ANALYSIS);
   this->setLinks(this->CurrentAnalysisFlag); //TRANSIENT_ANALYSIS);
 
