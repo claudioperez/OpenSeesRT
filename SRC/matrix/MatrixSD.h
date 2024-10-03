@@ -15,7 +15,6 @@ struct MatrixSD {
   constexpr static int nd = n*(n+1)/2;
   constexpr static int nr = n;
 
-public:
   VectorND<n*(n+1)/2> vector;
 
 
@@ -33,6 +32,64 @@ public:
   // Getter for Voigt notation with division for off-diagonal elements
   constexpr inline double  operator()(int i, int j) const {
     return vector[vector_index(i, j)]*((half && i!=j)*(-0.5) + 1.0);
+  }
+
+  template <class MatT, int nk> void 
+    addMatrixTransposeProduct(double thisFact, 
+                              const MatrixND<nk, n, double> &, 
+                              const MatT&, double scale);
+
+  constexpr inline MatrixSD<n,half>& addDiagonal(double vol);
+
+  template <typename MatTyp>
+  constexpr MatrixSD<n,half> &
+  operator=(const MatTyp &other)
+  {
+    for (index_t j = 0; j < n; ++j) {
+      for (index_t i = 0; i < n; ++i) {
+        ref(i,j) = other(i,j);
+      }
+    }
+    return *this;
+  }
+
+  constexpr MatrixND<n,half> &
+  operator+=(const double value) {
+    vector += value;
+    return *this;
+  }
+
+  constexpr MatrixND<n,half> &
+  operator*=(const double value) {
+    vector *= value;
+    return *this;
+  }
+
+  // FRIENDS
+#if 0
+  friend constexpr MatrixSD
+  operator+(MatrixSD left, const MatrixSD &right) {
+    left += right; 
+    return left;
+  }
+
+  friend constexpr MatrixSD
+  operator-(MatrixSD left, const MatrixSD &right) {
+    left -= right; 
+    return left;
+  }
+#endif
+  
+  friend constexpr MatrixSD<n,half> // scalar * Matrix
+  operator*(double scalar, MatrixSD<n,half> mat) {
+    mat *= scalar;
+    return mat;
+  }
+
+  friend constexpr MatrixSD<n,half> // Matrix * scalar
+  operator*(MatrixSD<n,half> mat, double scalar) {
+    mat *= scalar;
+    return mat;
   }
 
   constexpr friend inline VectorND<n>
@@ -79,13 +136,6 @@ public:
   }
 
 
-  template <class MatT, int nk> void 
-    addMatrixTransposeProduct(double thisFact, const MatrixND<nk, n, double> &, const MatT&, double scale);
-
-  constexpr inline MatrixSD<n,half>& addDiagonal(double vol);
-
-private:
-
   // Function to get the index in the vector for A(i, j)
   constexpr static inline int
   vector_index(int i, int j)
@@ -95,9 +145,11 @@ private:
     if (i == j) {
         return i; // Diagonal elements
     } else if (i < j) {
-        return n + (i * (2 * n - i - 1) / 2 + (j - i - 1)); // Upper triangle
+        // Upper triangle
+        return n + (i * (2 * n - i - 1) / 2 + (j - i - 1)); 
     } else {
-        return n + (j * (2 * n - j - 1) / 2 + (i - j - 1)); // Lower triangle (optional, if you need)
+        // Lower triangle
+        return n + (j * (2 * n - j - 1) / 2 + (i - j - 1)); 
     }
 //   if (i <= j)
 //      return  i * N - (i - 1) * i / 2 + j - i;
@@ -151,7 +203,7 @@ MatrixSD<n,h>::addMatrixTransposeProduct(double thisFact,
                                        const MatT& C,
                                        const double otherFact)
 {
-  static_assert(!h, "Method not supported for Voigt type");
+//static_assert(!h, "Method not supported for Voigt type");
 
   MatrixSD<n,h>& self = *this;
 
