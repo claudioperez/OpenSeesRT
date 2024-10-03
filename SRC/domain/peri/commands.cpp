@@ -581,7 +581,7 @@ Tcl_PeriFormThreads(PeriDomain<ndim> &domain, Tcl_Interp *interp, int argc, cons
 	// Create families for specific NOSB type
 	for (PeriParticle<ndim> &particle : domain.pts)
 	{
-		nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(29e3, 0.2));
+		nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(1, 29e3, 0.2, 0.0));
 	}
 
 	// Initialize shape tensor
