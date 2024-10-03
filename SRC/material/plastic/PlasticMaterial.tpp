@@ -20,7 +20,7 @@ namespace OpenSees {
 //unused trial strain functions
 template <int n, PlaneType type, typename index>
 int
-PlasticMaterial<n,type,index>::setTrialStrain( const MatrixSD<3> &v, const Vector &r )
+PlasticMaterial<n,type,index>::TrialStrain( const MatrixSD<3> &v, const Vector &r )
 { 
    return this->setTrialStrain( v ) ;
 } 
