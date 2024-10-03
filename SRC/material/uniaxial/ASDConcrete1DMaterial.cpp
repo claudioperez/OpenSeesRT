@@ -1396,7 +1396,7 @@ int ASDConcrete1DMaterial::updateParameter(int parameterID, Information& info)
 Response* ASDConcrete1DMaterial::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
 	// utils
-	auto make_resp = [&output, this](int rid, const Vector& v, const std::vector<std::string>* labels = nullptr) -> MaterialResponse* {
+	auto make_resp = [&output, this](int rid, const Vector& v, const std::vector<std::string>* labels = nullptr) -> MaterialResponse<UniaxialMaterial>* {
 		output.tag("UniaxialMaterialOutput");
 		output.attr("matType", getClassType());
 		output.attr("matTag", getTag());
@@ -1404,7 +1404,7 @@ Response* ASDConcrete1DMaterial::setResponse(const char** argv, int argc, OPS_St
 			for (const auto& item : (*labels))
 				output.tag("ResponseType", item.c_str());
 		}
-		MaterialResponse* resp = new MaterialResponse(this, rid, v);
+		MaterialResponse<UniaxialMaterial>* resp = new MaterialResponse<UniaxialMaterial>(this, rid, v);
 		output.endTag();
 		return resp;
 	};

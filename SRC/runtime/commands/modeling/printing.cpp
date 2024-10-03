@@ -142,17 +142,21 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
         builder->printRegistry<FrameSection>(s, flag);
       }
       s << "\n" << tab << tab << "]";
-      s << ",\n";
     }
-    //
-    s << tab << tab << "\"nDMaterials\": [\n";        
-    builder->printRegistry<NDMaterial>(s, flag);
-    s << "\n" << tab << tab << "]";
     s << ",\n";
     //
-    s << tab << tab << "\"uniaxialMaterials\": [\n";        
-    builder->printRegistry<UniaxialMaterial>(s, flag);
-    s << "\n" << tab << tab << "]";
+    {
+      s << tab << tab << "\"nDMaterials\": [\n";        
+      builder->printRegistry<NDMaterial>(s, flag);
+      s << "\n" << tab << tab << "]";
+    }
+    s << ",\n";
+    //
+    {
+      s << tab << tab << "\"uniaxialMaterials\": [\n";        
+      builder->printRegistry<UniaxialMaterial>(s, flag);
+      s << "\n" << tab << tab << "]";
+    }
     s << ",\n";
     //
     s << tab << tab << "\"crdTransformations\": [\n";
@@ -165,9 +169,25 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
           s << ",\n";
         builder->printRegistry<FrameTransform3d>(s, flag);
       }
+      s << "\n" << tab << tab << "]";
     }
-    s << "\n" << tab << tab << "]";
-//  builder->printRegistry<CrdTransf>(s, flag);
+
+    s << ",\n";
+
+    {
+      s << tab << tab << "\"parameters\": [\n";
+      ParameterIter &params = theDomain->getParameters();
+      Parameter *param;
+      bool first_mp = true;
+      while ((param = params()) != nullptr) {
+        if (!first_mp)
+          s << ",\n";
+
+        param->Print(s, flag);
+        first_mp = false;
+      }
+      s << "\n" << tab << tab << "]\n";
+    }
 
     s << "\n";
     //
@@ -232,23 +252,6 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
       }
 
       s << "\n" << tab << tab << "]";
-    }
-
-    s << ",\n";
-
-    {
-      s << tab << tab << "\"parameters\": [\n";
-      ParameterIter &params = theDomain->getParameters();
-      Parameter *param;
-      bool first_mp = true;
-      while ((param = params()) != nullptr) {
-        if (!first_mp)
-          s << ",\n";
-
-        param->Print(s, flag);
-        first_mp = false;
-      }
-      s << "\n" << tab << tab << "]\n";
     }
 
     // END

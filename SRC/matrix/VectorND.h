@@ -425,8 +425,8 @@ struct VectorND {
   bun(const VectorND<nc> &other) const {
     OpenSees::MatrixND<N,nc,double> prod;
 
-    for (int j = 0; j < 3; ++j)
-      for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < other.size(); ++j)
+      for (int i = 0; i < this->size(); ++i)
         prod(i,j) = values[i] * other.values[j];
 
     return prod;

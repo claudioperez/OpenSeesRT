@@ -25,19 +25,19 @@ public:
   	
 	virtual ~NosbProj() {};
 
-	virtual void init_shape() override final;
+    virtual void init_shape() override final;
 
-	virtual void form_trial() final;
+    virtual void form_trial() final;
 
-	virtual MatrixND<ndim, ndim> sum_PKinv() final;
+    virtual MatrixND<ndim, ndim> sum_PKinv() final;
 
-	virtual VectorND<ndim> bond_force(int i, MatrixND<ndim, ndim> &Qmat) final;
+    virtual VectorND<ndim> bond_force(int i, MatrixND<ndim, ndim> &Qmat) final;
 
 	// double bond_omega(int i);
 	void bond_omega(int i, int w_type);
 
 private:
-	MatrixND<ndim, ndim> get_A(const VectorND<ndim> &xi);
+    MatrixND<ndim, ndim> get_A(const VectorND<ndim> &xi);
 
 	MatrixND<ndim, ndim> get_B(const VectorND<ndim> &xi, const VectorND<ndim> &zeta);
 
