@@ -43,7 +43,9 @@ class Mate : public TaggedObject {
 #endif
   virtual const MatrixSD<ndim>& getStress() = 0;
 
-  virtual void setStrain(const MatrixND<ndim,ndim>&) = 0;
+  virtual int setTrialStrain(const MatrixSD<ndim,true>&) = 0;
+
+  virtual int setTrialStrain(const MatrixND<ndim,ndim>&) = 0;
 
 #if 0
   virtual MatrixSD<ndim> get_tangent()
