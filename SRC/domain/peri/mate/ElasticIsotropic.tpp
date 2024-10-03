@@ -22,18 +22,16 @@ ElasticIsotropic<ndim>::get_stress()
 template <int ndim>
 void ElasticIsotropic<ndim>::set_strain(const MatrixND<ndim, ndim> &F)
 {
-	MatrixSD<ndim> Emat{0.0};
-	if (ndim == 2){
-		Emat(0, 0) = F(0, 0) - 1.0;
-		Emat(1, 1) = F(1, 1) - 1.0;
-		Emat(0, 1) = 0.5 * F(0, 1) + 0.5 * F(1, 0);
-	}
-	// Emat.addMatrixTransposeProduct(0.0, F, F, 0.5);
-	// Emat.addDiagonal(-0.5);
+	MatrixSD<ndim> Emat{{0.0}};
+	
+	Emat.addMatrixTransposeProduct(0.0, F, F, 0.5);
+	Emat.addDiagonal(-0.5);
+	printf("%7.2e %7.2e %7.2e %7.2e\n", Emat.vector(0), Emat.vector(1), Emat.vector(2), Emat.vector(3));
 
 	if constexpr (ndim == 3)
 	{
 		static MatrixND<6, 6> ddsdde{0.0};
+		// VectorND<6> Evec{0.0};
 
 		double tmp = E / (1.0 + nu) / (1.0 - 2.0 * nu);
 		ddsdde(0, 0) = (1.0 - nu) * tmp;

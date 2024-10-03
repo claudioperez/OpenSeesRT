@@ -144,7 +144,7 @@ NosbProj<ndim, maxfam>::form_trial()
         // printf("\n");
         // -------- check S --------------
         const MatrixSD<ndim>& Smat = materials[i]->get_stress();
-        printf("%7.2e %7.2e %7.2e\n", Smat(0, 0), Smat(1, 1), Smat(0, 1));
+        // printf("%7.2e %7.2e %7.2e\n", Smat(0, 0), Smat(1, 1), Smat(0, 1));
         // ------------------------------
     }
     
