@@ -6,6 +6,7 @@
 //===--- MatrixSD.h - Matrix with fixed size ------------------------------===//
 
 #pragma once
+#include <cassert>
 
 namespace OpenSees {
 
@@ -18,28 +19,20 @@ public:
   VectorND<n*(n+1)/2> vector;
 
 
-  constexpr void
-  zero()
-  {
-    for (int i = 0; i<nd; i++)
-      vector[i] = 0.0;
+  constexpr inline void zero();
+  constexpr inline MatrixND<n,n> full() const;
+
+//constexpr inline double& operator()(int i, int j) {
+//  return vector[vector_index(i, j)]; // *((half && i!=j)*(-0.5) + 1.0);
+//}
+
+  constexpr inline double& ref(int i, int j) {
+    return vector[vector_index(i, j)]; // *((half && i!=j)*(-0.5) + 1.0);
   }
 
-  constexpr MatrixND<n,n>
-  full() const {
-    MatrixND<n,n> S;
-    for (int i=0; i<n; i++)
-      for (int j=0; j<n; j++)
-        S(i,j) = (*this)(i,j);
-    return S;
-  }
-
-  constexpr inline double& operator()(int i, int j) {
-    return vector[vector_index(i, j, n)]; // *((half && i!=j)*(-0.5) + 1.0);
-  }
-
-  constexpr inline const double& operator()(int i, int j) const {
-    return vector[vector_index(i, j, n)]*((half && i!=j)*(-0.5) + 1.0);
+  // Getter for Voigt notation with division for off-diagonal elements
+  constexpr inline double  operator()(int i, int j) const {
+    return vector[vector_index(i, j)]*((half && i!=j)*(-0.5) + 1.0);
   }
 
   constexpr friend inline VectorND<n>
@@ -89,24 +82,57 @@ public:
   template <class MatT, int nk> void 
     addMatrixTransposeProduct(double thisFact, const MatrixND<nk, n, double> &, const MatT&, double scale);
 
-  MatrixSD<n,half>& addDiagonal(const double vol);
+  constexpr inline MatrixSD<n,half>& addDiagonal(double vol);
 
 private:
 
+  // Function to get the index in the vector for A(i, j)
   constexpr static inline int
-  vector_index(int i, int j, int N)
+  vector_index(int i, int j)
   {
-     if (i <= j)
-        return  i * N - (i - 1) * i / 2 + j - i;
-     else
-        return  j * N - (j - 1) * j / 2 + i - j;
+    assert(i > 0 && i < n && j >= 0 && j < n);
+
+    if (i == j) {
+        return i; // Diagonal elements
+    } else if (i < j) {
+        return n + (i * (2 * n - i - 1) / 2 + (j - i - 1)); // Upper triangle
+    } else {
+        return n + (j * (2 * n - j - 1) / 2 + (i - j - 1)); // Lower triangle (optional, if you need)
+    }
+//   if (i <= j)
+//      return  i * N - (i - 1) * i / 2 + j - i;
+//   else
+//      return  j * N - (j - 1) * j / 2 + i - j;
   }
 };
 
+//
+//
+//
+
+template <int n, bool h>
+constexpr void
+MatrixSD<n,h>::zero()
+{
+  for (int i = 0; i<nd; i++)
+    vector[i] = 0.0;
+}
+
+
+template <int n, bool h>
+constexpr MatrixND<n,n>
+MatrixSD<n,h>::full() const 
+{
+    MatrixND<n,n> S;
+    for (int i=0; i<n; i++)
+      for (int j=0; j<n; j++)
+        S(i,j) = (*this)(i,j);
+    return S;
+  }
+
 
 template <index_t n, bool h>
-inline
-MatrixSD<n,h>& 
+constexpr MatrixSD<n,h>& 
 MatrixSD<n,h>::addDiagonal(const double diag)
 {
   for (int i=0; i<n; i++)
@@ -125,6 +151,8 @@ MatrixSD<n,h>::addMatrixTransposeProduct(double thisFact,
                                        const MatT& C,
                                        const double otherFact)
 {
+  static_assert(!h, "Method not supported for Voigt type");
+
   MatrixSD<n,h>& self = *this;
 
   if (thisFact == 1.0) {
@@ -136,7 +164,7 @@ MatrixSD<n,h>::addMatrixTransposeProduct(double thisFact,
         for (int k=0; k<nk; k++) {
           sum += *bkiPtr++ * *cjkPtr++;
         }
-        self(i,j) = self(i,j) + sum * otherFact;
+        ref(i,j) = self(i,j) + sum * otherFact;
       }
     }
 
@@ -152,7 +180,7 @@ MatrixSD<n,h>::addMatrixTransposeProduct(double thisFact,
         for (int k=0; k<nk; k++) {
           sum += *bkiPtr++ * *cjkPtr++;
         }
-        self(i,j) = sum * otherFact;
+        ref(i,j) = sum * otherFact;
       }
     } 
 
@@ -168,7 +196,7 @@ MatrixSD<n,h>::addMatrixTransposeProduct(double thisFact,
         for (int k=0; k<nk; k++) {
           sum += *bkiPtr++ * *cjkPtr++;
         }
-        self(i,j) = self(i,j) * thisFact + sum * otherFact;
+        ref(i,j) = self(i,j) * thisFact + sum * otherFact;
       }
     } 
   }
