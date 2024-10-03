@@ -1,8 +1,9 @@
 
 #include <tcl.h>
+#include <string.h>
 #include <Logging.h>
 #include <BasicModelBuilder.h>
-#include <PlasticMaterial.h>
+// #include <PlasticMaterial.h>
 
 #include <J2Plasticity.h>
 #include <MultiaxialCyclicPlasticity.h>
