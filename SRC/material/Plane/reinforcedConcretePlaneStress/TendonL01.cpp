@@ -1223,7 +1223,7 @@ int TendonL01::recvSelf (int commitTag, Channel& theChannel,
                                 FEM_ObjectBroker& theBroker)
 {
    int res = 0;
-   static Vector data(.65);
+   static Vector data(65);
    res = theChannel.recvVector(this->getDbTag(), commitTag, data);
   
    if (res < 0) {
