@@ -30,6 +30,7 @@
 #define ShellMITC4_h
 
 #include <ID.h> 
+#include <array>
 #include <Vector.h>
 #include <Matrix.h>
 #include <Element.h>
@@ -124,20 +125,20 @@ class ShellMITC4 : public    Element,
     static Matrix damping ;
 
     //node information
-    ID connectedExternalNodes ;  //four node numbers
-    Node *theNodes[NEN] ;      //pointers to four nodes
+    ID connectedExternalNodes ;            // node tags
+    std::array<Node *, NEN> theNodes;      // pointers to nodes
 
-    //drilling stiffness
+    // drilling stiffness
     double Ktt ;
 
-    //material information
-    SectionForceDeformation *materialPointers[4] ; //pointers to four materials
+    // material information
+    std::array<SectionForceDeformation *, nip> materialPointers; // pointers to materials
 					  
     //local nodal coordinates, two coordinates for each of four nodes
     //static double xl[][4] ; 
     double xl[2][4] ; 
 
-    //shell basis vectors
+    // shell basis vectors
     double g1[3] ;
     double g2[3] ;
     double g3[3] ;
