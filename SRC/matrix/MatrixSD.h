@@ -7,7 +7,6 @@
 
 #pragma once
 #include <cassert>
-#include <stdio.h>
 
 namespace OpenSees {
 
@@ -27,7 +26,6 @@ struct MatrixSD {
 //}
 
   constexpr inline double& ref(int i, int j) {
-    fprintf(stderr, "ref(%d, %d)\n", i, j);
     return vector[vector_index(i, j)]; // *((half && i!=j)*(-0.5) + 1.0);
   }
 
