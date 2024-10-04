@@ -140,7 +140,7 @@ struct MatrixSD {
   constexpr static inline int
   vector_index(int i, int j)
   {
-    assert(i > 0 && i < n && j >= 0 && j < n);
+    assert(i >= 0 && i < n && j >= 0 && j < n);
 
     if (i == j) {
         return i; // Diagonal elements
@@ -209,7 +209,7 @@ MatrixSD<n,h>::addMatrixTransposeProduct(double thisFact,
 
   if (thisFact == 1.0) {
     for (int j=0; j<n; j++) {
-      for (int i=0; i<n; i++) {
+      for (int i=0; i<=j; i++) {
         const double *bkiPtr  = &(&B(0,0))[i*nk];
         const double *cjkPtr  = &(&C(0,0))[j*nk];
         double sum = 0.0;
@@ -224,8 +224,8 @@ MatrixSD<n,h>::addMatrixTransposeProduct(double thisFact,
 
   // Set form
   else if (thisFact == 0.0) {
-    for (int j=0; j<nr; j++) {
-      for (int i=0; i<nr; i++) {
+    for (int j=0; j<n; j++) {
+      for (int i=0; i<=j; i++) {
         const double *bkiPtr  = &(&B(0,0))[i*nk];
         const double *cjkPtr  = &(&C(0,0))[j*nk];
         double sum = 0.0;
@@ -240,8 +240,8 @@ MatrixSD<n,h>::addMatrixTransposeProduct(double thisFact,
 
   // General form with BOTH thisFact and otherFact
   else {
-    for (int j=0; j<nr; j++) {
-      for (int i=0; i<nr; i++) {
+    for (int j=0; j<n; j++) {
+      for (int i=0; i<=j; i++) {
         const double *bkiPtr  = &(&B(0,0))[i*nk];
         const double *cjkPtr  = &(&C(0,0))[j*nk];
         double sum = 0.0;

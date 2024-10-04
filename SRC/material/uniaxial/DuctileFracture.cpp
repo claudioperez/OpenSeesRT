@@ -29,6 +29,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <Vector.h>
 #include <MaterialResponse.h>
 #include <Information.h>
 #include <string.h>
