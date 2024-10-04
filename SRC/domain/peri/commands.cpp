@@ -15,7 +15,6 @@
 #include <PeriParticle.h>
 #include <NosbProj.h>
 
-#include <threads/thread_pool.hpp>
 
 Tcl_CmdProc Tcl_Peri;
 
@@ -560,62 +559,6 @@ Tcl_PeriSetBoun(PeriDomain<ndim> *domain, Tcl_Interp *interp,
     return TCL_OK;
 }
 
-template <int ndim>
-static int
-Tcl_PeriFormThreads(PeriDomain<ndim> &domain, Tcl_Interp *interp, int argc, const char **const argv)
-{
-    OpenSees::thread_pool threads{6};
-    std::mutex resp_mutex;
-
-    //   constexpr int ndim = 3;
-    constexpr int maxfam = 1024;
-
-    std::vector<NosbProj<ndim, maxfam>> nodefam;
-
-    // Create families for specific NOSB type
-    for (PeriParticle<ndim> &particle : domain.pts)
-    {
-        nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(1, 29e3, 0.2, 0.0));
-    }
-
-    // Initialize shape tensor
-    threads.submit_loop<unsigned int>(0, nodefam.size(), [&](int i)
-                                      { nodefam[i].init_shape(); })
-        .wait();
-
-    // Form deformation gradients for trial
-    threads.submit_loop<unsigned int>(0, nodefam.size(), [&](int i)
-                                      { nodefam[i].form_trial(); })
-        .wait();
-
-    // Form force
-    threads.submit_loop<unsigned int>(0, nodefam.size(), [&](int i)
-                                      {
-			MatrixND<ndim, ndim> Q = nodefam[i].sum_PKinv();
-
-			for (int j = 0; j < nodefam[i].numfam; j++)
-			{
-				const VectorND<ndim> T_j = nodefam[i].bond_force(j, Q);
-
-				const std::lock_guard<std::mutex> lock(resp_mutex);
-				nodefam[i].center->pforce += T_j;
-				nodefam[i].neigh[j]->pforce -= T_j;
-			} })
-        .wait();
-
-    //
-    // TODO: Update disp
-    //
-
-    // Create and return force vector
-    Tcl_Obj *list = Tcl_NewListObj(nodefam.size() * ndim, nullptr);
-    for (PeriParticle<ndim> &particle : domain.pts)
-        for (int j = 0; j < ndim; j++)
-            Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(particle.pforce[j]));
-
-    Tcl_SetObjResult(interp, list);
-    return TCL_OK;
-}
 
 template <int ndim>
 static int
@@ -694,91 +637,11 @@ Tcl_PeriIntVerlet(PeriDomain<ndim> &domain, Tcl_Interp *interp, int argc, const 
     }
 }
 
-// int Tcl_PeriStep(PeriDomain<3> &domain, Tcl_Interp *interp, int argc, const char **const argv)
-// {
-// 	constexpr int ndim = 3;
-// 	const int nn = domain.pts.size();
 
-// 	double eps_val = 1e-8;
-
-// 	const int tt = 0;
-// 	const double dt_hs = 0.1,
-// 				 damp_ratio = 0.1;
-
-// 	Matrix velhalf(nn, ndim),
-// 		velhalfold(nn, ndim),
-// 		pforceold(nn, ndim);
-// 	Vector dens(nn);
-
-// 	double cdamp = 0.0, cdamp1 = 0.0, cdamp2 = 0.0;
-
-// 	// calculate damping coefficient cdamp
-// 	for (int i = 0; i < nn; i++)
-// 	{
-// 		PeriParticle<ndim> &particle = domain.pts[i];
-// 		for (int j = 0; j < ndim; j++)
-// 		{
-// 			if (abs(velhalfold(i, j)) > eps_val)
-// 			{
-// 				double Kii = (particle.pforce[j] - pforceold(i, j)) / (velhalfold(i, j) * dt_hs);
-// 				cdamp1 += particle.disp[j] * 1.0 / dens(i) * (-Kii) * particle.disp[j];
-// 			}
-// 			cdamp2 = cdamp2 + particle.disp[j] * particle.disp[j];
-// 		}
-// 	}
-// 	if (cdamp2 > eps_val)
-// 	{
-// 		if ((cdamp1 / cdamp2) > 0.0)
-// 			cdamp = 2.0 * sqrt(cdamp1 / cdamp2);
-// 		else
-// 			cdamp = 0.0;
-// 	}
-// 	else
-// 	{
-// 		cdamp = 0.0;
-// 	}
-
-// 	cdamp = std::min(cdamp, 1.9) * damp_ratio;
-
-// 	for (int i = 0; i < nn; i++)
-// 	{
-// 		PeriParticle<ndim> &particle = domain.pts[i];
-// 		for (int j = 0; j < ndim; j++)
-// 		{
-// 			if (particle.is_disp_bound[j] == 0)
-// 			{
-// 				if (tt == 1)
-// 				{
-// 					velhalf(i, j) = particle.vel[j] + 0.5 * dt_hs * (particle.pforce[j] + particle.bforce[j]) / dens(i);
-// 				}
-// 				else
-// 				{
-// 					velhalf(i, j) = ((2.0 - cdamp * dt_hs) * velhalfold(i, j) +
-// 									 2.0 * dt_hs * (particle.pforce[j] + particle.bforce[j]) / dens(i)) /
-// 									(2.0 + cdamp * dt_hs);
-// 				}
-// 				particle.vel[j] = 0.5 * (velhalfold(i, j) + velhalf(i, j));
-// 				particle.disp[j] = particle.disp[j] + velhalf(i, j) * dt_hs;
-// 				velhalfold(i, j) = velhalf(i, j);
-// 			}
-// 			else
-// 			{
-// 				particle.vel[j] = particle.bdisp[j];
-// 				velhalf(i, j) = particle.bdisp[j];
-// 				velhalfold(i, j) = particle.bdisp[j];
-// 				particle.disp[j] += particle.bdisp[j] * dt_hs;
-// 			}
-// 			pforceold(i, j) = particle.pforce[j];
-// 		}
-// 	}
-// }
-
-template <int ndim>
+template <int ndim, int maxfam>
 static int
-Tcl_PeriForm(PeriDomain<ndim> &domain, Tcl_Interp *interp, int argc, const char **const argv)
+Tcl_PeriForm(PeriDomain<ndim> &domain, Tcl_Interp *interp)
 {
-    //   constexpr int ndim = 3;
-    constexpr int maxfam = 1024;
 
     std::vector<NosbProj<ndim, maxfam>> nosb;
 
@@ -875,13 +738,13 @@ Tcl_PeriForm(PeriDomain<ndim> &domain, Tcl_Interp *interp, int argc, const char 
     // // TODO: Update disp
     // //
 
-    // // Create and return force vector
-    // Tcl_Obj *list = Tcl_NewListObj(nosb.size() * ndim, nullptr);
-    // for (PeriParticle<ndim> &particle : domain.pts)
-    // 	for (int j = 0; j < ndim; j++)
-    // 		Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(particle.pforce[j]));
+    // Create and return force vector
+    Tcl_Obj *list = Tcl_NewListObj(nosb.size() * ndim, nullptr);
+    for (PeriParticle<ndim> &particle : domain.pts)
+    	for (int j = 0; j < ndim; j++)
+    		Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(particle.pforce[j]));
 
-    // Tcl_SetObjResult(interp, list);
+    Tcl_SetObjResult(interp, list);
     return TCL_OK;
 }
 
@@ -1030,22 +893,28 @@ int Tcl_Peri(ClientData cd, Tcl_Interp *interp,
         {
             // cast the pointer to a PeriDomain<3> object
             PeriDomain<3> *domain = static_cast<PeriDomain<3> *>(domain_base);
-            if (argc > 2)
-                return Tcl_PeriFormThreads(*domain, interp, argc, argv);
-            else
-                return Tcl_PeriForm(*domain, interp, argc, argv);
+            int maxfam = domain->maxfam;
+            if (maxfam < 32)
+                return Tcl_PeriForm<3,32>(*domain, interp);
+            if (maxfam < 64)
+                return Tcl_PeriForm<3,64>(*domain, interp);
+            if (maxfam < 1024)
+                return Tcl_PeriForm<3,1024>(*domain, interp);
+            return TCL_ERROR;
         }
         else if (ndim == 2)
         {
             // cast the pointer to a PeriDomain<2> object
             PeriDomain<2> *domain = static_cast<PeriDomain<2> *>(domain_base);
-            if (argc > 2)
-                return Tcl_PeriFormThreads(*domain, interp, argc, argv);
-            else
-            {
-                return Tcl_PeriForm(*domain, interp, argc, argv);
-            }
-            // return Tcl_PeriForm(*domain, interp, argc, argv);
+
+            int maxfam = domain->maxfam;
+            if (maxfam < 32)
+                return Tcl_PeriForm<2,32>(*domain, interp);
+            if (maxfam < 64)
+                return Tcl_PeriForm<2,64>(*domain, interp);
+            if (maxfam < 1024)
+                return Tcl_PeriForm<2,1024>(*domain, interp);
+            return TCL_ERROR;
         }
     }
 

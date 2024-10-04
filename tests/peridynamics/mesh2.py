@@ -6,7 +6,7 @@ import numpy as np
 
 Lx = 1.0
 Ly = 1.0
-meshsz = 0.01
+meshsz = 0.1
 with pygmsh.geo.Geometry() as geom:
     geom.add_polygon(
         [
@@ -62,7 +62,9 @@ model.eval(f"peri prin vol 0 1 2 3")
 
 ne = 1
 for i in range(ne):
-    model.eval("peri form")
+    force = model.eval("peri form")
+
+print(force)
 print("done")
 
 for i in range(ne):
