@@ -40,12 +40,15 @@ public:
 
     void break_bond(const int node1, const int node2); // Break the bond between two particles
 
-    // ============================================
-    // MEMBER DATA
-    // ============================================
-    // int       totnode, maxfam;
-    // char      plane_type;
-    std::vector<PeriParticle<ndim>> pts; // container of particles
+	void set_bound(const std::array<double, 2*ndim+1>& cond, const int ndof, 
+                                 const char btype); // Set the boundary conditions
+
+	// ============================================
+	// MEMBER DATA
+	// ============================================
+	// int       totnode, maxfam;
+	// char      plane_type;
+	std::vector<PeriParticle<ndim>> pts; // container of particles
 };
 
 #include <PeriDomain.tpp> // Include the implementation of the template class
