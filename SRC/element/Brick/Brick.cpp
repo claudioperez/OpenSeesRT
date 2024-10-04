@@ -35,7 +35,6 @@
 #include <ErrorHandler.h>
 #include <Brick.h>
 #include <shp3d.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 #include <Parameter.h>
 #include <ElementalLoad.h>
@@ -43,45 +42,7 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 
-#if 0
-void * OPS_ADD_RUNTIME_VPV(OPS_Brick)
-{
-    if (OPS_GetNumRemainingInputArgs() < 10) {
-	opserr << "WARNING insufficient arguments\n";
-	opserr << "Want: element Brick eleTag? Node1? Node2? Node3? Node4? Node5? Node6? Node7? Node 8? matTag?\n";
-	return 0;
-    }
 
-    int idata[10];
-    int num = 10;
-    if (OPS_GetIntInput(&num,idata)<0) {
-	opserr<<"WARNING: invalid integer data\n";
-	return 0;
-    }
-
-    NDMaterial* mat = OPS_getNDMaterial(idata[9]);
-    if (mat == 0) {
-	opserr << "WARNING material not found\n";
-	opserr << "material tag: " << idata[9];
-	opserr << "\nBrick element: " << idata[0] << endln;
-    }
-
-    double data[3] = {0,0,0};
-    num = OPS_GetNumRemainingInputArgs();
-    if (num > 3) {
-	num = 3;
-    }
-    if (num > 0) {
-	if (OPS_GetDoubleInput(&num,data) < 0) {
-	    opserr<<"WARNING: invalid double data\n";
-	    return 0;
-	}	
-    }
-
-    return new Brick(idata[0],idata[1],idata[2],idata[3],idata[4],idata[5],idata[6],idata[7],
-		     idata[8],*mat,data[0],data[1],data[2]);
-}
-#endif
 
 //static data
 double  Brick::xl[3][8] ;
@@ -113,7 +74,7 @@ Brick::Brick( )
 
   for (int i=0; i<8; i++ ) {
     materialPointers[i] = 0;
-    nodePointers[i] = 0;
+    theNodes[i] = 0;
   }
 
   b[0] = 0.0;
@@ -156,7 +117,7 @@ Brick::Brick(int tag,
 	opserr << "Brick::constructor - failed to get a material of type: ThreeDimensional\n";
 	exit(-1);
       } //end if
-      nodePointers[i] = 0;
+      theNodes[i] = 0;
   } //end for i 
 
   // Body forces
@@ -189,7 +150,7 @@ void  Brick::setDomain( Domain *theDomain )
 {  
   //node pointers
   for (int i=0; i<8; i++ ) 
-     nodePointers[i] = theDomain->getNode( connectedExternalNodes(i) ) ;
+     theNodes[i] = theDomain->getNode( connectedExternalNodes(i) ) ;
 
   this->DomainComponent::setDomain(theDomain);
 
@@ -210,9 +171,9 @@ const ID&  Brick::getExternalNodes( )
 } 
 
 Node **  
-Brick::getNodePtrs(void) 
+Brick::getNodePtrs() 
 {
-  return nodePointers ;
+  return &theNodes[0];
 } 
 
 //return number of dofs
@@ -290,8 +251,8 @@ void  Brick::Print(OPS_Stream &s, int flag)
         const int nstress = 6;
 
         for (i = 0; i < numNodes; i++) {
-            const Vector &nodeCrd = nodePointers[i]->getCrds();
-            const Vector &nodeDisp = nodePointers[i]->getDisp();
+            const Vector &nodeCrd = theNodes[i]->getCrds();
+            const Vector &nodeDisp = theNodes[i]->getDisp();
             s << "#NODE " << nodeCrd(0) << " " << nodeCrd(1) << " " << nodeCrd(2)
                 << " " << nodeDisp(0) << " " << nodeDisp(1) << " " << nodeDisp(2) << endln;
         }
@@ -592,7 +553,7 @@ Brick::addInertiaLoadToUnbalance(const Vector &accel)
   // store computed RV for nodes in resid vector
   int count = 0;
   for (i=0; i<numberNodes; i++) {
-    const Vector &Raccel = nodePointers[i]->getRV(accel);
+    const Vector &Raccel = theNodes[i]->getRV(accel);
     for (int j=0; j<ndf; j++)
       resid(count++) = Raccel(j);
   }
@@ -735,9 +696,9 @@ void   Brick::formInertiaTerms( int tangFlag )
     //node loop to compute acceleration
     momentum.Zero( ) ;
     for ( j = 0; j < numberNodes; j++ ) 
-      //momentum += shp[massIndex][j] * ( nodePointers[j]->getTrialAccel()  ) ; 
+      //momentum += shp[massIndex][j] * ( theNodes[j]->getTrialAccel()  ) ; 
       momentum.addVector( 1.0,
-			  nodePointers[j]->getTrialAccel(),
+			  theNodes[j]->getTrialAccel(),
 			  shp[massIndex][j] ) ;
 
 
@@ -789,24 +750,23 @@ void   Brick::formInertiaTerms( int tangFlag )
 //*********************************************************************
 //form residual and tangent
 int  
-Brick::update(void) 
+Brick::update() 
 {
 
   //strains ordered : eps11, eps22, eps33, 2*eps12, 2*eps23, 2*eps31 
 
-  static const int ndm = 3 ;
+  static constexpr int ndm = 3 ;
 
-  static const int ndf = 3 ; 
+  static constexpr int ndf = 3 ; 
 
-  static const int nstress = 6 ;
+  static constexpr int nstress = 6 ;
  
-  static const int numberNodes = 8 ;
+  static constexpr int numberNodes = 8 ;
 
-  static const int numberGauss = 8 ;
+  static constexpr int numberGauss = 8 ;
 
-  static const int nShape = 4 ;
+  static constexpr int nShape = 4 ;
 
-  int i, j, k, p, q ;
   int success ;
   
   static double volume ;
@@ -840,10 +800,11 @@ Brick::update(void)
 
   int count = 0 ;
   volume = 0.0 ;
+  int i, j, k, p, q ;
 
-  for ( i = 0; i < 2; i++ ) {
-    for ( j = 0; j < 2; j++ ) {
-      for ( k = 0; k < 2; k++ ) {
+  for (int i = 0; i < 2; i++ ) {
+    for (int j = 0; j < 2; j++ ) {
+      for (int k = 0; k < 2; k++ ) {
 
         gaussPoint[0] = sg[i] ;        
 	gaussPoint[1] = sg[j] ;        
@@ -892,7 +853,7 @@ Brick::update(void)
       BJ = computeB( j, shp ) ;
 
       //nodal displacements 
-      const Vector &ul = nodePointers[j]->getTrialDisp( ) ;
+      const Vector &ul = theNodes[j]->getTrialDisp( ) ;
 
       //compute the strain
       //strain += (BJ*ul) ; 
@@ -927,7 +888,7 @@ Brick::update(void)
       double b50 = shp[2][j];
       double b52 = shp[0][j];
 
-      const Vector &ul = nodePointers[j]->getTrialDisp();
+      const Vector &ul = theNodes[j]->getTrialDisp();
 
       double ul0 = ul(0);
       double ul1 = ul(1);
@@ -1183,7 +1144,7 @@ Brick::computeBasis( )
 
   for (int i = 0; i < 8; i++ ) {
 
-       const Vector &coorI = nodePointers[i]->getCrds( ) ;
+       const Vector &coorI = theNodes[i]->getCrds( ) ;
 
        xl[0][i] = coorI(0) ;
        xl[1][i] = coorI(1) ;
@@ -1421,71 +1382,6 @@ int  Brick::recvSelf (int commitTag,
 }
 //**************************************************************************
 
-int
-Brick::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // vertex display coordinate vectors
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    static Vector v5(3);
-    static Vector v6(3);
-    static Vector v7(3);
-    static Vector v8(3);
-    static Matrix coords(8, 3); // polygon coordinate matrix
-    static Vector values(8); // color vector
-    int i;
-
-    // get display coords
-    nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-    nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-    nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-    nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
-    nodePointers[4]->getDisplayCrds(v5, fact, displayMode);
-    nodePointers[5]->getDisplayCrds(v6, fact, displayMode);
-    nodePointers[6]->getDisplayCrds(v7, fact, displayMode);
-    nodePointers[7]->getDisplayCrds(v8, fact, displayMode);
-
-    // add to coord matrix
-    for (i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v2(i);
-        coords(2, i) = v3(i);
-        coords(3, i) = v4(i);
-        coords(4, i) = v5(i);
-        coords(5, i) = v6(i);
-        coords(6, i) = v7(i);
-        coords(7, i) = v8(i);
-    }
-    
-    if (displayMode < 3 && displayMode > 0) {
-        // determine the value to be drawn, the stress at nearest gauss point in displayMode dirn
-        const Vector& stress1 = materialPointers[0]->getStress();
-        const Vector& stress2 = materialPointers[1]->getStress();
-        const Vector& stress3 = materialPointers[2]->getStress();
-        const Vector& stress4 = materialPointers[3]->getStress();
-        const Vector& stress5 = materialPointers[4]->getStress();
-        const Vector& stress6 = materialPointers[5]->getStress();
-        const Vector& stress7 = materialPointers[6]->getStress();
-        const Vector& stress8 = materialPointers[7]->getStress();
-        for (i = 0; i < 8; i++) {
-            int index = displayMode - 1;
-            values(0) = stress1(index);
-            values(1) = stress2(index);
-            values(2) = stress3(index);
-            values(3) = stress4(index);
-            values(4) = stress5(index);
-            values(5) = stress6(index);
-            values(6) = stress7(index);
-            values(7) = stress8(index);
-        }
-    } else if (displayMode < 0)
-        for (i = 0; i < 8; i++)
-            values(i) = 0.0;
-
-    return theViewer.drawCube(coords, values, this->getTag());
-}
 
 Response*
 Brick::setResponse(const char **argv, int argc, OPS_Stream &output)
@@ -1499,7 +1395,7 @@ Brick::setResponse(const char **argv, int argc, OPS_Stream &output)
   output.attr("eleTag",this->getTag());
   for (int i=1; i<=8; i++) {
     sprintf(outputData,"node%d",i);
-    output.attr(outputData,nodePointers[i-1]->getTag());
+    output.attr(outputData, theNodes[i-1]->getTag());
   }
 
 
