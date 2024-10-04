@@ -771,7 +771,9 @@ FourNodeQuad::Print(OPS_Stream &s, int flag)
       for (int i = 0; i < nip - 1; i++)
         s << theMaterial[i]->getTag() << ", ";
       s << theMaterial[nip - 1]->getTag() << "] ";
+
       s << "}";
+      return;
   }
 
   if (flag == 2) {

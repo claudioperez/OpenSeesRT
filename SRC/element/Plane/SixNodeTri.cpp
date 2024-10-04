@@ -109,7 +109,7 @@ SixNodeTri::SixNodeTri()
     wts[2] = 0.166666666666666667;
 
     for (int i=0; i<NEN; i++)
-      theNodes[i] = 0;
+        theNodes[i] = 0;
 }
 
 SixNodeTri::~SixNodeTri()
@@ -795,6 +795,7 @@ SixNodeTri::Print(OPS_Stream &s, int flag)
       s << "\"masspervolume\": " << rho << ", ";
       s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
       s << "\"material\": \"" << theMaterial[0]->getTag() << "\"}";
+      return;
   }
 
   if (flag == 2) {
@@ -855,7 +856,7 @@ Response*
 SixNodeTri::setResponse(const char **argv, int argc,
                           OPS_Stream &output)
 {
-  Response *theResponse =0;
+  Response *theResponse = nullptr;
 
   output.tag("ElementOutput");
   output.attr("eleType","SixNodeTri");
@@ -1012,12 +1013,12 @@ SixNodeTri::getResponse(int responseID, Information &eleInfo)
                        {0.6666666666666667, 0.6666666666666667, -0.3333333333333333},
                        {-0.3333333333333333, 0.6666666666666667, 0.6666666666666667},
                        {0.6666666666666667, -0.3333333333333333, 0.6666666666666667}};
-    int p, l;
+
     for (int i = 0; i < NEN; i++) {
           for (int k = 0; k < 3; k++) {
-                p = 3*i + k;
+                int p = 3*i + k;
                 for (int j = 0; j < nip; j++) {
-                  l = 3*j + k;
+                  int l = 3*j + k;
                   stressAtNodes(p) += We[i][j] * stressGP(l);
                   // opserr << "stressAtNodes(" << p << ") = We[" << i << "][" << j << "] * stressGP(" << l << ") = " << We[i][j] << " * " << stressGP(l) << " = " << stressAtNodes(p) <<  "\n";
                 }

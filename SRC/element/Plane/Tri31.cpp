@@ -743,18 +743,25 @@ void
 Tri31::Print(OPS_Stream &s, int flag)                                                                 
 {
 
+    const ID& node_tags = this->getExternalNodes();
+
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
         s << OPS_PRINT_JSON_ELEM_INDENT << "{";
         s << "\"name\": " << this->getTag() << ", ";
         s << "\"type\": \"" << this->getClassType() << "\", ";
-        s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-        s << connectedExternalNodes(1) << ", ";
-        s << connectedExternalNodes(2) << "], ";
+  
+        s << "\"nodes\": [";
+        for (int i=0; i < NEN-1; i++)
+            s << node_tags(i) << ", ";
+        s << node_tags(NEN-1) << "]";
+        s << ", ";
+
         s << "\"thickness\": " << thickness << ", ";
         s << "\"surfacePressure\": " << pressure << ", ";
         s << "\"masspervolume\": " << rho << ", ";
         s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
         s << "\"material\": " << theMaterial[0]->getTag() << "}";
+        return;
     }
 
     if (flag == OPS_PRINT_CURRENTSTATE) {
