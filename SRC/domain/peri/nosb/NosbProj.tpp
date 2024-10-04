@@ -192,6 +192,8 @@ NosbProj<ndim, maxfam>::bond_force(int i, MatrixND<ndim, ndim> &Qmat)
     const VectorND<ndim> xi = neigh[i]->coord - center->coord;
     VectorND<ndim> T2 = this->get_T2(i, xi);
 
+    // printf("T2=(%7.2e, %7.2e)\n", T2[0], T2[1]);
+
     // the correct formula for T[i] is
     // T[i] = omega[i] * Qmat * xi + w[i]*Pmat*xi/|xi|^2
     // Since w[i] and omega[i] are the same in this formulation and T2 = Pmat*xi/|xi|^2,
