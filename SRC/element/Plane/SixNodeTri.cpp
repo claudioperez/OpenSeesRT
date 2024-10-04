@@ -29,6 +29,7 @@
 #include <NDMaterial.h>
 #include <Matrix.h>
 #include <Vector.h>
+#include <VectorND.h>
 #include <ID.h>
 #include <Domain.h>
 #include <string.h>
@@ -39,90 +40,22 @@
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
-#if 0
-void * OPS_ADD_RUNTIME_VPV(OPS_SixNodeTri)
-{
-    int ndm = OPS_GetNDM();
-    int ndf = OPS_GetNDF();
+using OpenSees::VectorND;
 
-    if (ndm != 2 || ndf != 2) {
-        opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with quad element\n";
-        return 0;
-    }
-
-    if (OPS_GetNumRemainingInputArgs() < 10) {
-        opserr << "WARNING insufficient arguments\n";
-        opserr << "Want: element SixNodeTri eleTag? iNode? jNode? kNode? lNode? nNode5 mNode6 thk? type? matTag? <pressure? rho? b1? b2?>\n";
-        return 0;
-    }
-
-    // SixNodeTriId, iNode, jNode, kNode, lNode
-        // nNode, mNode
-    int idata[7];
-    int num = 7;
-    if (OPS_GetIntInput(&num,idata) < 0) {
-        opserr<<"WARNING: invalid integer inputs\n";
-        return 0;
-    }
-
-    double thk = 1.0;
-    num = 1;
-    if (OPS_GetDoubleInput(&num,&thk) < 0) {
-        opserr<<"WARNING: invalid double inputs\n";
-        return 0;
-    }
-
-    const char* type = OPS_GetString();
-
-    int matTag;
-    num = 1;
-    if (OPS_GetIntInput(&num,&matTag) < 0) {
-        opserr<<"WARNING: invalid matTag\n";
-        return 0;
-    }
-
-    NDMaterial* mat = OPS_getNDMaterial(matTag);
-    if (mat == 0) {
-        opserr << "WARNING material not found\n";
-        opserr << "Material: " << matTag;
-        opserr << "\nSixNodeTri element: " << idata[0] << endln;
-        return 0;
-    }
-
-    // p, rho, b1, b2
-    double data[4] = {0,0,0,0};
-    num = OPS_GetNumRemainingInputArgs();
-    if (num > 4) {
-        num = 4;
-    }
-    if (num > 0) {
-        if (OPS_GetDoubleInput(&num,data) < 0) {
-            opserr<<"WARNING: invalid integer data\n";
-            return 0;
-        }
-    }
-
-    return new SixNodeTri(idata[0],idata[1],idata[2],idata[3],idata[4],
-                                                        idata[5],idata[6],
-                                        *mat,type,thk,data[0],data[1],data[2],data[3]);
-}
-#endif
-
-
-double SixNodeTri::matrixData[(nnodes*2)*(nnodes*2)];
-Matrix SixNodeTri::K(matrixData, 2*nnodes, 2*nnodes);
-Vector SixNodeTri::P(2*nnodes);
-double SixNodeTri::shp[3][nnodes];
+double SixNodeTri::matrixData[(NEN*2)*(NEN*2)];
+Matrix SixNodeTri::K(matrixData, 2*NEN, 2*NEN);
+Vector SixNodeTri::P(2*NEN);
+double SixNodeTri::shp[3][NEN];
 double SixNodeTri::pts[nip][2];
 double SixNodeTri::wts[nip];
 
-SixNodeTri::SixNodeTri(int tag, int nd1, int nd2, int nd3, int nd4,
-                       int nd5, int nd6,
+SixNodeTri::SixNodeTri(int tag, 
+                       const std::array<int,6> & nodes,
                        NDMaterial &m, const char *type, double t,
                        double p, double r, double b1, double b2)
 :Element (tag, ELE_TAG_SixNodeTri),
-  theMaterial(0), connectedExternalNodes(nnodes),
- Q(2*nnodes), applyLoad(0), pressureLoad(2*nnodes), thickness(t), pressure(p), rho(r), Ki(0)
+  connectedExternalNodes(NEN),
+ Q(2*NEN), applyLoad(0), pressureLoad(2*NEN), thickness(t), pressure(p), rho(r), Ki(0)
 {
     pts[0][0] = 0.666666666666666667;
     pts[0][1] = 0.166666666666666667;
@@ -145,30 +78,23 @@ SixNodeTri::SixNodeTri(int tag, int nd1, int nd2, int nd3, int nd4,
     b[0] = b1;
     b[1] = b2;
 
-    // Allocate arrays of pointers to NDMaterials
-    theMaterial = new NDMaterial *[nip];
-
     for (int i = 0; i < nip; i++) {
       // Get copies of the material model for each integration point
       theMaterial[i] = m.getCopy(type);
     }
 
-    // Set connected external node IDs
-    connectedExternalNodes(0) = nd1;
-    connectedExternalNodes(1) = nd2;
-    connectedExternalNodes(2) = nd3;
-    connectedExternalNodes(3) = nd4;
-    connectedExternalNodes(4) = nd5;
-    connectedExternalNodes(5) = nd6;
 
-    for (int i=0; i<nnodes; i++)
-      theNodes[i] = 0;
+    // Set connected external node IDs
+    for (int i=0; i<NEN; i++) {
+      connectedExternalNodes(i) = nodes[i];
+      theNodes[i] = nullptr;
+    }
 }
 
 SixNodeTri::SixNodeTri()
 :Element (0,ELE_TAG_SixNodeTri),
-  theMaterial(0), connectedExternalNodes(nnodes),
- Q(2*nnodes), applyLoad(0), pressureLoad(2*nnodes), thickness(0.0), pressure(0.0), Ki(0)
+  connectedExternalNodes(NEN),
+ Q(2*NEN), applyLoad(0), pressureLoad(2*NEN), thickness(0.0), pressure(0.0), Ki(0)
 {
 
     pts[0][0] = 0.666666666666666667;
@@ -182,7 +108,7 @@ SixNodeTri::SixNodeTri()
     wts[1] = 0.166666666666666667;
     wts[2] = 0.166666666666666667;
 
-    for (int i=0; i<nnodes; i++)
+    for (int i=0; i<NEN; i++)
       theNodes[i] = 0;
 }
 
@@ -193,10 +119,6 @@ SixNodeTri::~SixNodeTri()
       delete theMaterial[i];
   }
 
-  // Delete the array of pointers to NDMaterial pointer arrays
-  if (theMaterial)
-    delete [] theMaterial;
-
   if (Ki != 0)
     delete Ki;
 }
@@ -204,7 +126,7 @@ SixNodeTri::~SixNodeTri()
 int
 SixNodeTri::getNumExternalNodes() const
 {
-    return nnodes;
+    return NEN;
 }
 
 const ID&
@@ -215,67 +137,50 @@ SixNodeTri::getExternalNodes()
 
 
 Node **
-SixNodeTri::getNodePtrs(void)
+SixNodeTri::getNodePtrs()
 {
-  return theNodes;
+  return &theNodes[0];
 }
 
 int
 SixNodeTri::getNumDOF()
 {
-    return nnodes*2;
+  int sum = 0;
+
+  for (const Node* node: theNodes)
+    sum += node->getNumberDOF();
+
+  return sum;
 }
 
 void
 SixNodeTri::setDomain(Domain *theDomain)
 {
     // Check Domain is not null - invoked when object removed from a domain
-    if (theDomain == 0) {
-        theNodes[0] = nullptr;
-        theNodes[1] = nullptr;
-        theNodes[2] = nullptr;
-        theNodes[3] = nullptr;
-        theNodes[4] = nullptr;
-        theNodes[5] = nullptr;
-        return;
+    if (theDomain == nullptr) {
+      for (int i=0; i<NEN; i++)
+        theNodes[i] = nullptr;
+      return;
     }
 
-    int Nd1 = connectedExternalNodes(0);
-    int Nd2 = connectedExternalNodes(1);
-    int Nd3 = connectedExternalNodes(2);
-    int Nd4 = connectedExternalNodes(3);
-    int Nd5 = connectedExternalNodes(4);
-    int Nd6 = connectedExternalNodes(5);
-
-    theNodes[0] = theDomain->getNode(Nd1);
-    theNodes[1] = theDomain->getNode(Nd2);
-    theNodes[2] = theDomain->getNode(Nd3);
-    theNodes[3] = theDomain->getNode(Nd4);
-    theNodes[4] = theDomain->getNode(Nd5);
-    theNodes[5] = theDomain->getNode(Nd6);
-
-    if (theNodes[0] == 0 || theNodes[1] == 0 || theNodes[2] == 0 || theNodes[3] == 0 ||
-                theNodes[4] == 0 || theNodes[5] == 0) {
-        //opserr << "FATAL ERROR SixNodeTri (tag: %d), node not found in domain",
-        //        this->getTag());
-
+    for (int i=0; i<NEN; i++) {
+      // Retrieve the node from the domain using its tag.
+      // If no node is found, then return
+      theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
+      if (theNodes[i] == nullptr)
         return;
-    }
 
-    int dofNd1 = theNodes[0]->getNumberDOF();
-    int dofNd2 = theNodes[1]->getNumberDOF();
-    int dofNd3 = theNodes[2]->getNumberDOF();
-    int dofNd4 = theNodes[3]->getNumberDOF();
-    int dofNd5 = theNodes[4]->getNumberDOF();
-    int dofNd6 = theNodes[5]->getNumberDOF();
-
-    if (dofNd1 != 2 || dofNd2 != 2 || dofNd3 != 2 || dofNd4 != 2 ||
-                dofNd5 != 2 || dofNd6 != 2) {
-        //opserr << "FATAL ERROR SixNodeTri (tag: %d), has differing number of DOFs at its nodes",
-        //        this->getTag());
-
+      // If node is found, ensure node has the proper number of DOFs
+      int dofs = theNodes[i]->getNumberDOF();
+      if (dofs != 2 && dofs != 3) {
+        opserr << "WARNING " << this->getClassType() 
+               << " element with tag " << this->getTag() 
+               << " does not have 2 or 3 DOFs at node " 
+               << theNodes[i]->getTag() << "\n";
         return;
+      }
     }
+  
     this->DomainComponent::setDomain(theDomain);
 
     // Compute consistent nodal loads due to pressure
@@ -327,52 +232,38 @@ SixNodeTri::revertToStart()
 int
 SixNodeTri::update()
 {
-        const Vector &disp1 = theNodes[0]->getTrialDisp();
-        const Vector &disp2 = theNodes[1]->getTrialDisp();
-        const Vector &disp3 = theNodes[2]->getTrialDisp();
-        const Vector &disp4 = theNodes[3]->getTrialDisp();
-        const Vector &disp5 = theNodes[4]->getTrialDisp();
-        const Vector &disp6 = theNodes[5]->getTrialDisp();
+    // Collect displacements at each node into a local array
+    double u[NDM][NEN];
 
-        double u[2][nnodes];
+    for (int i=0; i<NEN; i++) {
+        const Vector &displ = theNodes[i]->getTrialDisp();
+        for (int j=0; j<NDM; j++) {
+           u[j][i] = displ[j];
+        }
+    }
 
-        u[0][0] = disp1(0);
-        u[1][0] = disp1(1);
-        u[0][1] = disp2(0);
-        u[1][1] = disp2(1);
-        u[0][2] = disp3(0);
-        u[1][2] = disp3(1);
-        u[0][3] = disp4(0);
-        u[1][3] = disp4(1);
-        u[0][4] = disp5(0);
-        u[1][4] = disp5(1);
-        u[0][5] = disp6(0);
-        u[1][5] = disp6(1);
+    int ret = 0;
 
-        static Vector eps(3);
+    // Loop over the integration points
+    for (int i = 0; i < nip; i++) {
+        // Determine Jacobian for this integration point
+        this->shapeFunction(pts[i][0], pts[i][1]);
 
-        int ret = 0;
-
-        // Loop over the integration points
-        for (int i = 0; i < nip; i++) {
-              // Determine Jacobian for this integration point
-              this->shapeFunction(pts[i][0], pts[i][1]);
-
-              // Interpolate strains
-              //eps = B*u;
-              //eps.addMatrixVector(0.0, B, u, 1.0);
-              eps.Zero();
-              for (int beta = 0; beta < nnodes; beta++) {
-                  eps(0) += shp[0][beta]*u[0][beta];
-                  eps(1) += shp[1][beta]*u[1][beta];
-                  eps(2) += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
-              }
-
-              // Set the material strain
-              ret += theMaterial[i]->setTrialStrain(eps);
+        // Interpolate strains
+        //eps = B*u;
+        //eps.addMatrixVector(0.0, B, u, 1.0);
+        VectorND<3> eps{};
+        for (int beta = 0; beta < NEN; beta++) {
+            eps(0) += shp[0][beta]*u[0][beta];
+            eps(1) += shp[1][beta]*u[1][beta];
+            eps(2) += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
         }
 
-        return ret;
+        // Set the material strain
+        ret += theMaterial[i]->setTrialStrain(eps);
+    }
+
+    return ret;
 }
 
 
@@ -407,8 +298,8 @@ SixNodeTri::getTangentStiff()
       //   beta < 4;
       //   beta++, ib += 2, colIb += 16, colIbP1 += 16) {
 
-      for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia += 2) {
-        for (int beta = 0, ib = 0; beta < nnodes; beta++, ib += 2) {
+      for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
+        for (int beta = 0, ib = 0; beta < NEN; beta++, ib += 2) {
 
           DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
           DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
@@ -463,10 +354,10 @@ SixNodeTri::getInitialStiff()
     //K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
     //K.addMatrixTripleProduct(1.0, B, D, intWt(i)*intWt(j)*detJ);
     for (int beta = 0, ib = 0, colIb =0, colIbP1 = 8;
-      beta < nnodes;
+      beta < NEN;
       beta++, ib += 2, colIb += 16, colIbP1 += 16) {
 
-      for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia += 2) {
+      for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
 
         DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
         DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
@@ -492,10 +383,9 @@ SixNodeTri::getMass()
 {
     K.Zero();
 
-    int i;
-    static double rhoi[3]; // nip
+    double rhoi[3]; // nip
     double sum = 0.0;
-    for (i = 0; i < nip; i++) {
+    for (int i = 0; i < nip; i++) {
       if (rho == 0)
         rhoi[i] = theMaterial[i]->getRho();
       else
@@ -509,7 +399,7 @@ SixNodeTri::getMass()
     double rhodvol, Nrho;
 
     // Compute a lumped mass matrix
-    for (i = 0; i < nip; i++) {
+    for (int i = 0; i < nip; i++) {
 
         // Determine Jacobian for this integration point
         rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
@@ -517,7 +407,7 @@ SixNodeTri::getMass()
         // Element plus material density ... MAY WANT TO REMOVE ELEMENT DENSITY
         rhodvol *= (rhoi[i]*thickness*wts[i]);
 
-        for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia++) {
+        for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia++) {
             Nrho = shp[2][alpha]*rhodvol;
             K(ia,ia) += Nrho;
             ia++;
@@ -529,7 +419,7 @@ SixNodeTri::getMass()
 }
 
 void
-SixNodeTri::zeroLoad(void)
+SixNodeTri::zeroLoad()
 {
     Q.Zero();
 
@@ -549,13 +439,13 @@ SixNodeTri::addLoad(ElementalLoad *theLoad, double loadFactor)
     const Vector &data = theLoad->getData(type, loadFactor);
 
     if (type == LOAD_TAG_SelfWeight) {
-            applyLoad = 1;
-            appliedB[0] += loadFactor*data(0)*b[0];
-            appliedB[1] += loadFactor*data(1)*b[1];
-            return 0;
+        applyLoad = 1;
+        appliedB[0] += loadFactor*data(0)*b[0];
+        appliedB[1] += loadFactor*data(1)*b[1];
+        return 0;
     } else {
-            opserr << "SixNodeTri::addLoad - load type unknown for ele with tag: " << this->getTag() << endln;
-            return -1;
+        opserr << "SixNodeTri::addLoad - load type unknown for ele with tag: " << this->getTag() << endln;
+        return -1;
     }
 
     return -1;
@@ -564,10 +454,9 @@ SixNodeTri::addLoad(ElementalLoad *theLoad, double loadFactor)
 int
 SixNodeTri::addInertiaLoadToUnbalance(const Vector &accel)
 {
-  int i;
   static double rhoi[nip];
   double sum = 0.0;
-  for (i = 0; i < nip; i++) {
+  for (int i = 0; i < nip; i++) {
     rhoi[i] = theMaterial[i]->getRho();
     sum += rhoi[i];
   }
@@ -589,7 +478,7 @@ SixNodeTri::addInertiaLoadToUnbalance(const Vector &accel)
     return -1;
   }
 
-  static double ra[2*nnodes];
+  static double ra[2*NEN];
 
   ra[0] = Raccel1(0);
   ra[1] = Raccel1(1);
@@ -609,7 +498,7 @@ SixNodeTri::addInertiaLoadToUnbalance(const Vector &accel)
 
   // Want to add ( - fact * M R * accel ) to unbalance
   // Take advantage of lumped mass matrix
-  for (i = 0; i < 2*nnodes; i++)
+  for (int i = 0; i < 2*NEN; i++)
     Q(i) += -K(i,i)*ra[i];
 
   return 0;
@@ -634,7 +523,7 @@ SixNodeTri::getResistingForce()
       // Perform numerical integration on internal force
       //P = P + (B^ sigma) * intWt(i)*intWt(j) * detJ;
       //P.addMatrixTransposeVector(1.0, B, sigma, intWt(i)*intWt(j)*detJ);
-      for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia += 2) {
+      for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
 
         P(ia)   += dvol*(shp[0][alpha]*sigma(0) + shp[1][alpha]*sigma(2));
         P(ia+1) += dvol*(shp[1][alpha]*sigma(1) + shp[0][alpha]*sigma(2));
@@ -694,7 +583,7 @@ SixNodeTri::getResistingForceIncInertia()
     const Vector &accel5 = theNodes[4]->getTrialAccel();
     const Vector &accel6 = theNodes[5]->getTrialAccel();
 
-    static double a[2*nnodes];
+    static double a[2*NEN];
 
     a[0] = accel1(0);
     a[1] = accel1(1);
@@ -716,7 +605,7 @@ SixNodeTri::getResistingForceIncInertia()
     this->getMass();
 
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 2*nnodes; i++)
+    for (i = 0; i < 2*NEN; i++)
             P(i) += K(i,i)*a[i];
 
     // add the damping forces if rayleigh damping
@@ -760,10 +649,10 @@ SixNodeTri::sendSelf(int commitTag, Channel &theChannel)
   // Now quad sends the ids of its materials
   int matDbTag;
 
-  static ID idData(2*nip+nnodes);
+  static ID idData(2*nip+NEN);
 
   int i;
-  for (i = 0; i < nip; i++) {
+  for (int i = 0; i < nip; i++) {
     idData(i) = theMaterial[i]->getClassTag();
     matDbTag = theMaterial[i]->getDbTag();
     // NOTE: we do have to ensure that the material has a database
@@ -777,8 +666,8 @@ SixNodeTri::sendSelf(int commitTag, Channel &theChannel)
     idData(i+nip) = matDbTag;
   }
 
-  for( i = 0; i < nnodes; i++)
-        idData(2*nip+i) = connectedExternalNodes(i);
+  for (int i = 0; i < NEN; i++)
+      idData(2*nip+i) = connectedExternalNodes(i);
 
   res += theChannel.sendID(dataTag, commitTag, idData);
   if (res < 0) {
@@ -826,7 +715,7 @@ SixNodeTri::recvSelf(int commitTag, Channel &theChannel,
   betaK0 = data(7);
   betaKc = data(8);
 
-  static ID idData(2*nip+nnodes);
+  static ID idData(2*nip+NEN);
   // Quad now receives the tags of its nine external nodes
   res += theChannel.recvID(dataTag, commitTag, idData);
   if (res < 0) {
@@ -834,16 +723,10 @@ SixNodeTri::recvSelf(int commitTag, Channel &theChannel,
     return res;
   }
 
-  for( int i = 0; i < nnodes; i++)
+  for( int i = 0; i < NEN; i++)
     connectedExternalNodes(i) = idData(2*nip+i);
 
-  if (theMaterial == 0) {
-    // Allocate new materials
-    theMaterial = new NDMaterial *[nip];
-    if (theMaterial == 0) {
-      opserr << "SixNodeTri::recvSelf() - Could not allocate NDMaterial* array\n";
-      return -1;
-    }
+  if (theMaterial[0] == nullptr) {
     for (int i = 0; i < nip; i++) {
       int matClassTag = idData(i);
       int matDbTag = idData(i+nip);
@@ -894,12 +777,32 @@ SixNodeTri::recvSelf(int commitTag, Channel &theChannel,
 void
 SixNodeTri::Print(OPS_Stream &s, int flag)
 {
+  const ID& node_tags = this->getExternalNodes();
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": " << this->getTag() << ", ";
+      s << "\"type\": \"" << this->getClassType() << "\", ";
+  
+      s << "\"nodes\": [";
+      for (int i=0; i < NEN-1; i++)
+          s << node_tags(i) << ", ";
+      s << node_tags(NEN-1) << "]";
+      s << ", ";
+
+      s << "\"thickness\": " << thickness << ", ";
+      s << "\"surfacePressure\": " << pressure << ", ";
+      s << "\"masspervolume\": " << rho << ", ";
+      s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
+      s << "\"material\": \"" << theMaterial[0]->getTag() << "\"}";
+  }
+
   if (flag == 2) {
 
     s << "#SixNodeTri\n";
 
     int i;
-    const int numNodes = nnodes;
+    const int numNodes = NEN;
     const int nstress = nip ;
 
     for (i=0; i<numNodes; i++) {
@@ -944,23 +847,6 @@ SixNodeTri::Print(OPS_Stream &s, int flag)
         s << "\tStress (xx yy xy)" << endln;
         for (int i = 0; i < nip; i++)
                 s << "\t\tGauss point " << i+1 << ": " << theMaterial[i]->getStress();
-  }
-
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-      s << "\t\t\t{";
-      s << "\"name\": " << this->getTag() << ", ";
-      s << "\"type\": \"SixNodeTri\", ";
-      s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-      s << connectedExternalNodes(1) << ", ";
-      s << connectedExternalNodes(2) << ", ";
-      s << connectedExternalNodes(3) << ", ";
-      s << connectedExternalNodes(4) << ", ";
-      s << connectedExternalNodes(5) << "], ";
-      s << "\"thickness\": " << thickness << ", ";
-      s << "\"surfacePressure\": " << pressure << ", ";
-      s << "\"masspervolume\": " << rho << ", ";
-      s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
-      s << "\"material\": \"" << theMaterial[0]->getTag() << "\"}";
   }
 }
 
@@ -1032,7 +918,7 @@ SixNodeTri::setResponse(const char **argv, int argc,
   }
 
   else if ((strcmp(argv[0],"stressesAtNodes") ==0) || (strcmp(argv[0],"stressAtNodes") ==0)) {
-    for (int i=0; i<nnodes; i++) {
+    for (int i=0; i<NEN; i++) {
       output.tag("NodalPoint");
       output.attr("number",i+1);
       // output.attr("eta",pts[i][0]);
@@ -1049,7 +935,7 @@ SixNodeTri::setResponse(const char **argv, int argc,
       output.endTag(); // GaussPoint
       // output.endTag(); // NdMaterialOutput
       }
-    theResponse =  new ElementResponse(this, 11, Vector(3*nnodes));
+    theResponse =  new ElementResponse(this, 11, Vector(3*NEN));
   }
 
   else if ((strcmp(argv[0],"strain") ==0) || (strcmp(argv[0],"strains") ==0)) {
@@ -1106,7 +992,7 @@ SixNodeTri::getResponse(int responseID, Information &eleInfo)
 
     // extrapolate stress from Gauss points to element nodes
     static Vector stressGP(3*nip);
-    static Vector stressAtNodes(3*nnodes);
+    static Vector stressAtNodes(3*NEN);
         stressAtNodes.Zero();
     int cnt = 0;
         // first get stress components (xx, yy, xy) at Gauss points
@@ -1119,7 +1005,7 @@ SixNodeTri::getResponse(int responseID, Information &eleInfo)
       cnt += 3;
     }
 
-    // FMK - cannot be nnodes, nip for certain compilers, error in compilation
+    // FMK - cannot be NEN, nip for certain compilers, error in compilation
     double We[6][3] = {{1.6666666666666667, -0.3333333333333333, -0.3333333333333333},
                        {-0.3333333333333333, 1.6666666666666667, -0.3333333333333333},
                        {-0.3333333333333333, -0.3333333333333333, 1.6666666666666667},
@@ -1127,7 +1013,7 @@ SixNodeTri::getResponse(int responseID, Information &eleInfo)
                        {-0.3333333333333333, 0.6666666666666667, 0.6666666666666667},
                        {0.6666666666666667, -0.3333333333333333, 0.6666666666666667}};
     int p, l;
-    for (int i = 0; i < nnodes; i++) {
+    for (int i = 0; i < NEN; i++) {
           for (int k = 0; k < 3; k++) {
                 p = 3*i + k;
                 for (int j = 0; j < nip; j++) {
@@ -1316,7 +1202,7 @@ double SixNodeTri::shapeFunction(double s, double t)
 }
 
 void
-SixNodeTri::setPressureLoadAtNodes(void)
+SixNodeTri::setPressureLoadAtNodes()
 {
     pressureLoad.Zero();
 

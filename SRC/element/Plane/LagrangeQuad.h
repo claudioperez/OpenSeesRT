@@ -45,8 +45,10 @@ class LagrangeQuad : public Element,
                      protected GaussLegendre<2,4>
 {
   public:
-    LagrangeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
-                 Mate<2> &m, const char *type,
+    LagrangeQuad(int tag, 
+                 const std::array<int,4>& nodes,
+                 Mate<2> &m, 
+                 const char *type,
                  double t, double pressure = 0.0, 
                  double rho = 0.0,
                  double b1 = 0.0, double b2 = 0.0);

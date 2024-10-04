@@ -72,7 +72,7 @@ Tri31::Tri31(int tag,
         // Check allocation
         if (theMaterial[i] == nullptr) {
             opserr << "Tri31::Tri31 -- failed to get a copy of material model\n";
-            exit(-1);
+            return;
         }
     }
 
@@ -85,7 +85,7 @@ Tri31::Tri31(int tag,
 
 Tri31::Tri31()
  : Element (0,ELE_TAG_Tri31),
-   connectedExternalNodes(3), 
+   connectedExternalNodes(NEN), 
    Q(6), pressureLoad(6), thickness(0.0), pressure(0.0),
    Ki(nullptr)
 {
@@ -125,7 +125,7 @@ Tri31::getExternalNodes()
 Node **
 Tri31::getNodePtrs() 
 {
-  return theNodes;
+  return &theNodes[0];
 }
 
 int
@@ -133,9 +133,8 @@ Tri31::getNumDOF()
 {
   int sum = 0;
 
-  sum += theNodes[0]->getNumberDOF();
-  sum += theNodes[1]->getNumberDOF();
-  sum += theNodes[2]->getNumberDOF();
+  for (const Node* node: theNodes)
+    sum += node->getNumberDOF();
 
   return sum;
 }
@@ -178,17 +177,18 @@ Tri31::setDomain(Domain *theDomain)
 int
 Tri31::commitState()
 {
-    int retVal = 0;
+  int retVal = 0;
 
-    // call element commitState to do any base class stuff
-    if ((retVal = this->Element::commitState()) != 0) {
-        opserr << "Tri31::commitState () - failed in base class";
-    }    
-
-    // Loop over the integration points and commit the material states
-    for (int i = 0; i < NIP; i++) retVal += theMaterial[i]->commitState();
-
+  // call element commitState to do any base class stuff
+  if ((retVal = this->Element::commitState()) != 0) {
     return retVal;
+  }    
+
+  // Loop over the integration points and commit the material states
+  for (int i = 0; i < NIP; i++) 
+    retVal += theMaterial[i]->commitState();
+
+  return retVal;
 }
 
 int
@@ -208,7 +208,8 @@ Tri31::revertToStart()
     int retVal = 0;
 
     // Loop over the integration points and revert states to start
-    for (int i = 0; i < NIP; i++) retVal += theMaterial[i]->revertToStart();
+    for (int i = 0; i < NIP; i++) 
+      retVal += theMaterial[i]->revertToStart();
 
     return retVal;
 }
@@ -359,8 +360,7 @@ Tri31::getMass()
 {
     K.Zero();
 
-    int i;
-    static double rhoi[1]; //NIP
+    static double rhoi[1]; // NIP
     double sum = 0.0;
     for (int i = 0; i < NIP; i++) {
         if (rho == 0)
@@ -370,13 +370,13 @@ Tri31::getMass()
         sum += rhoi[i];
     }
 
-    if (sum == 0.0) return K;
+    if (sum == 0.0)
+        return K;
 
-    double rhodvol, Nrho;
 
     // Compute a lumped mass matrix
     for (int i = 0; i < NIP; i++) {
-        
+        double rhodvol, Nrho;
         // Determine Jacobian for this integration point
         rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
 
@@ -428,15 +428,14 @@ Tri31::addLoad(ElementalLoad *theLoad, double loadFactor)
 int 
 Tri31::addInertiaLoadToUnbalance(const Vector &accel)
 {
-    int i;
     static double rhoi[1]; //NIP
     double sum = 0.0;
-    for (i = 0; i < NIP; i++) {
-            if(rho == 0) {
-                rhoi[i] = theMaterial[i]->getRho();
-            } else {
-                rhoi[i] = rho;
-            }
+    for (int i = 0; i < NIP; i++) {
+        if(rho == 0) {
+            rhoi[i] = theMaterial[i]->getRho();
+        } else {
+            rhoi[i] = rho;
+        }
         sum += rhoi[i];
     }
 
@@ -467,7 +466,8 @@ Tri31::addInertiaLoadToUnbalance(const Vector &accel)
 
     // Want to add ( - fact * M R * accel ) to unbalance
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 2*NEN; i++) Q(i) += -K(i,i)*ra[i];
+    for (int i = 0; i < 2*NEN; i++) 
+        Q(i) += -K(i,i)*ra[i];
 
     return 0;
 }
@@ -830,6 +830,7 @@ Tri31::setResponse(const char **argv, int argc, OPS_Stream &output)
         }
     
         theResponse =  new ElementResponse(this, 1, P);
+
     } else if (strcmp(argv[0],"material") == 0 || strcmp(argv[0],"integrPoint") == 0) {
 
         int pointNum = atoi(argv[1]);

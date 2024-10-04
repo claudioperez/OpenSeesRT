@@ -28,6 +28,7 @@
 #ifndef FourNodeQuad_h
 #define FourNodeQuad_h
 
+#include <array>
 #include <Element.h>
 #include <Matrix.h>
 #include <Vector.h>
@@ -51,7 +52,7 @@ class FourNodeQuad : public Element,
     FourNodeQuad();
     ~FourNodeQuad();
 
-    const char *getClassType() const {return "FourNodeQuad";};
+    const char *getClassType() const {return "FourNodeQuad";}
     static constexpr const char* class_name = "FourNodeQuad";
 
     int getNumExternalNodes() const;
@@ -122,11 +123,11 @@ class FourNodeQuad : public Element,
     //
     // private attributes 
     // - a copy for each object of the class
-    NDMaterial **theMaterial; // pointer to the ND material objects
+    std::array<NDMaterial *, NIP> theMaterial; // pointer to the ND material objects
     
-    ID connectedExternalNodes; // Tags of quad nodes
+    ID connectedExternalNodes; // Tags of the nodes
 
-    Node *theNodes[NEN];
+    std::array<Node *, NEN> theNodes;
 
     Matrix *Ki;
     static double matrixData[64];   // array data for matrix

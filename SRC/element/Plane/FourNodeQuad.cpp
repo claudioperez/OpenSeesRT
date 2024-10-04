@@ -51,9 +51,9 @@ double FourNodeQuad::shp[3][4];
 FourNodeQuad::FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
                            NDMaterial &m, const char *type, double t,
                            double p, double r, double b1, double b2)
-:Element (tag, ELE_TAG_FourNodeQuad), 
-  theMaterial(0), connectedExternalNodes(4), 
- Q(8), pressureLoad(8), thickness(t), applyLoad(0), pressure(p), rho(r), Ki(0)
+ : Element (tag, ELE_TAG_FourNodeQuad), 
+   connectedExternalNodes(4), 
+   Q(8), pressureLoad(8), thickness(t), applyLoad(0), pressure(p), rho(r), Ki(0)
 {
 
     if (strcmp(type,"PlaneStrain") != 0 && strcmp(type,"PlaneStress") != 0
@@ -65,10 +65,6 @@ FourNodeQuad::FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
     // Body forces
     b[0] = b1;
     b[1] = b2;
-
-    // Allocate arrays of pointers to NDMaterials
-    theMaterial = new NDMaterial *[nip];
-    
 
     for (int i = 0; i < NIP; i++) {
       
@@ -94,12 +90,12 @@ FourNodeQuad::FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
 }
 
 FourNodeQuad::FourNodeQuad()
-:Element (0,ELE_TAG_FourNodeQuad),
-  theMaterial(0), connectedExternalNodes(4), 
- Q(8), pressureLoad(8), thickness(0.0), applyLoad(0), pressure(0.0), Ki(0)
+ : Element (0,ELE_TAG_FourNodeQuad),
+   connectedExternalNodes(4), 
+   Q(8), pressureLoad(8), thickness(0.0), applyLoad(0), pressure(0.0), Ki(0)
 {
   for (int i=0; i<NEN; i++)
-    theNodes[i] = 0;
+    theNodes[i] = nullptr;
 }
 
 FourNodeQuad::~FourNodeQuad()
@@ -108,10 +104,6 @@ FourNodeQuad::~FourNodeQuad()
     if (theMaterial[i])
       delete theMaterial[i];
   }
-
-  // Delete the array of pointers to NDMaterial pointer arrays
-  if (theMaterial)
-    delete [] theMaterial;
 
   if (Ki != 0)
     delete Ki;
@@ -133,7 +125,7 @@ FourNodeQuad::getExternalNodes()
 Node **
 FourNodeQuad::getNodePtrs() 
 {
-  return theNodes;
+  return &theNodes[0];
 }
 
 int
@@ -704,25 +696,22 @@ FourNodeQuad::recvSelf(int commitTag, Channel &theChannel,
   connectedExternalNodes(2) = idData(10);
   connectedExternalNodes(3) = idData(11);
   
-  if (theMaterial == nullptr) {
+  if (theMaterial[0] == nullptr) {
     // Allocate new materials
-    theMaterial = new NDMaterial *[4];
-    if (theMaterial == 0) {
-      opserr << "FourNodeQuad::recvSelf() - Could not allocate NDMaterial* array\n";
-      return -1;
-    }
-    for (int i = 0; i < 4; i++) {
+
+    for (int i = 0; i < nip; i++) {
       int matClassTag = idData(i);
       int matDbTag = idData(i+4);
       // Allocate new material with the sent class tag
       theMaterial[i] = theBroker.getNewNDMaterial(matClassTag);
-      if (theMaterial[i] == 0) {
+      if (theMaterial[i] == nullptr) {
           opserr << "FourNodeQuad::recvSelf() - Broker could not create NDMaterial of class type " << matClassTag << endln;
           return -1;
       }
       // Now receive materials into the newly allocated space
       theMaterial[i]->setDbTag(matDbTag);
       res += theMaterial[i]->recvSelf(commitTag, theChannel, theBroker);
+
       if (res < 0) {
         opserr << "FourNodeQuad::recvSelf() - material " << i << "failed to recv itself\n";
             return res;
@@ -767,10 +756,12 @@ FourNodeQuad::Print(OPS_Stream &s, int flag)
       s << OPS_PRINT_JSON_ELEM_INDENT << "{";
       s << "\"name\": " << this->getTag() << ", ";
       s << "\"type\": \"" << this->getClassType() << "\", ";
+  
       s << "\"nodes\": [";
       for (int i=0; i < NEN-1; i++)
           s << node_tags(i) << ", ";
-      s << node_tags(NEN-1) << "], ";
+      s << node_tags(NEN-1) << "]";
+      s << ", ";
 
       s << "\"thickness\": " << thickness << ", ";
       s << "\"surfacePressure\": " << pressure << ", ";
