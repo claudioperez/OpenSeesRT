@@ -1,3 +1,5 @@
+
+
 #include <MatrixND.h>
 #include <OPS_Stream.h>
 
@@ -61,7 +63,7 @@ ElasticIsotropic<ndim,type>::setTrialStrain(const MatrixSD<ndim,true>& e)
     ddsdde(1, 0) = ddsdde(1, 2);
     ddsdde(2, 0) = ddsdde(1, 2);
     ddsdde(2, 1) = ddsdde(1, 2);
-    ddsdde(3, 3) = (1.0-2.0*nu) * tmp;
+    ddsdde(3, 3) = (1.0 - 2.0*nu) * tmp;
     ddsdde(4, 4) = ddsdde(4, 4);
     ddsdde(5, 5) = ddsdde(4, 4);
 
@@ -69,6 +71,30 @@ ElasticIsotropic<ndim,type>::setTrialStrain(const MatrixSD<ndim,true>& e)
   }
 }
 
+template<int ndim, PlaneType type>
+MatrixSD<ne>
+ElasticIsotropic<ndim, type>::getTangent()
+{
+  if constexpr (ndim == 3) {
+    MatrixND<6,6> ddsdde{{{0.0}}};
+
+    double tmp = E / (1.0+nu) / (1.0-2.0*nu);
+    ddsdde(0, 0) = (1.0-nu) * tmp;
+    ddsdde(1, 1) = ddsdde(1, 1);
+    ddsdde(2, 2) = ddsdde(1, 1);
+    ddsdde(0, 1) = nu * tmp;
+    ddsdde(0, 2) = ddsdde(1, 2);
+    ddsdde(1, 2) = ddsdde(1, 2);
+    ddsdde(1, 0) = ddsdde(1, 2);
+    ddsdde(2, 0) = ddsdde(1, 2);
+    ddsdde(2, 1) = ddsdde(1, 2);
+    ddsdde(3, 3) = (1.0 - 2.0*nu) * tmp;
+    ddsdde(4, 4) = ddsdde(4, 4);
+    ddsdde(5, 5) = ddsdde(4, 4);
+
+    return ddsdde;
+  }
+}
 
 template<int ndim, PlaneType type>
 void
@@ -86,6 +112,7 @@ ElasticIsotropic<ndim,type>::Print(OPS_Stream& s, int flag)
         s << "\"type\": \"" << this->getClassType() << "\", ";
         s << "\"E\": "   << E   << ", ";
         s << "\"nu\": "  << nu  << ", ";
-        s << "\"rho\": " << rho << "}";
+        s << "\"rho\": " << rho;
+	s << "}";
     }
 }

@@ -18,12 +18,15 @@ namespace OpenSees {
 template <int ndim>
 class Mate : public TaggedObject {
   public:
+    using StrainType = MatrixSD<ndim,true>;
+  
+  static constexpr int ne = StrainType::size;
 
   Mate(int tag) : TaggedObject(tag) {}
 
   virtual Mate<ndim>* getCopy() = 0;
 
-  virtual int commit()
+  virtual int commitState()
   {
     return 0;
   }
@@ -33,10 +36,18 @@ class Mate : public TaggedObject {
     return 0;
   }
 
-  virtual int revertToLast()
+  virtual int revertToLastCommit()
   {
     return 0;
   }
+
+  virtual double getDensity() 
+  {
+    return 0.0;
+  }
+
+  virtual MatrixSD<ne> getTangent() = 0;
+
 #if 0
   virtual Response *setResponse (const char **argv, int argc, OPS_Stream &s);
   virtual int getResponse (int responseID, Information &matInformation);
