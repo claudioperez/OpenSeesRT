@@ -26,6 +26,8 @@ class Mate : public TaggedObject {
 
   virtual Mate<ndim>* getCopy() = 0;
 
+  virtual int getClassTag() { return 0;}
+
   virtual int commitState()
   {
     return 0;
@@ -47,22 +49,19 @@ class Mate : public TaggedObject {
   }
 
   virtual MatrixSD<ne> getTangent() = 0;
+  virtual MatrixSD<ne> getInitialTangent() = 0;
 
-#if 0
-  virtual Response *setResponse (const char **argv, int argc, OPS_Stream &s);
-  virtual int getResponse (int responseID, Information &matInformation);
-#endif
   virtual const MatrixSD<ndim>& getStress() = 0;
 
   virtual int setTrialStrain(const MatrixSD<ndim,true>&) = 0;
 
   virtual int setTrialStrain(const MatrixND<ndim,ndim>&) = 0;
 
-#if 0
-  virtual MatrixSD<ndim> get_tangent()
-  {
-  }
+#if 1
+  virtual Response *setResponse (const char **argv, int argc, OPS_Stream &s) {return 0;}
+  virtual int getResponse (int responseID, Information &matInformation) { return -1;}
 #endif
+
 };
 }
 

@@ -99,6 +99,7 @@ Tcl_PeriInit(ClientData cd, Tcl_Interp *interp,
         else
         {
             domain = new PeriDomain<2>(totnode, maxfam);
+			domain->plane_type = plane_type;
         }
     }
     else if (ndim == 3)
@@ -785,10 +786,23 @@ Tcl_PeriForm(PeriDomain<ndim> &domain, Tcl_Interp *interp, int argc, const char 
 	std::vector<NosbProj<ndim, maxfam>> nodefam;
 
 	// Create families for specific NOSB type
-	for (PeriParticle<ndim> &particle : domain.pts)
-	{
-		nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(1, 38.4e3, 0.2, 0.0));
+	if (ndim == 3) {
+		for (PeriParticle<ndim> &particle : domain.pts)
+		{
+			nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim>(1, 38.4e3, 0.2, 0.0));
+		}
+	} else if (ndim == 2 && domain.plane_type == 's') {
+		for (PeriParticle<ndim> &particle : domain.pts)
+		{
+			nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim, PlaneType::Stress>(1, 38.4e3, 0.2, 0.0));
+		}
+	} else if (ndim == 2 && domain.plane_type == 'e') {
+		for (PeriParticle<ndim> &particle : domain.pts)
+		{
+			nodefam.emplace_back(&particle, domain, new ElasticIsotropic<ndim, PlaneType::Strain>(1, 38.4e3, 0.2, 0.0));
+		}
 	}
+	
 	// -------- FOR DEBUGGING --------
 	// printf("Successfully create families for specific NOSB type\n");
 	// -------------------------------
@@ -817,15 +831,16 @@ Tcl_PeriForm(PeriDomain<ndim> &domain, Tcl_Interp *interp, int argc, const char 
 	// -------------------------------
 
 	// Form deformation gradients for trial
-	// for (NosbProj<ndim, maxfam> &fam_i : nodefam)
-		// fam_i.form_trial();
+	for (NosbProj<ndim, maxfam> &fam_i : nodefam)
+		fam_i.form_trial();
 
 	// -------- FOR DEBUGGING --------
-	for (int i = 0; i < 1; i++)
-	{
-		printf("Form trial %d\n", i);
-		nodefam[i].form_trial();
-	}
+	// for (int i = 0; i < 1; i++)
+	// {
+	// 	printf("Form trial %d\n", i);
+	// 	nodefam[i].form_trial();
+	// }
+	// -------------------------------
 
 	// // Form force
 	// for (NosbProj<ndim, maxfam> &fam_i : nodefam)
@@ -841,6 +856,13 @@ Tcl_PeriForm(PeriDomain<ndim> &domain, Tcl_Interp *interp, int argc, const char 
 	// 		fam_i.neigh[j]->pforce -= T_j;
 	// 	}
 	// }
+
+	// -------- FOR DEBUGGING --------
+	MatrixND<ndim, ndim> Q = nodefam[0].sum_PKinv();
+	for (int j = 0; j < ndim; j++)
+		for (int k = 0; k < ndim; k++)
+			printf("%7.2e ", Q(j, k));
+	printf("\n");
 
 	// //
 	// // TODO: Update disp
@@ -1013,8 +1035,10 @@ int Tcl_Peri(ClientData cd, Tcl_Interp *interp,
 			PeriDomain<2> *domain = static_cast<PeriDomain<2> *>(domain_base);
 			if (argc > 2)
 				return Tcl_PeriFormThreads(*domain, interp, argc, argv);
-			else
+			else {
 				return Tcl_PeriForm(*domain, interp, argc, argv);
+			}
+				// return Tcl_PeriForm(*domain, interp, argc, argv);
 		}
 	}
 

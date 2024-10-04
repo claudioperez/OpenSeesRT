@@ -143,10 +143,21 @@ NosbProj<ndim, maxfam>::form_trial()
         //     for (int k = 0; k < ndim; k++) 
         //         printf("%7.2e ", Fmat2(j, k));
         // printf("\n");
+        // -------- check E ---------------
+        // MatrixND<ndim, ndim> Fmat2 = Fmat * Amat + Bmat;
+        // MatrixSD<ndim> E{0.0};
+        // for (int j = 0; j < ndim; j++)
+        //     for (int k = 0; k < ndim; k++) 
+        //         E.ref(j, k) = 0.5 * Fmat2(j, k) + 0.5 * Fmat2(k, j) - (j == k);
+
+        // for (int j = 0; j < ndim; j++)
+        //     for (int k = 0; k < ndim; k++)
+        //         printf("%7.2e ", E(j, k));
+        // printf("\n");
         // -------- check S --------------
         // const MatrixSD<ndim>& Smat = materials[i]->getStress();
         // printf("%7.2e %7.2e %7.2e\n", Smat(0, 0), Smat(1, 1), Smat(0, 1));
-        // ------------------------------
+        // -------------------------------
         
     }
     
