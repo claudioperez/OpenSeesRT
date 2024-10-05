@@ -27,11 +27,8 @@ target_link_libraries(OPS_Runtime PRIVATE G3 OPS_Algorithm)
 
 add_subdirectory(commands)
 add_subdirectory(runtime)
+add_subdirectory(parsing)
 
-target_sources(OPS_Runtime PRIVATE
-    "runtime/G3_Runtime.cpp"
-    "parsing/InterpreterAPI.cpp"
-)
 
 if (DEFINED OPENSEESRT_VERSION)
   set_property(
@@ -50,7 +47,13 @@ if (${TCL_INCLUDE_PATH})
   target_include_directories(OPS_Runtime PUBLIC ${TCL_INCLUDE_PATH})
 endif()
 
-target_link_libraries(OpenSeesRT PRIVATE OPS_Runtime OPS_Renderer OPS_Algorithm ${TCL_STUB_LIBRARY})
+target_link_libraries(OpenSeesRT 
+	PRIVATE 
+	OPS_Runtime 
+	OPS_Renderer 
+	OPS_Algorithm 
+	${TCL_STUB_LIBRARY}
+)
 
 #
 # Python
@@ -60,15 +63,6 @@ find_package(pybind11 CONFIG)
 if (${pybind11_FOUND} AND NOT DEFINED NoOpenSeesPyRT)
   message(" :: Configuring Pyton extension")
   add_subdirectory(python)
-endif()
-
-#
-# Parallel
-#
-if (FALSE) # (MPI_FOUND)
-  add_library(OpenSeesRT_Parallel SHARED)
-  add_subdirectory(commands/parallel)
-  target_sources(OpenSeesRT_Parallel PRIVATE OpenSeesPRT.cpp)
 endif()
 
 

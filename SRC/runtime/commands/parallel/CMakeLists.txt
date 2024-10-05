@@ -6,7 +6,9 @@
 #==============================================================================
 find_package(MPI)
 
+
 add_library(OpenSeesRT_Parallel OBJECT)
+# target_sources(OpenSeesRT_Parallel PRIVATE OpenSeesPRT.cpp)
 
 target_include_directories(OpenSeesRT_Parallel
   PRIVATE
