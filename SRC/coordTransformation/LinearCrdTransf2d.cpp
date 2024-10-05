@@ -1300,13 +1300,11 @@ LinearCrdTransf2d::getBasicDisplTotalGrad(int gradNumber)
   int nodeIid = nodeIPtr->getCrdsSensitivity();
   int nodeJid = nodeJPtr->getCrdsSensitivity();
 
-  //if (nodeIid == 0 && nodeJid == 0)
-  //  return dvdh;
-
   if (nodeIid == 1) { // here x1 is random
     dcosThetadh = (-L + dx * dx / L) / (L * L);
     dsinThetadh = dx * dy / (L * L * L);
   }
+
   if (nodeIid == 2) { // here y1 is random
     dsinThetadh = (-L + dy * dy / L) / (L * L);
     dcosThetadh = dx * dy / (L * L * L);
@@ -1316,13 +1314,14 @@ LinearCrdTransf2d::getBasicDisplTotalGrad(int gradNumber)
     dcosThetadh = (L - dx * dx / L) / (L * L);
     dsinThetadh = -dx * dy / (L * L * L);
   }
+
   if (nodeJid == 2) { // here y2 is random
     dsinThetadh = (L - dy * dy / L) / (L * L);
     dcosThetadh = -dx * dy / (L * L * L);
   }
 
   static Vector dudh(6);
-  //dudh = A*dUdh + dAdh*U;
+  // dudh = A*dUdh + dAdh*U;
   dudh(0) = cosTheta * dUdh(0) + sinTheta * dUdh(1) + dcosThetadh * U(0) +
             dsinThetadh * U(1);
   dudh(1) = -sinTheta * dUdh(0) + cosTheta * dUdh(1) - dsinThetadh * U(0) +
