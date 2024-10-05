@@ -45,7 +45,8 @@ BBarFourNodeQuadUP::BBarFourNodeQuadUP(int tag, int nd1, int nd2, int nd3, int n
   NDMaterial &m, const char *type, double t, double bulk, double r,
       double p1, double p2, double b1, double b2, double p)
 :Element (tag, ELE_TAG_BBarFourNodeQuadUP),
-  theMaterial(0), connectedExternalNodes(4),
+  theMaterial(0), 
+  connectedExternalNodes(NEN),
   nd1Ptr(0), nd2Ptr(0), nd3Ptr(0), nd4Ptr(0), Ki(0),
   Q(12), pressureLoad(12), applyLoad(0), thickness(t), kc(bulk), rho(r), pressure(p)
 {
@@ -98,9 +99,12 @@ BBarFourNodeQuadUP::BBarFourNodeQuadUP(int tag, int nd1, int nd2, int nd3, int n
 
 BBarFourNodeQuadUP::BBarFourNodeQuadUP()
 :Element (0,ELE_TAG_BBarFourNodeQuadUP),
-  theMaterial(0), connectedExternalNodes(4),
- nd1Ptr(0), nd2Ptr(0), nd3Ptr(0), nd4Ptr(0), Ki(0),
-  Q(12), pressureLoad(12), applyLoad(0), thickness(0.0), kc(0.0), rho(0.0), pressure(0.0)
+  theMaterial(0), 
+  connectedExternalNodes(4),
+  nd1Ptr(0), nd2Ptr(0), nd3Ptr(0), nd4Ptr(0), 
+  Ki(0),
+  Q(12), pressureLoad(12), 
+  applyLoad(0), thickness(0.0), kc(0.0), rho(0.0), pressure(0.0)
 {
 }
 
@@ -335,9 +339,11 @@ BBarFourNodeQuadUP::getTangentStiff()
 }
 
 
-const Matrix &BBarFourNodeQuadUP::getInitialStiff()
+const Matrix &
+BBarFourNodeQuadUP::getInitialStiff()
 {
-  if (Ki != 0) return *Ki;
+  if (Ki != 0)
+      return *Ki;
 
   K.Zero();
 
@@ -434,9 +440,9 @@ BBarFourNodeQuadUP::getDamp()
   // Compute coupling matrix
   double vol = dvol[0] + dvol[1] + dvol[2] + dvol[3];
   for (int i = 0; i < 12; i += 3) {
-    i1 = i / 3;
+    int i1 = i / 3;
     for (int j = 2; j < 12; j += 3) {
-      j1 = (j-2) / 3;
+      int j1 = (j-2) / 3;
       for (int m = 0; m < 4; m++) {
       //Kdamp(i,j) += -dvol[m]*shp[0][i1][m]*shp[2][j1][m];
       //Kdamp(i+1,j) += -dvol[m]*shp[1][i1][m]*shp[2][j1][m];
@@ -507,9 +513,9 @@ BBarFourNodeQuadUP::getMass()
   double oneOverKc = 1./kc;
 
   for (int i = 2; i < 12; i += 3) {
-    i1 = (i-2) / 3;
+    int i1 = (i-2) / 3;
     for (int j = 2; j < 12; j += 3) {
-      j1 = (j-2) / 3;
+      int j1 = (j-2) / 3;
       for (int m = 0; m < 4; m++) {
         K(i,j) += -dvol[m]*oneOverKc*shp[2][i1][m]*shp[2][j1][m];
       }
@@ -587,10 +593,9 @@ BBarFourNodeQuadUP::addInertiaLoadToUnbalance(const Vector &accel)
   this->getMass();
 
   // Want to add ( - fact * M R * accel ) to unbalance
-  int i, j;
 
-  for (i = 0; i < 12; i++) {
-    for (j = 0; j < 12; j++)
+  for (int i = 0; i < 12; i++) {
+    for (int j = 0; j < 12; j++)
       Q(i) += -K(i,j)*ra[j];
   }
 
@@ -607,7 +612,7 @@ BBarFourNodeQuadUP::getResistingForce()
 
   int i;
   // Loop over the integration points
-  for (i = 0; i < nip; i++) {
+  for (int i = 0; i < nip; i++) {
 
     // Get material stress response
     const Vector &sigma = theMaterial[i]->getStress();
@@ -641,15 +646,15 @@ BBarFourNodeQuadUP::getResistingForce()
 
   // Subtract fluid body force
   for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 3) {
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       //P(ia+2) += dvol[i]*rho*(perm[0]*b[0]*shp[0][alpha][i] +
       //           perm[1]*b[1]*shp[1][alpha][i]);
     if (applyLoad == 0) {
         P(ia+2) += dvol[i]*rho*(perm[0]*b[0]*Bp[0][alpha][i] +
                    perm[1]*b[1]*Bp[1][alpha][i]);
     } else {
-    P(ia+2) += dvol[i]*rho*(perm[0]*appliedB[0]*Bp[0][alpha][i] +
-                   perm[1]*appliedB[1]*Bp[1][alpha][i]);
+        P(ia+2) += dvol[i]*rho*(perm[0]*appliedB[0]*Bp[0][alpha][i] +
+                      perm[1]*appliedB[1]*Bp[1][alpha][i]);
     }
     }
   }
@@ -670,7 +675,6 @@ BBarFourNodeQuadUP::getResistingForce()
 const Vector&
 BBarFourNodeQuadUP::getResistingForceIncInertia()
 {
-  int i, j, k;
 
   const Vector &accel1 = nd1Ptr->getTrialAccel();
   const Vector &accel2 = nd2Ptr->getTrialAccel();
@@ -698,9 +702,10 @@ BBarFourNodeQuadUP::getResistingForceIncInertia()
 
   // Compute the mass matrix
   this->getMass();
+  int i, j, k;
 
-  for (i = 0; i < 12; i++) {
-    for (j = 0; j < 12; j++)
+  for (int i = 0; i < 12; i++) {
+    for (int j = 0; j < 12; j++)
       P(i) += K(i,j)*a[j];
   }
   //opserr<<"K+M "<<P<<endln;
@@ -735,12 +740,12 @@ BBarFourNodeQuadUP::getResistingForceIncInertia()
 
   this->getDamp();
 
-  for (i = 0; i < 12; i++) {
-    for (j = 0; j < 12; j++) {
+  for (int i = 0; i < 12; i++) {
+    for (int j = 0; j < 12; j++) {
       P(i) += K(i,j)*a[j];
     }
   }
-  //opserr<<"final "<<P<<endln;
+
   return P;
 }
 
@@ -784,8 +789,7 @@ BBarFourNodeQuadUP::sendSelf(int commitTag, Channel &theChannel)
 
   static ID idData(12);
 
-  int i;
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     idData(i) = theMaterial[i]->getClassTag();
     matDbTag = theMaterial[i]->getDbTag();
     // NOTE: we do have to ensure that the material has a database
@@ -810,7 +814,7 @@ BBarFourNodeQuadUP::sendSelf(int commitTag, Channel &theChannel)
   }
 
   // Finally, quad asks its material objects to send themselves
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     res += theMaterial[i]->sendSelf(commitTag, theChannel);
     if (res < 0) {
       opserr << "WARNING BBarFourNodeQuadUP::sendSelf() - " << this->getTag() << " failed to send its Material\n";
@@ -1141,14 +1145,14 @@ void BBarFourNodeQuadUP::shapeFunction(void)
 
   int i, k, l;
 
-  for (k=0; k<2; k++) {
-    for (l=0; l<4; l++) {
+  for (int k=0; k<2; k++) {
+    for (int l=0; l<4; l++) {
       shpBar[k][l] = 0.0;
     }
   }
 
   // loop over integration points
-  for (i=0; i<4; i++) {
+  for (int i=0; i<4; i++) {
     xi = pts[i][0];
     eta = pts[i][1];
     const Vector &nd1Crds = nd1Ptr->getCrds();
@@ -1216,22 +1220,22 @@ void BBarFourNodeQuadUP::shapeFunction(void)
     dvol[i] = detJ * thickness * wts[i];
     vol += dvol[i];
 
-    for (k=0; k<2; k++) {
-      for (l=0; l<4; l++) {
+    for (int k=0; k<2; k++) {
+      for (int l=0; l<4; l++) {
          shpBar[k][l] += shp[k][l][i] * dvol[i];
       }
     }
   }
 
-  for (k=0; k<2; k++) {
-    for (l=0; l<4; l++) {
+  for (int k=0; k<2; k++) {
+    for (int l=0; l<4; l++) {
       shpBar[k][l] /= vol;
     }
   }
 
     // See Tom Hughes, Chapter 4: Mixed and Penalty Method
-  for (i=0; i<4; i++) {
-    for (l=0; l<4; l++) {
+  for (int i=0; i<4; i++) {
+    for (int l=0; l<4; l++) {
       B[0][0][l][i] = (2*shp[0][l][i]+shpBar[0][l])/3.;
       B[0][1][l][i] = (shpBar[1][l] - shp[1][l][i])/3.;
       B[1][0][l][i] = (shpBar[0][l] - shp[0][l][i])/3.;

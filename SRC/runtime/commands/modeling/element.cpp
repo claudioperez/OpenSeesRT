@@ -22,7 +22,6 @@
 #include <runtimeAPI.h>
 #include <BasicModelBuilder.h>
 
-#include <OPS_Stream.h>
 #include <G3_Logging.h>
 #include <packages.h>
 #include <Domain.h>
@@ -874,6 +873,7 @@ errDetected(bool ifNoError, const char *msg)
   opserr << "  " << msg << endln;
   return false;
 };
+
 
 int
 TclBasicBuilder_addMultipleNormalSpring(ClientData clientData, Tcl_Interp *interp,
