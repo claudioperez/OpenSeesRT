@@ -110,6 +110,7 @@ private:
   static constexpr int nip = 9; // number of integration/Gauss points
   static constexpr int NEN = 9; // number of nodes
   static constexpr int NDM = 2;
+  static constexpr int NDF = 2;
 
   NDMaterial **theMaterial; // pointer to the ND material objects
 

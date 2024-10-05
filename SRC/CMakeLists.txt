@@ -29,4 +29,6 @@ add_subdirectory(database)
 add_subdirectory(utility)
 add_subdirectory(damage)
 
+add_subdirectory(parallel)
+
 add_subdirectory(executable)

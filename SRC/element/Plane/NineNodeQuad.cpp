@@ -367,7 +367,7 @@ NineNodeQuad::getMass()
     int i;
     static double rhoi[nip];
     double sum = 0.0;
-    for (i = 0; i < nip; i++) {
+    for (int i = 0; i < nip; i++) {
       if (rho == 0)
         rhoi[i] = theMaterial[i]->getRho();
       else
@@ -381,7 +381,7 @@ NineNodeQuad::getMass()
     double rhodvol, Nrho;
 
     // Compute a lumped mass matrix
-    for (i = 0; i < nip; i++) {
+    for (int i = 0; i < nip; i++) {
         // Determine Jacobian for this integration point
         rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
 
@@ -409,7 +409,7 @@ NineNodeQuad::zeroLoad()
     appliedB[0] = 0.0;
     appliedB[1] = 0.0;
 
-      return;
+    return;
 }
 
 int
@@ -438,7 +438,7 @@ NineNodeQuad::addInertiaLoadToUnbalance(const Vector &accel)
   int i;
   static double rhoi[nip];
   double sum = 0.0;
-  for (i = 0; i < nip; i++) {
+  for (int i = 0; i < nip; i++) {
     rhoi[i] = theMaterial[i]->getRho();
     sum += rhoi[i];
   }
@@ -486,12 +486,12 @@ NineNodeQuad::addInertiaLoadToUnbalance(const Vector &accel)
   ra[17] = Raccel9(1);
 
   // Compute mass matrix
-  this->getMass();
+  const Matrix& M = this->getMass();
 
   // Want to add ( - fact * M R * accel ) to unbalance
   // Take advantage of lumped mass matrix
-  for (i = 0; i < 2*NEN; i++)
-    Q(i) += -K(i,i)*ra[i];
+  for (int i = 0; i < NDF*NEN; i++)
+    Q[i] += -M(i,i)*ra[i];
 
   return 0;
 }
@@ -551,10 +551,9 @@ NineNodeQuad::getResistingForce()
 const Vector&
 NineNodeQuad::getResistingForceIncInertia()
 {
-    int i;
-    static double rhoi[nip];
+    double rhoi[nip];
     double sum = 0.0;
-    for (i = 0; i < nip; i++) {
+    for (int i = 0; i < nip; i++) {
       rhoi[i] = theMaterial[i]->getRho();
       sum += rhoi[i];
     }
@@ -570,46 +569,22 @@ NineNodeQuad::getResistingForceIncInertia()
       return P;
     }
 
-    const Vector &accel1 = theNodes[0]->getTrialAccel();
-    const Vector &accel2 = theNodes[1]->getTrialAccel();
-    const Vector &accel3 = theNodes[2]->getTrialAccel();
-    const Vector &accel4 = theNodes[3]->getTrialAccel();
-    const Vector &accel5 = theNodes[4]->getTrialAccel();
-    const Vector &accel6 = theNodes[5]->getTrialAccel();
-    const Vector &accel7 = theNodes[6]->getTrialAccel();
-    const Vector &accel8 = theNodes[7]->getTrialAccel();
-    const Vector &accel9 = theNodes[8]->getTrialAccel();
-
-    static double a[2*NEN];
-
-    a[0] = accel1(0);
-    a[1] = accel1(1);
-    a[2] = accel2(0);
-    a[3] = accel2(1);
-    a[4] = accel3(0);
-    a[5] = accel3(1);
-    a[6] = accel4(0);
-    a[7] = accel4(1);
-    a[8] = accel5(0);
-    a[9] = accel5(1);
-    a[10] = accel6(0);
-    a[11] = accel6(1);
-    a[12] = accel7(0);
-    a[13] = accel7(1);
-    a[14] = accel8(0);
-    a[15] = accel8(1);
-    a[16] = accel9(0);
-    a[17] = accel9(1);
+    double a[NDF*NEN];
+    for (int i=0; i<NEN; i++) {
+        const Vector &accel = theNodes[i]->getTrialAccel();
+        for (int j=0; j<NDF; j++)
+          a[i*NDF+j] = accel[j];
+    }
 
     // Compute the current resisting force
     this->getResistingForce();
 
     // Compute the mass matrix
-    this->getMass();
+    const Matrix& M = this->getMass();
 
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 2*NEN; i++)
-        P(i) += K(i,i)*a[i];
+    for (int i = 0; i < NDF*NEN; i++)
+        P(i) += M(i,i)*a[i];
 
     // add the damping forces if rayleigh damping
     if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0)
@@ -655,7 +630,7 @@ NineNodeQuad::sendSelf(int commitTag, Channel &theChannel)
   static ID idData(2*nip+NEN);
 
   int i;
-  for (i = 0; i < nip; i++) {
+  for (int i = 0; i < nip; i++) {
     idData(i) = theMaterial[i]->getClassTag();
     matDbTag = theMaterial[i]->getDbTag();
     // NOTE: we do have to ensure that the material has a database
@@ -678,7 +653,7 @@ NineNodeQuad::sendSelf(int commitTag, Channel &theChannel)
   }
 
   // Finally, quad asks its material objects to send themselves
-  for (i = 0; i < nip; i++) {
+  for (int i = 0; i < nip; i++) {
     res += theMaterial[i]->sendSelf(commitTag, theChannel);
     if (res < 0) {
       opserr << "WARNING NineNodeQuad::sendSelf() - " << this->getTag() << " failed to send its Material\n";
@@ -949,11 +924,12 @@ NineNodeQuad::setResponse(const char **argv, int argc,
     theResponse =  new ElementResponse(this, 11, Vector(3*NEN));
   }
 
-  else if ((strcmp(argv[0],"strain") ==0) || (strcmp(argv[0],"strains") ==0)) {
+  else if ((strcmp(argv[0],"strain") ==0) || 
+           (strcmp(argv[0],"strains") ==0)) {
     for (int i=0; i<nip; i++) {
       output.tag("GaussPoint");
       output.attr("number",i+1);
-      output.attr("eta",pts[i][0]);
+      output.attr("eta", pts[i][0]);
       output.attr("neta",pts[i][1]);
 
       output.tag("NdMaterialOutput");
@@ -1017,21 +993,20 @@ NineNodeQuad::getResponse(int responseID, Information &eleInfo)
     }
 
     const double We[NEN][nip] =  {{2.1869398183909485, 0.2777777777777778, 0.0352824038312731, 0.2777777777777778, -0.9858870384674904, -0.1252240726436203, -0.1252240726436203, -0.9858870384674904, 0.4444444444444444},
-                                     {0.2777777777777778, 2.1869398183909485, 0.2777777777777778, 0.0352824038312731, -0.9858870384674904, -0.9858870384674904, -0.1252240726436203, -0.1252240726436203, 0.4444444444444444},
-                                     {0.0352824038312731, 0.2777777777777778, 2.1869398183909485, 0.2777777777777778, -0.1252240726436203, -0.9858870384674904, -0.9858870384674904, -0.1252240726436203, 0.4444444444444444},
-                                     {0.2777777777777778, 0.0352824038312731, 0.2777777777777778, 2.1869398183909485, -0.1252240726436203, -0.1252240726436203, -0.9858870384674904, -0.9858870384674904, 0.4444444444444444},
-                                     {0.0, 0.0, 0.0, 0.0, 1.478830557701236,  0.0, 0.1878361089654305, 0.0, -0.6666666666666667},
-                                     {0.0, 0.0, 0.0, 0.0, 0.0, 1.478830557701236,  0.0, 0.1878361089654305, -0.6666666666666667},
-                                     {0.0, 0.0, 0.0, 0.0, 0.1878361089654305, 0.0, 1.478830557701236,  0.0, -0.6666666666666667},
-                                     {0.0, 0.0, 0.0, 0.0, 0.0, 0.1878361089654305, 0.0, 1.478830557701236, -0.6666666666666667},
-                                     {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}};
+                                  {0.2777777777777778, 2.1869398183909485, 0.2777777777777778, 0.0352824038312731, -0.9858870384674904, -0.9858870384674904, -0.1252240726436203, -0.1252240726436203, 0.4444444444444444},
+                                  {0.0352824038312731, 0.2777777777777778, 2.1869398183909485, 0.2777777777777778, -0.1252240726436203, -0.9858870384674904, -0.9858870384674904, -0.1252240726436203, 0.4444444444444444},
+                                  {0.2777777777777778, 0.0352824038312731, 0.2777777777777778, 2.1869398183909485, -0.1252240726436203, -0.1252240726436203, -0.9858870384674904, -0.9858870384674904, 0.4444444444444444},
+                                  {0.0, 0.0, 0.0, 0.0, 1.478830557701236,  0.0, 0.1878361089654305, 0.0, -0.6666666666666667},
+                                  {0.0, 0.0, 0.0, 0.0, 0.0, 1.478830557701236,  0.0, 0.1878361089654305, -0.6666666666666667},
+                                  {0.0, 0.0, 0.0, 0.0, 0.1878361089654305, 0.0, 1.478830557701236,  0.0, -0.6666666666666667},
+                                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.1878361089654305, 0.0, 1.478830557701236, -0.6666666666666667},
+                                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}};
 
-    int p, l;
     for (int i = 0; i < NEN; i++) {
       for (int k = 0; k < 3; k++) {
-        p = 3*i + k;
+        int p = 3*i + k;
         for (int j = 0; j < nip; j++) {
-          l = 3*j + k;
+          int l = 3*j + k;
           stressAtNodes(p) += We[i][j] * stressGP(l);
           // opserr << "stressAtNodes(" << p << ") = We[" << i << "][" << j << "] * stressGP(" << l << ") = " << We[i][j] << " * " << stressGP(l) << " = " << stressAtNodes(p) <<  "\n";
         }
