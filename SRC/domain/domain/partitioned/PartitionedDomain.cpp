@@ -1984,7 +1984,7 @@ PartitionedDomain::setMass(const Matrix &mass, int nodeTag)
 }
 
 const Vector *
-PartitionedDomain::getNodeResponse(int nodeTag, NodeResponseType response)
+PartitionedDomain::getNodeResponse(int nodeTag, NodeData response)
 {
   const Vector *res = this->Domain::getNodeResponse(nodeTag, response);
   if (res != 0)
