@@ -39,11 +39,12 @@
 #include <FEM_ObjectBroker.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
+#include <cassert>
 
 using OpenSees::VectorND;
 
-double SixNodeTri::matrixData[(NEN*2)*(NEN*2)];
-Matrix SixNodeTri::K(matrixData, 2*NEN, 2*NEN);
+double SixNodeTri::matrixData[(NEN*NDF)*(NEN*NDF)];
+Matrix SixNodeTri::K(matrixData, NDF*NEN, NDF*NEN);
 Vector SixNodeTri::P(2*NEN);
 double SixNodeTri::shp[3][NEN];
 double SixNodeTri::pts[nip][2];
@@ -51,11 +52,14 @@ double SixNodeTri::wts[nip];
 
 SixNodeTri::SixNodeTri(int tag, 
                        const std::array<int,6> & nodes,
-                       NDMaterial &m, const char *type, double t,
+                       NDMaterial &m, 
+                       const char *type, 
+                       double t,
                        double p, double r, double b1, double b2)
 :Element (tag, ELE_TAG_SixNodeTri),
   connectedExternalNodes(NEN),
- Q(2*NEN), applyLoad(0), pressureLoad(2*NEN), thickness(t), pressure(p), rho(r), Ki(0)
+  Q(NDF*NEN), applyLoad(0),
+  pressureLoad(NDF*NEN), thickness(t), pressure(p), rho(r), Ki(0)
 {
     pts[0][0] = 0.666666666666666667;
     pts[0][1] = 0.166666666666666667;
@@ -67,12 +71,6 @@ SixNodeTri::SixNodeTri(int tag,
     wts[0]    = 0.166666666666666667;
     wts[1]    = 0.166666666666666667;
     wts[2]    = 0.166666666666666667;
-
-    if (strcmp(type,"PlaneStrain") != 0 && strcmp(type,"PlaneStress") != 0
-        && strcmp(type,"PlaneStrain2D") != 0 && strcmp(type,"PlaneStress2D") != 0) {
-      opserr << "SixNodeTri::SixNodeTri -- improper material type: " << type << "for SixNodeTri\n";
-      exit(-1);
-    }
 
     // Body forces
     b[0] = b1;
@@ -237,9 +235,8 @@ SixNodeTri::update()
 
     for (int i=0; i<NEN; i++) {
         const Vector &displ = theNodes[i]->getTrialDisp();
-        for (int j=0; j<NDM; j++) {
+        for (int j=0; j<NDM; j++)
            u[j][i] = displ[j];
-        }
     }
 
     int ret = 0;
@@ -254,9 +251,9 @@ SixNodeTri::update()
         //eps.addMatrixVector(0.0, B, u, 1.0);
         VectorND<3> eps{};
         for (int beta = 0; beta < NEN; beta++) {
-            eps(0) += shp[0][beta]*u[0][beta];
-            eps(1) += shp[1][beta]*u[1][beta];
-            eps(2) += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
+            eps[0] += shp[0][beta]*u[0][beta];
+            eps[1] += shp[1][beta]*u[1][beta];
+            eps[2] += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
         }
 
         // Set the material strain
@@ -308,9 +305,9 @@ SixNodeTri::getTangentStiff()
           DB[1][1] = dvol * (D11 * shp[1][beta] + D12 * shp[0][beta]);
           DB[2][1] = dvol * (D21 * shp[1][beta] + D22 * shp[0][beta]);
 
-          K(ia,ib) += shp[0][alpha]*DB[0][0] + shp[1][alpha]*DB[2][0];
-          K(ia,ib+1) += shp[0][alpha]*DB[0][1] + shp[1][alpha]*DB[2][1];
-          K(ia+1,ib) += shp[1][alpha]*DB[1][0] + shp[0][alpha]*DB[2][0];
+          K(ia,  ib)   += shp[0][alpha]*DB[0][0] + shp[1][alpha]*DB[2][0];
+          K(ia,  ib+1) += shp[0][alpha]*DB[0][1] + shp[1][alpha]*DB[2][1];
+          K(ia+1,ib)   += shp[1][alpha]*DB[1][0] + shp[0][alpha]*DB[2][0];
           K(ia+1,ib+1) += shp[1][alpha]*DB[1][1] + shp[0][alpha]*DB[2][1];
           //              matrixData[colIb   +   ia] += shp[0][alpha]*DB[0][0] + shp[1][alpha]*DB[2][0];
           //matrixData[colIbP1 +   ia] += shp[0][alpha]*DB[0][1] + shp[1][alpha]*DB[2][1];
@@ -464,42 +461,23 @@ SixNodeTri::addInertiaLoadToUnbalance(const Vector &accel)
   if (sum == 0.0)
     return 0;
 
-  // Get R * accel from the nodes
-  const Vector &Raccel1 = theNodes[0]->getRV(accel);
-  const Vector &Raccel2 = theNodes[1]->getRV(accel);
-  const Vector &Raccel3 = theNodes[2]->getRV(accel);
-  const Vector &Raccel4 = theNodes[3]->getRV(accel);
-  const Vector &Raccel5 = theNodes[4]->getRV(accel);
-  const Vector &Raccel6 = theNodes[5]->getRV(accel);
+  static double ra[NEN*NDF];
 
-  if (2 != Raccel1.Size() || 2 != Raccel2.Size() || 2 != Raccel3.Size() ||
-      2 != Raccel4.Size() || 2 != Raccel5.Size() || 2 != Raccel6.Size()) {
-    opserr << "SixNodeTri::addInertiaLoadToUnbalance matrix and vector sizes are incompatible\n";
-    return -1;
+  // Get R * accel from the nodes
+  for (int i=0; i<NEN; i++) {
+    const Vector& Raccel = theNodes[0]->getRV(accel);
+    assert(Raccel.Size() == NDF);
+    for (int j=0; j<NDF; j++)
+      ra[NDF*i+j] = Raccel[j];
   }
 
-  static double ra[2*NEN];
-
-  ra[0] = Raccel1(0);
-  ra[1] = Raccel1(1);
-  ra[2] = Raccel2(0);
-  ra[3] = Raccel2(1);
-  ra[4] = Raccel3(0);
-  ra[5] = Raccel3(1);
-  ra[6] = Raccel4(0);
-  ra[7] = Raccel4(1);
-  ra[8] = Raccel5(0);
-  ra[9] = Raccel5(1);
-  ra[10] = Raccel6(0);
-  ra[11] = Raccel6(1);
-
   // Compute mass matrix
-  this->getMass();
+  const Matrix &M = this->getMass();
 
-  // Want to add ( - fact * M R * accel ) to unbalance
+  // Add ( - fact * M R * accel ) to unbalance
   // Take advantage of lumped mass matrix
-  for (int i = 0; i < 2*NEN; i++)
-    Q(i) += -K(i,i)*ra[i];
+  for (int i = 0; i < NDF*NEN; i++)
+      Q(i) += -M(i,i)*ra[i];
 
   return 0;
 }

@@ -102,6 +102,7 @@ private:
   static constexpr int nip = 3; // number of integration/Gauss points
   static constexpr int NEN = 6; // number of nodes
   static constexpr int NDM = 2;
+  static constexpr int NDF = 2;
 
   std::array<NDMaterial *, nip> theMaterial; // pointer to the ND material objects
 

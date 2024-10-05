@@ -50,5 +50,5 @@ target_sources(OPS_Runtime PRIVATE
 )
 
 add_subdirectory(domain)
-#add_subdirectory(parallel)
+add_subdirectory(parallel)
 

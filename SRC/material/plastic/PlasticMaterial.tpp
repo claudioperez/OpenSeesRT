@@ -15,34 +15,6 @@
 
 namespace OpenSees {
 
-
-#if 0
-//unused trial strain functions
-template <int n, PlaneType type, typename index>
-int
-PlasticMaterial<n,type,index>::TrialStrain( const MatrixSD<3> &v, const Vector &r )
-{ 
-   return this->setTrialStrain( v ) ;
-} 
-
-template <int n, PlaneType type, typename index>
-int 
-PlasticMaterial<n,type,index>::setTrialStrainIncr( const MatrixSD<3> &v, const Vector &r ) 
-{
-  return this->setTrialStrainIncr(v);
-}
-
-
-template <int n, PlaneType type, typename index>
-int 
-PlasticMaterial<n,type,index>::setTrialStrainIncr(const MatrixSD<3> &v ) 
-{
-  MatrixSD<3> newStrain = strain + v;
-  return this->setTrialStrain(newStrain);
-}
-
-#endif
-
 template <int n, PlaneType type, typename index>
 Mate<n>*
 PlasticMaterial<n,type,index>::getCopy()

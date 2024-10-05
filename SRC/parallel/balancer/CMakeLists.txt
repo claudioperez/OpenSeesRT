@@ -5,11 +5,17 @@
 #
 #==============================================================================
 
-target_sources(domain
-    PRIVATE
-
+target_sources(OPS_Partition
+  PRIVATE
+#   ReleaseHeavierToLighterNeighbours.h
+#   SwapHeavierToLighterNeighbours.h
+    LoadBalancer.cpp
+#   ReleaseHeavierToLighterNeighbours.cpp
+    ShedHeaviest.cpp
+#   SwapHeavierToLighterNeighbours.cpp
     PUBLIC
-
+    LoadBalancer.h
+    ShedHeaviest.h
 )
 
-target_include_directories(domain PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Partition PUBLIC ${CMAKE_CURRENT_LIST_DIR})

@@ -49,11 +49,14 @@ double Tri31::wts[1];
 
 Tri31::Tri31(int tag, 
              std::array<int,3> &nodes,
-             NDMaterial &m, const char *type, double t,
-             double p, double r, double b1, double b2)
+             NDMaterial &m, 
+             const char *type, 
+             double thickness,
+             double p, double r, 
+             double b1, double b2)
 : Element(tag, ELE_TAG_Tri31), 
   connectedExternalNodes(NEN), 
-  Q(6), pressureLoad(6), thickness(t), pressure(p), rho(r), Ki(0)
+  Q(6), pressureLoad(6), thickness(thickness), pressure(p), rho(r), Ki(0)
 {
 
     pts[0][0] = 0.333333333333333;
@@ -86,7 +89,9 @@ Tri31::Tri31(int tag,
 Tri31::Tri31()
  : Element (0,ELE_TAG_Tri31),
    connectedExternalNodes(NEN), 
-   Q(6), pressureLoad(6), thickness(0.0), pressure(0.0),
+   Q(6), pressureLoad(6), 
+   thickness(0.0), 
+   pressure(0.0),
    Ki(nullptr)
 {
     pts[0][0] = 0.333333333333333;
@@ -527,10 +532,9 @@ Tri31::getResistingForce()
 const Vector&
 Tri31::getResistingForceIncInertia()
 {
-    int i;
-    static double rhoi[1]; //NIP
+    double rhoi[1]; //NIP
     double sum = 0.0;
-    for (i = 0; i < NIP; i++) {
+    for (int i = 0; i < NIP; i++) {
             if(rho == 0) {
         rhoi[i] = theMaterial[i]->getRho();
             } else {
@@ -549,30 +553,26 @@ Tri31::getResistingForceIncInertia()
         return P;
     }
 
-    const Vector &accel1 = theNodes[0]->getTrialAccel();
-    const Vector &accel2 = theNodes[1]->getTrialAccel();
-    const Vector &accel3 = theNodes[2]->getTrialAccel();
-    
-    static double a[6];
-
-    a[0] = accel1(0);
-    a[1] = accel1(1);
-    a[2] = accel2(0);
-    a[3] = accel2(1);
-    a[4] = accel3(0);
-    a[5] = accel3(1);
+    double a[NDF*NEN];
+    for (int i=0; i<NEN; i++) {
+        const Vector &accel = theNodes[i]->getTrialAccel();
+        for (int j=0; j<NDF; j++)
+          a[i*NDF+j] = accel[j];
+    }
 
     // Compute the current resisting force
     this->getResistingForce();
 
     // Compute the mass matrix
-    this->getMass();
+    const Matrix& M = this->getMass();
 
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 2*NEN; i++) P(i) += K(i,i)*a[i];
+    for (int i = 0; i < 2*NEN; i++) 
+        P[i] += M(i,i)*a[i];
 
     // add the damping forces if rayleigh damping
-    if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0) P += this->getRayleighDampingForces();
+    if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0) 
+        P += this->getRayleighDampingForces();
 
     return P;
 }
@@ -607,21 +607,20 @@ Tri31::sendSelf(int commitTag, Channel &theChannel)
         return res;
     }          
   
-    // Now Tri31 sends the ids of its materials
-    int matDbTag;
+    // Now send the ids of our materials
     int count=0;
   
     static ID idData(2*NIP+NEN+1);
-  
-    int i;
-    for (i = 0; i < NIP; i++) { 
+
+    for (int i = 0; i < NIP; i++) { 
         idData(i) = theMaterial[i]->getClassTag();
-        matDbTag = theMaterial[i]->getDbTag();
+        int matDbTag = theMaterial[i]->getDbTag();
         // NOTE: we do have to ensure that the material has a database
         // tag if we are sending to a database channel.
         if (matDbTag == 0) {
             matDbTag = theChannel.getDbTag();
-            if (matDbTag != 0) theMaterial[i]->setDbTag(matDbTag);
+            if (matDbTag != 0) 
+                theMaterial[i]->setDbTag(matDbTag);
         }
         idData(i+NIP) = matDbTag;
     }
@@ -637,7 +636,7 @@ Tri31::sendSelf(int commitTag, Channel &theChannel)
     }
 
     // Finally, Tri31 asks its material objects to send themselves
-    for (i = 0; i < NIP; i++) {
+    for (int i = 0; i < NIP; i++) {
         res += theMaterial[i]->sendSelf(commitTag, theChannel);
         if (res < 0) {
             opserr << "WARNING Tri31::sendSelf() - " << this->getTag() << " failed to send its Material\n";
@@ -795,7 +794,7 @@ Tri31::Print(OPS_Stream &s, int flag)
         static Vector avgStrain(nstress);
         avgStress.Zero();
         avgStrain.Zero();
-        for (i = 0; i < NIP; i++) {
+        for (int i = 0; i < NIP; i++) {
             avgStress += theMaterial[i]->getStress();
             avgStrain += theMaterial[i]->getStrain();
         }
@@ -803,12 +802,12 @@ Tri31::Print(OPS_Stream &s, int flag)
         avgStrain /= static_cast<double>(NIP);
 
         s << "#AVERAGE_STRESS ";
-        for (i = 0; i < nstress; i++)
+        for (int i = 0; i < nstress; i++)
           s << avgStress(i) << " ";
         s << "\n";
 
         s << "#AVERAGE_STRAIN ";
-        for (i = 0; i < nstress; i++)
+        for (int i = 0; i < nstress; i++)
           s << avgStrain(i) << " ";
         s << "\n";
     }
