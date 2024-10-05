@@ -63,7 +63,7 @@ target_sources(OPS_Analysis
         Newmark1.h
         NewmarkExplicit.h
         Newmark.h
-        GeneralizedNewmark.cpp
+        GeneralizedNewmark.h
         ParkLMS3.h
 #       PFEMIntegrator.h
         TRBDF2.h
