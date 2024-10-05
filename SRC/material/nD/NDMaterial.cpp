@@ -52,13 +52,13 @@ Vector NDMaterial::errVector(1);
 
 
 NDMaterial::NDMaterial(int tag, int classTag)
-:Material(tag,classTag)
+ : TaggedObject(tag), MovableObject(classTag) // Material(tag,classTag)
 {
 
 }
 
 NDMaterial::NDMaterial()
-:Material(0, 0)
+ : TaggedObject(0), MovableObject(0) // Material(0, 0)
 {
 
 }

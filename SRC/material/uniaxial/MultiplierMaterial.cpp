@@ -35,7 +35,7 @@
  
 #include <stdlib.h>
 #include <string.h>
-
+#include <Vector.h>
 #include <MultiplierMaterial.h>
 #include <ID.h>
 #include <Channel.h>
