@@ -8,11 +8,11 @@
 add_library(OpenSeesRT SHARED)
 target_sources(OpenSeesRT PRIVATE "OpenSeesRT.cpp")
 target_compile_definitions(OpenSeesRT PUBLIC USE_TCL_STUBS _TCL85)
-set_property(TARGET OpenSeesRT            PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET OpenSeesRT PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 target_compile_options(OPS_Runtime PRIVATE
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wextra>"
-  "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wpedantic>"
+# "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wpedantic>"
   "$<$<CXX_COMPILER_ID:MSVC>:/W4>"
 )
 

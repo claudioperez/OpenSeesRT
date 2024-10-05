@@ -307,7 +307,7 @@ G3_setModelBuilder(G3_Runtime *rt, BasicModelBuilder* builder)
 {
   theModelBuilder = builder;
   rt->m_builder = builder;
-  return 1;
+  return 0;
 }
 
 BasicModelBuilder *

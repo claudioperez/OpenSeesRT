@@ -19,10 +19,6 @@
 static Tcl_ObjCmdProc *Tcl_putsCommand = nullptr;
 static Timer *theTimer = nullptr;
 
-Tcl_CmdProc TclCommand_wipeModel;
-Tcl_CmdProc TclCommand_clearAnalysis;
-Tcl_CmdProc TclCommand_specifyModel;
-
 class ProgressBar;
 Tcl_ObjCmdProc TclObjCommand_progress;
 extern ProgressBar* progress_bar_ptr;
@@ -349,7 +345,7 @@ maxOpenFiles(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-OpenSeesAppInit(Tcl_Interp *interp)
+Init_OpenSees(Tcl_Interp *interp)
 {
 
   // redo puts command so we can capture puts into std:cerr
@@ -400,7 +396,6 @@ OpenSeesAppInit(Tcl_Interp *interp)
 
   //
   static int ncmd = sizeof(InterpreterCommands)/sizeof(char_cmd);
-
 
   for (int i = 0; i < ncmd; i++)
     Tcl_CreateCommand(interp, 

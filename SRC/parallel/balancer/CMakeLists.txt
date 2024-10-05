@@ -4,16 +4,18 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-target_include_directories(OPS_Partition PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 target_sources(OPS_Partition
   PRIVATE
-    PartitionedDomainEleIter.cpp 
-    PartitionedDomainSubIter.cpp
-    PartitionedDomain.cpp
-  PUBLIC
-    PartitionedDomainEleIter.h
-    PartitionedDomainSubIter.h
-    PartitionedDomain.h
+#   ReleaseHeavierToLighterNeighbours.h
+#   SwapHeavierToLighterNeighbours.h
+    LoadBalancer.cpp
+#   ReleaseHeavierToLighterNeighbours.cpp
+    ShedHeaviest.cpp
+#   SwapHeavierToLighterNeighbours.cpp
+    PUBLIC
+    LoadBalancer.h
+    ShedHeaviest.h
 )
 
+target_include_directories(OPS_Partition PUBLIC ${CMAKE_CURRENT_LIST_DIR})

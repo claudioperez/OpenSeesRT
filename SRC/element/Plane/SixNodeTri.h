@@ -29,7 +29,7 @@
 #define SixNodeTri_h
 
 #include <stdbool.h>
-
+#include <array>
 #include <Element.h>
 #include <ID.h>
 #include <Matrix.h>
@@ -41,14 +41,15 @@ class Response;
 
 class SixNodeTri : public Element {
 public:
-  SixNodeTri(int tag, int nd1, int nd2, int nd3, int nd4, int nd5, int nd6,
+  SixNodeTri(int tag,
+             const std::array<int,6> & nodes,
              NDMaterial &m, const char *type, double t,
              double pressure = 0.0, double rho = 0.0, double b1 = 0.0,
              double b2 = 0.0);
   SixNodeTri();
   ~SixNodeTri();
 
-  const char *getClassType() const { return "SixNodeTri"; };
+  const char *getClassType() const { return "SixNodeTri"; }
 
   int getNumExternalNodes() const;
   const ID &getExternalNodes();
@@ -96,18 +97,20 @@ public:
 
 protected:
 private:
-  // private attributes - a copy for each object of the class
+  // private attributes
 
   static constexpr int nip = 3; // number of integration/Gauss points
-  static constexpr int nnodes = 6; // number of nodes
+  static constexpr int NEN = 6; // number of nodes
+  static constexpr int NDM = 2;
+  static constexpr int NDF = 2;
 
-  NDMaterial **theMaterial; // pointer to the ND material objects
+  std::array<NDMaterial *, nip> theMaterial; // pointer to the ND material objects
 
   ID connectedExternalNodes; // Tags of quad nodes
 
-  Node *theNodes[nnodes];
+  std::array<Node *,NEN> theNodes;
 
-  static double matrixData[(nnodes*2)*(nnodes*2)]; // array data for matrix
+  static double matrixData[(NEN*2)*(NEN*2)]; // array data for matrix
   static Matrix K;              // Element stiffness, damping, and mass Matrix
   static Vector P;              // Element resisting force vector
   Vector Q;                     // Applied nodal loads
@@ -123,7 +126,7 @@ private:
   double pressure;  // Normal surface traction (pressure) over entire element
                     // Note: positive for outward normal
   double rho;
-  static double shp[3][nnodes]; // shape functions and derivatives (overwritten)
+  static double shp[3][NEN]; // shape functions and derivatives (overwritten)
   static double pts[nip][2];    // quadrature points
   static double wts[nip];       // quadrature weights
 

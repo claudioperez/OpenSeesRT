@@ -580,6 +580,7 @@ __all__ = [
     "modalProperties",
     "responseSpectrumAnalysis",
     "nDMaterial",
+    "material",
     "block2D",
     "block3D",
     "rayleigh",

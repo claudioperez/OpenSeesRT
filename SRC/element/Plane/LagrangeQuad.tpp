@@ -1,29 +1,10 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Description: This file contains the class definition for LagrangeQuad.
 // See https://portwooddigital.com/2022/09/11/unrolling-the-four-node-quad/
-//
-// Written: MHS
-// Created: Feb 2000
-// Revised: Dec 2000 for efficiency
 //
 #include <LagrangeQuad.h>
 #include <Node.h>
@@ -41,115 +22,139 @@
 #include <FEM_ObjectBroker.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
+#include <cassert>
 
 
 namespace OpenSees {
 
 
+#if 0
 double LagrangeQuad::matrixData[64];
 Matrix LagrangeQuad::K(matrixData, 8, 8);
 Vector LagrangeQuad::P(8);
 double LagrangeQuad::shp[3][4];
+#endif
 
 
-LagrangeQuad::LagrangeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
-                           Mate<2> &m, const char *type, double t,
-                           double p, double r, double b1, double b2)
- : Element (tag, ELE_TAG_LagrangeQuad), 
-   connectedExternalNodes(4), 
-   Q(8), pressureLoad(8), thickness(t), applyLoad(0), pressure(p), rho(r), Ki(0)
+template <int NEN, bool enh>
+LagrangeQuad<NEN,enh>::LagrangeQuad(int tag, 
+                                    const std::array<int, NEN>& nodes,
+                                    Mate<2>& m,
+                                    double thickness, 
+                                    double p, double r, double b1, double b2)
+ : Element(tag, ELE_TAG_LagrangeQuad),
+   connectedExternalNodes(NEN),
+   pressureLoad(NEN*NDF),
+   thickness(thickness),
+   applyLoad(0),
+   pressure(p),
+   rho(r),
+   Ki(0)
 {
 
-    if (strcmp(type,"PlaneStrain") != 0 && strcmp(type,"PlaneStress") != 0
-        && strcmp(type,"PlaneStrain2D") != 0 && strcmp(type,"PlaneStress2D") != 0) {
-      opserr << "LagrangeQuad::LagrangeQuad -- improper material type: " << type << "for LagrangeQuad\n";
-      exit(-1);
+  // Body forces
+  b[0] = b1;
+  b[1] = b2;
+
+  for (int i = 0; i < NIP; i++) {
+
+    // Get copies of the material model for each integration point
+    theMaterial[i] = m.getCopy();
+
+    // Check allocation
+    if (theMaterial[i] == nullptr) {
+      opserr << "LagrangeQuad::LagrangeQuad -- failed to get a copy of material model\n";
+      return;
     }
+  }
 
-    // Body forces
-    b[0] = b1;
-    b[1] = b2;
+  // Set connected external node IDs
+  for (int i = 0; i < NEN; i++) {
+    theNodes[i]               = nullptr;
+    connectedExternalNodes(i) = nodes[i];
+  }
 
-    for (int i = 0; i < NIP; i++) {
-      
-      // Get copies of the material model for each integration point
-      theMaterial[i] = m.getCopy();
-                        
-      // Check allocation
-      if (theMaterial[i] == nullptr) {
-        opserr << "LagrangeQuad::LagrangeQuad -- failed to get a copy of material model\n";
-        return;
-      }
-    }
-
-    // Set connected external node IDs
-    connectedExternalNodes(0) = nd1;
-    connectedExternalNodes(1) = nd2;
-    connectedExternalNodes(2) = nd3;
-    connectedExternalNodes(3) = nd4;
-    
-    for (int i=0; i<NEN; i++)
-      theNodes[i] = nullptr;
-
+  Q.zero();
 }
 
-LagrangeQuad::LagrangeQuad()
- : Element (0,ELE_TAG_LagrangeQuad),
-   connectedExternalNodes(4), 
-   Q(8), pressureLoad(8), thickness(0.0), applyLoad(0), pressure(0.0), Ki(0)
+template <int NEN, bool enh>
+LagrangeQuad<NEN,enh>::LagrangeQuad()
+ : Element(0, ELE_TAG_LagrangeQuad),
+   connectedExternalNodes(NEN),
+   pressureLoad(NEN*NDF),
+   thickness(0.0),
+   applyLoad(0),
+   pressure(0.0),
+   Ki(nullptr)
 {
-  for (int i=0; i<NEN; i++)
+  for (int i = 0; i < NEN; i++)
     theNodes[i] = nullptr;
+
+  Q.zero();
 }
 
-LagrangeQuad::~LagrangeQuad()
-{    
+
+template <int NEN, bool enh>
+LagrangeQuad<NEN,enh>::~LagrangeQuad()
+{
   for (int i = 0; i < nip; i++) {
     if (theMaterial[i])
       delete theMaterial[i];
   }
 
-  if (Ki != 0)
+  if (Ki != nullptr)
     delete Ki;
 }
 
+
+template <int NEN, bool enh>
 int
-LagrangeQuad::getNumExternalNodes() const
+LagrangeQuad<NEN,enh>::getNumExternalNodes() const
 {
   return NEN;
 }
 
+template <int NEN, bool enh>
 const ID&
-LagrangeQuad::getExternalNodes()
+LagrangeQuad<NEN,enh>::getExternalNodes()
 {
   return connectedExternalNodes;
 }
 
 
-Node **
-LagrangeQuad::getNodePtrs() 
+template <int NEN, bool enh>
+Node**
+LagrangeQuad<NEN,enh>::getNodePtrs()
 {
   return &theNodes[0];
 }
 
+
+template <int NEN, bool enh>
 int
-LagrangeQuad::getNumDOF()
+LagrangeQuad<NEN,enh>::getNumDOF()
 {
-  return 8;
+  int sum = 0;
+
+  for (const Node* node : theNodes)
+    sum += node->getNumberDOF();
+
+  return sum;
 }
 
+template <int NEN, bool enh>
 void
-LagrangeQuad::setDomain(Domain *theDomain)
+LagrangeQuad<NEN,enh>::setDomain(Domain* theDomain)
 {
   // Check Domain is not null. This happens when element is removed from a domain.
   // In this case just set null pointers to null and return.
   if (theDomain == nullptr) {
-    for (int i=0; i < NEN; i++)
+    for (int i = 0; i < NEN; i++)
       theNodes[i] = nullptr;
     return;
   }
 
-  for (int i=0; i<NEN; i++) {
+  for (int i = 0; i < NEN; i++) {
     // Retrieve the node from the domain using its tag.
     // If no node is found, then return
     theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
@@ -159,8 +164,7 @@ LagrangeQuad::setDomain(Domain *theDomain)
     // If node is found, ensure node has the proper number of DOFs
     int dofs = theNodes[i]->getNumberDOF();
     if (dofs != NDF) {
-      opserr << "WARNING element " << this->getTag() 
-             << " does not have " << NDF << " DOFs at node " 
+      opserr << "WARNING element " << this->getTag() << " does not have " << NDF << " DOFs at node "
              << theNodes[i]->getTag() << ".\n";
       return;
     }
@@ -171,423 +175,412 @@ LagrangeQuad::setDomain(Domain *theDomain)
   this->setPressureLoadAtNodes();
 }
 
+
+template <int NEN, bool enh>
 int
-LagrangeQuad::commitState()
+LagrangeQuad<NEN,enh>::commitState()
 {
-    int retVal = 0;
+  int retVal = 0;
 
-    // call element commitState to do any base class stuff
-    if ((retVal = this->Element::commitState()) != 0) {
-      opserr << "LagrangeQuad::commitState () - failed in base class";
-    }    
+  // call element commitState to do any base class stuff
+  if ((retVal = this->Element::commitState()) != 0) {
+    opserr << "LagrangeQuad::commitState () - failed in base class";
+  }
 
-    // Loop over the integration points and commit the material states
-    for (int i = 0; i < NIP; i++)
-      retVal += theMaterial[i]->commitState();
+  // Loop over the integration points and commit the material states
+  for (int i = 0; i < NIP; i++)
+    retVal += theMaterial[i]->commitState();
 
-    return retVal;
+  return retVal;
 }
 
+template <int NEN, bool enh>
 int
-LagrangeQuad::revertToLastCommit()
+LagrangeQuad<NEN,enh>::revertToLastCommit()
 {
-    int retVal = 0;
+  int retVal = 0;
 
-    // Loop over the integration points and revert to last committed state
-    for (int i = 0; i < NIP; i++)
-      retVal += theMaterial[i]->revertToLastCommit();
+  // Loop over the integration points and revert to last committed state
+  for (int i = 0; i < NIP; i++)
+    retVal += theMaterial[i]->revertToLastCommit();
 
-    return retVal;
-}
-
-int
-LagrangeQuad::revertToStart()
-{
-    int retVal = 0;
-
-    // Loop over the integration points and revert states to start
-    for (int i = 0; i < 4; i++)
-      retVal += theMaterial[i]->revertToStart();
-
-    return retVal;
+  return retVal;
 }
 
 
+template <int NEN, bool enh>
 int
-LagrangeQuad::update()
+LagrangeQuad<NEN,enh>::revertToStart()
 {
-    // Collect displacements at each node into a local array
-    double u[NDM][NEN];
+  int retVal = 0;
 
-    for (int i=0; i<NEN; i++) {
-        const Vector &displ = theNodes[i]->getTrialDisp();
-        for (int j=0; j<NDM; j++) {
-           u[j][i] = displ[j];
-        }
+  // Loop over the integration points and revert states to start
+  for (int i = 0; i < nip; i++)
+    retVal += theMaterial[i]->revertToStart();
+
+  return retVal;
+}
+
+
+template <int NEN, bool enh>
+int
+LagrangeQuad<NEN,enh>::update()
+{
+  // Collect displacements at each node into a local array
+  double u[NDM][NEN];
+
+  for (int i = 0; i < NEN; i++) {
+    const Vector& displ = theNodes[i]->getTrialDisp();
+    for (int j = 0; j < NDM; j++) {
+      u[j][i] = displ[j];
+    }
+  }
+
+  int ret = 0;
+
+  // Loop over the integration points
+  for (int i = 0; i < nip; i++) {
+    // Determine Jacobian for this integration point
+    this->shapeFunction(pts[i][0], pts[i][1]);
+
+    // Interpolate strains
+    //   eps = B*u;
+    MatrixSD<2, true> eps{{0.0}};
+
+    for (int beta = 0; beta < NEN; beta++) {
+      eps.vector[0] += shp[0][beta] * u[0][beta];
+      eps.vector[1] += shp[1][beta] * u[1][beta];
+      eps.vector[2] += shp[0][beta] * u[1][beta] + shp[1][beta] * u[0][beta];
     }
 
-    int ret = 0;
+    // Set the material strain
+    ret += theMaterial[i]->setTrialStrain(eps);
+  }
 
-    // Loop over the integration points
-    for (int i = 0; i < nip; i++) {
-      // Determine Jacobian for this integration point
-      this->shapeFunction(pts[i][0], pts[i][1]);
-
-      // Interpolate strains
-      //   eps = B*u;
-      MatrixSD<2,true> eps{{0.0}};
-
-      for (int beta = 0; beta < 4; beta++) {
-          eps.vector[0] += shp[0][beta]*u[0][beta];
-          eps.vector[1] += shp[1][beta]*u[1][beta];
-          eps.vector[2] += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
-      }
-
-      // Set the material strain
-      ret += theMaterial[i]->setTrialStrain(eps);
-    }
-
-    return ret;
+  return ret;
 }
 
 
+template <int NEN, bool enh>
 const Matrix&
-LagrangeQuad::getTangentStiff()
+LagrangeQuad<NEN,enh>::getTangentStiff()
 {
+  static MatrixND<NDF*NEN,NEN*NDF> K;
+  K.zero();
 
-    K.Zero();
+  double DB[3][2];
 
-    double dvol;
-    double DB[3][2];
+  // Loop over the integration points
+  for (int i = 0; i < nip; i++) {
 
-    // Loop over the integration points
-    for (int i = 0; i < nip; i++) {
+    // Determine Jacobian for this integration point
+    double dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+    dvol *= (thickness * wts[i]);
 
-      // Determine Jacobian for this integration point
-      dvol = this->shapeFunction(pts[i][0], pts[i][1]);
-      dvol *= (thickness*wts[i]);
-      
-      // Get the material tangent
-      const Matrix &D = theMaterial[i]->getTangent();
-      
-      // Perform numerical integration
-      //K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
-      //K.addMatrixTripleProduct(1.0, B, D, intWt(i)*intWt(j)*detJ);
-      
-      const double D00 = D(0,0),  D01 = D(0,1),  D02 = D(0,2),
-                   D10 = D(1,0),  D11 = D(1,1),  D12 = D(1,2),
-                   D20 = D(2,0),  D21 = D(2,1),  D22 = D(2,2);
+    // Get the material tangent
+    const MatrixSD<3> D = theMaterial[i]->getTangent();
 
-      //          for (int beta = 0, ib = 0, colIb =0, colIbP1 = 8; 
-      //   beta < 4; 
-      //   beta++, ib += 2, colIb += 16, colIbP1 += 16) {
-        
-      for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 2) {
-        for (int beta = 0, ib = 0; beta < 4; beta++, ib += 2) {
-          
-          DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
-          DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
-          DB[2][0] = dvol * (D20 * shp[0][beta] + D22 * shp[1][beta]);
-          DB[0][1] = dvol * (D01 * shp[1][beta] + D02 * shp[0][beta]);
-          DB[1][1] = dvol * (D11 * shp[1][beta] + D12 * shp[0][beta]);
-          DB[2][1] = dvol * (D21 * shp[1][beta] + D22 * shp[0][beta]);
-          
+    // Perform numerical integration
+    //K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
+    //K.addMatrixTripleProduct(1.0, B, D, intWt(i)*intWt(j)*detJ);
 
-          K(ia,ib)     += shp[0][alpha]*DB[0][0] + shp[1][alpha]*DB[2][0];
-          K(ia,ib+1)   += shp[0][alpha]*DB[0][1] + shp[1][alpha]*DB[2][1];
-          K(ia+1,ib)   += shp[1][alpha]*DB[1][0] + shp[0][alpha]*DB[2][0];
-          K(ia+1,ib+1) += shp[1][alpha]*DB[1][1] + shp[0][alpha]*DB[2][1];
-          //              matrixData[colIb   +   ia] += shp[0][alpha]*DB[0][0] + shp[1][alpha]*DB[2][0];
-          //matrixData[colIbP1 +   ia] += shp[0][alpha]*DB[0][1] + shp[1][alpha]*DB[2][1];
-          //matrixData[colIb   + ia+1] += shp[1][alpha]*DB[1][0] + shp[0][alpha]*DB[2][0];
-          //matrixData[colIbP1 + ia+1] += shp[1][alpha]*DB[1][1] + shp[0][alpha]*DB[2][1];          
-        }
+    // const double D00 = D(0, 0), D01 = D(0, 1), D02 = D(0, 2), D10 = D(1, 0), D11 = D(1, 1),
+    //              D12 = D(1, 2), D20 = D(2, 0), D21 = D(2, 1), D22 = D(2, 2);
+
+    //          for (int beta = 0, ib = 0, colIb =0, colIbP1 = 8;
+    //   beta < 4;
+    //   beta++, ib += 2, colIb += 16, colIbP1 += 16) {
+
+    for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 2) {
+      for (int beta = 0, ib = 0; beta < 4; beta++, ib += 2) {
+
+        DB[0][0] = dvol * (D(0,0) * shp[0][beta] + D(0,2) * shp[1][beta]);
+        DB[1][0] = dvol * (D(1,0) * shp[0][beta] + D(1,2) * shp[1][beta]);
+        DB[2][0] = dvol * (D(2,0) * shp[0][beta] + D(2,2) * shp[1][beta]);
+        DB[0][1] = dvol * (D(0,1) * shp[1][beta] + D(0,2) * shp[0][beta]);
+        DB[1][1] = dvol * (D(1,1) * shp[1][beta] + D(1,2) * shp[0][beta]);
+        DB[2][1] = dvol * (D(2,1) * shp[1][beta] + D(2,2) * shp[0][beta]);
+
+
+        K(ia,     ib)     += shp[0][alpha] * DB[0][0] + shp[1][alpha] * DB[2][0];
+        K(ia,     ib + 1) += shp[0][alpha] * DB[0][1] + shp[1][alpha] * DB[2][1];
+        K(ia + 1, ib)     += shp[1][alpha] * DB[1][0] + shp[0][alpha] * DB[2][0];
+        K(ia + 1, ib + 1) += shp[1][alpha] * DB[1][1] + shp[0][alpha] * DB[2][1];
       }
     }
-    
-    return K;
+  }
+
+  static Matrix Wrapper(K);
+  return Wrapper;
 }
 
 
+template <int NEN, bool enh>
 const Matrix&
-LagrangeQuad::getInitialStiff()
+LagrangeQuad<NEN,enh>::getInitialStiff()
 {
   if (Ki != 0)
     return *Ki;
 
-  K.Zero();
-  
-  double dvol;
+  Ki = new Matrix(NEN*NDF, NEN*NDF);
+
+  Ki->Zero();
+
   double DB[3][2];
-  
+
   // Loop over the integration points
   for (int i = 0; i < nip; i++) {
-    
-    // Determine Jacobian for this integration point
-    dvol = this->shapeFunction(pts[i][0], pts[i][1]);
-    dvol *= (thickness*wts[i]);
-    
-    // Get the material tangent
-    const Matrix &D = theMaterial[i]->getInitialTangent();
 
-    double D00 = D(0,0); double D01 = D(0,1); double D02 = D(0,2);
-    double D10 = D(1,0); double D11 = D(1,1); double D12 = D(1,2);
-    double D20 = D(2,0); double D21 = D(2,1); double D22 = D(2,2);
-    
+    // Determine Jacobian for this integration point
+    double dvol;
+    dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+    dvol *= (thickness * wts[i]);
+
+    // Get the material tangent
+    MatrixSD<3> D = theMaterial[i]->getInitialTangent();
+
     // Perform numerical integration
     //K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
     //K.addMatrixTripleProduct(1.0, B, D, intWt(i)*intWt(j)*detJ);
-    for (int beta = 0, ib = 0, colIb =0, colIbP1 = 8; 
-         beta < 4; 
+    for (int beta = 0, ib = 0, colIb = 0, colIbP1 = 8; beta < 4;
          beta++, ib += 2, colIb += 16, colIbP1 += 16) {
-      
+
       for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 2) {
-        
-        DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
-        DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
-        DB[2][0] = dvol * (D20 * shp[0][beta] + D22 * shp[1][beta]);
-        DB[0][1] = dvol * (D01 * shp[1][beta] + D02 * shp[0][beta]);
-        DB[1][1] = dvol * (D11 * shp[1][beta] + D12 * shp[0][beta]);
-        DB[2][1] = dvol * (D21 * shp[1][beta] + D22 * shp[0][beta]);
-        
-        matrixData[colIb   +   ia] += shp[0][alpha]*DB[0][0] + shp[1][alpha]*DB[2][0];
-        matrixData[colIbP1 +   ia] += shp[0][alpha]*DB[0][1] + shp[1][alpha]*DB[2][1];
-        matrixData[colIb   + ia+1] += shp[1][alpha]*DB[1][0] + shp[0][alpha]*DB[2][0];
-        matrixData[colIbP1 + ia+1] += shp[1][alpha]*DB[1][1] + shp[0][alpha]*DB[2][1];
+
+        DB[0][0] = dvol * (D(0,0) * shp[0][beta] + D(0,2) * shp[1][beta]);
+        DB[1][0] = dvol * (D(1,0) * shp[0][beta] + D(1,2) * shp[1][beta]);
+        DB[2][0] = dvol * (D(2,0) * shp[0][beta] + D(2,2) * shp[1][beta]);
+        DB[0][1] = dvol * (D(0,1) * shp[1][beta] + D(0,2) * shp[0][beta]);
+        DB[1][1] = dvol * (D(1,1) * shp[1][beta] + D(1,2) * shp[0][beta]);
+        DB[2][1] = dvol * (D(2,1) * shp[1][beta] + D(2,2) * shp[0][beta]);
+
+        (*Ki)(ia, ib) += shp[0][alpha] * DB[0][0] + shp[1][alpha] * DB[2][0];
+        (*Ki)(ia, ib + 1) += shp[0][alpha] * DB[0][1] + shp[1][alpha] * DB[2][1];
+        (*Ki)(ia + 1, ib) += shp[1][alpha] * DB[1][0] + shp[0][alpha] * DB[2][0];
+        (*Ki)(ia + 1, ib + 1) += shp[1][alpha] * DB[1][1] + shp[0][alpha] * DB[2][1];
       }
     }
   }
 
-  Ki = new Matrix(K);
-  return K;
+  return *Ki;
 }
 
+
+template <int NEN, bool enh>
 const Matrix&
-LagrangeQuad::getMass()
+LagrangeQuad<NEN,enh>::getMass()
 {
-    K.Zero();
+  static MatrixND<NEN*NDF, NEN*NDF> M;
+  M.zero();
 
-    int i;
-    static double rhoi[4];
-    double sum = 0.0;
-    for (i = 0; i < nip; i++) {
-      if (rho == 0)
-        rhoi[i] = theMaterial[i]->getRho();
-      else
-        rhoi[i] = rho;            
-      sum += rhoi[i];
+  static double rhoi[4];
+  double sum = 0.0;
+  for (int i = 0; i < nip; i++) {
+    if (rho == 0)
+      rhoi[i] = theMaterial[i]->getDensity();
+    else
+      rhoi[i] = rho;
+    sum += rhoi[i];
+  }
+
+  if (sum == 0.0)
+    return M;
+
+  // Compute a lumped mass matrix
+  for (int i = 0; i < nip; i++) {
+    // Determine Jacobian for this integration point
+    double rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
+
+    // Element plus material density ... MAY WANT TO REMOVE ELEMENT DENSITY
+    rhodvol *= (rhoi[i] * thickness * wts[i]);
+
+    for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia++) {
+      double Nrho = shp[2][alpha] * rhodvol;
+      M(ia, ia) += Nrho;
+      ia++;
+      M(ia, ia) += Nrho;
     }
+  }
 
-    if (sum == 0.0)
-      return K;
-
-    double rhodvol, Nrho;
-
-    // Compute a lumped mass matrix
-    for (int i = 0; i < 4; i++) {
-        // Determine Jacobian for this integration point
-        rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
-
-        // Element plus material density ... MAY WANT TO REMOVE ELEMENT DENSITY
-        rhodvol *= (rhoi[i]*thickness*wts[i]);
-
-        for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia++) {
-            Nrho = shp[2][alpha]*rhodvol;
-            K(ia,ia) += Nrho;
-            ia++;
-            K(ia,ia) += Nrho;
-        }
-    }
-
-    return K;
+  static Matrix Wrapper(M);
+  return Wrapper;
 }
 
+
+template <int NEN, bool enh>
 void
-LagrangeQuad::zeroLoad()
+LagrangeQuad<NEN,enh>::zeroLoad()
 {
-    Q.Zero();
+  Q.zero();
 
-    applyLoad = 0;
+  applyLoad = 0;
 
-    appliedB[0] = 0.0;
-    appliedB[1] = 0.0;
+  appliedB[0] = 0.0;
+  appliedB[1] = 0.0;
 
-    return;
+  return;
 }
 
-int 
-LagrangeQuad::addLoad(ElementalLoad *theLoad, double loadFactor)
+template <int NEN, bool enh>
+int
+LagrangeQuad<NEN,enh>::addLoad(ElementalLoad* theLoad, double loadFactor)
 {
   // Added option for applying body forces in load pattern: C.McGann, U.Washington
   int type;
-  const Vector &data = theLoad->getData(type, loadFactor);
+  const Vector& data = theLoad->getData(type, loadFactor);
 
   if (type == LOAD_TAG_SelfWeight) {
     applyLoad = 1;
-    appliedB[0] += loadFactor*data(0)*b[0];
-    appliedB[1] += loadFactor*data(1)*b[1];
+    appliedB[0] += loadFactor * data(0) * b[0];
+    appliedB[1] += loadFactor * data(1) * b[1];
     return 0;
   } else {
-    opserr << "LagrangeQuad::addLoad - load type unknown for ele with tag: " << this->getTag() << endln;
+    opserr << "LagrangeQuad::addLoad - load type unknown for ele with tag: " << this->getTag()
+           << endln;
     return -1;
-  } 
+  }
 
   return -1;
 }
 
-int 
-LagrangeQuad::addInertiaLoadToUnbalance(const Vector &accel)
+template <int NEN, bool enh>
+int
+LagrangeQuad<NEN,enh>::addInertiaLoadToUnbalance(const Vector& accel)
 {
-  static double rhoi[4];
+  double rhoi[nip];
   double sum = 0.0;
-  for (int i = 0; i < 4; i++) {
-    rhoi[i] = theMaterial[i]->getRho();
+  for (int i = 0; i < nip; i++) {
+    rhoi[i] = theMaterial[i]->getDensity();
     sum += rhoi[i];
   }
-  
+
   if (sum == 0.0)
     return 0;
-  
+
+  static double ra[NEN*NDF];
+
   // Get R * accel from the nodes
-  const Vector &Raccel1 = theNodes[0]->getRV(accel);
-  const Vector &Raccel2 = theNodes[1]->getRV(accel);
-  const Vector &Raccel3 = theNodes[2]->getRV(accel);
-  const Vector &Raccel4 = theNodes[3]->getRV(accel);
-  
-  if (2 != Raccel1.Size() || 2 != Raccel2.Size() || 2 != Raccel3.Size() ||
-      2 != Raccel4.Size()) {
-    opserr << "LagrangeQuad::addInertiaLoadToUnbalance matrix and vector sizes are incompatible\n";
-    return -1;
+  for (int i=0; i<NEN; i++) {
+    const Vector& Raccel = theNodes[0]->getRV(accel);
+    assert(Raccel.Size() == NDF);
+    for (int j=0; j<NDF; j++)
+      ra[NDF*i+j] = Raccel[j];
   }
-  
-  static double ra[8];
-  
-  ra[0] = Raccel1(0);
-  ra[1] = Raccel1(1);
-  ra[2] = Raccel2(0);
-  ra[3] = Raccel2(1);
-  ra[4] = Raccel3(0);
-  ra[5] = Raccel3(1);
-  ra[6] = Raccel4(0);
-  ra[7] = Raccel4(1);
-  
+
   // Compute mass matrix
-  this->getMass();
-  
-  // Want to add ( - fact * M R * accel ) to unbalance
+  const Matrix& M = this->getMass();
+
+  // Add ( - fact * M R * accel ) to unbalance
   // Take advantage of lumped mass matrix
-  for (int i = 0; i < 8; i++)
-    Q(i) += -K(i,i)*ra[i];
-  
+  for (int i = 0; i < NEN*NDF; i++)
+      Q[i] += -M(i, i) * ra[i];
+
   return 0;
 }
 
+
+template <int NEN, bool enh>
 const Vector&
-LagrangeQuad::getResistingForce()
+LagrangeQuad<NEN,enh>::getResistingForce()
 {
-    P.Zero();
+  thread_local VectorND<NEN*NDF> P;
+  P.zero();
 
+
+  // Loop over the integration points
+  for (int i = 0; i < nip; i++) {
+    // Determine Jacobian for this integration point
     double dvol;
+    dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+    dvol *= (thickness * wts[i]);
 
-    // Loop over the integration points
-    for (int i = 0; i < 4; i++) {
-        // Determine Jacobian for this integration point
-        dvol = this->shapeFunction(pts[i][0], pts[i][1]);
-        dvol *= (thickness*wts[i]);
+    // Get material stress response
+    const VectorND<3> sigma = theMaterial[i]->getStress().vector;
 
-        // Get material stress response
-        const Vector &sigma = theMaterial[i]->getStress();
+    // Perform numerical integration on internal force
+    //P = P + (B^ sigma) * intWt(i)*intWt(j) * detJ;
+    //P.addMatrixTransposeVector(1.0, B, sigma, intWt(i)*intWt(j)*detJ);
+    for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
+      P(ia)     += dvol * (shp[0][alpha] * sigma[0] + shp[1][alpha] * sigma[2]);
+      P(ia + 1) += dvol * (shp[1][alpha] * sigma[1] + shp[0][alpha] * sigma[2]);
 
-        // Perform numerical integration on internal force
-        //P = P + (B^ sigma) * intWt(i)*intWt(j) * detJ;
-        //P.addMatrixTransposeVector(1.0, B, sigma, intWt(i)*intWt(j)*detJ);
-        for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 2) {            
-          P(ia)   += dvol*(shp[0][alpha]*sigma(0) + shp[1][alpha]*sigma(2)); 
-          P(ia+1) += dvol*(shp[1][alpha]*sigma(1) + shp[0][alpha]*sigma(2));
-
-          // Subtract equiv. body forces from the nodes
-          //P = P - (N^ b) * intWt(i)*intWt(j) * detJ;
-          //P.addMatrixTransposeVector(1.0, N, b, -intWt(i)*intWt(j)*detJ);
-          if (applyLoad == 0) {
-            P(ia)   -= dvol*(shp[2][alpha]*b[0]);
-            P(ia+1) -= dvol*(shp[2][alpha]*b[1]);
-          } else {
-            P(ia)   -= dvol*(shp[2][alpha]*appliedB[0]);
-            P(ia+1) -= dvol*(shp[2][alpha]*appliedB[1]);
-          }
-        }
+      // Subtract equiv. body forces from the nodes
+      //P = P - (N^ b) * intWt(i)*intWt(j) * detJ;
+      //P.addMatrixTransposeVector(1.0, N, b, -intWt(i)*intWt(j)*detJ);
+      if (applyLoad == 0) {
+        P(ia)     -= dvol * (shp[2][alpha] * b[0]);
+        P(ia + 1) -= dvol * (shp[2][alpha] * b[1]);
+      } else {
+        P(ia)     -= dvol * (shp[2][alpha] * appliedB[0]);
+        P(ia + 1) -= dvol * (shp[2][alpha] * appliedB[1]);
+      }
     }
+  }
 
-    // Subtract pressure loading from resisting force
-    if (pressure != 0.0) {
-      //P = P - pressureLoad;
-      P.addVector(1.0, pressureLoad, -1.0);
-    }
-    
-    // Subtract other external nodal loads ... P_res = P_int - P_ext
-    // P = P - Q;
-    P.addVector(1.0, Q, -1.0);
+  // Subtract pressure loading from resisting force
+  if (pressure != 0.0) {
+    //P = P - pressureLoad;
+    P.addVector(1.0, pressureLoad, -1.0);
+  }
 
-    return P;
+  // Subtract other external nodal loads ... P_res = P_int - P_ext
+  // P = P - Q;
+  P.addVector(1.0, Q, -1.0);
+
+  thread_local Vector wrapper(P);
+  return wrapper;
 }
 
+template <int NEN, bool enh>
 const Vector&
-LagrangeQuad::getResistingForceIncInertia()
+LagrangeQuad<NEN,enh>::getResistingForceIncInertia()
 {
-    int i;
-    static double rhoi[4];
-    double sum = 0.0;
-    for (int i = 0; i < 4; i++) {
-      rhoi[i] = theMaterial[i]->getRho();
-      sum += rhoi[i];
-    }
+  static Vector P(NEN*NDF);
 
-    // if no mass terms .. just add damping terms
-    if (sum == 0.0) {
-      this->getResistingForce();
+  double rhoi[nip];
+  double sum = 0.0;
+  for (int i = 0; i < nip; i++) {
+    rhoi[i] = theMaterial[i]->getDensity();
+    sum += rhoi[i];
+  }
 
-      // add the damping forces if rayleigh damping
-      if (betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0)
-        P += this->getRayleighDampingForces();
+  // Compute the current resisting force
+  P = this->getResistingForce();
 
-      return P;
-    }
-
-    const Vector &accel1 = theNodes[0]->getTrialAccel();
-    const Vector &accel2 = theNodes[1]->getTrialAccel();
-    const Vector &accel3 = theNodes[2]->getTrialAccel();
-    const Vector &accel4 = theNodes[3]->getTrialAccel();
-    
-    double a[8];
-
-    a[0] = accel1(0);
-    a[1] = accel1(1);
-    a[2] = accel2(0);
-    a[3] = accel2(1);
-    a[4] = accel3(0);
-    a[5] = accel3(1);
-    a[6] = accel4(0);
-    a[7] = accel4(1);
-
-    // Compute the current resisting force
-    this->getResistingForce();
-
-    // Compute the mass matrix
-    this->getMass();
-
-    // Take advantage of lumped mass matrix
-    for (int i = 0; i < 8; i++)
-        P(i) += K(i,i)*a[i];
-
+  // if no mass terms .. just add damping terms
+  if (sum == 0.0) {
     // add the damping forces if rayleigh damping
-    if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0)
+    if (betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0)
       P += this->getRayleighDampingForces();
 
     return P;
+  }
+
+  double a[NDF*NEN];
+  for (int i=0; i<NEN; i++) {
+      const Vector &accel = theNodes[i]->getTrialAccel();
+      for (int j=0; j<NDF; j++)
+        a[i*NDF+j] = accel[j];
+  }
+
+  // Compute the mass matrix
+  const Matrix& M = this->getMass();
+
+  // Take advantage of lumped mass matrix
+  for (int i = 0; i < NEN*NDF; i++)
+    P[i] += M(i, i)*a[i];
+
+  // add the damping forces if rayleigh damping
+  if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0)
+    P += this->getRayleighDampingForces();
+
+  return P;
 }
 
+
+template <int NEN, bool enh>
 int
-LagrangeQuad::sendSelf(int commitTag, Channel &theChannel)
+LagrangeQuad<NEN,enh>::sendSelf(int commitTag, Channel &theChannel)
 {
   int res = 0;
   
@@ -617,29 +610,27 @@ LagrangeQuad::sendSelf(int commitTag, Channel &theChannel)
   }              
   
 
-  // Now quad sends the ids of its materials
-  int matDbTag;
+  // Now send the ids of our materials
   
-  static ID idData(12);
+  static ID idData(NEN + 2*nip);
   
-  int i;
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < nip; i++) {
+#if 0 // TODO
     idData(i) = theMaterial[i]->getClassTag();
-    matDbTag = theMaterial[i]->getDbTag();
+    int matDbTag = theMaterial[i]->getDbTag();
     // NOTE: we do have to ensure that the material has a database
     // tag if we are sending to a database channel.
     if (matDbTag == 0) {
       matDbTag = theChannel.getDbTag();
-                        if (matDbTag != 0)
-                          theMaterial[i]->setDbTag(matDbTag);
+      if (matDbTag != 0)
+        theMaterial[i]->setDbTag(matDbTag);
     }
     idData(i+4) = matDbTag;
+#endif
   }
   
-  idData(8) = connectedExternalNodes(0);
-  idData(9) = connectedExternalNodes(1);
-  idData(10) = connectedExternalNodes(2);
-  idData(11) = connectedExternalNodes(3);
+  for (int i=0; i<NEN; i++)
+      idData(8+i) = connectedExternalNodes(i);
 
   res += theChannel.sendID(dataTag, commitTag, idData);
   if (res < 0) {
@@ -647,20 +638,24 @@ LagrangeQuad::sendSelf(int commitTag, Channel &theChannel)
     return res;
   }
 
-  // Finally, quad asks its material objects to send themselves
-  for (i = 0; i < 4; i++) {
+  // Finally, asks our material objects to send themselves
+  for (int i = 0; i < nip; i++) {
+#if 0
     res += theMaterial[i]->sendSelf(commitTag, theChannel);
     if (res < 0) {
       opserr << "WARNING LagrangeQuad::sendSelf() - " << this->getTag() << " failed to send its Material\n";
       return res;
     }
+#endif
   }
   
   return res;
 }
 
+
+template <int NEN, bool enh>
 int
-LagrangeQuad::recvSelf(int commitTag, Channel &theChannel,
+LagrangeQuad<NEN,enh>::recvSelf(int commitTag, Channel &theChannel,
                        FEM_ObjectBroker &theBroker)
 {
   int res = 0;
@@ -683,7 +678,7 @@ LagrangeQuad::recvSelf(int commitTag, Channel &theChannel,
   pressure = data(4);
 
   alphaM = data(5);
-  betaK = data(6);
+  betaK  = data(6);
   betaK0 = data(7);
   betaKc = data(8);
 
@@ -695,15 +690,14 @@ LagrangeQuad::recvSelf(int commitTag, Channel &theChannel,
     return res;
   }
 
-  connectedExternalNodes(0) = idData(8);
-  connectedExternalNodes(1) = idData(9);
-  connectedExternalNodes(2) = idData(10);
-  connectedExternalNodes(3) = idData(11);
+  for (int i=0; i < NEN; i++)
+    connectedExternalNodes(i) = idData(8+i);
   
   if (theMaterial[0] == nullptr) {
     // Allocate new materials
 
     for (int i = 0; i < nip; i++) {
+#if 0 // TODO
       int matClassTag = idData(i);
       int matDbTag = idData(i+4);
       // Allocate new material with the sent class tag
@@ -718,14 +712,16 @@ LagrangeQuad::recvSelf(int commitTag, Channel &theChannel,
 
       if (res < 0) {
         opserr << "LagrangeQuad::recvSelf() - material " << i << "failed to recv itself\n";
-            return res;
+        return res;
       }
+#endif
     }
   }
 
   // materials exist , ensure materials of correct type and recvSelf on them
   else {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < nip; i++) {
+#if 0
       int matClassTag = idData(i);
       int matDbTag = idData(i+4);
       // Check that material is of the right type; if not,
@@ -745,159 +741,129 @@ LagrangeQuad::recvSelf(int commitTag, Channel &theChannel,
         opserr << "LagrangeQuad::recvSelf() - material " << i << "failed to recv itself\n";
             return res;
       }
+#endif
     }
   }
   
   return res;
 }
 
+
+template <int NEN, bool enh>
 void
-LagrangeQuad::Print(OPS_Stream &s, int flag)
+LagrangeQuad<NEN,enh>::Print(OPS_Stream& s, int flag)
 {
   const ID& node_tags = this->getExternalNodes();
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
-      s << "\"name\": " << this->getTag() << ", ";
-      s << "\"type\": \"" << this->getClassType() << "\", ";
-      s << "\"nodes\": [";
-      for (int i=0; i < NEN-1; i++)
-          s << node_tags(i) << ", ";
-      s << node_tags(NEN-1) << "], ";
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+    s << "\"name\": " << this->getTag() << ", ";
+    s << "\"type\": \"" << this->getClassType() << "\", ";
 
-      s << "\"thickness\": " << thickness << ", ";
-      s << "\"surfacePressure\": " << pressure << ", ";
-      s << "\"masspervolume\": " << rho << ", ";
-      s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
-      s << "\"material\": [";
-      for (int i = 0; i < nip - 1; i++)
-        s << theMaterial[i]->getTag() << ", ";
-      s << theMaterial[nip - 1]->getTag() << "] ";
-      s << "}";
+    s << "\"nodes\": [";
+    for (int i = 0; i < NEN - 1; i++)
+      s << node_tags(i) << ", ";
+    s << node_tags(NEN - 1) << "]";
+    s << ", ";
+
+    s << "\"thickness\": " << thickness << ", ";
+    s << "\"surfacePressure\": " << pressure << ", ";
+    s << "\"masspervolume\": " << rho << ", ";
+    s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
+    
+    s << "\"material\": [";
+    for (int i = 0; i < nip - 1; i++)
+      s << theMaterial[i]->getTag() << ", ";
+    s << theMaterial[nip - 1]->getTag() << "] ";
+    s << "}";
+
+    return;
   }
 
-  if (flag == 2) {
-
-    s << "#LagrangeQuad\n";
-    
-    int i;
-    const int numNodes = 4;
-    const int nstress = 3 ;
-    
-    for (i=0; i<numNodes; i++) {
-      const Vector &nodeCrd = theNodes[i]->getCrds();
-      // const Vector &nodeDisp = theNodes[i]->getDisp();
-      s << "#NODE " << nodeCrd(0) << " " << nodeCrd(1) << " " << endln;
-     }
-    
-    // spit out the section location & invoke print on the scetion
-    const int numMaterials = 4;
-
-    static Vector avgStress(nstress);
-    static Vector avgStrain(nstress);
-    avgStress.Zero();
-    avgStrain.Zero();
-    for (i=0; i<numMaterials; i++) {
-      avgStress += theMaterial[i]->getStress();
-      avgStrain += theMaterial[i]->getStrain();
-    }
-    avgStress /= numMaterials;
-    avgStrain /= numMaterials;
-
-    s << "#AVERAGE_STRESS ";
-    for (i=0; i<nstress; i++)
-      s << avgStress(i) << " " ;
-    s << endln;
-
-    s << "#AVERAGE_STRAIN ";
-    for (i=0; i<nstress; i++)
-      s << avgStrain(i) << " " ;
-    s << endln;
-  }
-  
   if (flag == OPS_PRINT_CURRENTSTATE) {
     s << "\nLagrangeQuad, element id:  " << this->getTag() << endln;
-        s << "\tConnected external nodes:  " << connectedExternalNodes;
-        s << "\tthickness:  " << thickness << endln;
-        s << "\tsurface pressure:  " << pressure << endln;
+    s << "\tConnected external nodes:  " << connectedExternalNodes;
+    s << "\tthickness:  " << thickness << endln;
+    s << "\tsurface pressure:  " << pressure << endln;
     s << "\tmass density:  " << rho << endln;
     s << "\tbody forces:  " << b[0] << " " << b[1] << endln;
-        theMaterial[0]->Print(s,flag);
-        s << "\tStress (xx yy xy)" << endln;
-        for (int i = 0; i < 4; i++)
-                s << "\t\tGauss point " << i+1 << ": " << theMaterial[i]->getStress();
+    theMaterial[0]->Print(s, flag);
+    s << "\tStress (xx yy xy)" << endln;
+    for (int i = 0; i < 4; i++) {
+      auto sigma = theMaterial[i]->getStress();
+      s << "\t\tGauss point " << i + 1 << ": " << Vector(sigma.vector);
+    }
   }
-  
 }
 
+template <int NEN, bool enh>
 Response*
-LagrangeQuad::setResponse(const char **argv, int argc, 
-                          OPS_Stream &output)
+LagrangeQuad<NEN,enh>::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
-  Response *theResponse = nullptr;
+  Response* theResponse = nullptr;
 
   output.tag("ElementOutput");
-  output.attr("eleType","LagrangeQuad");
-  output.attr("eleTag",this->getTag());
-  output.attr("node1",connectedExternalNodes[0]);
-  output.attr("node2",connectedExternalNodes[1]);
-  output.attr("node3",connectedExternalNodes[2]);
-  output.attr("node4",connectedExternalNodes[3]);
+  output.attr("eleType", "LagrangeQuad");
+  output.attr("eleTag", this->getTag());
+  output.attr("node1", connectedExternalNodes[0]);
+  output.attr("node2", connectedExternalNodes[1]);
+  output.attr("node3", connectedExternalNodes[2]);
+  output.attr("node4", connectedExternalNodes[3]);
 
   char dataOut[10];
-  if (strcmp(argv[0],"force") == 0 || strcmp(argv[0],"forces") == 0) {
+  if (strcmp(argv[0], "force") == 0 || strcmp(argv[0], "forces") == 0) {
 
-    for (int i=1; i<=4; i++) {
-      sprintf(dataOut,"P1_%d",i);
-      output.tag("ResponseType",dataOut);
-      sprintf(dataOut,"P2_%d",i);
-      output.tag("ResponseType",dataOut);
+    for (int i = 1; i <= 4; i++) {
+      sprintf(dataOut, "P1_%d", i);
+      output.tag("ResponseType", dataOut);
+      sprintf(dataOut, "P2_%d", i);
+      output.tag("ResponseType", dataOut);
     }
-    
-    theResponse =  new ElementResponse(this, 1, P);
-  }   
 
-  else if (strcmp(argv[0],"material") == 0 || strcmp(argv[0],"integrPoint") == 0) {
-    
+    theResponse = new ElementResponse(this, 1, Vector(NDF*NEN));
+  }
+
+  else if (strcmp(argv[0], "material") == 0 || strcmp(argv[0], "integrPoint") == 0) {
+
     int pointNum = atoi(argv[1]);
     if (pointNum > 0 && pointNum <= 4) {
-      
-      output.tag("GaussPoint");
-      output.attr("number",pointNum);
-      output.attr("eta",pts[pointNum-1][0]);
-      output.attr("neta",pts[pointNum-1][1]);
 
-      theResponse =  theMaterial[pointNum-1]->setResponse(&argv[2], argc-2, output);
-      
+      output.tag("GaussPoint");
+      output.attr("number", pointNum);
+      output.attr("eta",  pts[pointNum - 1][0]);
+      output.attr("neta", pts[pointNum - 1][1]);
+
+      theResponse = theMaterial[pointNum - 1]->setResponse(&argv[2], argc - 2, output);
+
       output.endTag();
-
     }
-  }
-  else if ((strcmp(argv[0],"stresses") ==0) || (strcmp(argv[0],"stress") ==0)) {
-    for (int i=0; i<4; i++) {
+  } 
+  
+  else if ((strcmp(argv[0], "stresses") == 0) || (strcmp(argv[0], "stress") == 0)) {
+    for (int i = 0; i < 4; i++) {
       output.tag("GaussPoint");
-      output.attr("number",i+1);
-      output.attr("eta",pts[i][0]);
-      output.attr("neta",pts[i][1]);
+      output.attr("number", i + 1);
+      output.attr("eta", pts[i][0]);
+      output.attr("neta", pts[i][1]);
 
       output.tag("NdMaterialOutput");
       output.attr("classType", theMaterial[i]->getClassTag());
       output.attr("tag", theMaterial[i]->getTag());
-      
-      output.tag("ResponseType","sigma11");
-      output.tag("ResponseType","sigma22");
-      output.tag("ResponseType","sigma12");
-      
+
+      output.tag("ResponseType", "sigma11");
+      output.tag("ResponseType", "sigma22");
+      output.tag("ResponseType", "sigma12");
+
       output.endTag(); // GaussPoint
       output.endTag(); // NdMaterialOutput
-      }
-    theResponse =  new ElementResponse(this, 3, Vector(12));
+    }
+    theResponse = new ElementResponse(this, 3, Vector(12));
   }
 
-  else if ((strcmp(argv[0],"stressesAtNodes") ==0) || (strcmp(argv[0],"stressAtNodes") ==0)) {
-    for (int i=0; i<4; i++) { // nnodes
+  else if ((strcmp(argv[0], "stressesAtNodes") == 0) || (strcmp(argv[0], "stressAtNodes") == 0)) {
+    for (int i = 0; i < 4; i++) { // nnodes
       output.tag("NodalPoint");
-      output.attr("number",i+1);
+      output.attr("number", i + 1);
       // output.attr("eta",pts[i][0]);
       // output.attr("neta",pts[i][1]);
 
@@ -905,35 +871,35 @@ LagrangeQuad::setResponse(const char **argv, int argc,
       // output.attr("classType", theMaterial[i]->getClassTag());
       // output.attr("tag", theMaterial[i]->getTag());
 
-      output.tag("ResponseType","sigma11");
-      output.tag("ResponseType","sigma22");
-      output.tag("ResponseType","sigma12");
+      output.tag("ResponseType", "sigma11");
+      output.tag("ResponseType", "sigma22");
+      output.tag("ResponseType", "sigma12");
 
       output.endTag(); // GaussPoint
       // output.endTag(); // NdMaterialOutput
-      }
-    theResponse =  new ElementResponse(this, 11, Vector(12)); // 3 * nnodes
+    }
+    theResponse = new ElementResponse(this, 11, Vector(12)); // 3 * nnodes
   }
 
-  else if ((strcmp(argv[0],"strain") ==0) || (strcmp(argv[0],"strains") ==0)) {
-    for (int i=0; i<4; i++) {
+  else if ((strcmp(argv[0], "strain") == 0) || (strcmp(argv[0], "strains") == 0)) {
+    for (int i = 0; i < 4; i++) {
       output.tag("GaussPoint");
-      output.attr("number",i+1);
-      output.attr("eta",pts[i][0]);
-      output.attr("neta",pts[i][1]);
+      output.attr("number", i + 1);
+      output.attr("eta", pts[i][0]);
+      output.attr("neta", pts[i][1]);
 
       output.tag("NdMaterialOutput");
       output.attr("classType", theMaterial[i]->getClassTag());
       output.attr("tag", theMaterial[i]->getTag());
-      
-      output.tag("ResponseType","eta11");
-      output.tag("ResponseType","eta22");
-      output.tag("ResponseType","eta12");
-      
+
+      output.tag("ResponseType", "eta11");
+      output.tag("ResponseType", "eta22");
+      output.tag("ResponseType", "eta12");
+
       output.endTag(); // GaussPoint
       output.endTag(); // NdMaterialOutput
-      }
-    theResponse =  new ElementResponse(this, 4, Vector(12));
+    }
+    theResponse = new ElementResponse(this, 4, Vector(12));
   }
 
   output.endTag(); // ElementOutput
@@ -941,8 +907,9 @@ LagrangeQuad::setResponse(const char **argv, int argc,
   return theResponse;
 }
 
-int 
-LagrangeQuad::getResponse(int responseID, Information &eleInfo)
+template <int NEN, bool enh>
+int
+LagrangeQuad<NEN,enh>::getResponse(int responseID, Information& eleInfo)
 {
   if (responseID == 1) {
 
@@ -954,17 +921,16 @@ LagrangeQuad::getResponse(int responseID, Information &eleInfo)
     static Vector stresses(12);
     int cnt = 0;
     for (int i = 0; i < 4; i++) {
-
       // Get material stress response
-      const Vector &sigma = theMaterial[i]->getStress();
-      stresses(cnt) = sigma(0);
-      stresses(cnt+1) = sigma(1);
-      stresses(cnt+2) = sigma(2);
+      auto sigma        = theMaterial[i]->getStress().vector;
+      stresses(cnt)     = sigma[0];
+      stresses(cnt + 1) = sigma[1];
+      stresses(cnt + 2) = sigma[2];
       cnt += 3;
     }
-    
+
     return eleInfo.setVector(stresses);
-      
+
   } else if (responseID == 11) {
 
     // extrapolate stress from Gauss points to element nodes
@@ -972,13 +938,13 @@ LagrangeQuad::getResponse(int responseID, Information &eleInfo)
     static Vector stressAtNodes(12); // 3*nnodes
     stressAtNodes.Zero();
     int cnt = 0;
-        // first get stress components (xx, yy, xy) at Gauss points
+    // first get stress components (xx, yy, xy) at Gauss points
     for (int i = 0; i < 4; i++) { // nip
       // Get material stress response
-      const Vector &sigma = theMaterial[i]->getStress();
-      stressGP(cnt) = sigma(0);
-      stressGP(cnt+1) = sigma(1);
-      stressGP(cnt+2) = sigma(2);
+      const VectorND<3> sigma = theMaterial[i]->getStress().vector;
+      stressGP(cnt)           = sigma[0];
+      stressGP(cnt + 1)       = sigma[1];
+      stressGP(cnt + 2)       = sigma[2];
       cnt += 3;
     }
 
@@ -988,44 +954,51 @@ LagrangeQuad::getResponse(int responseID, Information &eleInfo)
                                  {0.1339745962155614, -0.5, 1.8660254037844386, -0.5},
                                  {-0.5, 0.1339745962155614, -0.5, 1.8660254037844386}};
 
-    int p, l;
-    for (int i = 0; i < 4; i++) { // nnodes
+    for (int i = 0; i < 4; i++) {   // nnodes
       for (int k = 0; k < 3; k++) { // number of stress components
-            p = 3*i + k;
-            for (int j = 0; j < 4; j++) { // nip
-              l = 3*j + k;
-              stressAtNodes(p) += We[i][j] * stressGP(l);
-              // opserr << "stressAtNodes(" << p << ") = We[" << i << "][" << j << "] * stressGP(" << l << ") = " << We[i][j] << " * " << stressGP(l) << " = " << stressAtNodes(p) <<  "\n";
-            }
+        int p = 3 * i + k;
+        for (int j = 0; j < 4; j++) { // nip
+          int l = 3 * j + k;
+          stressAtNodes(p) += We[i][j] * stressGP(l);
+          // opserr << "stressAtNodes(" << p << ") = We[" << i << "][" << j << "] * stressGP(" << l << ") = " << We[i][j] << " * " << stressGP(l) << " = " << stressAtNodes(p) <<  "\n";
+        }
       }
     }
 
     return eleInfo.setVector(stressAtNodes);
+  }
 
-  } else if (responseID == 4) {
+  else if (responseID == 4) {
 
+#if 0
     // Loop over the integration points
     static Vector stresses(12);
     int cnt = 0;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < nip; i++) {
 
       // Get material stress response
       const Vector &sigma = theMaterial[i]->getStrain();
-      stresses(cnt) = sigma(0);
-      stresses(cnt+1) = sigma(1);
-      stresses(cnt+2) = sigma(2);
+      
+      stresses(cnt) = sigma[0];
+      stresses(cnt+1) = sigma[1];
+      stresses(cnt+2) = sigma[2];
       cnt += 3;
     }
 
     return eleInfo.setVector(stresses);
-        
+#endif
+
   } else
 
     return -1;
 }
 
+
+#if 0
+
+template <int NEN, bool enh>
 int
-LagrangeQuad::setParameter(const char **argv, int argc, Parameter &param)
+LagrangeQuad<NEN,enh>::setParameter(const char **argv, int argc, Parameter &param)
 {
   if (argc < 1)
     return -1;
@@ -1043,7 +1016,7 @@ LagrangeQuad::setParameter(const char **argv, int argc, Parameter &param)
       return -1;
 
     int pointNum = atoi(argv[1]);
-    if (pointNum > 0 && pointNum <= 4)
+    if (pointNum > 0 && pointNum <= nip)
       return theMaterial[pointNum-1]->setParameter(&argv[2], argc-2, param);
     else 
       return -1;
@@ -1053,7 +1026,7 @@ LagrangeQuad::setParameter(const char **argv, int argc, Parameter &param)
   else {
 
     int matRes = res;
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<nip; i++) {
 
       matRes =  theMaterial[i]->setParameter(argv, argc, param);
 
@@ -1064,9 +1037,10 @@ LagrangeQuad::setParameter(const char **argv, int argc, Parameter &param)
   
   return res;
 }
-    
+
+template <int NEN, bool enh>
 int
-LagrangeQuad::updateParameter(int parameterID, Information &info)
+LagrangeQuad<NEN,enh>::updateParameter(int parameterID, Information &info)
 {
   int res = -1;
   int matRes = res;
@@ -1075,7 +1049,7 @@ LagrangeQuad::updateParameter(int parameterID, Information &info)
       return -1;
 
     case 1:
-      for (int i = 0; i<4; i++)
+      for (int i = 0; i < nip; i++)
         matRes = theMaterial[i]->updateParameter(parameterID, info);
 
       if (matRes != -1) {
@@ -1102,218 +1076,219 @@ LagrangeQuad::updateParameter(int parameterID, Information &info)
   }
 }
 
-double LagrangeQuad::shapeFunction(double xi, double eta)
-{
-    const Vector &nd1Crds = theNodes[0]->getCrds();
-    const Vector &nd2Crds = theNodes[1]->getCrds();
-    const Vector &nd3Crds = theNodes[2]->getCrds();
-    const Vector &nd4Crds = theNodes[3]->getCrds();
 
-    double oneMinuseta = 1.0-eta;
-    double onePluseta = 1.0+eta;
-    double oneMinusxi = 1.0-xi;
-    double onePlusxi = 1.0+xi;
-
-    shp[2][0] = 0.25*oneMinusxi*oneMinuseta;        // N_1
-    shp[2][1] = 0.25*onePlusxi*oneMinuseta;         // N_2
-    shp[2][2] = 0.25*onePlusxi*onePluseta;          // N_3
-    shp[2][3] = 0.25*oneMinusxi*onePluseta;         // N_4
-
-    double J[2][2];
-
-    J[0][0] = 0.25 * (-nd1Crds(0)*oneMinuseta + nd2Crds(0)*oneMinuseta +
-                            nd3Crds(0)*(onePluseta) - nd4Crds(0)*(onePluseta));
-
-    J[0][1] = 0.25 * (-nd1Crds(0)*oneMinusxi - nd2Crds(0)*onePlusxi +
-                            nd3Crds(0)*onePlusxi + nd4Crds(0)*oneMinusxi);
-
-    J[1][0] = 0.25 * (-nd1Crds(1)*oneMinuseta + nd2Crds(1)*oneMinuseta +
-                            nd3Crds(1)*onePluseta - nd4Crds(1)*onePluseta);
-
-    J[1][1] = 0.25 * (-nd1Crds(1)*oneMinusxi - nd2Crds(1)*onePlusxi +
-                            nd3Crds(1)*onePlusxi + nd4Crds(1)*oneMinusxi);
-
-    double detJ = J[0][0]*J[1][1] - J[0][1]*J[1][0];
-    double oneOverdetJ = 1.0/detJ;
-    double L[2][2];
-
-    // L = inv(J)
-    L[0][0] =  J[1][1]*oneOverdetJ;
-    L[1][0] = -J[0][1]*oneOverdetJ;
-    L[0][1] = -J[1][0]*oneOverdetJ;
-    L[1][1] =  J[0][0]*oneOverdetJ;
-
-    double L00 = 0.25*L[0][0];
-    double L10 = 0.25*L[1][0];
-    double L01 = 0.25*L[0][1];
-    double L11 = 0.25*L[1][1];
-        
-    double L00oneMinuseta = L00*oneMinuseta;
-    double L00onePluseta  = L00*onePluseta;
-    double L01oneMinusxi  = L01*oneMinusxi;
-    double L01onePlusxi   = L01*onePlusxi;
-
-    double L10oneMinuseta = L10*oneMinuseta;
-    double L10onePluseta  = L10*onePluseta;
-    double L11oneMinusxi  = L11*oneMinusxi;
-    double L11onePlusxi   = L11*onePlusxi;
-
-    // See Cook, Malkus, Plesha p. 169 for the derivation of these terms
-    shp[0][0] = -L00oneMinuseta - L01oneMinusxi;        // N_1,1
-    shp[0][1] =  L00oneMinuseta - L01onePlusxi;         // N_2,1
-    shp[0][2] =  L00onePluseta  + L01onePlusxi;         // N_3,1
-    shp[0][3] = -L00onePluseta  + L01oneMinusxi;        // N_4,1
-        
-    shp[1][0] = -L10oneMinuseta - L11oneMinusxi;        // N_1,2
-    shp[1][1] =  L10oneMinuseta - L11onePlusxi;         // N_2,2
-    shp[1][2] =  L10onePluseta  + L11onePlusxi;         // N_3,2
-    shp[1][3] = -L10onePluseta  + L11oneMinusxi;        // N_4,2
-
-    return detJ;
-}
-
+template <int NEN, bool enh>
 int
-LagrangeQuad::activateParameter(int param)
+LagrangeQuad<NEN,enh>::activateParameter(int param)
 {
-	parameterID = param;
-	return 0;
+  parameterID = param;
+  return 0;
 }
 
 
-void 
-LagrangeQuad::setPressureLoadAtNodes()
-{
-    pressureLoad.Zero();
-
-    if (pressure == 0.0)
-        return;
-
-    const Vector &node1 = theNodes[0]->getCrds();
-    const Vector &node2 = theNodes[1]->getCrds();
-    const Vector &node3 = theNodes[2]->getCrds();
-    const Vector &node4 = theNodes[3]->getCrds();
-
-    double x1 = node1(0);
-    double y1 = node1(1);
-    double x2 = node2(0);
-    double y2 = node2(1);
-    double x3 = node3(0);
-    double y3 = node3(1);
-    double x4 = node4(0);
-    double y4 = node4(1);
-
-    double dx12 = x2-x1;
-    double dy12 = y2-y1;
-    double dx23 = x3-x2;
-    double dy23 = y3-y2;
-    double dx34 = x4-x3;
-    double dy34 = y4-y3;
-    double dx41 = x1-x4;
-    double dy41 = y1-y4;
-
-    double pressureOver2 = pressure/2.0;
-
-    // Contribution from side 12
-    pressureLoad(0) += pressureOver2*dy12;
-    pressureLoad(2) += pressureOver2*dy12;
-    pressureLoad(1) += pressureOver2*-dx12;
-    pressureLoad(3) += pressureOver2*-dx12;
-
-    // Contribution from side 23
-    pressureLoad(2) += pressureOver2*dy23;
-    pressureLoad(4) += pressureOver2*dy23;
-    pressureLoad(3) += pressureOver2*-dx23;
-    pressureLoad(5) += pressureOver2*-dx23;
-
-    // Contribution from side 34
-    pressureLoad(4) += pressureOver2*dy34;
-    pressureLoad(6) += pressureOver2*dy34;
-    pressureLoad(5) += pressureOver2*-dx34;
-    pressureLoad(7) += pressureOver2*-dx34;
-
-    // Contribution from side 41
-    pressureLoad(6) += pressureOver2*dy41;
-    pressureLoad(0) += pressureOver2*dy41;
-    pressureLoad(7) += pressureOver2*-dx41;
-    pressureLoad(1) += pressureOver2*-dx41;
-
-    //pressureLoad = pressureLoad*thickness;
-}
-
-const Vector &
-LagrangeQuad::getResistingForceSensitivity(int gradNumber)
-{
-	P.Zero();
-
-	double dvol;
-
-	// Loop over the integration points
-	for (int i = 0; i < NIP; i++) {
-
-		// Determine Jacobian for this integration point
-		dvol = this->shapeFunction(pts[i][0], pts[i][1]);
-		dvol *= (thickness*wts[i]);
-
-		// Get material stress response
-		const Vector &sigma = theMaterial[i]->getStressSensitivity(gradNumber,true);
-
-		// Perform numerical integration on internal force
-		//P = P + (B^ sigma) * intWt(i)*intWt(j) * detJ;
-		//P.addMatrixTransposeVector(1.0, B, sigma, intWt(i)*intWt(j)*detJ);
-		for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 2) {
-			
-			P(ia) += dvol*(shp[0][alpha]*sigma(0) + shp[1][alpha]*sigma(2));
-			
-			P(ia+1) += dvol*(shp[1][alpha]*sigma(1) + shp[0][alpha]*sigma(2));
-  /*
-			// Subtract equiv. body forces from the nodes
-			//P = P - (N^ b) * intWt(i)*intWt(j) * detJ;
-			//P.addMatrixTransposeVector(1.0, N, b, -intWt(i)*intWt(j)*detJ);
-			P(ia) -= dvol*(shp[2][alpha]*b[0]);
-			P(ia+1) -= dvol*(shp[2][alpha]*b[1]);   
-  */
-		}
-	}
-	return P;
-}
-
-
+template <int NEN, bool enh>
 int
-LagrangeQuad::commitSensitivity(int gradNumber, int numGrads)
+LagrangeQuad<NEN,enh>::commitSensitivity(int gradNumber, int numGrads)
 {
-	
-	static double u[NDM][NEN];
 
-  for (int i=0; i<NEN; i++) {
-	  u[0][i] = theNodes[i]->getDispSensitivity(1,gradNumber);
-	  u[1][i] = theNodes[i]->getDispSensitivity(2,gradNumber);
+  static double u[NDM][NEN];
+
+  for (int i = 0; i < NEN; i++) {
+    u[0][i] = theNodes[i]->getDispSensitivity(1, gradNumber);
+    u[1][i] = theNodes[i]->getDispSensitivity(2, gradNumber);
   }
 
-	static Vector eps(3);
+  static Vector eps(3);
 
-	int ret = 0;
+  int ret = 0;
 
-	// Loop over the integration points
-	for (int i = 0; i < NIP; i++) {
+  // Loop over the integration points
+  for (int i = 0; i < NIP; i++) {
 
-		// Determine Jacobian for this integration point
-		this->shapeFunction(pts[i][0], pts[i][1]);
+    // Determine Jacobian for this integration point
+    this->shapeFunction(pts[i][0], pts[i][1]);
 
-		// Interpolate strains
-		//eps = B*u;
-		//eps.addMatrixVector(0.0, B, u, 1.0);
-		eps.Zero();
-		for (int beta = 0; beta < 4; beta++) {
-			eps(0) += shp[0][beta]*u[0][beta];
-			eps(1) += shp[1][beta]*u[1][beta];
-			eps(2) += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
-		}
+    // Interpolate strains
+    //eps = B*u;
+    //eps.addMatrixVector(0.0, B, u, 1.0);
+    eps.Zero();
+    for (int beta = 0; beta < 4; beta++) {
+      eps(0) += shp[0][beta] * u[0][beta];
+      eps(1) += shp[1][beta] * u[1][beta];
+      eps(2) += shp[0][beta] * u[1][beta] + shp[1][beta] * u[0][beta];
+    }
 
-		// Set the material strain
-		//ret += theMaterial[i]->setTrialStrain(eps);
-		theMaterial[i]->commitSensitivity(eps,gradNumber,numGrads);
-	}
+    // Set the material strain
+    //ret += theMaterial[i]->setTrialStrain(eps);
+    theMaterial[i]->commitSensitivity(eps, gradNumber, numGrads);
+  }
 
-	return 0;
+  return 0;
 }
+
+
+template <int NEN, bool enh>
+const Vector&
+LagrangeQuad<NEN,enh>::getResistingForceSensitivity(int gradNumber)
+{
+  P.Zero();
+
+  // Loop over the integration points
+  for (int i = 0; i < NIP; i++) {
+
+    // Determine Jacobian for this integration point
+    double dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+    dvol *= (thickness * wts[i]);
+
+    // Get material stress response
+    const Vector& sigma = theMaterial[i]->getStressSensitivity(gradNumber, true);
+
+    // Perform numerical integration on internal force
+    //P = P + (B^ sigma) * intWt(i)*intWt(j) * detJ;
+    //P.addMatrixTransposeVector(1.0, B, sigma, intWt(i)*intWt(j)*detJ);
+    for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 2) {
+      P(ia)     += dvol * (shp[0][alpha] * sigma[0] + shp[1][alpha] * sigma[2]);
+      P(ia + 1) += dvol * (shp[1][alpha] * sigma[1] + shp[0][alpha] * sigma[2]);
+    }
+  }
+  return P;
 }
+
+#endif
+
+template <int NEN, bool enh>
+double
+LagrangeQuad<NEN,enh>::shapeFunction(double xi, double eta)
+{
+  const Vector& nd1Crds = theNodes[0]->getCrds();
+  const Vector& nd2Crds = theNodes[1]->getCrds();
+  const Vector& nd3Crds = theNodes[2]->getCrds();
+  const Vector& nd4Crds = theNodes[3]->getCrds();
+
+  double oneMinuseta = 1.0 - eta;
+  double onePluseta  = 1.0 + eta;
+  double oneMinusxi  = 1.0 - xi;
+  double onePlusxi   = 1.0 + xi;
+
+  shp[2][0] = 0.25 * oneMinusxi * oneMinuseta; // N_1
+  shp[2][1] = 0.25 * onePlusxi * oneMinuseta;  // N_2
+  shp[2][2] = 0.25 * onePlusxi * onePluseta;   // N_3
+  shp[2][3] = 0.25 * oneMinusxi * onePluseta;  // N_4
+
+  double J[2][2];
+
+  J[0][0] = 0.25 * (-nd1Crds(0) * oneMinuseta + nd2Crds(0) * oneMinuseta +
+                    nd3Crds(0) * (onePluseta)-nd4Crds(0) * (onePluseta));
+
+  J[0][1] = 0.25 * (-nd1Crds(0) * oneMinusxi - nd2Crds(0) * onePlusxi + nd3Crds(0) * onePlusxi +
+                    nd4Crds(0) * oneMinusxi);
+
+  J[1][0] = 0.25 * (-nd1Crds(1) * oneMinuseta + nd2Crds(1) * oneMinuseta + nd3Crds(1) * onePluseta -
+                    nd4Crds(1) * onePluseta);
+
+  J[1][1] = 0.25 * (-nd1Crds(1) * oneMinusxi - nd2Crds(1) * onePlusxi + nd3Crds(1) * onePlusxi +
+                    nd4Crds(1) * oneMinusxi);
+
+  double detJ        = J[0][0] * J[1][1] - J[0][1] * J[1][0];
+  double oneOverdetJ = 1.0 / detJ;
+  double L[2][2];
+
+  // L = inv(J)
+  L[0][0] =  J[1][1] * oneOverdetJ;
+  L[1][0] = -J[0][1] * oneOverdetJ;
+  L[0][1] = -J[1][0] * oneOverdetJ;
+  L[1][1] =  J[0][0] * oneOverdetJ;
+
+  double L00 = 0.25 * L[0][0];
+  double L10 = 0.25 * L[1][0];
+  double L01 = 0.25 * L[0][1];
+  double L11 = 0.25 * L[1][1];
+
+  double L00oneMinuseta = L00 * oneMinuseta;
+  double L00onePluseta  = L00 * onePluseta;
+  double L01oneMinusxi  = L01 * oneMinusxi;
+  double L01onePlusxi   = L01 * onePlusxi;
+
+  double L10oneMinuseta = L10 * oneMinuseta;
+  double L10onePluseta  = L10 * onePluseta;
+  double L11oneMinusxi  = L11 * oneMinusxi;
+  double L11onePlusxi   = L11 * onePlusxi;
+
+  // See Cook, Malkus, Plesha p. 169 for the derivation of these terms
+  shp[0][0] = -L00oneMinuseta - L01oneMinusxi; // N_1,1
+  shp[0][1] = L00oneMinuseta - L01onePlusxi;   // N_2,1
+  shp[0][2] = L00onePluseta + L01onePlusxi;    // N_3,1
+  shp[0][3] = -L00onePluseta + L01oneMinusxi;  // N_4,1
+
+  shp[1][0] = -L10oneMinuseta - L11oneMinusxi; // N_1,2
+  shp[1][1] = L10oneMinuseta - L11onePlusxi;   // N_2,2
+  shp[1][2] = L10onePluseta + L11onePlusxi;    // N_3,2
+  shp[1][3] = -L10onePluseta + L11oneMinusxi;  // N_4,2
+
+  return detJ;
+}
+
+
+template <int NEN, bool enh>
+void
+LagrangeQuad<NEN,enh>::setPressureLoadAtNodes()
+{
+  pressureLoad.Zero();
+
+  if (pressure == 0.0)
+    return;
+
+  const Vector& node1 = theNodes[0]->getCrds();
+  const Vector& node2 = theNodes[1]->getCrds();
+  const Vector& node3 = theNodes[2]->getCrds();
+  const Vector& node4 = theNodes[3]->getCrds();
+
+  double x1 = node1(0);
+  double y1 = node1(1);
+  double x2 = node2(0);
+  double y2 = node2(1);
+  double x3 = node3(0);
+  double y3 = node3(1);
+  double x4 = node4(0);
+  double y4 = node4(1);
+
+  double dx12 = x2 - x1;
+  double dy12 = y2 - y1;
+  double dx23 = x3 - x2;
+  double dy23 = y3 - y2;
+  double dx34 = x4 - x3;
+  double dy34 = y4 - y3;
+  double dx41 = x1 - x4;
+  double dy41 = y1 - y4;
+
+  double pressureOver2 = pressure / 2.0;
+
+  // Contribution from side 12
+  pressureLoad(0) += pressureOver2 * dy12;
+  pressureLoad(2) += pressureOver2 * dy12;
+  pressureLoad(1) += pressureOver2 * -dx12;
+  pressureLoad(3) += pressureOver2 * -dx12;
+
+  // Contribution from side 23
+  pressureLoad(2) += pressureOver2 * dy23;
+  pressureLoad(4) += pressureOver2 * dy23;
+  pressureLoad(3) += pressureOver2 * -dx23;
+  pressureLoad(5) += pressureOver2 * -dx23;
+
+  // Contribution from side 34
+  pressureLoad(4) += pressureOver2 * dy34;
+  pressureLoad(6) += pressureOver2 * dy34;
+  pressureLoad(5) += pressureOver2 * -dx34;
+  pressureLoad(7) += pressureOver2 * -dx34;
+
+  // Contribution from side 41
+  pressureLoad(6) += pressureOver2 * dy41;
+  pressureLoad(0) += pressureOver2 * dy41;
+  pressureLoad(7) += pressureOver2 * -dx41;
+  pressureLoad(1) += pressureOver2 * -dx41;
+
+  //pressureLoad = pressureLoad*thickness;
+}
+
+
+} // namespace OpenSees

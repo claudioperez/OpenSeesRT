@@ -23,6 +23,7 @@
 #include <NineNodeMixedQuad.h>
 #include <NineNodeQuad.h>
 #include <EightNodeQuad.h>
+// #include <LagrangeQuad.h>
 //
 #include <Tri31.h>
 #include <SixNodeTri.h>
@@ -137,7 +138,6 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
 
   if (builder->getDomain()->addElement(theFourNodeQuad) == false) {
     opserr << "WARNING could not add element to the domain\n";
-    opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
     delete theFourNodeQuad;
     return TCL_ERROR;
   }
@@ -641,8 +641,9 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
   }
 
   // get the id and end nodes
-  int NineNodeQuadId, iNode, jNode, kNode, lNode;
-  int nNode, mNode, pNode, qNode, cNode, matID;
+  int NineNodeQuadId;
+  std::array<int,9> nodes{};
+  int matID;
   double thickness = 1.0;
   double p = 0.0;   // uniform normal traction (pressure)
   double rho = 0.0; // mass density
@@ -653,59 +654,12 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     opserr << "WARNING invalid NineNodeQuad eleTag" << "\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
-    opserr << "WARNING invalid iNode\n";
-    opserr << "NineNodeQuad element: " << NineNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
-    opserr << "WARNING invalid jNode\n";
-    opserr << "NineNodeQuad element: " << NineNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
-    opserr << "WARNING invalid kNode\n";
-    opserr << "NineNodeQuad element: " << NineNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
-    opserr << "WARNING invalid lNode\n";
-    opserr << "NineNodeQuad element: " << NineNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[5 + argStart], &nNode) != TCL_OK) {
-    opserr << "WARNING invalid nNode\n";
-    opserr << "NineNodeQuad element: " << NineNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[6 + argStart], &mNode) != TCL_OK) {
-    opserr << "WARNING invalid mNode\n";
-    opserr << "NineNodeQuad element: " << NineNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[7 + argStart], &pNode) != TCL_OK) {
-    opserr << "WARNING invalid pNode\n";
-    opserr << "NineNodeQuad element: " << NineNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[8 + argStart], &qNode) != TCL_OK) {
-    opserr << "WARNING invalid qNode\n";
-    opserr << "NineNodeQuad element: " << NineNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[9 + argStart], &cNode) != TCL_OK) {
-    opserr << "WARNING invalid cNode\n";
-    opserr << "NineNodeQuad element: " << NineNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
+  for (int i=0; i<9; i++)
+    if (Tcl_GetInt(interp, argv[1 + argStart+i], &nodes[i]) != TCL_OK) {
+      opserr << "WARNING invalid node\n";
+      return TCL_ERROR;
+    }
 
   if (Tcl_GetDouble(interp, argv[10 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
@@ -751,13 +705,8 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
 
   // now create the NineNodeQuad and add it to the Domain
   NineNodeQuad *theNineNodeQuad = new NineNodeQuad(
-      NineNodeQuadId, iNode, jNode, kNode, lNode, nNode, mNode, pNode, qNode,
-      cNode, *theMaterial, type, thickness, p, rho, b1, b2);
-  if (theNineNodeQuad == 0) {
-    opserr << "WARNING ran out of memory creating element\n";
-    opserr << "NineNodeQuad element: " << NineNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
+      NineNodeQuadId, nodes, *theMaterial, type, thickness, p, rho, b1, b2);
+
 
   if (builder->getDomain()->addElement(theNineNodeQuad) == false) {
     opserr << "WARNING could not add element to the domain\n";
@@ -766,8 +715,6 @@ TclBasicBuilder_addNineNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
-  // if get here we have successfully created the element and added it to the
-  // domain
   return TCL_OK;
 }
 
@@ -799,8 +746,9 @@ TclBasicBuilder_addEightNodeQuad(ClientData clientData, Tcl_Interp *interp,
   }
 
   // get the id and end nodes
-  int EightNodeQuadId, iNode, jNode, kNode, lNode;
-  int nNode, mNode, pNode, qNode, matID;
+  int EightNodeQuadId;
+  int iNode, jNode, kNode, lNode, nNode, mNode, pNode, qNode;
+  int matID;
   double thickness = 1.0;
   double p = 0.0;   // uniform normal traction (pressure)
   double rho = 0.0; // mass density
@@ -950,8 +898,9 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
   }
 
   // get the id and end nodes
-  int SixNodeTriId, iNode, jNode, kNode, lNode;
-  int nNode, mNode, matID;
+  int SixNodeTriId;
+  std::array<int,6> nodes;
+  int matID;
   double thickness = 1.0;
   double p = 0.0;   // uniform normal traction (pressure)
   double rho = 0.0; // mass density
@@ -962,41 +911,13 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
     opserr << "WARNING invalid SixNodeTri eleTag" << "\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
-    opserr << "WARNING invalid iNode\n";
-    opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
-    opserr << "WARNING invalid jNode\n";
-    opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
-    opserr << "WARNING invalid kNode\n";
-    opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
-    opserr << "WARNING invalid lNode\n";
-    opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[5 + argStart], &nNode) != TCL_OK) {
-    opserr << "WARNING invalid nNode\n";
-    opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[6 + argStart], &mNode) != TCL_OK) {
-    opserr << "WARNING invalid mNode\n";
-    opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
-    return TCL_ERROR;
-  }
+  
+  // Nodes
+  for (int i=0; i<6; i++)
+    if (Tcl_GetInt(interp, argv[1 + argStart + i], &nodes[i]) != TCL_OK) {
+      opserr << "WARNING invalid node\n";
+      return TCL_ERROR;
+    }
 
   if (Tcl_GetDouble(interp, argv[7 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
@@ -1008,29 +929,24 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
 
   if (Tcl_GetInt(interp, argv[9 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
-    opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
     return TCL_ERROR;
   }
 
   if ((argc - argStart) > 13) {
     if (Tcl_GetDouble(interp, argv[10 + argStart], &p) != TCL_OK) {
       opserr << "WARNING invalid pressure\n";
-      opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[11 + argStart], &rho) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
-      opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[12 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
-      opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[13 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
-      opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
       return TCL_ERROR;
     }
   }
@@ -1042,13 +958,9 @@ TclBasicBuilder_addSixNodeTri(ClientData clientData, Tcl_Interp *interp, int arg
 
   // now create the SixNodeTri and add it to the Domain
   SixNodeTri *theSixNodeTri =
-      new SixNodeTri(SixNodeTriId, iNode, jNode, kNode, lNode, nNode, mNode,
+      new SixNodeTri(SixNodeTriId, nodes,
                      *theMaterial, type, thickness, p, rho, b1, b2);
-  if (theSixNodeTri == nullptr) {
-    opserr << "WARNING ran out of memory creating element\n";
-    opserr << "SixNodeTri element: " << SixNodeTriId << "\n";
-    return TCL_ERROR;
-  }
+
 
   if (builder->getDomain()->addElement(theSixNodeTri) == false) {
     opserr << "WARNING could not add element to the domain\n";

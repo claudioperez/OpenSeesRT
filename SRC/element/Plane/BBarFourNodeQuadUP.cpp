@@ -18,7 +18,6 @@
 #include <Matrix.h>
 #include <Vector.h>
 #include <VectorND.h>
-using OpenSees::VectorND;
 #include <ID.h>
 #include <Renderer.h>
 #include <Domain.h>
@@ -30,6 +29,7 @@ using OpenSees::VectorND;
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
+using OpenSees::VectorND;
 
 Matrix BBarFourNodeQuadUP::K(12,12);
 Vector BBarFourNodeQuadUP::P(12);
@@ -102,19 +102,6 @@ BBarFourNodeQuadUP::BBarFourNodeQuadUP()
  nd1Ptr(0), nd2Ptr(0), nd3Ptr(0), nd4Ptr(0), Ki(0),
   Q(12), pressureLoad(12), applyLoad(0), thickness(0.0), kc(0.0), rho(0.0), pressure(0.0)
 {
-  // pts[0][0] = -0.577350269189626;
-  // pts[0][1] = -0.577350269189626;
-  // pts[1][0] =  0.577350269189626;
-  // pts[1][1] = -0.577350269189626;
-  // pts[2][0] =  0.577350269189626;
-  // pts[2][1] =  0.577350269189626;
-  // pts[3][0] = -0.577350269189626;
-  // pts[3][1] =  0.577350269189626;
-
-  // wts[0] = 1.0;
-  // wts[1] = 1.0;
-  // wts[2] = 1.0;
-  // wts[3] = 1.0;
 }
 
 BBarFourNodeQuadUP::~BBarFourNodeQuadUP()

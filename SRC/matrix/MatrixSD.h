@@ -14,6 +14,7 @@ template <int n, bool half=false>
 struct MatrixSD {
   constexpr static int nd = n*(n+1)/2;
   constexpr static int nr = n;
+  constexpr static int size = n*(n+1)/2;
 
   VectorND<n*(n+1)/2> vector;
 

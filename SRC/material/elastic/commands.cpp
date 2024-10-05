@@ -93,7 +93,6 @@ TclCommand_newElasticMaterial(ClientData clientData, Tcl_Interp* interp, int arg
 
     if (argc > loc && strcmp(argv[loc], "-plane-strain") ==0) {
       type = PlaneType::Strain;
-      return TCL_ERROR;
     }
     loc++;
 
