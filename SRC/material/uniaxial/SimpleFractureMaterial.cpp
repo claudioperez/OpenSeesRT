@@ -29,6 +29,7 @@
 #include <Channel.h>
 #include <Information.h>
 #include <Parameter.h>
+#include <Vector.h>
 #include <FEM_ObjectBroker.h>
 
 #include <OPS_Globals.h>

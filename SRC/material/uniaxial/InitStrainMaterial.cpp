@@ -30,6 +30,7 @@
 #include <InitStrainMaterial.h>
 #include <ID.h>
 #include <Channel.h>
+#include <Vector.h>
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
 #include <Parameter.h>

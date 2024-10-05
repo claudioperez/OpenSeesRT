@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-
+#include <Vector.h>
 #include <HystereticMaterial.h>
 #include <Channel.h>
 #include <Information.h>

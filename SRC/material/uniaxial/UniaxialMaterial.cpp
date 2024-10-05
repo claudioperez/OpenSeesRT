@@ -37,14 +37,15 @@
 
 
 UniaxialMaterial::UniaxialMaterial(int tag, int clasTag)
-:Material(tag,clasTag)
+ : TaggedObject(tag), MovableObject(clasTag) // Material(tag,clasTag)
 {
 
 }
 
 
 UniaxialMaterial::UniaxialMaterial()
-    :Material(0, 0)
+ //: Material(0, 0)
+ : TaggedObject(0), MovableObject(0)
 {
 
 }
@@ -106,7 +107,7 @@ UniaxialMaterial::setTrial(double strain, double temperature, double &stress, do
 
 // default operation for strain rate is zero
 double
-UniaxialMaterial::getStrainRate(void)
+UniaxialMaterial::getStrainRate()
 {
   return 0.0;
 }
@@ -114,7 +115,7 @@ UniaxialMaterial::getStrainRate(void)
 
 // default operation for damping tangent is zero
 double
-UniaxialMaterial::getDampTangent(void)
+UniaxialMaterial::getDampTangent()
 {
   return 0.0;
 }
@@ -122,7 +123,7 @@ UniaxialMaterial::getDampTangent(void)
 // default operation for secant stiffness
 /*
 double
-UniaxialMaterial::getSecant (void)
+UniaxialMaterial::getSecant ()
 {
 double strain = this->getStrain();
 double stress = this->getStress();
@@ -135,7 +136,7 @@ return this->getTangent();
 */
 
 double 
-UniaxialMaterial::getRho(void)
+UniaxialMaterial::getRho()
 {
   return 0.0;
 }
@@ -378,7 +379,7 @@ UniaxialMaterial::commitSensitivity(double strainSensitivity, int gradIndex, int
 }
 
 double
-UniaxialMaterial::getInitialTangent (void)
+UniaxialMaterial::getInitialTangent ()
 {
 	opserr << "UniaxialMaterial::getInitialTangent() -- this method " << endln
 		<< " is not implemented for the selected material. " << endln;
@@ -386,3 +387,24 @@ UniaxialMaterial::getInitialTangent (void)
 }
 
 // AddingSensitivity:END //////////////////////////////////////////
+
+#if 0
+Response*
+UniaxialMaterial::setResponse(const char **argv, int argc, OPS_Stream &s)
+{
+  return 0;
+}
+
+int 
+UniaxialMaterial::getResponse(int responseID, Information &info)
+{
+  return -1;
+}
+#endif
+
+int 
+UniaxialMaterial::getResponseSensitivity(int responseID, int gradIndex,
+				 Information &info)
+{
+  return -1;
+}
