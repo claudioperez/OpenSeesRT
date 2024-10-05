@@ -2150,7 +2150,7 @@ GraphPartitioner* PartitionedDomain::getGraphPartitioner(void)
 }
 
 
-
+#if 0
 int
 PartitionedDomain::activateElements(const ID& elementList)
 {
@@ -2200,3 +2200,4 @@ PartitionedDomain::deactivateElements(const ID& elementList)
 
   return res;
 }
+#endif

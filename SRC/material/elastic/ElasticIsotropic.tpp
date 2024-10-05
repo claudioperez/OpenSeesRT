@@ -1,5 +1,9 @@
-
-
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation
+//
+//===----------------------------------------------------------------------===//
+//
 #include <MatrixND.h>
 #include <OPS_Stream.h>
 
@@ -12,12 +16,14 @@ ElasticIsotropic<ndim, type>::ElasticIsotropic(int tag, double E, double nu, dou
     revertToStart();
 }
 
+
 template <int ndim, PlaneType type>
 const char *
 ElasticIsotropic<ndim, type>::getClassType() const
 {
     return "ElasticIsotropic";
 }
+
 
 template <int ndim, PlaneType type>
 int
@@ -43,21 +49,44 @@ ElasticIsotropic<ndim, type>::revertToStart()
     {
         double tmp = E / (1.0+nu) / (1.0-2.0*nu);
         ddsdde.ref(0, 0) = (1.0-nu) * tmp;
+        ddsdde.ref(1, 1) = (1.0-nu) * tmp;
         ddsdde.ref(0, 1) = nu * tmp;
-        ddsdde.ref(1, 1) = ddsdde.ref(0, 0);
-        ddsdde.ref(2, 2) = (1.0 - 2.0 * nu) * tmp;
+//      ddsdde.ref(1, 0) = nu * tmp;
+        ddsdde.ref(2, 2) = (1.0 - 2.0 * nu) * 0.5 * tmp;
+
+        /*
+        double mu2 = E/(1.0+nu);
+        double lam = nu*mu2/(1.0-2.0*nu);
+        double mu = 0.50*mu2;
+        mu2 += lam;
+        
+        ddsdde.ref(0,0) = ddsdde.ref(1,1) = mu2;
+        ddsdde.ref(0,1) = ddsdde.ref(1,0) = lam;
+        ddsdde.ref(2,2) = mu;
+	*/
     }
     else if constexpr (ndim == 2 && type == PlaneType::Stress)
     {
         double tmp = E / (1.0 - nu * nu);
         ddsdde.ref(0, 0) = tmp;
-        ddsdde.ref(1, 1) = ddsdde.ref(0, 0);
+        ddsdde.ref(1, 1) = tmp;
+        ddsdde.ref(2, 2) = (1.0 - nu)/2.0 * tmp;
         ddsdde.ref(0, 1) = nu * tmp;
-        ddsdde.ref(1, 0) = ddsdde.ref(0, 1);
-        ddsdde.ref(2, 2) = (1.0 - nu) * tmp;
+//      ddsdde.ref(1, 0) = nu * tmp;
+
+	/*
+        double d00 = E/(1.0-nu*nu);
+        double d01 = nu*d00;
+        double d22 = 0.5*(d00-d01);
+
+        ddsdde.ref(0,0) = ddsdde.ref(1,1) = d00;
+        ddsdde.ref(1,0) = ddsdde.ref(0,1) = d01;
+        ddsdde.ref(2,2) = d22;
+	*/
     }
     return 0;
 }
+
 
 template <int ndim, PlaneType type>
 Mate<ndim> *

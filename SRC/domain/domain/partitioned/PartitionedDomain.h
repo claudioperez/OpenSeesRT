@@ -149,10 +149,10 @@ class PartitionedDomain: public Domain
     virtual int setMass(const Matrix &mass, int nodeTag);
 
     virtual int calculateNodalReactions(bool inclInertia);
-    
+#if 0 
     virtual int activateElements(const ID& elementList);
     virtual int deactivateElements(const ID& elementList);
-
+#endif
     // friend classes
     friend class PartitionedDomainEleIter;
     
