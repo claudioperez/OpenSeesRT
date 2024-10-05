@@ -34,12 +34,15 @@ FE_Datastore *theDatabase = nullptr;
 extern int G3_AddTclAnalysisAPI(Tcl_Interp *, Domain*);
 extern int G3_AddTclDomainCommands(Tcl_Interp *, Domain*);
 
+
+// 
 int
 TclCommand_specifyModel(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *argv[])
 {
   G3_Runtime *rt = G3_getRuntime(interp);
-  BasicModelBuilder *theNewBuilder = nullptr;
   Domain *theNewDomain = (Domain*)clientData;
+
+  BasicModelBuilder *theNewBuilder = nullptr;
 
   if (clientData == nullptr) {
     theNewDomain = new Domain();
