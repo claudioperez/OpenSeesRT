@@ -20,8 +20,7 @@
                                                                         
 // $Revision: 1.10 $
 // $Date: 2007-02-02 01:35:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/EnhancedQuad.h,v $
-                                                                        
+                                                                
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
@@ -102,11 +101,19 @@ class EnhancedQuad : public Element,
     int sendSelf (int commitTag, Channel &theChannel);
     int recvSelf (int commitTag, Channel &theChannel, FEM_ObjectBroker 
 		  &theBroker);
-      
-    //plotting 
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
-    
+
   private:
+    constexpr static int NEN = 4;
+    static constexpr int ndm = 2 ;
+    static constexpr int NDF = 2 ; 
+    static constexpr int nstress = 3 ; 
+    static constexpr int numberNodes = 4 ;
+    static constexpr int nip = 4 ;
+    static constexpr int nEnhanced = 4 ; 
+    static constexpr int nModes = 2 ;
+    static constexpr int numberDOF = 8 ;
+    static constexpr int nShape = 3 ;
+    static constexpr int massIndex = nShape - 1 ;
 
     //static data
     static Matrix stiff ;
@@ -129,7 +136,7 @@ class EnhancedQuad : public Element,
 
     //node information
     ID connectedExternalNodes ;  //four node numbers
-    Node *nodePointers[4] ;      //pointers to four nodes
+    Node *theNodes[NEN] ;      //pointers to four nodes
 
     //enhanced strain parameters
     Vector alpha ;

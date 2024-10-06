@@ -203,6 +203,7 @@ element_dispatch_tcl = {
 //
   {"Quad",                      TclBasicBuilder_addFourNodeQuad},
   {"stdQuad",                   TclBasicBuilder_addFourNodeQuad},
+  {"LagrangeQuad",              TclBasicBuilder_addFourNodeQuad},
 
   {"quadWithSensitivity",       TclBasicBuilder_addFourNodeQuadWithSensitivity},
 

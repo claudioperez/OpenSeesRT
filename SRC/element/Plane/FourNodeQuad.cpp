@@ -265,7 +265,7 @@ FourNodeQuad::getTangentStiff()
       
       // Get the material tangent
       const Matrix &D = theMaterial[i]->getTangent();
-      
+
       // Perform numerical integration
       //K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
       //K.addMatrixTripleProduct(1.0, B, D, intWt(i)*intWt(j)*detJ);
@@ -614,28 +614,24 @@ FourNodeQuad::sendSelf(int commitTag, Channel &theChannel)
   
 
   // Now quad sends the ids of its materials
-  int matDbTag;
   
   static ID idData(12);
   
-  int i;
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     idData(i) = theMaterial[i]->getClassTag();
-    matDbTag = theMaterial[i]->getDbTag();
+    int matDbTag = theMaterial[i]->getDbTag();
     // NOTE: we do have to ensure that the material has a database
     // tag if we are sending to a database channel.
     if (matDbTag == 0) {
       matDbTag = theChannel.getDbTag();
-                        if (matDbTag != 0)
-                          theMaterial[i]->setDbTag(matDbTag);
+      if (matDbTag != 0)
+        theMaterial[i]->setDbTag(matDbTag);
     }
     idData(i+4) = matDbTag;
   }
-  
-  idData(8) = connectedExternalNodes(0);
-  idData(9) = connectedExternalNodes(1);
-  idData(10) = connectedExternalNodes(2);
-  idData(11) = connectedExternalNodes(3);
+
+  for (int i=0; i<NEN; i++)
+      idData(8+i) = connectedExternalNodes(i);
 
   res += theChannel.sendID(dataTag, commitTag, idData);
   if (res < 0) {
@@ -644,7 +640,7 @@ FourNodeQuad::sendSelf(int commitTag, Channel &theChannel)
   }
 
   // Finally, quad asks its material objects to send themselves
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < nip; i++) {
     res += theMaterial[i]->sendSelf(commitTag, theChannel);
     if (res < 0) {
       opserr << "WARNING FourNodeQuad::sendSelf() - " << this->getTag() << " failed to send its Material\n";

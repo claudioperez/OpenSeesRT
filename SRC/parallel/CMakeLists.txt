@@ -1,3 +1,9 @@
+#==============================================================================
+# 
+#        OpenSees -- Open System For Earthquake Engineering Simulation
+#                Pacific Earthquake Engineering Research Center
+#
+#==============================================================================
 find_package(MPI)
 
 if (NOT MPI_FOUND)
@@ -7,7 +13,9 @@ endif()
 add_subdirectory(balancer)
 
 target_link_libraries(OPS_Parallel 
-    PUBLIC OPS_Partition MPI::MPI_CXX
+    PUBLIC 
+    OPS_Partition 
+    MPI::MPI_CXX
 )
 
 return()
@@ -22,19 +30,21 @@ add_executable(OpenSeesSP EXCLUDE_FROM_ALL
   OPS_Partition
   ${OPS_SRC_DIR}/actor/objectBroker/FEM_ObjectBrokerAllClasses.cpp
 
+  # OPS_Parallel
   ${OPS_SRC_DIR}/actor/machineBroker/MPI_MachineBroker.cpp
+
   ${OPS_SRC_DIR}/system_of_eqn/linearSOE/diagonal/MPIDiagonalSOE.cpp
   ${OPS_SRC_DIR}/system_of_eqn/linearSOE/diagonal/MPIDiagonalSolver.cpp
+
   ${OPS_SRC_DIR}/system_of_eqn/linearSOE/mumps/MumpsSOE.cpp
   ${OPS_SRC_DIR}/system_of_eqn/linearSOE/mumps/MumpsSolver.cpp
   ${OPS_SRC_DIR}/system_of_eqn/linearSOE/mumps/MumpsParallelSOE.cpp
   ${OPS_SRC_DIR}/system_of_eqn/linearSOE/mumps/MumpsParallelSolver.cpp
+
   ${OPS_SRC_DIR}/domain/subdomain/ActorSubdomain.cpp
   ${OPS_SRC_DIR}/domain/subdomain/ShadowSubdomain.cpp
 
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/sparseGEN/DistributedSuperLU.cpp
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/sparseGEN/DistributedSparseGenColLinSOE.cpp
-  ${OPS_SRC_DIR}/system_of_eqn/linearSOE/sparseGEN/DistributedSparseGenRowLinSOE.cpp
+  OPS_SuperLU_Dist
 )
 
 
@@ -102,7 +112,7 @@ target_compile_options(OpenSeesMP PRIVATE ${MPI_CXX_COMPILE_FLAGS})
 
 if (NOT DEFINED MUMPS_DIR)
     add_dependencies(OpenSeesMP mumps)
-endif()         
+endif()
 
 if (DEFINED OPENMPI)
     target_compile_definitions(OpenSeesMP 

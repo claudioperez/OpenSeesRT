@@ -54,7 +54,7 @@ version(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 //
 extern "C" int 
 #ifdef _WIN32
-__declspec(dllexport) // DLLEXPORT
+__declspec(dllexport)
 #endif
 Openseesrt_Init(Tcl_Interp *interp)
 {

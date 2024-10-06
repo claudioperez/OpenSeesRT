@@ -4,12 +4,12 @@
 //
 //===----------------------------------------------------------------------===//
 //
+// Description: This file contains the implementation of the TclModelBuilder_addTruss()
+// command. 
+//
 // Written: fmk 
 // Created: 07/99
 // Revision: A
-//
-// Description: This file contains the implementation of the TclModelBuilder_addTruss()
-// command. 
 //
 #include <assert.h>
 #include <string.h>

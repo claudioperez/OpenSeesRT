@@ -29,9 +29,7 @@ getPID(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     pid = theMachineBroker->getPID();
 
   // now we copy the value to the tcl string that is returned
-  char buffer[30];
-  sprintf(buffer, "%d", pid);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(pid));
 
   return TCL_OK;
 }
@@ -46,9 +44,7 @@ getNP(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const arg
     np = theMachineBroker->getNP();
 
   // now we copy the value to the tcl string that is returned
-  char buffer[30];
-  sprintf(buffer, "%d", np);
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(np));
 
   return TCL_OK;
 }

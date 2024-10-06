@@ -7,17 +7,18 @@
 //                                   OpenSeesSP                               
 //
 //===----------------------------------------------------------------------===//
+//
+#ifndef OPENSEESRT_VERSION
+#  define OPENSEESRT_VERSION "0.0.0"
+#endif
 
 extern "C" {
 #include <tcl.h>
 }
 
-
-#include "commands.h"
-
-
 #include <stdio.h>
 #include <string.h>
+#include "G3_Runtime.h"
 
 #include <PartitionedDomain.h>
 #include <MPI_MachineBroker.h>
@@ -40,9 +41,18 @@ doNothing(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
 }
 
 
-int
-Openseessp_Init(Tcl_Interp* interp)
+extern "C" int 
+#ifdef _WIN32
+__declspec(dllexport)
+#endif
+Libopenseessp_Init(Tcl_Interp* interp)
 {
+  if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL)
+    return TCL_ERROR;
+
+  if (Tcl_PkgProvide(interp, "OpenSeesSP", OPENSEESRT_VERSION) == TCL_ERROR)
+    return TCL_ERROR;
+
   int argc = 0; 
   char **argv = nullptr;
 

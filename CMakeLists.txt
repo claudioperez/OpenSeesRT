@@ -277,7 +277,6 @@ include_directories(
   ${OPS_SRC_DIR}/system_of_eqn/eigenSOE
 
   ${OPS_SRC_DIR}/analysis/algorithm
-# ${OPS_SRC_DIR}/analysis/analysis
   ${OPS_SRC_DIR}/analysis/dof_grp
   ${OPS_SRC_DIR}/analysis/fe_ele
   ${OPS_SRC_DIR}/analysis/handler
@@ -375,8 +374,6 @@ set_property(TARGET G3                    PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # Add sources to targets
 add_subdirectory(${OPS_SRC_DIR})
-if (MPI_FOUND)
-endif()
 #==============================================================================
 #                            Configure targets
 #
@@ -490,7 +487,7 @@ get_target_property(OPS_Element_COMPILE_OPTIONS OPS_Element COMPILE_OPTIONS)
 
 
 #
-#
+# Install
 #
 
 set(install_targets "OpenSeesRT")
