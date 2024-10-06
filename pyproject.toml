@@ -89,13 +89,14 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["SRC"]
-exclude = ["libg3*", "site*"]
+include=["opensees*"]
+exclude = ["SRC*", "site*"]
 
 [tool.setuptools.package-data]
 opensees = ["*.py", "*.so", "*.dll", "*.dylib"]
 
 [tool.setuptools.exclude-package-data]
-opensees = ["site*", "docs*", "*.html", "*.cmake"]
+opensees = ["site*", "docs*", "tools", "*.html", "*.cmake", ".git*", "*.[htc]pp", "*.[ch]"]
 
 
 [tool.cibuildwheel]
