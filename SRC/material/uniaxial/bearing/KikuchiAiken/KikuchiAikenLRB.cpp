@@ -30,6 +30,7 @@
 #include <string.h>
 #include <ID.h>
 #include <Logging.h>
+#include <Vector.h>
 #include "KikuchiAikenLRB.h"
 #include <Channel.h>
 #define _USE_MATH_DEFINES
