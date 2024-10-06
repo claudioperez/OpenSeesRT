@@ -137,7 +137,7 @@ ElasticCrossAnisotropic::setTrialStrainIncr (const Tensor &v, const Tensor &r)
 }
 
 const Tensor&
-ElasticCrossAnisotropic::getTangentTensor (void)
+ElasticCrossAnisotropic::getTangentTensor ()
 {
    //Old codes from Yi Bian
    //double A = 1/((1 + nuhv) * (1 - 2 * nuhv));
@@ -203,7 +203,7 @@ ElasticCrossAnisotropic::getTangentTensor (void)
    return Dt;
 }
 
-const stresstensor& ElasticCrossAnisotropic::getStressTensor (void)
+const stresstensor& ElasticCrossAnisotropic::getStressTensor ()
 {
     Tensor Dt0 = getTangentTensor();
     Stress = Dt0("ijkl") * Strain("kl");
@@ -211,25 +211,25 @@ const stresstensor& ElasticCrossAnisotropic::getStressTensor (void)
     return Stress;
 }
 
-const straintensor& ElasticCrossAnisotropic::getStrainTensor (void)
+const straintensor& ElasticCrossAnisotropic::getStrainTensor ()
 {
 	return Strain;
 }
 
 int
-ElasticCrossAnisotropic::commitState (void)
+ElasticCrossAnisotropic::commitState ()
 {
 	return 0;
 }
 
 int
-ElasticCrossAnisotropic::revertToLastCommit (void)
+ElasticCrossAnisotropic::revertToLastCommit ()
 {
 	return 0;
 }
 
 int
-ElasticCrossAnisotropic::revertToStart (void)
+ElasticCrossAnisotropic::revertToStart ()
 {
 	// added: C.McGann, U.Washington for InitialStateAnalysis
 	if (ops_InitialStateAnalysis) {
@@ -243,16 +243,16 @@ ElasticCrossAnisotropic::revertToStart (void)
 }
 
 NDMaterial*
-ElasticCrossAnisotropic::getCopy (void)
+ElasticCrossAnisotropic::getCopy()
 {
 	ElasticCrossAnisotropic *theCopy =
-	  new ElasticCrossAnisotropic (this->getTag(), Eh, Ev, nuhv, nuhh, Ghv, rho);
+	  new ElasticCrossAnisotropic(this->getTag(), Eh, Ev, nuhv, nuhh, Ghv, rho);
 	
     return theCopy;
 }
 
 const char*
-ElasticCrossAnisotropic::getType (void) const
+ElasticCrossAnisotropic::getType() const
 {
 	return "ThreeDimensional";
 }
