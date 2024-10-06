@@ -53,6 +53,10 @@ Libopenseessp_Init(Tcl_Interp* interp)
   if (Tcl_PkgProvide(interp, "OpenSeesSP", OPENSEESRT_VERSION) == TCL_ERROR)
     return TCL_ERROR;
 
+  // Create a runtime instance, and store it with the interpreter
+  G3_Runtime *rt = new G3_Runtime{interp};
+  Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)rt);
+
   int argc = 0; 
   char **argv = nullptr;
 
