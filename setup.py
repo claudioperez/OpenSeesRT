@@ -74,12 +74,12 @@ if use_conan:
 
 class BuildOpenSeesRT(amoeba.BuildExtension):
     def build_extension(self, ext):
-        import os
         # Ensure Conan dependencies are installed using Conan 2.0 commands
         if use_conan:
             self.run_conan()
 
-        super(amoeba.BuildExtension,self).build_extension(ext)
+#       super(amoeba.BuildExtension,self).build_extension(ext)
+        super().build_extension(ext)
 
     def run_conan(self):
         # Run Conan install and build commands in the build_temp directory
@@ -95,10 +95,12 @@ class BuildOpenSeesRT(amoeba.BuildExtension):
         ], check=True)
 
 
+# BuildOpenSeesRT = amoeba.BuildExtension
 
 if __name__ == "__main__":
     setuptools.setup(
-       data_files=[('bin', [*map(str,Path("win32/").glob("*.*"))]),
+       data_files=[
+           ('bin', [*map(str,Path("win32/").glob("*.*"))]),
        ] if os.name == "nt" else [],
        cmdclass = {
             "build_ext": BuildOpenSeesRT, # amoeba.BuildExtension,
