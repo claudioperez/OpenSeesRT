@@ -7,12 +7,10 @@
 //                                   OpenSeesMP                               
 //
 //===----------------------------------------------------------------------===//
-
-// 
-// Adapted from tclAppInit.c
 //
-
-// #include <mpi.h>
+#ifndef OPENSEESRT_VERSION
+#  define OPENSEESRT_VERSION "0.0.0"
+#endif
 
 extern "C" {
 #include <tcl.h>
@@ -22,15 +20,13 @@ extern "C" {
 // #include "commands.h"
 #include <ID.h>
 #include <stdio.h>
-// #include <string.h>
+
+#include "G3_Runtime.h"
 #include <MPI_MachineBroker.h>
 #include <TclPackageClassBroker.h>
 
 #include <Channel.h>
 #include <Message.h>
-
-// #include <FileStream.h>
-
 
 int Init_OpenSees(Tcl_Interp *interp);
 
@@ -44,9 +40,23 @@ doNothing(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char **argv)
   return TCL_OK;
 }
 
-int
-Openseesmp_Init(Tcl_Interp* interp)
+
+extern "C" int 
+#ifdef _WIN32
+__declspec(dllexport)
+#endif
+Libopenseesmp_Init(Tcl_Interp* interp)
 {
+  if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL)
+    return TCL_ERROR;
+
+  if (Tcl_PkgProvide(interp, "OpenSeesMP", OPENSEESRT_VERSION) == TCL_ERROR)
+    return TCL_ERROR;
+
+  // Create a runtime instance, and store it with the interpreter
+  G3_Runtime *rt = new G3_Runtime{interp};
+  Tcl_SetAssocData(interp, "G3_Runtime", NULL, (ClientData)rt);
+
   int argc = 0; 
   char **argv = nullptr;
 
