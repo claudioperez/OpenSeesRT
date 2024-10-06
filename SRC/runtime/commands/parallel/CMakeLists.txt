@@ -5,6 +5,9 @@
 #
 #==============================================================================
 find_package(MPI)
+if (NOT MPI_FOUND)
+  return()
+endif()
 
 add_library(OpenSeesRT_Parallel OBJECT)
 
