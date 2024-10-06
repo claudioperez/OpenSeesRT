@@ -17,26 +17,24 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1.1.1 $
-// $Date: 2000-09-15 08:23:20 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/feap/fElmt05.cpp,v $
-                                                                        
-                                                                        
+//
+// Description: This file contains the implementation for the fElmt05 class.
+//
 // File: ~/element/fortran/fElmt05.C
 // 
 // Written: fmk 
 // Created: 07/98
 // Revision: A
 //
-// Description: This file contains the implementation for the fElmt05 class.
-//
-// What: "@(#) fElement.C, revA"
-
 #include "fElmt05.h"
 #include <ID.h>
 #include <Vector.h>
 
+
+extern "C" int elmt05_(double *d, double *ul, double *xl, int *ix, double *tl, 
+                       double *s, double *r, int *ndf, int *ndm, int *nst, int *isw, 
+		       double *dm, int *nen, int *n, int *nh1, int *nh2, int *nh3, 
+		       double *h, double *ctan, int *ior, int *iow);
 
 fElmt05::fElmt05(int tag, int nd1, int nd2, double E, double A, double rho)
   :fElement(tag, ELE_TAG_fElmt05, 5, 3, 2, 3, 2, 0, 0)
@@ -55,16 +53,12 @@ fElmt05::fElmt05()
     // does nothing
 }
 
+
 fElmt05::~fElmt05()
 {
     // does nothing
 }
 
-
-extern "C" int elmt05_(double *d, double *ul, double *xl, int *ix, double *tl, 
-                       double *s, double *r, int *ndf, int *ndm, int *nst, int *isw, 
-		       double *dm, int *nen, int *n, int *nh1, int *nh2, int *nh3, 
-		       double *h, double *ctan, int *ior, int *iow);
 
 int
 fElmt05::invokefRoutine(double *d, double *ul, double *xl, int *ix, double *tl, 
@@ -72,7 +66,7 @@ fElmt05::invokefRoutine(double *d, double *ul, double *xl, int *ix, double *tl,
 			double dm, int nen, int n, int nh1, int nh2, int nh3, 
 			double *h, double *ctan, int ior, int iow)
 {
-    // check that the values are acceptable to the fortran subroutine
+    // Check that the values are acceptable to the fortran subroutine
     if (nst != 4 || nen != 2 || dm != 2)
 	return 0;
     

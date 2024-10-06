@@ -43,32 +43,29 @@ class LoadControl : public StaticIntegrator
 {
   public:
     LoadControl(double deltaLambda, int numIncr, 
-		double minLambda, double maxlambda, int classtag=INTEGRATOR_TAGS_LoadControl);
+                double minLambda, double maxlambda, 
+                int classtag=INTEGRATOR_TAGS_LoadControl);
 
     ~LoadControl();
 
-    int newStep(void);    
+    virtual int newStep() final;
     int update(const Vector &deltaU);
     int setDeltaLambda(double newDeltaLambda);
 
     // Public methods for Output
-    int sendSelf(int commitTag, Channel &theChannel);
-    int recvSelf(int commitTag, Channel &theChannel, 
-			 FEM_ObjectBroker &theBroker);
+    int sendSelf(int tag, Channel &theChannel);
+    int recvSelf(int tag, Channel &theChannel, 
+                 FEM_ObjectBroker &theBroker);
 
     void Print(OPS_Stream &s, int flag =0);
 
-//  int formEleResidual(FE_Element *theEle);
-    
-    // Adding sensitivity
-    int formSensitivityRHS(int gradNum);
-    int formIndependentSensitivityRHS();
-    int saveSensitivity(const Vector &v, int gradNum, int numGrads);
-    int commitSensitivity(int gradNum, int numGrads);
-    int computeSensitivities(void);//Abbas
-    bool computeSensitivityAtEachIteration();
+    virtual int formSensitivityRHS(int gradNum);
+    virtual int formIndependentSensitivityRHS();
+    virtual int saveSensitivity(const Vector &v, int gradNum, int numGrads);
+    virtual int commitSensitivity(int gradNum, int numGrads);
+    virtual int computeSensitivities();
+    virtual bool computeSensitivityAtEachIteration();
 
-    ///////////////////////
     
 protected:
     
@@ -77,12 +74,6 @@ protected:
     double expon;                            // exponent for J(i-1)/Jd
     double specNumIncrStep, numIncrLastStep; // Jd & J(i-1) 
     double dLambdaMin, dLambdaMax;           // min & max values for dlambda at step (i)
-
-    // Adding sensitivity
-    int gradNumber;
-    int sensitivityFlag;
-
-    ReliabilityDomain *theDomain;
 
 };
 

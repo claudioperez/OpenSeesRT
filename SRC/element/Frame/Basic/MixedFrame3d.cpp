@@ -1409,7 +1409,9 @@ MixedFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "T");
 
     theResponse = new ElementResponse(this, 3, Vector(6));
-  } else if (strcmp(argv[0], "sectionDeformation_Force") == 0) {
+  }
+#if 0
+  else if (strcmp(argv[0], "sectionDeformation_Force") == 0) {
 
     int i;
     char* q = new char[15];
@@ -1424,8 +1426,9 @@ MixedFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     delete[] q;
 
     theResponse = new ElementResponse(this, 4, Vector(3 * numSections));
+  } 
 
-  } else if (strcmp(argv[0], "plasticSectionDeformation_Force") == 0) {
+  else if (strcmp(argv[0], "plasticSectionDeformation_Force") == 0) {
 
     int i;
     char* q = new char[25];
@@ -1440,8 +1443,9 @@ MixedFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     delete[] q;
 
     theResponse = new ElementResponse(this, 5, Vector(3 * numSections));
-
-  } else if (strcmp(argv[0], "integrationPoints") == 0) {
+  } 
+#endif
+  else if (strcmp(argv[0], "integrationPoints") == 0) {
     theResponse = new ElementResponse(this, 100, Vector(numSections));
 
   } else if (strcmp(argv[0], "integrationWeights") == 0) {

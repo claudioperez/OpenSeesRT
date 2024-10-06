@@ -65,7 +65,6 @@
 #include <Graph.h>
 #include <Recorder.h>
 #include <MeshRegion.h>
-#include <Analysis.h>
 #include <FE_Datastore.h>
 #include <FEM_ObjectBroker.h>
 
@@ -429,53 +428,55 @@ Domain::addNode(Node * node)
   }
   
   bool result = theNodes->addComponent(node);
-  if (result == true) {
-      node->setDomain(this);
-      this->domainChange();
+  if (result == false) {
+    opserr << "Domain::addNode - node with tag " << nodTag << "could not be added to container\n";
+    return result;
+  }
 
-      if (!resetBounds) {
-          // see if the physical bounds are changed
-          // note this assumes 0,0,0,0,0,0 as startup min,max values
-          const Vector& crds = node->getCrds();
-          int dim = crds.Size();
-          if (initBounds) {
-              if (dim >= 1) {
-                  double x = crds(0);
-                  theBounds(0) = x;
-                  theBounds(3) = x;
-              }
-              if (dim >= 2) {
-                  double y = crds(1);
-                  theBounds(1) = y;
-                  theBounds(4) = y;
-              }
-              if (dim == 3) {
-                  double z = crds(2);
-                  theBounds(2) = z;
-                  theBounds(5) = z;
-              }
-              initBounds = false;
+  node->setDomain(this);
+  this->domainChange();
+
+  if (!resetBounds) {
+      // see if the physical bounds are changed
+      // note this assumes 0,0,0,0,0,0 as startup min,max values
+      const Vector& crds = node->getCrds();
+      int dim = crds.Size();
+      if (initBounds) {
+          if (dim >= 1) {
+              double x = crds(0);
+              theBounds(0) = x;
+              theBounds(3) = x;
           }
-          else {
-              if (dim >= 1) {
-                  double x = crds(0);
-                  if (x < theBounds(0)) theBounds(0) = x;
-                  if (x > theBounds(3)) theBounds(3) = x;
-              }
-              if (dim >= 2) {
-                  double y = crds(1);
-                  if (y < theBounds(1)) theBounds(1) = y;
-                  if (y > theBounds(4)) theBounds(4) = y;
-              }
-              if (dim == 3) {
-                  double z = crds(2);
-                  if (z < theBounds(2)) theBounds(2) = z;
-                  if (z > theBounds(5)) theBounds(5) = z;
-              }
+          if (dim >= 2) {
+              double y = crds(1);
+              theBounds(1) = y;
+              theBounds(4) = y;
+          }
+          if (dim == 3) {
+              double z = crds(2);
+              theBounds(2) = z;
+              theBounds(5) = z;
+          }
+          initBounds = false;
+      }
+      else {
+          if (dim >= 1) {
+              double x = crds(0);
+              if (x < theBounds(0)) theBounds(0) = x;
+              if (x > theBounds(3)) theBounds(3) = x;
+          }
+          if (dim >= 2) {
+              double y = crds(1);
+              if (y < theBounds(1)) theBounds(1) = y;
+              if (y > theBounds(4)) theBounds(4) = y;
+          }
+          if (dim == 3) {
+              double z = crds(2);
+              if (z < theBounds(2)) theBounds(2) = z;
+              if (z > theBounds(5)) theBounds(5) = z;
           }
       }
-  } else
-    opserr << "Domain::addNode - node with tag " << nodTag << "could not be added to container\n";
+  }
 
   return result;
 }
@@ -495,35 +496,35 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint)
     Node *nodePtr = this->getNode(nodeTag);
     if (nodePtr == 0) {
       opserr << "Domain::addSP_Constraint - cannot add constraint, node with tag " <<
-	nodeTag << " does not exist in model\n";       	
+      nodeTag << " does not exist in model\n";             
       return false;
     }
 
     // check that the DOF specified exists at the Node
     int numDOF = nodePtr->getNumberDOF();
     if (numDOF < dof) {
-	opserr << "Domain::addSP_Constraint - cannot add as node with tag " << 
-	  nodeTag << " does not have associated constrained DOF\n"; 
-	return false;
-    }      
+      opserr << "Domain::addSP_Constraint - cannot add as node with tag " << 
+        nodeTag << " does not have associated constrained DOF\n"; 
+      return false;
+    }
     // #endif
 
     // check if an existing SP_COnstraint exists for that dof at the node
     bool found = false;
     SP_ConstraintIter &theExistingSPs = this->getSPs();
     SP_Constraint *theExistingSP = 0;
-    while ((found == false) && ((theExistingSP = theExistingSPs()) != 0)) {
+    while ((found == false) && ((theExistingSP = theExistingSPs()) != nullptr)) {
       int spNodeTag = theExistingSP->getNodeTag();
       int spDof = theExistingSP->getDOF_Number();
       if (nodeTag == spNodeTag && spDof == dof) {
-	found = true;
+         found = true;
       }
     }
     
     if (found == true) {
-	opserr << "Domain::addSP_Constraint - cannot add as node already constrained in that dof by existing SP_Constraint\n";
-	spConstraint->Print(opserr);
-	return false;
+      opserr << "Domain::addSP_Constraint - cannot add as node already constrained in that dof by existing SP_Constraint\n";
+      spConstraint->Print(opserr);
+      return false;
     }
 
   // check that no other object with similar tag exists in model
@@ -539,8 +540,8 @@ Domain::addSP_Constraint(SP_Constraint *spConstraint)
   
   bool result = theSPs->addComponent(spConstraint);
   if (result == false) {
-      opserr << "Domain::addSP_Constraint - cannot add constraint with tag " << 
-	tag << " to the container\n";             
+      opserr << "Domain::addSP_Constraint - cannot add constraint with tag "
+             << tag << " to the container\n";
       return false;
   } 
 
@@ -1645,11 +1646,12 @@ Domain::getNodeResponse(int nodeTag, NodeData responseType)
 }
 
 
-static Vector responseData(0);
 
 const Vector *
 Domain::getElementResponse(int eleTag, const char **argv, int argc)
 {
+  static Vector responseData(0);
+
   Element *theEle = this->getElement(eleTag);
 
   if (theEle == nullptr)
@@ -2236,52 +2238,6 @@ Domain::Print(OPS_Stream &s, int flag)
 {
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
 
-    /*
-    s << "\t\"properties\": {\n";
-    OPS_printUniaxialMaterial(s, flag);
-    s << ",\n";   
-    OPS_printNDMaterial(s, flag);
-    s << ",\n";
-    OPS_printSectionForceDeformation(s, flag);
-    s << ",\n";   
-    OPS_printCrdTransf(s, flag);
-    s << "\n\t},\n";
-    s << "\t\"geometry\": {\n";
-
-    int numToPrint = theNodes->getNumComponents();
-    NodeIter &theNodess = this->getNodes();
-    Node *theNode;
-    int numPrinted = 0;
-    s << "\t\t\"nodes\": [\n";
-    while ((theNode = theNodess()) != 0) {    
-      theNode->Print(s, flag);
-      numPrinted += 1;
-      if (numPrinted < numToPrint)
-	s << ",\n";
-      else
-	s << "\n\t\t],\n";
-    }
-
-
-    Element *theEle;
-    ElementIter &theElementss = this->getElements();
-    numToPrint = theElements->getNumComponents();
-    numPrinted = 0;
-    s << "\t\t\"elements\": [\n";
-    while ((theEle = theElementss()) != 0) {
-      theEle->Print(s, flag);
-      numPrinted += 1;
-      if (numPrinted < numToPrint)
-	s << ",\n";
-      else
-	s << "\n\t\t]\n";
-      }
-
-	s << "\t}\n";
-	s << "}\n";
-    s << "}\n";
-    */
-
     theMPs->Print(s, flag);
 
     return;
@@ -2320,7 +2276,7 @@ void Domain::Print(OPS_Stream &s, ID *nodeTags, ID *eleTags, int flag)
     for (int i=0; i<numNodes; i++) {
       int nodeTag = (*nodeTags)(i);
       TaggedObject *theNode = theNodes->getComponentPtr(nodeTag);
-      if (theNode != 0)
+      if (theNode != nullptr)
 	theNode->Print(s, flag);
     }
   }
@@ -2494,11 +2450,8 @@ Domain::buildEleGraph(Graph *theEleGraph)
       theEleToVertexMap.insert(MAP_INT_TYPE(eleTag, count));
 
       // check if successfully added
-      theEleToVertexMapEle = theEleToVertexMap.find(eleTag);
-      if (theEleToVertexMapEle == theEleToVertexMap.end()) {
-        opserr << "Domain::buildEleGraph - map STL failed to add object with tag : " << eleTag << endln;
-        return false;
-      }
+
+      assert(theEleToVertexMap.find(eleTag) != theEleToVertexMap.end());
 
       count++;
     }
@@ -2513,7 +2466,6 @@ Domain::buildEleGraph(Graph *theEleGraph)
   // will not be adding vertices but element tags.
   //
   MAP_ID theNodeToVertexMap;
-  MAP_ID_ITERATOR theNodeEle;
   Node *nodPtr;
 
   // now create the vertices with a reference equal to the node number.
@@ -2525,16 +2477,12 @@ Domain::buildEleGraph(Graph *theEleGraph)
     int nodeTag = nodPtr->getTag();
     ID *eleTags = new ID(0, 4);
 
-    theNodeEle = theNodeToVertexMap.find(nodeTag);
+    MAP_ID_ITERATOR theNodeEle = theNodeToVertexMap.find(nodeTag);
     if (theNodeEle == theNodeToVertexMap.end()) {
       theNodeToVertexMap.insert(MAP_ID_TYPE(nodeTag, eleTags));
 
       // check if successfully added
-      theNodeEle = theNodeToVertexMap.find(nodeTag);
-      if (theNodeEle == theNodeToVertexMap.end()) {
-        opserr << "Domain::buildEleGraph - map STL failed to add object with tag : " << nodeTag << endln;
-        return false;
-      }
+      assert(theNodeToVertexMap.find(nodeTag) != theNodeToVertexMap.end());
     }
   }
 

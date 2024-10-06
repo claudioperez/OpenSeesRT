@@ -324,7 +324,7 @@ using namespace OpenSees::Hash::literals;
 #include "quadrature/Frame/MidDistanceBeamIntegration.h"
 #include "quadrature/Frame/CompositeSimpsonBeamIntegration.h"
 
-// node header files
+// Node header files
 #include "Node.h"
 #ifdef HEAP_NODE
 #include "HeapNode.h"
@@ -2120,7 +2120,7 @@ TclPackageClassBroker::getPtrNewDDLinearSOE(int classTagSOE,
 
 DomainDecompositionAnalysis *
 TclPackageClassBroker::getNewDomainDecompAnalysis(int classTag,
-                                                  Subdomain &theSubdomain)
+                                                  [[maybe_unused]] Subdomain &theSubdomain)
 {
   switch (classTag) {
 //case DomDecompANALYSIS_TAGS_DomainDecompositionAnalysis:

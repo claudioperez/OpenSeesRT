@@ -45,6 +45,7 @@
 #include <MaterialResponse.h>
 #include <Information.h>
 #include <string.h>
+#include <Vector.h>
 
 #include <FatigueMaterial.h>
 #include <ID.h>

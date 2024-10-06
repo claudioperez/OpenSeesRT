@@ -33,7 +33,10 @@
 #define POS_INF_STRAIN        1.0e16
 #define NEG_INF_STRAIN       -1.0e16
 
-#include <Material.h>
+#include <Vector.h> // TODO: remove this include
+#include <TaggedObject.h>
+#include <MovableObject.h>
+// #include <Material.h>
 class ID;
 class Vector;
 class Matrix;
@@ -42,7 +45,8 @@ class Response;
 
 class SectionForceDeformation;
 
-class UniaxialMaterial : public Material
+class UniaxialMaterial : // public Material
+                         public TaggedObject, public MovableObject
 {
   public:
     UniaxialMaterial(int tag, int classTag);    
@@ -68,6 +72,11 @@ class UniaxialMaterial : public Material
     
     virtual UniaxialMaterial *getCopy() = 0;
     virtual UniaxialMaterial *getCopy(SectionForceDeformation *s);
+
+
+    // method for this material to update itself according to its new parameters
+    virtual void update(void) {return;}
+
     
     virtual Response *setResponse (const char **argv, int argc, 
 				   OPS_Stream &theOutputStream);
@@ -82,6 +91,8 @@ class UniaxialMaterial : public Material
     virtual double getDampTangentSensitivity(int gradIndex);
     virtual double getRhoSensitivity        (int gradIndex);
     virtual int    commitSensitivity        (double strainGradient, int gradIndex, int numGrads);
+    virtual int getResponseSensitivity(int responseID, int gradIndex,
+				       Information &info);
     // AddingSensitivity:END ///////////////////////////////////////////
 	  // by SAJalali
     virtual double getEnergy() { return 0; }

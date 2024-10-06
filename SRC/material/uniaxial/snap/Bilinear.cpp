@@ -247,9 +247,9 @@ int Bilinear::revertToStart()
 	
 	if ( DEBG == 1 || DEBG == 2 )
     {
-		if ( StrDamage != NULL ) fprintf( OutputFile , "%d" ,StrDamage->getDamage() );		// debugging
-		if ( StfDamage != NULL ) fprintf( OutputFile , "\t%d" , StfDamage->getDamage() );		// debugging
-		if ( CapDamage != NULL ) fprintf( OutputFile , "\t%d\n" , CapDamage->getDamage() );		// debugging
+		if ( StrDamage != NULL ) fprintf( OutputFile , "%f" ,StrDamage->getDamage() );		// debugging
+		if ( StfDamage != NULL ) fprintf( OutputFile , "\t%f" , StfDamage->getDamage() );		// debugging
+		if ( CapDamage != NULL ) fprintf( OutputFile , "\t%f\n" , CapDamage->getDamage() );		// debugging
     }
 
 	return 0;
@@ -559,30 +559,30 @@ Bilinear::setResponse(const char **argv, int argc, OPS_Stream &theOutput)
   
   if (strcmp(argv[0],"force") == 0 || strcmp(argv[0],"stress") == 0 ) {
     theOutput.tag("ResponseType", "sigma11");
-    theResponse = new MaterialResponse(this, 1, 0.0);
+    theResponse = new GenericResponse(this, 1, 0.0);
   }
 
   else if (strcmp(argv[0],"defo") == 0 || strcmp(argv[0],"deformation") == 0 ||
 	   strcmp(argv[0],"strain") == 0) {
     theOutput.tag("ResponseType", "eps11");
-    theResponse =  new MaterialResponse(this, 2, 0.0);
+    theResponse =  new GenericResponse(this, 2, 0.0);
   }
 
   else if (strcmp(argv[0],"plastic") == 0 || strcmp(argv[0],"plasticdefo") == 0 ||
 	   strcmp(argv[0],"plasticdeformation") == 0 || strcmp(argv[0],"plasticstrain") == 0) {
     theOutput.tag("ResponseType", "eps1P");
-    theResponse =  new MaterialResponse(this, 3, 0.0);
+    theResponse =  new GenericResponse(this, 3, 0.0);
   }
 
   else if ( (strcmp(argv[0],"stiff") == 0) || (strcmp(argv[0],"stiffness") == 0) ) {
     theOutput.tag("ResponseType", "C11");
-    theResponse =  new MaterialResponse(this, 4, 0.0);
+    theResponse =  new GenericResponse(this, 4, 0.0);
   }
 	
   else if ( (strcmp(argv[0],"unloading") == 0) || (strcmp(argv[0],"unloadingstiffness") == 0)
 	    || (strcmp(argv[0],"unloadingstiff") == 0 ) ) {
     theOutput.tag("ResponseType", "C11_unloading");
-    theResponse =  new MaterialResponse(this, 5, 0.0);
+    theResponse =  new GenericResponse(this, 5, 0.0);
   }
   
   else if ( (strcmp(argv[0],"damage") == 0) || (strcmp(argv[0],"damages") == 0)
@@ -590,7 +590,7 @@ Bilinear::setResponse(const char **argv, int argc, OPS_Stream &theOutput)
     theOutput.tag("ResponseType", "str_damaga");
     theOutput.tag("ResponseType", "stf_damaga");
     theOutput.tag("ResponseType", "cap_damaga");
-    theResponse =  new MaterialResponse(this, 6, Vector(3));
+    theResponse =  new GenericResponse(this, 6, Vector(3));
   }
 
   theOutput.endTag();

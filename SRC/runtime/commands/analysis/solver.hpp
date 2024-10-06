@@ -12,10 +12,6 @@
 #include <runtimeAPI.h>
 #include <Parsing.h>
 #include <packages.h>
-// analysis
-#include <StaticAnalysis.h>
-#include <DirectIntegrationAnalysis.h>
-#include <VariableTimeStepDirectIntegrationAnalysis.h>
 // system of eqn and solvers
 #include <BandSPDLinSOE.h>
 #include <BandSPDLinLapackSolver.h>

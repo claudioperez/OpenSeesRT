@@ -45,25 +45,25 @@ class fElmt05 : public fElement
   public:
     // constructor
     fElmt05(int tag,
-	    int Nd1, int Nd2,
-	    double E, double A, double rho = 0.0);
+            int Nd1, int Nd2,
+            double E, double A, double rho = 0.0);
     
     fElmt05();    
     
     // destructor
     ~fElmt05();
 
-    virtual int getNumExternalNodes(void) const;
-    virtual const ID &getExternalNodes(void);
+    virtual int getNumExternalNodes() const;
+    virtual const ID &getExternalNodes();
 
     virtual int invokefRoutine(double *d, double *ul, double *xl, int *ix, 
-			       double *tl, double *s, double *r, int ndf, 
-			       int ndm, int nst, int isw, double dm, int nen, int n, 
-			       int nh1, int nh2, int nh3, double *h,  
-			       double *ctan, int ior, int iow);
+                               double *tl, double *s, double *r, int ndf, 
+                               int ndm, int nst, int isw, double dm, int nen, int n, 
+                               int nh1, int nh2, int nh3, double *h,  
+                               double *ctan, int ior, int iow);
 
   protected:
-	     
+             
   private:
 
 };

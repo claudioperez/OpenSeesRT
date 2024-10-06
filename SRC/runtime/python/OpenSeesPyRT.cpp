@@ -29,9 +29,6 @@ namespace py = pybind11;
 // 
 // ANALYSIS
 //
-#include <TransientAnalysis.h>
-#include <DirectIntegrationAnalysis.h>
-#include <StaticAnalysis.h>
 
 #include <LoadPattern.h>
 #include <EarthquakePattern.h>
@@ -506,7 +503,7 @@ init_obj_module(py::module &m)
   
   py::class_<G3_Runtime>(m, "_Runtime")
   ;
-
+#if 0
   py::class_<StaticAnalysis>(m, "_StaticAnalysis")
     .def (py::init([](G3_Runtime *runtime, G3_Config  conf) {
       return *((StaticAnalysis*)runtime->newStaticAnalysis(conf));
@@ -521,6 +518,7 @@ init_obj_module(py::module &m)
    }))
     .def ("analyze", &DirectIntegrationAnalysis::analyze)
   ;
+#endif
 
   //
   // Module-Level Functions

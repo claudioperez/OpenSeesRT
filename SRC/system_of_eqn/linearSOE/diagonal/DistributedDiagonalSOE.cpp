@@ -30,6 +30,7 @@
 #include <Graph.h>
 #include <Vertex.h>
 #include <VertexIter.h>
+#include <Logging.h>
 #include <math.h>
 #include <stdlib.h>
 

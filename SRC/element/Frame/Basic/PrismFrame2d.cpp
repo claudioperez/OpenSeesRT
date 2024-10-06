@@ -37,13 +37,14 @@ Matrix PrismFrame2d::K(6,6);
 Vector PrismFrame2d::P(6);
 
 PrismFrame2d::PrismFrame2d()
-  :Element(0,ELE_TAG_ElasticBeam2d), 
-   A(0.0), E(0.0), Iz(0.0), alpha(0.0), depth(0.0), rho(0.0), 
-   mass_flag(0), 
-   release(0),
-   Q(6),
-   connectedExternalNodes(2), 
-   theCoordTransf(nullptr)
+  : Element(0,ELE_TAG_ElasticBeam2d), 
+    A(0.0), E(0.0), Iz(0.0), G(0.0), 
+    alpha(0.0), depth(0.0), rho(0.0), 
+    mass_flag(0), 
+    release(0),
+    Q(6),
+    connectedExternalNodes(2), 
+    theCoordTransf(nullptr)
 {
   q.zero();
   q0.zero();
@@ -60,7 +61,7 @@ PrismFrame2d::PrismFrame2d(int tag, double a, double e, double i,
                            double Alpha, double depth_, double r, int cm,
                            int rel, int geom_flag_)
   :Element(tag,ELE_TAG_ElasticBeam2d), 
-   A(a), E(e), Iz(i), Ay(0), 
+   A(a), E(e), G(0.0), Iz(i), Ay(0.0), 
    alpha(Alpha), depth(depth_), rho(r), 
    mass_flag(cm), release(rel), 
    geom_flag(geom_flag_),
@@ -92,7 +93,7 @@ PrismFrame2d::PrismFrame2d(int tag, int Nd1, int Nd2,
                            double r, int cm, bool use_mass, int rel,
                            int geom_flag_)
   : Element(tag,ELE_TAG_ElasticBeam2d), 
-    Ay(0),
+    G(0.0), Ay(0.0),
     alpha(Alpha), depth(depth_), 
     rho(r), mass_flag(cm), 
     release(rel),
@@ -114,7 +115,8 @@ PrismFrame2d::PrismFrame2d(int tag, int Nd1, int Nd2,
       E = sectTangent(i,i)/A;
       break;
     case SECTION_RESPONSE_VY:
-      G  = sectTangent(i,i)/Ay;
+      if (Ay != 0.0)
+        G  = sectTangent(i,i)/Ay;
       break;
     default:
       break;
@@ -196,21 +198,19 @@ PrismFrame2d::setDomain(Domain *theDomain)
   this->DomainComponent::setDomain(theDomain);
   
   if (theCoordTransf->initialize(theNodes[0], theNodes[1]) != 0) {
-      opserr << "PrismFrame2d::setDomain -- Error initializing coordinate transformation\n";
-      exit(-1);
+    opserr << "PrismFrame2d::setDomain -- Error initializing coordinate transformation\n";
+    return;
   }
   
   L = theCoordTransf->getInitialLength();
 
-  if (L == 0.0) {
+  if (L == 0.0)
     opserr << "PrismFrame2d::setDomain -- Element has zero length\n";
-    exit(-1);
-  }
 
   if (G != 0 && Ay != 0)
     phi = 12.0 * E * Iz / (L * L * G * Ay);
   else
-    phi = 0;
+    phi = 0.0;
 
   formBasicStiffness(km);
   ke = km; // 
@@ -798,6 +798,24 @@ PrismFrame2d::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroke
 void
 PrismFrame2d::Print(OPS_Stream &s, int flag)
 {
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+    s << "\"name\": " << this->getTag() << ", ";
+    s << "\"type\": \"PrismFrame2d\", ";
+    s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
+    s << "\"E\": " << E << ", ";
+    s << "\"G\": " << G << ", ";
+    s << "\"A\": " << A << ", ";
+    s << "\"Ay\": " << Ay << ", ";
+    s << "\"Iz\": "<< Iz << ", ";
+    s << "\"massperlength\": "<< rho << ", ";
+    s << "\"release\": "<< release << ", ";
+    s << "\"kinematics\": "<< geom_flag << ", ";
+    s << "\"mass_flag\": "<< mass_flag << ", ";
+    s << "\"crdTransformation\": \"" << theCoordTransf->getTag() << "\"}";
+    return;
+  }
+
   if (flag == -1) {
     int eleTag = this->getTag();
     s << "EL_BEAM\t" << eleTag << "\t";
@@ -822,22 +840,6 @@ PrismFrame2d::Print(OPS_Stream &s, int flag)
       << " " << -V+p0[2] << " " << M2 << "\n";
   }
 
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\t{";
-        s << "\"name\": " << this->getTag() << ", ";
-        s << "\"type\": \"PrismFrame2d\", ";
-    s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
-        s << "\"E\": " << E << ", ";
-        s << "\"G\": " << G << ", ";
-        s << "\"A\": " << A << ", ";
-        s << "\"Ay\": " << Ay << ", ";
-    s << "\"Iz\": "<< Iz << ", ";
-    s << "\"massperlength\": "<< rho << ", ";
-    s << "\"release\": "<< release << ", ";
-    s << "\"kinematics\": "<< geom_flag << ", ";
-    s << "\"mass_flag\": "<< mass_flag << ", ";
-    s << "\"crdTransformation\": \"" << theCoordTransf->getTag() << "\"}";
-  }
 }
 
 
@@ -854,8 +856,10 @@ PrismFrame2d::setResponse(const char **argv, int argc, OPS_Stream &output)
   output.attr("node2",connectedExternalNodes[1]);
 
     // global forces
-  if (strcmp(argv[0],"force") == 0 || strcmp(argv[0],"forces") == 0 ||
-      strcmp(argv[0],"globalForce") == 0 || strcmp(argv[0],"globalForces") == 0) {
+  if (strcmp(argv[0],"force") == 0 || 
+      strcmp(argv[0],"forces") == 0 ||
+      strcmp(argv[0],"globalForce") == 0 || 
+      strcmp(argv[0],"globalForces") == 0) {
 
     output.tag("ResponseType","Px_1");
     output.tag("ResponseType","Py_1");

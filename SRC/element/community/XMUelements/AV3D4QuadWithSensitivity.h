@@ -32,7 +32,6 @@
 #include <Matrix.h>
 #include <Vector.h>
 #include <ID.h>
-#include <Renderer.h>
 #include <Domain.h>
 #include <string.h>
 #include <Information.h>
@@ -60,6 +59,10 @@ class AV3D4QuadWithSensitivity: public Element
 
     AV3D4QuadWithSensitivity ();
     ~AV3D4QuadWithSensitivity();
+
+    const char* getClassType() const {
+      return "AV3D4QuadWithSensitivity";
+    }
 
     int getNumExternalNodes(void) const;
     const ID &getExternalNodes(void);
@@ -94,7 +97,6 @@ class AV3D4QuadWithSensitivity: public Element
     int sendSelf (int commitTag, Channel &theChannel);
     int recvSelf (int commitTag, Channel &theChannel, FEM_ObjectBroker
 		  &theBroker);
-    int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode);
 
     void Print(OPS_Stream &s, int flag =0);
     Response *setResponse (const char **argv, int argc, OPS_Stream &theHandler);
@@ -119,11 +121,20 @@ class AV3D4QuadWithSensitivity: public Element
   protected:
 
   private:
+    constexpr static int NEN = 4, NIP = 1;
+    static const int numDOF;               // DOF number of element
+    static const int nodes_in_quad;        // number of nodes in quad
+    static const int r_integration_order;  // Gauss-Legendre integration order in r direction
+    static const int s_integration_order;  // Gauss-Legendre integration order in s direction
+    static const int dim;                  // spatial dimension
+    static const int numGP;                // number of Gauss point
+
+
     // private attributes - a copy for each object of the class
     ID  connectedExternalNodes; // Tags of quad nodes
 
     Matrix *Ki;
-    Node *theNodes[8];
+    Node *theNodes[NEN];
     
     // Matrix **L;       // global differential operator
     double *detJ;     // determinant of Jacobian matrix
@@ -148,13 +159,6 @@ class AV3D4QuadWithSensitivity: public Element
     static ID integFlags;  // integrator flags
     static ID actDOFs;     // activated element dofs, add Yichao Gao
     
-    static const int numDOF;               // DOF number of element
-    static const int nodes_in_elem;        // number of nodes in element
-    static const int nodes_in_quad;        // number of nodes in quad
-    static const int r_integration_order;  // Gauss-Legendre integration order in r direction
-    static const int s_integration_order;  // Gauss-Legendre integration order in s direction
-    static const int dim;                  // spatial dimension
-    static const int numGP;                // number of Gauss point
     
     static Matrix **H;  // Matrix array holds h
     static Matrix **DH;  // Matrix array holds h

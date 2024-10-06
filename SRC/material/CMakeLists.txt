@@ -5,6 +5,9 @@
 #
 #==============================================================================
 target_link_libraries(OPS_Material PRIVATE OPS_Domain OPS_Logging)
+target_sources(OPS_Runtime PRIVATE commands.cpp)
+
+target_sources(OPS_Runtime PRIVATE commands.cpp)
 
 target_sources(OPS_Material
     PRIVATE
@@ -44,6 +47,8 @@ add_subdirectory(Frame)
 add_subdirectory(Shell)
 add_subdirectory(uniaxial)
 add_subdirectory(section)
+add_subdirectory(elastic)
+add_subdirectory(plastic)
 add_subdirectory(Solid)
 add_subdirectory(Plane)
 add_subdirectory(Yield)

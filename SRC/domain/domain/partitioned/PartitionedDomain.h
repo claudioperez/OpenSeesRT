@@ -40,6 +40,7 @@
 #ifndef PartitionedDomain_h
 #define PartitionedDomain_h
 
+#include <Node.h>
 #include <Domain.h>
 
 class DomainPartitioner;
@@ -141,17 +142,17 @@ class PartitionedDomain: public Domain
     virtual Graph &getSubdomainGraph(void);
 
     // nodal methods required in domain interface for parallel interprter
-    virtual const Vector *getNodeResponse(int nodeTag, NodeResponseType); 
+    virtual const Vector *getNodeResponse(int nodeTag, NodeData); 
     virtual const Vector *getElementResponse(int eleTag, const char **argv, int argc); 
 
     virtual double getNodeDisp(int nodeTag, int dof, int &errorFlag);
     virtual int setMass(const Matrix &mass, int nodeTag);
 
     virtual int calculateNodalReactions(bool inclInertia);
-    
+#if 0 
     virtual int activateElements(const ID& elementList);
     virtual int deactivateElements(const ID& elementList);
-
+#endif
     // friend classes
     friend class PartitionedDomainEleIter;
     

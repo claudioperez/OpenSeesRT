@@ -83,7 +83,7 @@ public:
     int getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
 
    ////////////////// sensitivity /////////////////////////////////
-	const Vector & getBasicDisplSensitivity (int gradNumber);
+	const Vector & getBasicDisplTotalGrad (int gradNumber);
    /////////////////////////////////////////////////////////////    
 private:
     int computeElemtLengthAndOrient(void);

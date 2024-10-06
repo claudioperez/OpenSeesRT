@@ -32,6 +32,7 @@
 //                + cn*sgn(x)*|x|^en
 
 #include <UniaxialMaterial.h>
+#include <Vector.h>
 
 class ElasticPowerFunc : public UniaxialMaterial
 {

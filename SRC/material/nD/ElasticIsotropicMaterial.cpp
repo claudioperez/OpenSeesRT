@@ -335,10 +335,11 @@ ElasticIsotropicMaterial::Print(OPS_Stream &s, int flag)
         s << "\tE:  " << E << endln;
         s << "\tv:  " << v << endln;
         s << "\trho:  " << rho << endln;
+
     } else if (flag == OPS_PRINT_PRINTMODEL_JSON) {
         s << OPS_PRINT_JSON_ELEM_INDENT << "{";
         s << "\"name\": \"" << this->getTag() << "\", ";
-        s << "\"type\": \"ElasticIsotropicMaterial\", ";
+        s << "\"type\": \"" << this->getClassType() << "\", ";
         s << "\"E\": "   << E   << ", ";
         s << "\"nu\": "  << v   << ", ";
         s << "\"rho\": " << rho << "}";

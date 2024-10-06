@@ -25,7 +25,8 @@
 #include <string.h>
 #include <NodeIter.h>
 #include <Domain.h>
-#include <Node.h> // for sensitivity
+// for sensitivity
+#include <Node.h>
 #include <LoadPattern.h>
 #include <LoadPatternIter.h>
 #include <Parameter.h>
@@ -45,7 +46,8 @@ GeneralizedNewmark::GeneralizedNewmark(double _gamma, double _beta,
       U(nullptr),  Udot(nullptr),  Udotdot(nullptr),
       Ua(nullptr), Uadot(nullptr), Uadotdot(nullptr), 
       determiningMass(false),
-      sensitivityFlag(0), gradNumber(0), massMatrixMultiplicator(0),
+      sensitivityFlag(0), gradNumber(0), 
+      massMatrixMultiplicator(0),
       dampingMatrixMultiplicator(0), assemblyFlag(aflag), independentRHS(),
       dUn(), dVn(), dAn()
 {
@@ -83,7 +85,8 @@ GeneralizedNewmark::~GeneralizedNewmark()
 }
 
 
-int GeneralizedNewmark::newStep(double deltaT)
+int
+GeneralizedNewmark::newStep(double deltaT)
 {
     if (deltaT <= 0.0)  {
         opserr << "GeneralizedNewmark::newStep() - error in variable\n";
@@ -343,7 +346,8 @@ int GeneralizedNewmark::newStep(double deltaT)
 }
 
 
-int GeneralizedNewmark::update(const Vector &deltaX)
+int
+GeneralizedNewmark::update(const Vector &deltaX)
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel == nullptr)  {
@@ -413,7 +417,8 @@ GeneralizedNewmark::getVel()
   return *Udot;
 }
 
-int GeneralizedNewmark::revertToLastStep()
+int
+GeneralizedNewmark::revertToLastStep()
 {
   // set response at t+deltaT to be that at t .. for next newStep
   if (U != nullptr)  {
@@ -470,7 +475,8 @@ GeneralizedNewmark::formNodTangent(DOF_Group *theDof)
 }    
 
 
-int GeneralizedNewmark::domainChanged()
+int
+GeneralizedNewmark::domainChanged()
 {
     AnalysisModel *myModel = this->getAnalysisModel();
     LinearSOE *theLinSOE = this->getLinearSOE();
@@ -585,7 +591,8 @@ int GeneralizedNewmark::domainChanged()
 }
 
 
-int GeneralizedNewmark::sendSelf(int cTag, Channel &theChannel)
+int
+GeneralizedNewmark::sendSelf(int cTag, Channel &theChannel)
 {
     Vector data(3);
     data(0) = gamma;
@@ -602,7 +609,8 @@ int GeneralizedNewmark::sendSelf(int cTag, Channel &theChannel)
 }
 
 
-int GeneralizedNewmark::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
+int
+GeneralizedNewmark::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
     Vector data(3);
     if (theChannel.recvVector(this->getDbTag(), cTag, data) < 0)  {
@@ -620,21 +628,27 @@ int GeneralizedNewmark::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker
 }
 
 
-void GeneralizedNewmark::Print(OPS_Stream &s, int flag)
+void
+GeneralizedNewmark::Print(OPS_Stream &s, int flag)
 {
-    AnalysisModel *theModel = this->getAnalysisModel();
-    if (theModel != nullptr) {
-        double currentTime = theModel->getCurrentDomainTime();
-        s << "\t GeneralizedNewmark - currentTime: " << currentTime;
-    }
-    s << "\t gamma: " << gamma << "  beta: " << beta << "\n";
-    s << "\t alphaF: " << alphaF << "  alphaM: " << alphaM << "\n";
-    s << "\t unknown: " << unknown << "  initialization: " << unknown_initialize << "\n";
+  if (flag == OPS_PRINT_PRINTMODEL_JSON)
+    return;
+
+
+  AnalysisModel *theModel = this->getAnalysisModel();
+  if (theModel != nullptr) {
+      double currentTime = theModel->getCurrentDomainTime();
+      s << "\t GeneralizedNewmark - currentTime: " << currentTime;
+  }
+  s << "\t gamma: " << gamma << "  beta: " << beta << "\n";
+  s << "\t alphaF: " << alphaF << "  alphaM: " << alphaM << "\n";
+  s << "\t unknown: " << unknown << "  initialization: " << unknown_initialize << "\n";
 }
 
 
 
-int GeneralizedNewmark::revertToStart()
+int
+GeneralizedNewmark::revertToStart()
 {
     if (Ut != nullptr) 
         Ut->Zero();
@@ -652,7 +666,8 @@ int GeneralizedNewmark::revertToStart()
     return 0;
 }
 
-int GeneralizedNewmark::formEleResidual(FE_Element* theEle)
+int
+GeneralizedNewmark::formEleResidual(FE_Element* theEle)
 {
   if (sensitivityFlag == 0) {  // no sensitivity
       this->TransientIntegrator::formEleResidual(theEle);
@@ -783,12 +798,13 @@ int
 GeneralizedNewmark::formNodUnbalance(DOF_Group *theDof)
 {
 
-    if (sensitivityFlag == 0) {  // NO SENSITIVITY ANALYSIS
+    if (sensitivityFlag == 0) {
 
       this->TransientIntegrator::formNodUnbalance(theDof);
 
     }
-    else {  // ASSEMBLE ALL TERMS
+    else {
+      // Assemble sensitivity residual
 
       theDof->zeroUnbalance();
 
@@ -816,12 +832,11 @@ GeneralizedNewmark::formNodUnbalance(DOF_Group *theDof)
 int 
 GeneralizedNewmark::formSensitivityRHS(int passedGradNumber)
 {
-    sensitivityFlag = 1;
-
     // Set a couple of data members
+    sensitivityFlag = 1;
     gradNumber = passedGradNumber;
 
-    // Get pointer to the SOE
+
     LinearSOE *theSOE = this->getLinearSOE();
 
     // Possibly set the independent part of the RHS
@@ -831,8 +846,10 @@ GeneralizedNewmark::formSensitivityRHS(int passedGradNumber)
     // Get the analysis model
     AnalysisModel *theModel = this->getAnalysisModel();
 
+    //
     // Randomness in external load (including randomness in time series)
-    // Get domain
+    //
+
     Domain *theDomain = theModel->getDomainPtr();
 
     // Loop through nodes to zero the unbalaced load
@@ -1005,67 +1022,31 @@ GeneralizedNewmark::saveSensitivity(const Vector & vNew,int gradNum,int numGrads
 int 
 GeneralizedNewmark::commitSensitivity(int gradNum, int numGrads)
 {
-
     // Loop through the FE_Elements and set unconditional sensitivities
     AnalysisModel *theAnalysisModel = this->getAnalysisModel();
     FE_Element *elePtr;
     FE_EleIter &theEles = theAnalysisModel->getFEs();    
-    while((elePtr = theEles()) != 0) {
-  elePtr->commitSensitivity(gradNum, numGrads);
+    while((elePtr = theEles()) != nullptr) {
+      elePtr->commitSensitivity(gradNum, numGrads);
     }
 
     return 0;
 }
 
 
-// AddingSensitivity:END ////////////////////////////////
-
 double
-GeneralizedNewmark::getCFactor(void) {
+GeneralizedNewmark::getCFactor() 
+{
   return c2;
 }
 
 
 int 
-GeneralizedNewmark::computeSensitivities(void)
+GeneralizedNewmark::computeSensitivities()
 {
 
   LinearSOE *theSOE = this->getLinearSOE();
-  
-  /*
-    if (theAlgorithm == 0) {
-    opserr << "ERROR the FE algorithm must be defined before ";
-    opserr << "the sensitivity algorithm\n";
-    return -1;
-    }
-  */
-  /*
-  // Get pointer to the system of equations (SOE)
-  LinearSOE *theSOE = theAlgorithm->getLinearSOEptr();
-  if (theSOE == 0) {
-  opserr << "ERROR the FE linearSOE must be defined before ";
-  opserr << "the sensitivity algorithm\n";
-  return -1;
-  }
-  
-  // Get pointer to incremental integrator
-  IncrementalIntegrator *theIncInt = theAlgorithm->getIncrementalIntegratorPtr();
-  //  IncrementalIntegrator *theIncIntSens=theAlgorithm->getIncrementalIntegratorPtr();//Abbas
-  if (theIncInt == 0 ) {
-  opserr << "ERROR the FE integrator must be defined before ";
-  opserr << "the sensitivity algorithm\n";
-  return -1;
-  }
-  
-  // Form current tangent at converged state
-  // (would be nice with an if-statement here in case
-  // the current tangent is already formed)
-  if (this->formTangent(CURRENT_TANGENT) < 0){
-  opserr << "WARNING SensitivityAlgorithm::computeGradients() -";
-  opserr << "the Integrator failed in formTangent()\n";
-  return -1;
-  }
-  */
+
   // Zero out the old right-hand side of the SOE
   theSOE->zeroB();
   
@@ -1076,9 +1057,8 @@ GeneralizedNewmark::computeSensitivities(void)
   ParameterIter &paramIter = theDomain->getParameters();
 
   Parameter *theParam;
-
   // De-activate all parameters
-  while ((theParam = paramIter()) != 0)
+  while ((theParam = paramIter()) != nullptr)
     theParam->activate(false);
   
   // Now, compute sensitivity wrt each parameter
@@ -1096,13 +1076,13 @@ GeneralizedNewmark::computeSensitivities(void)
     
     // Get the grad index for this parameter
     int gradIndex = theParam->getGradIndex();
-    //   opserr<<"gradNumber = "<<gradIndex<<endln;
+
     // Form the RHS
     this->formSensitivityRHS(gradIndex);
     
-    // Solve for displacement sensitivity
-    
+    // Solve for displacement sensitivity 
     theSOE->solve();
+
     // Save sensitivity to nodes
     this->saveSensitivity( theSOE->getX(), gradIndex, numGrads );
     
@@ -1110,7 +1090,7 @@ GeneralizedNewmark::computeSensitivities(void)
     // Commit unconditional history variables (also for elastic problems; strain sens may be needed anyway)
     this->commitSensitivity(gradIndex, numGrads);
     
-    // De-activate this parameter for next sensitivity calc
+    // De-activate this parameter for next parameter sensitivity
     theParam->activate(false);
   }
   

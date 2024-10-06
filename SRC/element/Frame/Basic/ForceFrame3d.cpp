@@ -9,13 +9,13 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Three dimensional force-interpolated frame element.
+// Three dimensional force-interpolated frame element. 
+//
+// The general state-determination algorithm is developed by Spacone et al (1996).
+// Extension for shear-deformable kinematics is developed by Lee and Filippou.
 //
 // Primary References
 // ==================
-//  Neuenhofer, A. and F. C. Filippou (1997). 
-//    "Evaluation of Nonlinear Frame Finite Element Models." 
-//    Journal of Structural Engineering, 123(7):958-966.
 //
 //  Spacone, E., V. Ciampi, and F. C. Filippou (1996). 
 //    "Mixed Formulation of Nonlinear Beam Finite Element."
@@ -374,9 +374,9 @@ ForceFrame3d::getMass()
       ml( 4, 4) = ml(10,10) =  m*4.0*L*L;
       ml( 4,10) = ml(10, 4) = -m*3.0*L*L;
       ml( 2, 4) = ml( 4, 2) = -m*22.0*L;
-      ml( 8,10) = ml(10, 8) = -ml(2,4);
+      ml( 8,10) = ml(10, 8) = -ml( 2, 4);
       ml( 2,10) = ml(10, 2) =  m*13.0*L;
-      ml( 4, 8) = ml( 8, 4) = -ml(2,10);
+      ml( 4, 8) = ml( 8, 4) = -ml( 2,10);
 
       ml( 1, 1) = ml( 7, 7) =  m*156.0;
       ml( 1, 7) = ml( 7, 1) =  m*54.0;
@@ -400,11 +400,11 @@ ForceFrame3d::getInitialStiff()
   if (Ki != nullptr)
     return *Ki;
 
-  THREAD_LOCAL MatrixND<nq,nq> F_init;
+  THREAD_LOCAL MatrixND<NBV,NBV> F_init;
   this->getInitialFlexibility(F_init);
 
   // calculate element stiffness matrix
-  THREAD_LOCAL MatrixND<nq, nq> K_init;
+  THREAD_LOCAL MatrixND<NBV, NBV> K_init;
   if (F_init.invert(K_init) < 0)
     opserr << "ForceFrame3d::getInitialStiff -- could not invert flexibility";
 
@@ -452,20 +452,20 @@ ForceFrame3d::update()
   // get basic displacements and increments
   const Vector& v = theCoordTransf->getBasicTrialDisp();
 
-  THREAD_LOCAL VectorND<nq> dv{0.0};
+  THREAD_LOCAL VectorND<NBV> dv{0.0};
   dv = theCoordTransf->getBasicIncrDeltaDisp();
 
   if (state_flag != 0 && (dv.norm() <= DBL_EPSILON) && (eleLoads.size()==0))
     return 0;
 
-  THREAD_LOCAL VectorND<nq> Dv;
+  THREAD_LOCAL VectorND<NBV> Dv;
   Dv  = v;
   Dv -= dv;
 
 
-  THREAD_LOCAL VectorND<nq> vr;      // element residual displacements
-  THREAD_LOCAL MatrixND<nq, nq> F;   // element flexibility matrix
-  THREAD_LOCAL VectorND<nq> dvToDo,
+  THREAD_LOCAL VectorND<NBV> vr;      // element residual displacements
+  THREAD_LOCAL MatrixND<NBV, NBV> F;   // element flexibility matrix
+  THREAD_LOCAL VectorND<NBV> dvToDo,
                             dv_trial;
 
   dvToDo  = dv;
@@ -477,13 +477,12 @@ ForceFrame3d::update()
 
 
   //
-  // fmk - modification to get compatible ele forces and deformations
-  //   for a change in deformation dV we try first a Newton iteration, if
-  //   that fails we try an initial flexibility iteration on first iteration
-  //   and then regular Newton, if that fails we use the initial flexiblity
-  //   for all iterations.
+  //   Iterate to find compatible forces and deformations
   //
-  //   if they both fail we subdivide dV & try to get compatible forces
+  //   First try first a Newton iteration, if that fails we try an initial
+  //   flexibility iteration on first iteration and then regular Newton, if
+  //   that fails we use the initial flexiblity for all iterations.
+  //   If they both fail we subdivide dV & try to get compatible forces
   //   and deformations. if they work and we have subdivided we apply
   //   the remaining dV.
   //
@@ -494,10 +493,10 @@ ForceFrame3d::update()
     Strategy::Newton, Strategy::InitialIterations, Strategy::InitialThenNewton
   };
 
-  int numSubdivide = 1;
+  int subdivision = 1;
   bool converged   = false;
 
-  while (converged == false && numSubdivide <= maxSubdivisions) {
+  while (converged == false && subdivision <= maxSubdivisions) {
 
     for (Strategy strategy : solve_strategy ) {
 
@@ -513,222 +512,196 @@ ForceFrame3d::update()
       if (state_flag == 2)
         continue;
 
-      VectorND<nq>     q_trial = q_pres;
-      MatrixND<nq, nq> K_trial = K_pres;
+      VectorND<NBV>     q_trial = q_pres;
+      MatrixND<NBV, NBV> K_trial = K_pres;
 
       // calculate nodal force increments and update nodal forces
       q_trial += K_pres*dv;
-
 
       for (int j = 0; j < numIters; j++) {
         // initialize F and vr for integration
         F.zero();
         vr.zero();
 
-        {
-          Matrix f(F);
-          if (stencil->addElasticFlexibility(L, f) < 0) {
-            vr[0] += F(0, 0) * q_trial[0];
-            vr[1] += F(1, 1) * q_trial[1] + F(1, 2) * q_trial[2];
-            vr[2] += F(2, 1) * q_trial[1] + F(2, 2) * q_trial[2];
-            vr[3] += F(3, 3) * q_trial[3] + F(3, 4) * q_trial[4];
-            vr[4] += F(4, 3) * q_trial[3] + F(4, 4) * q_trial[4];
-            vr[5] += F(5, 5) * q_trial[5];
-          }
-        }
-
-        // Add effects of element loads
-        double v0[5]{0.0};
-
-        for (auto[load, factor] : eleLoads)
-          stencil->addElasticDeformations(load, factor, L, v0);
-
-        vr[0] += v0[0];
-        vr[1] += v0[1];
-        vr[2] += v0[2];
-        vr[3] += v0[3];
-        vr[4] += v0[4];
-
         //
         // Gauss Loop
         //
         for (int i = 0; i < points.size(); i++) {
-            double xL = points[i].point;
-            double xL1 = xL - 1.0;
-            double wtL = points[i].weight * L;
+          double xL = points[i].point;
+          double xL1 = xL - 1.0;
+          double wtL = points[i].weight * L;
 
-            auto& Fs = Fs_trial[i];
-            auto& sr = sr_trial[i];
-            FrameSection& section = *points[i].material;
+          auto& Fs = Fs_trial[i];
+          auto& sr = sr_trial[i];
+          FrameSection& section = *points[i].material;
 
-            //
-            // a. Calculate interpolated section force
-            //
-            //    si = b*q + bp*w;
+          //
+          // a. Calculate interpolated section force
+          //
+          //    si = b*q + bp*w;
 
-            // Interpolation of q_trial
-            //    b*q_trial
-            //
-            VectorND<nsr> si {  // use layout declared in this::scheme
-                 q_trial[0],                           // N
-                 (q_trial[1] + q_trial[2])/L,          // VY
-                 (q_trial[3] + q_trial[4])/L,          // VZ
-                 q_trial[5],                           // T
-                 xL1 * q_trial[3] + xL * q_trial[4],   // MY
-                 xL1 * q_trial[1] + xL * q_trial[2],   // MZ
-            };
-            // Add the effects of element loads
-            // si += bp*w
-            if (eleLoads.size() != 0)
-              this->addLoadAtSection(si, points[i].point * L);
+          // Interpolation of q_trial
+          //    b*q_trial
+          //
+          VectorND<nsr> si {  // use layout declared in this::scheme
+               q_trial[0],                           // N
+               (q_trial[1] + q_trial[2])/L,          // VY
+               (q_trial[3] + q_trial[4])/L,          // VZ
+               q_trial[5],                           // T
+               xL1 * q_trial[3] + xL * q_trial[4],   // MY
+               xL1 * q_trial[1] + xL * q_trial[2],   // MZ
+          };
+          // Add the effects of element loads
+          // si += bp*w
+          if (eleLoads.size() != 0)
+            this->addLoadAtSection(si, points[i].point * L);
 
 
-            //
-            // b. Compute section strain es_trial
-            //
-            //    es += Fs * ( si - sr(e) );
-            //
-            if (state_flag != 0) {
+          //
+          // b. Compute section strain es_trial
+          //
+          //    es += Fs * ( si - sr(e) );
+          //
+          if (state_flag != 0) {
 
-              VectorND<nsr> ds; //, des;
+            VectorND<nsr> ds; //, des;
 
-              // Form stress increment ds
-              // ds = si - sr(e);
-              ds = si;
-              ds.addVector(1.0, sr, -1.0);
+            // Form stress increment ds
+            // ds = si - sr(e);
+            ds = si;
+            ds.addVector(1.0, sr, -1.0);
 
-              // Add strain correction
-              //    es += Fs * ds;
-              switch (strategy) {
-                case Strategy::Newton:
-                  //  regular Newton
-                  es_trial[i].addMatrixVector(1.0, Fs, ds, 1.0);
-                  break;
+            // Add strain correction
+            //    es += Fs * ds;
+            switch (strategy) {
+              case Strategy::Newton:
+                //  regular Newton
+                es_trial[i].addMatrixVector(1.0, Fs, ds, 1.0);
+                break;
 
-                case Strategy::InitialThenNewton:
-                  //  Newton with initial tangent if first iteration
-                  //  otherwise regular Newton
-                  if (j == 0) {
-                    MatrixND<nsr,nsr> Fs0 = section.getFlexibility<nsr,scheme>(State::Init);
-                    es_trial[i].addMatrixVector(1.0, Fs0, ds, 1.0);
-                  } else
-                    es_trial[i].addMatrixVector(1.0, Fs, ds, 1.0);
-                  break;
-
-                case Strategy::InitialIterations:
-                  //  Newton with initial tangent
+              case Strategy::InitialThenNewton:
+                //  Newton with initial tangent if first iteration
+                //  otherwise regular Newton
+                if (j == 0) {
                   MatrixND<nsr,nsr> Fs0 = section.getFlexibility<nsr,scheme>(State::Init);
                   es_trial[i].addMatrixVector(1.0, Fs0, ds, 1.0);
-                  break;
-              }
+                } else
+                  es_trial[i].addMatrixVector(1.0, Fs, ds, 1.0);
+                break;
+
+              case Strategy::InitialIterations:
+                //  Newton with initial tangent
+                MatrixND<nsr,nsr> Fs0 = section.getFlexibility<nsr,scheme>(State::Init);
+                es_trial[i].addMatrixVector(1.0, Fs0, ds, 1.0);
+                break;
+            }
+          }
+
+
+          //
+          // c. Set trial section state and get response
+          //
+          if (section.setTrialState<nsr,scheme>(es_trial[i]) < 0) {
+            opserr << "ForceFrame3d::update - section failed in setTrial\n";
+            return -1;
+          }
+
+          sr_trial[i] = section.getResultant<nsr, scheme>();
+          Fs_trial[i] = section.getFlexibility<nsr, scheme>();
+
+          //
+          // d. Integrate element flexibility matrix
+          //
+          //    F += (B' * Fs * B) * wi * L;
+          //
+          {
+            MatrixND<nsr,NBV> FsB;
+            FsB.zero();
+            for (int jj = 0; jj < nsr; jj++) {
+                // SECTION_RESPONSE_P:
+                FsB(jj, 0) += Fs_trial[i](jj, 0) * wtL;
+
+                // SECTION_RESPONSE_VY:
+                FsB(jj, 1) += Fs(jj, 1) * wtL * jsx;
+                FsB(jj, 2) += Fs(jj, 1) * wtL * jsx;
+
+                // SECTION_RESPONSE_VZ:
+                FsB(jj, 3) += Fs(jj, 2) * wtL * jsx;
+                FsB(jj, 4) += Fs(jj, 2) * wtL * jsx;
+
+                // SECTION_RESPONSE_T:
+                FsB(jj, 5) += Fs(jj, 3) * wtL;
+
+                // SECTION_RESPONSE_MY:
+                FsB(jj, 3) += xL1 * Fs(jj, 4)*wtL;
+                FsB(jj, 4) += xL  * Fs(jj, 4)*wtL;
+
+                // SECTION_RESPONSE_MZ:
+                FsB(jj, 1) += xL1 * Fs(jj, 5)*wtL;
+                FsB(jj, 2) += xL  * Fs(jj, 5)*wtL;
             }
 
+            for (int jj = 0; jj < NBV; jj++) {
+                double tmp;
+                // SECTION_RESPONSE_P:
+                F(0, jj) += FsB( 0, jj);
 
-            //
-            // c. Set trial section state and get response
-            //
-            if (section.setTrialState<nsr,scheme>(es_trial[i]) < 0) {
-              opserr << "ForceFrame3d::update - section failed in setTrial\n";
-              return -1;
+                // SECTION_RESPONSE_VY:
+                tmp = jsx * FsB( 1, jj);
+                F(1, jj) += tmp;
+                F(2, jj) += tmp;
+
+                // SECTION_RESPONSE_VZ:
+                tmp = jsx * FsB( 2, jj);
+                F(3, jj) += tmp;
+                F(4, jj) += tmp;
+
+                // SECTION_RESPONSE_T:
+                F(5, jj) += FsB( 3, jj);
+
+                // SECTION_RESPONSE_MY:
+                F(3, jj) += xL1 * FsB( 4, jj);
+                F(4, jj) += xL  * FsB( 4, jj);
+
+                // SECTION_RESPONSE_MZ:
+                F(1, jj) += xL1 * FsB( 5, jj);
+                F(2, jj) += xL  * FsB( 5, jj);
             }
-
-            sr_trial[i] = section.getResultant<nsr, scheme>();
-            Fs_trial[i] = section.getFlexibility<nsr, scheme>();
-
-            //
-            // d. Integrate element flexibility matrix
-            //
-            //    F += (B' * Fs * B) * wi * L;
-            //
-            {
-              MatrixND<nsr,nq> FsB;
-              FsB.zero();
-              for (int jj = 0; jj < nsr; jj++) {
-                  // SECTION_RESPONSE_P:
-                  FsB(jj, 0) += Fs_trial[i](jj, 0) * wtL;
-
-                  // SECTION_RESPONSE_VY:
-                  FsB(jj, 1) += Fs(jj, 1) * wtL * jsx;
-                  FsB(jj, 2) += Fs(jj, 1) * wtL * jsx;
-
-                  // SECTION_RESPONSE_VZ:
-                  FsB(jj, 3) += Fs(jj, 2) * wtL * jsx;
-                  FsB(jj, 4) += Fs(jj, 2) * wtL * jsx;
-
-                  // SECTION_RESPONSE_T:
-                  FsB(jj, 5) += Fs(jj, 3) * wtL;
-
-                  // SECTION_RESPONSE_MY:
-                  FsB(jj, 3) += xL1 * Fs(jj, 4)*wtL;
-                  FsB(jj, 4) += xL  * Fs(jj, 4)*wtL;
-
-                  // SECTION_RESPONSE_MZ:
-                  FsB(jj, 1) += xL1 * Fs(jj, 5)*wtL;
-                  FsB(jj, 2) += xL  * Fs(jj, 5)*wtL;
-              }
-
-              for (int jj = 0; jj < nq; jj++) {
-                  double tmp;
-                  // SECTION_RESPONSE_P:
-                  F(0, jj) += FsB( 0, jj);
-
-                  // SECTION_RESPONSE_VY:
-                  tmp = jsx * FsB( 1, jj);
-                  F(1, jj) += tmp;
-                  F(2, jj) += tmp;
-
-                  // SECTION_RESPONSE_VZ:
-                  tmp = jsx * FsB( 2, jj);
-                  F(3, jj) += tmp;
-                  F(4, jj) += tmp;
-
-                  // SECTION_RESPONSE_T:
-                  F(5, jj) += FsB( 3, jj);
-
-                  // SECTION_RESPONSE_MY:
-                  F(3, jj) += xL1 * FsB( 4, jj);
-                  F(4, jj) += xL  * FsB( 4, jj);
-
-                  // SECTION_RESPONSE_MZ:
-                  F(1, jj) += xL1 * FsB( 5, jj);
-                  F(2, jj) += xL  * FsB( 5, jj);
-              }
-            }
+          }
 
 
-            //
-            // e. Integrate residual deformations
-            //
-            //    vr += (B' * (es + des)) * wi * L;
-            //
-            {
-              VectorND<nsr> des, ds;
-              // calculate section residual deformations
-              // des = Fs * ds,  with  ds = si - sr[i];
-              ds = si;
-              ds.addVector(1.0, sr, -1.0);
+          //
+          // e. Integrate residual deformations
+          //
+          //    vr += (B' * (es + des)) * wi * L;
+          //
+          {
+            VectorND<nsr> des, ds;
+            // calculate section residual deformations
+            // des = Fs * ds,  with  ds = si - sr[i];
+            ds = si;
+            ds.addVector(1.0, sr, -1.0);
 
-              des.addMatrixVector(0.0, Fs, ds, 1.0);
-              des.addVector(1.0, es_trial[i], 1.0);
+            des.addMatrixVector(0.0, Fs, ds, 1.0);
+            des.addVector(1.0, es_trial[i], 1.0);
 
-              // SECTION_RESPONSE_P:
-              vr[0] += des[0]*wtL;
-              // SECTION_RESPONSE_VY:
-              vr[1] += jsx*des[1]*wtL;
-              vr[2] += jsx*des[1]*wtL;
-              // SECTION_RESPONSE_VZ:
-              vr[3] += jsx*des[2]*wtL;
-              vr[4] += jsx*des[2]*wtL;
-              // SECTION_RESPONSE_T:
-              vr[5] += des[3]*wtL;
-              // SECTION_RESPONSE_MY:
-              vr[3] += xL1 * des[4]*wtL;
-              vr[4] += xL * des[4]*wtL;
-              // SECTION_RESPONSE_MZ:
-              vr[1] += xL1 * des[5]*wtL;
-              vr[2] += xL * des[5]*wtL;
-            }
-
+            // SECTION_RESPONSE_P:
+            vr[0] += des[0]*wtL;
+            // SECTION_RESPONSE_VY:
+            vr[1] += jsx*des[1]*wtL;
+            vr[2] += jsx*des[1]*wtL;
+            // SECTION_RESPONSE_VZ:
+            vr[3] += jsx*des[2]*wtL;
+            vr[4] += jsx*des[2]*wtL;
+            // SECTION_RESPONSE_T:
+            vr[5] += des[3]*wtL;
+            // SECTION_RESPONSE_MY:
+            vr[3] += xL1 * des[4]*wtL;
+            vr[4] += xL * des[4]*wtL;
+            // SECTION_RESPONSE_MZ:
+            vr[1] += xL1 * des[5]*wtL;
+            vr[2] += xL * des[5]*wtL;
+          }
         } // Gauss loop
 
 
@@ -747,7 +720,7 @@ ForceFrame3d::update()
         dv += dv_trial;
         dv -= vr;
 
-        VectorND<nq> dqe = K_trial * dv;
+        VectorND<NBV> dqe = K_trial * dv;
       //dqe.addMatrixVector(0.0, K_trial, dv, 1.0);
 
         dW = dqe.dot(dv);
@@ -771,11 +744,11 @@ ForceFrame3d::update()
             converged = true;
 
           } else {
-            // We converged but we have more to do
+            // We've converged but we have more to do;
             // reset variables for start of next subdivision
             dv_trial = dvToDo;
             // NOTE setting subdivide to 1 again maybe too much
-            numSubdivide = 1; 
+            subdivision = 1; 
           }
 
           // set K_pres, es and q_pres values
@@ -798,7 +771,7 @@ ForceFrame3d::update()
           // - reduce step size by the factor specified
           if (j == (numIters - 1) && (strategy == Strategy::InitialThenNewton)) {
             dv_trial /= factor;
-            numSubdivide++;
+            subdivision++;
           }
 
         }
@@ -1062,11 +1035,11 @@ ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, double x)
 }
 
 void
-ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNumber)
+ForceFrame3d::getStressGrad(VectorND<nsr>& dspdh, int isec, int gradNumber)
 {
 
   double L    = theCoordTransf->getInitialLength();
-  double dLdh = theCoordTransf->getdLdh();
+  double dLdh = theCoordTransf->getLengthGrad();
 
   int numSections = points.size();
 
@@ -1196,7 +1169,7 @@ ForceFrame3d::computeSectionForceSensitivity(Vector& dspdh, int isec, int gradNu
         }
       }
     } else {
-      opserr << "ForceFrame3d::computeSectionForceSensitivity -- load type unknown for element "
+      opserr << "ForceFrame3d::getStressGrad -- load type unknown for element "
                 "with tag: "
              << this->getTag() << "\n";
     }
@@ -1300,7 +1273,7 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
     secDefSize += size;
   }
 
-  Vector dData(1 + 1 + 1 + nq + nq * nq + secDefSize + 4);
+  Vector dData(1 + 1 + 1 + NBV + NBV * NBV + secDefSize + 4);
   loc = 0;
 
   // place double variables into Vector
@@ -1312,12 +1285,12 @@ ForceFrame3d::sendSelf(int commitTag, Channel& theChannel)
   //dData(loc++) = distrLoadcommit(i);
 
   // place K_save into vector
-  for (int i = 0; i < nq; i++)
+  for (int i = 0; i < NBV; i++)
     dData(loc++) = q_save[i];
 
   // place K_save into vector
-  for (int i = 0; i < nq; i++)
-    for (int j = 0; j < nq; j++)
+  for (int i = 0; i < NBV; i++)
+    for (int j = 0; j < NBV; j++)
       dData(loc++) = K_save(i, j);
 
   // place es_save into vector
@@ -1511,7 +1484,7 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   // into a vector place distrLoadCommit, rho, UeCommit, q_save and K_save
   int secDefSize = nsr*points.size();
 
-  Vector dData(1 + 1 + nq + nq * nq + secDefSize + 4);
+  Vector dData(1 + 1 + NBV + NBV * NBV + secDefSize + 4);
 
   if (theChannel.recvVector(dbTag, commitTag, dData) < 0) {
     opserr << "ForceFrame3d::recvSelf() - failed to send Vector data\n";
@@ -1529,12 +1502,12 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
   // distrLoad(i) = dData(loc++);
 
   // place q_save into vector
-  for (int i = 0; i < nq; i++)
+  for (int i = 0; i < NBV; i++)
     q_save[i] = dData(loc++);
 
   // place K_save into matrix
-  for (int i = 0; i < nq; i++)
-    for (int j = 0; j < nq; j++)
+  for (int i = 0; i < NBV; i++)
+    for (int j = 0; j < NBV; j++)
       K_save(i, j) = dData(loc++);
 
   K_pres = K_save;
@@ -1559,18 +1532,12 @@ ForceFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& the
 
 // addBFsB(F, s, i)
 int
-ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
+ForceFrame3d::getInitialFlexibility(MatrixND<NBV,NBV>& fe)
 {
   fe.zero();
 
   double L        = theCoordTransf->getInitialLength();
   double jsx = 1.0 / L;
-
-  // Flexibility from elastic interior
-  {
-    Matrix wrapper(fe);
-    stencil->addElasticFlexibility(L, wrapper);
-  }
 
   const int numSections = points.size();
   for (int i = 0; i < numSections; i++) {
@@ -1581,7 +1548,7 @@ ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
 
     const MatrixND<nsr,nsr> fSec = points[i].material->getFlexibility<nsr, scheme>(State::Init);
 
-    THREAD_LOCAL MatrixND<nsr, nq> FB;
+    THREAD_LOCAL MatrixND<nsr, NBV> FB;
     FB.zero();
     double tmp;
     int ii, jj;
@@ -1630,39 +1597,39 @@ ForceFrame3d::getInitialFlexibility(MatrixND<nq,nq>& fe)
     for (int ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (int jj = 0; jj < nq; jj++)
+        for (int jj = 0; jj < NBV; jj++)
           fe(0, jj) += FB(ii, jj);
         break;
       case SECTION_RESPONSE_MZ:
-        for (int jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = FB(ii, jj);
           fe(1, jj) += xL1 * tmp;
           fe(2, jj) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (int jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = jsx * FB(ii, jj);
           fe(1, jj) += tmp;
           fe(2, jj) += tmp;
         }
         break;
       case SECTION_RESPONSE_MY:
-        for (int jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = FB(ii, jj);
           fe(3, jj) += xL1 * tmp;
           fe(4, jj) += xL * tmp;
         }
         break;
       case SECTION_RESPONSE_VZ:
-        for (int jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = jsx * FB(ii, jj);
           fe(3, jj) += tmp;
           fe(4, jj) += tmp;
         }
         break;
       case SECTION_RESPONSE_T:
-        for (int jj = 0; jj < nq; jj++)
+        for (int jj = 0; jj < NBV; jj++)
           fe(5, jj) += FB(ii, jj);
         break;
       default: break;
@@ -1734,7 +1701,7 @@ void
 ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
 {
   // get basic displacements and increments
-  THREAD_LOCAL Vector ub(nq);
+  THREAD_LOCAL Vector ub(NBV);
   ub = theCoordTransf->getBasicTrialDisp();
 
   double L = theCoordTransf->getInitialLength();
@@ -1809,23 +1776,33 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << OPS_PRINT_JSON_ELEM_INDENT << "{";
     s << "\"name\": " << this->getTag() << ", ";
-    s << "\"type\": \"" << this->getClassType() << "\", ";
+    s << "\"type\": \"" << this->getClassType() << "\"";
+    s << ", ";
+
     s << "\"nodes\": [" << node_tags(0) << ", " 
-                        << node_tags(1) << "], ";
+                        << node_tags(1) << "]";
+    s << ", ";
 
     // Mass
     double mass;
     if (getIntegral(Field::Density, State::Init, mass) == 0)
-      s << ", \"mass\": " << mass << ", ";
+      s << "\"mass\": " << mass;
     else
-      s << ", \"massperlength\": " << density << ", ";
-    s << "\"mass_flag\": "<< mass_flag << ", ";
+      s << "\"massperlength\": " << density;
+    s << ", ";
+    s << "\"mass_flag\": "<< mass_flag;
+    s << ", ";
 
+    // Integration points
     s << "\"sections\": [";
     for (decltype(points.size()) i = 0; i < points.size() - 1; i++)
       s << points[i].material->getTag() << ", ";
-    s << points[points.size() - 1].material->getTag() << "], ";
-    s << "\"crdTransformation\": " << theCoordTransf->getTag()  << ", ";
+    s << points[points.size() - 1].material->getTag() << "]";
+    s << ", ";
+
+    s << "\"crdTransformation\": " << theCoordTransf->getTag();
+    s << ", ";
+
     s << "\"integration\": ";
     stencil->Print(s, flag);
     s << "}";
@@ -1913,47 +1890,6 @@ ForceFrame3d::Print(OPS_Stream& s, int flag)
       << MY1 << ' ' << MZ1 << "\n";
     s << "#END_FORCES " << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << ' ' << T << ' ' << MY2
       << ' ' << MZ2 << "\n";
-
-    // plastic hinge rotation
-    static Vector vp(6);
-    static MatrixND<nq,nq> fe;
-    this->getInitialFlexibility(fe);
-    vp = theCoordTransf->getBasicTrialDisp();
-    vp.addMatrixVector(1.0, fe, q_pres, -1.0);
-    s << "#PLASTIC_HINGE_ROTATION " << vp[1] << " " << vp[2] << " " << vp[3] << " " << vp[4] << " "
-      << 0.1 * L << " " << 0.1 * L << "\n";
-
-    // Allocate array of vectors to store section coordinates and displacements
-    static int maxNumSections = 0;
-    static Vector* coords     = 0;
-    static Vector* displs     = 0;
-    if (maxNumSections < nip) {
-      if (coords != 0)
-        delete[] coords;
-      if (displs != 0)
-        delete[] displs;
-
-      coords = new Vector[nip];
-      displs = new Vector[nip];
-
-      for (int i = 0; i < nip; i++)
-        coords[i] = Vector(ndm);
-
-      for (int i = 0; i < nip; i++)
-        displs[i] = Vector(ndm);
-
-      maxNumSections = nip;
-    }
-
-    // compute section location & displacements
-    this->compSectionDisplacements(coords, displs);
-
-    // print the section location & invoke print on the section
-    for (int i = 0; i < nip; i++) {
-      s << "#SECTION " << (coords[i])(0) << " " << (coords[i])(1) << " " << (coords[i])(2);
-      s << " " << (displs[i])(0) << " " << (displs[i])(1) << " " << (displs[i])(2) << "\n";
-      points[i].material->Print(s, flag);
-    }
   }
 
   if (flag == OPS_PRINT_CURRENTSTATE) {
@@ -1999,18 +1935,19 @@ Response*
 ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
   Response* theResponse = nullptr;
+  const ID& node_tags = this->getExternalNodes();
 
   output.tag("ElementOutput");
-  output.attr("eleType", "ForceFrame3d");
+  output.attr("eleType", this->getClassType());
   output.attr("eleTag", this->getTag());
-  output.attr("node1", connectedExternalNodes[0]);
-  output.attr("node2", connectedExternalNodes[1]);
+  output.attr("node1",  node_tags(0));
+  output.attr("node2",  node_tags(1));
 
   //
   // compare argv[0] for known response types
   //
 
-  // global force
+  // Global forces
   if (strcmp(argv[0], "forces") == 0 || 
       strcmp(argv[0], "force") == 0 ||
       strcmp(argv[0], "globalForce") == 0 ||
@@ -2048,7 +1985,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "My_2");
     output.tag("ResponseType", "Mz_2");
 
-    theResponse = new ElementResponse(this, Respond::LocalForce, Vector(12));
+    theResponse = new ElementResponse(this, Respond::LocalForce, Vector(NEN*NDF));
 
   // Basic force
   } else if (strcmp(argv[0], "basicForce") == 0 || 
@@ -2061,7 +1998,7 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
     output.tag("ResponseType", "My_2");
     output.tag("ResponseType", "T");
 
-    theResponse = new ElementResponse(this, Respond::BasicForce, Vector(6));
+    theResponse = new ElementResponse(this, Respond::BasicForce, Vector(NBV));
 
   // basic stiffness
   } else if (strcmp(argv[0], "basicStiffness") == 0) {
@@ -2246,7 +2183,7 @@ int
 ForceFrame3d::getResponse(int responseID, Information& info)
 {
   THREAD_LOCAL Vector vp(6);
-  THREAD_LOCAL MatrixND<nq,nq> fe;
+  THREAD_LOCAL MatrixND<NBV,NBV> fe;
 
   if (responseID == 1)
     return info.setVector(this->getResistingForce());
@@ -2691,19 +2628,20 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
 {
   // Basic deformation sensitivity
   if (responseID == 3) {
-    const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
+    const Vector& dvdh = theCoordTransf->getBasicDisplTotalGrad(gradNumber);
     return info.setVector(dvdh);
   }
 
   // Basic force sensitivity
   else if (responseID == 7) {
     static Vector dqdh(6);
+    dqdh.Zero();
 
-    const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
+    const Vector& dvdh = theCoordTransf->getBasicDisplTotalGrad(gradNumber);
 
     dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
 
-    dqdh.addVector(1.0, this->computedqdh(gradNumber), 1.0);
+    dqdh.addVector(1.0, this->getBasicForceGrad(gradNumber), 1.0);
 
     return info.setVector(dqdh);
   }
@@ -2714,22 +2652,24 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
     int sectionNum = info.theInt;
     int order      = points[sectionNum - 1].material->getOrder();
 
-    Vector dsdh(nsr);
-    dsdh.Zero();
+    VectorND<nsr> dsdh;
+    dsdh.zero();
 
     if (eleLoads.size() > 0)
-      this->computeSectionForceSensitivity(dsdh, sectionNum - 1, gradNumber);
+      this->getStressGrad(dsdh, sectionNum - 1, gradNumber);
 
     static Vector dqdh(6);
+    {
+      // Response 7
+      const Vector& dvdh = theCoordTransf->getBasicDisplTotalGrad(gradNumber);
 
-    const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
+      dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
 
-    dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
-
-    dqdh.addVector(1.0, this->computedqdh(gradNumber), 1.0);
+      dqdh.addVector(1.0, this->getBasicForceGrad(gradNumber), 1.0);
+    }
 
     const int numSections = points.size();
-    double L        = theCoordTransf->getInitialLength();
+    double L   = theCoordTransf->getInitialLength();
     double jsx = 1.0 / L;
     double pts[maxNumSections];
     stencil->getSectionLocations(numSections, L, pts);
@@ -2751,7 +2691,7 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
       }
     }
 
-    double dLdh   = theCoordTransf->getdLdh();
+    double dLdh   = theCoordTransf->getLengthGrad();
     double d1oLdh = theCoordTransf->getd1overLdh();
 
     double dptsdh[maxNumSections];
@@ -2778,14 +2718,14 @@ ForceFrame3d::getResponseSensitivity(int responseID, int gradNumber, Information
   else if (responseID == 4) {
     static Vector dvpdh(6);
 
-    const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
+    const Vector& dvdh = theCoordTransf->getBasicDisplTotalGrad(gradNumber);
 
     dvpdh = dvdh;
 
-    static MatrixND<nq,nq> fe;
+    static MatrixND<NBV,NBV> fe;
     this->getInitialFlexibility(fe);
 
-    const Vector& dqdh = this->computedqdh(gradNumber);
+    const Vector& dqdh = this->getBasicForceGrad(gradNumber);
 
     dvpdh.addMatrixVector(1.0, fe, dqdh, -1.0);
 
@@ -2929,11 +2869,15 @@ ForceFrame3d::getMassSensitivity(int gradNumber)
   THREAD_LOCAL Matrix wrapper(Msen);
 
   double L = theCoordTransf->getInitialLength();
-  if (parameterID == 1)
+  if (parameterID == 1) {
     // TODO: handle consistent mass
-    if (density != 0.0)
+    if (density != 0.0) {
       Msen(0, 0) = Msen(1, 1) = Msen(2, 2) = 
       Msen(6, 6) = Msen(7, 7) = Msen(8, 8) = 0.5 * L;
+    }
+  } else
+    Msen.zero();
+
 
   return wrapper;
 }
@@ -2941,8 +2885,10 @@ ForceFrame3d::getMassSensitivity(int gradNumber)
 const Vector&
 ForceFrame3d::getResistingForceSensitivity(int gradNumber)
 {
-  static Vector dqdh(6);
-  dqdh = this->computedqdh(gradNumber);
+  static Vector P(12);
+  P.Zero();
+
+  VectorND<NBV> dqdh = this->getBasicForceGrad(gradNumber);
 
   // Transform forces
   double dp0dh[6];
@@ -2952,18 +2898,18 @@ ForceFrame3d::getResistingForceSensitivity(int gradNumber)
   dp0dh[3] = 0.0;
   dp0dh[4] = 0.0;
   dp0dh[5] = 0.0;
-  this->computeReactionSensitivity(dp0dh, gradNumber);
+  this->addReactionGrad(dp0dh, gradNumber);
   Vector dp0dhVec(dp0dh, 6);
 
-  static Vector P(12);
-  P.Zero();
-
   if (theCoordTransf->isShapeSensitivity()) {
+    //
+    // dqdh += K dvdh|_ug
+    //
+    dqdh.addMatrixVector(1.0, K_pres, 
+                         theCoordTransf->getBasicDisplFixedGrad(), 1.0);
+
     // dAdh^T q
     P = theCoordTransf->getGlobalResistingForceShapeSensitivity(q_pres, dp0dhVec, gradNumber);
-    // k dAdh u
-    const Vector& dAdh_u = theCoordTransf->getBasicTrialDispShapeSensitivity();
-    dqdh.addMatrixVector(1.0, K_pres, dAdh_u, 1.0);
   }
 
   // A^T (dqdh + k dAdh u)
@@ -2975,9 +2921,13 @@ ForceFrame3d::getResistingForceSensitivity(int gradNumber)
 int
 ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
 {
+  //
+  //
+  //
+
   int err = 0;
 
-  double L        = theCoordTransf->getInitialLength();
+  double L   = theCoordTransf->getInitialLength();
   double jsx = 1.0 / L;
 
   const int numSections = points.size();
@@ -2987,26 +2937,24 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
   stencil->getSectionLocations(numSections, L, pts);
   stencil->getSectionWeights(numSections, L, wts);
 
-  double dLdh = theCoordTransf->getdLdh();
+  double dLdh = theCoordTransf->getLengthGrad();
 
   double dptsdh[maxNumSections];
   stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
 
   double d1oLdh = theCoordTransf->getd1overLdh();
 
-  static Vector dqdh(6);
-  dqdh = this->computedqdh(gradNumber);
+  // Response 7
+  VectorND<6> dqdh = this->getBasicForceGrad(gradNumber);
 
-  // dvdh = A dudh + dAdh u
-  const Vector& dvdh = theCoordTransf->getBasicDisplSensitivity(gradNumber);
-  dqdh.addMatrixVector(1.0, K_pres, dvdh, 1.0); // A dudh
+  // dvdh = A u` + A` u
+  const Vector& dvdh = theCoordTransf->getBasicDisplTotalGrad(gradNumber);
+  dqdh.addMatrixVector(1.0, K_pres, dvdh, 1.0);
 
-  if (theCoordTransf->isShapeSensitivity()) {
-    //const Vector &dAdh_u = theCoordTransf->getBasicTrialDispShapeSensitivity(gradNumber);
-    //dqdh.addMatrixVector(1.0, K_pres, dAdh_u, 1.0);  // dAdh u
-  }
 
-  // Loop over integration points
+  //
+  // Compute and commit de for each section
+  //
   for (int i = 0; i < numSections; i++) {
 
     int order      = points[i].material->getOrder();
@@ -3017,12 +2965,12 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
 
     double dxLdh = dptsdh[i];
 
-    Vector ds(nsr);
-    ds.Zero();
+    VectorND<nsr> ds;
+    ds.zero();
 
     // Add sensitivity wrt element loads
     if (eleLoads.size() > 0)
-      this->computeSectionForceSensitivity(ds, i, gradNumber);
+      this->getStressGrad(ds, i, gradNumber);
 
 
     for (int j = 0; j < nsr; j++) {
@@ -3060,18 +3008,18 @@ ForceFrame3d::commitSensitivity(int gradNumber, int numGrads)
   return err;
 }
 
-const Vector&
-ForceFrame3d::computedqdh(int gradNumber)
+VectorND<6>
+ForceFrame3d::getBasicForceGrad(int gradNumber)
 {
 
-  double L        = theCoordTransf->getInitialLength();
+  double L   = theCoordTransf->getInitialLength();
   double jsx = 1.0 / L;
 
   const int numSections = points.size();
   double wts[maxNumSections];
   stencil->getSectionWeights(numSections, L, wts);
 
-  double dLdh = theCoordTransf->getdLdh();
+  double dLdh = theCoordTransf->getLengthGrad();
 
   double dptsdh[maxNumSections];
   stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
@@ -3081,10 +3029,11 @@ ForceFrame3d::computedqdh(int gradNumber)
 
   double d1oLdh = theCoordTransf->getd1overLdh();
 
+  //
+  // Integrate dvdh
+  //
   static Vector dvdh(6);
   dvdh.Zero();
-
-  // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
 
     int order      = points[i].material->getOrder();
@@ -3099,19 +3048,20 @@ ForceFrame3d::computedqdh(int gradNumber)
 
 
     // Get section stress resultant gradient
+
+    VectorND<nsr> dspdh;
+    dspdh.zero();
+    // Add sensitivity wrt element loads
+    if (eleLoads.size() > 0)
+      this->getStressGrad(dspdh, i, gradNumber);
+
     Vector dsdh(order);
     dsdh = points[i].material->getStressResultantSensitivity(gradNumber, true);
 
-    Vector dspdh(order);
-    dspdh.Zero();
-    // Add sensitivity wrt element loads
-    if (eleLoads.size() > 0)
-      this->computeSectionForceSensitivity(dspdh, i, gradNumber);
-
     dsdh.addVector(1.0, dspdh, -1.0);
 
-    int j;
-    for (j = 0; j < nsr; j++) {
+
+    for (int j = 0; j < nsr; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_MZ: dsdh(j) -= dxLdh  * (q_pres[1] + q_pres[2]); break;
       case SECTION_RESPONSE_VY: dsdh(j) -= d1oLdh * (q_pres[1] + q_pres[2]); break;
@@ -3125,7 +3075,7 @@ ForceFrame3d::computedqdh(int gradNumber)
     const Matrix& fs = points[i].material->getSectionFlexibility();
     dedh.addMatrixVector(0.0, fs, dsdh, 1.0);
 
-    for (j = 0; j < nsr; j++) {
+    for (int j = 0; j < nsr; j++) {
       double dei = dedh(j) * wtL;
       switch (code(j)) {
       case SECTION_RESPONSE_P: dvdh(0) += dei; break;
@@ -3147,13 +3097,16 @@ ForceFrame3d::computedqdh(int gradNumber)
         dvdh(3) += dei;
         dvdh(4) += dei;
         break;
-      case SECTION_RESPONSE_T: dvdh(5) += dei; break;
-      default:                 break;
+      case SECTION_RESPONSE_T:
+        dvdh(5) += dei;
+        break;
+      default:
+        break;
       }
     }
 
     const VectorND<nsr>& e = points[i].es;
-    for (j = 0; j < nsr; j++) {
+    for (int j = 0; j < nsr; j++) {
       switch (code(j)) {
       case SECTION_RESPONSE_P: dvdh(0) -= e(j) * dwtLdh; break;
       case SECTION_RESPONSE_MZ:
@@ -3184,24 +3137,17 @@ ForceFrame3d::computedqdh(int gradNumber)
         dvdh(3) -= d1oLdh * e(j) * wtL;
         dvdh(4) -= d1oLdh * e(j) * wtL;
         break;
-      case SECTION_RESPONSE_T: dvdh(5) -= e(j) * dwtLdh; break;
-      default:                 break;
+      case SECTION_RESPONSE_T:
+        dvdh(5) -= e(j) * dwtLdh; 
+        break;
+
+      default:
+        break;
       }
     }
   }
 
-  static Matrix dfedh(6, 6);
-  dfedh.Zero();
-
-  if (stencil->addElasticFlexDeriv(L, dfedh, dLdh) < 0)
-    dvdh.addMatrixVector(1.0, dfedh, q_pres, -1.0);
-
-
-  static Vector dqdh(6);
-  dqdh.addMatrixVector(0.0, K_pres, dvdh, 1.0);
-
-
-  return dqdh;
+  return K_pres*dvdh;
 }
 
 const Matrix&
@@ -3211,14 +3157,12 @@ ForceFrame3d::computedfedh(int gradNumber)
 
   dfedh.Zero();
 
-  double L        = theCoordTransf->getInitialLength();
+  double L   = theCoordTransf->getInitialLength();
   double jsx = 1.0 / L;
 
   const int numSections = points.size();
-  double dLdh   = theCoordTransf->getdLdh();
+  double dLdh   = theCoordTransf->getLengthGrad();
   double d1oLdh = theCoordTransf->getd1overLdh();
-
-  stencil->addElasticFlexDeriv(L, dfedh, dLdh);
 
   double dptsdh[maxNumSections];
   double dwtsdh[maxNumSections];
@@ -3230,8 +3174,8 @@ ForceFrame3d::computedfedh(int gradNumber)
     int order      = points[i].material->getOrder();
     const ID& code = points[i].material->getType();
 
-    Matrix fb(order, nq);
-    Matrix fb2(order, nq);
+    Matrix fb(order, NBV);
+    Matrix fb2(order, NBV);
 
     double xL  = points[i].point;
     double xL1 = xL - 1.0;
@@ -3246,11 +3190,10 @@ ForceFrame3d::computedfedh(int gradNumber)
     fb2.Zero();
 
     double tmp;
-    int ii, jj;
-    for (ii = 0; ii < nsr; ii++) {
+    for (int ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (jj = 0; jj < nsr; jj++) {
+        for (int jj = 0; jj < nsr; jj++) {
           fb(jj, 0) += dfsdh(jj, ii) * wtL; // 1
 
           //fb(jj,0) += fs(jj,ii)*dwtLdh; // 3
@@ -3259,7 +3202,7 @@ ForceFrame3d::computedfedh(int gradNumber)
         }
         break;
       case SECTION_RESPONSE_MZ:
-        for (jj = 0; jj < nsr; jj++) {
+        for (int jj = 0; jj < nsr; jj++) {
           tmp = dfsdh(jj, ii) * wtL; // 1
           fb(jj, 1) += xL1 * tmp;
           fb(jj, 2) += xL * tmp;
@@ -3278,7 +3221,7 @@ ForceFrame3d::computedfedh(int gradNumber)
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (jj = 0; jj < nsr; jj++) {
+        for (int jj = 0; jj < nsr; jj++) {
           tmp = jsx * dfsdh(jj, ii) * wtL;
           fb(jj, 1) += tmp;
           fb(jj, 2) += tmp;
@@ -3288,14 +3231,14 @@ ForceFrame3d::computedfedh(int gradNumber)
       default: break;
       }
     }
-    for (ii = 0; ii < nsr; ii++) {
+    for (int ii = 0; ii < nsr; ii++) {
       switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
-        for (jj = 0; jj < nq; jj++)
+        for (int jj = 0; jj < NBV; jj++)
           dfedh(0, jj) += fb(ii, jj);
         break;
       case SECTION_RESPONSE_MZ:
-        for (jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = fb(ii, jj); // 1,2,3
           dfedh(1, jj) += xL1 * tmp;
           dfedh(2, jj) += xL * tmp;
@@ -3306,7 +3249,7 @@ ForceFrame3d::computedfedh(int gradNumber)
         }
         break;
       case SECTION_RESPONSE_VY:
-        for (jj = 0; jj < nq; jj++) {
+        for (int jj = 0; jj < NBV; jj++) {
           tmp = jsx * fb(ii, jj);
           dfedh(1, jj) += tmp;
           dfedh(2, jj) += tmp;

@@ -17,12 +17,7 @@
  **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
  **                                                                    **
  ** ****************************************************************** */
-
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:00:47 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/DisplacementControl.h,v $
-
-
+//
 // File: ~/analysis/integrator/DisplacementControl.h
 // 
 // Written: fmk 
@@ -128,8 +123,8 @@ class DisplacementControl : public StaticIntegrator
       int tangFlag;
 
       // adding sensitivity
-      int gradNumber;
-      int sensitivityFlag;
+//    int gradNumber;
+//    int sensitivityFlag;
       FE_Element *theEle;
 };
 

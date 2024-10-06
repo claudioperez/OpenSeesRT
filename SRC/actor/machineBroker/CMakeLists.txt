@@ -11,6 +11,7 @@ target_sources(OPS_Actor
       MachineBroker.h
 )
 
+
 target_sources(OPS_Parallel
     PRIVATE
       MPI_MachineBroker.cpp
@@ -19,6 +20,6 @@ target_sources(OPS_Parallel
 )
 
 
-target_include_directories(OPS_Actor    PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_include_directories(OPS_Parallel PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Actor     PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OPS_Parallel  PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 

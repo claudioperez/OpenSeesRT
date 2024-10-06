@@ -47,7 +47,9 @@ class PrismFrame3d : public BasicFrame3d
 
 //  ~PrismFrame3d();
 
-    const char *getClassType() const {return "PrismFrame3d";};
+    const char *getClassType() const {
+      return "PrismFrame3d";
+    }
 /*
 //  void zeroLoad();	
 //  int addLoad(ElementalLoad *theLoad, double loadFactor);
@@ -55,11 +57,11 @@ class PrismFrame3d : public BasicFrame3d
 */
     
     int update();
-    virtual const Matrix &getMass() final;
     int commitState();
     int revertToLastCommit();        
     int revertToStart();
     virtual const Vector &getResistingForce() final;
+    virtual const Matrix &getMass() final;
 
     int sendSelf(int commitTag, Channel &);
     int recvSelf(int commitTag, Channel &, FEM_ObjectBroker &);
@@ -72,6 +74,15 @@ class PrismFrame3d : public BasicFrame3d
     // Parameter
     virtual int setParameter(const char **argv, int argc, Parameter &) final;
     virtual int updateParameter(int parameterID, Information &) final;
+    virtual int activateParameter(int param)
+    {
+      parameterID = param; 
+      return 0;
+    }
+
+    // Sensitivity
+    virtual int getResponseSensitivity(int response, int grad, Information&);
+    virtual const Vector& getResistingForceSensitivity(int gradNumber) override;
 
   protected:
     // For BasicFrame3d
@@ -82,18 +93,30 @@ class PrismFrame3d : public BasicFrame3d
 
   private:
     constexpr static int NEN = 2;
+    constexpr static int NBV = 6;
+    struct Param {
+      enum {E, G, A, Ay, Az, Iy, Iz, J};
+    };
 
     void formBasicStiffness(OpenSees::MatrixND<6,6>& kb) const;
+    VectorND<NBV> getBasicForceGrad(int grad);
+
 
     double E;    // elastic modulus
     double G;    // shear modulus
+
     double A;    // cross sectional area
-    double Jx;   // torsion constant
-    double Iy;   // moment of inertia about local y axis
-    double Iz;   // moment of inertia about local z axis
     double Ay;   // shear area along local y axis
     double Az;   // shear area along local z axis
+
+    double Iy;   // moment of inertia about local y axis
+    double Iz;   // moment of inertia about local z axis
+    double Iyz;  // product of inertia
+    double Jx;   // torsion constant
+
     double rho;  // mass per unit length
+
+    //
     double phiY; // ratio of bending to shear stiffness about local y axis
     double phiZ; // ratio of bending to shear stiffness about local z axis
     double L;    // element length
@@ -103,6 +126,7 @@ class PrismFrame3d : public BasicFrame3d
     int releasey; // same for y-axis
     int mass_flag;
     int shear_flag = 0;
+    int parameterID;
 
     double total_mass,
            twist_mass,

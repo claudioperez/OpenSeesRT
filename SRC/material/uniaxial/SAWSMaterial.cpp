@@ -40,6 +40,7 @@
 #include <float.h>
 #include <Channel.h>
 #include <classTags.h>
+#include <Vector.h>
 
 #include <elementAPI.h>
 #define OPS_Export 

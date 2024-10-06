@@ -39,7 +39,7 @@
 #include <DruckerPragerPlaneStrain.h>
 
 #include <Information.h>
-#include <MaterialResponse.h>
+#include <GenericResponse.h>
 #include <Parameter.h>
 
 #include <string.h>
@@ -743,11 +743,11 @@ DruckerPrager::setResponse (const char **argv, int argc, OPS_Stream &output)
 	output.attr("matTag",this->getTag());
 
 	if (strcmp(argv[0],"stress") == 0 || strcmp(argv[0],"stresses") == 0)
-		return new MaterialResponse(this, 1, this->getStress());
+		return new GenericResponse(this, 1, this->getStress());
 	else if (strcmp(argv[0],"strain") == 0 || strcmp(argv[0],"strains") == 0)
-		return new MaterialResponse(this, 2, this->getStrain());
+		return new GenericResponse(this, 2, this->getStrain());
 	else if (strcmp(argv[0], "state") == 0)
-		return new MaterialResponse(this, 3, this->getState());
+		return new GenericResponse(this, 3, this->getState());
 	else
 		return 0;
 }

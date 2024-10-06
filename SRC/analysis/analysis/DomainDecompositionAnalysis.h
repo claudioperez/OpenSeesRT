@@ -57,48 +57,48 @@ class DomainDecompositionAnalysis: public Analysis, public MovableObject
     DomainDecompositionAnalysis(Subdomain &theDomain);
 
     DomainDecompositionAnalysis(int classTag, 
-				Subdomain &theDomain);    
+                                Subdomain &theDomain);    
     
     DomainDecompositionAnalysis(Subdomain &theDomain,
-				ConstraintHandler &theHandler,
-				DOF_Numberer &theNumberer,
-				AnalysisModel &theModel,
-				DomainDecompAlgo &theSolnAlgo,		   
-				IncrementalIntegrator &theIntegrator,	
-				LinearSOE &theSOE,
-				DomainSolver &theSolver,
-				ConvergenceTest *theTest);
+                                ConstraintHandler &theHandler,
+                                DOF_Numberer &theNumberer,
+                                AnalysisModel &theModel,
+                                DomainDecompAlgo &theSolnAlgo,                   
+                                IncrementalIntegrator &theIntegrator,        
+                                LinearSOE &theSOE,
+                                DomainSolver &theSolver,
+                                ConvergenceTest *theTest);
 
 
 
     virtual ~DomainDecompositionAnalysis();
-    virtual void clearAll(void);	    
-    virtual int initialize(void);
-    virtual int domainChanged(void);
+    virtual void clearAll();            
+    virtual int initialize();
+    virtual int domainChanged();
 
     // methods for non standard domain deomposition analysis
-    virtual bool doesIndependentAnalysis(void);    
+    virtual bool doesIndependentAnalysis();    
     virtual int analyze(double dT);
 
     // methods for standard domain deomposition analysis
     // that do some form of condensation to the tangent
-    virtual int  getNumExternalEqn(void);
-    virtual int  getNumInternalEqn(void);
+            int  getNumExternalEqn();
+            int  getNumInternalEqn();
 
 //  virtual int  newStep(double dT);
     virtual int  analysisStep(double dT) = 0;
     virtual int  eigenAnalysis(int numMode, bool generalized, bool findSmallest);
-    virtual int  computeInternalResponse(void);
-    virtual int  formTangent(void);
-    virtual int  formResidual(void);
-    virtual int  formTangVectProduct(Vector &force);
-    virtual const Matrix &getTangent(void);
-    virtual const Vector &getResidual(void);
-    virtual const Vector &getTangVectProduct(void);
-    
+    virtual int  computeInternalResponse();
+    virtual int  formTangent() final;
+    virtual int  formResidual() final;
+    virtual int  formTangVectProduct(Vector &force) final;
+    const Matrix& getTangent();
+    const Vector& getResidual();
+    const Vector& getTangVectProduct();
+
     virtual int sendSelf(int commitTag, Channel &theChannel);
     virtual int recvSelf(int commitTag, Channel &theChannel, 
-			 FEM_ObjectBroker &theBroker);
+                         FEM_ObjectBroker &theBroker);
 
     // methods to change the analysis aggregates
     virtual int setAlgorithm(EquiSolnAlgo &theAlgorithm);
@@ -108,31 +108,31 @@ class DomainDecompositionAnalysis: public Analysis, public MovableObject
     virtual int setConvergenceTest(ConvergenceTest &theTest);
     
   protected: 
-    Subdomain		*getSubdomainPtr(void) const;
-    ConstraintHandler 	*getConstraintHandlerPtr(void) const;
-    DOF_Numberer 	*getDOF_NumbererPtr(void) const;
-    AnalysisModel 	*getAnalysisModelPtr(void) const;
-    DomainDecompAlgo    *getDomainDecompAlgoPtr(void) const;        
-    IncrementalIntegrator  *getIncrementalIntegratorPtr(void) const;    
-    LinearSOE 		*getLinSOEPtr(void) const;
-    DomainSolver        *getDomainSolverPtr(void) const;
+    Subdomain                *getSubdomainPtr() const;
+    ConstraintHandler         *getConstraintHandlerPtr() const;
+    DOF_Numberer         *getDOF_NumbererPtr() const;
+    AnalysisModel         *getAnalysisModelPtr() const;
+    DomainDecompAlgo    *getDomainDecompAlgoPtr() const;        
+    IncrementalIntegrator  *getIncrementalIntegratorPtr() const;    
+    LinearSOE                 *getLinSOEPtr() const;
+    DomainSolver        *getDomainSolverPtr() const;
 
     Channel *myChannel;
     int checkAllResult(int);
     
   private:
-    Subdomain 		     *theSubdomain;
-    ConstraintHandler 	     *theHandler;    
-    DOF_Numberer 	     *theNumberer;
-    AnalysisModel 	     *theModel;
-    DomainDecompAlgo 	     *theAlgorithm;
+    Subdomain                      *theSubdomain;
+    ConstraintHandler              *theHandler;    
+    DOF_Numberer              *theNumberer;
+    AnalysisModel              *theModel;
+    DomainDecompAlgo              *theAlgorithm;
     IncrementalIntegrator    *theIntegrator;        
 
-    LinearSOE 		     *theSOE;
-    DomainSolver	     *theSolver;
+    LinearSOE                      *theSOE;
+    DomainSolver             *theSolver;
     ConvergenceTest          *theTest;
 
-    Vector 		     *theResidual;
+    Vector                      *theResidual;
     int numEqn;
     int numExtEqn;
 
@@ -142,19 +142,9 @@ class DomainDecompositionAnalysis: public Analysis, public MovableObject
     // before being asked to form Residual(). 
     bool tangFormed;
     int tangFormedCount; // saves the expense of computing formTangent() 
-	               // for same state of Subdomain.
-    int domainStamp;			   
+                               // for same state of Subdomain.
+    int domainStamp;                           
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
 

@@ -29,8 +29,8 @@
 #include <NDMaterial.h>
 #include <Matrix.h>
 #include <Vector.h>
+#include <VectorND.h>
 #include <ID.h>
-#include <Renderer.h>
 #include <Domain.h>
 #include <string.h>
 #include <Information.h>
@@ -40,31 +40,25 @@
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
 
+using OpenSees::VectorND;
 
-double NineNodeQuad::matrixData[(nnodes*2)*(nnodes*2)];
-Matrix NineNodeQuad::K(matrixData, 2*nnodes, 2*nnodes);
-Vector NineNodeQuad::P(2*nnodes);
-double NineNodeQuad::shp[3][nnodes];
-// double NineNodeQuad::pts[nip][2];
-// double NineNodeQuad::wts[nip];
+double NineNodeQuad::matrixData[(NEN*2)*(NEN*2)];
+Matrix NineNodeQuad::K(matrixData, 2*NEN, 2*NEN);
+Vector NineNodeQuad::P(2*NEN);
+double NineNodeQuad::shp[3][NEN];
 
-NineNodeQuad::NineNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
-                           int nd5, int nd6, int nd7, int nd8, int nd9,
-                           NDMaterial &m, const char *type, double t,
-                           double p, double r, double b1, double b2)
+NineNodeQuad::NineNodeQuad(int tag, 
+                           const std::array<int,9>& nodes,
+                           NDMaterial &m, const char *type, 
+                           double thickness,
+                           double p, 
+                           double rho, double b1, double b2)
 
 :Element (tag, ELE_TAG_NineNodeQuad),
-  theMaterial(0), connectedExternalNodes(nnodes),
- Q(2*nnodes), applyLoad(0), pressureLoad(2*nnodes), thickness(t), pressure(p), rho(r), Ki(0)
+  theMaterial(0), connectedExternalNodes(NEN),
+  Q(2*NEN), applyLoad(0), pressureLoad(2*NEN), 
+  thickness(thickness), pressure(p), rho(rho), Ki(0)
 {
-
-    if (strcmp(type,"PlaneStrain") != 0 && strcmp(type,"PlaneStress") != 0
-        && strcmp(type,"PlaneStrain2D") != 0 && strcmp(type,"PlaneStress2D") != 0) {
-      opserr << "NineNodeQuad::NineNodeQuad -- improper material type: "
-             << type << "for NineNodeQuad\n";
-      exit(-1);
-    }
-
     // Body forces
     b[0] = b1;
     b[1] = b2;
@@ -80,32 +74,24 @@ NineNodeQuad::NineNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
       // Check allocation
       if (theMaterial[i] == nullptr) {
         opserr << "NineNodeQuad::NineNodeQuad -- failed to get a copy of material model\n";
-        exit(-1);
+        return;
       }
     }
 
     // Set connected external node IDs
-    connectedExternalNodes(0) = nd1;
-    connectedExternalNodes(1) = nd2;
-    connectedExternalNodes(2) = nd3;
-    connectedExternalNodes(3) = nd4;
-    connectedExternalNodes(4) = nd5;
-    connectedExternalNodes(5) = nd6;
-    connectedExternalNodes(6) = nd7;
-    connectedExternalNodes(7) = nd8;
-    connectedExternalNodes(8) = nd9;
-
-    for (int i=0; i<nnodes; i++)
-      theNodes[i] = 0;
+    for (int i=0; i<NEN; i++) {
+      connectedExternalNodes(i) = nodes[i];
+      theNodes[i] = nullptr;
+    }
 }
 
 NineNodeQuad::NineNodeQuad()
 :Element (0,ELE_TAG_NineNodeQuad),
-  theMaterial(0), connectedExternalNodes(nnodes),
- Q(2*nnodes), applyLoad(0), pressureLoad(2*nnodes), thickness(0.0), pressure(0.0), Ki(0)
+  theMaterial(0), connectedExternalNodes(NEN),
+ Q(2*NEN), applyLoad(0), pressureLoad(2*NEN), thickness(0.0), pressure(0.0), Ki(0)
 {
-    for (int i=0; i<nnodes; i++)
-      theNodes[i] = 0;
+  for (int i=0; i<NEN; i++)
+    theNodes[i] = nullptr;
 }
 
 NineNodeQuad::~NineNodeQuad()
@@ -126,26 +112,26 @@ NineNodeQuad::~NineNodeQuad()
 int
 NineNodeQuad::getNumExternalNodes() const
 {
-    return nnodes;
+  return NEN;
 }
 
 const ID&
 NineNodeQuad::getExternalNodes()
 {
-    return connectedExternalNodes;
+  return connectedExternalNodes;
 }
 
 
 Node **
-NineNodeQuad::getNodePtrs(void)
+NineNodeQuad::getNodePtrs()
 {
-  return theNodes;
+  return &theNodes[0];
 }
 
 int
 NineNodeQuad::getNumDOF()
 {
-    return nnodes*2;
+  return NEN*2;
 }
 
 void
@@ -153,64 +139,30 @@ NineNodeQuad::setDomain(Domain *theDomain)
 {
     // Check Domain is not null - invoked when object removed from a domain
     if (theDomain == nullptr) {
-      theNodes[0] = nullptr;
-      theNodes[1] = nullptr;
-      theNodes[2] = nullptr;
-      theNodes[3] = nullptr;
-      theNodes[4] = nullptr;
-      theNodes[5] = nullptr;
-      theNodes[6] = nullptr;
-      theNodes[7] = nullptr;
-      theNodes[8] = nullptr;
+      for (int i=0; i<NEN; i++)
+        theNodes[i] = nullptr;
       return;
     }
 
-    int Nd1 = connectedExternalNodes(0);
-    int Nd2 = connectedExternalNodes(1);
-    int Nd3 = connectedExternalNodes(2);
-    int Nd4 = connectedExternalNodes(3);
-    int Nd5 = connectedExternalNodes(4);
-    int Nd6 = connectedExternalNodes(5);
-    int Nd7 = connectedExternalNodes(6);
-    int Nd8 = connectedExternalNodes(7);
-    int Nd9 = connectedExternalNodes(8);
 
-    theNodes[0] = theDomain->getNode(Nd1);
-    theNodes[1] = theDomain->getNode(Nd2);
-    theNodes[2] = theDomain->getNode(Nd3);
-    theNodes[3] = theDomain->getNode(Nd4);
-    theNodes[4] = theDomain->getNode(Nd5);
-    theNodes[5] = theDomain->getNode(Nd6);
-    theNodes[6] = theDomain->getNode(Nd7);
-    theNodes[7] = theDomain->getNode(Nd8);
-    theNodes[8] = theDomain->getNode(Nd9);
+    for (int i=0; i<NEN; i++) {
+      // Retrieve the node from the domain using its tag.
+      // If no node is found, then return
+      theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
+      if (theNodes[i] == nullptr)
+        return;
 
-    if (theNodes[0] == 0 || theNodes[1] == 0 || theNodes[2] == 0 || theNodes[3] == 0 ||
-        theNodes[4] == 0 || theNodes[5] == 0 || theNodes[6] == 0 || theNodes[7] == 0 ||
-        theNodes[8] == 0) {
-    //opserr << "FATAL ERROR NineNodeQuad (tag: %d), node not found in domain",
-    //    this->getTag());
-
-      return;
+      // If node is found, ensure node has the proper number of DOFs
+      int dofs = theNodes[i]->getNumberDOF();
+      if (dofs != 2 && dofs != 3) {
+        opserr << "WARNING " << this->getClassType() 
+               << " element with tag " << this->getTag() 
+               << " does not have 2 or 3 DOFs at node " 
+               << theNodes[i]->getTag() << "\n";
+        return;
+      }
     }
 
-    int dofNd1 = theNodes[0]->getNumberDOF();
-    int dofNd2 = theNodes[1]->getNumberDOF();
-    int dofNd3 = theNodes[2]->getNumberDOF();
-    int dofNd4 = theNodes[3]->getNumberDOF();
-    int dofNd5 = theNodes[4]->getNumberDOF();
-    int dofNd6 = theNodes[5]->getNumberDOF();
-    int dofNd7 = theNodes[6]->getNumberDOF();
-    int dofNd8 = theNodes[7]->getNumberDOF();
-    int dofNd9 = theNodes[8]->getNumberDOF();
-
-    if (dofNd1 != 2 || dofNd2 != 2 || dofNd3 != 2 || dofNd4 != 2 ||
-        dofNd5 != 2 || dofNd6 != 2 || dofNd7 != 2 || dofNd8 != 2 || dofNd9 != 2) {
-    //opserr << "FATAL ERROR NineNodeQuad (tag: %d), has differing number of DOFs at its nodes",
-    //    this->getTag());
-
-      return;
-    }
     this->DomainComponent::setDomain(theDomain);
 
     // Compute consistent nodal loads due to pressure
@@ -262,38 +214,15 @@ NineNodeQuad::revertToStart()
 int
 NineNodeQuad::update()
 {
-    const Vector &disp1 = theNodes[0]->getTrialDisp();
-    const Vector &disp2 = theNodes[1]->getTrialDisp();
-    const Vector &disp3 = theNodes[2]->getTrialDisp();
-    const Vector &disp4 = theNodes[3]->getTrialDisp();
-    const Vector &disp5 = theNodes[4]->getTrialDisp();
-    const Vector &disp6 = theNodes[5]->getTrialDisp();
-    const Vector &disp7 = theNodes[6]->getTrialDisp();
-    const Vector &disp8 = theNodes[7]->getTrialDisp();
-    const Vector &disp9 = theNodes[8]->getTrialDisp();
+    // Collect displacements at each node into a local array
+    double u[NDM][NEN];
 
-    static double u[2][nnodes];
-
-    u[0][0] = disp1(0);
-    u[1][0] = disp1(1);
-    u[0][1] = disp2(0);
-    u[1][1] = disp2(1);
-    u[0][2] = disp3(0);
-    u[1][2] = disp3(1);
-    u[0][3] = disp4(0);
-    u[1][3] = disp4(1);
-    u[0][4] = disp5(0);
-    u[1][4] = disp5(1);
-    u[0][5] = disp6(0);
-    u[1][5] = disp6(1);
-    u[0][6] = disp7(0);
-    u[1][6] = disp7(1);
-    u[0][7] = disp8(0);
-    u[1][7] = disp8(1);
-    u[0][8] = disp9(0);
-    u[1][8] = disp9(1);
-
-    static Vector eps(3);
+    for (int i=0; i<NEN; i++) {
+        const Vector &displ = theNodes[i]->getTrialDisp();
+        for (int j=0; j<NDM; j++) {
+           u[j][i] = displ[j];
+        }
+    }
 
     int ret = 0;
 
@@ -305,11 +234,11 @@ NineNodeQuad::update()
 
         // Interpolate strains
         //eps = B*u;
-        eps.Zero();
-        for (int beta = 0; beta < nnodes; beta++) {
-            eps(0) += shp[0][beta]*u[0][beta];
-            eps(1) += shp[1][beta]*u[1][beta];
-            eps(2) += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
+        VectorND<3> eps{};
+        for (int beta = 0; beta < NEN; beta++) {
+            eps[0] += shp[0][beta]*u[0][beta];
+            eps[1] += shp[1][beta]*u[1][beta];
+            eps[2] += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
         }
 
         // Set the material strain
@@ -326,14 +255,13 @@ NineNodeQuad::getTangentStiff()
 
     K.Zero();
 
-    double dvol;
     double DB[3][2];
 
     // Loop over the integration points
     for (int i = 0; i < nip; i++) {
 
       // Determine Jacobian for this integration point
-      dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+      double dvol = this->shapeFunction(pts[i][0], pts[i][1]);
       dvol *= (thickness*wts[i]);
 
       // Get the material tangent
@@ -351,8 +279,8 @@ NineNodeQuad::getTangentStiff()
       //   beta < 4;
       //   beta++, ib += 2, colIb += 16, colIbP1 += 16) {
 
-      for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia += 2) {
-        for (int beta = 0, ib = 0; beta < nnodes; beta++, ib += 2) {
+      for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
+        for (int beta = 0, ib = 0; beta < NEN; beta++, ib += 2) {
 
           DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
           DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
@@ -407,10 +335,10 @@ NineNodeQuad::getInitialStiff()
     //K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
     //K.addMatrixTripleProduct(1.0, B, D, intWt(i)*intWt(j)*detJ);
     for (int beta = 0, ib = 0, colIb =0, colIbP1 = 8;
-     beta < nnodes;
+     beta < NEN;
      beta++, ib += 2, colIb += 16, colIbP1 += 16) {
 
-      for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia += 2) {
+      for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
 
         DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
         DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
@@ -439,7 +367,7 @@ NineNodeQuad::getMass()
     int i;
     static double rhoi[nip];
     double sum = 0.0;
-    for (i = 0; i < nip; i++) {
+    for (int i = 0; i < nip; i++) {
       if (rho == 0)
         rhoi[i] = theMaterial[i]->getRho();
       else
@@ -453,14 +381,14 @@ NineNodeQuad::getMass()
     double rhodvol, Nrho;
 
     // Compute a lumped mass matrix
-    for (i = 0; i < nip; i++) {
+    for (int i = 0; i < nip; i++) {
         // Determine Jacobian for this integration point
         rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
 
         // Element plus material density ... MAY WANT TO REMOVE ELEMENT DENSITY
         rhodvol *= (rhoi[i]*thickness*wts[i]);
 
-        for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia++) {
+        for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia++) {
             Nrho = shp[2][alpha]*rhodvol;
             K(ia,ia) += Nrho;
             ia++;
@@ -472,7 +400,7 @@ NineNodeQuad::getMass()
 }
 
 void
-NineNodeQuad::zeroLoad(void)
+NineNodeQuad::zeroLoad()
 {
     Q.Zero();
 
@@ -481,7 +409,7 @@ NineNodeQuad::zeroLoad(void)
     appliedB[0] = 0.0;
     appliedB[1] = 0.0;
 
-      return;
+    return;
 }
 
 int
@@ -510,7 +438,7 @@ NineNodeQuad::addInertiaLoadToUnbalance(const Vector &accel)
   int i;
   static double rhoi[nip];
   double sum = 0.0;
-  for (i = 0; i < nip; i++) {
+  for (int i = 0; i < nip; i++) {
     rhoi[i] = theMaterial[i]->getRho();
     sum += rhoi[i];
   }
@@ -536,7 +464,7 @@ NineNodeQuad::addInertiaLoadToUnbalance(const Vector &accel)
     return -1;
   }
 
-  static double ra[2*nnodes];
+  static double ra[2*NEN];
 
   ra[0] = Raccel1(0);
   ra[1] = Raccel1(1);
@@ -558,12 +486,12 @@ NineNodeQuad::addInertiaLoadToUnbalance(const Vector &accel)
   ra[17] = Raccel9(1);
 
   // Compute mass matrix
-  this->getMass();
+  const Matrix& M = this->getMass();
 
   // Want to add ( - fact * M R * accel ) to unbalance
   // Take advantage of lumped mass matrix
-  for (i = 0; i < 2*nnodes; i++)
-    Q(i) += -K(i,i)*ra[i];
+  for (int i = 0; i < NDF*NEN; i++)
+    Q[i] += -M(i,i)*ra[i];
 
   return 0;
 }
@@ -588,7 +516,7 @@ NineNodeQuad::getResistingForce()
         // Perform numerical integration on internal force
         //P = P + (B^ sigma) * intWt(i)*intWt(j) * detJ;
         //P.addMatrixTransposeVector(1.0, B, sigma, intWt(i)*intWt(j)*detJ);
-        for (int alpha = 0, ia = 0; alpha < nnodes; alpha++, ia += 2) {
+        for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia += 2) {
 
             P(ia) += dvol*(shp[0][alpha]*sigma(0) + shp[1][alpha]*sigma(2));
 
@@ -623,10 +551,9 @@ NineNodeQuad::getResistingForce()
 const Vector&
 NineNodeQuad::getResistingForceIncInertia()
 {
-    int i;
-    static double rhoi[nip];
+    double rhoi[nip];
     double sum = 0.0;
-    for (i = 0; i < nip; i++) {
+    for (int i = 0; i < nip; i++) {
       rhoi[i] = theMaterial[i]->getRho();
       sum += rhoi[i];
     }
@@ -642,46 +569,22 @@ NineNodeQuad::getResistingForceIncInertia()
       return P;
     }
 
-    const Vector &accel1 = theNodes[0]->getTrialAccel();
-    const Vector &accel2 = theNodes[1]->getTrialAccel();
-    const Vector &accel3 = theNodes[2]->getTrialAccel();
-    const Vector &accel4 = theNodes[3]->getTrialAccel();
-    const Vector &accel5 = theNodes[4]->getTrialAccel();
-    const Vector &accel6 = theNodes[5]->getTrialAccel();
-    const Vector &accel7 = theNodes[6]->getTrialAccel();
-    const Vector &accel8 = theNodes[7]->getTrialAccel();
-    const Vector &accel9 = theNodes[8]->getTrialAccel();
-
-    static double a[2*nnodes];
-
-    a[0] = accel1(0);
-    a[1] = accel1(1);
-    a[2] = accel2(0);
-    a[3] = accel2(1);
-    a[4] = accel3(0);
-    a[5] = accel3(1);
-    a[6] = accel4(0);
-    a[7] = accel4(1);
-    a[8] = accel5(0);
-    a[9] = accel5(1);
-    a[10] = accel6(0);
-    a[11] = accel6(1);
-    a[12] = accel7(0);
-    a[13] = accel7(1);
-    a[14] = accel8(0);
-    a[15] = accel8(1);
-    a[16] = accel9(0);
-    a[17] = accel9(1);
+    double a[NDF*NEN];
+    for (int i=0; i<NEN; i++) {
+        const Vector &accel = theNodes[i]->getTrialAccel();
+        for (int j=0; j<NDF; j++)
+          a[i*NDF+j] = accel[j];
+    }
 
     // Compute the current resisting force
     this->getResistingForce();
 
     // Compute the mass matrix
-    this->getMass();
+    const Matrix& M = this->getMass();
 
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 2*nnodes; i++)
-        P(i) += K(i,i)*a[i];
+    for (int i = 0; i < NDF*NEN; i++)
+        P(i) += M(i,i)*a[i];
 
     // add the damping forces if rayleigh damping
     if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0)
@@ -724,10 +627,10 @@ NineNodeQuad::sendSelf(int commitTag, Channel &theChannel)
   // Now quad sends the ids of its materials
   int matDbTag;
 
-  static ID idData(2*nip+nnodes);
+  static ID idData(2*nip+NEN);
 
   int i;
-  for (i = 0; i < nip; i++) {
+  for (int i = 0; i < nip; i++) {
     idData(i) = theMaterial[i]->getClassTag();
     matDbTag = theMaterial[i]->getDbTag();
     // NOTE: we do have to ensure that the material has a database
@@ -740,7 +643,7 @@ NineNodeQuad::sendSelf(int commitTag, Channel &theChannel)
     idData(i+nip) = matDbTag;
   }
 
-  for( i = 0; i < nnodes; i++)
+  for( i = 0; i < NEN; i++)
     idData(2*nip+i) = connectedExternalNodes(i);
 
   res += theChannel.sendID(dataTag, commitTag, idData);
@@ -750,7 +653,7 @@ NineNodeQuad::sendSelf(int commitTag, Channel &theChannel)
   }
 
   // Finally, quad asks its material objects to send themselves
-  for (i = 0; i < nip; i++) {
+  for (int i = 0; i < nip; i++) {
     res += theMaterial[i]->sendSelf(commitTag, theChannel);
     if (res < 0) {
       opserr << "WARNING NineNodeQuad::sendSelf() - " << this->getTag() << " failed to send its Material\n";
@@ -789,7 +692,7 @@ NineNodeQuad::recvSelf(int commitTag, Channel &theChannel,
   betaK0 = data(7);
   betaKc = data(8);
 
-  static ID idData(2*nip+nnodes);
+  static ID idData(2*nip+NEN);
   // Quad now receives the tags of its nine external nodes
   res += theChannel.recvID(dataTag, commitTag, idData);
   if (res < 0) {
@@ -797,7 +700,7 @@ NineNodeQuad::recvSelf(int commitTag, Channel &theChannel,
     return res;
   }
 
-  for( int i = 0; i < nnodes; i++)
+  for( int i = 0; i < NEN; i++)
     connectedExternalNodes(i) = idData(2*nip+i);
 
   if (theMaterial == 0) {
@@ -862,7 +765,7 @@ NineNodeQuad::Print(OPS_Stream &s, int flag)
     s << "#NineNodeQuad\n";
 
     int i;
-    const int numNodes = nnodes;
+    const int numNodes = NEN;
     const int nstress = nip ;
 
     for (i=0; i<numNodes; i++) {
@@ -930,69 +833,6 @@ NineNodeQuad::Print(OPS_Stream &s, int flag)
   }
 }
 
-int
-NineNodeQuad::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    static Vector v5(3);
-    static Vector v6(3);
-    static Vector v7(3);
-    static Vector v8(3);
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-    theNodes[2]->getDisplayCrds(v3, fact, displayMode);
-    theNodes[3]->getDisplayCrds(v4, fact, displayMode);
-    theNodes[4]->getDisplayCrds(v5, fact, displayMode);
-    theNodes[5]->getDisplayCrds(v6, fact, displayMode);
-    theNodes[6]->getDisplayCrds(v7, fact, displayMode);
-    theNodes[7]->getDisplayCrds(v8, fact, displayMode);
-
-    // place values in coords matrix
-    static Matrix coords(8, 3);
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v5(i);
-        coords(2, i) = v2(i);
-        coords(3, i) = v6(i);
-        coords(4, i) = v3(i);
-        coords(5, i) = v7(i);
-        coords(6, i) = v4(i);
-        coords(7, i) = v8(i);
-    }
-
-    // set the quantity to be displayed at the nodes;
-    // if displayMode is 1 through 3 we will plot material stresses otherwise 0.0
-    static Vector values(nip);
-    if (displayMode < nip && displayMode > 0) {
-        const Vector& stress1 = theMaterial[0]->getStress();
-        const Vector& stress2 = theMaterial[1]->getStress();
-        const Vector& stress3 = theMaterial[2]->getStress();
-        const Vector& stress4 = theMaterial[3]->getStress();
-        const Vector& stress5 = theMaterial[4]->getStress();
-        const Vector& stress6 = theMaterial[5]->getStress();
-        const Vector& stress7 = theMaterial[6]->getStress();
-        const Vector& stress8 = theMaterial[7]->getStress();
-        values(0) = stress1(displayMode - 1);
-        values(1) = stress5(displayMode - 1);
-        values(2) = stress2(displayMode - 1);
-        values(3) = stress6(displayMode - 1);
-        values(4) = stress3(displayMode - 1);
-        values(5) = stress7(displayMode - 1);
-        values(6) = stress4(displayMode - 1);
-        values(7) = stress8(displayMode - 1);
-    }
-    else {
-        for (int i = 0; i < nip; i++)
-            values(i) = 0.0;
-    }
-
-    // draw the polygon
-    return theViewer.drawPolygon(coords, values, this->getTag());
-}
 
 Response*
 NineNodeQuad::setResponse(const char **argv, int argc,
@@ -1064,7 +904,7 @@ NineNodeQuad::setResponse(const char **argv, int argc,
   }
 
   else if ((strcmp(argv[0],"stressesAtNodes") ==0) || (strcmp(argv[0],"stressAtNodes") ==0)) {
-    for (int i=0; i<nnodes; i++) {
+    for (int i=0; i<NEN; i++) {
       output.tag("NodalPoint");
       output.attr("number",i+1);
       // output.attr("eta",pts[i][0]);
@@ -1081,14 +921,15 @@ NineNodeQuad::setResponse(const char **argv, int argc,
       output.endTag(); // GaussPoint
       // output.endTag(); // NdMaterialOutput
       }
-    theResponse =  new ElementResponse(this, 11, Vector(3*nnodes));
+    theResponse =  new ElementResponse(this, 11, Vector(3*NEN));
   }
 
-  else if ((strcmp(argv[0],"strain") ==0) || (strcmp(argv[0],"strains") ==0)) {
+  else if ((strcmp(argv[0],"strain") ==0) || 
+           (strcmp(argv[0],"strains") ==0)) {
     for (int i=0; i<nip; i++) {
       output.tag("GaussPoint");
       output.attr("number",i+1);
-      output.attr("eta",pts[i][0]);
+      output.attr("eta", pts[i][0]);
       output.attr("neta",pts[i][1]);
 
       output.tag("NdMaterialOutput");
@@ -1138,7 +979,7 @@ NineNodeQuad::getResponse(int responseID, Information &eleInfo)
 
     // extrapolate stress from Gauss points to element nodes
     static Vector stressGP(3*nip);
-    static Vector stressAtNodes(3*nnodes);
+    static Vector stressAtNodes(3*NEN);
     stressAtNodes.Zero();
     int cnt = 0;
     // first get stress components (xx, yy, xy) at Gauss points
@@ -1151,22 +992,21 @@ NineNodeQuad::getResponse(int responseID, Information &eleInfo)
       cnt += 3;
     }
 
-    const double We[nnodes][nip] =  {{2.1869398183909485, 0.2777777777777778, 0.0352824038312731, 0.2777777777777778, -0.9858870384674904, -0.1252240726436203, -0.1252240726436203, -0.9858870384674904, 0.4444444444444444},
-                                     {0.2777777777777778, 2.1869398183909485, 0.2777777777777778, 0.0352824038312731, -0.9858870384674904, -0.9858870384674904, -0.1252240726436203, -0.1252240726436203, 0.4444444444444444},
-                                     {0.0352824038312731, 0.2777777777777778, 2.1869398183909485, 0.2777777777777778, -0.1252240726436203, -0.9858870384674904, -0.9858870384674904, -0.1252240726436203, 0.4444444444444444},
-                                     {0.2777777777777778, 0.0352824038312731, 0.2777777777777778, 2.1869398183909485, -0.1252240726436203, -0.1252240726436203, -0.9858870384674904, -0.9858870384674904, 0.4444444444444444},
-                                     {0.0, 0.0, 0.0, 0.0, 1.478830557701236,  0.0, 0.1878361089654305, 0.0, -0.6666666666666667},
-                                     {0.0, 0.0, 0.0, 0.0, 0.0, 1.478830557701236,  0.0, 0.1878361089654305, -0.6666666666666667},
-                                     {0.0, 0.0, 0.0, 0.0, 0.1878361089654305, 0.0, 1.478830557701236,  0.0, -0.6666666666666667},
-                                     {0.0, 0.0, 0.0, 0.0, 0.0, 0.1878361089654305, 0.0, 1.478830557701236, -0.6666666666666667},
-                                     {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}};
+    const double We[NEN][nip] =  {{2.1869398183909485, 0.2777777777777778, 0.0352824038312731, 0.2777777777777778, -0.9858870384674904, -0.1252240726436203, -0.1252240726436203, -0.9858870384674904, 0.4444444444444444},
+                                  {0.2777777777777778, 2.1869398183909485, 0.2777777777777778, 0.0352824038312731, -0.9858870384674904, -0.9858870384674904, -0.1252240726436203, -0.1252240726436203, 0.4444444444444444},
+                                  {0.0352824038312731, 0.2777777777777778, 2.1869398183909485, 0.2777777777777778, -0.1252240726436203, -0.9858870384674904, -0.9858870384674904, -0.1252240726436203, 0.4444444444444444},
+                                  {0.2777777777777778, 0.0352824038312731, 0.2777777777777778, 2.1869398183909485, -0.1252240726436203, -0.1252240726436203, -0.9858870384674904, -0.9858870384674904, 0.4444444444444444},
+                                  {0.0, 0.0, 0.0, 0.0, 1.478830557701236,  0.0, 0.1878361089654305, 0.0, -0.6666666666666667},
+                                  {0.0, 0.0, 0.0, 0.0, 0.0, 1.478830557701236,  0.0, 0.1878361089654305, -0.6666666666666667},
+                                  {0.0, 0.0, 0.0, 0.0, 0.1878361089654305, 0.0, 1.478830557701236,  0.0, -0.6666666666666667},
+                                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.1878361089654305, 0.0, 1.478830557701236, -0.6666666666666667},
+                                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}};
 
-    int p, l;
-    for (int i = 0; i < nnodes; i++) {
+    for (int i = 0; i < NEN; i++) {
       for (int k = 0; k < 3; k++) {
-        p = 3*i + k;
+        int p = 3*i + k;
         for (int j = 0; j < nip; j++) {
-          l = 3*j + k;
+          int l = 3*j + k;
           stressAtNodes(p) += We[i][j] * stressGP(l);
           // opserr << "stressAtNodes(" << p << ") = We[" << i << "][" << j << "] * stressGP(" << l << ") = " << We[i][j] << " * " << stressGP(l) << " = " << stressAtNodes(p) <<  "\n";
         }
@@ -1397,7 +1237,7 @@ double NineNodeQuad::shapeFunction(double s, double t)
 }
 
 void
-NineNodeQuad::setPressureLoadAtNodes(void)
+NineNodeQuad::setPressureLoadAtNodes()
 {
     pressureLoad.Zero();
 

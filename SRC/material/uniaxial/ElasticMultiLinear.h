@@ -30,6 +30,7 @@
 // of an elastic multilinear uniaxial material.
 
 #include <UniaxialMaterial.h>
+#include <Vector.h>
 
 class ElasticMultiLinear : public UniaxialMaterial
 {

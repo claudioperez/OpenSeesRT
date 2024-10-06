@@ -203,12 +203,19 @@ endif()
 
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 
-
 # Compiler warnings
+if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    add_compile_options(-Wno-unused-parameter)
+endif()
 add_compile_options(
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>"
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-parameter>"
-  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-Wno-reorder>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-reorder>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-unused-parameter>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-deprecated-declarations>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-ignored-optimization-argument>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-invalid-utf8>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-Wno-inconsistent-missing-override>"
   "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-reorder>"
   "$<$<COMPILE_LANG_AND_ID:Fortran,GNU>:-Wno-unused-dummy-argument>"
 )
@@ -270,7 +277,6 @@ include_directories(
   ${OPS_SRC_DIR}/system_of_eqn/eigenSOE
 
   ${OPS_SRC_DIR}/analysis/algorithm
-  ${OPS_SRC_DIR}/analysis/analysis
   ${OPS_SRC_DIR}/analysis/dof_grp
   ${OPS_SRC_DIR}/analysis/fe_ele
   ${OPS_SRC_DIR}/analysis/handler
@@ -348,7 +354,7 @@ add_library(OPS_Database           OBJECT EXCLUDE_FROM_ALL)
 
 # Optional Extensions
 add_library(OPS_Parallel           OBJECT EXCLUDE_FROM_ALL)
-add_library(OPS_Parallel_SP        OBJECT EXCLUDE_FROM_ALL)
+add_library(OPS_Partition          OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_ASDEA              OBJECT EXCLUDE_FROM_ALL)
 add_library(OPS_Paraview           OBJECT EXCLUDE_FROM_ALL)
 
@@ -368,7 +374,6 @@ set_property(TARGET G3                    PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # Add sources to targets
 add_subdirectory(${OPS_SRC_DIR})
-
 #==============================================================================
 #                            Configure targets
 #
@@ -480,13 +485,23 @@ get_target_property(OPS_Element_COMPILE_OPTIONS OPS_Element COMPILE_OPTIONS)
   string(REPLACE "-Wextra" "" OPS_Element_COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
   set_target_properties(OPS_Element PROPERTIES COMPILE_OPTIONS "${OPS_Element_COMPILE_OPTIONS}")
 
+
 #
+# Install
 #
-#
+
+set(install_targets "OpenSeesRT")
 if (TARGET OpenSeesPyRT)
-  install(TARGETS 
-      OpenSeesRT OpenSeesPyRT LIBRARY DESTINATION .)
-else()
-  install(TARGETS 
-      OpenSeesRT LIBRARY DESTINATION .)
+    list(APPEND install_targets OpenSeesPyRT)
 endif()
+if (TARGET LibOpenSeesMP)
+    list(APPEND install_targets LibOpenSeesMP)
+endif()
+if (TARGET LibOpenSeesSP)
+    list(APPEND install_targets LibOpenSeesSP)
+endif()
+
+install(
+    TARGETS ${install_targets} 
+    LIBRARY DESTINATION .
+)

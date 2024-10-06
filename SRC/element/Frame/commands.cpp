@@ -71,10 +71,8 @@
   
   #include <DispBeamColumn2d.h>
   #include <DispBeamColumn2dThermal.h>
-  #include <DispBeamColumn2dWithSensitivity.h>
   #include <DispBeamColumn3d.h>
   #include <DispBeamColumn3dThermal.h>
-  #include <DispBeamColumn3dWithSensitivity.h>
   #include <DispBeamColumnNL2d.h>
   
   #include <ElasticForceBeamColumn2d.h>
@@ -153,10 +151,8 @@
 
 #include <DispBeamColumn2d.h>
 #include <DispBeamColumn2dThermal.h>
-#include <DispBeamColumn2dWithSensitivity.h>
 #include <DispBeamColumn3d.h>
 #include <DispBeamColumn3dThermal.h>
-#include <DispBeamColumn3dWithSensitivity.h>
 #include <DispBeamColumnNL2d.h>
 
 #include <ElasticForceBeamColumn2d.h>
@@ -183,6 +179,8 @@
 #include <HingeRadauTwoBeamIntegration.h>
 #endif
 
+using namespace OpenSees;
+
 struct Options {
   int mass_flag;
   int shear_flag;
@@ -193,10 +191,6 @@ struct Options {
 extern BeamIntegration*     GetBeamIntegration(TCL_Char* type);
 extern BeamIntegrationRule* GetHingeStencil(int argc, TCL_Char ** const argv);
 
-//    // Check if we are being called from OpenSeesPy, in which case we need to parse 
-//    // things a little differently
-//    const char *openseespy = Tcl_GetVar(interp, "opensees::pragma::openseespy", 0);
-//    if (openseespy == nullptr || strcmp(openseespy, "0")==0) { 
 
 #if 0
 Element*
@@ -615,6 +609,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       removeHingeIntegr = false;
     }
     else {
+      // If we fail to parse an integer tag, treat it like an inline definition
       builder->findFreeTag<BeamIntegrationRule>(itg_tag);
       std::string integrCommand{argv[positions[1]]};
       integrCommand.insert(integrCommand.find(" "), " "+std::to_string(itg_tag)+" ");
@@ -761,7 +756,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         theElement = new DispBeamColumn2dThermal(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
 
       else if (strcmp(argv[1], "dispBeamColumnWithSensitivity") == 0)
-        theElement = new DispBeamColumn2dWithSensitivity(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
+        theElement = new DispBeamColumn2d(tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf2d, mass);
 
 
       // Force formulations
@@ -845,7 +840,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
                                           mass, options.mass_flag);
 
       else if (strcmp(argv[1], "dispBeamColumnWithSensitivity") == 0)
-        theElement = new DispBeamColumn3dWithSensitivity(
+        theElement = new DispBeamColumn3d(
             tag, iNode, jNode, nIP, secptrs, *beamIntegr, *theTransf3d, mass);
 
       else if (strcmp(argv[1], "dispBeamColumnThermal") == 0)

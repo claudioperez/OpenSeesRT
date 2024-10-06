@@ -697,12 +697,12 @@ BasicFrame3d::computeReactions(double* p0)
 }
 
 void
-BasicFrame3d::computeReactionSensitivity(double* dp0dh, int gradNumber)
+BasicFrame3d::addReactionGrad(double* dp0dh, int gradNumber)
 {
   int type;
   double L = theCoordTransf->getInitialLength();
 
-  double dLdh = theCoordTransf->getdLdh();
+  double dLdh = theCoordTransf->getLengthGrad();
 
 //for (int i = 0; i < numEleLoads; i++) {
   for (auto[load, loadFactor] : eleLoads) {

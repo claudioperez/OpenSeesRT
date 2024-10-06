@@ -4,7 +4,13 @@
 #                Pacific Earthquake Engineering Research Center
 #
 #==============================================================================
-target_sources(graph
+
+target_include_directories(OPS_Partition PUBLIC 
+	${OPS_SRC_DIR}/logging
+	${CMAKE_CURRENT_LIST_DIR}
+)
+
+target_sources(OPS_Partition
     PRIVATE
       Metis.cpp
     PUBLIC

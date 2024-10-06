@@ -10,8 +10,6 @@
 #include <vector>
 #include "G3_Runtime.h"
 
-#include <StaticAnalysis.h>
-#include <DirectIntegrationAnalysis.h>
 #include <LinearSOE.h>
 #include <EigenSOE.h>
 #include <DOF_Numberer.h>
@@ -19,7 +17,6 @@
 #include <StaticIntegrator.h>
 #include <TransientIntegrator.h>
 #include <EquiSolnAlgo.h>
-#include <VariableTimeStepDirectIntegrationAnalysis.h>
 
 // DEFAULTS
 #include <AnalysisModel.h>
@@ -56,7 +53,7 @@ T* G3Object_newParsed(G3_Runtime *rt, G3_Char* command, std::vector<std::string>
 }
 
 
-
+#if 0
 void *
 G3_Runtime::newStaticAnalysis(G3_Config conf)
 {
@@ -90,7 +87,9 @@ G3_Runtime::newStaticAnalysis(G3_Config conf)
                              *sintegrator,
                              test);
 }
-#if 1
+#endif
+
+#if 0
 void *
 G3_Runtime::newTransientAnalysis(G3_Config conf)
 {

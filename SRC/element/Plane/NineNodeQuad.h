@@ -48,46 +48,46 @@ class NineNodeQuad : public Element ,
 {
 
 public:
-  NineNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4, int nd5, int nd6,
-               int nd7, int nd8, int nd9, NDMaterial &m, const char *type, double t,
+  NineNodeQuad(int tag, 
+               const std::array<int,9>& nodes,
+               NDMaterial &m, const char *type, 
+               double thickness,
                double pressure = 0.0, double rho = 0.0, double b1 = 0.0,
                double b2 = 0.0);
   NineNodeQuad();
   ~NineNodeQuad();
 
-  const char *getClassType(void) const { return "NineNodeQuad"; };
+  const char *getClassType() const { return "NineNodeQuad"; }
 
-  int getNumExternalNodes(void) const;
-  const ID &getExternalNodes(void);
-  Node **getNodePtrs(void);
+  int getNumExternalNodes() const;
+  const ID &getExternalNodes();
+  Node **getNodePtrs();
 
-  int getNumDOF(void);
+  int getNumDOF();
   void setDomain(Domain *theDomain);
 
   // public methods to set the state of the element
-  int commitState(void);
-  int revertToLastCommit(void);
-  int revertToStart(void);
-  int update(void);
+  int commitState();
+  int revertToLastCommit();
+  int revertToStart();
+  int update();
 
   // public methods to obtain stiffness, mass, damping and residual information
-  const Matrix &getTangentStiff(void);
-  const Matrix &getInitialStiff(void);
-  const Matrix &getMass(void);
+  const Matrix &getTangentStiff();
+  const Matrix &getInitialStiff();
+  const Matrix &getMass();
 
   void zeroLoad();
   int addLoad(ElementalLoad *theLoad, double loadFactor);
   int addInertiaLoadToUnbalance(const Vector &accel);
 
-  const Vector &getResistingForce(void);
-  const Vector &getResistingForceIncInertia(void);
+  const Vector &getResistingForce();
+  const Vector &getResistingForceIncInertia();
 
   // public methods for element output
   int sendSelf(int commitTag, Channel &theChannel);
   int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
-  int displaySelf(Renderer &, int mode, float fact,
-                  const char **displayModes = 0, int numModes = 0);
   void Print(OPS_Stream &s, int flag = 0);
 
   Response *setResponse(const char **argv, int argc, OPS_Stream &s);
@@ -108,15 +108,17 @@ private:
   // private attributes - a copy for each object of the class
 
   static constexpr int nip = 9; // number of integration/Gauss points
-  static constexpr int nnodes = 9; // number of nodes
+  static constexpr int NEN = 9; // number of nodes
+  static constexpr int NDM = 2;
+  static constexpr int NDF = 2;
 
   NDMaterial **theMaterial; // pointer to the ND material objects
 
   ID connectedExternalNodes; // Tags of quad nodes
 
-  Node *theNodes[nnodes];
+  Node *theNodes[NEN];
 
-  static double matrixData[(nnodes*2)*(nnodes*2)]; // array data for matrix
+  static double matrixData[(NEN*2)*(NEN*2)]; // array data for matrix
   static Matrix K;              // Element stiffness, damping, and mass Matrix
   static Vector P;              // Element resisting force vector
   Vector Q;                     // Applied nodal loads
@@ -132,11 +134,11 @@ private:
   double pressure;  // Normal surface traction (pressure) over entire element
                     // Note: positive for outward normal
   double rho;
-  static double shp[3][nnodes]; // Stores shape functions and derivatives (overwritten)
+  static double shp[3][NEN]; // Stores shape functions and derivatives (overwritten)
 
   // private member functions - only objects of this class can call these
   double shapeFunction(double xi, double eta);
-  void setPressureLoadAtNodes(void);
+  void setPressureLoadAtNodes();
 
   Matrix *Ki;
 };

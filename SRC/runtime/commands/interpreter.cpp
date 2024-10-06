@@ -14,13 +14,10 @@
 #include <G3_Runtime.h>
 #include <OPS_Globals.h>
 #include <Timer.h>
+#include "interpreter.h"
 
 static Tcl_ObjCmdProc *Tcl_putsCommand = nullptr;
 static Timer *theTimer = nullptr;
-
-Tcl_CmdProc TclCommand_wipeModel;
-Tcl_CmdProc TclCommand_clearAnalysis;
-Tcl_CmdProc TclCommand_specifyModel;
 
 class ProgressBar;
 Tcl_ObjCmdProc TclObjCommand_progress;
@@ -32,10 +29,6 @@ const char *getInterpPWD(Tcl_Interp *interp);
 int TclObjCommand_pragma([[maybe_unused]] ClientData clientData, 
                      Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 
-// formats.cpp
-Tcl_CmdProc convertBinaryToText;
-Tcl_CmdProc convertTextToBinary;
-Tcl_CmdProc stripOpenSeesXML;
 
 //
 // Consider reimplmenting to use Tcl built-ins; see
@@ -352,7 +345,7 @@ maxOpenFiles(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
-OpenSeesAppInit(Tcl_Interp *interp)
+Init_OpenSees(Tcl_Interp *interp)
 {
 
   // redo puts command so we can capture puts into std:cerr
@@ -388,9 +381,6 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, "timer",               timer,        nullptr, nullptr);
 
   // File utilities
-  Tcl_CreateCommand(interp, "stripXML",            stripOpenSeesXML,    nullptr, NULL);
-  Tcl_CreateCommand(interp, "convertBinaryToText", convertBinaryToText, nullptr, NULL);
-  Tcl_CreateCommand(interp, "convertTextToBinary", convertTextToBinary, nullptr, NULL);
   Tcl_CreateCommand(interp, "setMaxOpenFiles",     maxOpenFiles,        nullptr, nullptr);
 
   // Some entry points
@@ -404,8 +394,14 @@ OpenSeesAppInit(Tcl_Interp *interp)
   Tcl_CreateObjCommand(interp, "pragma",           TclObjCommand_pragma, nullptr, nullptr);
   Tcl_CreateObjCommand(interp, "progress",         TclObjCommand_progress, (ClientData)&progress_bar_ptr, nullptr);
 
-  // Tcl_CreateCommand(interp, "searchPeerNGA", &peerNGA, nullptr, nullptr);
-  // Tcl_CreateCommand(interp, "defaultUnits",        &defaultUnits, nullptr, NULL);
+  //
+  static int ncmd = sizeof(InterpreterCommands)/sizeof(char_cmd);
+
+  for (int i = 0; i < ncmd; i++)
+    Tcl_CreateCommand(interp, 
+        InterpreterCommands[i].name, 
+        InterpreterCommands[i].func, 
+        (ClientData) nullptr, nullptr);
 
   return TCL_OK;
 }

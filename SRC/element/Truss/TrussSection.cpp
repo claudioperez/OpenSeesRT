@@ -165,12 +165,6 @@ TrussSection::TrussSection(int tag, int dim,
     if (i == order)
       opserr << "TrussSection::TrussSection - section does not provide axial response\n";
 
-    // ensure the connectedExternalNode ID is of correct size & set values
-    if (connectedExternalNodes.Size() != 2) {
-      opserr << "FATAL TrussSection::TrussSection - failed to create an ID of correct size\n";
-      exit(-1);
-    }
-
     connectedExternalNodes(0) = Nd1;
     connectedExternalNodes(1) = Nd2;        
 

@@ -85,6 +85,8 @@ Tcl_CmdProc TclCommand_invoke;
 Tcl_CmdProc TclCommand_print;
 Tcl_CmdProc TclCommand_classType;
 
+Tcl_CmdProc TclCommand_addMaterial;
+
 struct char_cmd {
   const char* name;
   Tcl_CmdProc*  func;
@@ -112,6 +114,7 @@ struct char_cmd {
 // Materials & sections
   {"uniaxialMaterial",     TclCommand_addUniaxialMaterial},
   {"nDMaterial",           TclCommand_addNDMaterial},
+  {"material",             TclCommand_addMaterial},
   {"beamIntegration",      TclCommand_addBeamIntegration},
 
   {"section",              TclCommand_addSection},

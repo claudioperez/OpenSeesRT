@@ -41,47 +41,15 @@
 #include <Domain.h>
 #include <Parameter.h>
 #include <ParameterIter.h>
-#include <EquiSolnAlgo.h>
-#include <elementAPI.h>
-#include <iostream>
 
-void *
-OPS_ADD_RUNTIME_VPV(OPS_LoadControlIntegrator)
-{
-    if (OPS_GetNumRemainingInputArgs() < 1) {
-	opserr<<"insufficient arguments\n";
-	return 0;
-    }
-
-    double lambda;
-    int numData = 1;
-    if(OPS_GetDoubleInput(&numData,&lambda) < 0) {
-	opserr<<"WARNING failed to read double lambda\n";
-	return 0;
-    }
-
-    int numIter = 1;
-    double mLambda[2] = {lambda,lambda};
-    if(OPS_GetNumRemainingInputArgs() > 2) {
-	if(OPS_GetIntInput(&numData,&numIter) < 0) {
-	    opserr<<"WARNING failed to read int numIter\n";
-	    return 0;
-	}
-	numData = 2;
-	if(OPS_GetDoubleInput(&numData,&mLambda[0]) < 0) {
-	    opserr<<"WARNING failed to read double min and max\n";
-	    return 0;
-	}
-    }
-
-    return new LoadControl(lambda,numIter,mLambda[0],mLambda[1]);
-}
 
 LoadControl::LoadControl(double dLambda, int numIncr, double min, double max, int classtag)
-    : StaticIntegrator(classtag),
- deltaLambda(dLambda), 
- specNumIncrStep(numIncr), numIncrLastStep(numIncr),
- dLambdaMin(min), dLambdaMax(max), gradNumber(0), sensitivityFlag(0)
+  : StaticIntegrator(classtag),
+    deltaLambda(dLambda), 
+    specNumIncrStep(numIncr), 
+    numIncrLastStep(numIncr),
+    dLambdaMin(min), 
+    dLambdaMax(max)
 {
   // to avoid divide-by-zero error on first update() ensure numIncr != 0
   if (numIncr == 0) {
@@ -99,12 +67,12 @@ LoadControl::~LoadControl()
 
 // increment
 int 
-LoadControl::newStep(void)
+LoadControl::newStep()
 {
     AnalysisModel *theModel = this->getAnalysisModel();    
     if (theModel == nullptr) {
-	opserr << "LoadControl::newStep() - no associated AnalysisModel\n";
-	return -1;
+      opserr << "LoadControl::newStep() - no associated AnalysisModel\n";
+      return -1;
     }
 
     // determine delta lambda for this step based on dLambda and #iter of last step
@@ -136,9 +104,9 @@ LoadControl::update(const Vector &deltaU)
     AnalysisModel *myModel = this->getAnalysisModel();
     LinearSOE *theSOE = this->getLinearSOE();
     if (myModel == nullptr || theSOE == nullptr) {
-	opserr << "WARNING LoadControl::update() ";
-	opserr << "No AnalysisModel or LinearSOE has been set\n";
-	return -1;
+      opserr << "WARNING LoadControl::update() ";
+      opserr << "No AnalysisModel or LinearSOE has been set\n";
+      return -1;
     }
 
     myModel->incrDisp(deltaU);    
@@ -168,7 +136,7 @@ LoadControl::setDeltaLambda(double newValue)
 
 int
 LoadControl::sendSelf(int cTag,
-		      Channel &theChannel)
+                      Channel &theChannel)
 {
   Vector data(5);
   data(0) = deltaLambda;
@@ -186,9 +154,10 @@ LoadControl::sendSelf(int cTag,
 
 int
 LoadControl::recvSelf(int cTag,
-		      Channel &theChannel, FEM_ObjectBroker &theBroker)
+                      Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
   Vector data(5);
+
   if (theChannel.recvVector(this->getDbTag(), cTag, data) < 0) {
       opserr << "LoadControl::sendSelf() - failed to send the Vector\n";
       deltaLambda = 0;
@@ -204,83 +173,68 @@ LoadControl::recvSelf(int cTag,
 
 
 
-void
-LoadControl::Print(OPS_Stream &s, int flag)
-{ 
-     AnalysisModel *theModel = this->getAnalysisModel();
-    if (theModel != nullptr) {
-	double currentLambda = theModel->getCurrentDomainTime();
-	s << "\t LoadControl - currentLambda: " << currentLambda;
-	s << "  deltaLambda: " << deltaLambda << endln;
-    } else 
-	s << "\t LoadControl - no associated AnalysisModel\n";
-    
-}
-
-
 int
 LoadControl::formIndependentSensitivityRHS()
 {
-    return 0;
+  return 0;
 }
 
 int
-LoadControl::formSensitivityRHS(int passedGradNumber)
+LoadControl::formSensitivityRHS(int grad)
 {
-    sensitivityFlag = 1;
+  // Set a couple of data members
+  this->setResidualType(ResidualType::StaticSensitivity);
+  this->setGradIndex(grad);
 
-    // Set a couple of data members
-    gradNumber = passedGradNumber;
+//  sensitivityFlag = 1;
+//  gradNumber = grad;
 
-    // get model
-    AnalysisModel* theAnalysisModel = this->getAnalysisModel();
-    LinearSOE* theSOE = this->getLinearSOE();
+  // get model
+  AnalysisModel* theAnalysisModel = this->getAnalysisModel();
+  LinearSOE* theSOE = this->getLinearSOE();
 
-    // Loop through elements
-    FE_Element *elePtr;
-    FE_EleIter &theEles = theAnalysisModel->getFEs();   
-    while((elePtr = theEles()) != nullptr) {
-      theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
-    }
+  // Loop through elements
+  FE_Element *elePtr;
+  FE_EleIter &theEles = theAnalysisModel->getFEs();   
+  while((elePtr = theEles()) != nullptr) {
+    theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
+  }
 
-    // Loop through the loadPatterns and add the dPext/dh contributions
-    static Vector oneDimVectorWithOne(1);
-    oneDimVectorWithOne(0) = 1.0;
-    static ID oneDimID(1);
+  // Loop through the loadPatterns and add the dPext/dh contributions
+  static Vector oneDimVectorWithOne(1);
+  oneDimVectorWithOne(0) = 1.0;
+  static ID oneDimID(1);
 
-    Node *aNode;
-    DOF_Group *aDofGroup;
-    int nodeNumber, dofNumber, relevantID;
-    LoadPattern *loadPatternPtr;
+  LoadPattern *loadPatternPtr;
+  Domain *theDomain = theAnalysisModel->getDomainPtr();
+  LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
 
-    Domain *theDomain = theAnalysisModel->getDomainPtr();
-    LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
-    while((loadPatternPtr = thePatterns()) != nullptr) {
-	const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(gradNumber);
-	int sizeRandomLoads = randomLoads.Size();
-	if (sizeRandomLoads == 1) {
-	    // No random loads in this load pattern
-	}
-	else {
-	    // Random loads: add contributions to the 'B' vector
-	    int numRandomLoads = (int)(sizeRandomLoads/2);
-	    for (int i=0; i<numRandomLoads*2; i=i+2) {
-		nodeNumber = (int)randomLoads(i);
-		dofNumber = (int)randomLoads(i+1);
-		aNode = theDomain->getNode(nodeNumber);
-		aDofGroup = aNode->getDOF_GroupPtr();
-		const ID &anID = aDofGroup->getID();
-		relevantID = anID(dofNumber-1);
-		oneDimID(0) = relevantID;
-		theSOE->addB(oneDimVectorWithOne, oneDimID);
-	    }
-	}
-    }
+  while ((loadPatternPtr = thePatterns()) != nullptr) {
+      const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(grad);
+      int sizeRandomLoads = randomLoads.Size();
+      if (sizeRandomLoads == 1) {
+          // No random loads in this load pattern
+      }
+      else {
+          // Random loads: add contributions to the 'B' vector
+          int numRandomLoads = (int)(sizeRandomLoads/2);
+          for (int i=0; i<numRandomLoads*2; i=i+2) {
+              int nodeNumber = (int)randomLoads(i);
+              int dofNumber = (int)randomLoads(i+1);
+              Node* aNode = theDomain->getNode(nodeNumber);
+              DOF_Group* aDofGroup = aNode->getDOF_GroupPtr();
+              const ID &anID = aDofGroup->getID();
+              int relevantID = anID(dofNumber-1);
+              oneDimID(0) = relevantID;
+              theSOE->addB(oneDimVectorWithOne, oneDimID);
+          }
+      }
+  }
 
-    // reset sensitivity flag
-    sensitivityFlag = 0;
+  // reset residual type
+  this->setResidualType(ResidualType::StaticUnbalance);
 
-    return 0;
+  return 0;
 }
 
 int
@@ -290,13 +244,10 @@ LoadControl::saveSensitivity(const Vector &v, int gradNum, int numGrads)
     AnalysisModel* theAnalysisModel = this->getAnalysisModel();
     
     DOF_GrpIter &theDOFGrps = theAnalysisModel->getDOFs();
-    DOF_Group 	*dofPtr;
+    DOF_Group   *dofPtr;
     
-    while ( (dofPtr = theDOFGrps() ) != 0)  {
-//	dofPtr->saveSensitivity(v,0,0,gradNum,numGrads);
-	dofPtr->saveDispSensitivity(v,gradNum,numGrads);
-	
-    }
+    while ( (dofPtr = theDOFGrps() ) != nullptr)
+        dofPtr->saveDispSensitivity(v,gradNum,numGrads); 
     
     return 0;
 }
@@ -304,15 +255,14 @@ LoadControl::saveSensitivity(const Vector &v, int gradNum, int numGrads)
 int 
 LoadControl::commitSensitivity(int gradNum, int numGrads)
 {
-      // get model
+    // get model
     AnalysisModel* theAnalysisModel = this->getAnalysisModel();
     
     // Loop through the FE_Elements and set unconditional sensitivities
     FE_Element *elePtr;
     FE_EleIter &theEles = theAnalysisModel->getFEs();    
-    while((elePtr = theEles()) != 0) {
-	elePtr->commitSensitivity(gradNum, numGrads);
-    }
+    while((elePtr = theEles()) != nullptr)
+        elePtr->commitSensitivity(gradNum, numGrads);
     
     return 0;
 }
@@ -326,89 +276,69 @@ LoadControl::computeSensitivityAtEachIteration()
 
 
 int 
-LoadControl::computeSensitivities(void)
+LoadControl::computeSensitivities()
 {
-    LinearSOE *theSOE = this->getLinearSOE();
+  LinearSOE *theSOE = this->getLinearSOE();
+      AnalysisModel *theModel = this->getAnalysisModel();
+      Domain *theDomain=theModel->getDomainPtr();
 
-    /*
-  if (theAlgorithm == 0) {
-    opserr << "ERROR the FE algorithm must be defined before ";
-    opserr << "the sensitivity algorithm\n";
-    return -1;
-  }
-*/
-/*
-   // Get pointer to the system of equations (SOE)
-	LinearSOE *theSOE = theAlgorithm->getLinearSOEptr();
-	if (theSOE == 0) {
-	  opserr << "ERROR the FE linearSOE must be defined before ";
-	  opserr << "the sensitivity algorithm\n";
-	  return -1;
-	}
 
-	// Get pointer to incremental integrator
-	IncrementalIntegrator *theIncInt = theAlgorithm->getIncrementalIntegratorPtr();
-//	IncrementalIntegrator *theIncIntSens=theAlgorithm->getIncrementalIntegratorPtr();//Abbas
-	if (theIncInt == 0 ) {
-	  opserr << "ERROR the FE integrator must be defined before ";
-	  opserr << "the sensitivity algorithm\n";
-	  return -1;
-	}
+      // Zero out the old right-hand side of the SOE
+      theSOE->zeroB();
 
-	// Form current tangent at converged state
-	// (would be nice with an if-statement here in case
-	// the current tangent is already formed)
-	if (this->formTangent(CURRENT_TANGENT) < 0){
-		opserr << "WARNING SensitivityAlgorithm::computeGradients() -";
-		opserr << "the Integrator failed in formTangent()\n";
-		return -1;
-	}
-	*/
-	// Zero out the old right-hand side of the SOE
-	theSOE->zeroB();
+      // Form the part of the RHS which are indepent of parameter
+      this->formIndependentSensitivityRHS();
 
-	// Form the part of the RHS which are indepent of parameter
-	this->formIndependentSensitivityRHS();
-	AnalysisModel *theModel = this->getAnalysisModel();  
-	Domain *theDomain=theModel->getDomainPtr();
-	ParameterIter &paramIter = theDomain->getParameters();
-	
-	Parameter *theParam;
-	// De-activate all parameters
-	while ((theParam = paramIter()) != nullptr)
-	  theParam->activate(false);
-	
-	// Now, compute sensitivity wrt each parameter
-	int numGrads = theDomain->getNumParameters();
-	paramIter = theDomain->getParameters();
-	
-	while ((theParam = paramIter()) != nullptr) {
+      ParameterIter &paramIter = theDomain->getParameters();      
+      Parameter *theParam;
+      // De-activate all parameters
+      while ((theParam = paramIter()) != nullptr)
+        theParam->activate(false);
+      
+      // compute sensitivity wrt each parameter
+      int numGrads = theDomain->getNumParameters();
+      paramIter = theDomain->getParameters();      
+      while ((theParam = paramIter()) != nullptr) {
 
-	  // Activate this parameter
-	  theParam->activate(true);
+        // Activate this parameter
+        theParam->activate(true);
 
-	  // Zero the RHS vector
-	  theSOE->zeroB();
+        // Zero the RHS vector
+        theSOE->zeroB();
 
-	  // Get the grad index for this parameter
-	  int gradIndex = theParam->getGradIndex();
+        // Get the grad index for this parameter
+        int gradIndex = theParam->getGradIndex();
 
-	  // Form the RHS
-	  this->formSensitivityRHS(gradIndex);
+        // Form the RHS
+        this->formSensitivityRHS(gradIndex);
          
-	  // Solve for displacement sensitivity
-	 
-	  theSOE->solve();
-	  // Save sensitivity to nodes
-	  this->saveSensitivity( theSOE->getX(), gradIndex, numGrads );
-	 
-	  // Commit unconditional history variables (also for elastic problems; strain sens may be needed anyway)
-	  this->commitSensitivity(gradIndex, numGrads);
-	  
-	  // De-activate this parameter for next sensitivity calc
-	  theParam->activate(false);
-	}
+        // Solve for displacement sensitivity
+       
+        theSOE->solve();
 
-	return 0;
+        // Save sensitivity to nodes
+        this->saveSensitivity( theSOE->getX(), gradIndex, numGrads);
+       
+        // Commit unconditional history variables (also for elastic problems; strain sens may be needed anyway)
+        this->commitSensitivity(gradIndex, numGrads);
+        
+        // De-activate this parameter for next sensitivity calc
+        theParam->activate(false);
+      }
+
+      return 0;
+}
+
+
+void
+LoadControl::Print(OPS_Stream &s, int flag)
+{ 
+    AnalysisModel *theModel = this->getAnalysisModel();
+    if (theModel != nullptr) {
+      double currentLambda = theModel->getCurrentDomainTime();
+      s << "\t LoadControl - currentLambda: " << currentLambda;
+      s << "  deltaLambda: " << deltaLambda << endln;
+    } else 
+      s << "\t LoadControl - no associated AnalysisModel\n";    
 }
 

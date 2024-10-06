@@ -18,7 +18,6 @@
 
 // static variables
 const int AV3D4QuadWithSensitivity::numDOF = 4;
-const int AV3D4QuadWithSensitivity::nodes_in_elem = 4;
 const int AV3D4QuadWithSensitivity::nodes_in_quad = 4;
 const int AV3D4QuadWithSensitivity::r_integration_order = FixedOrder;
 const int AV3D4QuadWithSensitivity::s_integration_order = FixedOrder;
@@ -87,7 +86,7 @@ void * OPS_ADD_RUNTIME_VPV(OPS_AV3D4QuadWithSensitivity){
 AV3D4QuadWithSensitivity::AV3D4QuadWithSensitivity(int element_number,
 						   int node_numb_1, int node_numb_2, int node_numb_3, int node_numb_4)
 :Element(element_number, ELE_TAG_AV3D4QuadWithSensitivity),
-connectedExternalNodes(nodes_in_elem), Ki(0), hasConstrained(0)
+connectedExternalNodes(NEN), Ki(0), hasConstrained(0)
 {
   // Set connected external node IDs
   connectedExternalNodes(0) = node_numb_1;
@@ -96,7 +95,7 @@ connectedExternalNodes(nodes_in_elem), Ki(0), hasConstrained(0)
   connectedExternalNodes(3) = node_numb_4;
   
   // zero node pointers
-  for (int i = 0; i < nodes_in_elem; i++)
+  for (int i = 0; i < NEN; i++)
     theNodes[i] = 0;
 
   detJ = 0;
@@ -113,7 +112,7 @@ AV3D4QuadWithSensitivity::AV3D4QuadWithSensitivity(int element_number,
 						   int node_numb_1, int node_numb_2, int node_numb_3, int node_numb_4, 
 						   NDMaterial * Globalmmodel)
 :Element(element_number, ELE_TAG_AV3D4QuadWithSensitivity),
-connectedExternalNodes(nodes_in_elem), Ki(0), hasConstrained(0)
+connectedExternalNodes(NEN), Ki(0), hasConstrained(0)
 {
   // Set connected external node IDs
   connectedExternalNodes(0) = node_numb_1;
@@ -122,7 +121,7 @@ connectedExternalNodes(nodes_in_elem), Ki(0), hasConstrained(0)
   connectedExternalNodes(3) = node_numb_4;
   
   // zero node pointers
-  for (int i = 0; i < nodes_in_elem; i++)
+  for (int i = 0; i < NEN; i++)
     theNodes[i] = 0;
 
   // check the material type
@@ -142,10 +141,10 @@ connectedExternalNodes(nodes_in_elem), Ki(0), hasConstrained(0)
 
 AV3D4QuadWithSensitivity::AV3D4QuadWithSensitivity ()
 :Element(0, ELE_TAG_AV3D4QuadWithSensitivity ),
-connectedExternalNodes(nodes_in_elem), Ki(0), hasConstrained(0)
+connectedExternalNodes(NEN), Ki(0), hasConstrained(0)
 {
   // zero node pointers
-  for (int i = 0; i < nodes_in_elem; i++)
+  for (int i = 0; i < NEN; i++)
     theNodes[i] = 0;
   detJ = 0;
 
@@ -171,7 +170,7 @@ AV3D4QuadWithSensitivity::operator[](int subscript)
 int 
 AV3D4QuadWithSensitivity::getNumExternalNodes () const
 {
-  return nodes_in_elem;
+  return NEN;
 }
 
 const ID& 
@@ -201,12 +200,12 @@ AV3D4QuadWithSensitivity::setDomain (Domain *theDomain)
 {
   // Check Domain is not null - invoked when object removed from a domain
   if (theDomain == 0) {
-    for (int i = 0; i < nodes_in_elem; i++) {
+    for (int i = 0; i < NEN; i++) {
       theNodes[i] = 0;
     }
   }
   else {
-    for (int i = 0; i < nodes_in_elem; i++) {
+    for (int i = 0; i < NEN; i++) {
       theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
       if (theNodes[i] == 0) {
         opserr << "FATAL ERROR AV3D4QuadWithSensitivity (tag: " << this->getTag();
@@ -287,7 +286,7 @@ AV3D4QuadWithSensitivity::getResistingForce(void)
   P.Zero();
     Vector v(numDOF);
   int i;
-  for(i = 0; i < nodes_in_elem; i++) {
+  for(i = 0; i < NEN; i++) {
     const Vector &vel = theNodes[i]->getTrialVel();
     v(i) = vel(0);
   }
@@ -308,7 +307,7 @@ AV3D4QuadWithSensitivity::getResistingForceIncInertia(void)
   
   Vector v(numDOF);
   int i;
-  for(i = 0; i < nodes_in_elem; i++) {
+  for(i = 0; i < NEN; i++) {
     const Vector &vel = theNodes[i]->getTrialVel();
     v(i) = vel(0);
   }
@@ -341,17 +340,25 @@ AV3D4QuadWithSensitivity::recvSelf (int commitTag, Channel &theChannel,
   return 0;
 }
 
-int AV3D4QuadWithSensitivity::displaySelf (Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-  int error = 0;
-  
-  return error;
-
-}     
 
 void AV3D4QuadWithSensitivity::Print(OPS_Stream &s, int flag)
 {
-  if(flag == 1) {
+  const ID& node_tags = this->getExternalNodes();
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": " << this->getTag() << ", ";
+      s << "\"type\": \"" << this->getClassType() << "\", ";
+      s << "\"nodes\": [";
+      for (int i=0; i < NEN-1; i++)
+          s << node_tags(i) << ", ";
+      s << node_tags(NEN-1) << "], ";
+
+      s << "\"material\": [";
+      s << theMaterial->getTag() << "]";
+      s << "}";
+  }
+  else if(flag == 1) {
     s << "AV3D4QuadWithSensitivity, element id:  " << this->getTag() << endln;
     s << "Connected external nodes:  " << connectedExternalNodes;
     s << this->getResistingForce();
@@ -379,7 +386,7 @@ AV3D4QuadWithSensitivity::setResponse (const char **argv, int argc, OPS_Stream &
   output.tag("ElementOutput");
   output.attr("eleType","AV3D4QuadWithSensitivity");
   output.attr("eleTag",this->getTag());
-  for(int i = 1; i <= nodes_in_elem; i++) {
+  for(int i = 1; i <= NEN; i++) {
     sprintf(outputData,"node%d",i);
     output.attr(outputData,theNodes[i-1]->getTag());
   }
@@ -418,7 +425,7 @@ ID *
 AV3D4QuadWithSensitivity::getActiveDofs(void)
 {
   if( actDOFs.Size() == 0){
-    for(int i = 0; i < nodes_in_elem; i++){
+    for(int i = 0; i < NEN; i++){
      actDOFs[i] = 8;
     }
   }
@@ -436,7 +443,7 @@ ID *
 AV3D4QuadWithSensitivity::getIntegrateFlags(void)
 {
   if (integFlags.Size() == 0){
-    for (int i = 0; i < nodes_in_elem; i++){
+    for (int i = 0; i < NEN; i++){
       integFlags[i] = 1;
     }
   }
@@ -704,7 +711,7 @@ AV3D4QuadWithSensitivity::computeHH(void)
     this->computeH();
     
     for(int i = 0; i < numGP; i++) {
-      HH[i] = new Matrix(nodes_in_elem, nodes_in_elem);
+      HH[i] = new Matrix(NEN, NEN);
       if (HH[i] == 0) {
         opserr << "AV3D4QuadWithSensitivity::computeHH - out of memory!\n";
         return -3;
@@ -775,7 +782,7 @@ AV3D4QuadWithSensitivity::computeDiff(void)
     Matrix NC = getNodalCoords();
     
     for(int i = 0; i < numGP; i++) {
-      L[i] = new Matrix(3, nodes_in_elem);
+      L[i] = new Matrix(3, NEN);
       if(L[i] == 0) {
         opserr << "AV3D4QuadWithSensitivity::computDiff() - out of memory!\n";
         return -3;
@@ -971,7 +978,7 @@ AV3D4QuadWithSensitivity::getResistingForceSensitivity(int gradNumber)
   vSensitivity.Zero();
 
   int i;
-  for(i = 0; i < nodes_in_elem; i++) {
+  for(i = 0; i < NEN; i++) {
     const Vector &vel = theNodes[i]->getTrialVel();
     v(i) = vel(0);
   }

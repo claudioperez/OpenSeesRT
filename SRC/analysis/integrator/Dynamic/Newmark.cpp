@@ -629,7 +629,9 @@ int Newmark::formEleResidual(FE_Element* theEle)
       (*dampingMatrixMultiplicator) = tmp2;
 
 
+      //
       // Now we're ready to make calls to the FE Element:
+      //
 
       // The term -dPint/dh|u fixed
       theEle->addResistingForceSensitivity(gradNumber); 
@@ -733,7 +735,7 @@ Newmark::formSensitivityRHS(int passedGradNumber)
     // Loop through DOF groups (IT IS IMPORTANT THAT THIS IS DONE LAST!)
     DOF_Group *dofPtr;
     DOF_GrpIter &theDOFs = theModel->getDOFs();
-    while((dofPtr = theDOFs()) != 0) {
+    while((dofPtr = theDOFs()) != nullptr) {
       theSOE->addB(  dofPtr->getUnbalance(this),  dofPtr->getID()  );
     }
 
@@ -903,41 +905,7 @@ Newmark::computeSensitivities(void)
 {
 
   LinearSOE *theSOE = this->getLinearSOE();
-  
-  /*
-    if (theAlgorithm == 0) {
-    opserr << "ERROR the FE algorithm must be defined before ";
-    opserr << "the sensitivity algorithm\n";
-    return -1;
-    }
-  */
-  /*
-  // Get pointer to the system of equations (SOE)
-  LinearSOE *theSOE = theAlgorithm->getLinearSOEptr();
-  if (theSOE == 0) {
-  opserr << "ERROR the FE linearSOE must be defined before ";
-  opserr << "the sensitivity algorithm\n";
-  return -1;
-  }
-  
-  // Get pointer to incremental integrator
-  IncrementalIntegrator *theIncInt = theAlgorithm->getIncrementalIntegratorPtr();
-  //  IncrementalIntegrator *theIncIntSens=theAlgorithm->getIncrementalIntegratorPtr();//Abbas
-  if (theIncInt == 0 ) {
-  opserr << "ERROR the FE integrator must be defined before ";
-  opserr << "the sensitivity algorithm\n";
-  return -1;
-  }
-  
-  // Form current tangent at converged state
-  // (would be nice with an if-statement here in case
-  // the current tangent is already formed)
-  if (this->formTangent(CURRENT_TANGENT) < 0){
-  opserr << "WARNING SensitivityAlgorithm::computeGradients() -";
-  opserr << "the Integrator failed in formTangent()\n";
-  return -1;
-  }
-  */
+
   // Zero out the old right-hand side of the SOE
   theSOE->zeroB();
   
@@ -957,7 +925,7 @@ Newmark::computeSensitivities(void)
   int numGrads = theDomain->getNumParameters();
 
   paramIter = theDomain->getParameters();
-  
+
   while ((theParam = paramIter()) != 0) {
     
     // Activate this parameter
@@ -968,7 +936,7 @@ Newmark::computeSensitivities(void)
     
     // Get the grad index for this parameter
     int gradIndex = theParam->getGradIndex();
-    //   opserr<<"gradNumber = "<<gradIndex<<endln;
+
     // Form the RHS
     this->formSensitivityRHS(gradIndex);
     

@@ -34,6 +34,7 @@
 
 #include <MinMaxMaterial.h>
 #include <ID.h>
+#include <Vector.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 

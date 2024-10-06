@@ -1553,7 +1553,7 @@ DispBeamColumn3dWithSensitivity::commitSensitivity(int gradNumber, int numGrads)
 {
   const Vector &v = crdTransf->getBasicTrialDisp();
   static Vector vsens(6);
-  vsens           = crdTransf->getBasicDisplSensitivity(gradNumber);
+  vsens           = crdTransf->getBasicDisplTotalGrad(gradNumber);
   double L        = crdTransf->getInitialLength();
   double oneOverL = 1.0 / L;
   //const Matrix &pts = quadRule.getIntegrPointCoords(numSections);

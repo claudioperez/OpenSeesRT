@@ -30,7 +30,7 @@
 #ifndef BRICK_H
 #define BRICK_H
 
-
+#include <array>
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
@@ -124,16 +124,13 @@ class Brick : public Element {
     int setParameter(const char **argv, int argc, Parameter &param);
     int updateParameter(int parameterID, Information &info);
 
-    //plotting 
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
-
   private : 
     //
     // private attributes
     //
 
     ID connectedExternalNodes ;  //four node numbers
-    Node *nodePointers[8] ;      //pointers to eight nodes
+    std::array<Node *, 8> theNodes;      //pointers to eight nodes
 
     //material information
     NDMaterial *materialPointers[8]; //pointers to eight materials

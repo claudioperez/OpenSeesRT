@@ -4,12 +4,12 @@
 //
 //===----------------------------------------------------------------------===//
 //
+// Description: This file contains the implementation of the TclModelBuilder_addTruss()
+// command. 
+//
 // Written: fmk 
 // Created: 07/99
 // Revision: A
-//
-// Description: This file contains the implementation of the TclModelBuilder_addTruss()
-// command. 
 //
 #include <assert.h>
 #include <string.h>
@@ -54,7 +54,6 @@ TclCommand_addTruss(ClientData clientData, Tcl_Interp *interp,  int argc,
 
   // get the id and end nodes 
   int trussId, iNode, jNode, matID;
-  double rho = 0.0;
   if (Tcl_GetInt(interp, argv[1+eleArgStart], &trussId) != TCL_OK) {
     opserr << "WARNING invalid truss eleTag" << "\n";
     return TCL_ERROR;
@@ -70,7 +69,10 @@ TclCommand_addTruss(ClientData clientData, Tcl_Interp *interp,  int argc,
      return TCL_ERROR;
   }
 
+
+  double rho = 0.0;
   for (int i = 4+eleArgStart; i < argc; i++) {
+
     if (i+1 < argc && strcmp(argv[i], "-rho") == 0) {
       if (Tcl_GetDouble(interp, argv[i+1], &rho) != TCL_OK) {
         opserr << "WARNING invalid rho\n";
@@ -98,10 +100,13 @@ TclCommand_addTruss(ClientData clientData, Tcl_Interp *interp,  int argc,
       }
       
       UniaxialMaterial *theMaterial = builder->getTypedObject<UniaxialMaterial>(matID); 
-      if (theMaterial == 0)
+      if (theMaterial == nullptr)
           return TCL_ERROR;
 
+
+      //
       // now create the truss and add it to the Domain
+      //
       Element *theTruss = nullptr;
       if (strcmp(argv[eleArgStart],"corotTruss") == 0)
           theTruss = new CorotTruss(trussId,ndm,iNode,jNode,*theMaterial,A,rho);
@@ -144,6 +149,7 @@ TclCommand_addTruss(ClientData clientData, Tcl_Interp *interp,  int argc,
           return TCL_ERROR;
       }
   }
+
   // if get here we have sucessfully created the node and added it to the domain
   return TCL_OK;
 }

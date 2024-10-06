@@ -90,7 +90,9 @@ InelasticYS2DGNL::InelasticYS2DGNL(int tag, // double a, double e, double i,
     // Positive disp at node 2 (tension) => Negative axial force
   }
   
+#ifdef _GRAPHICS
   pView = 0;
+#endif
   end1Plastify = false;
   end2Plastify = false;
   end1Plastify_hist = false;
@@ -262,6 +264,7 @@ void InelasticYS2DGNL::checkSpecialCases(void)
 
 	if(updateDebug)
 	{
+#ifdef _GRAPHICS
     	if(pView)
 		{
     		pView->clearImage();
@@ -277,6 +280,7 @@ void InelasticYS2DGNL::checkSpecialCases(void)
 	    	opserr << "Trial Force points plotted \n";
 	    	opserr << "\a";
 		}
+#endif
 	}
 			
 }
@@ -1549,7 +1553,7 @@ int InelasticYS2DGNL::commitState()
 
 	end1Plastify_hist =  end1Plastify;
 	end2Plastify_hist =  end2Plastify;
-
+#ifdef _GRAPHICS
 	if(pView)
 	{
     	pView->clearImage();
@@ -1558,6 +1562,7 @@ int InelasticYS2DGNL::commitState()
     	ys2->displaySelf(*pView, 1, 1);
     	pView->doneImage();
 	}
+#endif
 
 	// opserr << "--- commit ---\n"; opserr << "\a";
 
@@ -1616,103 +1621,8 @@ void InelasticYS2DGNL::getLocalStiff(Matrix &K)
 }//getLocalStiff
 */
 
-//////////////////////////////////////////////////////////////////////
-// Print/Render  Send/Recv
-//////////////////////////////////////////////////////////////////////
-void InelasticYS2DGNL::createView(char *title, double scale, int x, int y, int cx, int cy, char displaytype)
-{
-	displayType = displaytype;
 
-
-#ifdef _NOGRAPHICS
-
-#else
-#ifdef _GLX // Boris Jeremic added 23Oct2002
-theMap = new PlainMap();
-pView =  new OpenGLRenderer(title, x, y, cx, cy, *theMap);
-
- if(pView){
-   pView->setVRP(0.0, 0.0, 0.0);
-   pView->setVPN(0.0, 0.0, 1.0);
-   pView->setVUP(0.0, 1.0, 0.0);
-   pView->setFillMode("wire");             // wire mode
-   pView->setPlaneDist(1.0, -1.0);
-   pView->setPRP(0.0, 0.0, 10.0);
-   pView->setPortWindow(-1, 1, -1, 1);  // use the whole window
-   
-   pView->setViewWindow(-scale, scale, -scale, scale);
-   
-   pView->clearImage();
-   pView->startImage();
-   
-
-   ys1->setView(pView);
-   ys2->setView(pView);
-   
-   ys1->displaySelf(*pView, 10, 1);
-   ys2->displaySelf(*pView, 10, 1);
-pView->doneImage();
- 
- }
- else
-   opserr << "WARNING: InelasticYS2DGNL::createView - Renderer not available\n";
-#endif   // Boris Jeremic added 23Oct2002
-#endif
-
-}
-
-
-void InelasticYS2DGNL::Print(OPS_Stream &s, int flag)
-{
-    s << "\nElement No: " << this->getTag();
-    s << " type: InelasticYS2DGNL  iNode: " << connectedExternalNodes(0);
-    s << " jNode: " << connectedExternalNodes(1);
-    //s << "\nElement Forces ";
-}
-
-int InelasticYS2DGNL::sendSelf(int commitTag, Channel &theChannel)
-{
-	return -1;
-}
-
-int InelasticYS2DGNL::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
-{
-	return -1;
-}
-
-
-Response* InelasticYS2DGNL::setResponse(const char **argv, int argc)
-{
-Response *suResponse=0;
-
-	suResponse = this->UpdatedLagrangianBeam2D::setResponse(argv, argc);
-
-	if(suResponse != 0)
-		return suResponse;
-
-    if (strcmp(argv[0],"ysVisual") == 0)
-	{
-		suResponse =  new ElementResponse(this, DISPLAY_YS);
-    }
-
-	return suResponse;
-}
-
-
-int InelasticYS2DGNL::getResponse(int responseID, Information &eleInformation)
-{
-int res = this->UpdatedLagrangianBeam2D::getResponse(responseID, eleInformation);
-
-	if(res != -1)
-		return res;
-
-	if(responseID == DISPLAY_YS)
-		res = responseID;
-
-	return res;
-}
-
-
+#ifdef _GRAPHICS
 
 int InelasticYS2DGNL::displaySelf(Renderer &theViewer, int displayMode, float fact)
 {
@@ -1799,6 +1709,105 @@ int InelasticYS2DGNL::displaySelf(Renderer &theViewer, int displayMode, float fa
 	return 0;
 
 }
+
+
+//////////////////////////////////////////////////////////////////////
+// Print/Render  Send/Recv
+//////////////////////////////////////////////////////////////////////
+void InelasticYS2DGNL::createView(char *title, double scale, int x, int y, int cx, int cy, char displaytype)
+{
+	displayType = displaytype;
+
+
+#ifdef _NOGRAPHICS
+
+#else
+#ifdef _GLX // Boris Jeremic added 23Oct2002
+theMap = new PlainMap();
+pView =  new OpenGLRenderer(title, x, y, cx, cy, *theMap);
+
+ if(pView){
+   pView->setVRP(0.0, 0.0, 0.0);
+   pView->setVPN(0.0, 0.0, 1.0);
+   pView->setVUP(0.0, 1.0, 0.0);
+   pView->setFillMode("wire");             // wire mode
+   pView->setPlaneDist(1.0, -1.0);
+   pView->setPRP(0.0, 0.0, 10.0);
+   pView->setPortWindow(-1, 1, -1, 1);  // use the whole window
+   
+   pView->setViewWindow(-scale, scale, -scale, scale);
+   
+   pView->clearImage();
+   pView->startImage();
+   
+
+   ys1->setView(pView);
+   ys2->setView(pView);
+   
+   ys1->displaySelf(*pView, 10, 1);
+   ys2->displaySelf(*pView, 10, 1);
+pView->doneImage();
+ 
+ }
+ else
+   opserr << "WARNING: InelasticYS2DGNL::createView - Renderer not available\n";
+#endif   // Boris Jeremic added 23Oct2002
+#endif
+
+}
+#endif
+
+
+void InelasticYS2DGNL::Print(OPS_Stream &s, int flag)
+{
+    s << "\nElement No: " << this->getTag();
+    s << " type: InelasticYS2DGNL  iNode: " << connectedExternalNodes(0);
+    s << " jNode: " << connectedExternalNodes(1);
+    //s << "\nElement Forces ";
+}
+
+int InelasticYS2DGNL::sendSelf(int commitTag, Channel &theChannel)
+{
+	return -1;
+}
+
+int InelasticYS2DGNL::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker)
+{
+	return -1;
+}
+
+
+Response* InelasticYS2DGNL::setResponse(const char **argv, int argc)
+{
+Response *suResponse=0;
+
+	suResponse = this->UpdatedLagrangianBeam2D::setResponse(argv, argc);
+
+	if(suResponse != 0)
+		return suResponse;
+
+    if (strcmp(argv[0],"ysVisual") == 0)
+	{
+		suResponse =  new ElementResponse(this, DISPLAY_YS);
+    }
+
+	return suResponse;
+}
+
+
+int InelasticYS2DGNL::getResponse(int responseID, Information &eleInformation)
+{
+int res = this->UpdatedLagrangianBeam2D::getResponse(responseID, eleInformation);
+
+	if(res != -1)
+		return res;
+
+	if(responseID == DISPLAY_YS)
+		res = responseID;
+
+	return res;
+}
+
 
 
 

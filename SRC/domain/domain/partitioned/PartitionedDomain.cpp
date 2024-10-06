@@ -1984,7 +1984,7 @@ PartitionedDomain::setMass(const Matrix &mass, int nodeTag)
 }
 
 const Vector *
-PartitionedDomain::getNodeResponse(int nodeTag, NodeResponseType response)
+PartitionedDomain::getNodeResponse(int nodeTag, NodeData response)
 {
   const Vector *res = this->Domain::getNodeResponse(nodeTag, response);
   if (res != 0)
@@ -2150,7 +2150,7 @@ GraphPartitioner* PartitionedDomain::getGraphPartitioner(void)
 }
 
 
-
+#if 0
 int
 PartitionedDomain::activateElements(const ID& elementList)
 {
@@ -2200,3 +2200,4 @@ PartitionedDomain::deactivateElements(const ID& elementList)
 
   return res;
 }
+#endif

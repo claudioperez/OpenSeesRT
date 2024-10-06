@@ -59,34 +59,38 @@ class AC3D8HexWithSensitivity: public Element
     AC3D8HexWithSensitivity();
     ~AC3D8HexWithSensitivity();
 
-    int getNumExternalNodes(void) const;
-    const ID &getExternalNodes(void);
-    Node **getNodePtrs(void);
-    int getNumDOF(void);
+    const char* getClassType() const {
+      return "AC3D8HexWithSensitivity";
+    }
+
+    int getNumExternalNodes() const;
+    const ID &getExternalNodes();
+    Node **getNodePtrs();
+    int getNumDOF();
     
     void setDomain(Domain *theDomain);
 
     // public methods to set the state of the element
-    int commitState(void);
-    int revertToLastCommit(void);
-    int revertToStart(void);
+    int commitState();
+    int revertToLastCommit();
+    int revertToStart();
     
-    int update(void);
+    int update();
 
     // public methods to obtain stiffness, mass, damping and residual information
-    const Matrix &getTangentStiff(void);
-    const Matrix &getInitialStiff(void);
-    const Matrix &getMass(void);
-    const Matrix &getConsMass(void);
+    const Matrix &getTangentStiff();
+    const Matrix &getInitialStiff();
+    const Matrix &getMass();
+    const Matrix &getConsMass();
     
-    const Matrix &getDamp(void);
+    const Matrix &getDamp();
 
-    void zeroLoad(void);
+    void zeroLoad();
     int addLoad(ElementalLoad *theLoad, double loadFactor);
     int addInertiaLoadToUnbalance(const Vector &accel);
 
-    const Vector &getResistingForce(void);
-    const Vector &getResistingForceIncInertia(void);
+    const Vector &getResistingForce();
+    const Vector &getResistingForceIncInertia();
 
     // public methods for element output
     int sendSelf (int commitTag, Channel &theChannel);
@@ -99,7 +103,7 @@ class AC3D8HexWithSensitivity: public Element
     int displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode);
     void Print(OPS_Stream &s, int flag =0);
     
-    // const Vector &getExternalLoadIncInertia(void);
+    // const Vector &getExternalLoadIncInertia();
     
     double get_Gauss_p_c(short order, short point_numb);
     double get_Gauss_p_w(short order, short point_numb);
@@ -117,6 +121,14 @@ class AC3D8HexWithSensitivity: public Element
   protected:
 
   private:
+    constexpr static int NEN = 8,          // number of nodes in element
+                         NIP = 8;
+    static const int numDOF;               // DOF number of element
+    static const int r_integration_order;  // Gauss-Legendre integration order in r direction
+    static const int s_integration_order;  // Gauss-Legendre integration order in s direction
+    static const int t_integration_order;  // Gauss-Legendre integration order in t direction
+    static const int dim;                  // spatial dimension
+
     // private attributes - a copy for each object of the class
     ID  connectedExternalNodes; // Tags of quad nodes
 
@@ -143,13 +155,6 @@ class AC3D8HexWithSensitivity: public Element
     static Matrix mass ; 
     static ID actDOFs;     // activated element dofs, add Yichao Gao
     
-    static const int numDOF;               // DOF number of element
-    static const int nodes_in_elem;        // number of nodes in element
-    static const int r_integration_order;  // Gauss-Legendre integration order in r direction
-    static const int s_integration_order;  // Gauss-Legendre integration order in s direction
-    static const int t_integration_order;  // Gauss-Legendre integration order in t direction
-    static const int dim;                  // spatial dimension
-    static const int numGP;                // number of Gauss point
     
     static Matrix **H;   // Matrix array holds h
     static Matrix **DH;  // Matrix array holds h
@@ -175,27 +180,27 @@ class AC3D8HexWithSensitivity: public Element
     // Matrix Jacobian(Matrix dh, Matrix h);
     double Jacobian_det(Matrix Jac);
     
-    int computeH(void);
-    int computeHH(void);
-    int computeDiff(void);
+    int computeH();
+    int computeHH();
+    int computeDiff();
     
     // get nodal coordinates
-    Matrix getNodalCoords(void);
+    Matrix getNodalCoords();
     
     // get nodal forces from stress
-    Matrix getNodalForces(void);
+    Matrix getNodalForces();
     
     // get total displacement
-    Matrix getTotalDisp(void);
+    Matrix getTotalDisp();
     
     // get [B] Matrix
     // Matrix &getBMatrix(Matrix dhGlobal);
     
     // handling active dofs
-    ID *getActiveDofs(void);
+    ID *getActiveDofs();
     
     // for acoustic elements
-    int getIntegrateFlag(void);
+    int getIntegrateFlag();
     
     int setNDMaterial(NDMaterial *Globalmmodel);
     

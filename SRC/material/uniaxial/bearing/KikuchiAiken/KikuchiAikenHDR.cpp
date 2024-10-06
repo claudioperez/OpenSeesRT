@@ -36,6 +36,7 @@
 
 #include "KikuchiAikenHDR.h"
 #include <Channel.h>
+#include <Vector.h>
 #include <ID.h>
 #include <string.h>
 

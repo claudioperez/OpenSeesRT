@@ -35,44 +35,12 @@
 #include <Matrix.h>
 #include <Node.h>
 #include <Channel.h>
-#include <elementAPI.h>
-#include <string>
+#include <Logging.h>
 #include <LinearCrdTransf2d02.h>
 
 // initialize static variables
 Matrix LinearCrdTransf2d02::Tlg(6, 6);
 Matrix LinearCrdTransf2d02::kg(6, 6);
-
-void *
-OPS_ADD_RUNTIME_VPV(OPS_LinearCrdTransf2d02)
-{
-  if (OPS_GetNumRemainingInputArgs() < 1) {
-    opserr << "insufficient arguments for LinearCrdTransf2d02\n";
-    return 0;
-  }
-
-  // get tag
-  int tag;
-  int numData = 1;
-  if (OPS_GetIntInput(&numData, &tag) < 0)
-    return 0;
-
-  // get option
-  Vector jntOffsetI(2), jntOffsetJ(2);
-  double *iptr = &jntOffsetI(0), *jptr = &jntOffsetJ(0);
-  while (OPS_GetNumRemainingInputArgs() > 4) {
-    std::string type = OPS_GetString();
-    if (type == "-jntOffset") {
-      numData = 2;
-      if (OPS_GetDoubleInput(&numData, iptr) < 0)
-        return 0;
-      if (OPS_GetDoubleInput(&numData, jptr) < 0)
-        return 0;
-    }
-  }
-
-  return new LinearCrdTransf2d02(tag, jntOffsetI, jntOffsetJ);
-}
 
 // constructor:
 LinearCrdTransf2d02::LinearCrdTransf2d02(int tag) // TODO: CLASS TAG
@@ -131,19 +99,19 @@ LinearCrdTransf2d02::~LinearCrdTransf2d02()
 }
 
 int
-LinearCrdTransf2d02::commitState(void)
+LinearCrdTransf2d02::commitState()
 {
   return 0;
 }
 
 int
-LinearCrdTransf2d02::revertToLastCommit(void)
+LinearCrdTransf2d02::revertToLastCommit()
 {
   return 0;
 }
 
 int
-LinearCrdTransf2d02::revertToStart(void)
+LinearCrdTransf2d02::revertToStart()
 {
   return 0;
 }
@@ -193,7 +161,7 @@ LinearCrdTransf2d02::initialize(Node *nodeIPointer, Node *nodeJPointer)
 }
 
 int
-LinearCrdTransf2d02::update(void)
+LinearCrdTransf2d02::update()
 {
   return 0;
 }
@@ -269,13 +237,13 @@ LinearCrdTransf2d02::compTransfMatrixLocalGlobal(Matrix &Tlg)
 }
 
 double
-LinearCrdTransf2d02::getInitialLength(void)
+LinearCrdTransf2d02::getInitialLength()
 {
   return L;
 }
 
 double
-LinearCrdTransf2d02::getDeformedLength(void)
+LinearCrdTransf2d02::getDeformedLength()
 {
   return L;
 }
@@ -302,7 +270,7 @@ LinearCrdTransf2d02::makeBasic(const double ug[6], Vector& ub)
 }
 
 const Vector &
-LinearCrdTransf2d02::getBasicTrialDisp(void)
+LinearCrdTransf2d02::getBasicTrialDisp()
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getTrialDisp();
@@ -329,7 +297,7 @@ LinearCrdTransf2d02::getBasicTrialDisp(void)
 }
 
 const Vector &
-LinearCrdTransf2d02::getBasicIncrDisp(void)
+LinearCrdTransf2d02::getBasicIncrDisp()
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getIncrDisp();
@@ -345,7 +313,7 @@ LinearCrdTransf2d02::getBasicIncrDisp(void)
 }
 
 const Vector &
-LinearCrdTransf2d02::getBasicIncrDeltaDisp(void)
+LinearCrdTransf2d02::getBasicIncrDeltaDisp()
 {
   // determine global displacements
   const Vector &disp1 = nodeIPtr->getIncrDeltaDisp();
@@ -361,7 +329,7 @@ LinearCrdTransf2d02::getBasicIncrDeltaDisp(void)
 }
 
 const Vector &
-LinearCrdTransf2d02::getBasicTrialVel(void)
+LinearCrdTransf2d02::getBasicTrialVel()
 {
   // determine global velocities
   const Vector &vel1 = nodeIPtr->getTrialVel();
@@ -377,7 +345,7 @@ LinearCrdTransf2d02::getBasicTrialVel(void)
 }
 
 const Vector &
-LinearCrdTransf2d02::getBasicTrialAccel(void)
+LinearCrdTransf2d02::getBasicTrialAccel()
 {
   // determine global accelerations
   const Vector &accel1 = nodeIPtr->getTrialAccel();
@@ -436,6 +404,7 @@ LinearCrdTransf2d02::getGlobalResistingForce(const Vector &pb, const Vector &p0)
   return pg;
 }
 
+#if 0
 const Vector &
 LinearCrdTransf2d02::getGlobalResistingForceShapeSensitivity(const Vector &pb,
                                                            const Vector &p0)
@@ -515,6 +484,7 @@ LinearCrdTransf2d02::getGlobalResistingForceShapeSensitivity(const Vector &pb,
 
   return pg;
 }
+#endif
 
 const Matrix &
 LinearCrdTransf2d02::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
@@ -734,7 +704,7 @@ LinearCrdTransf2d02::getInitialGlobalStiffMatrix(const Matrix &kb)
 }
 
 CrdTransf *
-LinearCrdTransf2d02::getCopy2d(void)
+LinearCrdTransf2d02::getCopy2d()
 {
   // create a new instance of LinearCrdTransf2d02
 
@@ -1144,7 +1114,7 @@ LinearCrdTransf2d02::getGlobalResistingForceShapeSensitivity(const Vector &pb,
 }
 
 const Vector &
-LinearCrdTransf2d02::getBasicDisplSensitivity(int gradNumber)
+LinearCrdTransf2d02::getBasicDisplTotalGrad(int gradNumber)
 {
   static Vector U(6);
   static Vector dUdh(6);
@@ -1213,7 +1183,7 @@ LinearCrdTransf2d02::getBasicDisplSensitivity(int gradNumber)
   u(4) = -sinTheta * U(3) + cosTheta * U(4);
   u(5) = U(5);
 
-  double dLdh        = this->getdLdh();
+  double dLdh        = this->getLengthGrad();
   double doneOverLdh = -dLdh / (L * L);
 
   //dvdh = Abl*dudh + dAbldh*u;
@@ -1225,7 +1195,7 @@ LinearCrdTransf2d02::getBasicDisplSensitivity(int gradNumber)
 }
 
 bool
-LinearCrdTransf2d02::isShapeSensitivity(void)
+LinearCrdTransf2d02::isShapeSensitivity()
 {
   int nodeParameterI, nodeParameterJ;
   nodeParameterI = nodeIPtr->getCrdsSensitivity();
@@ -1235,7 +1205,7 @@ LinearCrdTransf2d02::isShapeSensitivity(void)
 }
 
 double
-LinearCrdTransf2d02::getdLdh(void)
+LinearCrdTransf2d02::getLengthGrad()
 {
   int nodeParameterI, nodeParameterJ;
   nodeParameterI = nodeIPtr->getCrdsSensitivity();
@@ -1263,7 +1233,7 @@ LinearCrdTransf2d02::getdLdh(void)
 }
 
 double
-LinearCrdTransf2d02::getd1overLdh(void)
+LinearCrdTransf2d02::getd1overLdh()
 {
   int nodeParameterI, nodeParameterJ;
   nodeParameterI = nodeIPtr->getCrdsSensitivity();
@@ -1291,7 +1261,7 @@ LinearCrdTransf2d02::getd1overLdh(void)
 }
 
 const Vector &
-LinearCrdTransf2d02::getBasicTrialDispShapeSensitivity(void)
+LinearCrdTransf2d02::getBasicDisplFixedGrad()
 {
   // Want to return dAdh * u
 
@@ -1366,51 +1336,6 @@ LinearCrdTransf2d02::getBasicTrialDispShapeSensitivity(void)
 
     ub(2) = ub(1);
   }
-
-  return ub;
-}
-//--- End MHS
-
-//-- Quan
-
-// flag =1; to distinguish from MHS's function
-const Vector &
-LinearCrdTransf2d02::getBasicDisplSensitivity(int gradNumber, int flag)
-{
-
-  // This method is created by simply copying the
-  // getBasicTrialDisp method. Instead of picking
-  // up the nodal displacements we just pick up
-  // the nodal displacement sensitivities.
-
-  static double ug[6];
-  for (int i = 0; i < 3; i++) {
-    ug[i]     = nodeIPtr->getDispSensitivity((i + 1), gradNumber);
-    ug[i + 3] = nodeJPtr->getDispSensitivity((i + 1), gradNumber);
-  }
-
-  static Vector ub(3);
-
-  ub(0) = -cosTheta * ug[0] - sinTheta * ug[1] + cosTheta * ug[3] +
-          sinTheta * ug[4];
-
-  ub(1) = -sl * ug[0] + cl * ug[1] + ug[2] + sl * ug[3] - cl * ug[4];
-
-  if (nodeIOffset != 0) {
-    double t02 = -cosTheta * nodeIOffset[1] + sinTheta * nodeIOffset[0];
-    double t12 = sinTheta * nodeIOffset[1] + cosTheta * nodeIOffset[0];
-    ub(0) -= t02 * ug[2];
-    ub(1) += oneOverL * t12 * ug[2];
-  }
-
-  if (nodeJOffset != 0) {
-    double t35 = -cosTheta * nodeJOffset[1] + sinTheta * nodeJOffset[0];
-    double t45 = sinTheta * nodeJOffset[1] + cosTheta * nodeJOffset[0];
-    ub(0) += t35 * ug[5];
-    ub(1) -= oneOverL * t45 * ug[5];
-  }
-
-  ub(2) = ub(1) + ug[5] - ug[2];
 
   return ub;
 }

@@ -41,6 +41,7 @@ target_sources(OPS_Runtime PRIVATE
     "analysis/ctest.cpp"
     "analysis/solver.cpp"
     "analysis/solver.hpp"
+    "analysis/sensitivity.cpp"
 
 # Utilities
     "utilities/utilities.cpp"
@@ -49,4 +50,5 @@ target_sources(OPS_Runtime PRIVATE
 )
 
 add_subdirectory(domain)
+add_subdirectory(parallel)
 

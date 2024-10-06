@@ -57,7 +57,8 @@
 #include <LoadBalancer.h>
 #include <LoadPatternIter.h>
 #include <LoadPattern.h>
- 
+
+#include <map>
 #include <MapOfTaggedObjects.h>
 
 #include <FileStream.h>
@@ -109,11 +110,11 @@ NodeLocations::addPartition(int partition)
 // Some maps that help handling graphs
 //==================================================================================================
 
-typedef map<int, int> MAP_INT;
+typedef std::map<int, int> MAP_INT;
 typedef MAP_INT::value_type   MAP_INT_TYPE;
 typedef MAP_INT::iterator     MAP_INT_ITERATOR;
 
-typedef map<int, ID *> MAP_ID;
+typedef std::map<int, ID *> MAP_ID;
 typedef MAP_ID::value_type   MAP_ID_TYPE;
 typedef MAP_ID::iterator     MAP_ID_ITERATOR;
 

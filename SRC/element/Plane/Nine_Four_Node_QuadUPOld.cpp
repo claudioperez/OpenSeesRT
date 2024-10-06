@@ -55,14 +55,6 @@ NineFourNodeQuadUP::NineFourNodeQuadUP(int tag,
   Ki(0), Q(22), thickness(t), kc(bulk), rho(r)
 {
     this->shapeFunction(wu, nintu, nenu, 0);
-/*	for( int L = 0; L < nintu; L++) {
-		for( int j = 0; j < nenu; j++) {
-		printf("%5d %5d %15.6e %15.6e %15.6e\n", L+1, j+1,
-			shlu[0][j][L],shlu[1][j][L],shlu[2][j][L]);
-		}
-	}
-	exit(-1);
-*/
     this->shapeFunction(wp, nintp, nenp, 1);
     this->shapeFunction(wp, nintp, nenu, 2);
 
@@ -78,7 +70,6 @@ NineFourNodeQuadUP::NineFourNodeQuadUP(int tag,
     
     if (theMaterial == 0) {
       opserr << "NineFourNodeQuadUP::NineFourNodeQuadUP - failed allocate material model pointer\n";
-      exit(-1);
     }
 
     for (int i = 0; i < nintu; i++) {
@@ -167,18 +158,17 @@ NineFourNodeQuadUP::setDomain(Domain *theDomain)
   }
   
   int i;
-  for (i=0; i<nenu; i++) {
+  for (int i=0; i<nenu; i++) {
     theNodes[i] = theDomain->getNode(connectedExternalNodes(i));
-    if (theNodes[i] == 0) {
+    if (theNodes[i] == nullptr) {
       opserr << "FATAL ERROR NineFourNodeQuadUP, node not found in domain, tag "
 	     << this->getTag();
       return;
     }
   }
-  
-  int dof;
-  for (i=0; i<nenu; i++) {
-    dof = theNodes[i]->getNumberDOF();
+
+  for (int i=0; i<nenu; i++) {
+    int dof = theNodes[i]->getNumberDOF();
     if ((i<nenp && dof != 3) || (i>=nenp && dof != 2)) {
       opserr << "FATAL ERROR NineFourNodeQuadUP, has wrong number of DOFs at its nodes "
 	     << this->getTag();
@@ -273,7 +263,6 @@ NineFourNodeQuadUP::update()
 const Matrix&
 NineFourNodeQuadUP::getTangentStiff()
 {
-  int i, j, j2, j2m1, ik, ib, jk, jb;
   static Matrix B(3,nenu*2);
   static Matrix BTDB(nenu*2,nenu*2);
 
@@ -285,12 +274,13 @@ NineFourNodeQuadUP::getTangentStiff()
   this->globalShapeFunction(dvolu, wu, nintu, nenu, 0); 
   
   // Loop over the integration points
-  for (i = 0; i < nintu; i++) {
+  for (int i = 0; i < nintu; i++) {
     
+    int j, j2, j2m1, ik, ib, jk, jb;
     // Get the material tangent
     const Matrix &D = theMaterial[i]->getTangent();
     
-	for (j=0; j<nenu; j++) {
+	for (int j=0; j<nenu; j++) {
 		j2 = j*2+1;
 		j2m1 = j*2;
         B(0,j2m1) = shgu[0][j][i];
@@ -306,12 +296,12 @@ NineFourNodeQuadUP::getTangentStiff()
     BTDB.addMatrixTripleProduct(1.0, B, D, dvolu[i]);
   }
 
-  for (i = 0; i < nenu; i++) {
+  for (int i = 0; i < nenu; i++) {
 	  if (i<nenp) ik = i*3;
       if (i>=nenp) ik = nenp*3 + (i-nenp)*2;
       ib = i*2;
 
-	  for (j = 0; j < nenu; j++) {
+	  for (int j = 0; j < nenu; j++) {
 		  if (j<nenp) jk = j*3;
 		  if (j>=nenp) jk = nenp*3 + (j-nenp)*2;
           jb = j*2;
@@ -329,7 +319,8 @@ NineFourNodeQuadUP::getTangentStiff()
 
 const Matrix &NineFourNodeQuadUP::getInitialStiff () 
 {
-  if (Ki != 0) return *Ki;
+  if (Ki != 0) 
+    return *Ki;
 
   int i, j, j2, j2m1, ik, ib, jk, jb;
   static Matrix B(3,nenu*2);
@@ -565,13 +556,13 @@ const Vector&
 NineFourNodeQuadUP::getResistingForce()
 {
   P.Zero();
-  
-  int i, j, jk;
 
   // Determine Jacobian for this integration point
   this->globalShapeFunction(dvolu, wu, nintu, nenu, 0); 
   this->globalShapeFunction(dvolp, wp, nintp, nenp, 1); 
   
+  int i, j, jk;
+
   // Loop over the integration points
   for (i = 0; i < nintu; i++) {
 
@@ -581,7 +572,7 @@ NineFourNodeQuadUP::getResistingForce()
     // Perform numerical integration on internal force
     //P = P + (B^ sigma) * intWt(i)*intWt(j) * detJ;
     //P.addMatrixTransposeVector(1.0, B, sigma, intWt(i)*intWt(j)*detJ);
-	for (j = 0; j < nenu; j++) {
+	for (int j = 0; j < nenu; j++) {
 		if (j<nenp) jk = j*3;
 	    if (j>=nenp) jk = nenp*3 + (j-nenp)*2;
 

@@ -805,9 +805,9 @@ DispBeamColumn2dThermal::addLoad(ElementalLoad *theLoad, double loadFactor)
       }
     }
 
-    q0[0] -= q0Temperature[0];
-    q0[1] -= q0Temperature[1];
-    q0[2] -= q0Temperature[2];
+    // q0[0] -= q0Temperature[0];
+    // q0[1] -= q0Temperature[1];
+    // q0[2] -= q0Temperature[2];
 
   } else if (type == LOAD_TAG_NodalThermalAction) {
     //NodalLoad* theNodalThermal0,theNodalThermal1;
@@ -898,9 +898,9 @@ DispBeamColumn2dThermal::addLoad(ElementalLoad *theLoad, double loadFactor)
       }
     }
 
-    q0[0] -= q0Temperature[0];
-    q0[1] -= q0Temperature[1];
-    q0[2] -= q0Temperature[2];
+    // q0[0] -= q0Temperature[0];
+    // q0[1] -= q0Temperature[1];
+    // q0[2] -= q0Temperature[2];
   }
   //----------------------------------------------
   else if (type == LOAD_TAG_ThermalActionWrapper) {
@@ -980,9 +980,9 @@ DispBeamColumn2dThermal::addLoad(ElementalLoad *theLoad, double loadFactor)
     }
     //end of for loop
 
-    q0[0] -= q0Temperature[0];
-    q0[1] -= q0Temperature[1];
-    q0[2] -= q0Temperature[2];
+    // q0[0] -= q0Temperature[0];
+    // q0[1] -= q0Temperature[1];
+    // q0[2] -= q0Temperature[2];
   }
   //----------------------------------------
   else {
@@ -1785,7 +1785,7 @@ DispBeamColumn2dThermal::getResponse(int responseID, Information &eleInfo)
 
   // Basic deformation sensitivity
   else if (responseID == 6) {
-    const Vector &dvdh = crdTransf->getBasicDisplSensitivity(1);
+    const Vector &dvdh = crdTransf->getBasicDisplTotalGrad(1);
     return eleInfo.setVector(dvdh);
   }
 
@@ -2049,13 +2049,13 @@ DispBeamColumn2dThermal::getResistingForceSensitivity(int gradNumber)
     }
 
     const Vector &A_u = crdTransf->getBasicTrialDisp();
-    double dLdh       = crdTransf->getdLdh();
+    double dLdh       = crdTransf->getLengthGrad();
     double d1overLdh  = -dLdh / (L * L);
     // a^T k_s dadh v
     dqdh.addMatrixVector(1.0, kbmine, A_u, d1overLdh);
 
     // k dAdh u
-    const Vector &dAdh_u = crdTransf->getBasicTrialDispShapeSensitivity();
+    const Vector &dAdh_u = crdTransf->getBasicDisplFixedGrad();
     dqdh.addMatrixVector(1.0, kbmine, dAdh_u, oneOverL);
 
     // dAdh^T q
@@ -2076,7 +2076,7 @@ DispBeamColumn2dThermal::commitSensitivity(int gradNumber, int numGrads)
   const Vector &v = crdTransf->getBasicTrialDisp();
 
   static Vector dvdh(3);
-  dvdh = crdTransf->getBasicDisplSensitivity(gradNumber);
+  dvdh = crdTransf->getBasicDisplTotalGrad(gradNumber);
 
   double L        = crdTransf->getInitialLength();
   double oneOverL = 1.0 / L;

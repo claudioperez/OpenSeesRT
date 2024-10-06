@@ -41,12 +41,12 @@ class DOF_Group;
 class Vector;
 class ID;
 
+
 class Integrator: public MovableObject
 {
 public:
     Integrator(int classTag);
-    virtual ~Integrator();
-    
+    virtual ~Integrator(); 
 
     virtual int formEleTangent(FE_Element *theEle)  =0;
     virtual int formNodTangent(DOF_Group *theDof)   =0;
@@ -68,22 +68,22 @@ public:
     virtual int formIndependentSensitivityRHS();
     virtual int saveSensitivity   (const Vector &v, int gradNum, int numGrads);
     virtual int commitSensitivity (int gradNum, int numGrads);
+
     ////////////////////////////////Abbas//////////////////
     virtual int formEleTangentSensitivity(FE_Element *theEle, int gradNumber);  
 //  virtual double getLambdaSensitivity(int gradNumber);
     virtual int computeSensitivities();
     int sensitivityDomainChanged();
-    bool shouldComputeAtEachStep(void);
+    bool shouldComputeAtEachStep();
     void setComputeType(int flag);
-    bool newAlgorithm(void) {return true;}
+    bool newAlgorithm() {return true;}
     virtual  bool computeSensitivityAtEachIteration();    
     void activateSensitivityKey() {SensitivityKey=true;}
     bool activateSensitivity() {return SensitivityKey;};
-    ///////////////////////////////Abbas//////////////////
+
 
 protected:
 private:
-
     int analysisTypeTag;
     bool SensitivityKey;
 };

@@ -40,11 +40,13 @@ class OPS_Stream:  public MovableObject
   enum class Float { Fixed, Scientific };
 
   // output format
-  virtual int setFile(const char *fileName, openMode mode = openMode::OVERWRITE, bool echo = false) {return 0;}
-  virtual int setPrecision(int precision) {return 0;}
+  virtual int setFile([[maybe_unused]] const char *fileName, 
+                      [[maybe_unused]] openMode mode = openMode::OVERWRITE, 
+                      [[maybe_unused]] bool echo = false) {return 0;}
+  virtual int setPrecision([[maybe_unused]] int precision) {return 0;}
   virtual int setFloatField(Float) {return 0;}
-  virtual int precision(int precision) {return 0;}
-  virtual int width(int width) {return 0;}
+  virtual int precision([[maybe_unused]] int precision) {return 0;}
+  virtual int width([[maybe_unused]] int width) {return 0;}
 
   // xml stuff
   virtual int tag(const char *) =0;
@@ -63,23 +65,23 @@ class OPS_Stream:  public MovableObject
   virtual OPS_Stream& write(const void *s, int n);
   virtual OPS_Stream& write(const double *s, int n);
 
-  virtual OPS_Stream& operator<<(char c);
-  virtual OPS_Stream& operator<<(unsigned char c);
-  virtual OPS_Stream& operator<<(signed char c);
-  virtual OPS_Stream& operator<<(const char *s);
-  virtual OPS_Stream& operator<<(const unsigned char *s);
-  virtual OPS_Stream& operator<<(const signed char *s);
-  virtual OPS_Stream& operator<<(const void *p);
-  virtual OPS_Stream& operator<<(int n);
-  virtual OPS_Stream& operator<<(unsigned int n);
-  virtual OPS_Stream& operator<<(long n);
-  virtual OPS_Stream& operator<<(unsigned long n);
-  virtual OPS_Stream& operator<<(short n);
-  virtual OPS_Stream& operator<<(unsigned short n);
-  virtual OPS_Stream& operator<<(bool b);
-  virtual OPS_Stream& operator<<(double n);
-  virtual OPS_Stream& operator<<(float n);
-  virtual OPS_Stream& operator<<(std::string const&s) { return *this;};
+  virtual OPS_Stream& operator<<([[maybe_unused]] char c);
+  virtual OPS_Stream& operator<<([[maybe_unused]] unsigned char c);
+  virtual OPS_Stream& operator<<([[maybe_unused]] signed char c);
+  virtual OPS_Stream& operator<<([[maybe_unused]] const char *s);
+  virtual OPS_Stream& operator<<([[maybe_unused]] const unsigned char *s);
+  virtual OPS_Stream& operator<<([[maybe_unused]] const signed char *s);
+  virtual OPS_Stream& operator<<([[maybe_unused]] const void *p);
+  virtual OPS_Stream& operator<<([[maybe_unused]] int n);
+  virtual OPS_Stream& operator<<([[maybe_unused]] unsigned int n);
+  virtual OPS_Stream& operator<<([[maybe_unused]] long n);
+  virtual OPS_Stream& operator<<([[maybe_unused]] unsigned long n);
+  virtual OPS_Stream& operator<<([[maybe_unused]] short n);
+  virtual OPS_Stream& operator<<([[maybe_unused]] unsigned short n);
+  virtual OPS_Stream& operator<<([[maybe_unused]] bool b);
+  virtual OPS_Stream& operator<<([[maybe_unused]] double n);
+  virtual OPS_Stream& operator<<([[maybe_unused]] float n);
+  virtual OPS_Stream& operator<<([[maybe_unused]] std::string const&s) { return *this;};
 
   // parallel stuff
   virtual void setAddCommon(int);

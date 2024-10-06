@@ -1,21 +1,21 @@
 
 
-#include <g3_api.h>
-#include <SRC/analysis/integrator/AlphaOSGeneralized.h>
-#include <SRC/analysis/integrator/AlphaOSGeneralized_TP.h>
+#include <Parsing.h>
 
-#include <SRC/analysis/integrator/TRBDF3.h>
+#include <Dynamic/TRBDF3.h>
 int
 TclCommand_createTRBDF3() {
   return new TRBDF3();
 }
 
-#include <SRC/analysis/integrator/Houbolt.h>
+#include <Dynamic/Houbolt.h>
 int
 TclCommand_createHoubolt() {
   return new Houbolt(); 
 }
 
+#include <Dynamic/AlphaOSGeneralized.h>
+#include <Dynamic/AlphaOSGeneralized_TP.h>
 int
 TclCommand_createAlphaOSGeneralized(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char**const argv) {
   // pointer to an integrator that will be returned
@@ -108,10 +108,9 @@ TclCommand_createAlphaOSGeneralized_TP(ClientData clientData, Tcl_Interp* interp
 }
 
 
-#include <g3_api.h>
 
 
-#include <SRC/analysis/integrator/AlphaOS.h>
+#include <Dynamic/AlphaOS.h>
 int
 TclCommand_createAlphaOS(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char**const argv) {
   // pointer to an integrator that will be returned
@@ -155,7 +154,6 @@ TclCommand_createAlphaOS(ClientData clientData, Tcl_Interp* interp, int argc, TC
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/AlphaOS_TP.h>
@@ -203,7 +201,6 @@ TclCommand_createAlphaOS_TP(ClientData clientData, Tcl_Interp* interp, int argc,
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/ArcLength1.h>
@@ -253,7 +250,6 @@ TclCommand_createArcLength()
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/BackwardEuler.h>
@@ -272,7 +268,6 @@ TclCommand_createBackwardEuler() {
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/CentralDifferenceAlternative.h>
@@ -287,7 +282,6 @@ TclCommand_createCentralDifferenceAlternative(ClientData clientData, Tcl_Interp*
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/CentralDifferenceNoDamping.h>
@@ -302,7 +296,6 @@ TclCommand_createCentralDifferenceNoDamping(ClientData clientData, Tcl_Interp* i
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/CentralDifference.h>
@@ -317,7 +310,6 @@ TclCommand_createCentralDifference(ClientData clientData, Tcl_Interp* interp, in
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/CollocationHSFixedNumIter.h>
@@ -381,7 +373,6 @@ TclCommand_createCollocationHSFixedNumIter(ClientData clientData, Tcl_Interp* in
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/CollocationHSIncrLimit.h>
@@ -446,7 +437,6 @@ TclCommand_createCollocationHSIncrLimit(ClientData clientData, Tcl_Interp* inter
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/CollocationHSIncrReduct.h>
@@ -487,7 +477,6 @@ TclCommand_createCollocationHSIncrReduct(ClientData clientData, Tcl_Interp* inte
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/Collocation.h>
@@ -519,7 +508,6 @@ TclCommand_createCollocation(ClientData clientData, Tcl_Interp* interp, int argc
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/DisplacementControl.h>
@@ -590,26 +578,6 @@ TclCommand_createDisplacementControlIntegrator() {
 }
 
 
-#include <g3_api.h>
-
-
-#include <SRC/analysis/integrator/DistributedDisplacementControl.h>
-
-
-#include <g3_api.h>
-
-
-#include <SRC/analysis/integrator/EigenIntegrator.h>
-
-
-#include <g3_api.h>
-
-
-#include <SRC/analysis/integrator/EQPath.h>
-
-
-#include <g3_api.h>
-
 
 #include <SRC/analysis/integrator/ExplicitDifference.h>
 int
@@ -621,7 +589,6 @@ TclCommand_createExplicitDifference(ClientData clientData, Tcl_Interp* interp, i
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/GeneralizedAlpha.h>
@@ -654,7 +621,6 @@ TclCommand_createGeneralizedAlpha(ClientData clientData, Tcl_Interp* interp, int
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/GimmeMCK.h>
@@ -692,7 +658,6 @@ TclCommand_createGimmeMCK(ClientData clientData, Tcl_Interp* interp, int argc, T
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HarmonicSteadyState.h>
@@ -736,7 +701,6 @@ TclCommand_createHarmonicSteadyState() {
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTExplicit.h>
@@ -790,7 +754,6 @@ TclCommand_createHHTExplicit(ClientData clientData, Tcl_Interp* interp, int argc
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTExplicit_TP.h>
@@ -822,7 +785,6 @@ TclCommand_createHHTExplicit_TP(ClientData clientData, Tcl_Interp* interp, int a
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTGeneralizedExplicit.h>
@@ -872,7 +834,6 @@ TclCommand_createHHTGeneralizedExplicit(ClientData clientData, Tcl_Interp* inter
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTGeneralizedExplicit_TP.h>
@@ -909,7 +870,6 @@ TclCommand_createHHTGeneralizedExplicit_TP(ClientData clientData, Tcl_Interp* in
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTGeneralized.h>
@@ -942,7 +902,6 @@ TclCommand_createHHTGeneralized(ClientData clientData, Tcl_Interp* interp, int a
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTGeneralized_TP.h>
@@ -976,7 +935,6 @@ TclCommand_createHHTGeneralized_TP(ClientData clientData, Tcl_Interp* interp, in
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTHSFixedNumIter.h>
@@ -1034,7 +992,6 @@ TclCommand_createHHTHSFixedNumIter(ClientData clientData, Tcl_Interp* interp, in
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTHSFixedNumIter_TP.h>
@@ -1092,7 +1049,6 @@ TclCommand_createHHTHSFixedNumIter_TP(ClientData clientData, Tcl_Interp* interp,
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTHSIncrLimit.h>
@@ -1149,7 +1105,6 @@ TclCommand_createHHTHSIncrLimit(ClientData clientData, Tcl_Interp* interp, int a
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTHSIncrLimit_TP.h>
@@ -1206,7 +1161,6 @@ TclCommand_createHHTHSIncrLimit_TP(ClientData clientData, Tcl_Interp* interp, in
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTHSIncrReduct.h>
@@ -1242,7 +1196,6 @@ TclCommand_createHHTHSIncrReduct(ClientData clientData, Tcl_Interp* interp, int 
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHTHSIncrReduct_TP.h>
@@ -1278,7 +1231,6 @@ TclCommand_createHHTHSIncrReduct_TP(ClientData clientData, Tcl_Interp* interp, i
   return theIntegrator;
 }
 
-#include <g3_api.h>
 #include <SRC/analysis/integrator/HHT.h>
 
 int
@@ -1309,7 +1261,6 @@ TclCommand_createHHT(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Ch
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HHT_TP.h>
@@ -1340,12 +1291,10 @@ TclCommand_createHHT_TP(ClientData clientData, Tcl_Interp* interp, int argc, TCL
 }
 
 
-#include <g3_api.h>
 
 
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/HSConstraint.h>
@@ -1385,7 +1334,6 @@ TclCommand_createHSConstraint() {
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/KRAlphaExplicit.h>
@@ -1422,7 +1370,6 @@ TclCommand_createKRAlphaExplicit(ClientData clientData, Tcl_Interp* interp, int 
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/KRAlphaExplicit_TP.h>
@@ -1450,7 +1397,6 @@ TclCommand_createKRAlphaExplicit_TP(ClientData clientData, Tcl_Interp* interp, i
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/LoadControl.h>
@@ -1486,13 +1432,11 @@ TclCommand_createLoadControlIntegrator() {
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/LoadPath.h>
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/MinUnbalDispNorm.h>
@@ -1544,7 +1488,6 @@ TclCommand_createMinUnbalDispNorm() {
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/Newmark1.h>
@@ -1574,7 +1517,6 @@ TclCommand_createNewmark1() {
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/NewmarkExplicit.h>
@@ -1602,7 +1544,6 @@ TclCommand_createNewmarkExplicit(ClientData clientData, Tcl_Interp* interp, int 
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/NewmarkHSFixedNumIter.h>
@@ -1648,7 +1589,6 @@ TclCommand_createNewmarkHSFixedNumIter(ClientData clientData, Tcl_Interp* interp
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/NewmarkHSIncrLimit.h>
@@ -1693,7 +1633,6 @@ TclCommand_createNewmarkHSIncrLimit(ClientData clientData, Tcl_Interp* interp, i
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/NewmarkHSIncrReduct.h>
@@ -1723,7 +1662,6 @@ TclCommand_createNewmarkHSIncrReduct(ClientData clientData, Tcl_Interp* interp, 
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/Newmark.h>
@@ -1771,7 +1709,6 @@ TclCommand_createNewmark(ClientData clientData, Tcl_Interp* interp, int argc, TC
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/StagedLoadControl.h>
@@ -1852,15 +1789,15 @@ TclCommand_createStagedNewmark(ClientData clientData, Tcl_Interp* interp, int ar
 }
 
 
-#include <g3_api.h>
 
 
 #include <SRC/analysis/integrator/TRBDF2.h>
 int
-TclCommand_createTRBDF2() { return new TRBDF2(); }
+TclCommand_createTRBDF2() {
+  return new TRBDF2(); 
+}
 
 
-#include <g3_api.h>
 #include <SRC/analysis/integrator/WilsonTheta.h>
 
 int

@@ -37,9 +37,10 @@
 #
 #----------------------------------------------------------------
 
-find_package(MPI)
 set(CMAKE_PREFIX_PATH "/usr/lib")
 include(OpenSeesFunctions)
+
+#find_package(MPI)
 
 opensees_load(BLAS                                           FIND)
 

@@ -23,7 +23,6 @@
 //
 #include <BFGS.h>
 #include <AnalysisModel.h>
-#include <StaticAnalysis.h>
 #include <IncrementalIntegrator.h>
 #include <LinearSOE.h>
 #include <Channel.h>

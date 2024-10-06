@@ -38,7 +38,10 @@
 //
 // What: "@(#) NDMaterial.h, revA"
 
-#include <Material.h>
+#include <Vector.h> // TODO: remove this include
+#include <TaggedObject.h>
+#include <MovableObject.h>
+// #include <Material.h>
 
 class Matrix;
 class ID;
@@ -46,7 +49,8 @@ class Vector;
 class Information;
 class Response;
 
-class NDMaterial : public Material
+class NDMaterial : // public Material
+                   public TaggedObject, public MovableObject
 {
   public:
     NDMaterial(int tag, int classTag);

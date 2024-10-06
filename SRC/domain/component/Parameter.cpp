@@ -47,7 +47,7 @@ Parameter::Parameter(int passedTag,
     parameterID[i] = 0;
   }
 
-  if (parentObject != 0) {
+  if (parentObject != nullptr) {
     ok = parentObject->setParameter(argv, argc, *this);
     theComponents[0] = parentObject;
     numComponents = 1;
@@ -211,15 +211,31 @@ Parameter::activate(bool active)
 double
 Parameter::getSensitivity(int index)
 {
-  //return 1.0;
   return (index == gradIndex) ? 1.0 : 0.0;
 }
 
 void
 Parameter::Print(OPS_Stream &s, int flag)  
 {
-  s << "Parameter, tag = " << this->getTag() << " " << this->getValue() << endln;
-  //s << "\tparameterID = " << parameterID << endln;
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+      s << "\"name\": " << this->getTag() << "," << " ";
+      s << "\"value\": " << this->getValue();
+      s << ", ";
+      s << "\"index\": " << gradIndex ;
+      s << ", ";
+      s << "\"objects\": [" ;
+//    for (int i=0; i<numObjects-1; i++)
+//      s << "\"" << theObjects[i]->getClassType() << "\", ";
+//    s << "\"" << theObjects[numObjects-1]->getClassType() << "\"";
+      s << "]";
+      s << "}";
+
+      return;
+
+    } else {
+      s << "Parameter, tag = " << this->getTag() << " " << this->getValue() << endln;
+  }
 }
 
 
@@ -275,13 +291,13 @@ Parameter::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBro
 }
 
 int 
-Parameter::clean(void)
+Parameter::clean()
 {
   for (int i = 0; i < numObjects; i++) {
-    theObjects[i] = 0;
+    theObjects[i] = nullptr;
   }
   for (int i = 0; i < numComponents; i++) {
-    theComponents[i] = 0;
+    theComponents[i] = nullptr;
   }
 
   numObjects = 0;

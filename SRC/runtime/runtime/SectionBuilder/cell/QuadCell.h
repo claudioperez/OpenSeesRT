@@ -23,48 +23,40 @@
 // Written by Remo M. de Souza
 // December 1998
 
-
-#ifndef QuadCell_h 
-#define QuadCell_h 
+#ifndef QuadCell_h
+#define QuadCell_h
 
 #include <Cell.h>
 #include <Vector.h>
 
 class Matrix;
 class Vector;
+class OPS_Stream;
 
+class QuadCell : public Cell {
+public:
+  QuadCell();
+  QuadCell(const Matrix& vertexCoords);
 
-class QuadCell: public Cell
-{
-  public:
+  ~QuadCell();
 
-    QuadCell();
-    QuadCell(const Matrix &vertexCoords);
-        
-    ~QuadCell();
-    
-    // edition functions
+  // edition functions
 
-    void setVertCoords (const Matrix &vertexCoords);
+  void setVertCoords(const Matrix& vertexCoords);
 
-    // reinforcing bar inquiring functions
-    
-    double getArea() const;
-    double getdValue() const;
-    const  Matrix &getVertCoords() const;
-    const  Vector &getCentroidPosition();
+  // reinforcing bar inquiring functions
 
-    void Print(OPS_Stream &s, int flag =0) const;   
-    friend OPS_Stream &operator<<(OPS_Stream &s, const QuadCell &quadCell);    
-    
-  protected:
-    
-  private:
-    Matrix vertCoord;
-    Vector Centroid;
-//    double area;
+  double getArea() const;
+  double getdValue() const;
+  const Matrix& getVertCoords() const;
+  const Vector& getCentroidPosition();
+
+  void Print(OPS_Stream& s, int flag = 0) const;
+
+protected:
+private:
+  Matrix vertCoord;
+  Vector Centroid;
 };
 
-
 #endif
-

@@ -1,6 +1,6 @@
 [project]
 name = "opensees"
-version = "0.1.0"
+version = "0.1.3"
 authors = [
   {name="Claudio M. Perez"}
   # <50180406+claudioperez@users.noreply.github.com>"
@@ -10,7 +10,7 @@ license = {file = "LICENSE.txt"}
 
 readme = "about/README.md"
 
-description = "Fast nonlinear finite element analysis."
+description = "Nonlinear finite element analysis."
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -41,6 +41,7 @@ classifiers = [
 
 keywords = [
     "seismic",
+    "computational-mechanics",
     "structural-analysis",
     "finite-element-analysis",
     "earthquake",
@@ -89,13 +90,14 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["SRC"]
-exclude = ["libg3*", "site*"]
+include=["opensees*"]
+exclude = ["SRC*", "site*"]
 
 [tool.setuptools.package-data]
 opensees = ["*.py", "*.so", "*.dll", "*.dylib"]
 
 [tool.setuptools.exclude-package-data]
-opensees = ["site*", "docs*", "*.html", "*.cmake"]
+opensees = ["site*", "docs*", "tools", "*.html", ".git*", "*.[htc]pp", "*.[ch]", "*.cmake", "*.tex", "*.txt"]
 
 
 [tool.cibuildwheel]
@@ -111,7 +113,7 @@ skip = ["pp*", "*i686*", "UNKNOWN*", "*musllinux*", "cp3[6789]-*"]
 
 
 [tool.cibuildwheel.linux]
-skip = ["pp*", "*i686*", "UNKNOWN*", "*musllinux*", "cp3[67]-*"]
+skip = ["pp*", "*i686*", "UNKNOWN*", "*musllinux*", "cp3[678]-*"]
 before-all = "yum install -y epel-release"
 before-build = "yum install -y tcl-devel mysql-devel openblas-devel" # lapack-devel
 repair-wheel-command = "auditwheel repair --exclude libOpenSeesRT.so  -w {dest_dir} {wheel}"

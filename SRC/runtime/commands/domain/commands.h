@@ -117,7 +117,7 @@ Tcl_CmdProc getParamValue;
 //
 
 
-// AddingSensitivity:BEGIN /////////////////////////////////////////////////
+// sensitivity.cpp
 Tcl_CmdProc computeGradients;
 Tcl_CmdProc sensNodeDisp;
 Tcl_CmdProc sensLambda; // Abbas
@@ -125,9 +125,9 @@ Tcl_CmdProc sensNodeVel;
 Tcl_CmdProc sensNodeAccel;
 Tcl_CmdProc sensNodePressure;
 Tcl_CmdProc sensSectionForce;
-Tcl_CmdProc sensitivityAlgorithm;
+Tcl_CmdProc TclCommand_sensitivityAlgorithm;
 // Tcl_CmdProc sensitivityIntegrator;
-// AddingSensitivity:END ///////////////////////////////////////////////////
+
 
 // Tcl_CmdProc startTimer;
 // Tcl_CmdProc stopTimer;

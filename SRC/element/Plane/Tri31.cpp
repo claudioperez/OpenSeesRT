@@ -39,7 +39,6 @@ using OpenSees::VectorND;
 #include <FEM_ObjectBroker.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
-#include <map>
 
 double Tri31::matrixData[36];
 Matrix Tri31::K(matrixData, 6, 6);
@@ -50,11 +49,14 @@ double Tri31::wts[1];
 
 Tri31::Tri31(int tag, 
              std::array<int,3> &nodes,
-             NDMaterial &m, const char *type, double t,
-             double p, double r, double b1, double b2)
+             NDMaterial &m, 
+             const char *type, 
+             double thickness,
+             double p, double r, 
+             double b1, double b2)
 : Element(tag, ELE_TAG_Tri31), 
   connectedExternalNodes(NEN), 
-  Q(6), pressureLoad(6), thickness(t), pressure(p), rho(r), Ki(0)
+  Q(6), pressureLoad(6), thickness(thickness), pressure(p), rho(r), Ki(0)
 {
 
     pts[0][0] = 0.333333333333333;
@@ -73,7 +75,7 @@ Tri31::Tri31(int tag,
         // Check allocation
         if (theMaterial[i] == nullptr) {
             opserr << "Tri31::Tri31 -- failed to get a copy of material model\n";
-            exit(-1);
+            return;
         }
     }
 
@@ -86,8 +88,10 @@ Tri31::Tri31(int tag,
 
 Tri31::Tri31()
  : Element (0,ELE_TAG_Tri31),
-   connectedExternalNodes(3), 
-   Q(6), pressureLoad(6), thickness(0.0), pressure(0.0),
+   connectedExternalNodes(NEN), 
+   Q(6), pressureLoad(6), 
+   thickness(0.0), 
+   pressure(0.0),
    Ki(nullptr)
 {
     pts[0][0] = 0.333333333333333;
@@ -126,7 +130,7 @@ Tri31::getExternalNodes()
 Node **
 Tri31::getNodePtrs() 
 {
-  return theNodes;
+  return &theNodes[0];
 }
 
 int
@@ -134,9 +138,8 @@ Tri31::getNumDOF()
 {
   int sum = 0;
 
-  sum += theNodes[0]->getNumberDOF();
-  sum += theNodes[1]->getNumberDOF();
-  sum += theNodes[2]->getNumberDOF();
+  for (const Node* node: theNodes)
+    sum += node->getNumberDOF();
 
   return sum;
 }
@@ -179,17 +182,18 @@ Tri31::setDomain(Domain *theDomain)
 int
 Tri31::commitState()
 {
-    int retVal = 0;
+  int retVal = 0;
 
-    // call element commitState to do any base class stuff
-    if ((retVal = this->Element::commitState()) != 0) {
-        opserr << "Tri31::commitState () - failed in base class";
-    }    
-
-    // Loop over the integration points and commit the material states
-    for (int i = 0; i < NIP; i++) retVal += theMaterial[i]->commitState();
-
+  // call element commitState to do any base class stuff
+  if ((retVal = this->Element::commitState()) != 0) {
     return retVal;
+  }    
+
+  // Loop over the integration points and commit the material states
+  for (int i = 0; i < NIP; i++) 
+    retVal += theMaterial[i]->commitState();
+
+  return retVal;
 }
 
 int
@@ -209,7 +213,8 @@ Tri31::revertToStart()
     int retVal = 0;
 
     // Loop over the integration points and revert states to start
-    for (int i = 0; i < NIP; i++) retVal += theMaterial[i]->revertToStart();
+    for (int i = 0; i < NIP; i++) 
+      retVal += theMaterial[i]->revertToStart();
 
     return retVal;
 }
@@ -360,8 +365,7 @@ Tri31::getMass()
 {
     K.Zero();
 
-    int i;
-    static double rhoi[1]; //NIP
+    static double rhoi[1]; // NIP
     double sum = 0.0;
     for (int i = 0; i < NIP; i++) {
         if (rho == 0)
@@ -371,13 +375,13 @@ Tri31::getMass()
         sum += rhoi[i];
     }
 
-    if (sum == 0.0) return K;
+    if (sum == 0.0)
+        return K;
 
-    double rhodvol, Nrho;
 
     // Compute a lumped mass matrix
     for (int i = 0; i < NIP; i++) {
-        
+        double rhodvol, Nrho;
         // Determine Jacobian for this integration point
         rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
 
@@ -429,15 +433,14 @@ Tri31::addLoad(ElementalLoad *theLoad, double loadFactor)
 int 
 Tri31::addInertiaLoadToUnbalance(const Vector &accel)
 {
-    int i;
     static double rhoi[1]; //NIP
     double sum = 0.0;
-    for (i = 0; i < NIP; i++) {
-            if(rho == 0) {
-                rhoi[i] = theMaterial[i]->getRho();
-            } else {
-                rhoi[i] = rho;
-            }
+    for (int i = 0; i < NIP; i++) {
+        if(rho == 0) {
+            rhoi[i] = theMaterial[i]->getRho();
+        } else {
+            rhoi[i] = rho;
+        }
         sum += rhoi[i];
     }
 
@@ -468,7 +471,8 @@ Tri31::addInertiaLoadToUnbalance(const Vector &accel)
 
     // Want to add ( - fact * M R * accel ) to unbalance
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 2*NEN; i++) Q(i) += -K(i,i)*ra[i];
+    for (int i = 0; i < 2*NEN; i++) 
+        Q(i) += -K(i,i)*ra[i];
 
     return 0;
 }
@@ -528,10 +532,9 @@ Tri31::getResistingForce()
 const Vector&
 Tri31::getResistingForceIncInertia()
 {
-    int i;
-    static double rhoi[1]; //NIP
+    double rhoi[1]; //NIP
     double sum = 0.0;
-    for (i = 0; i < NIP; i++) {
+    for (int i = 0; i < NIP; i++) {
             if(rho == 0) {
         rhoi[i] = theMaterial[i]->getRho();
             } else {
@@ -550,30 +553,26 @@ Tri31::getResistingForceIncInertia()
         return P;
     }
 
-    const Vector &accel1 = theNodes[0]->getTrialAccel();
-    const Vector &accel2 = theNodes[1]->getTrialAccel();
-    const Vector &accel3 = theNodes[2]->getTrialAccel();
-    
-    static double a[6];
-
-    a[0] = accel1(0);
-    a[1] = accel1(1);
-    a[2] = accel2(0);
-    a[3] = accel2(1);
-    a[4] = accel3(0);
-    a[5] = accel3(1);
+    double a[NDF*NEN];
+    for (int i=0; i<NEN; i++) {
+        const Vector &accel = theNodes[i]->getTrialAccel();
+        for (int j=0; j<NDF; j++)
+          a[i*NDF+j] = accel[j];
+    }
 
     // Compute the current resisting force
     this->getResistingForce();
 
     // Compute the mass matrix
-    this->getMass();
+    const Matrix& M = this->getMass();
 
     // Take advantage of lumped mass matrix
-    for (i = 0; i < 2*NEN; i++) P(i) += K(i,i)*a[i];
+    for (int i = 0; i < 2*NEN; i++) 
+        P[i] += M(i,i)*a[i];
 
     // add the damping forces if rayleigh damping
-    if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0) P += this->getRayleighDampingForces();
+    if (alphaM != 0.0 || betaK != 0.0 || betaK0 != 0.0 || betaKc != 0.0) 
+        P += this->getRayleighDampingForces();
 
     return P;
 }
@@ -608,21 +607,20 @@ Tri31::sendSelf(int commitTag, Channel &theChannel)
         return res;
     }          
   
-    // Now Tri31 sends the ids of its materials
-    int matDbTag;
+    // Now send the ids of our materials
     int count=0;
   
     static ID idData(2*NIP+NEN+1);
-  
-    int i;
-    for (i = 0; i < NIP; i++) { 
+
+    for (int i = 0; i < NIP; i++) { 
         idData(i) = theMaterial[i]->getClassTag();
-        matDbTag = theMaterial[i]->getDbTag();
+        int matDbTag = theMaterial[i]->getDbTag();
         // NOTE: we do have to ensure that the material has a database
         // tag if we are sending to a database channel.
         if (matDbTag == 0) {
             matDbTag = theChannel.getDbTag();
-            if (matDbTag != 0) theMaterial[i]->setDbTag(matDbTag);
+            if (matDbTag != 0) 
+                theMaterial[i]->setDbTag(matDbTag);
         }
         idData(i+NIP) = matDbTag;
     }
@@ -638,7 +636,7 @@ Tri31::sendSelf(int commitTag, Channel &theChannel)
     }
 
     // Finally, Tri31 asks its material objects to send themselves
-    for (i = 0; i < NIP; i++) {
+    for (int i = 0; i < NIP; i++) {
         res += theMaterial[i]->sendSelf(commitTag, theChannel);
         if (res < 0) {
             opserr << "WARNING Tri31::sendSelf() - " << this->getTag() << " failed to send its Material\n";
@@ -744,18 +742,25 @@ void
 Tri31::Print(OPS_Stream &s, int flag)                                                                 
 {
 
+    const ID& node_tags = this->getExternalNodes();
+
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
         s << OPS_PRINT_JSON_ELEM_INDENT << "{";
         s << "\"name\": " << this->getTag() << ", ";
         s << "\"type\": \"" << this->getClassType() << "\", ";
-        s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-        s << connectedExternalNodes(1) << ", ";
-        s << connectedExternalNodes(2) << "], ";
+  
+        s << "\"nodes\": [";
+        for (int i=0; i < NEN-1; i++)
+            s << node_tags(i) << ", ";
+        s << node_tags(NEN-1) << "]";
+        s << ", ";
+
         s << "\"thickness\": " << thickness << ", ";
         s << "\"surfacePressure\": " << pressure << ", ";
         s << "\"masspervolume\": " << rho << ", ";
         s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
         s << "\"material\": " << theMaterial[0]->getTag() << "}";
+        return;
     }
 
     if (flag == OPS_PRINT_CURRENTSTATE) {
@@ -789,7 +794,7 @@ Tri31::Print(OPS_Stream &s, int flag)
         static Vector avgStrain(nstress);
         avgStress.Zero();
         avgStrain.Zero();
-        for (i = 0; i < NIP; i++) {
+        for (int i = 0; i < NIP; i++) {
             avgStress += theMaterial[i]->getStress();
             avgStrain += theMaterial[i]->getStrain();
         }
@@ -797,12 +802,12 @@ Tri31::Print(OPS_Stream &s, int flag)
         avgStrain /= static_cast<double>(NIP);
 
         s << "#AVERAGE_STRESS ";
-        for (i = 0; i < nstress; i++)
+        for (int i = 0; i < nstress; i++)
           s << avgStress(i) << " ";
         s << "\n";
 
         s << "#AVERAGE_STRAIN ";
-        for (i = 0; i < nstress; i++)
+        for (int i = 0; i < nstress; i++)
           s << avgStrain(i) << " ";
         s << "\n";
     }
@@ -831,6 +836,7 @@ Tri31::setResponse(const char **argv, int argc, OPS_Stream &output)
         }
     
         theResponse =  new ElementResponse(this, 1, P);
+
     } else if (strcmp(argv[0],"material") == 0 || strcmp(argv[0],"integrPoint") == 0) {
 
         int pointNum = atoi(argv[1]);

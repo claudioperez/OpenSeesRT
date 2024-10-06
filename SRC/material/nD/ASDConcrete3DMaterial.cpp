@@ -2127,7 +2127,7 @@ int ASDConcrete3DMaterial::updateParameter(int parameterID, Information& info)
 Response* ASDConcrete3DMaterial::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
 	// utils
-	auto make_resp = [&output, this](int rid, const Vector& v, const std::vector<std::string>* labels = nullptr) -> MaterialResponse* {
+	auto make_resp = [&output, this](int rid, const Vector& v, const std::vector<std::string>* labels = nullptr) -> MaterialResponse<NDMaterial>* {
 		output.tag("NdMaterialOutput");
 		output.attr("matType", getClassType());
 		output.attr("matTag", getTag());
@@ -2135,7 +2135,7 @@ Response* ASDConcrete3DMaterial::setResponse(const char** argv, int argc, OPS_St
 			for(const auto& item : (*labels))
 				output.tag("ResponseType", item.c_str());
 		}
-		MaterialResponse* resp = new MaterialResponse(this, rid, v);
+		MaterialResponse<NDMaterial>* resp = new MaterialResponse<NDMaterial>(this, rid, v);
 		output.endTag();
 		return resp;
 	};

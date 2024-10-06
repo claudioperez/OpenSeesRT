@@ -37,9 +37,9 @@
 #include <DOF_GrpIter.h>
 
 StaticIntegrator::StaticIntegrator(int clasTag)
- :IncrementalIntegrator(clasTag)
-{   
-    // for subclasses
+ : IncrementalIntegrator(clasTag)
+{
+  this->setResidualType(ResidualType::StaticUnbalance);
 }
 
 StaticIntegrator::~StaticIntegrator()
@@ -99,11 +99,22 @@ StaticIntegrator::formEleTangent(FE_Element *theEle)
 int
 StaticIntegrator::formEleResidual(FE_Element *theEle)
 {
-  // only elements residual needed
-  theEle->zeroResidual();
-  theEle->addRtoResidual();
+  switch (this->getResidualType()) {
+    case ResidualType::StaticUnbalance:
+      theEle->zeroResidual();
+      theEle->addRtoResidual();
+      break;
+    case ResidualType::StaticSensitivity:
+      theEle->zeroResidual();
+      theEle->addResistingForceSensitivity(this->getGradIndex());
+      break;
+    case ResidualType::TransientUnbalance:
+      theEle->zeroResidual();
+      theEle->addRIncInertiaToResidual();
+      break;
+  }
   return 0;
-}    
+}
 
 int
 StaticIntegrator::formNodTangent(DOF_Group *theDof)
@@ -125,7 +136,7 @@ StaticIntegrator::formNodUnbalance(DOF_Group *theDof)
 
 
 int
-StaticIntegrator::formEleTangentSensitivity(FE_Element *theEle,int gradNumber)
+StaticIntegrator::formEleTangentSensitivity(FE_Element *theEle, int gradNumber)
 {
  
   if (statusFlag == CURRENT_TANGENT) {

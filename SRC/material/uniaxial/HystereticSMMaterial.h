@@ -37,6 +37,7 @@
 #ifndef HystereticSMMaterial_h
 #define HystereticSMMaterial_h
 
+#include <Vector.h>
 #include <UniaxialMaterial.h>
 
 class HystereticSMMaterial : public UniaxialMaterial

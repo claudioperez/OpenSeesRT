@@ -26,8 +26,6 @@
 //      element for general nonlinear analysis,
 //      Eng.Comput.,1,77-88,1984
 //
-// $Date: 2011/03/10 22:51:21 $
-//
 #include <assert.h>
 #include <math.h>
 
@@ -82,8 +80,11 @@ ShellMITC4::ShellMITC4()
 // full constructor
 ShellMITC4::ShellMITC4(int tag, int node1, int node2, int node3, int node4,
                        SectionForceDeformation &theMaterial, bool UpdateBasis)
-    : Element(tag, ELE_TAG_ShellMITC4), connectedExternalNodes(4), load(0),
-      Ki(0), doUpdateBasis(UpdateBasis)
+    : Element(tag, ELE_TAG_ShellMITC4), 
+      connectedExternalNodes(NEN), 
+      load(0),
+      Ki(0), 
+      doUpdateBasis(UpdateBasis)
 {
 
   connectedExternalNodes(0) = node1;
@@ -91,7 +92,7 @@ ShellMITC4::ShellMITC4(int tag, int node1, int node2, int node3, int node4,
   connectedExternalNodes(2) = node3;
   connectedExternalNodes(3) = node4;
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < nip; i++) {
     materialPointers[i] = theMaterial.getCopy();
     if (materialPointers[i] == nullptr) {
       opserr << "ShellMITC4::constructor - failed to get a material of type: "
@@ -170,15 +171,35 @@ void ShellMITC4::setDomain(Domain *theDomain)
 }
 
 // get the number of external nodes
-int ShellMITC4::getNumExternalNodes() const { return 4; }
+int ShellMITC4::getNumExternalNodes() const 
+{
+  return NEN; 
+}
 
 // return connected external nodes
-const ID &ShellMITC4::getExternalNodes() { return connectedExternalNodes; }
+const ID &ShellMITC4::getExternalNodes() 
+{
+  return connectedExternalNodes; 
+}
 
-Node **ShellMITC4::getNodePtrs(void) { return theNodes; }
+
+Node **
+ShellMITC4::getNodePtrs(void) 
+{ 
+  return &theNodes[0]; 
+}
 
 // return number of dofs
-int ShellMITC4::getNumDOF() { return 24; }
+int ShellMITC4::getNumDOF() 
+{
+  int sum = 0;
+
+  for (const Node* node: theNodes)
+    sum += node->getNumberDOF();
+
+  return sum;
+}
+
 
 // commit state
 int ShellMITC4::commitState()
@@ -190,8 +211,8 @@ int ShellMITC4::commitState()
     opserr << "ShellMITC4::commitState - failed in base class";
   }
 
-  for (int i = 0; i < 4; i++)
-    success += materialPointers[i]->commitState();
+  for (auto material : materialPointers)
+    success += material->commitState();
 
   return success;
 }
@@ -201,8 +222,8 @@ int ShellMITC4::revertToLastCommit()
 {
   int success = 0;
 
-  for (int i = 0; i < 4; i++)
-    success += materialPointers[i]->revertToLastCommit();
+  for (auto material : materialPointers)
+    success += material->revertToLastCommit();
 
   return success;
 }
@@ -212,8 +233,8 @@ int ShellMITC4::revertToStart()
 {
   int success = 0;
 
-  for (int i = 0; i < 4; i++)
-    success += materialPointers[i]->revertToStart();
+  for (auto material : materialPointers)
+    success += material->revertToStart();
 
   return success;
 }
@@ -221,6 +242,23 @@ int ShellMITC4::revertToStart()
 // print out element data
 void ShellMITC4::Print(OPS_Stream &s, int flag)
 {
+  const ID& node_tags = this->getExternalNodes();
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+    s << "\"name\": " << this->getTag() << ", ";
+    s << "\"type\": \"" << this->getClassType() << "\", ";
+    s << "\"nodes\": [" 
+      << connectedExternalNodes(0) << ", "
+      << connectedExternalNodes(1) << ", ";
+    s << connectedExternalNodes(2) << ", " 
+      << connectedExternalNodes(3)
+      << "], ";
+    s << "\"sections\": [" << materialPointers[0]->getTag() << "]";
+    s << "}";
+    return;
+  }
+
   if (flag == -1) {
     int eleTag = this->getTag();
     s << "EL_ShellMITC4\t" << eleTag << "\t";
@@ -265,16 +303,6 @@ void ShellMITC4::Print(OPS_Stream &s, int flag)
     s << endln;
   }
 
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\t{";
-    s << "\"name\": " << this->getTag() << ", ";
-    s << "\"type\": \"ShellMITC4\", ";
-    s << "\"nodes\": [" << connectedExternalNodes(0) << ", "
-      << connectedExternalNodes(1) << ", ";
-    s << connectedExternalNodes(2) << ", " << connectedExternalNodes(3)
-      << "], ";
-    s << "\"section\": \"" << materialPointers[0]->getTag() << "\"}";
-  }
 }
 
 Response *ShellMITC4::setResponse(const char **argv, int argc,

@@ -24,66 +24,30 @@
 //#
 //#
 //===============================================================================
-
-
-
+//
+#include <Logging.h>
 #include <HSConstraint.h>
 #include <AnalysisModel.h>
 #include <LinearSOE.h>
 #include <Vector.h>
 #include <Channel.h>
 #include <math.h>
-#include <stdlib.h>
-#include <elementAPI.h>
 
-void *
-OPS_ADD_RUNTIME_VPV(OPS_HSConstraint)
-{
-    int numdata = OPS_GetNumRemainingInputArgs();
-    if (numdata < 1) {
-	opserr << "WARNING integrator HSConstraint <arcLength> <psi_u> <psi_f> <u_ref> \n";
-	return 0;
-    }
-    if (numdata > 4) numdata = 4;
-
-    double data[4];
-    if (OPS_GetDoubleInput(&numdata, data) < 0) {
-	opserr << "WARNING integrator HSConstraint invalid double inputs\n";
-	return 0;
-    }
-    double arcLength = data[0];
-    double psi_u = data[1];
-    double psi_f = data[2];
-    double u_ref = data[3];
-    
-    switch(numdata) {
-    case 1:
-	return new HSConstraint(arcLength);       
-    case 2:
-	return new HSConstraint(arcLength, psi_u);       
-    case 3:
-	return new HSConstraint(arcLength, psi_u, psi_f);       
-    case 4:
-	return new HSConstraint(arcLength, psi_u, psi_f, u_ref);       
-    }
-
-    return 0;
-}
 
 HSConstraint::HSConstraint(double arcLength, double psi_u, double psi_f, double u_ref)
-:StaticIntegrator(INTEGRATOR_TAGS_HSConstraint),
- arcLength2(arcLength*arcLength), /*alpha2(alpha*alpha),*/
+: StaticIntegrator(INTEGRATOR_TAGS_HSConstraint),
+  arcLength2(arcLength*arcLength), /*alpha2(alpha*alpha),*/
   psi_u2(psi_u*psi_u), 
   psi_f2(psi_f*psi_f),
-  u_ref2(u_ref*u_ref), //new added
- deltaUhat(0), 
- deltaUbar(0), 
- deltaU(0), 
- deltaUstep(0),
- phat(0), 
- deltaLambdaStep(0.0), 
- currentLambda(0.0),
- signLastDeltaLambdaStep(1)
+  u_ref2(u_ref*u_ref),
+  deltaUhat(0), 
+  deltaUbar(0), 
+  deltaU(0), 
+  deltaUstep(0),
+  phat(0), 
+  deltaLambdaStep(0.0), 
+  currentLambda(0.0),
+  signLastDeltaLambdaStep(1)
 {
 
 }
@@ -92,15 +56,15 @@ HSConstraint::~HSConstraint()
 {
     // delete any vector object created
     if (deltaUhat != 0)
-	delete deltaUhat;
+        delete deltaUhat;
     if (deltaU != 0)
-	delete deltaU;
+        delete deltaU;
     if (deltaUstep != 0)
-	delete deltaUstep;
+        delete deltaUstep;
     if (deltaUbar != 0)
-	delete deltaUbar;
+        delete deltaUbar;
     if (phat != 0)
-	delete phat;
+        delete phat;
 }
 
 int
@@ -109,19 +73,19 @@ HSConstraint::newStep(void)
     // get pointers to AnalysisModel and LinearSOE
     AnalysisModel *theModel = this->getAnalysisModel();//method defined in Incremental Integrator
     LinearSOE *theLinSOE = this->getLinearSOE();
-    if (theModel == 0 || theLinSOE == 0) {
-	opserr << "WARNING HSConstraint::newStep() ";
-	opserr << "No AnalysisModel or LinearSOE has been set\n";
-	return -1;
+    if (theModel == nullptr || theLinSOE == nullptr) {
+        opserr << "WARNING HSConstraint::newStep() ";
+        opserr << "No AnalysisModel or LinearSOE has been set\n";
+        return -1;
     }
 
     // get the current load factor
     currentLambda = theModel->getCurrentDomainTime();
 
     if (deltaLambdaStep < 0)
-	signLastDeltaLambdaStep = -1;
+        signLastDeltaLambdaStep = -1;
     else
-	signLastDeltaLambdaStep = +1;
+        signLastDeltaLambdaStep = +1;
 
 
 
@@ -167,9 +131,9 @@ HSConstraint::update(const Vector &dU)
     AnalysisModel *theModel = this->getAnalysisModel();
     LinearSOE *theLinSOE = this->getLinearSOE();
     if (theModel == 0 || theLinSOE == 0) {
-	opserr << "WARNING ArcLength::update() ";
-	opserr << "No AnalysisModel or LinearSOE has been set\n";
-	return -1;
+        opserr << "WARNING ArcLength::update() ";
+        opserr << "No AnalysisModel or LinearSOE has been set\n";
+        return -1;
     }
 
     (*deltaUbar) = dU; // have to do this as the SOE is gonna change
@@ -212,37 +176,37 @@ HSConstraint::update(const Vector &dU)
      // opserr << "HSConstraint::update() - zero denominator";
      // opserr << "\n";
      // return -2;
-		dLambda = -a3/(2.0*a2);
+                dLambda = -a3/(2.0*a2);
 
     }
     else
     {
-    	// determine the roots of the quadratic
-    	double sqrtb24ac = sqrt(b24ac);
-    	double dlambda1 = (-a2 + sqrtb24ac)/a1;
-    	double dlambda2 = (-a2 - sqrtb24ac)/a1;
+            // determine the roots of the quadratic
+            double sqrtb24ac = sqrt(b24ac);
+            double dlambda1 = (-a2 + sqrtb24ac)/a1;
+            double dlambda2 = (-a2 - sqrtb24ac)/a1;
 
-	//Vector deltaU1 = (*deltaUbar);
-	//deltaU1->addVector(1.0, *deltaUhat,dlambda1);
-	//double costheta1 = (*deltaUstep)^((*deltaUstep)+(*deltaU1));
+        //Vector deltaU1 = (*deltaUbar);
+        //deltaU1->addVector(1.0, *deltaUhat,dlambda1);
+        //double costheta1 = (*deltaUstep)^((*deltaUstep)+(*deltaU1));
 
-	//Vector deltaU2 = (*deltaUbar);
-	//deltaU2->addVector(1.0, *deltaUhat,dlambda2);
-	//double costheta2 = (*deltaUstep)^((*deltaUstep)+(*deltaU2));
+        //Vector deltaU2 = (*deltaUbar);
+        //deltaU2->addVector(1.0, *deltaUhat,dlambda2);
+        //double costheta2 = (*deltaUstep)^((*deltaUstep)+(*deltaU2));
 
      double val = (*deltaUhat)^(*deltaUstep);
-    	double costheta1 = ((*deltaUstep)^(*deltaUstep)) + ((*deltaUbar)^(*deltaUstep));
-    	double costheta2 = costheta1 + dlambda2*val;
+            double costheta1 = ((*deltaUstep)^(*deltaUstep)) + ((*deltaUbar)^(*deltaUstep));
+            double costheta2 = costheta1 + dlambda2*val;
 
-    	costheta1 += dlambda1*val;
+            costheta1 += dlambda1*val;
 
-    	// choose dLambda based on angle between incremental displacement before
-    	// and after this step -- want positive
-    	/*double dLambda;*/
-    	if (costheta1 > costheta2)
-     	 	dLambda = dlambda1;
-    	else
-      		dLambda = dlambda2;
+            // choose dLambda based on angle between incremental displacement before
+            // and after this step -- want positive
+            /*double dLambda;*/
+            if (costheta1 > costheta2)
+                      dLambda = dlambda1;
+            else
+                      dLambda = dlambda2;
     }
 
 
@@ -275,66 +239,56 @@ HSConstraint::domainChanged(void)
     AnalysisModel *theModel = this->getAnalysisModel();
     LinearSOE *theLinSOE = this->getLinearSOE();
     if (theModel == 0 || theLinSOE == 0) {
-	opserr << "WARNING HSConstraint::domainChanged() ";
-	opserr << "No AnalysisModel or LinearSOE has been set\n";
-	return -1;
+        opserr << "WARNING HSConstraint::domainChanged() ";
+        opserr << "No AnalysisModel or LinearSOE has been set\n";
+        return -1;
     }
     int size = theModel->getNumEqn(); // ask model in case N+1 space
 
     if (deltaUhat == 0 || deltaUhat->Size() != size) { // create new Vector
-	if (deltaUhat != 0)
-	    delete deltaUhat;   // delete the old
-	deltaUhat = new Vector(size);
-	if (deltaUhat == 0 || deltaUhat->Size() != size) { // check got it
-	    opserr << "FATAL HSConstraint::domainChanged() - ran out of memory for";
-	    opserr << " deltaUhat Vector of size " << size << endln;
-	    exit(-1);
-	}
+        if (deltaUhat != 0)
+            delete deltaUhat;   // delete the old
+        deltaUhat = new Vector(size);
+        if (deltaUhat == 0 || deltaUhat->Size() != size) { // check got it
+            opserr << "FATAL HSConstraint::domainChanged() - ran out of memory for";
+            opserr << " deltaUhat Vector of size " << size << endln;
+            return -1;
+        }
     }
 
     if (deltaUbar == 0 || deltaUbar->Size() != size) { // create new Vector
-	if (deltaUbar != 0)
-	    delete deltaUbar;   // delete the old
-	deltaUbar = new Vector(size);
-	if (deltaUbar == 0 || deltaUbar->Size() != size) { // check got it
-	    opserr << "FATAL HSConstraint::domainChanged() - ran out of memory for";
-	    opserr << " deltaUbar Vector of size " << size << endln;
-	    exit(-1);
-	}
+        if (deltaUbar != 0)
+            delete deltaUbar;   // delete the old
+        deltaUbar = new Vector(size);
+        if (deltaUbar == 0 || deltaUbar->Size() != size) { // check got it
+            opserr << "FATAL HSConstraint::domainChanged() - ran out of memory for";
+            opserr << " deltaUbar Vector of size " << size << endln;
+            return -1;
+        }
     }
 
 
     if (deltaU == 0 || deltaU->Size() != size) { // create new Vector
-	if (deltaU != 0)
-	    delete deltaU;   // delete the old
-	deltaU = new Vector(size);
-	if (deltaU == 0 || deltaU->Size() != size) { // check got it
-	    opserr << "FATAL HSconstraint::domainChanged() - ran out of memory for";
-	    opserr << " deltaU Vector of size " << size << endln;
-	    exit(-1);
-	}
+        if (deltaU != 0)
+            delete deltaU;   // delete the old
+        deltaU = new Vector(size);
+        if (deltaU == 0 || deltaU->Size() != size) { // check got it
+            opserr << "FATAL HSconstraint::domainChanged() - ran out of memory for";
+            opserr << " deltaU Vector of size " << size << endln;
+            return -1;
+        }
     }
 
     if (deltaUstep == 0 || deltaUstep->Size() != size) {
-	if (deltaUstep != 0)
-	    delete deltaUstep;
-	deltaUstep = new Vector(size);
-	if (deltaUstep == 0 || deltaUstep->Size() != size) {
-	    opserr << "FATAL HSConstraint::domainChanged() - ran out of memory for";
-	    opserr << " deltaUstep Vector of size " << size << endln;
-	    exit(-1);
-	}
+        if (deltaUstep != 0)
+            delete deltaUstep;
+        deltaUstep = new Vector(size);
     }
 
     if (phat == 0 || phat->Size() != size) {
-	if (phat != 0)
-	    delete phat;
-	phat = new Vector(size);
-	if (phat == 0 || phat->Size() != size) {
-	    opserr << "FATAL HSConstraint::domainChanged() - ran out of memory for";
-	    opserr << " phat Vector of size " << size << endln;
-	    exit(-1);
-	}
+        if (phat != 0)
+            delete phat;
+        phat = new Vector(size);
     }
 
     // now we have to determine phat
@@ -353,8 +307,8 @@ HSConstraint::domainChanged(void)
     int haveLoad = 0;
     for (int i=0; i<size; i++)
       if ( (*phat)(i) != 0.0 ) {
-	haveLoad = 1;
-	i = size;
+        haveLoad = 1;
+        i = size;
 
       }
 
@@ -368,7 +322,7 @@ HSConstraint::domainChanged(void)
 
 int
 HSConstraint::sendSelf(int cTag,
-		    Channel &theChannel)
+                    Channel &theChannel)
 {
   Vector data(4);
   data(0) = arcLength2;
@@ -387,7 +341,7 @@ HSConstraint::sendSelf(int cTag,
 
 int
 HSConstraint::recvSelf(int cTag,
-		    Channel &theChannel, FEM_ObjectBroker &theBroker)
+                    Channel &theChannel, FEM_ObjectBroker &theBroker)
 {
   Vector data(4);
   if (theChannel.recvVector(this->getDbTag(), cTag, data) < 0) {
@@ -409,10 +363,10 @@ HSConstraint::Print(OPS_Stream &s, int flag)
 {
     AnalysisModel *theModel = this->getAnalysisModel();
     if (theModel != 0) {
-	double cLambda = theModel->getCurrentDomainTime();
-	s << "\t HSConstraint - currentLambda: " << cLambda;
-	s << "  HSConstraint: " << sqrt(arcLength2) /*<<  "  alpha: ";
-	s << sqrt(alpha2) */ << endln;
+        double cLambda = theModel->getCurrentDomainTime();
+        s << "\t HSConstraint - currentLambda: " << cLambda;
+        s << "  HSConstraint: " << sqrt(arcLength2) /*<<  "  alpha: ";
+        s << sqrt(alpha2) */ << endln;
     } else
-	s << "\t HSConstraint - no associated AnalysisModel\n";
+        s << "\t HSConstraint - no associated AnalysisModel\n";
 }
