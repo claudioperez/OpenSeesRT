@@ -635,6 +635,8 @@ Tcl_PeriIntVerlet(PeriDomain<ndim> &domain, Tcl_Interp *interp, int argc, const 
                 if (domain.pts[i].is_disp_bound[j] == 0)
                     domain.pts[i].vel[j] = domain.pts[i].vel[j] + 0.5 * (acc_old(i, j) + acc_new(i, j)) * dt_verlet;
     }
+
+    return TCL_OK;
 }
 
 
@@ -646,7 +648,7 @@ Tcl_PeriForm(PeriDomain<ndim> &domain, Tcl_Interp *interp)
     std::vector<NosbProj<ndim, maxfam>> nosb;
 
     // Create families for specific NOSB type
-    if (ndim == 3)
+    if constexpr (ndim == 3)
     {
         for (PeriParticle<ndim> &particle : domain.pts)
         {

@@ -16,7 +16,6 @@
 
 using Vector3D = OpenSees::VectorND<3, double>;
 
-static_assert(std::is_pod<Vector3D>::value, "Vector3D is not a POD type.");
 static_assert(std::is_trivially_copyable<Vector3D>::value, "Vector3D is not trivially copyable.");
 static_assert(std::is_trivial<Vector3D>::value, "Vector3D is not trivial.");
 static_assert(std::is_standard_layout<Vector3D>::value, "Vector3D is not standard layout.");

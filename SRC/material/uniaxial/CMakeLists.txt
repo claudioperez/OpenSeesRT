@@ -204,7 +204,7 @@ target_sources(OPS_Material
       UniaxialJ2Plasticity.h
       ViscousDamper.h
       ViscousMaterial.h
-      ViscoelasticGap.cpp
+      ViscoelasticGap.h
       pyUCLA.h
 
       DuctileFracture.h
