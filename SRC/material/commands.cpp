@@ -127,7 +127,7 @@ TclCommand_newMinMaxND(ClientData clientData, Tcl_Interp* interp, int argc, cons
 
 int
 TclCommand_addMaterial(ClientData clientData, Tcl_Interp* interp, 
-                           int argc, TCL_Char** argv)
+                           int argc, TCL_Char** const argv)
 {
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
