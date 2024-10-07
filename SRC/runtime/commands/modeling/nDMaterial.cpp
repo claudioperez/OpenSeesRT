@@ -305,9 +305,10 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
 
     theMaterial = new PlaneStressSimplifiedJ2(tag, 2, *theMaterial2);
 
-    //	delete theMaterial2;
+    //        delete theMaterial2;
 
   }
+
   /////////////////////////////////////////////////////////////////
 
   //
@@ -1468,6 +1469,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
     }
 
     theMaterial = new PlateFromPlaneStressMaterialThermal(tag, *theMat, gmod);
+
   } else if (strcmp(argv[1], "PlateRebarMaterialThermal") == 0 ||
              strcmp(argv[1], "PlateRebarThermal") == 0) {
     if (argc < 5) {
@@ -1582,7 +1584,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
 
     if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
       opserr << "WARNING invalid matTag" << "\n";
-      opserr << "PlateFiberThermal: " << matTag << "\n";
       return TCL_ERROR;
     }
 
