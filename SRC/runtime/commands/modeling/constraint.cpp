@@ -79,15 +79,14 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
 
   // check number of arguments
   if (argc < (2 + ndf)) {
-    opserr << OpenSees::PromptValueError << "bad command - want: fix nodeId " << ndf
+    opserr << OpenSees::PromptValueError 
+           << "bad command - want: fix nodeId " << ndf
            << " [0,1] conditions";
     return TCL_ERROR;
   }
 
-  char buffer[80];
-  strcpy(buffer, "");
-
   // get the fixity condition and add the constraint if fixed
+  Tcl_Obj* list = Tcl_NewListObj(ndf, nullptr);
   for (int i = 0; i < ndf; ++i) {
     int theFixity;
     if (Tcl_GetInt(interp, argv[2 + i], &theFixity) != TCL_OK) {
@@ -104,17 +103,20 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
         if (theTclDomain->addSP_Constraint(theSP) == false) {
           opserr << OpenSees::PromptValueError << "could not add SP_Constraint to domain using fix "
                     "command - node may already be constrained\n";
-          sprintf(buffer, "%d ", 0);
           delete theSP;
           return TCL_ERROR;
 
         } else {
-          sprintf(buffer, "%d ", theSP->getTag());
-          Tcl_AppendResult(interp, buffer, NULL);
+//        Tcl(buffer, "%d ", theSP->getTag());
+//        Tcl_AppendResult(interp, buffer, NULL);
+          Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(theSP->getTag()));
         }
       }
     }
   }
+
+  Tcl_SetObjResult(interp, list);
+
   return TCL_OK;
 }
 
