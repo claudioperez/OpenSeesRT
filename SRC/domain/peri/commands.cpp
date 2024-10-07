@@ -648,7 +648,7 @@ Tcl_PeriForm(PeriDomain<ndim> &domain, Tcl_Interp *interp)
     std::vector<NosbProj<ndim, maxfam>> nosb;
 
     // Create families for specific NOSB type
-    if (ndim == 3)
+    if constexpr (ndim == 3)
     {
         for (PeriParticle<ndim> &particle : domain.pts)
         {
