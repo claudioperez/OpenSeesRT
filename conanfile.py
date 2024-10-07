@@ -12,7 +12,7 @@ class OpenSeesConan(ConanFile):
     
     generators = "CMakeDeps", "CMakeToolchain"
     default_options = {
-        "tcl:shared": True, #
+        "tcl/*:shared": True, #
     }
     
 #   def layout(self):
