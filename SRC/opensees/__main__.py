@@ -117,7 +117,7 @@ def parse_args(args):
     return file, opts, argi
 
 
-if __name__ == "__main__":
+def main():
 
     file, opts, argi = parse_args(sys.argv)
 
@@ -216,4 +216,7 @@ if __name__ == "__main__":
 
     sys.exit(code)
 
+
+if __name__ == "__main__":
+    main()
 

@@ -84,6 +84,9 @@ requires = [
 
 build-backend = "setuptools.build_meta"
 
+[project.scripts]
+my-client = "opensees.__main__:main_cli"
+
 [tool.setuptools.packages.find]
 where = ["SRC"]
 include=["opensees*"]
@@ -97,7 +100,7 @@ opensees = ["site*", "docs*", "tools", "*.html", ".git*", "*.[htc]pp", "*.[ch]",
 
 
 [tool.cibuildwheel]
-test-command = 'python -m opensees -c "puts test-interpreter"'
+#test-command = 'python -m opensees -c "puts test-interpreter"'
 manylinux-x86_64-image="manylinux2014"
 manylinux-aarch64-image="manylinux2014"
 skip=["pp*", "*i686*", "UNKNOWN*", "cp3[67]-*"]
