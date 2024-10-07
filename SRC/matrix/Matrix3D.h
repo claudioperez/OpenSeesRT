@@ -16,7 +16,6 @@ namespace OpenSees {
 
   using Matrix3D = MatrixND<3,3,double>;
 
-  static_assert(std::is_pod<Matrix3D>::value, "Matrix3D is not a POD type.");
   static_assert(std::is_trivially_copyable<Matrix3D>::value, "Matrix3D is not trivially copyable.");
   static_assert(std::is_trivial<Matrix3D>::value, "Matrix3D is not trivial.");
   static_assert(std::is_standard_layout<Matrix3D>::value, "Matrix3D is not standard layout.");
