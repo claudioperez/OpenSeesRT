@@ -814,16 +814,16 @@ ForceFrame3d::getTangentStiff()
   double L = theCoordTransf->getInitialLength();
 
   THREAD_LOCAL VectorND<12> pl{0.0};
-  pl[0]  = -q0;                    // Ni
-  pl[1]  =  (q1 + q2)/L;           // Viy
-  pl[2]  = -(q3 + q4)/L;           // Viz
-  pl[3]  = -q5;                    // Ti
+  pl[0]  = -q0;               // Ni
+  pl[1]  =  (q1 + q2)/L;      // Viy
+  pl[2]  = -(q3 + q4)/L;      // Viz
+  pl[3]  = -q5;               // Ti
   pl[4]  =  q3;
   pl[5]  =  q1;
-  pl[6]  =  q0;                    // Nj
-  pl[7]  = -pl[1];                 // Vjy
-  pl[8]  = -pl[2];                 // Vjz
-  pl[9]  =  q5;                    // Tj
+  pl[6]  =  q0;               // Nj
+  pl[7]  = -pl[1];            // Vjy
+  pl[8]  = -pl[2];            // Vjz
+  pl[9]  =  q5;               // Tj
   pl[10] =  q4;
   pl[11] =  q2;
   
