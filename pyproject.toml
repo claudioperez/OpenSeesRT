@@ -100,7 +100,8 @@ opensees = ["site*", "docs*", "tools", "*.html", ".git*", "*.[htc]pp", "*.[ch]",
 
 
 [tool.cibuildwheel]
-#test-command = 'python -m opensees -c "puts test-interpreter"'
+# environment = {OPENSEESRT_LIB=""}
+# test-command = 'python -m opensees -c "puts test-interpreter"'
 manylinux-x86_64-image="manylinux2014"
 manylinux-aarch64-image="manylinux2014"
 skip=["pp*", "*i686*", "UNKNOWN*", "cp3[67]-*"]
