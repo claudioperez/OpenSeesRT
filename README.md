@@ -14,18 +14,19 @@ Nonlinear finite element analysis.
 
 </div>
 
-`opensees` is a Python package that provides an intuitive API for nonlinear
+OpenSeesRT is a framework that provides an intuitive API for nonlinear
 finite element analysis, implemented in C++ through the OpenSees framework. 
 OpenSees features state-of-the-art finite element formulations and solution 
 algorithms, including mixed formulations for beams and solids, over 200 material models, and an
 extensive collection of continuation algorithms to solve highly nonlinear
 problems. 
 
+<!--
 The `opensees` package supports high quality interactive post processing via the
 [`sees`](https://pypi.org/project/sees) package.
+-->
 
-
-The package may be used as a drop-in replacement for both `OpenSees.exe` and
+This package may be used as a drop-in replacement for both `OpenSees.exe` and
 OpenSeesPy (see *Getting Started* below), and generally provides a substantial performance boost.
 
 <p style="text-align: center;">
@@ -36,31 +37,26 @@ OpenSeesPy (see *Getting Started* below), and generally provides a substantial p
 > [!NOTE]
 > This package is independent of the [`openseespy`](https://pypi.org/project/openseespy)
 > library, which is documented in the OpenSees [documentation](https://opensees.github.io/OpenSeesDocumentation)
-> website. OpenSeesPy can be installed by running the following command:
->
-> ```shell
-> pip install opensees[py]
-> ```
-
+> website. 
 
 
 ### Getting Started
 
-The `opensees` package can be installed into a Python environment
+The `sees` package can be installed into a Python environment
 in the standard manner. For example, using `pip`:
 
 ```shell
-pip install opensees
+pip install sees
 ```
 
-There are several ways to use the `opensees` package:
+There are several ways to use the `sees` package:
 
 - To execute Tcl procedures from a Python script, just create an instance
-  of the `opensees.tcl.Interpreter` class and call its `eval()` method:
+  of the `sees.Model` class and call its `eval()` method:
   ```python
-  interp = opensees.tcl.Interpreter()
-  interp.eval("model Basic -ndm 2")
-  interp.eval("print -json")
+  model = sees.Model()
+  model.eval("model Basic -ndm 2")
+  model.eval("print -json")
   ```
 
 - To start an interactive interpreter run the shell command:
@@ -73,7 +69,7 @@ There are several ways to use the `opensees` package:
   opensees > exit
   ```
 
-- The `opensees` package exposes a compatibility layer that exactly reproduces
+- The `sees` package exposes a compatibility layer that exactly reproduces
   the *OpenSeesPy* functions, but does so without mandating a single
   global program state. To run OpenSeesPy scripts, just change the import:
 
@@ -104,7 +100,6 @@ To compile the project see [about/compiling](https://github.com/claudioperez/Ope
 ## See also
 
 - [`osmg`](https://pypi.org/project/osmg) OpenSees Model Generator
-- [`sees`](https://pypi.org/project/sees) Modern rendering library
 - [`mdof`](https://pypi.org/project/mdof) Optimized system identification library
 - [`sdof`](https://pypi.org/project/sdof) Optimized integration for single degree of freedom systems
 
