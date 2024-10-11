@@ -1229,8 +1229,7 @@ CorotCrdTransf2d::getGlobalResistingForceShapeSensitivity(const Vector &q,
   dpldh(5) = 0.0;
 
   this->compTransfMatrixLocalGlobal(Tlg); // OPTIMIZE LATER
-  dpgdh.addMatrixTransposeVector(0.0, Tlg, dpldh,
-                                 1.0); // pg = Tlg ^ pl; residual
+  dpgdh.addMatrixTransposeVector(0.0, Tlg, dpldh, 1.0);
 
   static Vector pl(6);
   pl.Zero();
