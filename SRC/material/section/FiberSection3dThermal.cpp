@@ -831,8 +831,7 @@ FiberSection3dThermal::Print(OPS_Stream &s, int flag)
         s << OPS_PRINT_JSON_MATE_INDENT << "{";
         s << "\"name\": \"" << this->getTag() << "\", ";
         s << "\"type\": \"" << this->getClassType() << "\", ";
-        if (theTorsion != nullptr)
-          s << "\"torsion\": " << theTorsion->getInitialTangent() << ", ";
+
         s << "\"fibers\": [\n";
         for (int i = 0; i < numFibers; i++) {
               s << "\t\t\t\t{\"coord\": [" << matData[3*i] << ", " << matData[3*i+1] << "], ";
