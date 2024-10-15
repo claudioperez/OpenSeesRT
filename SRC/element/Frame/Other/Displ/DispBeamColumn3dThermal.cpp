@@ -55,6 +55,8 @@ Matrix DispBeamColumn3dThermal::K(12, 12);
 Vector DispBeamColumn3dThermal::P(12);
 double DispBeamColumn3dThermal::workArea[200];
 
+using namespace OpenSees;
+
 void *
 OPS_ADD_RUNTIME_VPV(OPS_DispBeamColumn3dThermal)
 {
