@@ -53,6 +53,7 @@ public:
     int domainChanged(void);
     int newStep(double deltaT);
     int revertToLastStep(void);
+    int revertToStart(void);
     int update(const Vector &aiPlusOne);
 
     const Vector &getVel(void);
