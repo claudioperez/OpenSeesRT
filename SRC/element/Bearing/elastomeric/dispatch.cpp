@@ -200,7 +200,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
     Vector y = 0;
     for (int i = 12 + eleArgStart; i < argc; i++) {
       if (strcmp(argv[i], "-orient") == 0) {
-        j = i + 1;
+        int j = i + 1;
         int numOrient = 0;
         while (j < argc && strcmp(argv[j], "-shearDist") != 0 &&
                strcmp(argv[j], "-doRayleigh") != 0 &&
@@ -471,7 +471,7 @@ TclBasicBuilder_addElastomericBearingBoucWen(
     y(2) = 0.0;
     for (int i = 12 + eleArgStart; i < argc; i++) {
       if (strcmp(argv[i], "-orient") == 0) {
-        j = i + 1;
+        int j = i + 1;
         int numOrient = 0;
         while (j < argc && strcmp(argv[j], "-shearDist") != 0 &&
                strcmp(argv[j], "-doRayleigh") != 0 &&
