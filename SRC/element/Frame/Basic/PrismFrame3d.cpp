@@ -195,7 +195,7 @@ PrismFrame3d::update()
 
   // Form the axial force
   double N = E*A/L*v[0];
-  double T = G*J/L*v[3];
+  double T = G*Jx/L*v[3];
 
   if (std::fabs(N) < 1e-8)
     ke = km;
