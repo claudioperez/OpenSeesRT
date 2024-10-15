@@ -147,9 +147,9 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 
   else if (strcmp(argv[1], "FiberInt") == 0) {
     // TODO
+    // return TclCommand_addFiberIntSection(clientData, interp, argc, argv);
     opserr << "FiberInt is currently broken\n";
     return TCL_ERROR;
-    // return TclCommand_addFiberIntSection(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "UCFiber") == 0)
