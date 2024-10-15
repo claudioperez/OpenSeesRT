@@ -340,12 +340,12 @@ FiberSection3dThermal::setTrialSectionDeformation (const Vector &deforms)
       strain = d0 + y*d1 + z*d2 - ThermalElongation;
       res += theMat->setTrial(strain, FiberTemperature, stress, tangent, ThermalElongation);
 
-      double value = tangent * A;
-      double vas1 = y*value;
-      double vas2 = z*value;
+      double EA = tangent * A;
+      double vas1 = y*EA;
+      double vas2 = z*EA;
       double vas1as2 = vas1*z;
 
-      kData[0] += value;
+      kData[0] += EA;
       kData[1] += vas1;
       kData[2] += vas2;
 
