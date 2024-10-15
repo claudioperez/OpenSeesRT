@@ -498,7 +498,7 @@ int Steel01::recvSelf (int commitTag, Channel& theChannel,
 void Steel01::Print (OPS_Stream& s, int flag)
 {
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\t{";
+    s << OPS_PRINT_JSON_MATE_INDENT << "{";
 	s << "\"name\": \"" << this->getTag() << "\", ";
 	s << "\"type\": \"Steel01\", ";
 	s << "\"E\": " << E0 << ", ";
