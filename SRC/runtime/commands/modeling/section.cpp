@@ -23,6 +23,8 @@
 
 #include <packages.h>
 
+using namespace OpenSees;
+
 extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char ** const argv, Domain *domain);
@@ -819,14 +821,16 @@ initSectionCommands(ClientData clientData, Tcl_Interp *interp,
 
     } else {
       if (options.isThermal) {
-        auto sec = new FiberSection3dThermal(secTag, /* TODO: torsion */
-                                            options.computeCentroid);
+        auto sec = new FiberSection3dThermal(secTag, 30, *theTorsion,
+                                             options.computeCentroid);
         sbuilder = new FiberSectionBuilder<3, UniaxialMaterial, FiberSection3dThermal>(*builder, *sec);
         section = sec;
+
       } else if (options.isAsym) {
         auto sec = new FiberSectionAsym3d(secTag, 30, theTorsion, Ys, Zs);
         sbuilder = new FiberSectionBuilder<3, UniaxialMaterial, FiberSectionAsym3d>(*builder, *sec);
         section = sec;
+
       } else {
         if (options.isNew) {
           auto sec = new FrameFiberSection3d(secTag, 30, *theTorsion, options.computeCentroid, 
