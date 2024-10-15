@@ -167,6 +167,13 @@ int GimmeMCK::newStep(double deltaT)
 }
 
 
+int 
+GimmeMCK::revertToStart()
+{
+  // Really shouldn't do anything here
+    return 0;  
+}
+
 int GimmeMCK::revertToLastStep()
 {
     // set response at t+deltaT to be that at t .. for next step
