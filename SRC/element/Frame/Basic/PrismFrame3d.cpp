@@ -195,6 +195,7 @@ PrismFrame3d::update()
 
   // Form the axial force
   double N = E*A/L*v[0];
+  double T = G*J/L*v[3];
 
   if (std::fabs(N) < 1e-8)
     ke = km;
@@ -248,10 +249,12 @@ PrismFrame3d::update()
           MatrixND<2,2> Ak = Dx;
           Ak.addMatrix(Dx*Phi,  N);
           MatrixND<2,2> C  = Dx*Km*Ak;
-          MatrixND<2,2> Ci;
-
-          C.invert(Ci);
-          Y.assemble(Ci, 6, 4, -L*N);
+          {
+            MatrixND<2,2> Ci;
+            C.invert(Ci);
+            Y.assemble(Ci, 6, 4, -L*N);
+            Y.assemble(Ci, 6, 6, -L*T);
+          }
 
 
 
