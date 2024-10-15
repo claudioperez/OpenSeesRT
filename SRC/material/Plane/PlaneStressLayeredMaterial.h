@@ -39,7 +39,9 @@ class PlaneStressLayeredMaterial : public NDMaterial {
 
     virtual ~PlaneStressLayeredMaterial();
 
-    const char *getClassType(void) const {return "PlaneStressLayeredMaterial";};
+    const char *getClassType(void) const {
+      return "PlaneStressLayeredMaterial";
+    }
 
     //mass per unit area
     double getRho() ;

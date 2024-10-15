@@ -669,12 +669,12 @@ ArcLength::formIndependentSensitivityRHS()
    return 0;
 }
 
-  int
+int
 ArcLength::formSensitivityRHS(int passedGradNumber)
 {
+   // Set a couple of data members
    sensitivityFlag = 1;
 
-   // Set a couple of data members
    gradNumber = passedGradNumber;
 
    // get model
@@ -684,16 +684,15 @@ ArcLength::formSensitivityRHS(int passedGradNumber)
    // Loop through elements
    FE_Element *elePtr;
    FE_EleIter &theEles = theAnalysisModel->getFEs(); 
-
    while((elePtr = theEles()) != nullptr) {
       theSOE->addB(elePtr->getResidual(this) ,elePtr->getID()  );
    }
 
   
-   (*Residual)=theSOE->getB();
+   (*Residual) = theSOE->getB();
 
    double CallDlambda1dh=(*dLAMBDAdh)(gradNumber);
-  Residual->addVector(1.0,*phat, CallDlambda1dh ); //needed to calculate dLambdadh
+   Residual->addVector(1.0,*phat, CallDlambda1dh ); //needed to calculate dLambdadh
  // Residual->addVector(1.0,*dphatdh, currentLambda ); //needed to calculate dLambdadh
 
 /////////////
@@ -720,23 +719,21 @@ ArcLength::formSensitivityRHS(int passedGradNumber)
       const Vector &randomLoads = loadPatternPtr->getExternalForceSensitivity(gradNumber);
       sizeRandomLoads = randomLoads.Size();
       if (sizeRandomLoads == 1) {
-	 // No random loads in this load pattern
-
+         // No random loads in this load pattern
       }
       else {
-
-	 // Random loads: add contributions to the 'B' vector
-	 numRandomLoads = (int)(sizeRandomLoads/2);
-	 for (i=0; i<numRandomLoads*2; i=i+2) {
-	    nodeNumber = (int)randomLoads(i);
-	    dofNumber = (int)randomLoads(i+1);
-	    aNode = theDomain->getNode(nodeNumber);
-	    aDofGroup = aNode->getDOF_GroupPtr();
-	    const ID &anID = aDofGroup->getID();
-	    relevantID = anID(dofNumber-1);
-	    oneDimID(0) = relevantID;
-	    theSOE->addB(oneDimVectorWithOne, oneDimID);
-	 }
+         // Random loads: add contributions to the 'B' vector
+         numRandomLoads = (int)(sizeRandomLoads/2);
+         for (i=0; i<numRandomLoads*2; i=i+2) {
+            nodeNumber = (int)randomLoads(i);
+            dofNumber = (int)randomLoads(i+1);
+            aNode = theDomain->getNode(nodeNumber);
+            aDofGroup = aNode->getDOF_GroupPtr();
+            const ID &anID = aDofGroup->getID();
+            relevantID = anID(dofNumber-1);
+            oneDimID(0) = relevantID;
+            theSOE->addB(oneDimVectorWithOne, oneDimID);
+         }
       }
    }
 
@@ -757,15 +754,13 @@ ArcLength::saveSensitivity(const Vector &v, int gradNum, int numGrads)
    DOF_GrpIter &theDOFGrps = theAnalysisModel->getDOFs();
    DOF_Group 	*dofPtr;
 
-   while ( (dofPtr = theDOFGrps() ) != 0)  {
-      //	dofPtr->saveSensitivity(v,0,0,gradNum,numGrads);
+   while ( (dofPtr = theDOFGrps() ) != nullptr)
       dofPtr->saveDispSensitivity(v,gradNum,numGrads);
-   }
 
    return 0;
 }
 
-   int
+int
 ArcLength::saveLambdaSensitivity(double dlambdadh, int gradNum, int numGrads)
 {
    AnalysisModel* theAnalysisModel = this->getAnalysisModel();
@@ -807,6 +802,8 @@ ArcLength::computeSensitivityAtEachIteration()
 int 
 ArcLength::computeSensitivities()
 {
+  AnalysisModel *theModel = this->getAnalysisModel();   
+  Domain *theDomain=theModel->getDomainPtr();//Abbas
   LinearSOE *theSOE = this->getLinearSOE();
 
   // Zero out the old right-hand side of the SOE
@@ -815,20 +812,15 @@ ArcLength::computeSensitivities()
   // Form the part of the RHS which are indepent of parameter
   this->formIndependentSensitivityRHS();
 
-  AnalysisModel *theModel = this->getAnalysisModel();   
-  Domain *theDomain=theModel->getDomainPtr();//Abbas
+  // De-activate all parameters
   ParameterIter &paramIter = theDomain->getParameters();
   Parameter *theParam;
-
-  // De-activate all parameters
   while ((theParam = paramIter()) != nullptr)
      theParam->activate(false);
 
   // Now, compute sensitivity wrt each parameter
   int  numGrads = theDomain->getNumParameters();
   paramIter = theDomain->getParameters();
-
-
   while ((theParam = paramIter()) != nullptr) {
      // Activate this parameter
      theParam->activate(true);
@@ -878,12 +870,11 @@ ArcLength::computeSensitivities()
 
       // Commit unconditional history variables (also for elastic problems; strain sens may be needed anyway)
       this->commitSensitivity(gradIndex, numGrads);
+
       // De-activate this parameter for next sensitivity calc
       theParam->activate(false);
 
-    //  theSOE->zeroB();//reset the SOE to zero ;Abbas
-
-   } 
+   }
    // end of if statment to be run only one time during the iteration process.
 
    return 0;

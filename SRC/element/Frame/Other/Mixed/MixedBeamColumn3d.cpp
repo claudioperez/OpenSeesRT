@@ -1565,53 +1565,6 @@ int MixedBeamColumn3d::getResponse(int responseID, Information &eleInfo) {
 
   }
 
-  else if (responseID == 111 || responseID == 1111) {
-    double L = crdTransf->getInitialLength();
-    double pts[MAX_NUM_SECTIONS];
-    beamIntegr->getSectionLocations(numSections, L, pts);
-    // CBDI influence matrix
-    Matrix ls(numSections, numSections);
-    getCBDIinfluenceMatrix(numSections, pts, L, ls);
-    // Curvature vector
-    Vector kappaz(numSections); // about section z
-    Vector kappay(numSections); // about section y
-    for (int i = 0; i < numSections; i++) {
-      const ID &code = sections[i]->getType();
-      const Vector &e = sections[i]->getSectionDeformation();
-      int order = sections[i]->getOrder();
-      for (int j = 0; j < order; j++) {
-	if (code(j) == SECTION_RESPONSE_MZ)
-	  kappaz(i) += e(j);
-	if (code(j) == SECTION_RESPONSE_MY)
-	  kappay(i) += e(j);
-      }
-    }
-    // Displacement vector
-    Vector dispsy(numSections); // along local y
-    Vector dispsz(numSections); // along local z    
-    dispsy.addMatrixVector(0.0, ls, kappaz,  1.0);
-    dispsz.addMatrixVector(0.0, ls, kappay, -1.0);    
-    beamIntegr->getSectionLocations(numSections, L, pts);
-    static Vector uxb(3);
-    static Vector uxg(3);
-    Matrix disps(numSections,3);
-    static Vector vp(6);
-    vp = crdTransf->getBasicTrialDisp();
-    for (int i = 0; i < numSections; i++) {
-      uxb(0) = pts[i]*vp(0); // linear shape function
-      uxb(1) = dispsy(i);
-      uxb(2) = dispsz(i);
-      if (responseID == 111)
-	uxg = crdTransf->getPointGlobalDisplFromBasic(pts[i],uxb);
-      else
-	uxg = crdTransf->getPointLocalDisplFromBasic(pts[i],uxb);
-      disps(i,0) = uxg(0);
-      disps(i,1) = uxg(1);
-      disps(i,2) = uxg(2);            
-    }
-    return eleInfo.setMatrix(disps);
-  }
-
   return -1;
 }
 

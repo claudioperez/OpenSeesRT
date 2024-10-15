@@ -72,7 +72,7 @@ extern OPS_Routine OPS_LeadRubberX;
 extern OPS_Routine OPS_ElastomericX;
 extern OPS_Routine OPS_N4BiaxialTruss;
 extern OPS_Routine OPS_AC3D8HexWithSensitivity;
-extern OPS_Routine OPS_VS3D4WuadWithSensitivity;
+extern OPS_Routine OPS_VS3D4QuadWithSensitivity;
 extern OPS_Routine OPS_MVLEM;        // Kristijan Kolozvari
 extern OPS_Routine OPS_SFI_MVLEM;    // Kristijan Kolozvari
 extern OPS_Routine OPS_MVLEM_3D;     // Kristijan Kolozvari
@@ -331,7 +331,7 @@ element_dispatch = {
   {"ASI3D8",                       OPS_ASID8QuadWithSensitivity},
   {"AV3D4",                        OPS_AV3D4QuadWithSensitivity},
   {"ElastomericBearingBoucWenMod", OPS_ElastomericBearingBoucWenMod3d},
-  {"VS3D4",                        OPS_VS3D4WuadWithSensitivity},
+  {"VS3D4",                        OPS_VS3D4QuadWithSensitivity},
   {"CatenaryCable",                OPS_CatenaryCableElement},
   {"ASDEmbeddedNodeElement",       OPS_ASDEmbeddedNodeElement},
   {"LysmerTriangle",               OPS_LysmerTriangle},

@@ -220,7 +220,11 @@ int KRAlphaExplicit::newStep(double _deltaT)
         
         // switch the SOE back to the user specified one
         this->IncrementalIntegrator::setLinks(*theModel, *theLinSOE, theTest);
-        
+
+        // formTangent only when initAlphaMatrices is set to true
+        this->KRAlphaExplicit::formTangent(INITIAL_TANGENT);
+
+        // set flag that initializations are done
         initAlphaMatrices = 0;
     }
     
@@ -266,6 +270,23 @@ int KRAlphaExplicit::newStep(double _deltaT)
     return 0;
 }
 
+int KRAlphaExplicit::revertToStart()
+{
+    if (Ut != 0) 
+        Ut->Zero();
+    if (Utdot != 0) 
+        Utdot->Zero();
+    if (Utdotdot != 0) 
+        Utdotdot->Zero();
+    if (U != 0) 
+        U->Zero();
+    if (Udot != 0) 
+        Udot->Zero();
+    if (Udotdot != 0) 
+        Udotdot->Zero();
+
+    return 0;
+}
 
 int KRAlphaExplicit::revertToLastStep()
 {
@@ -284,25 +305,28 @@ int KRAlphaExplicit::formTangent(int statFlag)
 {
     statusFlag = statFlag;
     
-    LinearSOE *theLinSOE = this->getLinearSOE();
-    AnalysisModel *theModel = this->getAnalysisModel();
-    if (theLinSOE == 0 || theModel == 0)  {
-        opserr << "WARNING KRAlphaExplicit::formTangent() - ";
-        opserr << "no LinearSOE or AnalysisModel has been set\n";
-        return -1;
-    }
-    
-    theLinSOE->zeroA();
-    
-    int size = theLinSOE->getNumEqn();
-    ID id(size);
-    for (int i=1; i<size; i++)  {
-        id(i) = id(i-1) + 1;
-    }
-    if (theLinSOE->addA(*Mhat, id) < 0)  {
-        opserr << "WARNING KRAlphaExplicit::formTangent() - ";
-        opserr << "failed to add Mhat to A\n";
-        return -2;
+    // only update tangent if domain has changed
+    if (initAlphaMatrices) {
+        LinearSOE *theLinSOE = this->getLinearSOE();
+        AnalysisModel *theModel = this->getAnalysisModel();
+        if (theLinSOE == 0 || theModel == 0)  {
+            opserr << "WARNING KRAlphaExplicit::formTangent() - ";
+            opserr << "no LinearSOE or AnalysisModel has been set\n";
+            return -1;
+        }
+
+        theLinSOE->zeroA();
+
+        int size = theLinSOE->getNumEqn();
+        ID id(size);
+        for (int i=1; i<size; i++)  {
+            id(i) = id(i-1) + 1;
+        }
+        if (theLinSOE->addA(*Mhat, id) < 0)  {
+            opserr << "WARNING KRAlphaExplicit::formTangent() - ";
+            opserr << "failed to add Mhat to A\n";
+            return -2;
+        }
     }
     
     return 0;
@@ -558,7 +582,7 @@ int KRAlphaExplicit::commit(void)
 const Vector &
 KRAlphaExplicit::getVel()
 {
-  return *Udot;
+  return *Ualphadot;
 }
 
 int KRAlphaExplicit::sendSelf(int cTag, Channel &theChannel)

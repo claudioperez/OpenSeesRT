@@ -48,7 +48,7 @@
 #endif
 
 #ifdef _H5DRM
-#  include <H5DRM.h>
+#  include <H5DRMLoadPattern.h>
 #endif
 
 #include <NodalThermalAction.h>   //L.Jiang [SIF]

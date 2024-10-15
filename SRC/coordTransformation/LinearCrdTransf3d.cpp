@@ -55,8 +55,6 @@ LinearCrdTransf3d::LinearCrdTransf3d(int tag, const Vector &vecInLocXZPlane)
   R[2][0] = vecInLocXZPlane(0);
   R[2][1] = vecInLocXZPlane(1);
   R[2][2] = vecInLocXZPlane(2);
-
-  // Does nothing
 }
 
 // constructor:
@@ -261,13 +259,13 @@ LinearCrdTransf3d::compTransfMatrixLocalGlobal(Matrix &Tlg)
   // setup transformation matrix from local to global
   Tlg.Zero();
 
-  Tlg(0, 0) = Tlg(3, 3) = Tlg(6, 6) = Tlg(9, 9) = R[0][0];
-  Tlg(0, 1) = Tlg(3, 4) = Tlg(6, 7) = Tlg(9, 10) = R[0][1];
-  Tlg(0, 2) = Tlg(3, 5) = Tlg(6, 8) = Tlg(9, 11) = R[0][2];
-  Tlg(1, 0) = Tlg(4, 3) = Tlg(7, 6) = Tlg(10, 9) = R[1][0];
+  Tlg(0, 0) = Tlg(3, 3) = Tlg(6, 6) = Tlg( 9,  9) = R[0][0];
+  Tlg(0, 1) = Tlg(3, 4) = Tlg(6, 7) = Tlg( 9, 10) = R[0][1];
+  Tlg(0, 2) = Tlg(3, 5) = Tlg(6, 8) = Tlg( 9, 11) = R[0][2];
+  Tlg(1, 0) = Tlg(4, 3) = Tlg(7, 6) = Tlg(10,  9) = R[1][0];
   Tlg(1, 1) = Tlg(4, 4) = Tlg(7, 7) = Tlg(10, 10) = R[1][1];
   Tlg(1, 2) = Tlg(4, 5) = Tlg(7, 8) = Tlg(10, 11) = R[1][2];
-  Tlg(2, 0) = Tlg(5, 3) = Tlg(8, 6) = Tlg(11, 9) = R[2][0];
+  Tlg(2, 0) = Tlg(5, 3) = Tlg(8, 6) = Tlg(11,  9) = R[2][0];
   Tlg(2, 1) = Tlg(5, 4) = Tlg(8, 7) = Tlg(11, 10) = R[2][1];
   Tlg(2, 2) = Tlg(5, 5) = Tlg(8, 8) = Tlg(11, 11) = R[2][2];
 }
@@ -1452,52 +1450,22 @@ LinearCrdTransf3d::getPointLocalDisplFromBasic(double xi, const Vector &uxb)
   return uxl;
 }
 
-void
-LinearCrdTransf3d::Print(OPS_Stream &s, int flag)
-{
 
-  if (flag == OPS_PRINT_CURRENTSTATE) {
-    s << "\nCrdTransf: " << this->getTag() << " Type: LinearCrdTransf3d";
-    if (nodeIOffset)
-      s << "\tNode I offset: " << nodeIOffset[0] << " " << nodeIOffset[1] << " "
-        << nodeIOffset[2] << endln;
-    if (nodeJOffset)
-      s << "\tNode J offset: " << nodeJOffset[0] << " " << nodeJOffset[1] << " "
-        << nodeJOffset[2] << endln;
-    s << "\n\tOrientation: " << Matrix(&R[0][0], 3,3) << "\n";
-  }
-
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\t{\"name\": \"" << this->getTag()
-      << "\", \"type\": \"LinearCrdTransf3d\"";
-    s << ", \"vecInLocXZPlane\": [" << R[2][0] << ", " << R[2][1] << ", "
-      << R[2][2] << "]";
-    if (nodeIOffset != 0)
-      s << ", \"iOffset\": [" << nodeIOffset[0] << ", " << nodeIOffset[1]
-        << ", " << nodeIOffset[2] << "]";
-    if (nodeJOffset != 0)
-      s << ", \"jOffset\": [" << nodeJOffset[0] << ", " << nodeJOffset[1]
-        << ", " << nodeJOffset[2] << "]";
-    s << "}";
-  }
-}
-
-////////////////////////////////// sensitivity //////////////////////////////////
 const Vector &
 LinearCrdTransf3d::getBasicDisplTotalGrad(int gradNumber)
 {
 
-  static double ug[12];
+  VectorND<12> ug;
   for (int i = 0; i < 6; i++) {
     ug[i]     = nodeIPtr->getDispSensitivity((i + 1), gradNumber);
     ug[i + 6] = nodeJPtr->getDispSensitivity((i + 1), gradNumber);
-  } // it is ok.
+  }
 
   double oneOverL = 1.0 / L;
 
   static Vector ub(6);
 
-  static double ul[12];
+  VectorND<12> ul;
 
   ul[0] = R[0][0] * ug[0] + R[0][1] * ug[1] + R[0][2] * ug[2];
   ul[1] = R[1][0] * ug[0] + R[1][1] * ug[1] + R[1][2] * ug[2];
@@ -1542,9 +1510,40 @@ LinearCrdTransf3d::getBasicDisplTotalGrad(int gradNumber)
   ub(1) = ul[5] + tmp;
   ub(2) = ul[11] + tmp;
   tmp   = oneOverL * (ul[8] - ul[2]);
-  ub(3) = ul[4] + tmp;
+  ub(3) = ul[ 4] + tmp;
   ub(4) = ul[10] + tmp;
-  ub(5) = ul[9] - ul[3];
+  ub(5) = ul[ 9] - ul[3];
 
   return ub;
+}
+
+
+void
+LinearCrdTransf3d::Print(OPS_Stream &s, int flag)
+{
+
+  if (flag == OPS_PRINT_CURRENTSTATE) {
+    s << "\nCrdTransf: " << this->getTag() << " Type: LinearCrdTransf3d";
+    if (nodeIOffset)
+      s << "\tNode I offset: " << nodeIOffset[0] << " " << nodeIOffset[1] << " "
+        << nodeIOffset[2] << endln;
+    if (nodeJOffset)
+      s << "\tNode J offset: " << nodeJOffset[0] << " " << nodeJOffset[1] << " "
+        << nodeJOffset[2] << endln;
+    s << "\n\tOrientation: " << Matrix(&R[0][0], 3,3) << "\n";
+  }
+
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << "\t\t\t{\"name\": \"" << this->getTag()
+      << "\", \"type\": \"LinearCrdTransf3d\"";
+    s << ", \"vecInLocXZPlane\": [" << R[2][0] << ", " << R[2][1] << ", "
+      << R[2][2] << "]";
+    if (nodeIOffset != 0)
+      s << ", \"iOffset\": [" << nodeIOffset[0] << ", " << nodeIOffset[1]
+        << ", " << nodeIOffset[2] << "]";
+    if (nodeJOffset != 0)
+      s << ", \"jOffset\": [" << nodeJOffset[0] << ", " << nodeJOffset[1]
+        << ", " << nodeJOffset[2] << "]";
+    s << "}";
+  }
 }

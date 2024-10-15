@@ -103,11 +103,11 @@ BandGenLinSOE::getNumEqn(void) const
     
 BandGenLinSOE::~BandGenLinSOE()
 {
-    if (A != 0) delete [] A;
-    if (B != 0) delete [] B;
-    if (X != 0) delete [] X;
-    if (vectX != 0) delete vectX;    
-    if (vectB != 0) delete vectB;    
+    if (A != nullptr) delete [] A;
+    if (B != nullptr) delete [] B;
+    if (X != nullptr) delete [] X;
+    if (vectX != nullptr) delete vectX;    
+    if (vectB != nullptr) delete vectB;    
 }
 
 
@@ -175,10 +175,10 @@ BandGenLinSOE::setSize(Graph &theGraph)
     }
 
     // zero the vectors
-    for (int j=0; j<size; j++) {
+    for (int j=0; j<size; j++)
         B[j] = 0;
+    for (int j=0; j<size; j++)
         X[j] = 0;
-    }
 
     // get new Vector objects if size has changes
     if (oldSize != size) {
