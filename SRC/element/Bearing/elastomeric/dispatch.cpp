@@ -831,7 +831,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     }
 
     // get the id and end nodes
-    int iNode, jNode, matTag, argi
+    int iNode, jNode, matTag, argi;
     int recvMat = 0;
     double kInit, qd, alpha1;
     double alpha2 = 0.0;
@@ -963,7 +963,7 @@ TclBasicBuilder_addElastomericBearingPlasticity(
     y(2) = 0.0;
     for (int i = 9 + eleArgStart; i < argc; i++) {
       if (strcmp(argv[i], "-orient") == 0) {
-        j = i + 1;
+        int j = i + 1;
         int numOrient = 0;
         while (j < argc && strcmp(argv[j], "-shearDist") != 0 &&
                strcmp(argv[j], "-doRayleigh") != 0 &&
@@ -1252,7 +1252,7 @@ TclBasicBuilder_addElastomericBearingUFRP(ClientData clientData, Tcl_Interp *int
     Vector y = 0;
     for (int i = 15 + eleArgStart; i < argc; i++) {
       if (strcmp(argv[i], "-orient") == 0) {
-        j = i + 1;
+        int j = i + 1;
         int numOrient = 0;
         while (j < argc && strcmp(argv[j], "-shearDist") != 0 &&
                strcmp(argv[j], "-doRayleigh") != 0 &&
