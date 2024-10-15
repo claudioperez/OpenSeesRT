@@ -73,10 +73,13 @@ public:
     int update(const Vector &aiPlusOne);
     int commit();
 
+    // modalDamping
+    double getCFactor() {return c2;}
+
     const Vector &getVel();
     
-    virtual int sendSelf(int commitTag, Channel &theChannel);
-    virtual int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+    virtual int sendSelf(int tag, Channel &);
+    virtual int recvSelf(int tag, Channel &, FEM_ObjectBroker &);
     
     void Print(OPS_Stream &s, int flag = 0);
     
