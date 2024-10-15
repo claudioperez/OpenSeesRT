@@ -270,6 +270,23 @@ int KRAlphaExplicit::newStep(double _deltaT)
     return 0;
 }
 
+int KRAlphaExplicit::revertToStart()
+{
+    if (Ut != 0) 
+        Ut->Zero();
+    if (Utdot != 0) 
+        Utdot->Zero();
+    if (Utdotdot != 0) 
+        Utdotdot->Zero();
+    if (U != 0) 
+        U->Zero();
+    if (Udot != 0) 
+        Udot->Zero();
+    if (Udotdot != 0) 
+        Udotdot->Zero();
+
+    return 0;
+}
 
 int KRAlphaExplicit::revertToLastStep()
 {
@@ -565,7 +582,7 @@ int KRAlphaExplicit::commit(void)
 const Vector &
 KRAlphaExplicit::getVel()
 {
-  return *Udot;
+  return *Ualphadot;
 }
 
 int KRAlphaExplicit::sendSelf(int cTag, Channel &theChannel)
