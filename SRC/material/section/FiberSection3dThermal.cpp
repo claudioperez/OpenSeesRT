@@ -62,7 +62,7 @@ void* OPS_FiberSection3dThermal()
     if (OPS_GetNumRemainingInputArgs() < 2) {
       opserr << "WARNING torsion not specified for FiberSection\n";
       opserr << "Use either -GJ $GJ or -torsion $matTag\n";
-      opserr << "\nFiberSection3d section: " << tag << endln;
+      opserr << "\nFiberSection3d section: " << tag << "\n";
       return 0;
     }
     
@@ -97,7 +97,7 @@ void* OPS_FiberSection3dThermal()
 
     if (torsion == 0) {
       opserr << "WARNING torsion not specified for FiberSection\n";
-      opserr << "\nFiberSection3d section: " << tag << endln;
+      opserr << "\nFiberSection3d section: " << tag << "\n";
       return 0;
     }
     
@@ -806,7 +806,7 @@ FiberSection3dThermal::sendSelf(int commitTag, Channel &theChannel)
       fibers[j].material->sendSelf(commitTag, theChannel);
       if (res < 0) {
         opserr << "FiberSection3d::sendSelf - failed to send material with tag "
-               << fibers[j].material->getTag() << endln;
+               << fibers[j].material->getTag() << "\n";
         return res;
       }
     }
@@ -934,32 +934,19 @@ FiberSection3dThermal::Print(OPS_Stream &s, int flag)
   if (flag == 2) {
     for (int i = 0; i < fibers.size(); i++) {
       s << -fibers[i].y << " "  << fibers[i].z << " "  << fibers[i].area << " " ;
-      s << fibers[i].material->getStress() << " "  << fibers[i].material->getStrain() << endln;
+      s << fibers[i].material->getStress() << " "  << fibers[i].material->getStrain() << "\n";
     }
-  } else {
-    s << "\nFiberSection3dThermal, tag: " << this->getTag() << endln;
-    s << "\tSection code: " << code;
-    s << "\tNumber of Fibers: " << fibers.size() << endln;
-    s << "\tCentroid: (" << yBar << ", " << zBar << ')' << endln;
-    if (theTorsion != 0)
-        theTorsion->Print(s, flag); 
+  } 
 
-    if (flag == 1) {
-      for (int i = 0; i < fibers.size(); i++) {
-        s << "\nLocation (y, z) = (" << -fibers[i].y << ", " << fibers[i].z << ")";
-        s << "\nArea = " << fibers[i].area << endln;
-      fibers[i].material->Print(s, flag);
-      }
-    }
-  }
-  if (flag == 3) {
+
+  else if (flag == 3) {
     for (int i = 0; i < fibers.size(); i++) {
       s << fibers[i].material->getTag() << " " << fibers[i].y << " "  << fibers[i].z << " "  << fibers[i].area << " " ;
-      s << fibers[i].material->getStress() << " "  << fibers[i].material->getStrain() << endln;
+      s << fibers[i].material->getStress() << " "  << fibers[i].material->getStrain() << "\n";
     } 
   }
     
-  if (flag == 4) {
+  else if (flag == 4) {
     for (int i = 0; i < fibers.size(); i++) {
       s << "add fiber # " << i+1 << " using material # " << fibers[i].material->getTag() << " to section # 1\n";
       s << "fiber_cross_section = " << fibers[i].area << "*m^2\n";
@@ -967,7 +954,7 @@ FiberSection3dThermal::Print(OPS_Stream &s, int flag)
     }
   }
 
-  if (flag == OPS_PRINT_PRINTMODEL_JSON) { 
+  else if (flag == OPS_PRINT_PRINTMODEL_JSON) { 
       s << TaggedObject::JsonPropertyIndent << "{";
       s << "\"name\": \"" << this->getTag() << "\", ";
       s << "\"type\": \"" << this->getClassType() << "\", ";
@@ -989,6 +976,23 @@ FiberSection3dThermal::Print(OPS_Stream &s, int flag)
       }
       s << TaggedObject::JsonPropertyIndent << "]}";
       return;
+  }
+
+  else {
+    s << "\nFiberSection3dThermal, tag: " << this->getTag() << "\n";
+    s << "\tSection code: " << code;
+    s << "\tNumber of Fibers: " << fibers.size() << "\n";
+    s << "\tCentroid: (" << yBar << ", " << zBar << ')' << "\n";
+    if (theTorsion != 0)
+        theTorsion->Print(s, flag); 
+
+    if (flag == 1) {
+      for (int i = 0; i < fibers.size(); i++) {
+        s << "\nLocation (y, z) = (" << -fibers[i].y << ", " << fibers[i].z << ")";
+        s << "\nArea = " << fibers[i].area << "\n";
+      fibers[i].material->Print(s, flag);
+      }
+    }
   }
 }
 
@@ -1321,7 +1325,7 @@ FiberSection3dThermal::determineFiberTemperature(const Vector& DataMixed, double
       else if ( fiberLocy <= dataTempe[17] )
           FiberTemperature = dataTempe[14] - (dataTempe[15] - fiberLocy) * (dataTempe[14] - dataTempe[16])/(dataTempe[15] - dataTempe[17]);
       else
-          opserr <<"FiberSection3dThermal::setTrialSectionDeformation -- fiber loc " <<fiberLocy<<" is out of the section"<<endln;
+          opserr <<"FiberSection3dThermal::setTrialSectionDeformation -- fiber loc " <<fiberLocy<<" is out of the section"<<"\n";
   }
   else if(DataMixed.Size()==25) {
   //---------------if temperature Data has 25 elements--------------------
@@ -1335,64 +1339,61 @@ FiberSection3dThermal::determineFiberTemperature(const Vector& DataMixed, double
               return 0;
       }
 
-//calculate the fiber tempe, T=T1-(Y-Y1)*(T1-T2)/(Y1-Y2)
-//first for bottom flange if existing
-      if (  fiberLocy <= dataTempe[1])
-      {
-              if (fiberLocz <= dataTempe[12]){
-              opserr<<"WARNING: FiberSection3dThermal failed to find the fiber with locy: "<<fiberLocy <<" , locZ: "<<fiberLocz <<endln;
-              }
-              else if (fiberLocz<= dataTempe[15]){
-              FiberTemperature = dataTempe[10] - (dataTempe[10] - dataTempe[13])*(dataTempe[12] - fiberLocz) /(dataTempe[12] - dataTempe[15]);
-              }
-              else if (fiberLocz<= dataTempe[18]){
-              FiberTemperature = dataTempe[13] - (dataTempe[13] - dataTempe[16])*(dataTempe[15] - fiberLocz) /(dataTempe[15] - dataTempe[18]);
-              }
-              else if (fiberLocz<= dataTempe[21]){
-              FiberTemperature = dataTempe[16] - (dataTempe[16] - dataTempe[19])*(dataTempe[18] - fiberLocz) /(dataTempe[18] - dataTempe[21]);
-              }
-              else if (fiberLocz<= dataTempe[24]){
-              FiberTemperature = dataTempe[19] - (dataTempe[19] - dataTempe[22])*(dataTempe[21] - fiberLocz) /(dataTempe[21] - dataTempe[24]);
-              }
-              else {
-              opserr<<"WARNING: FiberSection3dThermal failed to find the fiber with locy: "<<fiberLocy <<" , locZ: "<<fiberLocz <<endln;
-              }
+// calculate the fiber tempe, T=T1-(Y-Y1)*(T1-T2)/(Y1-Y2)
+// first for bottom flange if existing
+      if (  fiberLocy <= dataTempe[1]) {
+            if (fiberLocz <= dataTempe[12]){
+            opserr<<"WARNING: FiberSection3dThermal failed to find the fiber with locy: "<<fiberLocy <<" , locZ: "<<fiberLocz <<"\n";
+            }
+            else if (fiberLocz<= dataTempe[15]){
+            FiberTemperature = dataTempe[10] - (dataTempe[10] - dataTempe[13])*(dataTempe[12] - fiberLocz) /(dataTempe[12] - dataTempe[15]);
+            }
+            else if (fiberLocz<= dataTempe[18]){
+            FiberTemperature = dataTempe[13] - (dataTempe[13] - dataTempe[16])*(dataTempe[15] - fiberLocz) /(dataTempe[15] - dataTempe[18]);
+            }
+            else if (fiberLocz<= dataTempe[21]){
+            FiberTemperature = dataTempe[16] - (dataTempe[16] - dataTempe[19])*(dataTempe[18] - fiberLocz) /(dataTempe[18] - dataTempe[21]);
+            }
+            else if (fiberLocz<= dataTempe[24]){
+            FiberTemperature = dataTempe[19] - (dataTempe[19] - dataTempe[22])*(dataTempe[21] - fiberLocz) /(dataTempe[21] - dataTempe[24]);
+            }
+            else {
+            opserr<<"WARNING: FiberSection3dThermal failed to find the fiber with locy: "<<fiberLocy <<" , locZ: "<<fiberLocz <<"\n";
+            }
       }
       else if (fiberLocy <= dataTempe[3])
       {
-              FiberTemperature = dataTempe[0] - (dataTempe[1] - fiberLocy) * (dataTempe[0] - dataTempe[2])/(dataTempe[1] - dataTempe[3]);
+          FiberTemperature = dataTempe[0] - (dataTempe[1] - fiberLocy) * (dataTempe[0] - dataTempe[2])/(dataTempe[1] - dataTempe[3]);
       }
       else if (   fiberLocy <= dataTempe[5] )
       {
-              FiberTemperature = dataTempe[2] - (dataTempe[3] - fiberLocy) * (dataTempe[2] - dataTempe[4])/(dataTempe[3] - dataTempe[5]);
+          FiberTemperature = dataTempe[2] - (dataTempe[3] - fiberLocy) * (dataTempe[2] - dataTempe[4])/(dataTempe[3] - dataTempe[5]);
       }
       else if ( fiberLocy <= dataTempe[7] )
       {
-              FiberTemperature = dataTempe[4] - (dataTempe[5] - fiberLocy) * (dataTempe[4] - dataTempe[6])/(dataTempe[5] - dataTempe[7]);
+          FiberTemperature = dataTempe[4] - (dataTempe[5] - fiberLocy) * (dataTempe[4] - dataTempe[6])/(dataTempe[5] - dataTempe[7]);
       }
       else if ( fiberLocy <= dataTempe[9] )
-      {
-              FiberTemperature = dataTempe[6] - (dataTempe[7] - fiberLocy) * (dataTempe[6] - dataTempe[8])/(dataTempe[7] - dataTempe[9]);
-      }
+          FiberTemperature = dataTempe[6] - (dataTempe[7] - fiberLocy) * (dataTempe[6] - dataTempe[8])/(dataTempe[7] - dataTempe[9]);
       else {
-              if (fiberLocz <= dataTempe[12]){
-              opserr<<"WARNING: FiberSection3dThermal failed to find the fiber with locy: "<<fiberLocy <<" , locZ: "<<fiberLocz <<endln;
-              }
-              else if (fiberLocz<= dataTempe[15]){
-              FiberTemperature = dataTempe[11] - (dataTempe[11] - dataTempe[14])*(dataTempe[12] - fiberLocz) /(dataTempe[12] - dataTempe[15]);
-              }
-              else if (fiberLocz<= dataTempe[18]){
-              FiberTemperature = dataTempe[14] - (dataTempe[14] - dataTempe[17])*(dataTempe[15] - fiberLocz) /(dataTempe[15] - dataTempe[18]);
-              }
-              else if (fiberLocz<= dataTempe[21]){
-              FiberTemperature = dataTempe[17] - (dataTempe[17] - dataTempe[20])*(dataTempe[18] - fiberLocz) /(dataTempe[18] - dataTempe[21]);
-              }
-              else if (fiberLocz<= dataTempe[24]){
-              FiberTemperature = dataTempe[20] - (dataTempe[20] - dataTempe[23])*(dataTempe[21] - fiberLocz) /(dataTempe[21] - dataTempe[24]);
-              }
-              else {
-              opserr<<"WARNING: FiberSection3dThermal failed to find the fiber with locy: "<<fiberLocy <<" , locZ: "<<fiberLocz <<endln;
-              }
+          if (fiberLocz <= dataTempe[12]){
+            opserr<<"WARNING: FiberSection3dThermal failed to find the fiber with locy: "<<fiberLocy <<" , locZ: "<<fiberLocz <<"\n";
+          }
+          else if (fiberLocz<= dataTempe[15]){
+            FiberTemperature = dataTempe[11] - (dataTempe[11] - dataTempe[14])*(dataTempe[12] - fiberLocz) /(dataTempe[12] - dataTempe[15]);
+          }
+          else if (fiberLocz<= dataTempe[18]){
+            FiberTemperature = dataTempe[14] - (dataTempe[14] - dataTempe[17])*(dataTempe[15] - fiberLocz) /(dataTempe[15] - dataTempe[18]);
+          }
+          else if (fiberLocz<= dataTempe[21]){
+            FiberTemperature = dataTempe[17] - (dataTempe[17] - dataTempe[20])*(dataTempe[18] - fiberLocz) /(dataTempe[18] - dataTempe[21]);
+          }
+          else if (fiberLocz<= dataTempe[24]){
+            FiberTemperature = dataTempe[20] - (dataTempe[20] - dataTempe[23])*(dataTempe[21] - fiberLocz) /(dataTempe[21] - dataTempe[24]);
+          }
+          else {
+             opserr<<"WARNING: FiberSection3dThermal failed to find the fiber with locy: "<<fiberLocy <<" , locZ: "<<fiberLocz <<"\n";
+          }
       }
   }
   else if (DataMixed.Size() == 35) {
