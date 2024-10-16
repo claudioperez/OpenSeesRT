@@ -31,6 +31,8 @@
 #include <Vector.h>
 #include <Matrix.h>
 #include <classTags.h>
+#include <Logging.h>
+#include <OPS_Stream.h>
 #include <FiberSection3dThermal.h>
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
