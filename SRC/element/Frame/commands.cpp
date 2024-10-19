@@ -62,12 +62,12 @@
   #include "PrismFrame3d.h"
   #include "PrismFrame3d.h"
   
-  #include <element/Frame/Basic/CubicFrame3d.h>
-  #include <element/Frame/Basic/ForceFrame3d.h>
-  #include <element/Frame/Basic/ForceDeltaFrame3d.h>
-  #include <element/Frame/Basic/EulerFrame3d.h>
-  #include <element/Frame/Basic/EulerDeltaFrame3d.h>
-  #include <element/Frame/Basic/ExactFrame3d.h>
+  #include <element/Frame/CubicFrame3d.h>
+  #include <element/Frame/ForceFrame3d.h>
+  #include <element/Frame/ForceDeltaFrame3d.h>
+  #include <element/Frame/EulerFrame3d.h>
+  #include <element/Frame/EulerDeltaFrame3d.h>
+  #include <element/Frame/ExactFrame3d.h>
   
   #include <DispBeamColumn2d.h>
   #include <DispBeamColumn2dThermal.h>
