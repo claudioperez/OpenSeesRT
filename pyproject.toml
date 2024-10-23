@@ -8,7 +8,7 @@ authors = [
 
 license = {file = "LICENSE.txt"}
 
-readme = "about/README.md"
+readme = "about/README.pypi.md"
 
 description = "Nonlinear finite element analysis."
 
