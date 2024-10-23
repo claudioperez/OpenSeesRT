@@ -33,56 +33,14 @@ if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
    set(TCL_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_TCL}")
    set(TCL_INCLUDE_PATH "${CONAN_INCLUDE_DIRS_TCL}")
    set(TCL_LIBRARIES    "${CONAN_PKG_LIBS_TCL}")
-
-
-# Conan is the only supported dependency manager
-# on Windows; if Conan hasnt been run, run it.
-elseif(WIN32)
-  list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
-  list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
-  
-  if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/0.18.1/conan.cmake"
-                  "${CMAKE_BINARY_DIR}/conan.cmake"
-                  TLS_VERIFY ON)
-  endif()
-  
-  include(${CMAKE_BINARY_DIR}/conan.cmake)
-
-  conan_cmake_configure(REQUIRES tcl/8.6.11
-                        GENERATORS cmake ) # cmake_find_package)
-
-  conan_cmake_autodetect(settings)
-
-  conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
-                      BUILD missing
-                      REMOTE conancenter
-                      SETTINGS ${settings})
-
-
-  # Load Conan build info
-  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
- #if (EXISTS  "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
- #else()
- #  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
- #endif()
-  conan_basic_setup() # TARGETS)
-
-
-  set(TCL_INCLUDE_DIRS "${CONAN_INCLUDE_DIRS_TCL}")
-  set(TCL_INCLUDE_PATH "${CONAN_INCLUDE_DIRS_TCL}")
-  set(TCL_LIBRARIES    "${CONAN_PKG_LIBS_TCL}")
-  set(TCL_LIBRARY      "${CONAN_PKG_LIBS_TCL}")
-
-  message(":: TCL :: ${TCL_INCLUDE_DIRS}\n${CONAN_INCLUDE_DIRS_TCL}")
-  message(":: TCL :: ${TCL_INCLUDE_PATH}\n${CONAN_INCLUDE_DIRS_TCL}")
-  message(":: TCL :: ${TCL_LIBRARIES}   \n${CONAN_PKG_LIBS_TCL}")
-  
-  message("Win: TCL_LIBRARY:     ${TCL_LIBRARY}")
-  message("Win: Env:TCL_LIBRARY: $ENV{TCL_LIBRARY}")
-  message("Win: TCL_INCL_PATH:   ${TCL_INCLUDE_PATH}")
-  message("Win: TCL:             ${TCL_LIBRARIES}")
+#  message(":: TCL :: ${TCL_INCLUDE_DIRS}\n${CONAN_INCLUDE_DIRS_TCL}")
+#  message(":: TCL :: ${TCL_INCLUDE_PATH}\n${CONAN_INCLUDE_DIRS_TCL}")
+#  message(":: TCL :: ${TCL_LIBRARIES}   \n${CONAN_PKG_LIBS_TCL}")
+#  
+#  message("Win: TCL_LIBRARY:     ${TCL_LIBRARY}")
+#  message("Win: Env:TCL_LIBRARY: $ENV{TCL_LIBRARY}")
+#  message("Win: TCL_INCL_PATH:   ${TCL_INCLUDE_PATH}")
+#  message("Win: TCL:             ${TCL_LIBRARIES}")
 endif()
 
 set(OPS_Extension_List OPS_ASDEA)
@@ -103,7 +61,6 @@ if (UNIX)
     message(":: MacOS")
     add_compile_definitions(_LINUX _UNIX _TCL85)
     # Temporary fix for a bug that is currently in Xcode 15
-#   add_link_options("-Wl,-ld_classic")
   else()
     message(":: LINUX")
     add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
@@ -148,7 +105,7 @@ elseif (WIN32) # NOTE: this will execute for both 32-bit and 64-bit builds.
   include(OpenSeesDependenciesWin)
   add_compile_definitions(_WIN32 _TCL85)
   # Optimize for Architecture Specifics
-  add_compile_options(/favor:INTEL64)
+  add_compile_options($<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/favor:INTEL64>)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 endif()
 
