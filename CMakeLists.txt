@@ -134,6 +134,7 @@ if (UNIX)
   add_compile_options(
     $<$<CONFIG:DEBUG>:-g3>
     $<$<CONFIG:DEBUG>:-Og>
+    $<$<CONFIG:DEBUG>:-O0>
     $<$<CONFIG:RELEASE>:-O3>
   )
 
