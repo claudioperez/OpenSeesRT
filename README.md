@@ -9,8 +9,8 @@ Nonlinear finite element analysis.
 <div style="align:center">
 
 [![Latest PyPI version](https://img.shields.io/pypi/v/opensees?logo=pypi)](https://pypi.python.org/pypi/opensees)
-[![](https://img.shields.io/conda/v/opensees/opensees?color=%23660505)](https://anaconda.org/opensees/opensees)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/opensees)](https://pypi.org/project/opensees)
+<!-- [![](https://img.shields.io/conda/v/opensees/opensees?color=%23660505)](https://anaconda.org/opensees/opensees) -->
 
 </div>
 
@@ -21,14 +21,6 @@ algorithms, including mixed formulations for beams and solids, over 200 material
 extensive collection of continuation algorithms to solve highly nonlinear
 problems. 
 
-<!--
-The `opensees` package supports high quality interactive post processing via the
-[`sees`](https://pypi.org/project/sees) package.
--->
-
-This package may be used as a drop-in replacement for both `OpenSees.exe` and
-OpenSeesPy (see *Getting Started* below), and generally provides a substantial performance boost.
-
 <p style="text-align: center;">
 <b>This package is <i>experimental</i> and not yet intended for public use.</b>
 </p>
@@ -36,52 +28,7 @@ OpenSeesPy (see *Getting Started* below), and generally provides a substantial p
 
 > [!NOTE]
 > This package is independent of the [`openseespy`](https://pypi.org/project/openseespy)
-> library, which is documented in the OpenSees [documentation](https://opensees.github.io/OpenSeesDocumentation)
-> website. 
-
-
-### Getting Started
-
-The `sees` package can be installed into a Python environment
-in the standard manner. For example, using `pip`:
-
-```shell
-pip install sees
-```
-
-There are several ways to use the `sees` package:
-
-- To execute Tcl procedures from a Python script, just create an instance
-  of the `sees.Model` class and call its `eval()` method:
-  ```python
-  model = sees.Model()
-  model.eval("model Basic -ndm 2")
-  model.eval("print -json")
-  ```
-
-- To start an interactive interpreter run the shell command:
-
-  ```bash
-  python -m opensees
-  ```
-  To quit the interpreter, just run `exit`:
-  ```tcl
-  opensees > exit
-  ```
-
-- The `sees` package exposes a compatibility layer that exactly reproduces
-  the *OpenSeesPy* functions, but does so without mandating a single
-  global program state. To run OpenSeesPy scripts, just change the import:
-
-  ```python
-  import openseespy.opensees
-  ```
-  to
-  ```python
-  import opensees.openseesrt
-  ```
-  For true stateless modeling, the `Model` class should be used instead of the legacy
-  `model` function; documentation is under development.
+> project that is developed at Oregon State University.
 
 
 ## Development
@@ -96,14 +43,6 @@ To compile the project see [about/compiling](https://github.com/claudioperez/Ope
 [pypi-v-image]: https://img.shields.io/pypi/v/opensees.svg
 [pypi-v-link]: https://pypi.org/project/opensees
 
-
-## See also
-
-- [`osmg`](https://pypi.org/project/osmg) OpenSees Model Generator
-- [`mdof`](https://pypi.org/project/mdof) Optimized system identification library
-- [`sdof`](https://pypi.org/project/sdof) Optimized integration for single degree of freedom systems
-
-For more projects by the STAIRlab, visit https://github.com/STAIRlab .
 
 
 ## Support
@@ -125,13 +64,11 @@ For more projects by the STAIRlab, visit https://github.com/STAIRlab .
   </td>
 
   <td>
-    <!-- <a href="https://brace2.herokuapp.com"> -->
     <a href="https://stairlab.berkeley.edu">
     <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/stairlab.svg"
          alt="STAIRlab Logo" width="200"/>
     </a>
-  </td>
- 
+  </td> 
  </tr>
 </table>
 
