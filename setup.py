@@ -3,6 +3,7 @@ import os
 import sys
 from glob import glob
 from pathlib import Path
+import subprocess
 from os.path import basename, splitext
 
 import amoeba
@@ -10,8 +11,8 @@ import setuptools
 
 #--------------------------------------------------
 
-version    = "0.1.3"
-build_type = "local"
+version    = "0.1.5"
+build_type = "release"
 
 #--------------------------------------------------
 
@@ -76,23 +77,21 @@ class BuildOpenSeesRT(amoeba.BuildExtension):
     def build_extension(self, ext):
         # Ensure Conan dependencies are installed using Conan 2.0 commands
         if use_conan:
-            self.run_conan()
+            self.run_conan(ext)
 
-#       super(amoeba.BuildExtension,self).build_extension(ext)
         super().build_extension(ext)
 
-    def run_conan(self):
-        # Run Conan install and build commands in the build_temp directory
-        conanfile = os.path.join(os.path.dirname(__file__), "conanfile.py")
-        if not os.path.isfile(conanfile):
-            raise RuntimeError(f"{conanfile} not found!")
+    def run_conan(self, ext):
+        toolchain = str(Path(".").absolute()/"build"/"generators"/"conan_toolchain.cmake")
+        ext.cmake_configure_options.append(
+                f"-DCMAKE_TOOLCHAIN_FILE={toolchain}"
+        )
 
         # Create the Conan profile and run the Conan install command
         subprocess.run([
-            "conan", "install", ".", 
-            "--output-folder", self.build_temp,
-            "--build=missing"
-        ], check=True)
+            "conan", "install", ".",
+            "--build=missing",
+        ])
 
 
 # BuildOpenSeesRT = amoeba.BuildExtension
@@ -112,7 +111,6 @@ if __name__ == "__main__":
                install_prefix="opensees",
                cmake_build_type=options[build_type][0].split("=")[-1],
                cmake_configure_options = [
-#                  "-G", "Unix Makefiles",
                    *EnvArgs,
                    *options[build_type],
                    f"-DOPENSEESRT_VERSION={version}",

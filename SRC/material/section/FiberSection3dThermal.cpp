@@ -31,6 +31,8 @@
 #include <Vector.h>
 #include <Matrix.h>
 #include <classTags.h>
+#include <Logging.h>
+#include <OPS_Stream.h>
 #include <FiberSection3dThermal.h>
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
@@ -979,7 +981,7 @@ FiberSection3dThermal::Print(OPS_Stream &s, int flag)
   else {
     s << "\nFiberSection3dThermal, tag: " << this->getTag() << "\n";
     s << "\tSection code: " << code;
-    s << "\tNumber of Fibers: " << fibers.size() << "\n";
+    s << "\tNumber of Fibers: " << static_cast<int>(fibers.size()) << "\n";
     s << "\tCentroid: (" << yBar << ", " << zBar << ')' << "\n";
     if (theTorsion != 0)
         theTorsion->Print(s, flag); 
