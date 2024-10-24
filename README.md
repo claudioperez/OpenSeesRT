@@ -78,7 +78,7 @@ There are several ways to use the `sees` package:
   ```
   to
   ```python
-  import opensees.openseesrt
+  import opensees.openseespy
   ```
   For true stateless modeling, the `Model` class should be used instead of the legacy
   `model` function; documentation is under development.
