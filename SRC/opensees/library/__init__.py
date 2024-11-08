@@ -141,7 +141,7 @@ class uniaxial:
         Yng(about=r"tangent in tension for stains: 0 <= strains $\le$ `epsP2`"),
         Num("E2", about="tangent when material in tension with strains > `epsP2`"),
         Num("eps2", about="strain at which material changes tangent in tension."),
-        Num("EN1", reqd=False, about="optional, default = `EP1`. tangent in compression for stains: 0 < strains $\le$ `epsN2`"),
+        Num("EN1", reqd=False, about=r"optional, default = `EP1`. tangent in compression for stains: 0 < strains $\le$ `epsN2`"),
         Num("EN2", reqd=False, about="optional, default = `EP2`. tangent in compression with strains < `epsN2`"),
         Num("epsN2", reqd=False, about="optional, default = -epsP2. strain at which material changes tangent in compression.")
     ])
@@ -410,8 +410,8 @@ class uniaxial:
         Num("QInf",   about="Maximum increase in yield stress due to cyclic hardening (isotropic hardening)."),
         Num("b",      about="Saturation rate of QInf, b > 0."),
         Num("DInf",   about="Decrease in the initial yield stress, to neglect the model updates set DInf = 0."),
-        Num("a",      about="Saturation rate of DInf, $a > 0$. If $D_\infty == 0$, then a is arbitrary (but still a > 0)."),
-        Int("N",      about=r"Number of backstresses to define, $N \ge 1$."),
+        Num("a",      about="Saturation rate of DInf, $a > 0$. If $D_{\\infty} == 0$, then a is arbitrary (but still a > 0)."),
+        Int("N",      about="Number of backstresses to define, $N \\ge 1$."),
         Grp("backstress", type=Grp, args=[Grp(type=Num, args=[Num("C"), Num("gamma")])],
             about="Backstress parameters, up to 9 pairs may be specified. If `C` is specified, then the corresponding `gamma` must also be specified. Note that only the first N backstresses will be read by the parser."
         ),

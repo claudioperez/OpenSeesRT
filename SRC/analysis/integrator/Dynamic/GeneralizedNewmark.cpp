@@ -33,48 +33,52 @@
 #include <ParameterIter.h>
 
 
-GeneralizedNewmark::GeneralizedNewmark(double _gamma, double _beta, 
+GeneralizedNewmark::GeneralizedNewmark(double gamma,  double beta, 
                                        double alphaF, double alphaM,
-                                       int uFlag, int iFlag, bool aflag)
+                                       int uFlag, int iFlag, bool aFlag)
     : TransientIntegrator(0),
-      gamma(_gamma), beta(_beta), 
+      gamma(gamma), beta(beta), 
       alphaF(1.0), alphaM(1.0), 
       unknown(uFlag), unknown_initialize(iFlag),
-      step(0), dt(0.0),
-      c1(0.0), c2(0.0), c3(0.0), 
-      Ut(nullptr), Utdot(nullptr), Utdotdot(nullptr), 
-      U(nullptr),  Udot(nullptr),  Udotdot(nullptr),
-      Ua(nullptr), Uadot(nullptr), Uadotdot(nullptr), 
+      step(0),
+      dt(0.0),
+      cu(0.0), cv(0.0), ca(0.0), 
+      Uo(nullptr), Vo(nullptr), Ao(nullptr),
+      Ua(nullptr), Va(nullptr), Aa(nullptr),
+      Un(nullptr), Vn(nullptr), An(nullptr),
       determiningMass(false),
       sensitivityFlag(0), gradNumber(0), 
       massMatrixMultiplicator(0),
-      dampingMatrixMultiplicator(0), assemblyFlag(aflag), independentRHS(),
+      dampingMatrixMultiplicator(0), 
+      assemblyFlag(aFlag), 
+      independentRHS(),
       dUn(), dVn(), dAn()
 {
 
 }
 
+
 GeneralizedNewmark::~GeneralizedNewmark()
 {
     // clean up the memory created
-    if (Ut != nullptr)
-        delete Ut;
-    if (Utdot != nullptr)
-        delete Utdot;
-    if (Utdotdot != nullptr)
-        delete Utdotdot;
+    if (Uo != nullptr)
+        delete Uo;
+    if (Vo != nullptr)
+        delete Vo;
+    if (Ao != nullptr)
+        delete Ao;
     if (Ua != nullptr)
         delete Ua;
-    if (Uadot != nullptr)
-        delete Uadot;
-    if (Uadotdot != nullptr)
-        delete Uadotdot;
-    if (U != nullptr)
-        delete U;
-    if (Udot != nullptr)
-        delete Udot;
-    if (Udotdot != nullptr)
-        delete Udotdot;
+    if (Va != nullptr)
+        delete Va;
+    if (Aa != nullptr)
+        delete Aa;
+    if (Un != nullptr)
+        delete Un;
+    if (Vn != nullptr)
+        delete Vn;
+    if (An != nullptr)
+        delete An;
 
     // clean up sensitivity
     if (massMatrixMultiplicator != nullptr)
@@ -94,13 +98,12 @@ GeneralizedNewmark::newStep(double deltaT)
         return -2;  
     }
     
-    if (U == nullptr)  {
-      throw std::invalid_argument( "domainChange failed or not called");
-      return -3;
-    }
+    if (Un == nullptr)
+      throw std::invalid_argument("domainChange failed or not called");
+      // return -3;
 
     // mark step as bootstrap or not
-    if ( deltaT != dt )
+    if (deltaT != dt)
         step = 0;
     else
         step++;
@@ -108,41 +111,38 @@ GeneralizedNewmark::newStep(double deltaT)
     dt = deltaT;
 
     // Set response at t to be that at t+deltaT of previous step
-    (*Ut) = *U;        
-    (*Utdot) = *Udot;  
-    (*Utdotdot) = *Udotdot;
+    (*Uo) = *Un;        
+    (*Vo) = *Vn;  
+    (*Ao) = *An;
 
-    // get a pointer to the AnalysisModel
     AnalysisModel *theModel = this->getAnalysisModel();
     
     // set the constants
     switch (unknown) {
     case Displacement:
-      if (beta == 0)  {
-          opserr << "GeneralizedNewmark::newStep() - error in variable\n";
-          opserr << "gamma = " << gamma << " beta = " << beta << endln;
+      if (beta == 0.0)  {
+          opserr << "Invalid beta, requires beta != 0.0\n";
           return -1;
       }
-      c1 = 1.0;
-      c2 = gamma/(beta*deltaT);
-      c3 = 1.0/(beta*deltaT*deltaT);
+      cu = 1.0;
+      cv = gamma/(beta*deltaT);
+      ca = 1.0/(beta*deltaT*deltaT);
       break;
 
     case Velocity:
-      if (gamma == 0)  {
-          opserr << "GeneralizedNewmark::newStep() - error in variable\n";
-          opserr << "gamma = " << gamma << " beta = " << beta << endln;
+      if (gamma == 0.0)  {
+          opserr << "Invalid gamma, requires gamma != 0.0\n";
           return -1;
       }
-      c1 = deltaT*beta/gamma;
-      c2 = 1.0;
-      c3 = 1.0/(gamma*deltaT);
+      cu = deltaT*beta/gamma;
+      cv = 1.0;
+      ca = 1.0/(gamma*deltaT);
       break;
 
     case Acceleration:
-      c1 = beta*deltaT*deltaT;
-      c2 = gamma*deltaT;
-      c3 = 1.0;
+      cu = beta*deltaT*deltaT;
+      cv = gamma*deltaT;
+      ca = 1.0;
       break;
     }
 
@@ -150,57 +150,54 @@ GeneralizedNewmark::newStep(double deltaT)
     // Set initial guesses for {u,v,a}_{t + dt}
     //
     int init = (step < 2 && unknown==Displacement) ? unknown : unknown_initialize;
-//  int init = unknown_initialize;
 
     if (unknown == Displacement) {
-      // determine new velocities and accelerations at t+deltaT
       double buu =  0.0;
       double buv =  0.0;
       double bua =  0.0;
 
       double bvu = -gamma/(beta*deltaT);
-      double bvv = (1.0 - gamma/beta); 
+      double bvv = 1.0 - gamma/beta; 
       double bva = deltaT*(1.0 - 0.5*gamma/beta);
 
       double bau =  1/(beta*deltaT*deltaT);
       double bav = -1.0/(beta*deltaT);
       double baa =  1.0 + 0.5/beta;
 
-      switch (init) {// unknown_initialize) {
+      switch (init) {
         case Displacement:
-          Udot->addVector(bvv, *Utdotdot, bva);
+          Vn->addVector(bvv, *Ao, bva);
 
-          Udotdot->addVector(baa-1/beta, *Utdot, bav);
+          An->addVector(baa-1/beta, *Vo, bav);
 //        Udotdot->addVector(baa, *Utdot, bav);
           break;
 
-        case Velocity:
-          // TODO: Check
-          U   ->addVector(0.0, *Ut,          buu      +c1*(    - bvu)/c2);
-          U   ->addVector(1.0, *Utdot,       buv      +c1*(1.0 - bvv)/c2);
-          U   ->addVector(1.0, *Utdotdot,    bua      +c1*(    - bva)/c2);
-
-          Udotdot->addVector(0.0, *Ut,       bau      +c3*(    - bvu)/c2);
-          Udotdot->addVector(1.0, *Utdot,    bav      +c3*(1.0 - bvv)/c2);
-          Udotdot->addVector(1.0, *Utdotdot, baa      +c3*(    - bva)/c2);
-          break;
-
         case Acceleration:
-          U   ->addVector(0.0, *Ut,          buu      +c1*(    - bau)/c3);
-          U   ->addVector(1.0, *Utdot,       buv      +c1*(    - bav)/c3);
-          U   ->addVector(1.0, *Utdotdot,    bua      +c1*(1.0 - baa)/c3);
+          Un->addVector(0.0, *Uo,  buu  + cu*(    - bau)/ca);
+          Un->addVector(1.0, *Vo,  buv  + cu*(    - bav)/ca);
+          Un->addVector(1.0, *Ao,  bua  + cu*(1.0 - baa)/ca);
 
-          Udot->addVector(0.0, *Ut,          bvu      +c2*(    - bau)/c3);
-          Udot->addVector(1.0, *Utdot,       bvv      +c2*(    - bav)/c3);
-          Udot->addVector(1.0, *Utdotdot,    bva      +c2*(1.0 - baa)/c3);
+          Vn->addVector(0.0, *Uo,  bvu  + cv*(    - bau)/ca);
+          Vn->addVector(1.0, *Vo,  bvv  + cv*(    - bav)/ca);
+          Vn->addVector(1.0, *Ao,  bva  + cv*(1.0 - baa)/ca);
           break;
 
-      }
+        case Velocity:
+          Un->addVector(0.0, *Uo,  buu  + cu*(    - bvu)/cv);
+          Un->addVector(1.0, *Vo,  buv  + cu*(1.0 - bvv)/cv);
+          Un->addVector(1.0, *Ao,  bua  + cu*(    - bva)/cv);
 
-    } else if (unknown == Velocity) {
+          An->addVector(0.0, *Uo,  bau  + ca*(    - bvu)/cv);
+          An->addVector(1.0, *Vo,  bav  + ca*(1.0 - bvv)/cv);
+          An->addVector(1.0, *Ao,  baa  + ca*(    - bva)/cv);
+          break;
+      }
+    }
+
+    else if (unknown == Velocity) {
       double buu = 1.0;
-      double buv = -deltaT*beta/gamma*(1 - gamma/beta);
-      double bua = deltaT*deltaT*beta/gamma*(gamma*0.5/beta - 1.0);
+      double buv = -deltaT*beta/gamma*(1.0 - gamma/beta);
+      double bua =  deltaT*deltaT*beta/gamma*(gamma*0.5/beta - 1.0);
 
       double bvu = 0.0;
       double bvv = 0.0;
@@ -210,54 +207,42 @@ GeneralizedNewmark::newStep(double deltaT)
       double bav = -1/(gamma*deltaT);
       double baa =  1 - 1/gamma;
 
-      switch (init) {// unknown_initialize) {
+      switch (init) {
         case Displacement:
-//        if (step < 2)  { // trapezoidal
-//          //c1 = 1.0;
-//          //c2 = 2.0/deltaT;
-//          //c3 = 4.0/(deltaT*deltaT);
-
-//            (*Udot) *= -1.0;
-
-//            double a3 = -4.0/deltaT;
-//            double a4 = -1;
-//            Udotdot->addVector(a4, *Utdot, a3);
-//        } else {
-          Udot->addVector(0.0, *Ut,          bvu      +c2*(1.0 - buu)/c1);
-          Udot->addVector(1.0, *Utdot,       bvv      +c2*(    - buv)/c1);
-          Udot->addVector(1.0, *Utdotdot,    bva      +c2*(    - bua)/c1);
+          Vn->addVector(0.0, *Uo,  bvu + cv*(1.0 - buu)/cu);
+          Vn->addVector(1.0, *Vo,  bvv + cv*(    - buv)/cu);
+          Vn->addVector(1.0, *Ao,  bva + cv*(    - bua)/cu);
 
           // a += c3*a_{n+1}
-          Udotdot->addVector(0.0, *Ut,       bau      +c3*(1.0 - buu)/c1);
-          Udotdot->addVector(1.0, *Utdot,    bav      +c3*(    - buv)/c1);
-          Udotdot->addVector(1.0, *Utdotdot, baa      +c3*(    - bua)/c1);
-//        }
+          An->addVector(0.0, *Uo,  bau + ca*(1.0 - buu)/cu);
+          An->addVector(1.0, *Vo,  bav + ca*(    - buv)/cu);
+          An->addVector(1.0, *Ao,  baa + ca*(    - bua)/cu);
           break;
 
         case Velocity:
           // TODO: Check
-          U   ->addVector(0.0, *Ut,          buu      +c1*(    - bvu)/c2);
-          U   ->addVector(1.0, *Utdot,       buv      +c1*(1.0 - bvv)/c2);
-          U   ->addVector(1.0, *Utdotdot,    bua      +c1*(    - bva)/c2);
+          Un->addVector(0.0, *Uo,  buu + cu*(    - bvu)/cv);
+          Un->addVector(1.0, *Vo,  buv + cu*(1.0 - bvv)/cv);
+          Un->addVector(1.0, *Ao,  bua + cu*(    - bva)/cv);
 
-          Udotdot->addVector(0.0, *Ut,       bau      +c3*(    - bvu)/c2);
-          Udotdot->addVector(1.0, *Utdot,    bav      +c3*(1.0 - bvv)/c2);
-          Udotdot->addVector(1.0, *Utdotdot, baa      +c3*(    - bva)/c2);
+          An->addVector(0.0, *Uo,  bau + ca*(    - bvu)/cv);
+          An->addVector(1.0, *Vo,  bav + ca*(1.0 - bvv)/cv);
+          An->addVector(1.0, *Ao,  baa + ca*(    - bva)/cv);
           break;
 
         case Acceleration:
-          U   ->addVector(0.0, *Ut,          buu      +c1*(    - bau)/c3);
-          U   ->addVector(1.0, *Utdot,       buv      +c1*(    - bav)/c3);
-          U   ->addVector(1.0, *Utdotdot,    bua      +c1*(1.0 - baa)/c3);
+          Un->addVector(0.0, *Uo,  buu + cu*(    - bau)/ca);
+          Un->addVector(1.0, *Vo,  buv + cu*(    - bav)/ca);
+          Un->addVector(1.0, *Ao,  bua + cu*(1.0 - baa)/ca);
 
-          Udot->addVector(0.0, *Ut,          bvu      +c2*(    - bau)/c3);
-          Udot->addVector(1.0, *Utdot,       bvv      +c2*(    - bav)/c3);
-          Udot->addVector(1.0, *Utdotdot,    bva      +c2*(1.0 - baa)/c3);
+          Vn->addVector(0.0, *Uo,  bvu + cv*(    - bau)/ca);
+          Vn->addVector(1.0, *Vo,  bvv + cv*(    - bav)/ca);
+          Vn->addVector(1.0, *Ao,  bva + cv*(1.0 - baa)/ca);
           break;
-
       }
+    }
 
-    } else {
+    else {
       double buu = 1.0;
       double buv = deltaT;
       double bua = deltaT*deltaT*(0.5 - beta);
@@ -270,47 +255,45 @@ GeneralizedNewmark::newStep(double deltaT)
       double bav = 0.0;
       double baa = 0.0;
 
-
       // Choose how to initialize state
-      switch (init) { // unknown_initialize) {
+      // u += c1*Da
+//    U->addVector(*Utdot,                   -c1*(      buv/c1));
+//    U->addVector(*Utdotdot,                -c1*(1.0 + bua/c1));
+
+      switch (init) {
         case Displacement:
           // Initialize: U == Ut
           // implying   Da = -vc/(beta dt) - ac/(2 beta)
 
-          // u += c1*Da
-//        U->addVector(*Utdot,                   -c1*(      buv/c1));
-//        U->addVector(*Utdotdot,                -c1*(1.0 + bua/c1));
+          Vn->addVector(0.0, *Uo,  bvu + cv*(1.0 - buu)/cu); // 0
+          Vn->addVector(1.0, *Vo,  bvv + cv*(    - buv)/cu); // (beta*deltaT));
+          Vn->addVector(1.0, *Ao,  bva + cv*(    - bua)/cu);
 
-          Udot->addVector(0.0, *Ut,          bvu      +c2*(1.0 - buu)/c1); // 0
-          Udot->addVector(1.0, *Utdot,       bvv      +c2*(    - buv)/c1); // (beta*deltaT));
-          Udot->addVector(1.0, *Utdotdot,    bva      +c2*(    - bua)/c1);
-
-          Udotdot->addVector(0.0, *Ut,       bau      +c3*(1.0 - buu)/c1); // 0
-          Udotdot->addVector(1.0, *Utdot,    bav      +c3*(    - buv)/c1);
-          Udotdot->addVector(1.0, *Utdotdot, baa      +c3*(    - bua)/c1);
+          An->addVector(0.0, *Uo,  bau + ca*(1.0 - buu)/cu); // 0
+          An->addVector(1.0, *Vo,  bav + ca*(    - buv)/cu);
+          An->addVector(1.0, *Ao,  baa + ca*(    - bua)/cu);
           break; 
 
-        case Velocity:
-          // TODO: Check
-          U   ->addVector(0.0, *Ut,          buu      +c1*(    - bvu)/c2);
-          U   ->addVector(1.0, *Utdot,       buv      +c1*(1.0 - bvv)/c2);
-          U   ->addVector(1.0, *Utdotdot,    bua      +c1*(    - bva)/c2);
-
+        case Velocity: // TODO: Check
+          // Dv = 0
+          Un->addVector(0.0, *Uo,  buu + cu*(    - bvu)/cv);
+          Un->addVector(1.0, *Vo,  buv + cu*(1.0 - bvv)/cv);
+          Un->addVector(1.0, *Ao,  bua + cu*(    - bva)/cv);
 
           // a += c3*a_{n+1}
-          Udotdot->addVector(0.0, *Ut,       bau      +c3*(    - bvu)/c2);
-          Udotdot->addVector(1.0, *Utdot,    bav      +c3*(1.0 - bvv)/c2);
-          Udotdot->addVector(1.0, *Utdotdot, baa      +c3*(    - bva)/c2);
+          An->addVector(0.0, *Uo,  bau + ca*(    - bvu)/cv);
+          An->addVector(1.0, *Vo,  bav + ca*(1.0 - bvv)/cv);
+          An->addVector(1.0, *Ao,  baa + ca*(    - bva)/cv);
           break;
 
         case Acceleration:
-          // implying          Da = 0
-          U->addVector(buu, *Utdot,        buv);
-          U->addVector(1.0, *Utdotdot,     bua + c1);
+          // Da = 0
+          Un->addVector(buu, *Vo,  buv);
+          Un->addVector(1.0, *Ao,  bua + cu);
 
-          Udot->addVector(0.0, *Ut,        bvu);
-          Udot->addVector(1.0, *Utdot,     bvv);
-          Udot->addVector(1.0, *Utdotdot,  bva + c2); // deltaT
+          Vn->addVector(0.0, *Uo,  bvu);
+          Vn->addVector(1.0, *Vo,  bvv);
+          Vn->addVector(1.0, *Ao,  bva + cv); // deltaT
           break;
       }
     }
@@ -319,18 +302,18 @@ GeneralizedNewmark::newStep(double deltaT)
     // set the trial response quantities
     //
     // determine the displacements at t+alphaF*deltaT
-    (*Ua) = *Ut;
-    Ua->addVector((1.0-alphaF), *U, alphaF);
+    (*Ua) = *Uo;
+    Ua->addVector((1.0-alphaF), *Un, alphaF);
 
     // determine the velocities at t+alphaF*deltaT
-    (*Uadot) = *Utdot;
-    Uadot->addVector((1.0-alphaF), *Udot, alphaF);
+    (*Va) = *Vo;
+    Va->addVector((1.0-alphaF), *Vn, alphaF);
 
     // determine the velocities at t+alphaM*deltaT
-    (*Uadotdot) = *Utdotdot;
-    Uadotdot->addVector((1.0-alphaM), *Udotdot, alphaM);
+    (*Aa) = *Ao;
+    Aa->addVector((1.0-alphaM), *An, alphaM);
     
-    theModel->setResponse(*Ua, *Uadot, *Uadotdot);
+    theModel->setResponse(*Ua, *Va, *Aa);
 
     //
     // increment the time and apply the load
@@ -355,53 +338,53 @@ GeneralizedNewmark::update(const Vector &deltaX)
         return -1;
     }
     
-    // check domainChanged() has been called, i.e. Ut will not be zero
-    if (Ut == nullptr)  {
+    // check domainChanged() has been called, i.e. Ut will not be null
+    if (Uo == nullptr)  {
         opserr << "WARNING GeneralizedNewmark::update() - domainChange() failed or not called\n";
         return -2;
     }  
-    
+
     // check deltaX is of correct size
-    if (deltaX.Size() != U->Size())  {
+    if (deltaX.Size() != Un->Size())  {
         opserr << "WARNING GeneralizedNewmark::update() - Vectors of incompatible size ";
-        opserr << " expecting " << U->Size() << " obtained " << deltaX.Size() << endln;
+        opserr << " expecting " << Un->Size() << " obtained " << deltaX.Size() << endln;
         return -3;
     }
     
     //  determine the response at t+deltaT
     switch (unknown) {
     case Displacement:
-      (*U) += deltaX;
-      Udot->addVector(1.0, deltaX, c2);
-      Udotdot->addVector(1.0, deltaX, c3);
+      (*Un) += deltaX;
+      Vn->addVector(1.0, deltaX, cv);
+      An->addVector(1.0, deltaX, ca);
       break;
 
     case Velocity:
-      U->addVector(1.0, deltaX, c1);
-      (*Udot) += deltaX;
-      Udotdot->addVector(1.0, deltaX, c3);
+      Un->addVector(1.0, deltaX, cu);
+      (*Vn) += deltaX;
+      An->addVector(1.0, deltaX, ca);
       break;
 
     case Acceleration:
-      U->addVector(1.0, deltaX, c1);
-      Udot->addVector(1.0, deltaX, c2);        
-      (*Udotdot) += deltaX;
+      Un->addVector(1.0, deltaX, cu);
+      Vn->addVector(1.0, deltaX, cv);        
+      (*An) += deltaX;
       break;
     }
 
-    // determine displacement and velocity at t+alphaF*deltaT
-    (*Ua) = *Ut;
-    Ua->addVector((1.0-alphaF), *U, alphaF);
+    // determine displacement and velocity at t + alphaF*deltaT
+    (*Ua) = *Uo;
+    Ua->addVector((1.0-alphaF), *Un, alphaF);
 
-    (*Uadot) = *Utdot;
-    Uadot->addVector((1.0-alphaF), *Udot, alphaF);
+    (*Va) = *Vo;
+    Va->addVector((1.0-alphaF), *Vn, alphaF);
 
     // determine the velocities at t+alphaM*deltaT
-    (*Uadotdot) = *Utdotdot;
-    Uadotdot->addVector((1.0-alphaM), *Udotdot, alphaM);
+    (*Aa) = *Ao;
+    Aa->addVector((1.0-alphaM), *An, alphaM);
 
     // update the response at the DOFs
-    theModel->setResponse(*Ua,*Uadot,*Uadotdot);
+    theModel->setResponse(*Ua,*Va,*Aa);
     if (theModel->updateDomain() < 0)  {
         opserr << "GeneralizedNewmark::update - failed to update the domain\n";
         return -4;
@@ -414,17 +397,17 @@ GeneralizedNewmark::update(const Vector &deltaX)
 const Vector &
 GeneralizedNewmark::getVel()
 {
-  return *Udot;
+  return *Vn;
 }
 
 int
 GeneralizedNewmark::revertToLastStep()
 {
   // set response at t+deltaT to be that at t .. for next newStep
-  if (U != nullptr)  {
-    (*U) = *Ut;        
-    (*Udot) = *Utdot;  
-    (*Udotdot) = *Utdotdot;  
+  if (Un != nullptr)  {
+    (*Un) = *Uo;        
+    (*Vn) = *Vo;  
+    (*An) = *Ao;  
   }
 
   return 0;
@@ -441,20 +424,20 @@ GeneralizedNewmark::formEleTangent(FE_Element *theEle)
     
     switch (statusFlag) {
     case CURRENT_TANGENT:
-        theEle->addKtToTang(alphaF*c1);
-        theEle->addCtoTang(alphaF*c2);
-        theEle->addMtoTang(alphaM*c3);
+        theEle->addKtToTang(alphaF*cu);
+        theEle->addCtoTang(alphaF*cv);
+        theEle->addMtoTang(alphaM*ca);
         break;
     case INITIAL_TANGENT:
-        theEle->addKiToTang(alphaF*c1);
-        theEle->addCtoTang(alphaF*c2);
-        theEle->addMtoTang(alphaM*c3);
+        theEle->addKiToTang(alphaF*cu);
+        theEle->addCtoTang(alphaF*cv);
+        theEle->addMtoTang(alphaM*ca);
         break;
     case HALL_TANGENT:
-        theEle->addKtToTang(c1*cFactor);
-        theEle->addKiToTang(c1*iFactor);
-        theEle->addCtoTang(c2);
-        theEle->addMtoTang(c3);
+        theEle->addKtToTang(cu*cFactor);
+        theEle->addKiToTang(cu*iFactor);
+        theEle->addCtoTang(cv);
+        theEle->addMtoTang(ca);
         break;
     }
     
@@ -468,8 +451,8 @@ GeneralizedNewmark::formNodTangent(DOF_Group *theDof)
         return 0;
     
     theDof->zeroTangent();
-    theDof->addCtoTang(alphaF*c2);
-    theDof->addMtoTang(alphaM*c3);
+    theDof->addCtoTang(alphaF*cv);
+    theDof->addMtoTang(alphaM*ca);
     
     return 0;
 }    
@@ -484,38 +467,38 @@ GeneralizedNewmark::domainChanged()
     int size = x.Size();
 
     // create the new Vector objects
-    if (Ut == nullptr || Ut->Size() != size)  {
+    if (Uo == nullptr || Uo->Size() != size)  {
         
         // delete the old
-        if (Ut != nullptr)
-            delete Ut;
-        if (Utdot != nullptr)
-            delete Utdot;
-        if (Utdotdot != nullptr)
-            delete Utdotdot;
+        if (Uo != nullptr)
+            delete Uo;
+        if (Vo != nullptr)
+            delete Vo;
+        if (Ao != nullptr)
+            delete Ao;
         if (Ua != nullptr)
             delete Ua;
-        if (Uadot != nullptr)
-            delete Uadot;
-        if (Uadotdot != nullptr)
-            delete Utdotdot;
-        if (U != nullptr)
-            delete U;
-        if (Udot != nullptr)
-            delete Udot;
-        if (Udotdot != nullptr)
-            delete Udotdot;
-        
+        if (Va != nullptr)
+            delete Va;
+        if (Aa != nullptr)
+            delete Ao;
+        if (Un != nullptr)
+            delete Un;
+        if (Vn != nullptr)
+            delete Vn;
+        if (An != nullptr)
+            delete An;
+
         // perform the allocations
-        Ut = new Vector(size);
-        Utdot = new Vector(size);
-        Utdotdot = new Vector(size);
+        Uo = new Vector(size);
+        Vo = new Vector(size);
+        Ao = new Vector(size);
         Ua = new Vector(size);
-        Uadot = new Vector(size);
-        Uadotdot = new Vector(size);
-        U = new Vector(size);
-        Udot = new Vector(size);
-        Udotdot = new Vector(size);
+        Va = new Vector(size);
+        Aa = new Vector(size);
+        Un = new Vector(size);
+        Vn = new Vector(size);
+        An = new Vector(size);
         dUn.resize(size); 
         dUn.Zero();
         dVn.resize(size); 
@@ -531,29 +514,28 @@ GeneralizedNewmark::domainChanged()
     while ((dofPtr = theDOFs()) != nullptr)  {
       const ID &id = dofPtr->getID();
       int idSize = id.Size();
-      
-      int i;
+
       const Vector &disp = dofPtr->getCommittedDisp();  
-      for (i=0; i < idSize; i++)  {
+      for (int i=0; i < idSize; i++)  {
           int loc = id(i);
           if (loc >= 0)  {
-              (*U)(loc) = disp(i);    
+              (*Un)(loc) = disp(i);    
           }
       }
       
       const Vector &vel = dofPtr->getCommittedVel();
-      for (i=0; i < idSize; i++)  {
+      for (int i=0; i < idSize; i++)  {
           int loc = id(i);
           if (loc >= 0) {
-              (*Udot)(loc) = vel(i);
+              (*Vn)(loc) = vel(i);
           }
       }
       
       const Vector &accel = dofPtr->getCommittedAccel();  
-      for (i=0; i < idSize; i++)  {
+      for (int i=0; i < idSize; i++)  {
           int loc = id(i);
           if (loc >= 0) {
-              (*Udotdot)(loc) = accel(i);
+              (*An)(loc) = accel(i);
           }
       }
 
@@ -563,7 +545,7 @@ GeneralizedNewmark::domainChanged()
       continue;
       
       const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);  
-      for (i=0; i < idSize; i++) {
+      for (int i=0; i < idSize; i++) {
           int loc = id(i);
           if (loc >= 0) {
             dUn(loc) = dispSens(i);    
@@ -571,7 +553,7 @@ GeneralizedNewmark::domainChanged()
       }
 
       const Vector &velSens = dofPtr->getVelSensitivity(gradNumber);
-      for (i=0; i < idSize; i++) {
+      for (int i=0; i < idSize; i++) {
           int loc = id(i);
           if (loc >= 0) {
             dVn(loc) = velSens(i);
@@ -579,7 +561,7 @@ GeneralizedNewmark::domainChanged()
       }
 
       const Vector &accelSens = dofPtr->getAccSensitivity(gradNumber);  
-      for (i=0; i < idSize; i++) {
+      for (int i=0; i < idSize; i++) {
           int loc = id(i);
           if (loc >= 0) {
             dAn(loc) = accelSens(i);
@@ -650,18 +632,18 @@ GeneralizedNewmark::Print(OPS_Stream &s, int flag)
 int
 GeneralizedNewmark::revertToStart()
 {
-    if (Ut != nullptr) 
-        Ut->Zero();
-    if (Utdot != nullptr) 
-        Utdot->Zero();
-    if (Utdotdot != nullptr) 
-        Utdotdot->Zero();
-    if (U != nullptr) 
-        U->Zero();
-    if (Udot != nullptr) 
-        Udot->Zero();
-    if (Udotdot != nullptr) 
-        Udotdot->Zero();
+    if (Uo != nullptr) 
+        Uo->Zero();
+    if (Vo != nullptr) 
+        Vo->Zero();
+    if (Ao != nullptr) 
+        Ao->Zero();
+    if (Un != nullptr) 
+        Un->Zero();
+    if (Vn != nullptr) 
+        Vn->Zero();
+    if (An != nullptr) 
+        An->Zero();
     
     return 0;
 }
@@ -676,25 +658,20 @@ GeneralizedNewmark::formEleResidual(FE_Element* theEle)
   
       theEle->zeroResidual();
 
-      // Compute the time-stepping parameters on the form
-      // udotdot = a1*ui+1 + a2*ui + a3*udoti + a4*udotdoti
-      // udot    = a5*ui+1 + a6*ui + a7*udoti + a8*udotdoti
+      // Compute the time-stepping parameters of the form
+      // udotdot = c3*ui+1 + a2*ui + a3*udoti + a4*udotdoti
+      // udot    = a5*ui+1 + bvu*ui + bvv*udoti + bva*udotdoti
       // (see p. 166 of Chopra)
 
       // The constants are:
-      // a1 = 1.0/(beta*dt*dt)
+      // c3 = 1.0/(beta*dt*dt)
       // a2 = -1.0/(beta*dt*dt)
       // a3 = -1.0/beta*dt
       // a4 = 1.0 - 1.0/(2.0*beta)
       // a5 = gamma/(beta*dt)
-      // a6 = -gamma/(beta*dt)
-      // a7 = 1.0 - gamma/beta
-      // a8 = 1.0 - gamma/(2.0*beta)
-
-      // We can make use of the data members c2 and c3 of this class. 
-      // As long as disp==true, they are defined as:
-      // c2 = gamma/(beta*dt)
-      // c3 = 1.0/(beta*dt*dt)
+      // bvu = -gamma/(beta*dt)
+      // bvv = 1.0 - gamma/beta
+      // bva = 1.0 - gamma/(2.0*beta)
 
       // So, the constants can be computed as follows:
       if (unknown != Displacement) {
@@ -702,21 +679,21 @@ GeneralizedNewmark::formEleResidual(FE_Element* theEle)
            << " scheme only works if the displ variable is set to true." << endln;
       }
 
-      double a2 = -c3;
-      double a3 = -c2/gamma;
+      double dt = gamma/(beta*cv);
+
+      double a2 = -ca;
+      double a3 = -cv/gamma;
       double a4 = 1.0 - 1.0/(2.0*beta);
-      double a6 = -c2;
-      double a7 = 1.0 - gamma/beta;
-      double dt = gamma/(beta*c2);
-      double a8 = dt*(1.0 - gamma/(2.0*beta));
+      double bvu = -cv;
+      double bvv = 1.0 - gamma/beta;
+      double bva = dt*(1.0 - gamma/(2.0*beta));
 
       // Pre-compute the vectors involving a2, a3, etc.
       //Vector tmp1 = V*a2 + Vdot*a3 + Vdotdot*a4;
-      int vectorSize = U->Size();
+      int vectorSize = Un->Size();
       Vector dUn(vectorSize);
       Vector dVn(vectorSize);
       Vector dAn(vectorSize);
-      int loc;
 
       AnalysisModel *myModel = this->getAnalysisModel();
       DOF_GrpIter &theDOFs = myModel->getDOFs();
@@ -724,30 +701,22 @@ GeneralizedNewmark::formEleResidual(FE_Element* theEle)
       while ((dofPtr = theDOFs()) != nullptr) {
 
         const ID &id = dofPtr->getID();
-        int idSize = id.Size();
+        const int idSize = id.Size();
         const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);
-        for (int i = 0; i < idSize; i++) {
-          loc = id(i);
-          if (loc >= 0) {
+        for (int i = 0; i < idSize; i++)
+          if (int loc = id(i); loc >= 0)
             dUn(loc) = dispSens(i);
-          }
-        }
+
 
         const Vector &velSens = dofPtr->getVelSensitivity(gradNumber);
-        for (int i = 0; i < idSize; i++) {
-          loc = id(i);
-          if (loc >= 0) {
+        for (int i = 0; i < idSize; i++)
+          if (int loc = id(i); loc >= 0)
             dVn(loc) = velSens(i);
-          }
-        }
 
         const Vector &accelSens = dofPtr->getAccSensitivity(gradNumber);
-        for (int i = 0; i < idSize; i++) {
-          loc = id(i);
-          if (loc >= 0) {
+        for (int i = 0; i < idSize; i++)
+          if (int loc = id(i); loc >= 0)
             dAn(loc) = accelSens(i);
-          }
-        }
       }
 
       // Pre-compute the vectors involving a2, a3, etc.
@@ -756,16 +725,16 @@ GeneralizedNewmark::formEleResidual(FE_Element* theEle)
       tmp1.addVector(0.0, dUn, a2);
       tmp1.addVector(1.0, dVn, a3);
       tmp1.addVector(1.0, dAn, a4);
-      //Vector tmp2 = V*a6 + Vdot*a7 + Vdotdot*a8;
+      //Vector tmp2 = V*bvu + Vdot*bvv + Vdotdot*bva;
       Vector tmp2(vectorSize);
-      tmp2.addVector(0.0, dUn, a6);
-      tmp2.addVector(1.0, dVn, a7);
-      tmp2.addVector(1.0, dAn, a8);
+      tmp2.addVector(0.0, dUn, bvu);
+      tmp2.addVector(1.0, dVn, bvv);
+      tmp2.addVector(1.0, dAn, bva);
 
-      if (massMatrixMultiplicator == 0)
+      if (massMatrixMultiplicator == nullptr)
           massMatrixMultiplicator = new Vector(tmp1.Size());
 
-      if (dampingMatrixMultiplicator == 0)
+      if (dampingMatrixMultiplicator == nullptr)
           dampingMatrixMultiplicator = new Vector(tmp2.Size());
 
       (*massMatrixMultiplicator) = tmp1;
@@ -778,17 +747,16 @@ GeneralizedNewmark::formEleResidual(FE_Element* theEle)
       theEle->addResistingForceSensitivity(gradNumber); 
 
       // The term -dM/dh*acc
-      theEle->addM_ForceSensitivity(gradNumber, *Udotdot, -1.0);
+      theEle->addM_ForceSensitivity(gradNumber, *An, -1.0);
 
       // The term -M*(a2*v + a3*vdot + a4*vdotdot)
-      theEle->addM_Force(*massMatrixMultiplicator,-1.0);
+      theEle->addM_Force(*massMatrixMultiplicator, -1.0);
 
-      // The term -C*(a6*v + a7*vdot + a8*vdotdot)
-      theEle->addD_Force(*dampingMatrixMultiplicator,-1.0);
+      // The term -C*(bvu*v + bvv*vdot + bva*vdotdot)
+      theEle->addD_Force(*dampingMatrixMultiplicator, -1.0);
 
       // The term -dC/dh*vel
-      theEle->addD_ForceSensitivity(gradNumber, *Udot,-1.0);
-        
+      theEle->addD_ForceSensitivity(gradNumber, *Vn, -1.0);
     }
 
     return 0;
@@ -799,9 +767,7 @@ GeneralizedNewmark::formNodUnbalance(DOF_Group *theDof)
 {
 
     if (sensitivityFlag == 0) {
-
       this->TransientIntegrator::formNodUnbalance(theDof);
-
     }
     else {
       // Assemble sensitivity residual
@@ -812,20 +778,18 @@ GeneralizedNewmark::formNodUnbalance(DOF_Group *theDof)
       theDof->addM_Force(*massMatrixMultiplicator,-1.0);
 
       // The term -dM/dh*acc
-      theDof->addM_ForceSensitivity(*Udotdot, -1.0);
+      theDof->addM_ForceSensitivity(*An, -1.0);
 
-      // The term -C*(a6*v + a7*vdot + a8*vdotdot)
+      // The term -C*(bvu*v + bvv*vdot + bva*vdotdot)
       theDof->addD_Force(*dampingMatrixMultiplicator,-1.0);
 
       // The term -dC/dh*vel
-      theDof->addD_ForceSensitivity(*Udot,-1.0);
+      theDof->addD_ForceSensitivity(*Vn,-1.0);
 
       // In case of random loads (have already been formed by 'applyLoadSensitivity')
       theDof->addPtoUnbalance();
 
     }
-
-
     return 0;
 }
 
@@ -861,24 +825,23 @@ GeneralizedNewmark::formSensitivityRHS(int passedGradNumber)
     // Loop through load patterns to add external load sensitivity
     LoadPattern *loadPatternPtr;
     LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
-    double time;
-    while((loadPatternPtr = thePatterns()) != nullptr) {
-      time = theDomain->getCurrentTime();
-      loadPatternPtr->applyLoadSensitivity(time);
-    }
+
+    while ((loadPatternPtr = thePatterns()) != nullptr)
+      loadPatternPtr->applyLoadSensitivity(theDomain->getCurrentTime());
+
 
     // Randomness in element/material contributions
     // Loop through FE elements
     FE_Element *elePtr;
     FE_EleIter &theEles = theModel->getFEs();    
-    while((elePtr = theEles()) != nullptr) {
+    while ((elePtr = theEles()) != nullptr) {
       theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
     }
 
     // Loop through DOF groups (IT IS IMPORTANT THAT THIS IS DONE LAST!)
     DOF_Group *dofPtr;
     DOF_GrpIter &theDOFs = theModel->getDOFs();
-    while((dofPtr = theDOFs()) != nullptr) {
+    while ((dofPtr = theDOFs()) != nullptr) {
       theSOE->addB(  dofPtr->getUnbalance(this),  dofPtr->getID()  );
     }
 
@@ -897,7 +860,6 @@ GeneralizedNewmark::formIndependentSensitivityRHS()
 
   // Get pointer to the SOE
   LinearSOE *theSOE = this->getLinearSOEPtr();
-
 
   // Get the analysis model
   AnalysisModel *theModel = this->getAnalysisModelPtr();
@@ -933,75 +895,60 @@ GeneralizedNewmark::formIndependentSensitivityRHS()
 int 
 GeneralizedNewmark::saveSensitivity(const Vector & vNew,int gradNum,int numGrads)
 {
-
-    // Compute GeneralizedNewmark parameters in general notation
-    double a1 = c3;
-    double a2 = -c3;
-    double a3 = -c2/gamma;
+    // Compute GeneralizedNewmark parameters
+    double dt = gamma/(beta*cv);
+    double a2 = -ca;
+    double a3 = -cv/gamma;
     double a4 = 1.0 - 1.0/(2.0*beta);
-    double a5 = c2;
-    double a6 = -c2;
-    double a7 = 1.0 - gamma/beta;
-    double dt = gamma/(beta*c2);
-    double a8 = dt*(1.0 - gamma/(2.0*beta));
-
+    double a5 = cv;
+    double bvu = -cv;
+    double bvv = 1.0 - gamma/beta;
+    double bva = dt*(1.0 - gamma/(2.0*beta));
 
 
   // Obtain sensitivity vectors from previous step modified by lei July 2018
-  int vectorSize = U->Size();
+  int vectorSize = Un->Size();
   Vector dUn(vectorSize);
   Vector dVn(vectorSize);
   Vector dAn(vectorSize);
-  int i, loc;
 
   AnalysisModel *myModel = this->getAnalysisModel();
   DOF_GrpIter &theDOFs = myModel->getDOFs();
   DOF_Group *dofPtr;
-  while ((dofPtr = theDOFs()) != 0) {
+  while ((dofPtr = theDOFs()) != nullptr) {
 
     const ID &id = dofPtr->getID();
     int idSize = id.Size();
     const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);
-    for (i = 0; i < idSize; i++) {
-      loc = id(i);
-      if (loc >= 0) {
+    for (int i = 0; i < idSize; i++)
+      if (int loc = id(i); loc >= 0)
         dUn(loc) = dispSens(i);
-      }
-    }
 
     const Vector &velSens = dofPtr->getVelSensitivity(gradNumber);
-    for (i = 0; i < idSize; i++) {
-      loc = id(i);
-      if (loc >= 0) {
+    for (int i = 0; i < idSize; i++)
+      if (int loc = id(i); loc >= 0)
         dVn(loc) = velSens(i);
-      }
-    }
 
     const Vector &accelSens = dofPtr->getAccSensitivity(gradNumber);
-    for (i = 0; i < idSize; i++) {
-      loc = id(i);
-      if (loc >= 0) {
+    for (int i = 0; i < idSize; i++)
+      if (int loc = id(i); loc >= 0)
         dAn(loc) = accelSens(i);
-      }
-    }
   }
-
-
 
     // Compute new acceleration and velocity vectors:
     Vector vdotNew(vectorSize);
     Vector vdotdotNew(vectorSize);
-    //(*vdotdotNewPtr) = vNew*a1 + V*a2 + Vdot*a3 + Vdotdot*a4;
-    vdotdotNew.addVector(0.0, vNew, a1);
+    //(*vdotdotNewPtr) = vNew*c3 + V*a2 + Vdot*a3 + Vdotdot*a4;
+    vdotdotNew.addVector(0.0, vNew, ca);
     vdotdotNew.addVector(1.0, dUn, a2);
     vdotdotNew.addVector(1.0, dVn, a3);
     vdotdotNew.addVector(1.0, dAn, a4);
     
-    //(*vdotNewPtr) = vNew*a5 + V*a6 + Vdot*a7 + Vdotdot*a8;
+    //(*vdotNewPtr) = vNew*a5 + V*bvu + Vdot*bvv + Vdotdot*bva;
     vdotNew.addVector(0.0, vNew, a5);
-    vdotNew.addVector(1.0, dUn, a6);
-    vdotNew.addVector(1.0, dVn, a7);
-    vdotNew.addVector(1.0, dAn, a8);
+    vdotNew.addVector(1.0, dUn, bvu);
+    vdotNew.addVector(1.0, dVn, bvv);
+    vdotNew.addVector(1.0, dAn, bva);
 
     // update
     dUn = vNew;
@@ -1009,13 +956,11 @@ GeneralizedNewmark::saveSensitivity(const Vector & vNew,int gradNum,int numGrads
     dAn = vdotdotNew;
 
     // Now we can save vNew, vdotNew and vdotdotNew
-    //AnalysisModel *myModel = this->getAnalysisModel();
     DOF_GrpIter &theDOFGrps = myModel->getDOFs();
     DOF_Group   *dofPtr1;
-    while ( (dofPtr1 = theDOFGrps() ) != 0)  {
-  dofPtr1->saveSensitivity(vNew,vdotNew,vdotdotNew,gradNum,numGrads);
-    }
-  
+    while ((dofPtr1 = theDOFGrps()) != nullptr)
+      dofPtr1->saveSensitivity(vNew,vdotNew,vdotdotNew,gradNum,numGrads);
+
     return 0;
 }
 
@@ -1026,9 +971,8 @@ GeneralizedNewmark::commitSensitivity(int gradNum, int numGrads)
     AnalysisModel *theAnalysisModel = this->getAnalysisModel();
     FE_Element *elePtr;
     FE_EleIter &theEles = theAnalysisModel->getFEs();    
-    while((elePtr = theEles()) != nullptr) {
+    while ((elePtr = theEles()) != nullptr)
       elePtr->commitSensitivity(gradNum, numGrads);
-    }
 
     return 0;
 }
@@ -1037,7 +981,7 @@ GeneralizedNewmark::commitSensitivity(int gradNum, int numGrads)
 double
 GeneralizedNewmark::getCFactor() 
 {
-  return c2;
+  return cv;
 }
 
 

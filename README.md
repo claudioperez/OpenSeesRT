@@ -78,10 +78,10 @@ There are several ways to use the `sees` package:
   ```
   to
   ```python
-  import opensees.openseesrt
+  import opensees.openseespy
   ```
   For true stateless modeling, the `Model` class should be used instead of the legacy
-  `model` function; documentation is under development.
+  `model` function; see the documentation [here](https://stairlab.github.io/OpenSeesDocumentation/user/manual/model/model_class.html).
 
 
 ## Development
