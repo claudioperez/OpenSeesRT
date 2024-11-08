@@ -28,12 +28,6 @@ target_sources(OPS_Element
         ForceBeamColumnWarping2d.h
 )
 
-target_sources(OPS_ElementFortran
-    PRIVATE
-        gaussq.f
-        d1mach.f
-)
-
 #target_link_libraries(OPS_Element_forceBeamColumn PUBLIC OPS_Element_forceBeamColumn_f)
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 

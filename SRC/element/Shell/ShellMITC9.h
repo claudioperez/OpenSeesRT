@@ -57,6 +57,10 @@ class ShellMITC9 : public Element,
 
     virtual ~ShellMITC9();
 
+    const char* getClassType() const final {
+      return "ShellMITC9";
+    }
+
     //  get the number of external nodes
     int getNumExternalNodes() const ;
 
