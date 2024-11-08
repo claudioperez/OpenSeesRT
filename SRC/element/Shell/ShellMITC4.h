@@ -61,6 +61,10 @@ class ShellMITC4 : public    Element,
     // destructor 
     virtual ~ShellMITC4( ) ;
 
+    const char* getClassType() const final {
+      return "ShellMITC4";
+    }
+
     void setDomain( Domain *theDomain ) ;
     
     // get the number of external nodes
