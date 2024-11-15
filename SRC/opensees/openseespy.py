@@ -17,6 +17,7 @@ from openseespy, for example:
 >>> from opensees.openseespy import *
 
 """
+import re
 import json
 from functools import partial
 
@@ -60,7 +61,7 @@ def _split_iter(source, sep=None, regex=False):
         start = 0
         for m in sep.finditer(source):
             idx = m.start()
-            assert idx >= start
+#           assert idx >= start
             yield source[start:idx]
             start = m.end()
         yield source[start:]
@@ -136,7 +137,7 @@ class OpenSeesPy:
         # Enable OpenSeesPy command behaviors
         self._interp.eval("pragma openseespy")
 
-    def _str_call(self, proc_name: str, *args, _final=None, **kwds)->str:
+    def _str_call(self, proc_name: str, *args, _final=None, _return_string=False, **kwds)->str:
         """
         Invoke the Interpreter's eval method, calling
         a procedure named `proc_name` with arguments
@@ -167,6 +168,9 @@ class OpenSeesPy:
 
         if ret is None or ret == "":
             return None
+
+        if _return_string:
+            return ret
 
         parts = ret.split()
         # Use json parse to cast return values from string. 
@@ -425,12 +429,33 @@ class Model:
         return self._openseespy._str_call("numIter")
 
     def getResidual(self):
-        return self._openseespy._str_call("printB", "-ret")
+        import numpy as np
+        residual_string = self._openseespy._str_call("printB", "-ret", _return_string=True)
+        n = sum(1 for _ in _split_iter(residual_string))
+        return np.fromiter(map(float, _split_iter(residual_string)), count=n, dtype=float)
 
     def getTangent(self, **kwds):
         import numpy as np
-        A = np.array(self._openseespy._str_call("printA", "-ret", **kwds))
-        return A.reshape([int(np.sqrt(len(A)))]*2)
+        tangent_string = self._openseespy._str_call("printA", "-ret", _return_string=True, **kwds)
+        nn = sum(1 for _ in _split_iter(tangent_string))
+        A  = np.fromiter(
+                map(float, _split_iter(
+                    tangent_string
+                )),
+                count=nn,
+                dtype=float
+        )
+
+        # Assigning to .shape as opposed to calling .reshape()
+        # should enforce no copying
+        A.shape = tuple([int(np.sqrt(len(A)))]*2)
+
+        # For large systems, avoid clogging memory
+        if nn > 100:
+            import gc
+            del tangent_string
+            gc.collect()
+        return A; #.reshape([int(np.sqrt(len(A)))]*2)
 
     def surface(self, split, element: str=None, args=None, points=None, name=None, kwds=None):
         # anchor
