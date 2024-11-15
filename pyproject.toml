@@ -1,6 +1,6 @@
 [project]
 name = "opensees"
-version = "0.1.5"
+version = "0.1.6"
 authors = [
   {name="Claudio M. Perez"}
   # <50180406+claudioperez@users.noreply.github.com>"
@@ -8,7 +8,7 @@ authors = [
 
 license = {file = "LICENSE.txt"}
 
-readme = "about/README.md"
+readme = "about/README.pypi.md"
 
 description = "Nonlinear finite element analysis."
 
