@@ -156,17 +156,15 @@ class Interpreter:
 
         except tkinter._tkinter.TclError as e:
             raise TclError(self._tcl.getvar("errorInfo"))
-#           print(self._tcl.getvar("errorInfo"), file=sys.stderr)
-#           raise e
 
     def serialize(self)->dict:
         import tempfile, pathlib
         with tempfile.TemporaryDirectory() as tmp:
             file = tmp/pathlib.Path("model.json")
-            self.eval(f"print -json -file {file.name}")
+            self.eval(f"print -json -file {file}")
 
             # Read in the generated JSON
-            with open(file.name, "r") as f:
+            with open(file, "r") as f:
                 model = json.load(f)
 
         return model
