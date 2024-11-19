@@ -63,10 +63,10 @@ OPS_Routine OPS_NewtonHallM;
 TclEquiSolnAlgo G3Parse_newEquiSolnAlgo;
 TclEquiSolnAlgo G3Parse_newSecantNewtonAlgorithm;
 TclEquiSolnAlgo G3_newNewtonLineSearch;
-static TclEquiSolnAlgo G3_newKrylovNewton;
 static TclEquiSolnAlgo G3_newBroyden;
 static TclEquiSolnAlgo G3_newBFGS;
 
+static Tcl_CmdProc TclCommand_newKrylovNewton;
 Tcl_CmdProc TclCommand_newLinearAlgorithm;
 Tcl_CmdProc TclCommand_newNewtonRaphson;
 Tcl_CmdProc TclCommand_newModifiedNewton;
@@ -77,7 +77,8 @@ std::unordered_map<std::string, Tcl_CmdProc*> Algorithms {
   {"Linear",         TclCommand_newLinearAlgorithm},
   {"Newton",         TclCommand_newNewtonRaphson},
   {"NewtonHall",     TclCommand_newNewtonHallM},
-  {"ModifiedNewton", TclCommand_newModifiedNewton}
+  {"ModifiedNewton", TclCommand_newModifiedNewton},
+  {"KrylovNewton",   TclCommand_newKrylovNewton}
 };
 }
 
@@ -98,9 +99,11 @@ TclCommand_specifyAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
+
   auto command = OpenSees::Algorithms.find(std::string{argv[1]});
   if (command != OpenSees::Algorithms.end())
     return (*command->second)(clientData, interp, argc, argv);
+
 
   OPS_ResetInputNoBuilder(nullptr, interp, 2, argc, argv, nullptr);
 
@@ -136,8 +139,8 @@ G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
   else if (strcmp(argv[1], "NewtonLineSearch") == 0)
     return G3_newNewtonLineSearch(clientData, interp, argc, argv);
 
-  else if (strcmp(argv[1], "KrylovNewton") == 0)
-    return G3_newKrylovNewton(clientData, interp, argc, argv);
+//else if (strcmp(argv[1], "KrylovNewton") == 0)
+//  return G3_newKrylovNewton(clientData, interp, argc, argv);
 
 
   EquiSolnAlgo *theNewAlgo = nullptr;
@@ -546,17 +549,19 @@ G3_newNewtonLineSearch(ClientData clientData, Tcl_Interp *interp, int argc,
   return theNewAlgo;
 }
 
-static EquiSolnAlgo *
-G3_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
+static int
+TclCommand_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
                    TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
   ConvergenceTest *theTest = builder->getConvergenceTest();
 
+//opserr << "KRYLOV \n";
+
   if (theTest == nullptr) {
-    opserr << G3_ERROR_PROMPT << "No ConvergenceTest yet specified\n";
-    return nullptr;
+    opserr << G3_ERROR_PROMPT << "A ConvergenceTest must be specified before initializing KrylovNewton\n";
+    return TCL_ERROR;
   }
 
   int incrementTangent = CURRENT_TANGENT;
@@ -591,7 +596,8 @@ G3_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
   Accelerator *theAccel = new KrylovAccelerator(maxDim, iterateTangent);
 
   EquiSolnAlgo *theNewAlgo = new AcceleratedNewton(*theTest, theAccel, incrementTangent);
-  return theNewAlgo;
+  builder->set(theNewAlgo);
+  return TCL_OK;
 }
 
 EquiSolnAlgo *
