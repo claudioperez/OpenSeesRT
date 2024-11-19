@@ -7,6 +7,8 @@
 # _PARALLEL_INTERPRETERS
 # _PARALLEL_PROCESSING     # OpenSeesSP
 
+return()
+
 find_package(MPI)
 if (NOT MPI_FOUND)
   return()
