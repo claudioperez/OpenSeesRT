@@ -204,9 +204,46 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
   else if ((strcmp(remove_type, "SPconstraint") == 0) ||
            (strcmp(remove_type, "sp") == 0)) {
 
-    return TCL_ERROR;
-    //
+    if (argc < 3) {
+      opserr << "WARNING want - remove SPconstraint spTag? -or- remove SPconstraint nodeTag? dofTag? <patternTag?>\n";
+      return TCL_ERROR;
+    }    
+    if (argc == 3) {
+      if (Tcl_GetIntFromObj(interp, objv[2], &tag) != TCL_OK) {
+        opserr << "WARNING remove sp tag? failed to read tag: " << objv[2] << "\n";
+        return TCL_ERROR;
+      }      
 
+      SP_Constraint *theSPconstraint = the_domain.removeSP_Constraint(tag);
+      if (theSPconstraint != nullptr)
+        delete theSPconstraint;
+
+    } else {
+      int nodeTag, dofTag;
+      int patternTag = -1;
+      
+      if (Tcl_GetIntFromObj(interp, objv[2], &nodeTag) != TCL_OK) {
+        opserr << "WARNING remove sp tag? failed to read node tag: " << objv[2] << "\n";
+        return TCL_ERROR;
+      }      
+      if (Tcl_GetIntFromObj(interp, objv[3], &dofTag) != TCL_OK) {
+        opserr << "WARNING remove sp tag? failed to read dof tag: " << objv[3] << "\n";
+        return TCL_ERROR;
+      }      
+      
+      if (argc == 5) {
+        if (Tcl_GetIntFromObj(interp, objv[4], &patternTag) != TCL_OK) {
+          opserr << "WARNING remove sp tag? failed to read pattern tag: " << objv[4] << "\n";
+          return TCL_ERROR;
+        }
+      }
+      dofTag--;  // one for C++ indexing of dof
+      
+      the_domain.removeSP_Constraint(nodeTag, dofTag, patternTag);
+
+      return TCL_OK;
+    }
+    //
 
 //  const char** const args = new const char*[argc+1];
 //  args[0] = objv[1];
