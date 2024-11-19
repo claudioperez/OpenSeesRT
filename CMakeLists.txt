@@ -60,7 +60,15 @@ if (UNIX)
   if (APPLE)
     message(":: MacOS")
     add_compile_definitions(_LINUX _UNIX _TCL85)
-    # Temporary fix for a bug that is currently in Xcode 15
+
+    if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+      add_compile_options(
+        $<$<COMPILE_LANG_AND_ID:CXX,AppleClang>:-fsanitize=address,undefined> #, leak
+      )
+      add_link_options(
+        $<$<LINK_LANG_AND_ID:CXX,AppleClang>:-fsanitize=address,undefined> # , leak
+      )
+    endif()
   else()
     message(":: LINUX")
     add_compile_definitions(_LINUX _UNIX USE_TCL_STUBS _TCL85)
