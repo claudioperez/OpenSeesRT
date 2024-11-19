@@ -84,7 +84,9 @@ void mat_tran(double *mat1, double *mat2, int row1, int col1) {
     }
 }
 
-void calc_Jdet(double xRef[2][8], double i_xi, double i_eta, double j_xi, double j_eta, double *i_Jdet, double *j_Jdet) {
+void 
+calc_Jdet(double xRef[2][8], double i_xi, double i_eta, double j_xi, double j_eta, double *i_Jdet, double *j_Jdet) 
+{
     double i_J[2][2] = {0}, 
            j_J[2][2] = {0};
     double i_N_diff[2][4], 
@@ -195,8 +197,8 @@ void calc_gauss_intg(double i_xi, double i_eta,
 
 static void
 gauss_loc(double xCur[2][8], double loc_gauss[2][8]) {
-    double x_Gspoint[4] = {-0.577350269189626, 0.577350269189626, 0.577350269189626, -0.577350269189626};
-    double y_Gspoint[4] = {-0.577350269189626, -0.577350269189626, 0.577350269189626, 0.577350269189626};
+    constexpr static double x_Gspoint[4] = {-0.577350269189626, 0.577350269189626, 0.577350269189626, -0.577350269189626};
+    constexpr static double y_Gspoint[4] = {-0.577350269189626, -0.577350269189626, 0.577350269189626, 0.577350269189626};
     double u_N[4];
 
     mat_zero((double *)loc_gauss, 2, 8);
