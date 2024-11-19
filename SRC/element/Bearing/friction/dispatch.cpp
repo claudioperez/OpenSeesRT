@@ -40,6 +40,25 @@
 #include <UniaxialMaterial.h>
 
 
+#include <api/runtimeAPI.h>
+
+// static MapOfTaggedObjects theFrictionModelObjects;
+
+
+// bool OPS_addFrictionModel(FrictionModel *newComponent)
+// {
+//     return theFrictionModelObjects.addComponent(newComponent);
+// }
+
+
+
+// void
+// OPS_ADD_RUNTIME_VXV(OPS_clearAllFrictionModel)
+// {
+//     theFrictionModelObjects.clearAll();
+// }
+
+
 int
 TclCommand_addFlatSliderBearing(ClientData clientData, Tcl_Interp *interp,
                                 int argc, TCL_Char **const argv)
@@ -1814,7 +1833,7 @@ TclCommand_addFrictionModel(ClientData clientData, Tcl_Interp *interp,
   }
 
   // now add the friction model to the modelBuilder
-  if (builder->addTypedObject<FrictionModel>(theFrnMdl->getTag(), theFrnMdl) == false) {
+  if (builder->addTypedObject<FrictionModel>(theFrnMdl->getTag(), theFrnMdl) < 0) {
     opserr << "WARNING could not add friction model to the domain\n";
     opserr << *theFrnMdl << endln;
     delete theFrnMdl; // invoke the destructor, otherwise mem leak
