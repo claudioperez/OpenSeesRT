@@ -214,7 +214,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
         return TCL_ERROR;
       }      
 
-      SP_Constraint *theSPconstraint = the_domain.removeSP_Constraint(tag);
+      SP_Constraint *theSPconstraint = the_domain->removeSP_Constraint(tag);
       if (theSPconstraint != nullptr)
         delete theSPconstraint;
 
@@ -239,7 +239,7 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       dofTag--;  // one for C++ indexing of dof
       
-      the_domain.removeSP_Constraint(nodeTag, dofTag, patternTag);
+      the_domain->removeSP_Constraint(nodeTag, dofTag, patternTag);
 
       return TCL_OK;
     }
