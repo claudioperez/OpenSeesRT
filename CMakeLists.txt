@@ -76,11 +76,11 @@ if (UNIX)
     if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
       add_compile_options(
         $<$<CONFIG:DEBUG>:-ggdb>
-        $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-fsanitize=address,undefined> #, leak
+        $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-fsanitize=address,undefined,leak> #, leak
         $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-fno-omit-frame-pointer>
       )
       add_link_options(
-        $<$<LINK_LANG_AND_ID:CXX,GNU>:-fsanitize=address,undefined> # , leak
+        $<$<LINK_LANG_AND_ID:CXX,GNU>:-fsanitize=address,undefined,leak> # , leak
       )
     elseif (CMAKE_BUILD_TYPE STREQUAL "RELEASE")
       if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
