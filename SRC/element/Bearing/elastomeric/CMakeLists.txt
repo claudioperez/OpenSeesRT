@@ -5,7 +5,7 @@
 #
 #==============================================================================
 
-target_sources(OPS_Runtime PRIVATE dispatch.cpp)
+target_sources(OPS_Runtime PRIVATE commands.cpp)
 
 target_sources(OPS_Element
     PRIVATE
@@ -18,6 +18,7 @@ target_sources(OPS_Element
         ElastomericX.cpp
         HDR.cpp
         LeadRubberX.cpp
+        LeadRubberY.cpp
     PUBLIC
         ElastomericBearingBoucWen2d.h
         ElastomericBearingBoucWen3d.h
@@ -28,6 +29,7 @@ target_sources(OPS_Element
         ElastomericX.h
         HDR.h
         LeadRubberX.h
+        LeadRubberY.h
 )
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
