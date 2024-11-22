@@ -38,6 +38,7 @@
 #include <MovableObject.h>
 #include <TaggedObject.h>
 #include <Vector.h>
+#include <api/runtimeAPI.h>
 
 class Response;
 
@@ -83,8 +84,6 @@ private:
 
 };
 
-extern bool OPS_addFrictionModel(FrictionModel *newComponent);
-extern FrictionModel *OPS_getFrictionModel(int tag);
-extern void OPS_clearAllFrictionModel();
+#define OPS_getFrictionModel(tag) G3_getSafeBuilder(rt)->getTypedObject<FrictionModel>(tag)
 
 #endif

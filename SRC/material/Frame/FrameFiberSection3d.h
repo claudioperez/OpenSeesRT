@@ -65,6 +65,7 @@ class FrameFiberSection3d : public FrameSection
     int getResponse(int responseID, Information &info);
 
     int addFiber(UniaxialMaterial &theMat, const double area, const double y, const double z);
+//  int setField(const char**, int, double);
 
     // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);
