@@ -18,11 +18,6 @@ Nonlinear finite element analysis.
 <b>This package is <i>experimental</i> and not yet intended for public use.</b>
 </p>
 
-
-## Development
-
-To compile the project see [help/compiling](https://github.com/claudioperez/opensees/blob/master/help/compiling.md)
-
 <!-- Badge links -->
 
 [pypi-d-image]: https://img.shields.io/pypi/dm/opensees.svg
