@@ -53,6 +53,7 @@ TclCommand_newElasticMaterial(ClientData clientData, Tcl_Interp* interp, int arg
   PlaneType type = PlaneType::None;
 
   if ((strcmp(argv[1], "ElasticIsotropic") == 0) || 
+      (strcmp(argv[1], "Elastic") == 0) ||
       (strcmp(argv[1], "ElasticIsotropic3D") == 0))
 
   {
@@ -98,6 +99,7 @@ TclCommand_newElasticMaterial(ClientData clientData, Tcl_Interp* interp, int arg
 
     switch (type) {
       case PlaneType::None:
+        builder->addTaggedObject<UniaxialMaterial>(*new ElasticMaterial(tag, E, 0.0, E));
         builder->addTaggedObject<NDMaterial>(*new ElasticIsotropicMaterial(tag, E, v, rho));
         builder->addTaggedObject<Mate<3>>   (*new ElasticIsotropic<3>(tag, E, v, rho));
         break;

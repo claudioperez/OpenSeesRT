@@ -23,12 +23,13 @@
 #include <NineNodeMixedQuad.h>
 #include <NineNodeQuad.h>
 #include <EightNodeQuad.h>
-// #include <LagrangeQuad.h>
+#include <LagrangeQuad.h>
 //
 #include <Tri31.h>
 #include <SixNodeTri.h>
-
 #include <BasicModelBuilder.h>
+
+using namespace OpenSees;
 
 int
 TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int argc,
@@ -38,7 +39,7 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
 
 
-  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
+  if (builder->getNDM() != 2 || (builder->getNDF() != 2 && builder->getNDF() != 3)) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
               "with quad element\n";
     return TCL_ERROR;
@@ -55,7 +56,9 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
   }
 
   // get the id and end nodes
-  int FourNodeQuadId, iNode, jNode, kNode, lNode, matID;
+  int FourNodeQuadId;
+  std::array<int,4> nodes;
+  int matID;
   double thickness = 1.0;
   double p = 0.0;   // uniform normal traction (pressure)
   double rho = 0.0; // mass density
@@ -66,33 +69,15 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     opserr << "WARNING invalid FourNodeQuad eleTag" << "\n";
     return TCL_ERROR;
   }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
-    opserr << "WARNING invalid iNode\n";
-    opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
 
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
-    opserr << "WARNING invalid jNode\n";
-    opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
-    opserr << "WARNING invalid kNode\n";
-    opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
-    opserr << "WARNING invalid lNode\n";
-    opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
-    return TCL_ERROR;
-  }
+  for (int i=0; i<4; i++)
+    if (Tcl_GetInt(interp, argv[1 + argStart + i], &nodes[i]) != TCL_OK) {
+      opserr << "WARNING invalid iNode\n";
+      return TCL_ERROR;
+    }
 
   if (Tcl_GetDouble(interp, argv[5 + argStart], &thickness) != TCL_OK) {
     opserr << "WARNING invalid thickness\n";
-    opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
     return TCL_ERROR;
   }
 
@@ -100,45 +85,53 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
 
   if (Tcl_GetInt(interp, argv[7 + argStart], &matID) != TCL_OK) {
     opserr << "WARNING invalid matID\n";
-    opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
     return TCL_ERROR;
   }
 
   if ((argc - argStart) > 11) {
     if (Tcl_GetDouble(interp, argv[8 + argStart], &p) != TCL_OK) {
       opserr << "WARNING invalid pressure\n";
-      opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[9 + argStart], &rho) != TCL_OK) {
-      opserr << "WARNING invalid b1\n";
-      opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
+      opserr << "WARNING invalid rho\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[10 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
-      opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[11 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
-      opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
       return TCL_ERROR;
     }
   }
 
-  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
-  if (theMaterial == nullptr)
-    return TCL_ERROR;
+  Element* theElement = nullptr;
 
-  // now create the FourNodeQuad and add it to the Domain
-  FourNodeQuad *theFourNodeQuad =
-      new FourNodeQuad(FourNodeQuadId, iNode, jNode, kNode, lNode, *theMaterial,
-                       type, thickness, p, rho, b1, b2);
+  if (strcmp(argv[1], "LagrangeQuad") == 0) {
+    Mate<2> *theMaterial = builder->getTypedObject<Mate<2>>(matID);
+    if (theMaterial == nullptr)
+      return TCL_ERROR;
 
-  if (builder->getDomain()->addElement(theFourNodeQuad) == false) {
+    theElement =
+        new LagrangeQuad<4>(FourNodeQuadId, nodes, *theMaterial,
+                            thickness, p, rho, b1, b2);
+
+  } else {
+    NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
+    if (theMaterial == nullptr)
+      return TCL_ERROR;
+
+    theElement =
+        new FourNodeQuad(FourNodeQuadId, 
+                         nodes[0], nodes[1], nodes[2], nodes[3], 
+                         *theMaterial, type, thickness, p, rho, b1, b2);
+  }
+
+  if (builder->getDomain()->addElement(theElement) == false) {
     opserr << "WARNING could not add element to the domain\n";
-    delete theFourNodeQuad;
+    delete theElement;
     return TCL_ERROR;
   }
 
@@ -559,22 +552,18 @@ TclBasicBuilder_addFourNodeQuadWithSensitivity(ClientData clientData,
   if ((argc - argStart) > 11) {
     if (Tcl_GetDouble(interp, argv[8 + argStart], &p) != TCL_OK) {
       opserr << "WARNING invalid pressure\n";
-      opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[9 + argStart], &r) != TCL_OK) {
       opserr << "WARNING invalid rho\n";
-      opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[10 + argStart], &b1) != TCL_OK) {
       opserr << "WARNING invalid b1\n";
-      opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
       return TCL_ERROR;
     }
     if (Tcl_GetDouble(interp, argv[11 + argStart], &b2) != TCL_OK) {
       opserr << "WARNING invalid b2\n";
-      opserr << "FourNodeQuad element: " << FourNodeQuadId << "\n";
       return TCL_ERROR;
     }
   }
@@ -1126,13 +1115,11 @@ TclBasicBuilder_addFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
       thickness, bk, r, perm1, perm2, b1, b2, p);
   if (theFourNodeQuadUP == 0) {
     opserr << "WARNING ran out of memory creating element\n";
-    opserr << "FourNodeQuad element: " << FourNodeQuadUPId << "\n";
     return TCL_ERROR;
   }
 
   if (builder->getDomain()->addElement(theFourNodeQuadUP) == false) {
     opserr << "WARNING could not add element to the domain\n";
-    opserr << "FourNodeQuad element: " << FourNodeQuadUPId << "\n";
     delete theFourNodeQuadUP;
     return TCL_ERROR;
   }
@@ -1260,13 +1247,11 @@ TclBasicBuilder_addNineFourNodeQuadUP(ClientData clientData, Tcl_Interp *interp,
       thickness, bk, r, perm1, perm2, b1, b2);
   if (theNineFourNodeQuadUP == 0) {
     opserr << "WARNING ran out of memory creating element\n";
-    opserr << "FourNodeQuad element: " << NineFourNodeQuadUPId << "\n";
     return TCL_ERROR;
   }
 
   if (builder->getDomain()->addElement(theNineFourNodeQuadUP) == false) {
     opserr << "WARNING could not add element to the domain\n";
-    opserr << "FourNodeQuad element: " << NineFourNodeQuadUPId << "\n";
     delete theNineFourNodeQuadUP;
     return TCL_ERROR;
   }

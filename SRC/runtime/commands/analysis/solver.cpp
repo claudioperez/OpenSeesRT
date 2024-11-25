@@ -67,31 +67,28 @@
 // extern DirectIntegrationAnalysis *theTransientAnalysis;
 // extern LinearSOE *theSOE;
 
-// LinearSOE*
-// G3Parse_newLinearSOE(G3_Runtime*, int, G3_Char **);
+
 LinearSOE*
-// G3Parse_newLinearSOE(G3_Runtime* rt, int argc, G3_Char ** const argv)
 G3Parse_newLinearSOE(ClientData, Tcl_Interp* interp, int, G3_Char **const);
 
 LinearSOE*
 TclDispatch_newPetscSOE(ClientData, Tcl_Interp *interp, int, G3_Char **const);
 
-#if 0 // TODO: implement AnalysisBuilder->getLinearSOE();
+#if 1 // TODO: implement AnalysisBuilder->getLinearSOE();
 int
 TclCommand_systemSize(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
   assert(clientData != nullptr);
+  BasicAnalysisBuilder* builder = (BasicAnalysisBuilder*)clientData;
   LinearSOE *theSOE = ((BasicAnalysisBuilder *)clientData)->getLinearSOE();
 
-  char buffer[20];
 
-  if (theSOE == 0) {
-    sprintf(buffer, "NO SYSTEM SET");
+  if (theSOE == nullptr) {
+    opserr << "No system has been set";
     return TCL_OK;
   }
 
-  sprintf(buffer, "%d", theSOE->getNumEqn());
-  Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+  Tcl_SetObjResult(interp, Tcl_NewIntObj(theSOE->getNumEqn()));
 
   return TCL_OK;
 }
