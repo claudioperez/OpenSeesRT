@@ -488,6 +488,10 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
   int res = 0;
 
+  enum class Format {
+    None
+  } format = Format::None;
+
   FileStream outputFile;
   OPS_Stream *output = &opserr;
   LinearSOE  *oldSOE = builder->getLinearSOE();
@@ -523,6 +527,7 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
         return TCL_ERROR;
       }
       output = &outputFile;
+
     } else if ((strcmp(argv[currentArg], "ret") == 0) ||
                (strcmp(argv[currentArg], "-ret") == 0)) {
       ret = true;
@@ -587,35 +592,37 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
     return TCL_ERROR;
   }
 
-  if (ret) {
-    int n = A->noRows();
-    int m = A->noCols();
-    if (n*m == 0) {
-      opserr << OpenSees::PromptValueError 
-             << "linear system is empty\n";
-      return TCL_ERROR;
+  if (format == Format::None) {
+    if (ret) {
+      int n = A->noRows();
+      int m = A->noCols();
+      if (n*m == 0) {
+        opserr << OpenSees::PromptValueError 
+               << "linear system is empty\n";
+        return TCL_ERROR;
+      }
+
+      // Create an empty list with space preallocated for
+      // n*m elements. This is not formally documented, but
+      // it is mentioned here 
+      //   https://wiki.tcl-lang.org/page/Tcl_NewListObj
+      //
+      // and evident from the source code here:
+      //   https://github.com/enthought/tcl/blob/master/generic/tclListObj.c
+      //
+      Tcl_Obj* list = Tcl_NewListObj(n*m, nullptr);
+
+
+      for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; j++)
+          Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj((*A)(i, j)));
+      }
+      Tcl_SetObjResult(interp, list);
+
+    } else {
+      *output << *A;
+      outputFile.close();
     }
-
-    // Create an empty list with space preallocated for
-    // n*m elements. This is not formally documented, but
-    // it is mentioned here 
-    //   https://wiki.tcl-lang.org/page/Tcl_NewListObj
-    //
-    // and evident from the source code here:
-    //   https://github.com/enthought/tcl/blob/master/generic/tclListObj.c
-    //
-    Tcl_Obj* list = Tcl_NewListObj(n*m, nullptr);
-
-
-    for (int i = 0; i < n; ++i) {
-      for (int j = 0; j < m; j++)
-        Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj((*A)(i, j)));
-    }
-    Tcl_SetObjResult(interp, list);
-
-  } else {
-    *output << *A;
-    outputFile.close();
   }
 
   // put the original SOE back.
@@ -692,7 +699,7 @@ printB(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
   return res;
 }
 
-// This is removed in model.cpp
+// This is removed from the Tcl_Interp in model.cpp
 extern int
 TclCommand_clearAnalysis(ClientData cd, Tcl_Interp *interp, int argc, TCL_Char ** const argv)
 {
