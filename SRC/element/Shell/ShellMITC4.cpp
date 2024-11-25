@@ -254,6 +254,7 @@ void ShellMITC4::Print(OPS_Stream &s, int flag)
     s << connectedExternalNodes(2) << ", " 
       << connectedExternalNodes(3)
       << "], ";
+
     s << "\"sections\": [" << materialPointers[0]->getTag() << "]";
     s << "}";
     return;
