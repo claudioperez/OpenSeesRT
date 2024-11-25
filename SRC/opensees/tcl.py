@@ -8,6 +8,7 @@
 import os
 import sys
 import json
+import atexit
 import pathlib
 import platform
 from contextlib import contextmanager
@@ -22,8 +23,14 @@ except:
 
 from opensees.library.obj import Component
 
+def custom_error_handler(type, value, traceback):
+    raise TclError(f"OpenSees Error: {value}")
+
+tkinter.Tk.report_callback_exception = custom_error_handler
+
 class TclError(Exception):
     pass
+
 
 def exec(script: str, silent=False, analysis=True)->dict:
     """
@@ -143,18 +150,24 @@ class Interpreter:
         if model is not None:
             self.send(model)
 
-    def __del__(self):
-        try:
-            # _tcl may already be deleted
+        atexit.register(self.cleanup) #lambda : self.eval("wipe") if hasattr(self, "_tcl") else None)
+
+    def cleanup(self):
+        if hasattr(self, "_tcl"):
             self.eval("wipe")
-        except:
-            pass
+
+
+    def __del__(self):
+        self.cleanup()
 
     def eval(self, string):
         try:
             return self._tcl.tk.eval(string)
 
         except tkinter._tkinter.TclError as e:
+            err = self._tcl.getvar("errorInfo")
+            print(err)
+            print(e)
             raise TclError(self._tcl.getvar("errorInfo"))
 
     def serialize(self)->dict:

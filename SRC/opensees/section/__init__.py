@@ -61,14 +61,14 @@ def _WideFlange(aisc_data, mesh_data, material, tag=None, ndm=None)->SectionGeom
         # ])
 
     if flg_opt:
-        return SectionGeometry(name=tag, GJ=GJ, areas=[
+        return SectionGeometry(name=tag, GJ=GJ, shapes=[
             patch.rect(corners=[[-bf/2, yoff-tf/2],[bf/2,  yoff+tf/2]], material=material, divs=(nfl, nft), rule=int_typ),
             patch.rect(corners=[[-tw/2,-yoff+tf/2],[tw/2,  yoff-tf/2]], material=material, divs=(nwt, nwl), rule=int_typ),
             patch.rect(corners=[[-bf/2,-yoff-tf/2],[bf/2, -yoff+tf/2]], material=material, divs=(nfl, nft), rule=int_typ),
         ])
 
     else:
-        return SectionGeometry(name=tag, GJ=GJ, areas=[
+        return SectionGeometry(name=tag, GJ=GJ, shapes=[
             patch.rect(corners=[[-zoff-bi/4, yoff-tf/2],[-zoff+bi/4,  yoff+tf/2]], material=material, divs=(nfl, nft), rule=int_typ),
             patch.rect(corners=[[ zoff-bi/4, yoff-tf/2],[ zoff+bi/4,  yoff+tf/2]], material=material, divs=(nfl, nft), rule=int_typ),
             patch.rect(corners=[[     -tw/2,-yoff-tf/2],[      tw/2,  yoff+tf/2]], material=material, divs=(nwt, nwl), rule=int_typ),
