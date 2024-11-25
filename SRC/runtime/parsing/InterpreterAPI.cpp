@@ -91,6 +91,7 @@ extern "C" int
 OPS_ResetInputNoBuilder(ClientData clientData, Tcl_Interp *interp, int cArg,
                         int mArg, TCL_Char ** const argv, Domain *domain)
 {
+  theInterp = interp;
   currentArgv = argv;
   currentArg = cArg;
   maxArg = mArg;

@@ -29,6 +29,7 @@ extern Tcl_CmdProc specifyIntegrator;
 // commands/analysis/solver.cpp
 extern Tcl_CmdProc specifySOE;
 extern Tcl_CmdProc specifySysOfEqnTable;
+extern Tcl_CmdProc TclCommand_systemSize;
 
 // commands/analysis/algorithm.cpp
 extern Tcl_CmdProc TclCommand_specifyAlgorithm;
@@ -53,6 +54,7 @@ struct char_cmd {
   Tcl_CmdProc*  func;
 }  const tcl_analysis_cmds[] =  {
     {"system",              &specifySysOfEqnTable},
+    {"systemSize",          &TclCommand_systemSize},
 
     {"test",                &specifyCTest},
     {"testIter",            &getCTestIter},

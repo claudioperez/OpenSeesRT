@@ -89,7 +89,7 @@ MatrixND<ndim, ndim>
 NosbProj<ndim, maxfam>::get_B(const VectorND<ndim> &xi, const VectorND<ndim> &zeta)
 {
     // Initialize with zeros
-    MatrixND<ndim, ndim> B{{0.0}};
+    MatrixND<ndim, ndim> B{{{0.0}}};
 
     B.addTensorProduct(zeta, xi, 1.0 / xi.dot(xi));
 
@@ -134,7 +134,6 @@ NosbProj<ndim, maxfam>::form_trial()
         const MatrixND<ndim, ndim> Amat = this->get_A(xi);
         const MatrixND<ndim, ndim> Bmat = this->get_B(xi, zeta);
         // Fmat <- Fmat * (I - xi\otimes xi / |xi|^2) + zeta\otimes xi / |xi|^2
-        // materials[i]->set_strain(Fmat * Amat + Bmat);
         materials[i]->setTrialStrain(Fmat * Amat + Bmat);
         // -------- FOR DEBUGGING --------
         // -------- check F --------------
