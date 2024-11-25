@@ -161,7 +161,7 @@ TclDispatch_UniaxialMaterial TclCommand_ReinforcingSteel;
 
 static Tcl_CmdProc TclCommand_newFatigueMaterial;
 static Tcl_CmdProc TclCommand_newUniaxialJ2Plasticity;
-
+extern Tcl_CmdProc TclCommand_newBoucWenMG;
 Tcl_CmdProc TclCommand_newFedeasUniaxialDamage;
 Tcl_CmdProc TclCommand_ContinuumUniaxialMaterial;
 Tcl_CmdProc TclCommand_AxialSp;
@@ -241,6 +241,7 @@ std::unordered_map<std::string, Tcl_CmdProc*> uniaxial_dispatch {
     {"ReinforcingSteel",     dispatch< OPS_ReinforcingSteel>           },
     {"Parallel",             dispatch<TclCommand_newParallelMaterial>  },
     {"BoucWen",              dispatch<TclCommand_newUniaxialBoucWen>   },
+    {"BoucWenMG",            dispatch<TclCommand_newBoucWenMG>         },
 
     {"Elastic",                dispatch<OPS_ElasticMaterial>           },
 
