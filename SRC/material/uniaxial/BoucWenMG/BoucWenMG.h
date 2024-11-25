@@ -33,6 +33,7 @@ public:
     // TaggedObject
     void Print();
 
+    // Personal
     struct Params {
         double eta;
         double eta2;
