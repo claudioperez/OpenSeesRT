@@ -41,9 +41,7 @@ const struct {const char*name; const Tcl_CmdProc*func;} command_table[] = {
   // {"uniaxialTest",     TclCommand_setUniaxialMaterial}
 };
 
-//
-// THE FUNCTIONS INVOKED BY THE INTERPRETER
-//
+
 int
 TclCommand_useUniaxialMaterial(ClientData clientData,
                                           Tcl_Interp *interp, int argc,
@@ -62,15 +60,11 @@ TclCommand_useUniaxialMaterial(ClientData clientData,
   // is preserved between invocations.
   UniaxialMaterial *theMaterial =
     ((BasicModelBuilder*)clientData)->getTypedObject<UniaxialMaterial>(tag);
-  // UniaxialMaterial *theMaterial = 
-  // ((BasicModelBuilder*)clientData)->getTypedObject<UniaxialMaterial>(argv[2]);
+
 
   if (theMaterial == nullptr) {
     opserr << G3_ERROR_PROMPT << "no material found with tag '" << tag << "'\n";
     return TCL_ERROR;
-
-  } else {
-    // theMaterial = theOrigMaterial->getCopy();
   }
 
 
