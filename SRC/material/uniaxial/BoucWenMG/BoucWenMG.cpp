@@ -1,3 +1,6 @@
+//
+//
+//
 #include <cmath>
 #include <numeric>
 #include <algorithm>
@@ -311,6 +314,25 @@ BoucWenMG::recvSelf(int, Channel&, FEM_ObjectBroker&)
 void 
 BoucWenMG::Print()
 {
-    // TODO
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+      s << OPS_PRINT_JSON_MATE_INDENT << "{";
+      s << "\"name\": \"" << this->getTag() << "\", ";
+      s << "\"type\": \"" << this->getClassType() << "\", ";
+      s << "\"eta\": "    << eta << ", ";
+      s << "\"eta2\": "   << eta2 << ", ";
+      s << "\"k0\": "     << k0 << ", "      // True elastic stiffness
+      s << "\"sy0\": "    << sy0 << ", "     // True yield stress
+      s << "\"sig\": "    << sig << ", ";
+      s << "\"lam\": "    << lam << ", ";
+      s << "\"mup\": "    << mup << ", ";
+      s << "\"sigp\": "   << sigp << ", ";
+      s << "\"rsmax\": "  << rsmax << ", ";
+      s << "\"n\": "      << n << ", ";
+      s << "\"alpha\": "  << alpha << ", ";
+      s << "\"alpha1\": " << alpha1 << ", ";
+      s << "\"alpha2\": " << alpha2 << ", ";
+      s << "\"betam1\": " << betam1;
+      s << "}";
+    }
     return;
 }
