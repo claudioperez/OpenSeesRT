@@ -25,6 +25,9 @@ public:
     double getInitialTangent();
     double getTangent();
     UniaxialMaterial* getCopy();
+    const char*getClassType() const {
+      return "BoucWenMG";
+    }
 
     // MovableObject
     int sendSelf(int, Channel&);

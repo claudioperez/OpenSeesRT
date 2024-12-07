@@ -11,8 +11,8 @@ import setuptools
 
 #--------------------------------------------------
 
-version    = "0.1.5"
-build_type = "local"
+version    = "0.1.10"
+build_type = os.environ.get("OPENSEESRT_BUILD", "local")
 
 #--------------------------------------------------
 
