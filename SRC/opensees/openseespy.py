@@ -423,7 +423,8 @@ class Model:
                 if tag <= existing_tag:
                     tag = existing_tag + 1
 
-        return self._openseespy._str_call("element", type, tag, *args, **kwds)
+        self._openseespy._str_call("element", type, tag, *args, **kwds)
+        return tag
 
     def getIterationCount(self):
         return self._openseespy._str_call("numIter")
