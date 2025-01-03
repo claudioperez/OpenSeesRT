@@ -312,26 +312,26 @@ BoucWenMG::recvSelf(int, Channel&, FEM_ObjectBroker&)
 }
 
 void 
-BoucWenMG::Print()
+BoucWenMG::Print(OPS_Stream& s, int flag)
 {
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
       s << OPS_PRINT_JSON_MATE_INDENT << "{";
       s << "\"name\": \"" << this->getTag() << "\", ";
       s << "\"type\": \"" << this->getClassType() << "\", ";
-      s << "\"eta\": "    << eta << ", ";
-      s << "\"eta2\": "   << eta2 << ", ";
-      s << "\"k0\": "     << k0 << ", "      // True elastic stiffness
-      s << "\"sy0\": "    << sy0 << ", "     // True yield stress
-      s << "\"sig\": "    << sig << ", ";
-      s << "\"lam\": "    << lam << ", ";
-      s << "\"mup\": "    << mup << ", ";
-      s << "\"sigp\": "   << sigp << ", ";
-      s << "\"rsmax\": "  << rsmax << ", ";
-      s << "\"n\": "      << n << ", ";
-      s << "\"alpha\": "  << alpha << ", ";
-      s << "\"alpha1\": " << alpha1 << ", ";
-      s << "\"alpha2\": " << alpha2 << ", ";
-      s << "\"betam1\": " << betam1;
+      s << "\"eta\": "    << params.eta << ", ";
+      s << "\"eta2\": "   << params.eta2 << ", ";
+      s << "\"k0\": "     << params.k0 << ", ";     // True elastic stiffness
+      s << "\"sy0\": "    << params.sy0 << ", ";    // True yield stress
+      s << "\"sig\": "    << params.sig << ", ";
+      s << "\"lam\": "    << params.lam << ", ";
+      s << "\"mup\": "    << params.mup << ", ";
+      s << "\"sigp\": "   << params.sigp << ", ";
+      s << "\"rsmax\": "  << params.rsmax << ", ";
+      s << "\"n\": "      << params.n << ", ";
+      s << "\"alpha\": "  << params.alpha << ", ";
+      s << "\"alpha1\": " << params.alpha1 << ", ";
+      s << "\"alpha2\": " << params.alpha2 << ", ";
+      s << "\"betam1\": " << params.betam1;
       s << "}";
     }
     return;

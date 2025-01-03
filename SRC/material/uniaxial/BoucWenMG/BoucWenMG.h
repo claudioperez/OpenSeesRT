@@ -34,7 +34,7 @@ public:
     int recvSelf(int, Channel&, FEM_ObjectBroker&);
 
     // TaggedObject
-    void Print();
+    void Print(OPS_Stream&, int);
 
     // Personal
     struct Params {
