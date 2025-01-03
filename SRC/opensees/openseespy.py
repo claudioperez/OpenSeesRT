@@ -127,10 +127,11 @@ class OpenSeesPy:
     OpenSees state.
     """
     def __init__(self, *args, save=False, echo_file=None, **kwds):
+        import sys
         self._interp  = Interpreter(*args,  **kwds)
         self._partial = partial
         self._save    = save
-        self._echo    = echo_file
+        self._echo    = echo_file #sys.stdout # echo_file
 
         self._mesh = {"line": {}, "quad": {}}
 
@@ -164,7 +165,9 @@ class OpenSeesPy:
         try:
             ret = self.eval(cmd)
         except Exception as e:
-            raise OpenSeesError() from e
+            import sys
+            sys.stderr.flush()
+            raise OpenSeesError(str(e)) from e
 
         if ret is None or ret == "":
             return None
@@ -434,14 +437,20 @@ class Model:
         n = sum(1 for _ in _split_iter(residual_string))
         return np.fromiter(map(float, _split_iter(residual_string)), count=n, dtype=float)
 
+
     def getTangent(self, **kwds):
         import numpy as np
+
         tangent_string = self._openseespy._str_call("printA", "-ret", _return_string=True, **kwds)
+
         nn = sum(1 for _ in _split_iter(tangent_string))
+
         A  = np.fromiter(
+
                 map(float, _split_iter(
                     tangent_string
                 )),
+
                 count=nn,
                 dtype=float
         )
