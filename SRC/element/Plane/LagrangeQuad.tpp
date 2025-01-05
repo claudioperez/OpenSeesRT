@@ -988,9 +988,9 @@ LagrangeQuad<NEN,enh>::getResponse(int responseID, Information& eleInfo)
     return eleInfo.setVector(stresses);
 #endif
 
-  } else
+  }
 
-    return -1;
+  return -1;
 }
 
 
