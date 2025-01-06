@@ -47,9 +47,9 @@ GS4::GS4(double gamma,  double beta,
       Ua(nullptr), Va(nullptr), Aa(nullptr),
       Un(nullptr), Vn(nullptr), An(nullptr),
       determiningMass(false),
-      sensitivityFlag(0), gradNumber(0), 
-      massMatrixMultiplicator(0),
-      dampingMatrixMultiplicator(0), 
+      isSensitivityResidual(0), gradNumber(0), 
+      dAa(0),
+      dVa(0), 
       assemblyFlag(aFlag), 
       independentRHS(),
       dUn(), dVn(), dAn()
@@ -81,11 +81,11 @@ GS4::~GS4()
         delete An;
 
     // clean up sensitivity
-    if (massMatrixMultiplicator != nullptr)
-      delete massMatrixMultiplicator;
+    if (dAa != nullptr)
+      delete dAa;
     
-    if (dampingMatrixMultiplicator != nullptr)
-      delete dampingMatrixMultiplicator;
+    if (dVa != nullptr)
+      delete dVa;
 }
 
 
@@ -341,7 +341,7 @@ GS4::update(const Vector &deltaX)
         return -1;
     }
     
-    // check domainChanged() has been called, i.e. Ut will not be null
+    // Check domainChanged() has been called, i.e. Ut is not null
     if (Uo == nullptr)  {
         opserr << "WARNING GS4::update() - domainChange() failed or not called\n";
         return -2;
@@ -355,36 +355,23 @@ GS4::update(const Vector &deltaX)
     }
     
     //  determine the response at t+deltaT
-    switch (unknown) {
-    case Displacement:
-      (*Un) += deltaX;
-      Vn->addVector(1.0, deltaX, cv);
-      An->addVector(1.0, deltaX, ca);
-      break;
+    Un->addVector(1.0, deltaX, cu);
+    Vn->addVector(1.0, deltaX, cv);
+    An->addVector(1.0, deltaX, ca);
 
-    case Velocity:
-      Un->addVector(1.0, deltaX, cu);
-      (*Vn) += deltaX;
-      An->addVector(1.0, deltaX, ca);
-      break;
+    // determine state at t + alpha*deltaT
+    Ua->addVector(1.0, deltaX, alphaF*cu);
+    Va->addVector(1.0, deltaX, alphaF*cv);
+    Aa->addVector(1.0, deltaX, alphaM*ca);
 
-    case Acceleration:
-      Un->addVector(1.0, deltaX, cu);
-      Vn->addVector(1.0, deltaX, cv);        
-      (*An) += deltaX;
-      break;
-    }
+//  (*Ua) = *Uo;
+//  Ua->addVector((1.0-alphaF), *Un, alphaF);
 
-    // determine displacement and velocity at t + alphaF*deltaT
-    (*Ua) = *Uo;
-    Ua->addVector((1.0-alphaF), *Un, alphaF);
+//  (*Va) = *Vo;
+//  Va->addVector((1.0-alphaF), *Vn, alphaF);
 
-    (*Va) = *Vo;
-    Va->addVector((1.0-alphaF), *Vn, alphaF);
-
-    // determine the velocities at t+alphaM*deltaT
-    (*Aa) = *Ao;
-    Aa->addVector((1.0-alphaM), *An, alphaM);
+//  (*Aa) = *Ao;
+//  Aa->addVector((1.0-alphaM), *An, alphaM);
 
     // update the response at the DOFs
     theModel->setResponse(*Ua,*Va,*Aa);
@@ -400,7 +387,7 @@ GS4::update(const Vector &deltaX)
 const Vector &
 GS4::getVel()
 {
-  return *Vn;
+  return *Va;
 }
 
 int
@@ -450,15 +437,15 @@ GS4::formEleTangent(FE_Element *theEle)
 int
 GS4::formNodTangent(DOF_Group *theDof)
 {
-    if (determiningMass == true)
-        return 0;
-    
-    theDof->zeroTangent();
-    theDof->addCtoTang(alphaF*cv);
-    theDof->addMtoTang(alphaM*ca);
-    
-    return 0;
-}    
+  if (determiningMass == true)
+      return 0;
+  
+  theDof->zeroTangent();
+  theDof->addCtoTang(alphaF*cv);
+  theDof->addMtoTang(alphaM*ca);
+  
+  return 0;
+}
 
 
 int
@@ -513,12 +500,12 @@ GS4::domainChanged()
     // now go through and populate U, Udot and Udotdot by iterating through
     // the DOF_Groups and getting the last committed velocity and accel
     DOF_GrpIter &theDOFs = myModel->getDOFs();
-    DOF_Group *dofPtr;
-    while ((dofPtr = theDOFs()) != nullptr)  {
-      const ID &id = dofPtr->getID();
+    DOF_Group *group;
+    while ((group = theDOFs()) != nullptr)  {
+      const ID &id = group->getID();
       int idSize = id.Size();
 
-      const Vector &disp = dofPtr->getCommittedDisp();  
+      const Vector &disp = group->getCommittedDisp();  
       for (int i=0; i < idSize; i++)  {
           int loc = id(i);
           if (loc >= 0)  {
@@ -526,7 +513,7 @@ GS4::domainChanged()
           }
       }
       
-      const Vector &vel = dofPtr->getCommittedVel();
+      const Vector &vel = group->getCommittedVel();
       for (int i=0; i < idSize; i++)  {
           int loc = id(i);
           if (loc >= 0) {
@@ -534,7 +521,7 @@ GS4::domainChanged()
           }
       }
       
-      const Vector &accel = dofPtr->getCommittedAccel();  
+      const Vector &accel = group->getCommittedAccel();  
       for (int i=0; i < idSize; i++)  {
           int loc = id(i);
           if (loc >= 0) {
@@ -547,7 +534,7 @@ GS4::domainChanged()
       // However, I don't think these methods need to be called in domainChanged -- MHS
       continue;
       
-      const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);  
+      const Vector &dispSens = group->getDispSensitivity(gradNumber);  
       for (int i=0; i < idSize; i++) {
           int loc = id(i);
           if (loc >= 0) {
@@ -555,7 +542,7 @@ GS4::domainChanged()
           }
       }
 
-      const Vector &velSens = dofPtr->getVelSensitivity(gradNumber);
+      const Vector &velSens = group->getVelSensitivity(gradNumber);
       for (int i=0; i < idSize; i++) {
           int loc = id(i);
           if (loc >= 0) {
@@ -563,7 +550,7 @@ GS4::domainChanged()
           }
       }
 
-      const Vector &accelSens = dofPtr->getAccSensitivity(gradNumber);  
+      const Vector &accelSens = group->getAccSensitivity(gradNumber);  
       for (int i=0; i < idSize; i++) {
           int loc = id(i);
           if (loc >= 0) {
@@ -619,12 +606,12 @@ GS4::Print(OPS_Stream &s, int flag)
   if (flag == OPS_PRINT_PRINTMODEL_JSON)
     return;
 
-
   AnalysisModel *theModel = this->getAnalysisModel();
   if (theModel != nullptr) {
       double currentTime = theModel->getCurrentDomainTime();
       s << "\t GS4 - currentTime: " << currentTime;
   }
+
   s << "\t gamma: " << gamma << "  beta: " << beta << "\n";
   s << "\t alphaF: " << alphaF << "  alphaM: " << alphaM << "\n";
   s << "\t unknown: " << unknown << "  initialization: " << unknown_initialize << "\n";
@@ -635,46 +622,37 @@ GS4::Print(OPS_Stream &s, int flag)
 int
 GS4::revertToStart()
 {
-    if (Uo != nullptr) 
-        Uo->Zero();
-    if (Vo != nullptr) 
-        Vo->Zero();
-    if (Ao != nullptr) 
-        Ao->Zero();
-    if (Un != nullptr) 
-        Un->Zero();
-    if (Vn != nullptr) 
-        Vn->Zero();
-    if (An != nullptr) 
-        An->Zero();
-    
-    return 0;
+  if (Uo != nullptr) 
+      Uo->Zero();
+  if (Vo != nullptr) 
+      Vo->Zero();
+  if (Ao != nullptr) 
+      Ao->Zero();
+  if (Un != nullptr) 
+      Un->Zero();
+  if (Vn != nullptr) 
+      Vn->Zero();
+  if (An != nullptr) 
+      An->Zero();
+  
+  return 0;
 }
 
 int
-GS4::formEleResidual(FE_Element* theEle)
+GS4::formEleResidual(FE_Element* elem)
 {
-  if (sensitivityFlag == 0) {  // no sensitivity
-      this->TransientIntegrator::formEleResidual(theEle);
+  if (isSensitivityResidual == false) {
+      this->TransientIntegrator::formEleResidual(elem);
 
   } else {
   
-      theEle->zeroResidual();
+      elem->zeroResidual();
 
       // Compute the time-stepping parameters of the form
       // udotdot = c3*ui+1 + a2*ui + a3*udoti + a4*udotdoti
       // udot    = a5*ui+1 + bvu*ui + bvv*udoti + bva*udotdoti
       // (see p. 166 of Chopra)
 
-      // The constants are:
-      // c3 = 1.0/(beta*dt*dt)
-      // a2 = -1.0/(beta*dt*dt)
-      // a3 = -1.0/beta*dt
-      // a4 = 1.0 - 1.0/(2.0*beta)
-      // a5 = gamma/(beta*dt)
-      // bvu = -gamma/(beta*dt)
-      // bvv = 1.0 - gamma/beta
-      // bva = 1.0 - gamma/(2.0*beta)
 
       // So, the constants can be computed as follows:
       if (unknown != Displacement) {
@@ -693,73 +671,74 @@ GS4::formEleResidual(FE_Element* theEle)
 
       // Pre-compute the vectors involving a2, a3, etc.
       //Vector tmp1 = V*a2 + Vdot*a3 + Vdotdot*a4;
-      int vectorSize = Un->Size();
-      Vector dUn(vectorSize);
-      Vector dVn(vectorSize);
-      Vector dAn(vectorSize);
+      const int n = Un->Size();
+      Vector dUn(n);
+      Vector dVn(n);
+      Vector dAn(n);
 
       AnalysisModel *myModel = this->getAnalysisModel();
       DOF_GrpIter &theDOFs = myModel->getDOFs();
-      DOF_Group *dofPtr;
-      while ((dofPtr = theDOFs()) != nullptr) {
+      while (DOF_Group *group; (group = theDOFs()) != nullptr) {
 
-        const ID &id = dofPtr->getID();
+        const ID &id = group->getID();
         const int idSize = id.Size();
-        const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);
-        for (int i = 0; i < idSize; i++)
-          if (int loc = id(i); loc >= 0)
-            dUn(loc) = dispSens(i);
 
+        {  
+          const Vector &du = group->getDispSensitivity(gradNumber);
+          for (int i = 0; i < idSize; i++)
+            if (int loc = id(i); loc >= 0)
+              dUn[loc] = du[i];
+        }
 
-        const Vector &velSens = dofPtr->getVelSensitivity(gradNumber);
-        for (int i = 0; i < idSize; i++)
-          if (int loc = id(i); loc >= 0)
-            dVn(loc) = velSens(i);
+          const Vector &velSens = group->getVelSensitivity(gradNumber);
+          for (int i = 0; i < idSize; i++)
+            if (int loc = id(i); loc >= 0)
+              dVn(loc) = velSens(i);
 
-        const Vector &accelSens = dofPtr->getAccSensitivity(gradNumber);
-        for (int i = 0; i < idSize; i++)
-          if (int loc = id(i); loc >= 0)
-            dAn(loc) = accelSens(i);
+          const Vector &da = group->getAccSensitivity(gradNumber);
+          for (int i = 0; i < idSize; i++)
+            if (int loc = id(i); loc >= 0)
+              dAn(loc) = da[i];
       }
 
       // Pre-compute the vectors involving a2, a3, etc.
       // Vector tmp1 = V*a2 + Vdot*a3 + Vdotdot*a4;
-      Vector tmp1(vectorSize);
+      Vector tmp1(n);
       tmp1.addVector(0.0, dUn, a2);
       tmp1.addVector(1.0, dVn, a3);
       tmp1.addVector(1.0, dAn, a4);
       //Vector tmp2 = V*bvu + Vdot*bvv + Vdotdot*bva;
-      Vector tmp2(vectorSize);
+      Vector tmp2(n);
       tmp2.addVector(0.0, dUn, bvu);
       tmp2.addVector(1.0, dVn, bvv);
       tmp2.addVector(1.0, dAn, bva);
 
-      if (massMatrixMultiplicator == nullptr)
-          massMatrixMultiplicator = new Vector(tmp1.Size());
+      if (dAa == nullptr)
+          dAa = new Vector(tmp1.Size());
 
-      if (dampingMatrixMultiplicator == nullptr)
-          dampingMatrixMultiplicator = new Vector(tmp2.Size());
+      if (dVa == nullptr)
+          dVa = new Vector(tmp2.Size());
 
-      (*massMatrixMultiplicator) = tmp1;
-      (*dampingMatrixMultiplicator) = tmp2;
+      (*dAa) = tmp1;
+      (*dVa) = tmp2;
 
 
       // Now we're ready to make calls to the FE Element:
 
       // The term -dPint/dh|u fixed
-      theEle->addResistingForceSensitivity(gradNumber); 
+      elem->addResistingForceSensitivity(gradNumber); 
 
       // The term -dM/dh*acc
-      theEle->addM_ForceSensitivity(gradNumber, *An, -1.0);
+      elem->addM_ForceSensitivity(gradNumber, *An, -1.0);
 
       // The term -M*(a2*v + a3*vdot + a4*vdotdot)
-      theEle->addM_Force(*massMatrixMultiplicator, -1.0);
+      elem->addM_Force(*dAa, -1.0);
 
       // The term -C*(bvu*v + bvv*vdot + bva*vdotdot)
-      theEle->addD_Force(*dampingMatrixMultiplicator, -1.0);
+      elem->addD_Force(*dVa, -1.0);
 
       // The term -dC/dh*vel
-      theEle->addD_ForceSensitivity(gradNumber, *Vn, -1.0);
+      elem->addD_ForceSensitivity(gradNumber, *Vn, -1.0);
     }
 
     return 0;
@@ -769,7 +748,7 @@ int
 GS4::formNodUnbalance(DOF_Group *theDof)
 {
 
-    if (sensitivityFlag == 0) {
+    if (isSensitivityResidual == 0) {
       this->TransientIntegrator::formNodUnbalance(theDof);
     }
     else {
@@ -778,13 +757,13 @@ GS4::formNodUnbalance(DOF_Group *theDof)
       theDof->zeroUnbalance();
 
       // The term -M*(a2*v + a3*vdot + a4*vdotdot)
-      theDof->addM_Force(*massMatrixMultiplicator,-1.0);
+      theDof->addM_Force(*dAa,-1.0);
 
       // The term -dM/dh*acc
       theDof->addM_ForceSensitivity(*An, -1.0);
 
       // The term -C*(bvu*v + bvv*vdot + bva*vdotdot)
-      theDof->addD_Force(*dampingMatrixMultiplicator,-1.0);
+      theDof->addD_Force(*dVa,-1.0);
 
       // The term -dC/dh*vel
       theDof->addD_ForceSensitivity(*Vn,-1.0);
@@ -797,12 +776,11 @@ GS4::formNodUnbalance(DOF_Group *theDof)
 }
 
 int 
-GS4::formSensitivityRHS(int passedGradNumber)
+GS4::formSensitivityRHS(int grad)
 {
     // Set a couple of data members
-    sensitivityFlag = 1;
-    gradNumber = passedGradNumber;
-
+    isSensitivityResidual = true;
+    gradNumber = grad;
 
     LinearSOE *theSOE = this->getLinearSOE();
 
@@ -820,36 +798,31 @@ GS4::formSensitivityRHS(int passedGradNumber)
     Domain *theDomain = theModel->getDomainPtr();
 
     // Loop through nodes to zero the unbalaced load
-    Node *nodePtr;
     NodeIter &theNodeIter = theDomain->getNodes();
-    while ((nodePtr = theNodeIter()) != nullptr)
-      nodePtr->zeroUnbalancedLoad();
+    while (Node *node; (node = theNodeIter()) != nullptr)
+      node->zeroUnbalancedLoad();
 
     // Loop through load patterns to add external load sensitivity
-    LoadPattern *loadPatternPtr;
     LoadPatternIter &thePatterns = theDomain->getLoadPatterns();
-
-    while ((loadPatternPtr = thePatterns()) != nullptr)
-      loadPatternPtr->applyLoadSensitivity(theDomain->getCurrentTime());
+    while (LoadPattern *pattern; (pattern = thePatterns()) != nullptr)
+      pattern->applyLoadSensitivity(theDomain->getCurrentTime());
 
 
     // Randomness in element/material contributions
     // Loop through FE elements
-    FE_Element *elePtr;
     FE_EleIter &theEles = theModel->getFEs();    
-    while ((elePtr = theEles()) != nullptr) {
-      theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
-    }
+    while (FE_Element *elem; (elem = theEles()) != nullptr)
+      theSOE->addB( elem->getResidual(this), elem->getID() );
+
 
     // Loop through DOF groups (IT IS IMPORTANT THAT THIS IS DONE LAST!)
-    DOF_Group *dofPtr;
+    DOF_Group *group;
     DOF_GrpIter &theDOFs = theModel->getDOFs();
-    while ((dofPtr = theDOFs()) != nullptr) {
-      theSOE->addB(  dofPtr->getUnbalance(this),  dofPtr->getID()  );
-    }
+    while ((group = theDOFs()) != nullptr)
+      theSOE->addB(  group->getUnbalance(this),  group->getID()  );
 
     // Reset the sensitivity flag
-    sensitivityFlag = 0;
+    isSensitivityResidual = false;
 
     return 0;
 }
@@ -858,7 +831,7 @@ int
 GS4::formIndependentSensitivityRHS()
 {
     // For now; don't use this
-/*
+#if 0
   sensitivityFlag = 2; // Tell subsequent methods what to be assembled
 
   // Get pointer to the SOE
@@ -871,17 +844,16 @@ GS4::formIndependentSensitivityRHS()
   // Loop through FE elements
   FE_Element *elePtr;
   FE_EleIter &theEles = theModel->getFEs();    
-  while((elePtr = theEles()) != 0) {
-  theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
-  }
+  while((elePtr = theEles()) != nullptr)
+    theSOE->addB(  elePtr->getResidual(this),  elePtr->getID()  );
 
 
   // Loop through DOF groups (IT IS IMPORTANT THAT THIS IS DONE LAST!)
-  DOF_Group *dofPtr;
+  DOF_Group *group;
   DOF_GrpIter &theDOFs = theModel->getDOFs();
-  while((dofPtr = theDOFs()) != 0) {
-  theSOE->addB(  dofPtr->getUnbalance(this),  dofPtr->getID()  );
-  }
+  while((group = theDOFs()) != nullptr)
+    theSOE->addB(  group->getUnbalance(this),  group->getID()  );
+
 
 
   // Set the data member of this class
@@ -890,7 +862,7 @@ GS4::formIndependentSensitivityRHS()
 
   // Reset the sensitivity flag
   sensitivityFlag = 0;
-*/
+#endif
 
     return 0;
 }
@@ -917,22 +889,22 @@ GS4::saveSensitivity(const Vector & vNew,int gradNum,int numGrads)
 
   AnalysisModel *myModel = this->getAnalysisModel();
   DOF_GrpIter &theDOFs = myModel->getDOFs();
-  DOF_Group *dofPtr;
-  while ((dofPtr = theDOFs()) != nullptr) {
+  DOF_Group *group;
+  while ((group = theDOFs()) != nullptr) {
 
-    const ID &id = dofPtr->getID();
-    int idSize = id.Size();
-    const Vector &dispSens = dofPtr->getDispSensitivity(gradNumber);
+    const ID &id = group->getID();
+    const int idSize = id.Size();
+    const Vector &dispSens = group->getDispSensitivity(gradNumber);
     for (int i = 0; i < idSize; i++)
       if (int loc = id(i); loc >= 0)
         dUn(loc) = dispSens(i);
 
-    const Vector &velSens = dofPtr->getVelSensitivity(gradNumber);
+    const Vector &velSens = group->getVelSensitivity(gradNumber);
     for (int i = 0; i < idSize; i++)
       if (int loc = id(i); loc >= 0)
         dVn(loc) = velSens(i);
 
-    const Vector &accelSens = dofPtr->getAccSensitivity(gradNumber);
+    const Vector &accelSens = group->getAccSensitivity(gradNumber);
     for (int i = 0; i < idSize; i++)
       if (int loc = id(i); loc >= 0)
         dAn(loc) = accelSens(i);
@@ -960,9 +932,9 @@ GS4::saveSensitivity(const Vector & vNew,int gradNum,int numGrads)
 
     // Now we can save vNew, vdotNew and vdotdotNew
     DOF_GrpIter &theDOFGrps = myModel->getDOFs();
-    DOF_Group   *dofPtr1;
-    while ((dofPtr1 = theDOFGrps()) != nullptr)
-      dofPtr1->saveSensitivity(vNew,vdotNew,vdotdotNew,gradNum,numGrads);
+    
+    while (DOF_Group *group; (group = theDOFGrps()) != nullptr)
+      group->saveSensitivity(vNew,vdotNew,vdotdotNew,gradNum,numGrads);
 
     return 0;
 }
@@ -984,7 +956,7 @@ GS4::commitSensitivity(int gradNum, int numGrads)
 double
 GS4::getCFactor() 
 {
-  return cv;
+  return alphaF*cv;
 }
 
 
