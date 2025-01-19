@@ -69,11 +69,8 @@ public:
     CrdTransf *getCopy2d();
     
     // Sensitivity
-    const Vector &getBasicDisplTotalGrad(int gradNumber);
-    #if 0
-    const Vector &getGlobalResistingForceShapeSensitivity(const Vector &basicForce, const Vector &p0);
-    #endif
     const Vector &getBasicDisplFixedGrad();
+    const Vector &getBasicDisplTotalGrad(int gradNumber);
     const Vector & getGlobalResistingForceShapeSensitivity(const Vector &pb,
 							   const Vector &p0,
 							   int gradNumber);
