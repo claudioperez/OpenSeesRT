@@ -31,6 +31,7 @@
 
 #include <FrameSection.h>
 #include <Vector.h>
+#include <vector>
 #include <Matrix.h>
 #include <MatrixND.h>
 
@@ -45,7 +46,7 @@ class FrameSolidSection3d : public FrameSection
     ~FrameSolidSection3d();
 
     int addFiber(NDMaterial& theMat, double Area, double yLoc, double zLoc);
-    
+
     // Element
     const char *getClassType() const {
       return "FrameSolidSection3d";
@@ -87,10 +88,18 @@ class FrameSolidSection3d : public FrameSection
 
 
   protected: 
-    //  private:
-    int numFibers, sizeFibers;        // number of fibers in the section
-    NDMaterial **theMaterials;        // array of pointers to materials
-    double   *matData;                // data for the materials [yloc and area]
+    constexpr static int nsr = 12;
+    constexpr static int nwm = 3; // number of warping modes
+
+    struct FiberData {
+      NDMaterial* material;
+      double y;
+      double z;
+      double wgt,
+             warp_mode[nwm],
+             warp_grad[nwm][2];
+    };
+    std::vector<FiberData> fibers;
 
 
 //  MatrixND<6,6> ks;

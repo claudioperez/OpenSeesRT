@@ -8,7 +8,7 @@
 //
 // Adapted from NDFiberSection3d
 //
-// Written: MHS
+// Written: CMP,MHS
 // Created: 2012
 //
 #include <stdlib.h>
@@ -29,7 +29,7 @@
 typedef SensitiveResponse<FrameSection> SectionResponse;
 #include <NDMaterial.h>
 #include <Parameter.h>
-#include <elementAPI.h>
+// #include <elementAPI.h>
 
 #define SEC_TAG_FrameSolidSection3d 0
 
@@ -40,24 +40,13 @@ ID FrameSolidSection3d::code(6);
 
 FrameSolidSection3d::FrameSolidSection3d(int tag, int num, double a, bool compCentroid): 
     FrameSection(tag, SEC_TAG_FrameSolidSection3d),
-    numFibers(0), sizeFibers(num), theMaterials(0), matData(0),
-    Abar(0.0), QyBar(0.0), QzBar(0.0), yBar(0.0), zBar(0.0), computeCentroid(compCentroid),
-    alpha(a), e(6), s(0), ks(0), 
-    parameterID(0), dedh(6)
+    Abar(0.0), QyBar(0.0), QzBar(0.0), yBar(0.0), zBar(0.0), 
+    computeCentroid(compCentroid),
+    alpha(a), e(nsr), s(0), ks(0), 
+    parameterID(0), dedh(nsr)
 {
-    if (sizeFibers != 0) {
-        theMaterials = new NDMaterial *[sizeFibers]{};
-        matData = new double [sizeFibers*3]{};
-    }
-
-    s = new Vector(sData, 6);
-    ks = new Matrix(kData, 6, 6);
-
-    for (int i = 0; i < 6; i++)
-        sData[i] = 0.0;
-
-    for (int i = 0; i < 6*6; i++)
-        kData[i] = 0.0;
+    s = new Vector(sData, nsr);
+    ks = new Matrix(kData, nsr, nsr);
 
     code(0) = SECTION_RESPONSE_P;
     code(1) = SECTION_RESPONSE_MZ;
@@ -70,19 +59,14 @@ FrameSolidSection3d::FrameSolidSection3d(int tag, int num, double a, bool compCe
 // constructor for blank object that recvSelf needs to be invoked upon
 FrameSolidSection3d::FrameSolidSection3d():
   FrameSection(0, SEC_TAG_FrameSolidSection3d),
-  numFibers(0), sizeFibers(0), theMaterials(0), matData(0),
-  Abar(0.0), QyBar(0.0), QzBar(0.0), yBar(0.0), zBar(0.0), computeCentroid(true),
+  Abar(0.0), QyBar(0.0), QzBar(0.0), 
+  yBar(0.0), zBar(0.0), 
+  computeCentroid(true),
   alpha(1.0), e(6), s(0), ks(0),
   parameterID(0), dedh(6)
 {
   s = new Vector(sData, 6);
   ks = new Matrix(kData, 6, 6);
-
-  for (int i = 0; i < 6; i++)
-    sData[i] = 0.0;
-
-  for (int i = 0; i < 6*6; i++)
-    kData[i] = 0.0;
 
   code(0) = SECTION_RESPONSE_P;
   code(1) = SECTION_RESPONSE_MZ;
@@ -93,54 +77,18 @@ FrameSolidSection3d::FrameSolidSection3d():
 }
 
 int
-FrameSolidSection3d::addFiber(NDMaterial& theMat, const double Area, const double yLoc, const double zLoc)
+FrameSolidSection3d::addFiber(NDMaterial& theMat, 
+                              double Area, 
+                              double yLoc, 
+                              double zLoc)
 {
-  // need to create larger arrays
-  if(numFibers == sizeFibers) {
-      int newSize = 2*sizeFibers;
-      NDMaterial **newArray = new NDMaterial *[newSize]; 
-      double *newMatData = new double [3 * newSize];
+  FiberData fiber {theMat.getCopy("BeamFiber"), yLoc, zLoc, Area};
+  fibers.emplace_back(fiber);
 
-      // copy the old pointers and data
-      for (int i = 0; i < numFibers; i++) {
-          newArray[i] = theMaterials[i];
-          newMatData[3*i] = matData[3*i];
-          newMatData[3*i+1] = matData[3*i+1];
-          newMatData[3*i+2] = matData[3*i+2];
-      }
-
-      // initialize new memory
-      for (int i = numFibers; i < newSize; i++) {
-          newArray[i]       = 0;
-          newMatData[3*i]   = 0.0;
-          newMatData[3*i+1] = 0.0;
-          newMatData[3*i+2] = 0.0;
-      }
-
-      sizeFibers = newSize;
-
-      // set new memory
-      if (theMaterials != 0) {
-          delete [] theMaterials;
-          delete [] matData;
-      }
-
-      theMaterials = newArray;
-      matData = newMatData;
-  }
-
-  // set the new pointers and data
-  matData[numFibers*3]    = yLoc;
-  matData[numFibers*3+1]  = zLoc;
-  matData[numFibers*3+2]  = Area;
-  theMaterials[numFibers] = theMat.getCopy("BeamFiber");
-
-  if (theMaterials[numFibers] == 0) {
+  if (fibers[fibers.size()-1].material == nullptr) {
     opserr <<"FrameSolidSection3d::addFiber -- failed to get copy of a Material\n";
     return -1;
   }
-
-  numFibers++;
 
   // Recompute centroid
   if (computeCentroid) {
@@ -159,23 +107,16 @@ FrameSolidSection3d::addFiber(NDMaterial& theMat, const double Area, const doubl
 // destructor:
 FrameSolidSection3d::~FrameSolidSection3d()
 {
-  if (theMaterials != 0) {
-    for (int i = 0; i < numFibers; i++)
-      if (theMaterials[i] != 0)
-        delete theMaterials[i];
-      
-    delete [] theMaterials;
+  for (auto fiber : fibers) {
+    if (fiber.material != nullptr)
+      delete fiber.material;
   }
-
-  if (matData != 0)
-    delete [] matData;
 
   if (s != 0)
     delete s;
 
   if (ks != 0)
     delete ks;
-
 }
 
 //      0  5 4       1       2  3
@@ -203,11 +144,12 @@ FrameSolidSection3d::setTrialSectionDeformation(const Vector &deforms)
     rootAlpha = sqrt(alpha);
 
   int res = 0;
-  for (int i = 0; i < numFibers; i++) {
-    NDMaterial *theMat = theMaterials[i];
-    const double y  = matData[3*i]   - yBar;
-    const double z  = matData[3*i+1] - zBar;
-    const double A  = matData[3*i+2];
+  for (int i = 0; i < fibers.size(); i++) {
+    auto & fiber = fibers[i];
+    NDMaterial *theMat = fibers[i].material;
+    const double y  = fiber.y - yBar;
+    const double z  = fiber.z - zBar;
+    const double A  = fiber.wgt;
 
     // determine material strain and set it
     VectorND<3> eps;
@@ -230,7 +172,7 @@ FrameSolidSection3d::setTrialSectionDeformation(const Vector &deforms)
     double d22 = tangent(2,2)*A;
 
     Matrix &ksi = *ks;
-    Vector &si = *s;
+    Vector &si  = *s;
 
     double y2 = y*y;
     double z2 = z*z;
@@ -324,27 +266,15 @@ FrameSolidSection3d::getInitialTangent()
   static Matrix ki(kInitial, 6, 6);
   ki.Zero();
 
-  static double yLocs[10000];
-  static double zLocs[10000];
-  static double fiberArea[10000];
-
-  {
-    for (int i = 0; i < numFibers; i++) {
-      yLocs[i] = matData[3*i];
-      zLocs[i] = matData[3*i+1];
-      fiberArea[i] = matData[3*i+2];
-    }
-  }
-
   double rootAlpha = 1.0;
   if (alpha != 1.0)
     rootAlpha = sqrt(alpha);
 
-  for (int i = 0; i < numFibers; i++) {
-    NDMaterial *theMat = theMaterials[i];
-    double y = yLocs[i] - yBar;
-    double z = zLocs[i] - zBar;
-    double A = fiberArea[i];
+  for (int i = 0; i < fibers.size(); i++) {
+    NDMaterial *theMat = fibers[i].material;
+    double y = fibers[i].y - yBar;
+    double z = fibers[i].z - zBar;
+    double A = fibers[i].wgt;
 
     double y2 = y*y;
     double z2 = z*z;
@@ -445,24 +375,9 @@ FrameSolidSection3d::getFrameCopy()
   FrameSolidSection3d *theCopy = new FrameSolidSection3d ();
   theCopy->setTag(this->getTag());
 
-  theCopy->numFibers = numFibers;
-  theCopy->sizeFibers = numFibers;
 
-  if (numFibers != 0) {
-    theCopy->theMaterials = new NDMaterial *[numFibers]; 
-    theCopy->matData = new double [numFibers*3];
-
-    for (int i = 0; i < numFibers; i++) {
-      theCopy->matData[i*3] = matData[i*3];
-      theCopy->matData[i*3+1] = matData[i*3+1];
-      theCopy->matData[i*3+2] = matData[i*3+2];
-      theCopy->theMaterials[i] = theMaterials[i]->getCopy("BeamFiber");
-
-      if (theCopy->theMaterials[i] == 0) {
-        opserr <<"FrameSolidSection3d::getFrameCopy -- failed to get copy of a Material";
-        exit(-1);
-      }
-    }  
+  if (fibers.size() != 0) {
+    // TODO
   }
 
   theCopy->e = e;
@@ -474,12 +389,6 @@ FrameSolidSection3d::getFrameCopy()
   theCopy->computeCentroid = computeCentroid;
   theCopy->alpha = alpha;
   theCopy->parameterID = parameterID;
-
-  for (int i = 0; i < 6; i++)
-    theCopy->sData[i] = sData[i];
-
-  for (int i = 0; i < 6*6; i++)
-    theCopy->kData[i] = kData[i];
 
   return theCopy;
 }
@@ -493,7 +402,7 @@ FrameSolidSection3d::getType()
 int
 FrameSolidSection3d::getOrder () const
 {
-  return 6;
+  return nsr;
 }
 
 int
@@ -501,8 +410,8 @@ FrameSolidSection3d::commitState()
 {
   int err = 0;
 
-  for (int i = 0; i < numFibers; i++)
-    err += theMaterials[i]->commitState();
+  for (auto& fiber: fibers)
+    err += fiber.material->commitState();
 
   return err;
 }
@@ -519,11 +428,12 @@ FrameSolidSection3d::revertToLastCommit()
   if (alpha != 1.0)
     rootAlpha = sqrt(alpha);
 
-  for (int i = 0; i < numFibers; i++) {
-    NDMaterial *theMat = theMaterials[i];
-    const double y  = matData[3*i]   - yBar;
-    const double z  = matData[3*i+1] - zBar;
-    const double A  = matData[3*i+2];
+  for (int i = 0; i < fibers.size(); i++) {
+    auto& fiber = fibers[i];
+    NDMaterial *theMat = fibers[i].material;
+    const double y  = fiber.y - yBar;
+    const double z  = fiber.z - zBar;
+    const double A  = fiber.wgt;
 
     double y2 = y*y;
     double z2 = z*z;
@@ -643,12 +553,13 @@ FrameSolidSection3d::revertToStart()
   if (alpha != 1.0)
     rootAlpha = sqrt(alpha);
 
-  for (int i = 0; i < numFibers; i++) {
-    NDMaterial *theMat = theMaterials[i];
+  for (int i = 0; i < fibers.size(); i++) {
+    auto & fiber = fibers[i];
+    NDMaterial *theMat = fibers[i].material;
 
-    double y  = matData[3*i]   - yBar;
-    double z  = matData[3*i+1] - zBar;
-    double A  = matData[3*i+2];
+    double y  = fiber.y   - yBar;
+    double z  = fiber.z - zBar;
+    double A  = fiber.wgt;
 
     double y2 = y*y;
     double z2 = z*z;
@@ -739,16 +650,15 @@ FrameSolidSection3d::revertToStart()
     double sig1 = stress(1)*A;
     double sig2 = stress(2)*A;
 
-    si(0) += sig0;
-    si(1) += -y*sig0;
-    si(2) += z*sig0;
-    si(3) += rootAlpha*sig1;
-    si(4) += rootAlpha*sig2;
-    si(5) += -z*sig1 + y*sig2;
+    si[0] += sig0;
+    si[1] += -y*sig0;
+    si[2] += z*sig0;
+    si[3] += rootAlpha*sig1;
+    si[4] += rootAlpha*sig2;
+    si[5] += -z*sig1 + y*sig2;
   }
 
   if (alpha != 1.0) {
-
   }
 
   return err;
@@ -758,56 +668,6 @@ int
 FrameSolidSection3d::sendSelf(int commitTag, Channel &theChannel)
 {
   int res = 0;
-
-  // create an id to send objects tag and numFibers, 
-  //     size 3 so no conflict with matData below if just 1 fiber
-  static ID data(3);
-  data(0) = this->getTag();
-  data(1) = numFibers;
-  data(2) = computeCentroid ? 1 : 0; // Now the ID data is really 3    
-  int dbTag = this->getDbTag();
-  res += theChannel.sendID(dbTag, commitTag, data);
-  if (res < 0) {
-    opserr <<  "FrameSolidSection3d::sendSelf - failed to send ID data\n";
-    return res;
-  }    
-
-  if (numFibers != 0) {
-    
-    // create an id containingg classTag and dbTag for each material & send it
-    ID materialData(2*numFibers);
-    for (int i=0; i<numFibers; i++) {
-      NDMaterial *theMat = theMaterials[i];
-      materialData(2*i) = theMat->getClassTag();
-      int matDbTag = theMat->getDbTag();
-      if (matDbTag == 0) {
-        matDbTag = theChannel.getDbTag();
-        if (matDbTag != 0)
-          theMat->setDbTag(matDbTag);
-      }
-      materialData(2*i+1) = matDbTag;
-    }    
-    
-    res += theChannel.sendID(dbTag, commitTag, materialData);
-    if (res < 0) {
-      opserr <<  "FrameSolidSection3d::sendSelf - failed to send material data\n";
-      return res;
-    }    
-
-    // send the fiber data, i.e. area and loc
-    Vector fiberData(matData, 3*numFibers);
-    res += theChannel.sendVector(dbTag, commitTag, fiberData);
-    if (res < 0) {
-      opserr <<  "FrameSolidSection3d::sendSelf - failed to send material data\n";
-      return res;
-    }    
-
-    // now invoke send(0 on all the materials
-    for (int j=0; j<numFibers; j++)
-      theMaterials[j]->sendSelf(commitTag, theChannel);
-
-  }
-
   return res;
 }
 
@@ -816,108 +676,6 @@ FrameSolidSection3d::recvSelf(int commitTag, Channel &theChannel,
                          FEM_ObjectBroker &theBroker)
 {
   int res = 0;
-
-  static ID data(3);
-  
-  int dbTag = this->getDbTag();
-  res += theChannel.recvID(dbTag, commitTag, data);
-  if (res < 0) {
-    opserr <<  "FrameSolidSection3d::recvSelf - failed to recv ID data\n";
-    return res;
-  }    
-  this->setTag(data(0));
-
-  // recv data about materials objects, classTag and dbTag
-  if (data(1) != 0) {
-    ID materialData(2*data(1));
-    res += theChannel.recvID(dbTag, commitTag, materialData);
-    if (res < 0) {
-      opserr <<  "FrameSolidSection3d::recvSelf - failed to recv material data\n";
-      return res;
-    }    
-
-    // if current arrays not of correct size, release old and resize
-    if (theMaterials == 0 || numFibers != data(1)) {
-      // delete old stuff if outa date
-      if (theMaterials != 0) {
-        for (int i=0; i<numFibers; i++)
-          delete theMaterials[i];
-        delete [] theMaterials;
-        if (matData != 0)
-          delete [] matData;
-        matData = nullptr;
-        theMaterials = nullptr;
-      }
-
-      // Create memory to hold material pointers and fiber data
-      numFibers  = data(1);
-      sizeFibers = data(1);
-      if (numFibers != 0) {
-        theMaterials = new NDMaterial *[numFibers];
-
-        for (int j=0; j<numFibers; j++)
-          theMaterials[j] = nullptr;
-
-        matData = new double [numFibers*2];
-      }
-    }
-
-    Vector fiberData(matData, 3*numFibers);
-    res += theChannel.recvVector(dbTag, commitTag, fiberData);
-    if (res < 0) {
-      opserr <<  "FrameSolidSection3d::recvSelf - failed to recv material data\n";
-      return res;
-    }    
-
-    int i;
-    for (i=0; i<numFibers; i++) {
-      int classTag = materialData(2*i);
-      int dbTag = materialData(2*i+1);
-
-      // if material pointed to is blank or not of corrcet type, 
-      // release old and create a new one
-      if (theMaterials[i] == 0)
-        theMaterials[i] = theBroker.getNewNDMaterial(classTag);
-      else if (theMaterials[i]->getClassTag() != classTag) {
-        delete theMaterials[i];
-        theMaterials[i] = theBroker.getNewNDMaterial(classTag);      
-      }
-
-      if (theMaterials[i] == 0) {
-        opserr <<"FrameSolidSection3d::recvSelf -- failed to allocate double array for material data\n";
-        exit(-1);
-      }
-
-      theMaterials[i]->setDbTag(dbTag);
-      res += theMaterials[i]->recvSelf(commitTag, theChannel, theBroker);
-    }
-
-    QzBar = 0.0;
-    QyBar = 0.0;
-    Abar  = 0.0;
-    double yLoc, zLoc, Area;
-
-    computeCentroid = data(2) ? true : false;
-    
-    // Recompute centroid
-    for (i = 0; computeCentroid && i < numFibers; i++) {
-      yLoc = matData[3*i];
-      zLoc = matData[3*i+1];
-      Area = matData[3*i+2];
-      Abar  += Area;
-      QzBar += yLoc*Area;
-      QyBar += zLoc*Area;
-    }
-
-    if (computeCentroid) {
-      yBar = QzBar/Abar;
-      zBar = QyBar/Abar;
-    } else {
-      yBar = 0.0;
-      zBar = 0.0;      
-    }
-  }    
-
   return res;
 }
 
@@ -926,15 +684,16 @@ FrameSolidSection3d::Print(OPS_Stream &s, int flag)
 {
   s << "\nFrameSolidSection3d, tag: " << this->getTag() << endln;
   s << "\tSection code: " << code;
-  s << "\tNumber of Fibers: " << numFibers << endln;
+  s << "\tNumber of Fibers: " << fibers.size() << endln;
   s << "\tCentroid (y,z): " << yBar << ' ' << zBar << endln;
   s << "\tShape factor, alpha = " << alpha << endln;
 
   if (flag == 1) {
-    for (int i = 0; i < numFibers; i++) {
-      s << "\nLocation (y,z) = " << matData[3*i] << ' ' << matData[3*i+1];
-      s << "\nArea = " << matData[3*i+2] << endln;
-      theMaterials[i]->Print(s, flag);
+    for (int i = 0; i < fibers.size(); i++) {
+      auto & fiber = fibers[i];
+      s << "\nLocation (y,z) = " << fiber.y << ' ' << fiber.z;
+      s << "\nArea = " << fiber.wgt << endln;
+      fibers[i].material->Print(s, flag);
     }
   }
 }
@@ -948,7 +707,7 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
   if (argc > 2 && strcmp(argv[0],"fiber") == 0) {
 
     
-    int key = numFibers;
+    int key = fibers.size();
     int passarg = 2;
     
     if (argc <= 3) {                  // fiber number was input directly
@@ -965,10 +724,11 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
       double distance;
       int j;
       // Find first fiber with specified material tag
-      for (j = 0; j < numFibers; j++) {
-        if (matTag == theMaterials[j]->getTag()) {
-          ySearch = matData[3*j];
-          zSearch = matData[3*j+1];
+      for (j = 0; j < fibers.size(); j++) {
+        auto& fiber = fibers[j];
+        if (matTag == fiber.material->getTag()) {
+          ySearch = fiber.y;
+          zSearch = fiber.z;
 
           dy = ySearch-yCoord;
           dz = zSearch-zCoord;
@@ -978,13 +738,14 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
         }
       }
       // Search the remaining fibers
-      for ( ; j < numFibers; j++) {
-        if (matTag == theMaterials[j]->getTag()) {
-          ySearch = matData[3*j];
-          zSearch = matData[3*j+1];
+      for ( ; j < fibers.size(); j++) {
+        auto& fiber = fibers[j];
+        if (matTag == fiber.material->getTag()) {
+          ySearch = fiber.y;
+          zSearch = fiber.z;
 
-          dy = ySearch-yCoord;
-          dz = zSearch-zCoord;
+          dy = ySearch - yCoord;
+          dz = zSearch - zCoord;
           distance = dy*dy + dz*dz;
           if (distance < closestDist) {
             closestDist = distance;
@@ -995,7 +756,7 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
       passarg = 4;
     }
     
-    else {                  // fiber near-to coordinate specified
+    else { // fiber near-to coordinate specified
       
       double yCoord = atof(argv[1]);
       double zCoord = atof(argv[2]);
@@ -1003,16 +764,17 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
       double ySearch, zSearch, dy, dz;
       double distance;
       
-      ySearch = matData[0];
-      zSearch = matData[1];
+      ySearch = fibers[0].y;
+      zSearch = fibers[1].z;
 
       dy = ySearch-yCoord;
       dz = zSearch-zCoord;
       closestDist = dy*dy + dz*dz;
       key = 0;
-      for (int j = 1; j < numFibers; j++) {
-        ySearch = matData[3*j];
-        zSearch = matData[3*j+1];
+      for (int j = 1; j < fibers.size(); j++) {
+        auto& fiber = fibers[j];
+        ySearch = fiber.y;
+        zSearch = fiber.z;
         dy = ySearch-yCoord;
         dz = zSearch-zCoord;
         distance = dy*dy + dz*dz;
@@ -1024,13 +786,13 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
       passarg = 3;
     }
     
-    if (key < numFibers && key >= 0) {
+    if (key < fibers.size() && key >= 0) {
       output.tag("FiberOutput");
-      output.attr("yLoc",matData[3*key]);
-      output.attr("zLoc",matData[3*key+1]);
-      output.attr("area",matData[3*key+2]);
+      output.attr("yLoc", fibers[key].y);
+      output.attr("zLoc", fibers[key].z);
+      output.attr("area", fibers[key].wgt);
       
-      theResponse = theMaterials[key]->setResponse(&argv[passarg], argc-passarg, output);
+      theResponse = fibers[key].material->setResponse(&argv[passarg], argc-passarg, output);
       
       output.endTag();
     }
@@ -1076,17 +838,17 @@ FrameSolidSection3d::setParameter(const char **argv, int argc, Parameter &param)
     int materialTag = atoi(argv[1]);
     
     // Loop over fibers to find the right material
-    for (int i = 0; i < numFibers; i++)
-      if (materialTag == theMaterials[i]->getTag()) {
-        int ok = theMaterials[i]->setParameter(&argv[2], argc-2, param);
+    for (int i = 0; i < fibers.size(); i++)
+      if (materialTag == fibers[i].material->getTag()) {
+        int ok = fibers[i].material->setParameter(&argv[2], argc-2, param);
         if (ok != -1)
           result = ok;
       }
     return result;
   }
   int ok = 0; 
-  for (int i = 0; i < numFibers; i++) {
-    ok = theMaterials[i]->setParameter(argv, argc, param);
+  for (int i = 0; i < fibers.size(); i++) {
+    ok = fibers[i].material->setParameter(argv, argc, param);
     if (ok != -1)
       result = ok;
   }
@@ -1131,24 +893,12 @@ FrameSolidSection3d::getStressResultantSensitivity(int gradIndex, bool condition
   static Vector sig_dAdh(3);
   static Matrix tangent(3,3);
 
-  static double yLocs[10000];
-  static double zLocs[10000];
-  static double fiberArea[10000];
-
-  {
-    for (int i = 0; i < numFibers; i++) {
-      yLocs[i] = matData[3*i];
-      zLocs[i] = matData[3*i+1];
-      fiberArea[i] = matData[3*i+2];
-    }
-  }
-
   static double dydh[10000];
   static double dzdh[10000];
   static double areaDeriv[10000];
 
   {
-    for (int i = 0; i < numFibers; i++) {
+    for (int i = 0; i < fibers.size(); i++) {
       dydh[i] = 0.0;
       dzdh[i] = 0.0;
       areaDeriv[i] = 0.0;
@@ -1163,37 +913,37 @@ FrameSolidSection3d::getStressResultantSensitivity(int gradIndex, bool condition
   if (parameterID == 1)
     drootAlphadh = 0.5/rootAlpha;
 
-  for (int i = 0; i < numFibers; i++) {
-    double y = yLocs[i] - yBar;
-    double z = zLocs[i] - zBar;
-    double A = fiberArea[i];
+  for (int i = 0; i < fibers.size(); i++) {
+    double y = fibers[i].y - yBar;
+    double z = fibers[i].z - zBar;
+    double A = fibers[i].wgt;
     
-    dsigdh = theMaterials[i]->getStressSensitivity(gradIndex,true);
+    dsigdh = fibers[i].material->getStressSensitivity(gradIndex,true);
 
-    ds(0) += dsigdh(0)*A;
-    ds(1) += -y*dsigdh(0)*A;
-    ds(2) +=  z*dsigdh(0)*A;
-    ds(3) += rootAlpha*dsigdh(1)*A;
-    ds(4) += rootAlpha*dsigdh(2)*A;
-    ds(5) += (-z*dsigdh(1)+y*dsigdh(2))*A;
+    ds[0] += dsigdh(0)*A;
+    ds[1] += -y*dsigdh(0)*A;
+    ds[2] +=  z*dsigdh(0)*A;
+    ds[3] += rootAlpha*dsigdh(1)*A;
+    ds[4] += rootAlpha*dsigdh(2)*A;
+    ds[5] += (-z*dsigdh(1)+y*dsigdh(2))*A;
 
     if (areaDeriv[i] != 0.0 || dydh[i] != 0.0 ||  dzdh[i] != 0.0 || parameterID == 1)
-      stress = theMaterials[i]->getStress();
+      stress = fibers[i].material->getStress();
 
     if (dydh[i] != 0.0 || dzdh[i] != 0.0 || parameterID == 1)
-      tangent = theMaterials[i]->getTangent();
+      tangent = fibers[i].material->getTangent();
 
     if (areaDeriv[i] != 0.0) {
       sig_dAdh(0) = stress(0)*areaDeriv[i];
       sig_dAdh(1) = stress(1)*areaDeriv[i];
       sig_dAdh(2) = stress(2)*areaDeriv[i];
       
-      ds(0) += sig_dAdh(0);
-      ds(1) += -y*sig_dAdh(0);
-      ds(2) +=  z*sig_dAdh(0);
-      ds(3) += rootAlpha*sig_dAdh(1);
-      ds(4) += rootAlpha*sig_dAdh(2);
-      ds(5) += -z*sig_dAdh(1)+y*sig_dAdh(2);
+      ds[0] += sig_dAdh(0);
+      ds[1] += -y*sig_dAdh(0);
+      ds[2] +=  z*sig_dAdh(0);
+      ds[3] += rootAlpha*sig_dAdh(1);
+      ds[4] += rootAlpha*sig_dAdh(2);
+      ds[5] += -z*sig_dAdh(1)+y*sig_dAdh(2);
     }
 
     if (dydh[i] != 0.0) {
@@ -1202,13 +952,13 @@ FrameSolidSection3d::getStressResultantSensitivity(int gradIndex, bool condition
     }
 
     if (dzdh[i] != 0.0) {
-      ds(2) +=  dzdh[i] * (stress(0)*A);
-      ds(5) += -dzdh[i] * (stress(1)*A);
+      ds[2] +=  dzdh[i] * (stress(0)*A);
+      ds[5] += -dzdh[i] * (stress(1)*A);
     }
 
     if (parameterID == 1) {
-      ds(3) += drootAlphadh * (stress(1)*A);
-      ds(4) += drootAlphadh * (stress(2)*A);
+      ds[3] += drootAlphadh * (stress(1)*A);
+      ds[4] += drootAlphadh * (stress(2)*A);
     }
 
     MatrixND<3,6> as;
@@ -1250,13 +1000,13 @@ FrameSolidSection3d::getInitialTangentSensitivity(int gradIndex)
   static double fiberArea[10000];
 
   if (sectionIntegr != 0) {
-    sectionIntegr->getFiberLocations(numFibers, fiberLocs);
-    sectionIntegr->getFiberWeights(numFibers, fiberArea);
+    sectionIntegr->getFiberLocations(fibers.size(), fiberLocs);
+    sectionIntegr->getFiberWeights(fibers.size(), fiberArea);
   }  
   else {
-    for (int i = 0; i < numFibers; i++) {
+    for (int i = 0; i < fibers.size(); i++) {
       fiberLocs[i] = matData[2*i];
-      fiberArea[i] = matData[2*i+1];
+      fibers[i].wgt = matData[2*i+1];
     }
   }
 
@@ -1264,24 +1014,24 @@ FrameSolidSection3d::getInitialTangentSensitivity(int gradIndex)
   static double areaDeriv[10000];
 
   if (sectionIntegr != 0) {
-    sectionIntegr->getLocationsDeriv(numFibers, locsDeriv);  
-    sectionIntegr->getWeightsDeriv(numFibers, areaDeriv);
+    sectionIntegr->getLocationsDeriv(fibers.size(), locsDeriv);  
+    sectionIntegr->getWeightsDeriv(fibers.size(), areaDeriv);
   }
   else {
-    for (int i = 0; i < numFibers; i++) {
+    for (int i = 0; i < fibers.size(); i++) {
       locsDeriv[i] = 0.0;
       areaDeriv[i] = 0.0;
     }
   }
   
-  for (int i = 0; i < numFibers; i++) {
+  for (int i = 0; i < fibers.size(); i++) {
     y = fiberLocs[i] - yBar;
-    A = fiberArea[i];
+    A = fibers[i].wgt;
     dydh = locsDeriv[i];
     dAdh = areaDeriv[i];
     
-    tangent = theMaterials[i]->getInitialTangent();
-    dtangentdh = theMaterials[i]->getInitialTangentSensitivity(gradIndex);
+    tangent = fibers[i].material->getInitialTangent();
+    dtangentdh = fibers[i].material->getInitialTangentSensitivity(gradIndex);
 
     dksdh(0,0) += dtangentdh*A + tangent*dAdh;
 
@@ -1312,7 +1062,7 @@ FrameSolidSection3d::commitSensitivity(const Vector& defSens,
   static double dzdh[10000];
 
   { // TODO
-    for (int i = 0; i < numFibers; i++) {
+    for (int i = 0; i < fibers.size(); i++) {
       dydh[i] = 0.0;
       dzdh[i] = 0.0;
     }
@@ -1328,15 +1078,16 @@ FrameSolidSection3d::commitSensitivity(const Vector& defSens,
   if (parameterID == 1)
     drootAlphadh = 0.5/rootAlpha;
 
-  for (int i = 0; i < numFibers; i++) {
-    NDMaterial *theMat = theMaterials[i];
-    const double y  = matData[3*i]   - yBar;
-    const double z  = matData[3*i+1] - zBar;
+  for (int i = 0; i < fibers.size(); i++) {
+    auto& fiber = fibers[i];
+    NDMaterial *theMat = fiber.material;
+    const double y  = fiber.y - yBar;
+    const double z  = fiber.z - zBar;
 
     // determine material strain and set it
-    depsdh(0) = d0 - y*d1 + z*d2 - dydh[i]*e(1) + dzdh[i]*e(2);
-    depsdh(1) = rootAlpha*d3 - z*d5 + drootAlphadh*e(3) - dzdh[i]*e(5);
-    depsdh(2) = rootAlpha*d4 + y*d5 + drootAlphadh*e(4) + dydh[i]*e(5);
+    depsdh[0] = d0 - y*d1 + z*d2 - dydh[i]*e(1) + dzdh[i]*e(2);
+    depsdh[1] = rootAlpha*d3 - z*d5 + drootAlphadh*e(3) - dzdh[i]*e(5);
+    depsdh[2] = rootAlpha*d4 + y*d5 + drootAlphadh*e(4) + dydh[i]*e(5);
 
     theMat->commitSensitivity(depsdh,gradIndex,numGrads);
   }
