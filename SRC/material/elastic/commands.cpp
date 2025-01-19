@@ -54,6 +54,7 @@ TclCommand_newElasticMaterial(ClientData clientData, Tcl_Interp* interp, int arg
 
   if ((strcmp(argv[1], "ElasticIsotropic") == 0) || 
       (strcmp(argv[1], "Elastic") == 0) ||
+      (strcmp(argv[1], "ElasticBeamFiber") == 0) ||
       (strcmp(argv[1], "ElasticIsotropic3D") == 0))
 
   {
@@ -94,6 +95,8 @@ TclCommand_newElasticMaterial(ClientData clientData, Tcl_Interp* interp, int arg
 
     if (argc > loc && strcmp(argv[loc], "-plane-strain") ==0) {
       type = PlaneType::Strain;
+    } else if (strstr(argv[1], "BeamFiber")) {
+      type = PlaneType::Frame;
     }
     loc++;
 
@@ -102,6 +105,9 @@ TclCommand_newElasticMaterial(ClientData clientData, Tcl_Interp* interp, int arg
         builder->addTaggedObject<UniaxialMaterial>(*new ElasticMaterial(tag, E, 0.0, E));
         builder->addTaggedObject<NDMaterial>(*new ElasticIsotropicMaterial(tag, E, v, rho));
         builder->addTaggedObject<Mate<3>>   (*new ElasticIsotropic<3>(tag, E, v, rho));
+        break;
+      case PlaneType::Frame:
+        builder->addTaggedObject<NDMaterial>(*new ElasticIsotropicBeamFiber(tag, E, v, rho));
         break;
       case PlaneType::Strain:
         builder->addTaggedObject<NDMaterial>(*new ElasticIsotropicPlaneStrain2D(tag, E, v, rho));
