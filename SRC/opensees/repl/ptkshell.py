@@ -1,9 +1,6 @@
-_banner = """\033[1m\
-                 ┌─┐┌─┐┌─┐┌─┐  ┌──┌─┐┌─┐ ┌──
-                 └─┘├─┘└──┘ │ ─┘  └──└───┘
- ───────────────────┘Berkeley, California ──────────────────────
-                         © UC Regents
-\033[0m"""
+
+
+import os
 from pathlib import Path
 import opensees.tcl
 
@@ -28,6 +25,22 @@ try:
 except:
     style = None
 
+
+_banner = """\033[1m\
+                 ┌─┐┌─┐┌─┐┌─┐  ┌──┌─┐┌─┐ ┌──
+                 └─┘├─┘└──┘ │ ─┘  └──└───┘
+ ───────────────────┘Berkeley, California ──────────────────────
+                         © UC Regents
+\033[0m"""
+
+if os.name == "nt" and "PSModulePath" not in os.environ:
+    # on Windows cmd, dont add ANSI escapes
+    _banner = """
+                 ┌─┐┌─┐┌─┐┌─┐  ┌──┌─┐┌─┐ ┌──
+                 └─┘├─┘└──┘ │ ─┘  └──└───┘
+ ───────────────────┘Berkeley, California ──────────────────────
+                         © UC Regents
+"""
 
 
 completions = {
