@@ -1,12 +1,12 @@
 [project]
 name = "opensees"
-version = "0.1.10"
-authors = [
-  {name="Claudio M. Perez"}
-  # <50180406+claudioperez@users.noreply.github.com>"
-]
+version = "0.1.11"
+# authors = [
+#   {name=""}
+#   # <50180406+claudioperez@users.noreply.github.com>"
+# ]
 
-license = {file = "LICENSE.txt"}
+# license = {file = "LICENSE.txt"}
 
 readme = "about/README.pypi.md"
 
@@ -90,7 +90,7 @@ my-client = "opensees.__main__:main_cli"
 [tool.setuptools.packages.find]
 where = ["SRC"]
 include=["opensees*"]
-exclude = ["SRC*", "site*"]
+exclude = ["SRC*", "site*", "test*"]
 
 [tool.setuptools.package-data]
 opensees = ["*.py", "*.so", "*.dll", "*.dylib"]
