@@ -1,7 +1,8 @@
 #pragma once
 #include "Mate.h"
 
-enum class PlaneType {None, Stress, Strain};
+//         MaterialConstraint
+enum class PlaneType {None, Stress, Strain, Frame};
 
 namespace OpenSees {
 
