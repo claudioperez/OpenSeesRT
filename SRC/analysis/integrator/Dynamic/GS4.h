@@ -9,11 +9,10 @@
 // using the GS4 integration scheme.
 //
 // Written : cmp
-// Created : 06/2024
-// Adapted from Newmark.cpp
+// Created : 10/2024
+// Adapted from GeneralizedNewmark.cpp
 //
-#ifndef GS4_h
-#define GS4_h
+#pragma once
 
 #include <TransientIntegrator.h>
 #include <Vector.h>
@@ -25,10 +24,10 @@ class GS4 : public TransientIntegrator
 {
 public:
     GS4(double gamma, double beta, 
-                       double alphaF, double alpahM,
-                       int uflag=1,                   // choose which "u"nknown is solved for: d, v or a
-                       int iflag=3,                   // choose how to "i"nitialize the unknown: Dd=0, Dv=0 or Da=0
-                       bool aflag=false);
+        double alphaF, double alpahM,
+        int uflag=1,                   // choose which "u"nknown is solved for: d, v or a
+        int iflag=3,                   // choose how to "i"nitialize the unknown: Dd=0, Dv=0 or Da=0
+        bool aflag=false);
 
     ~GS4();
     
@@ -87,10 +86,10 @@ private:
     bool determiningMass;           // flag to check if just want the mass contribution
 
     // Sensitivity
-    int sensitivityFlag;
+    int isSensitivityResidual;
     int gradNumber;
-    Vector *massMatrixMultiplicator;
-    Vector *dampingMatrixMultiplicator;
+    Vector *dAa;
+    Vector *dVa;
     int assemblyFlag;
     Vector independentRHS;
     Vector dUn, dVn, dAn;
