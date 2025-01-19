@@ -10,6 +10,7 @@
 #
 import numpy as np
 from functools import partial
+import multiprocessing
 
 class TorsionAnalysis:
     pass
@@ -116,7 +117,6 @@ def torsion_element(xyz):
 def _wrap_elem(centroid, nodes, conn):
     return conn, torsion_element((nodes[conn] - centroid).T)
 
-import multiprocessing
 def solve_torsion(section, mesh):
     ndf = 1
     nde = 1
