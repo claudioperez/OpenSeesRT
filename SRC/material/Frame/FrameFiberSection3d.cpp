@@ -730,7 +730,7 @@ FrameFiberSection3d::Print(OPS_Stream &s, int flag)
 
         s << "\"fibers\": [\n";
         for (int i = 0; i < numFibers; i++) {
-              s << "\t\t\t\t{\"coord\": [" << matData[3*i] << ", " << matData[3*i+1] << "], ";
+              s << OPS_PRINT_JSON_MATE_INDENT << "\t{\"coord\": [" << matData[3*i] << ", " << matData[3*i+1] << "], ";
               s << "\"area\": " << matData[3*i+2] << ", ";
               s << "\"material\": " << theMaterials[i]->getTag();
               if (i < numFibers - 1)
