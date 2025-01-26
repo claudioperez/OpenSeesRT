@@ -739,6 +739,7 @@ FrameFiberSection3d::Print(OPS_Stream &s, int flag)
                   s << "}\n";
         }
         s << OPS_PRINT_JSON_MATE_INDENT << "]}";
+        return;
   }
 
   if (flag == OPS_PRINT_PRINTMODEL_SECTION || flag == OPS_PRINT_PRINTMODEL_MATERIAL) {
