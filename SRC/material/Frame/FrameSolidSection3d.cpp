@@ -260,16 +260,6 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
                             theMat.getTangent()
                             : theMat.getInitialTangent();
 
-    double d00 = tangent(0,0)*A;
-    double d01 = tangent(0,1)*A;
-    double d02 = tangent(0,2)*A;
-    double d10 = tangent(1,0)*A;
-    double d11 = tangent(1,1)*A;
-    double d12 = tangent(1,2)*A;
-    double d20 = tangent(2,0)*A;
-    double d21 = tangent(2,1)*A;
-    double d22 = tangent(2,2)*A;
-
     Matrix3D C{};
     C.addMatrix(tangent, A);
 
@@ -304,6 +294,17 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
       Knv.addMatrix(Ciodw, 1.0);
       Kvv.addMatrixTransposeProduct(1.0, iodw,  Ciodw, 1.0);
     }
+
+#if 0
+    double d00 = tangent(0,0)*A;
+    double d01 = tangent(0,1)*A;
+    double d02 = tangent(0,2)*A;
+    double d10 = tangent(1,0)*A;
+    double d11 = tangent(1,1)*A;
+    double d12 = tangent(1,2)*A;
+    double d20 = tangent(2,0)*A;
+    double d21 = tangent(2,1)*A;
+    double d22 = tangent(2,2)*A;
 
     double y2 = y*y;
     double z2 = z*z;
@@ -370,6 +371,7 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
     ksi(imx,inz) += -z*d12 + y2;
     ksi(iny,imx) +=  z2 + y*d12;
     ksi(inz,imx) += -z*d21 + y2;
+#endif
 
     if (s_trial != nullptr) {
       const Vector &stress  = theMat.getStress();
@@ -399,8 +401,8 @@ FrameSolidSection3d::getInitialTangent()
 {
   static double kInitial[nsr*nsr];
   static Matrix ksi(kInitial, nsr, nsr);
-  ksi.Zero();
 
+  ksi.Zero();
   this->stateDetermination(ksi, nullptr, nullptr, InitialTangent);
 
   return ksi;
@@ -528,40 +530,41 @@ FrameSolidSection3d::Print(OPS_Stream &s, int flag)
 {
   const int nf = fibers->size();
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-      s << OPS_PRINT_JSON_MATE_INDENT << "{";
-      s << "\"name\": \"" << this->getTag() << "\", ";
-      s << "\"type\": \"" << this->getClassType() << "\", ";
+    s << OPS_PRINT_JSON_MATE_INDENT << "{";
+    s << "\"name\": \"" << this->getTag() << "\", ";
+    s << "\"type\": \"" << this->getClassType() << "\", ";
 
-      double mass;
-      if (this->FrameSection::getIntegral(Field::Density, State::Init, mass) == 0)
-        s << "\"mass\": " << mass;
+    double mass;
+    if (this->FrameSection::getIntegral(Field::Density, State::Init, mass) == 0)
+      s << "\"mass\": " << mass;
 
-      s << "\"fibers\": [\n";
+    s << "\"fibers\": [\n";
 
-      for (int i = 0; i < nf; i++) {
-        s << OPS_PRINT_JSON_MATE_INDENT << "\t{\"location\": [" << (*fibers)[i].y << ", " << (*fibers)[i].z << "], ";
-        s << "\"area\": " << (*fibers)[i].area << ", ";
-        s << "\"warp\": [";
-        for (int j = 0; j < nwm; j++) {
-          s << "[";
-          for (int k = 0; k < 3; k++) {
-            s << (*fibers)[i].warp[j][k];
-            if (k < 2)
-              s << ", ";
-          }
-          s << "]";
-          if (j < nwm-1)
+    for (int i = 0; i < nf; i++) {
+      s << OPS_PRINT_JSON_MATE_INDENT << "\t{\"location\": [" << (*fibers)[i].y << ", " << (*fibers)[i].z << "], ";
+      s << "\"area\": " << (*fibers)[i].area << ", ";
+      s << "\"warp\": [";
+      for (int j = 0; j < nwm; j++) {
+        s << "[";
+        for (int k = 0; k < 3; k++) {
+          s << (*fibers)[i].warp[j][k];
+          if (k < 2)
             s << ", ";
-        } 
-        s << "\"material\": " << materials[i]->getTag();
-        if (i < nf - 1)
-            s << "},\n";
-        else
-            s << "}\n";
-      }
-      s << OPS_PRINT_JSON_MATE_INDENT << "]}";
-      return;
-  } 
+        }
+        s << "]";
+        if (j < nwm-1)
+          s << ", ";
+      } 
+      s << "\"material\": " << materials[i]->getTag();
+      if (i < nf - 1)
+          s << "},\n";
+      else
+          s << "}\n";
+    }
+    s << OPS_PRINT_JSON_MATE_INDENT << "]}";
+    return;
+  }
+
   else if (flag == 1) {
     for (int i = 0; i < nf; i++) {
       auto & fiber = (*fibers)[i];
@@ -635,7 +638,9 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
     
     else {
       // fiber near-to coordinate specified
-      
+      Vector3D r_given{
+        0.0, atof(argv[1]), atof(argv[2])
+      };
       double yCoord = atof(argv[1]);
       double zCoord = atof(argv[2]);
       double closestDist;

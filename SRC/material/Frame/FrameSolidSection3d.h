@@ -80,9 +80,6 @@ class FrameSolidSection3d : public FrameSection
 
     struct Param {
       enum : int {
-        FiberY,
-        FiberZ,
-        FiberArea,
         FiberWarpX,
         FiberWarpXY,
         FiberWarpXZ,
@@ -92,6 +89,9 @@ class FrameSolidSection3d : public FrameSection
         FiberWarpZ,
         FiberWarpZY,
         FiberWarpZZ,
+        FiberY,
+        FiberZ,
+        FiberArea,
         alpha,
         FiberFieldBase=10000
       };
