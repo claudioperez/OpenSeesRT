@@ -80,7 +80,7 @@ class FrameSolidSection3d : public FrameSection
 
     struct Param {
       enum : int {
-        FiberWarpX,
+        FiberWarpX=0,
         FiberWarpXY,
         FiberWarpXZ,
         FiberWarpY,

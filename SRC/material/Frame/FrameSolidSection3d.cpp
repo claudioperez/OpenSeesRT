@@ -554,7 +554,9 @@ FrameSolidSection3d::Print(OPS_Stream &s, int flag)
         s << "]";
         if (j < nwm-1)
           s << ", ";
-      } 
+      }
+      s << "], ";
+
       s << "\"material\": " << materials[i]->getTag();
       if (i < nf - 1)
           s << "},\n";
@@ -708,7 +710,7 @@ FrameSolidSection3d::setParameter(const char **argv, int argc, Parameter &param)
 
   if (strcmp(argv[0], "warp") == 0) {
     // ... warp $fiberID $warpField
-    if (argc < 2) {
+    if (argc < 3) {
       opserr << "FrameSolidSection3d::setParameter - fiberID is required\n";
       return -1;
     }
@@ -718,10 +720,7 @@ FrameSolidSection3d::setParameter(const char **argv, int argc, Parameter &param)
       return -1;
     }
 
-    int field = 0;
-    if (argc > 4) {
-      field = atoi(argv[2]);
-    }
+    int field = atoi(argv[2]);
 
     return param.addObject(Param::FiberFieldBase+fiberID*100+field, this);
   }
@@ -757,7 +756,6 @@ FrameSolidSection3d::setParameter(const char **argv, int argc, Parameter &param)
 int
 FrameSolidSection3d::updateParameter(int paramID, Information &info)
 {
-
   if (paramID == Param::alpha){
     alpha = info.theDouble;
     return 0;
