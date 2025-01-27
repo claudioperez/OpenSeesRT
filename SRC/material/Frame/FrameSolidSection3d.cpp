@@ -263,15 +263,16 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
     Matrix3D C{};
     C.addMatrix(tangent, A);
 
+    // NOTE: Matrix 3D is column major so these are transposed.
     Matrix3D iow{{
-      {w[0][0], w[1][0], w[2][0]},
-      {    0.0,     0.0,     0.0},
-      {    0.0,     0.0,     0.0}}};
+      {w[0][0], 0.0, 0.0},
+      {w[1][0], 0.0, 0.0},
+      {w[2][0], 0.0, 0.0}}};
 
     Matrix3D iodw{{
-      {    0.0,     0.0,     0.0},
-      {w[0][1], w[1][1], w[2][1]},
-      {w[0][2], w[1][2], w[2][2]}}};
+      {0.0, w[0][1], w[0][2]},
+      {0.0, w[1][1], w[1][2]},
+      {0.0, w[2][1], w[2][2]}}};
 
     Knn.addMatrix(C, 1.0);
     {
@@ -421,7 +422,7 @@ FrameSolidSection3d::getSectionTangent()
   ks->Assemble(Kmv, 3, 9, 1.0);
   ks->Assemble(Kww, 6, 6, 1.0);
   ks->Assemble(Kvv, 9, 9, 1.0);
-  
+
   ks->AssembleTranspose(Knw, 6, 0, 1.0);
   ks->AssembleTranspose(Knv, 9, 0, 1.0);
   ks->AssembleTranspose(Kmn, 0, 3, 1.0);
