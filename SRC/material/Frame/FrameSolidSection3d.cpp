@@ -20,6 +20,8 @@
 #include <VectorND.h>
 #include <Matrix.h>
 #include <MatrixND.h>
+#include <Matrix3D.h>
+#include <Rotations.hpp>
 #include <classTags.h>
 #include "FrameSolidSection3d.h"
 #include <ID.h>
@@ -34,6 +36,7 @@ typedef SensitiveResponse<FrameSection> SectionResponse;
 
 using OpenSees::VectorND;
 using OpenSees::MatrixND;
+using OpenSees::Matrix3D;
 
 ID FrameSolidSection3d::code(nsr);
 
@@ -82,6 +85,70 @@ FrameSolidSection3d::FrameSolidSection3d():
 }
 
 int
+FrameSolidSection3d::getIntegral(Field field, State state, double& value) const
+{
+  value = 0.0;
+
+  const int nf = fibers->size();
+  switch (field) {
+    case Field::Unit:
+      for (int i=0; i<nf; i++) {
+        const double A  = (*fibers)[i].area;
+        value += A;
+      }
+      return 0;
+
+    case Field::Density:
+      // First check if density has been specified for the section
+      if (this->FrameSection::getIntegral(field, state, value) == 0) 
+        return 0;
+
+      for (int i=0; i<nf; i++) {
+        double density;
+        const double A  = (*fibers)[i].area;
+        if (materials[i]->getRho() != 0)
+          value += A*density;
+        else
+          return -1;
+      }
+      return 0;
+
+    case Field::UnitY: // TODO: Centroid
+      for (int i=0; i<nf; i++) {
+        const double A  = (*fibers)[i].area;
+        const double y  = (*fibers)[i].y - yBar;
+        value += A*y;
+      }
+      return 0;
+
+
+    case Field::UnitYY:
+    case Field::UnitCentroidYY:
+      for (int i=0; i<nf; i++) {
+        const double A  = (*fibers)[i].area;
+        const double y  = (*fibers)[i].y
+                        - yBar*(Field::UnitCentroidYY == field);
+        value += A*y*y;
+      }
+      return 0;
+
+    case Field::UnitZZ:
+    case Field::UnitCentroidZZ:
+      for (int i=0; i<nf; i++) {
+        const double A  = (*fibers)[i].area;
+        const double z  = (*fibers)[i].z
+                        - zBar*(Field::UnitCentroidZZ == field);
+        value += A*z*z;
+      }
+
+    default:
+      return -1;
+  }
+  return -1;
+}
+
+
+int
 FrameSolidSection3d::addFiber(NDMaterial& theMat, 
                               double Area, 
                               double yLoc, 
@@ -109,7 +176,7 @@ FrameSolidSection3d::addFiber(NDMaterial& theMat,
     zBar = QyBar/Abar;
   }
   
-  return 0;
+  return materials.size()-1;
 }
 
 
@@ -150,6 +217,21 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
          kz = e_trial? (*e_trial)(imz) : 0.0, // Mz
          ky = e_trial? (*e_trial)(imy) : 0.0; // My
 
+  const Vector3D kappa {
+    e_trial? (*e_trial)(imx) : 0.0, // T
+    e_trial? (*e_trial)(imy) : 0.0, // My
+    e_trial? (*e_trial)(imz) : 0.0 // Mz
+  };
+
+  Kmm.zero();
+  Kmn.zero();
+  Kmw.zero();
+  Knn.zero();
+  Knw.zero();
+  Kvv.zero();
+  Knv.zero();
+  Kww.zero();
+  Kmv.zero();
 
   const double rootAlpha = std::sqrt(alpha);
 
@@ -162,14 +244,11 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
     const double y  = fiber.y - yBar;
     const double z  = fiber.z - zBar;
     const double A  = fiber.area;
+    auto & w = fiber.warp;
 
     if (e_trial != nullptr) {
       // Form material strain
       //
-      //      0  5 4       1       2  3
-      // a = [1 -y z       0       0  0
-      //      0  0 0 sqrt(a)       0 -z
-      //      0  0 0       0 sqrt(a)  y]
       VectorND<3> eps;
       eps[0] = e0 - y*kz + z*ky;
       eps[1] = rootAlpha*e3 - z*kx;
@@ -191,23 +270,60 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
     double d21 = tangent(2,1)*A;
     double d22 = tangent(2,2)*A;
 
+    Matrix3D C{};
+    C.addMatrix(tangent, A);
+
+    Matrix3D iow{{
+      {w[0][0], w[1][0], w[2][0]},
+      {    0.0,     0.0,     0.0},
+      {    0.0,     0.0,     0.0}}};
+
+    Matrix3D iodw{{
+      {    0.0,     0.0,     0.0},
+      {w[0][1], w[1][1], w[2][1]},
+      {w[0][2], w[1][2], w[2][2]}}};
+
+    Knn.addMatrix(C, 1.0);
+    {
+      Matrix3D rxC{};
+      rxC.addSpinMatrixProduct(fiber.r, C, 1.0);
+      Kmm.addMatrixSpinProduct(rxC, fiber.r, -1.0);
+      Kmn.addMatrix(rxC, 1.0);
+      Kmw.addMatrixProduct(rxC, iow,  1.0);
+      Kmv.addMatrixProduct(rxC, iodw, 1.0);
+    }
+    {
+      Matrix3D Ciow{};
+      Ciow.addMatrixProduct(C, iow, 1.0);
+      Knw.addMatrix(Ciow,  1.0);
+      Kww.addMatrixTransposeProduct(1.0, iow,  Ciow, 1.0);
+    }
+    {
+      Matrix3D Ciodw{};
+      Ciodw.addMatrixProduct(C, iodw, 1.0);
+      Knv.addMatrix(Ciodw, 1.0);
+      Kvv.addMatrixTransposeProduct(1.0, iodw,  Ciodw, 1.0);
+    }
+
     double y2 = y*y;
     double z2 = z*z;
     double yz = y*z;
     double tmp;
-    // Bending terms
+    // nn
     ksi(inx,inx) +=    d00;
+    // mm
     ksi(imz,imz) += y2*d00;
     ksi(imy,imy) += z2*d00;
+    tmp = -yz*d00;
+    ksi(imz,imy) += tmp;
+    ksi(imy,imz) += tmp;
+    // nm
     tmp = -y*d00;
     ksi(inx,imz) += tmp;
     ksi(imz,inx) += tmp;
     tmp = z*d00;
     ksi(inx,imy) += tmp;
     ksi(imy,inx) += tmp;
-    tmp = -yz*d00;
-    ksi(imz,imy) += tmp;
-    ksi(imy,imz) += tmp;
     
     // Shear terms
     ksi(iny,iny) += alpha*d11;
@@ -219,12 +335,12 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
     ksi(imx,imx) += z2*d11 - yz*(d12+d21) + y2*d22;
     
     // Bending-torsion coupling terms
+    ksi(inx,imx) += -z*d01 + y*d02;
+    ksi(imx,inx) += -z*d10 + y*d20;
     tmp = -z*d01 + y*d02;
-    ksi(inx,imx) += tmp;
     ksi(imz,imx) -= y*tmp;
     ksi(imy,imx) += z*tmp;
     tmp = -z*d10 + y*d20;
-    ksi(imx,inx) += tmp;
     ksi(imx,imz) -= y*tmp;
     ksi(imx,imy) += z*tmp;
     
@@ -234,8 +350,8 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
     d20 *= rootAlpha; d21 *= rootAlpha; d22 *= rootAlpha;
     
     // Bending-shear coupling terms
-    ksi(inx,iny) += d01;
-    ksi(inx,inz) += d02;
+    ksi(inx,iny) +=   d01;
+    ksi(inx,inz) +=   d02;
     ksi(imz,iny) -= y*d01;
     ksi(imz,inz) -= y*d02;
     ksi(imy,iny) += z*d01;
@@ -293,6 +409,22 @@ FrameSolidSection3d::getInitialTangent()
 const Matrix&
 FrameSolidSection3d::getSectionTangent()
 {
+  ks->Zero();
+  ks->Assemble(Knn, 0, 0, 1.0);
+  ks->Assemble(Knw, 0, 6, 1.0);
+  ks->Assemble(Knv, 0, 9, 1.0);
+  ks->Assemble(Kmn, 3, 0, 1.0);
+  ks->Assemble(Kmm, 3, 3, 1.0);
+  ks->Assemble(Kmw, 3, 6, 1.0);
+  ks->Assemble(Kmv, 3, 9, 1.0);
+  ks->Assemble(Kww, 6, 6, 1.0);
+  ks->Assemble(Kvv, 9, 9, 1.0);
+  
+  ks->AssembleTranspose(Knw, 6, 0, 1.0);
+  ks->AssembleTranspose(Knv, 9, 0, 1.0);
+  ks->AssembleTranspose(Kmn, 0, 3, 1.0);
+  ks->AssembleTranspose(Kmw, 6, 3, 1.0);
+  ks->AssembleTranspose(Kmv, 9, 3, 1.0);
   return *ks;
 }
 
@@ -353,18 +485,12 @@ int
 FrameSolidSection3d::revertToLastCommit()
 {
   int err = 0;
-
-  ks->Zero();
-  s->Zero();
-
-  double rootAlpha = 1.0;
-  if (alpha != 1.0)
-    rootAlpha = sqrt(alpha);
-
-  // invoke revertToLast on the material
   for (auto& material : materials)
     err += material->revertToLastCommit();
 
+
+  ks->Zero();
+  s->Zero();
   err += this->stateDetermination(*ks, s, nullptr, CurrentTangent);
 
   return err;
@@ -373,11 +499,7 @@ FrameSolidSection3d::revertToLastCommit()
 int
 FrameSolidSection3d::revertToStart()
 {
-  // revert the fibers to start    
   int err = 0;
-
-
-  // invoke revertToLast on the material
   for (auto& material: materials)
     err += material->revertToStart();
 
@@ -391,16 +513,14 @@ FrameSolidSection3d::revertToStart()
 int
 FrameSolidSection3d::sendSelf(int commitTag, Channel &theChannel)
 {
-  int res = 0;
-  return res;
+  return 0;
 }
 
 int
 FrameSolidSection3d::recvSelf(int commitTag, Channel &theChannel,
                          FEM_ObjectBroker &theBroker)
 {
-  int res = 0;
-  return res;
+  return 0;
 }
 
 void
@@ -419,13 +539,25 @@ FrameSolidSection3d::Print(OPS_Stream &s, int flag)
       s << "\"fibers\": [\n";
 
       for (int i = 0; i < nf; i++) {
-            s << OPS_PRINT_JSON_MATE_INDENT << "\t{\"coord\": [" << (*fibers)[i].y << ", " << (*fibers)[i].z << "], ";
-            s << "\"area\": " << (*fibers)[i].area << ", ";
-            s << "\"material\": " << materials[i]->getTag();
-            if (i < nf - 1)
-                s << "},\n";
-            else
-                s << "}\n";
+        s << OPS_PRINT_JSON_MATE_INDENT << "\t{\"location\": [" << (*fibers)[i].y << ", " << (*fibers)[i].z << "], ";
+        s << "\"area\": " << (*fibers)[i].area << ", ";
+        s << "\"warp\": [";
+        for (int j = 0; j < nwm; j++) {
+          s << "[";
+          for (int k = 0; k < 3; k++) {
+            s << (*fibers)[i].warp[j][k];
+            if (k < 2)
+              s << ", ";
+          }
+          s << "]";
+          if (j < nwm-1)
+            s << ", ";
+        } 
+        s << "\"material\": " << materials[i]->getTag();
+        if (i < nf - 1)
+            s << "},\n";
+        else
+            s << "}\n";
       }
       s << OPS_PRINT_JSON_MATE_INDENT << "]}";
       return;
@@ -437,12 +569,6 @@ FrameSolidSection3d::Print(OPS_Stream &s, int flag)
       s << "\nArea = " << fiber.area << endln;
       materials[i]->Print(s, flag);
     }
-  } else {
-    s << "\nFrameSolidSection3d, tag: " << this->getTag() << endln;
-    s << "\tSection code: " << code;
-    s << "\tNumber of Fibers: " << nf << endln;
-    s << "\tCentroid (y,z): " << yBar << ' ' << zBar << endln;
-    s << "\tShape factor, alpha = " << alpha << endln;
   }
 }
 
@@ -452,7 +578,7 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
 {
   Response *theResponse = nullptr;
 
-  if (argc > 2 && strcmp(argv[0],"fiber") == 0) {
+  if (argc > 2 && strcmp(argv[0], "fiber") == 0) {
 
     
     int key = fibers->size();
@@ -576,13 +702,14 @@ FrameSolidSection3d::setParameter(const char **argv, int argc, Parameter &param)
 
 
   if (strcmp(argv[0], "warp") == 0) {
+    // ... warp $fiberID $warpField
     if (argc < 2) {
-      opserr << "FrameSolidSection3d::setParameter - fiberID required\n";
+      opserr << "FrameSolidSection3d::setParameter - fiberID is required\n";
       return -1;
     }
     int fiberID = atoi(argv[1]);
     if (fiberID < 0 || fiberID >= fibers->size()) {
-      opserr << "FrameSolidSection3d::setParameter - fiberID out of range\n";
+      opserr << "FrameSolidSection3d::setParameter - fiberID " << fiberID << " out of range\n";
       return -1;
     }
 

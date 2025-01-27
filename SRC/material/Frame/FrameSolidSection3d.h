@@ -44,6 +44,7 @@ class FrameSolidSection3d : public FrameSection
     int   setTrialSectionDeformation(const Vector &e); 
     const Vector &getSectionDeformation();
 
+    int   getIntegral(Field field, State state, double& value) const override final;
     const Vector &getStressResultant();
     const Matrix &getSectionTangent();
     const Matrix &getInitialTangent();
@@ -66,8 +67,8 @@ class FrameSolidSection3d : public FrameSection
 
     // Sensitivity
     int setParameter(const char **argv, int argc, Parameter &);
-    int updateParameter(int parameterID, Information &info);
-    int activateParameter(int parameterID);
+    int updateParameter(int id, Information &);
+    int activateParameter(int id);
     const Vector& getStressResultantSensitivity(int gradIndex, bool conditional);
     const Vector& getSectionDeformationSensitivity(int gradIndex);
     const Matrix& getInitialTangentSensitivity(int gradIndex);
@@ -104,6 +105,23 @@ class FrameSolidSection3d : public FrameSection
     };
 
     enum : int {
+# if 1 
+      inx = 0, 
+      iny,
+      inz,
+
+      imx,
+      imy,
+      imz,
+
+      iwx,     
+      iwy,
+      iwz,
+
+      ivx,     
+      ivy,
+      ivz
+#else
       inx = 0, 
       imz,  
       imy,
@@ -118,6 +136,7 @@ class FrameSolidSection3d : public FrameSection
       ivx,     
       ivy,
       ivz
+#endif
     };
     
     struct FiberData {
@@ -133,11 +152,15 @@ class FrameSolidSection3d : public FrameSection
     std::vector<NDMaterial*> materials;
 
 
-    // OpenSees::MatrixND<3,3> Kmm, Kww, Kmn, Kmw;
+    OpenSees::MatrixND<3,3> Knn,      Knw, Knv, 
+                            Kmn, Kmm, Kmw, Kmv, 
+                                      Kww,
+                                           Kvv;
     double   kData[nsr*nsr];            // data for ks matrix 
     double   sData[nsr];                // data for s vector 
 
     double Abar,QyBar, QzBar;
+    Vector3D centroid;
     double yBar;                      // Section centroid
     double zBar;                      // Section centroid
     bool computeCentroid;
