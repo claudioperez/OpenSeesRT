@@ -5,8 +5,7 @@
 //===----------------------------------------------------------------------===//
 //
 // Description: This file contains the class implementation of FrameSolidSection3d.
-//
-// Adapted from NDFiberSection3d
+// FrameSolidSection3d provides the abstraction of a 3D beam section discretized by fibers.
 //
 // Written: cmp
 // Created: Spring 2025
@@ -51,15 +50,15 @@ FrameSolidSection3d::FrameSolidSection3d(int tag, int num, double a, bool compCe
     parameterID(0), dedh(nsr),
     fibers(new std::vector<FiberData>)
 {
-    s = new Vector(sData, nsr);
-    ks = new Matrix(kData, nsr, nsr);
+  s = new Vector(sData, nsr);
+  ks = new Matrix(kData, nsr, nsr);
 
-    code(inx) = SECTION_RESPONSE_P;
-    code(imz) = SECTION_RESPONSE_MZ;
-    code(imy) = SECTION_RESPONSE_MY;
-    code(iny) = SECTION_RESPONSE_VY;
-    code(inz) = SECTION_RESPONSE_VZ;
-    code(imx) = SECTION_RESPONSE_T;
+  code(inx) = SECTION_RESPONSE_P;
+  code(iny) = SECTION_RESPONSE_VY;
+  code(inz) = SECTION_RESPONSE_VZ;
+  code(imx) = SECTION_RESPONSE_T;
+  code(imy) = SECTION_RESPONSE_MY;
+  code(imz) = SECTION_RESPONSE_MZ;
 }
 
 // constructor for blank object that recvSelf needs to be invoked upon
@@ -77,11 +76,11 @@ FrameSolidSection3d::FrameSolidSection3d():
   ks = new Matrix(kData, nsr, nsr);
 
   code(inx) = SECTION_RESPONSE_P;
-  code(imz) = SECTION_RESPONSE_MZ;
-  code(imy) = SECTION_RESPONSE_MY;
   code(iny) = SECTION_RESPONSE_VY;
   code(inz) = SECTION_RESPONSE_VZ;
   code(imx) = SECTION_RESPONSE_T;
+  code(imy) = SECTION_RESPONSE_MY;
+  code(imz) = SECTION_RESPONSE_MZ;
 }
 
 int
@@ -220,7 +219,7 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
   const Vector3D kappa {
     e_trial? (*e_trial)(imx) : 0.0, // T
     e_trial? (*e_trial)(imy) : 0.0, // My
-    e_trial? (*e_trial)(imz) : 0.0 // Mz
+    e_trial? (*e_trial)(imz) : 0.0  // Mz
   };
 
   Kmm.zero();
@@ -256,23 +255,23 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
       res += theMat.setTrialStrain(eps);
     }
 
-    const Matrix &tangent = tangentFlag==CurrentTangent? 
-                            theMat.getTangent()
+    const Matrix &tangent = tangentFlag==CurrentTangent
+                            ? theMat.getTangent()
                             : theMat.getInitialTangent();
 
     Matrix3D C{};
     C.addMatrix(tangent, A);
 
     // NOTE: Matrix 3D is column major so these are transposed.
-    Matrix3D iow{{
-      {w[0][0], 0.0, 0.0},
-      {w[1][0], 0.0, 0.0},
-      {w[2][0], 0.0, 0.0}}};
+    const Matrix3D iow{{
+      {w[0][0],     0.0,     0.0},
+      {w[1][0],     0.0,     0.0},
+      {w[2][0],     0.0,     0.0}}};
 
-    Matrix3D iodw{{
-      {0.0, w[0][1], w[0][2]},
-      {0.0, w[1][1], w[1][2]},
-      {0.0, w[2][1], w[2][2]}}};
+    const Matrix3D iodw{{
+      {    0.0, w[0][1], w[0][2]},
+      {    0.0, w[1][1], w[1][2]},
+      {    0.0, w[2][1], w[2][2]}}};
 
     Knn.addMatrix(C, 1.0);
     {
@@ -590,11 +589,11 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
     int key = fibers->size();
     int passarg = 2;
     
-    if (argc <= 3) {                  // fiber number was input directly
-      
+    if (argc <= 3) {      // fiber number was input directly
       key = atoi(argv[1]);
-      
-    } else if (argc > 4) {  // find fiber closest to coord. with mat tag
+    }
+
+    else if (argc > 4) {  // find fiber closest to coord. with mat tag
       
       int matTag = atoi(argv[3]);
       double yCoord = atof(argv[1]);
@@ -602,10 +601,10 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
       double closestDist = 0;
       double y_search, z_search, dy, dz;
       double distance;
-      int j;
       // Find first fiber with specified material tag
 
       const int nf = fibers->size();
+      int j;
       for (j = 0; j < nf; j++) {
         auto& fiber = (*fibers)[j];
         if (matTag == materials[j]->getTag()) {
@@ -648,7 +647,7 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
       double zCoord = atof(argv[2]);
       double closestDist;
       double distance;
-      
+
       double y_search = (*fibers)[0].y;
       double z_search = (*fibers)[0].z;
 
@@ -808,6 +807,7 @@ FrameSolidSection3d::updateParameter(int paramID, Information &info)
       case Param::FiberWarpZZ:
         (*fibers)[fiberID].warp[2][2] = info.theDouble;
         break;
+
       default:
         return -1;
     }
