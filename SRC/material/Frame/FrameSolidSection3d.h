@@ -76,7 +76,7 @@ class FrameSolidSection3d : public FrameSection
 
 
   private: 
-    int stateDetermination(Matrix& ksi, Vector* s_trial, const Vector *e_trial, int);
+    int stateDetermination(Matrix& ksi, Vector* s_trial, const Vector * const e_trial, int);
 
     struct Param {
       enum : int {

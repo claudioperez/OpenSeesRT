@@ -59,6 +59,12 @@ FrameSolidSection3d::FrameSolidSection3d(int tag, int num, double a, bool compCe
   code(imx) = SECTION_RESPONSE_T;
   code(imy) = SECTION_RESPONSE_MY;
   code(imz) = SECTION_RESPONSE_MZ;
+  code(iwx) = FrameStress::Bimoment;
+  code(iwy) = FrameStress::By;
+  code(iwz) = FrameStress::Bz;
+  code(ivx) = FrameStress::Bishear;
+  code(ivy) = FrameStress::Qy;
+  code(ivz) = FrameStress::Qz;
 }
 
 // constructor for blank object that recvSelf needs to be invoked upon
@@ -81,6 +87,12 @@ FrameSolidSection3d::FrameSolidSection3d():
   code(imx) = SECTION_RESPONSE_T;
   code(imy) = SECTION_RESPONSE_MY;
   code(imz) = SECTION_RESPONSE_MZ;
+  code(iwx) = FrameStress::Bimoment;
+  code(iwy) = FrameStress::By;
+  code(iwz) = FrameStress::Bz;
+  code(ivx) = FrameStress::Bishear;
+  code(ivy) = FrameStress::Qy;
+  code(ivz) = FrameStress::Qz;
 }
 
 int
@@ -204,7 +216,7 @@ FrameSolidSection3d::setTrialSectionDeformation(const Vector &e_trial)
 }
 
 int
-FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vector *e_trial, int tangentFlag)
+FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vector * const e_trial, int tangentFlag)
 {
   const double 
          // Position
@@ -220,6 +232,11 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
     e_trial? (*e_trial)(imx) : 0.0, // T
     e_trial? (*e_trial)(imy) : 0.0, // My
     e_trial? (*e_trial)(imz) : 0.0  // Mz
+  };
+  const Vector3D gamma {
+    e_trial? (*e_trial)(inx) : 0.0,
+    e_trial? (*e_trial)(iny) : 0.0,
+    e_trial? (*e_trial)(inz) : 0.0 
   };
 
   Kmm.zero();
@@ -247,8 +264,7 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi, Vector* s_trial, const Vect
 
     if (e_trial != nullptr) {
       // Form material strain
-      //
-      VectorND<3> eps;
+      Vector3D eps;
       eps[0] = e0 - y*kz + z*ky;
       eps[1] = rootAlpha*e3 - z*kx;
       eps[2] = rootAlpha*e4 + y*kx;
@@ -467,7 +483,7 @@ FrameSolidSection3d::getType()
 }
 
 int
-FrameSolidSection3d::getOrder () const
+FrameSolidSection3d::getOrder() const
 {
   return nsr;
 }
@@ -519,8 +535,8 @@ FrameSolidSection3d::sendSelf(int commitTag, Channel &theChannel)
 }
 
 int
-FrameSolidSection3d::recvSelf(int commitTag, Channel &theChannel,
-                         FEM_ObjectBroker &theBroker)
+FrameSolidSection3d::recvSelf(int , Channel &,
+                              FEM_ObjectBroker &)
 {
   return 0;
 }
@@ -595,7 +611,7 @@ FrameSolidSection3d::setResponse(const char **argv, int argc,
 
     else if (argc > 4) {  // find fiber closest to coord. with mat tag
       
-      int matTag = atoi(argv[3]);
+      int matTag    = atoi(argv[3]);
       double yCoord = atof(argv[1]);
       double zCoord = atof(argv[2]);
       double closestDist = 0;
