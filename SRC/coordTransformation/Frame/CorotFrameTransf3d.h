@@ -23,7 +23,7 @@
 #include <Vector3D.h>
 
 
-class Triad;
+struct Triad;
 
 class CorotFrameTransf3d: public FrameTransform3d
 {
