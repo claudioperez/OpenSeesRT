@@ -75,7 +75,7 @@ struct MatrixND {
         {a[0]*b[0], a[1]*b[0], a[2]*b[0]},
         {a[0]*b[1], a[1]*b[1], a[2]*b[1]},
         {a[0]*b[2], a[1]*b[2], a[2]*b[2]}
-      }}}; // TODO
+      }}};
 
     MatrixND<NR,NC,T> result;
     for (int i=0; i<NR; i++)
@@ -167,34 +167,6 @@ struct MatrixND {
     assert(index_r < NR && index_c < NC);
     return values[index_c][index_r];
   }
-
-#if 0
-  constexpr VectorND<NR>
-  column(index_t index) const {
-    assert(index >= 0);
-    assert(index < NC);
-    // TODO: ugly temporary implementation
-    return *(VectorND<NR>*)(&(values[index]));
-  }
-
-  constexpr VectorND<NC>
-  row(index_t index) const {
-    assert(index >= 0);
-    assert(index < NR);
-
-    VectorND<NC,T> rw;
-    for (index_t j = 0; j < NC; ++j) {
-      rw[j] = values[j][index];
-    }
-    return rw;
-  }
-
-  // TODO: change to std::pair,array, or tuple.
-  consteval VectorND<2,int>
-  size() const {
-    return {NR, NC};
-  }
-#endif
 
   //
   //
