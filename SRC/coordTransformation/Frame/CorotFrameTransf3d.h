@@ -87,7 +87,7 @@ public:
 protected:
     int addTangent(MatrixND<12,12>& M, const VectorND<12>& pl);
 
-    virtual const Layout& getNodeLayout() {
+    virtual const Layout& getNodeLayout() const {
       static std::vector<int> l {
          1,
          1,
