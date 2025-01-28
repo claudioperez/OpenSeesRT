@@ -72,6 +72,8 @@ public:
     std::string ts = std::to_string(tag);
 
     for (int i=0; i<3; i++) {
+      // Dont pass argv/argc in Parameters constructor because it cant
+      // signal errors that way.
       Parameter p(-1, nullptr, nullptr, 0);
 
       std::string s = std::to_string(w[i]);
