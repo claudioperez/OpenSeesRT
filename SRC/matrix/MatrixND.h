@@ -755,7 +755,7 @@ MatrixND<nr,nc,scalar_t>::addMatrixTripleProduct(double thisFact,
   if (otherFact == 0.0 && thisFact == 1.0)
     return 0;
 
-  MatrixND<nk, nc> BC {0.0};
+  MatrixND<nk, nc> BC {};
   BC.addMatrixProduct(B, C, otherFact);
   this->addMatrixTransposeProduct(thisFact, A, BC, 1.0);
   return 0;
