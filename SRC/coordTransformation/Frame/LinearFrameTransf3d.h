@@ -89,7 +89,7 @@ public:
     void Print(OPS_Stream &s, int flag = 0);
 
 protected:
-    virtual const Layout& getNodeLayout() {
+    virtual const Layout& getNodeLayout() const {
       static std::vector<int> l {
          0, 0, 0, 0, 0, 0, // Node i
          1, 1, 1, 1, 1, 1  // Node j
