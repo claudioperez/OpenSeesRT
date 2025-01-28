@@ -380,15 +380,23 @@ class OpenSeesPy:
         return ret
 
     def patch(self, *args, **kwds):
+        if "section" not in kwds:
+            kwds["section"] = self._current_section
+        return self._str_call("patch", *args, **kwds)
         section = self._current_section
         return self._str_call("patch", *args, "-section", section, **kwds)
 
     def layer(self, *args, **kwds):
+        if "section" not in kwds:
+            kwds["section"] = self._current_section
+        return self._str_call("layer", *args, **kwds)
         section = self._current_section
         return self._str_call("layer", *args, "-section", section, **kwds)
 
     def fiber(self, *args, **kwds):
-        section = self._current_section
+        if "section" not in kwds:
+            kwds["section"] = self._current_section
+        return self._str_call("fiber", *args, **kwds)
         return self._str_call("fiber", *args, "-section", section, **kwds)
 
 
@@ -575,6 +583,7 @@ __all__ = [
 # 
     "tcl",
     "OpenSeesError",
+    "invoke",
 
 # OpenSeesPy attributes
 
