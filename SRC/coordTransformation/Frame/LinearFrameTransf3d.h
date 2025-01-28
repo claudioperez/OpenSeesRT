@@ -96,7 +96,7 @@ protected:
       };
       return l;
     }
-    virtual const Layout& getForceLayout() {
+    virtual const Layout& getForceLayout() const {
       static std::vector<int> l {
         // Node i
         FrameTransform3d::N,  // 0
