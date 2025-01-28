@@ -69,13 +69,20 @@ struct MatrixND {
 
 
   MatrixND<NR,NC,T> bun(const VectorND<NR,T>& a, const VectorND<NC,T> &b)
-    requires(NR == NC == 3)
   {
-    return MatrixND<NR,NC,T> {{{
-      {a[0]*b[0], a[1]*b[0], a[2]*b[0]},
-      {a[0]*b[1], a[1]*b[1], a[2]*b[1]},
-      {a[0]*b[2], a[1]*b[2], a[2]*b[2]}
-    }}}; // TODO
+    if constexpr (NR == 3)
+      return MatrixND<NR,NC,T> {{{
+        {a[0]*b[0], a[1]*b[0], a[2]*b[0]},
+        {a[0]*b[1], a[1]*b[1], a[2]*b[1]},
+        {a[0]*b[2], a[1]*b[2], a[2]*b[2]}
+      }}}; // TODO
+
+    MatrixND<NR,NC,T> result;
+    for (int i=0; i<NR; i++)
+      for (int j=0; j<NC; j++)
+        result(i,j) = a[i]*b[j];
+    return result;
+  
   }
 
   int symeig(VectorND<NR>& vals) requires(NR == NC == 3) {
