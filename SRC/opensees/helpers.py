@@ -131,7 +131,7 @@ def find_node(model, x=None, y=None, tol=1e-8):
     return None
 
 
-def find_nodes(model, x=None, y=None, tol=1e-8):
+def find_nodes(model, x=None, y=None, z=None, tol=1e-8):
     """
     Return an iterator of node tags that match the specified coordinates
     within a given tolerance.
@@ -161,7 +161,9 @@ def find_nodes(model, x=None, y=None, tol=1e-8):
         # Check Y coordinate if requested
         if y is not None and abs(coords[1] - y) > tol:
             continue
-
+        # Check Z coordinate if requested
+        if z is not None and abs(coords[2] - z) > tol:
+            continue
         # If we've passed all checks, this node matches
         yield tag
 
