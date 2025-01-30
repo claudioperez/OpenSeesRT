@@ -526,21 +526,16 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 
     if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid matTag" << endln;
-      opserr << "PlateFiberThermal section: " << matTag << endln;
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[4], &h) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid h" << endln;
-      opserr << "PlateFiberThermal section: " << tag << endln;
       return TCL_ERROR;
     }
 
     NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matTag);
     if (theMaterial == nullptr) {
-      opserr << G3_ERROR_PROMPT << "nD material does not exist\n";
-      opserr << "nD material: " << matTag;
-      opserr << "\nPlateFiberThermal section: " << tag << endln;
       return TCL_ERROR;
     }
 
@@ -785,12 +780,12 @@ initSectionCommands(ClientData clientData, Tcl_Interp *interp,
   assert(clientData != nullptr);
   BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
-  // dimension of the structure (1d, 2d, or 3d)
+  // Dimension of the structure
   int ndm = builder->getNDM();
 
   SectionBuilder  *sbuilder = nullptr;
   FrameSection    *section  = nullptr;
-  // create 2d section
+  // Create 2d section
   if (ndm == 2) {
     if (options.isND) {
       if (options.isWarping) {
