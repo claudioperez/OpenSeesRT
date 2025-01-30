@@ -10,6 +10,20 @@ class Component:
         return f"<{self.__class__.__name__} " + ", ".join(
                 f"{k}={getattr(self, k)}" for k in self.__slots__ if k[0] != "_"
                ) + ">"
+    
+    def handle(self, *args):
+        from opensees.tcl import dumps
+        from opensees.openseespy import Model
+        from opensees._invoke import _Handle
+        model = Model(ndm=1, ndf=1)
+        if self.name is None:
+            self.name = 1984
+            self._exit_name_none = True
+        else:
+            self._exit_name_none = False
+
+        model.eval(dumps(self))
+        return _Handle(model._openseespy, "UniaxialMaterial", self.name, *args)
 
     def __enter__(self):
         assert self._rt is None
