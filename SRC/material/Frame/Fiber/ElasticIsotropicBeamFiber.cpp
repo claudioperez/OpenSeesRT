@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.3 $
-// $Date: 2002-12-05 22:49:09 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/ElasticIsotropicBeamFiber.cpp,v $
-
+//
 // Written: MHS
 // Created: Aug 2001
 //
@@ -56,7 +52,7 @@ ElasticIsotropicBeamFiber::~ElasticIsotropicBeamFiber ()
 }
 
 int
-ElasticIsotropicBeamFiber::setTrialStrain (const Vector &strain)
+ElasticIsotropicBeamFiber::setTrialStrain(const Vector &strain)
 {
   Tepsilon = strain;
 
@@ -64,7 +60,7 @@ ElasticIsotropicBeamFiber::setTrialStrain (const Vector &strain)
 }
 
 int
-ElasticIsotropicBeamFiber::setTrialStrain (const Vector &strain, const Vector &rate)
+ElasticIsotropicBeamFiber::setTrialStrain(const Vector &strain, const Vector &rate)
 {
   Tepsilon = strain;
 
@@ -72,19 +68,19 @@ ElasticIsotropicBeamFiber::setTrialStrain (const Vector &strain, const Vector &r
 }
 
 int
-ElasticIsotropicBeamFiber::setTrialStrainIncr (const Vector &strain)
+ElasticIsotropicBeamFiber::setTrialStrainIncr(const Vector &strain)
 {
   return 0;
 }
 
 int
-ElasticIsotropicBeamFiber::setTrialStrainIncr (const Vector &strain, const Vector &rate)
+ElasticIsotropicBeamFiber::setTrialStrainIncr(const Vector &strain, const Vector &rate)
 {
   return 0;
 }
 
 const Matrix&
-ElasticIsotropicBeamFiber::getTangent (void)
+ElasticIsotropicBeamFiber::getTangent()
 {
   double mu = 0.5*E/(1.0+v);
 
@@ -96,7 +92,7 @@ ElasticIsotropicBeamFiber::getTangent (void)
 }
 
 const Matrix&
-ElasticIsotropicBeamFiber::getInitialTangent (void)
+ElasticIsotropicBeamFiber::getInitialTangent()
 {
   double mu = 0.5*E/(1.0+v);
 
@@ -108,7 +104,7 @@ ElasticIsotropicBeamFiber::getInitialTangent (void)
 }
 
 const Vector&
-ElasticIsotropicBeamFiber::getStress (void)
+ElasticIsotropicBeamFiber::getStress()
 {
   double mu = 0.5*E/(1.0+v);
 
@@ -144,29 +140,28 @@ ElasticIsotropicBeamFiber::revertToStart (void)
 }
 
 NDMaterial*
-ElasticIsotropicBeamFiber::getCopy (void)
+ElasticIsotropicBeamFiber::getCopy()
 {
   ElasticIsotropicBeamFiber *theCopy =
-    new ElasticIsotropicBeamFiber (this->getTag(), E, v, rho);
+    new ElasticIsotropicBeamFiber(this->getTag(), E, v, rho);
 
   return theCopy;
 }
 
 const char*
-ElasticIsotropicBeamFiber::getType (void) const
+ElasticIsotropicBeamFiber::getType() const
 {
   return "BeamFiber";
 }
 
 int
-ElasticIsotropicBeamFiber::getOrder (void) const
+ElasticIsotropicBeamFiber::getOrder() const
 {
   return 3;
 }
 
 const Vector&
-ElasticIsotropicBeamFiber::getStressSensitivity(int gradIndex,
-						bool conditional)
+ElasticIsotropicBeamFiber::getStressSensitivity(int gradIndex, bool conditional)
 {
   sigma(0) = 0.0;
   sigma(1) = 0.0;
