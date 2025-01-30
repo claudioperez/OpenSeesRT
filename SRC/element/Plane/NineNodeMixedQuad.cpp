@@ -223,7 +223,6 @@ NineNodeMixedQuad::getNumDOF( )
 int 
 NineNodeMixedQuad::commitState( )
 {
-  int i ;
   int success = 0 ;
 
   // call element commitState to do any base class stuff
@@ -231,7 +230,7 @@ NineNodeMixedQuad::commitState( )
     opserr << "NineNodeMixedQuad::commitState () - failed in base class\n";
   }    
 
-  for ( i=0; i<9; i++ ) 
+  for (int i=0; i<9; i++ ) 
     success += materialPointers[i]->commitState( ) ;
   
   return success ;
@@ -243,10 +242,9 @@ NineNodeMixedQuad::commitState( )
 int 
 NineNodeMixedQuad::revertToLastCommit( ) 
 {
-  int i ;
   int success = 0 ;
 
-  for ( i=0; i<9; i++ ) 
+  for (int i=0; i<9; i++ ) 
     success += materialPointers[i]->revertToLastCommit( ) ;
   
   return success ;
@@ -257,19 +255,30 @@ NineNodeMixedQuad::revertToLastCommit( )
 int 
 NineNodeMixedQuad::revertToStart( ) 
 {
-  int i ;
   int success = 0 ;
 
-  for ( i=0; i<9; i++ ) 
-    success += materialPointers[i]->revertToStart( ) ;
+  for (int i=0; i<9; i++ ) 
+    success += materialPointers[i]->revertToStart( );
   
   return success ;
 }
 
-//print out element data
+// print out element data
 void 
 NineNodeMixedQuad::Print(OPS_Stream &s, int flag)
 {
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        s << "\t\t\t{";
+        s << "\"name\": " << this->getTag() << ", ";
+        s << "\"type\": \"NineNodeMixedQuad\", ";
+        s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
+        for (int i = 1; i < 7; i++)
+            s << connectedExternalNodes(i) << ", ";
+        s << connectedExternalNodes(8) << "], ";
+        s << "\"material\": " << materialPointers[0]->getTag() << "}";
+        return;
+    }
+
     if (flag == OPS_PRINT_CURRENTSTATE) {
         s << endln;
         s << "Nine Node Quad -- Mixed Pressure/Volume -- Plane Strain \n";
@@ -286,17 +295,6 @@ NineNodeMixedQuad::Print(OPS_Stream &s, int flag)
         s << "Material Information : \n ";
         materialPointers[0]->Print(s, flag);
         s << endln;
-    }
-    
-    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\t{";
-        s << "\"name\": " << this->getTag() << ", ";
-        s << "\"type\": \"NineNodeMixedQuad\", ";
-        s << "\"nodes\": [" << connectedExternalNodes(0) << ", ";
-        for (int i = 1; i < 7; i++)
-            s << connectedExternalNodes(i) << ", ";
-        s << connectedExternalNodes(8) << "], ";
-        s << "\"material\": \"" << materialPointers[0]->getTag() << "\"}";
     }
 }
 
@@ -337,8 +335,6 @@ NineNodeMixedQuad::getInitialStiff( )
 
   int i, j, k, p, q, r, s ;
   int jj, kk ;
-
-  static double volume ;
 
   static double xsj ;  // determinant jacaobian matrix 
 
@@ -396,83 +392,76 @@ NineNodeMixedQuad::getInitialStiff( )
   computeBasis() ;
 
   //zero mean shape functions
-  for ( p=0; p<nShape; p++ ) {
-    for ( q=0; q<numberNodes; q++ ) {
-
-      for (r=0; r<nMixed; r++ ) {
-	shpBar[p][q][r] = 0.0 ;
-	rightHandSide[p][q][r] = 0.0 ;
+  for (int p=0; p<nShape; p++ ) {
+    for (int q=0; q<numberNodes; q++ ) {
+      for (int r=0; r<nMixed; r++ ) {
+        shpBar[p][q][r] = 0.0 ;
+        rightHandSide[p][q][r] = 0.0 ;
       }
-
-    }//end for q
-  } // end for p
-
-
-  //zero volume
-  volume = 0.0 ;
+    }
+  }
 
   //zero projection matrix  
   Proj.Zero( ) ;
   ProjInv.Zero( ) ;
 
+  double volume = 0.0 ;
   //gauss loop to compute and save shape functions 
   int count = 0 ;
 
-  for ( i = 0; i < 3; i++ ) {
-    for ( j = 0; j < 3; j++ ) {
-
-        gaussPoint[0] = sg[i] ;        
-	gaussPoint[1] = sg[j] ;        
-
-
-	//save gauss point locations
-	natCoorArray[0][count] = gaussPoint[0] ;
-	natCoorArray[1][count] = gaussPoint[1] ;
+  for (int i = 0; i < 3; i++ ) {
+    for (int j = 0; j < 3; j++ ) {
+      gaussPoint[0] = sg[i] ;        
+      gaussPoint[1] = sg[j] ;        
 
 
-	//get shape functions    
-	shape2dNine( gaussPoint, xl, shp, xsj ) ;
+      //save gauss point locations
+      natCoorArray[0][count] = gaussPoint[0] ;
+      natCoorArray[1][count] = gaussPoint[1] ;
 
 
-	//save shape functions
-	for ( p=0; p<nShape; p++ ) {
-	  for ( q=0; q<numberNodes; q++ )
-	    Shape[p][q][count] = shp[p][q] ;
-	} // end for p
-
-	
-	//volume element to also be saved
-	dvol[count] = ( wg[i]*wg[j] ) * xsj ;  
+      //get shape functions    
+      shape2dNine( gaussPoint, xl, shp, xsj ) ;
 
 
-        //add to projection matrix
-	interp[0] = 1.0 ;
-	interp[1] = gaussPoint[0] ;
-	interp[2] = gaussPoint[1] ;
-	
-	for ( r=0; r<nMixed; r++ ) {
-	  for ( s=0; s<nMixed; s++ ) 
-	    Proj(r,s) += ( interp[r]*interp[s] * dvol[count] ) ;
-	}//end for r
-
-	volume += dvol[count] ;
-	
-	
-	//add to mean shape functions
-	for ( p=0; p<nShape; p++ ) {
-	  for ( q=0; q<numberNodes; q++ ) {
-
-	    for ( s=0; s<nMixed; s++ ) 
-	      rightHandSide[p][q][s] += ( shp[p][q] * interp[s] * dvol[count] ) ;
-
-	  }//end for q 
-	} // end for p
+      //save shape functions
+      for (int p=0; p<nShape; p++ ) {
+        for (int q=0; q<numberNodes; q++ )
+          Shape[p][q][count] = shp[p][q] ;
+	    }
 
 
-	//increment gauss point counter
-	count++ ;
+      //volume element to also be saved
+      dvol[count] = ( wg[i]*wg[j] ) * xsj ;  
 
-    } //end for j
+
+            //add to projection matrix
+      interp[0] = 1.0 ;
+      interp[1] = gaussPoint[0] ;
+      interp[2] = gaussPoint[1] ;
+
+      for (int r=0; r<nMixed; r++ ) {
+        for (int s=0; s<nMixed; s++ ) 
+          Proj(r,s) += ( interp[r]*interp[s] * dvol[count] ) ;
+      }
+
+      volume += dvol[count] ;
+
+
+      // add to mean shape functions
+      for (int p=0; p<nShape; p++ ) {
+        for (int q=0; q<numberNodes; q++ ) {
+
+          for ( s=0; s<nMixed; s++ ) 
+            rightHandSide[p][q][s] += ( shp[p][q] * interp[s] * dvol[count] ) ;
+
+        }
+      }
+
+      //increment gauss point counter
+      count++ ;
+
+    } // end for j
   } // end for i 
   
 
@@ -511,40 +500,39 @@ NineNodeMixedQuad::getInitialStiff( )
     dd *= dvol[i] ;
 
 
-    //residual and tangent calculations node loops
+    // residual and tangent calculations node loops
 
     jj = 0 ;
-    for ( j=0; j<numberNodes; j++ ) {
+    for (int j=0; j<numberNodes; j++ ) {
 
       BJ = computeBbar( j, gaussPoint, shp, shpBar ) ;
    
       //transpose 
       //BJtran = transpose( nstress, ndf, BJ ) ;
       for (p=0; p<ndf; p++) {
-	for (q=0; q<nstress; q++) 
-	  BJtran(p,q) = BJ(q,p) ;
-      }//end for p
+        for (q=0; q<nstress; q++) 
+          BJtran(p,q) = BJ(q,p) ;
+      }
 
 
       //BJtranD = BJtran * dd ;
       BJtranD.addMatrixProduct(0.0,  BJtran,dd,1.0);
 
       kk = 0 ;
-      for ( k=0; k<numberNodes; k++ ) {
-	
-	BK = computeBbar( k, gaussPoint, shp, shpBar ) ;
-  
-	
-	//stiffJK =  BJtranD * BK  ;
-	stiffJK.addMatrixProduct(0.0,  BJtranD,BK,1.0) ;
+      for (int k=0; k<numberNodes; k++ ) {
 
-	for ( p=0; p<ndf; p++ )  {
-	  for ( q=0; q<ndf; q++ )
-	    stiff( jj+p, kk+q ) += stiffJK( p, q ) ;
-	} //end for p
-	
-	kk += ndf ;
-      }//end for k loop
+        BK = computeBbar( k, gaussPoint, shp, shpBar ) ;
+
+        //stiffJK =  BJtranD * BK  ;
+        stiffJK.addMatrixProduct(0.0,  BJtranD,BK,1.0) ;
+
+        for (int p=0; p<ndf; p++ )  {
+          for (int q=0; q<ndf; q++ )
+            stiff( jj+p, kk+q ) += stiffJK( p, q ) ;
+        }
+
+        kk += ndf ;
+      }
 
       jj += ndf ;
     }//end for j loop
@@ -596,7 +584,7 @@ NineNodeMixedQuad::addInertiaLoadToUnbalance(const Vector &accel)
 
   // check to see if have mass
   int haveRho = 0;
-  for (i = 0; i < numberGauss; i++) {
+  for (int i = 0; i < numberGauss; i++) {
     if (materialPointers[i]->getRho() != 0.0)
       haveRho = 1;
   }
@@ -611,14 +599,14 @@ NineNodeMixedQuad::addInertiaLoadToUnbalance(const Vector &accel)
   // store computed RV for nodes in resid vector
   int count = 0;
 
-  for (i=0; i<numberNodes; i++) {
+  for (int i=0; i<numberNodes; i++) {
     const Vector &Raccel = nodePointers[i]->getRV(accel);
     for (int j=0; j<ndf; j++)
       resid(count++) = Raccel(i);
   }
 
   // create the load vector if one does not exist
-  if (load == 0) 
+  if (load == nullptr) 
     load = new Vector(numberNodes*ndf);
 
   // add -M * RV(accel) to the load vector
