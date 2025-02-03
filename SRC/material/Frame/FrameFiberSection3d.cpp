@@ -476,7 +476,7 @@ FrameFiberSection3d::getType()
 int
 FrameFiberSection3d::getOrder() const
 {
-  return 4;
+  return nsr;
 }
 
 int
@@ -486,7 +486,7 @@ FrameFiberSection3d::commitState()
   for (int i = 0; i < numFibers; i++)
     err += theMaterials[i]->commitState();
 
-  if (theTorsion != 0)
+  if (theTorsion != nullptr)
     err += theTorsion->commitState();
 
   return err;
@@ -552,7 +552,7 @@ FrameFiberSection3d::sendSelf(int commitTag, Channel &theChannel)
     return res;
   }    
 
-  if (theTorsion != 0)
+  if (theTorsion != nullptr)
     theTorsion->sendSelf(commitTag, theChannel);
 
   if (numFibers != 0) { 
@@ -720,7 +720,7 @@ FrameFiberSection3d::Print(OPS_Stream &s, int flag)
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
         s << OPS_PRINT_JSON_MATE_INDENT << "{";
         s << "\"name\": \"" << this->getTag() << "\", ";
-        s << "\"type\": \"FrameFiberSection3d\", ";
+        s << "\"type\": \"" << this->getClassType() << "\", ";
         if (theTorsion != 0)
           s << "\"torsion\": " << theTorsion->getInitialTangent() << ", ";
 
@@ -730,7 +730,7 @@ FrameFiberSection3d::Print(OPS_Stream &s, int flag)
 
         s << "\"fibers\": [\n";
         for (int i = 0; i < numFibers; i++) {
-              s << "\t\t\t\t{\"coord\": [" << matData[3*i] << ", " << matData[3*i+1] << "], ";
+              s << OPS_PRINT_JSON_MATE_INDENT << "\t{\"coord\": [" << matData[3*i] << ", " << matData[3*i+1] << "], ";
               s << "\"area\": " << matData[3*i+2] << ", ";
               s << "\"material\": " << theMaterials[i]->getTag();
               if (i < numFibers - 1)
@@ -739,6 +739,7 @@ FrameFiberSection3d::Print(OPS_Stream &s, int flag)
                   s << "}\n";
         }
         s << OPS_PRINT_JSON_MATE_INDENT << "]}";
+        return;
   }
 
   if (flag == OPS_PRINT_PRINTMODEL_SECTION || flag == OPS_PRINT_PRINTMODEL_MATERIAL) {
@@ -843,9 +844,7 @@ FrameFiberSection3d::setResponse(const char **argv, int argc, OPS_Stream &output
       key = 0;
       for (int j = 1; j < numFibers; j++) {
         ySearch = matData[3*j];
-        zSearch = matData[3*j+1];
-        // ySearch = yLocs[j];
-        // zSearch = zLocs[j];                            
+        zSearch = matData[3*j+1];                      
         dy = ySearch - yCoord;
         dz = zSearch - zCoord;
         distance = sqrt(dy*dy + dz*dz);
@@ -1144,7 +1143,7 @@ FrameFiberSection3d::getStressResultantSensitivity(int gradIndex, bool condition
 const Matrix &
 FrameFiberSection3d::getSectionTangentSensitivity(int gradIndex)
 {
-  static Matrix something(4,4);
+  static Matrix something(nsr,nsr);
   
   something.Zero();
 

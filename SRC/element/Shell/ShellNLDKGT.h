@@ -131,13 +131,13 @@ private :
   static double wg[4] ;
 
   //node information
-  ID connectedExternalNodes ;  //four node numbers
-  Node *nodePointers[3] ;      //pointers to four nodes
+  ID connectedExternalNodes ;  // node numbers
+  Node *nodePointers[3] ;      // pointers to nodes
 
   //material information
   SectionForceDeformation *materialPointers[4] ; //pointers to four materials
                     
-  //local nodal coordinates, two coordinates for each of four nodes
+  //local nodal coordinates, two coordinates for each node
   //static double xl[][4] ; 
   double xl[2][3] ; 
 

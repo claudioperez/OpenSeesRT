@@ -23,7 +23,7 @@
 #include <Vector3D.h>
 
 
-class Triad;
+struct Triad;
 
 class CorotFrameTransf3d: public FrameTransform3d
 {
@@ -87,7 +87,7 @@ public:
 protected:
     int addTangent(MatrixND<12,12>& M, const VectorND<12>& pl);
 
-    virtual const Layout& getNodeLayout() {
+    virtual const Layout& getNodeLayout() const {
       static std::vector<int> l {
          1,
          1,
@@ -98,7 +98,7 @@ protected:
       };
       return l;
     }
-    virtual const Layout& getForceLayout() {
+    virtual const Layout& getForceLayout() const {
       static std::vector<int> l {
         FrameTransform3d::N,  // 1
         FrameTransform3d::T,  // 1

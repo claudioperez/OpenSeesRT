@@ -9,7 +9,7 @@
 // Written: cmp 2024
 //
 #include <Frame/BasicFrame3d.h>
-#include <PrismFrame3d.h>
+#include "PrismFrame3d.h"
 #include <Domain.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -36,14 +36,14 @@ PrismFrame3d::PrismFrame3d()
 }
 
 PrismFrame3d::PrismFrame3d(int tag, std::array<int, 2>& nodes,
-                           double  a, double  e, double  g, 
+                           double  a, double  E, double  G, 
                            double jx, double iy, double iz,
                            FrameTransform3d &coordTransf, 
                            double r, int cm, int rz, int ry,
                            int geom)
 
   :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
-   A(a), E(e), G(g), Jx(jx), Iy(iy), Iz(iz), 
+   A(a), E(E), G(G), Jx(jx), Iy(iy), Iz(iz), 
    mass_flag(cm), density(r),
    releasez(rz), releasey(ry),
    geom_flag(geom),
@@ -57,12 +57,12 @@ PrismFrame3d::PrismFrame3d(int tag,
                            std::array<int,2>& nodes,
                            FrameSection &section,  
                            FrameTransform3d &coordTransf, 
-                           double rho_, int cMass, bool use_mass, 
+                           double density, int cMass, bool use_mass, 
                            int rz, int ry,
                            int geom
                            )
   : BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
-    mass_flag(cMass), density(rho_),
+    mass_flag(cMass), density(density),
     releasez(rz), releasey(ry),
     geom_flag(geom)
 {
@@ -138,8 +138,10 @@ PrismFrame3d::formBasicStiffness(OpenSees::MatrixND<6,6>& kb) const
     kb(0,0) = E*A/L;
     kb(5,5) = G*Jx/L;
     if (releasez == 0) {
-      kb(1,1) = kb(2,2) = 4.0*E*Iz/L;
-      kb(2,1) = kb(1,2) = 2.0*E*Iz/L;
+      kb(1,1) = kb(2,2) = 4.0*E*Iz/L;  // iz-iz and jz-jz
+      kb(1,3) = kb(3,1) = 4.0*E*Iyz/L; // iz-iy and iy-iz
+      kb(1,2) = kb(2,1) = 2.0*E*Iz/L;  // iz-jz and jz-iz
+      kb(1,4) = kb(4,1) = 2.0*E*Iyz/L; // iz-jy and jy-iz
     }
     if (releasez == 1)   // release I
       kb(2,2) = 3.0*E*Iz/L;
@@ -228,8 +230,6 @@ PrismFrame3d::update()
           for (int i=0; i<6; i++)
             Y(i, i+2) = L;
 
-          double Iyz = 0; // TODO
-
           MatrixND<2,2> Km {{
                            {E*Iy,  E*Iyz},
                            {E*Iyz, E*Iz }
@@ -255,8 +255,6 @@ PrismFrame3d::update()
             Y.assemble(Ci, 6, 4, -L*N);
             Y.assemble(Ci, 6, 6, -L*T);
           }
-
-
 
           const MatrixND<8,8> eY  = ExpGLn(Y);
 
@@ -331,7 +329,6 @@ PrismFrame3d::update()
 
   q = ke*v;
   q += q0;
-
 
   return ok;
 }

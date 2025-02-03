@@ -49,11 +49,39 @@ enum FrameStress : int {
   Bimoment    =     9, // 
   Wagner      =    10, // (Obselete, this is redundant)
   Bishear     =    11,
-  Max         =    12,
+  By, Bz,
+  Qy, Qz,
+  Max,
 };
 
-typedef       int             FrameStressLayout[10];
+struct FrameLayout {
+  int n[3], m[3], w[3], v[3];
+};
 
+typedef int FrameStressLayout[FrameStress::Max];
+
+static inline consteval void WarpIndex(const FrameStressLayout& layout, FrameLayout& e) {
+    // Save layout locations
+    for (int i=0; i<FrameStress::Max; i++) {
+      switch (layout[i]) {
+        case FrameStress::N:        e.n[0] = i;  break;
+        case FrameStress::Vy:       e.n[1] = i;  break;
+        case FrameStress::Vz:       e.n[2] = i;  break;
+        case FrameStress::T:        e.m[0] = i;  break;
+        case FrameStress::My:       e.m[1] = i;  break;
+        case FrameStress::Mz:       e.m[2] = i;  break;
+        case FrameStress::Bimoment: e.w[0] = i;  break;
+        case FrameStress::Bishear:  e.v[0] = i;  break;
+        case FrameStress::By:       e.w[1] = i;  break;
+        case FrameStress::Qy:       e.v[1] = i;  break;
+        case FrameStress::Bz:       e.w[2] = i;  break;
+        case FrameStress::Qz:       e.v[2] = i;  break;
+        default:
+        ;
+      }
+    }
+  return;
+}
 
 class FrameSection : public SectionForceDeformation {
 
@@ -77,6 +105,10 @@ public:
         value = density;
         return 0;
     }
+    return -1;
+  }
+
+  virtual int setFiberValue(int tag, int field, double value) {
     return -1;
   }
 
@@ -124,9 +156,9 @@ public:
   }
 
   template <int n, const FrameStressLayout& scheme>
-  OpenSees::MatrixND<n,n, double> getTangent(State state) {
+  OpenSees::MatrixND<n,n> getTangent(State state) {
 
-    OpenSees::MatrixND<n,n,double> kout;
+    OpenSees::MatrixND<n,n> kout;
 
     const ID& layout = this->getType();
 
@@ -137,28 +169,27 @@ public:
                       ? this->getInitialTangent()
                       : this->getSectionTangent();
 
-    int elem_twist    = -1,
-        elem_bishear  = -1;
+    FrameLayout e {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
+    WarpIndex(scheme, e);
 
-    int sect_bishear  = -1;
+    int sect_bishear[3] = {-1,-1,-1};
 
     for (int i=0; i<n; i++) {
-      // Save warp location
-      switch (scheme[i]) {
-        case FrameStress::T:
-          elem_twist = i;
-          break;
-        case FrameStress::Bishear:
-          elem_bishear = i;
-        default:
-        ;
-      }
       for (int j=0; j<n; j++) {
         kout(i,j) = 0.0;
 
         for (int k=0; k<m; k++) {
-          if (layout(k) == FrameStress::Bishear)
-              sect_bishear  = k;
+          switch (layout(k)) {
+            case FrameStress::Bishear:
+              sect_bishear[0]  = k;
+              break;
+            case FrameStress::Qy:
+              sect_bishear[1]  = k;
+              break;
+            case FrameStress::Qz:
+              sect_bishear[2]  = k;
+              break;
+          }
 
           if (layout(k) == scheme[i]) {
             for (int l=0; l<m; l++)
@@ -172,11 +203,31 @@ public:
     // If element has a twisting DOF and no Bishear
     // DOF, then twist == alpha, where alpha is the
     // bishear DOF.
-    if (elem_twist != -1 && sect_bishear != -1 && elem_bishear == -1)
+    if (e.m[0] != -1 && sect_bishear[0] != -1 && e.v[0] == -1)
       for (int i=0; i<n; i++)
         for (int j=0; j<m; j++)
-          if (layout(j) == scheme[i])
-            kout(i,elem_twist) += ks(j,sect_bishear);
+          if (layout(j) == scheme[i]) {
+            kout(i,e.m[0]) += ks(j,sect_bishear[0]);
+            kout(e.m[0],i) += ks(sect_bishear[0],j);
+          }
+
+    // If element has a shear (Vy) DOF and no Qy
+    if (e.n[1] != -1 && sect_bishear[1] != -1 && e.v[1] == -1)
+      for (int i=0; i<n; i++)
+        for (int j=0; j<m; j++)
+          if (layout(j) == scheme[i]) {
+            kout(i,e.n[1]) += ks(j,sect_bishear[1]);
+            kout(e.n[1],i) += ks(sect_bishear[1],j);
+          }
+
+    // If element has a shear (Vz) DOF and no Qz
+    if (e.n[2] != -1 && sect_bishear[2] != -1 && e.v[2] == -1)
+      for (int i=0; i<n; i++)
+        for (int j=0; j<m; j++)
+          if (layout(j) == scheme[i]) {
+            kout(i,e.n[2]) += ks(j,sect_bishear[2]);
+            kout(e.n[2],i) += ks(sect_bishear[2],j);
+          }
 
     return kout;
   }
@@ -199,32 +250,17 @@ FrameSection::setTrialState(OpenSees::VectorND<n, double> e) {
 
   const ID& layout = this->getType();
 
-  int elem_twist    = -1,
-      elem_bishear  = -1,
-      elem_bimoment = -1;
+
+  FrameLayout l {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
+  WarpIndex(scheme, l);
 
   for (int i=0; i<n; i++) {
-    // Save warp location
-    switch (scheme[i]) {
-      case FrameStress::T:
-        elem_twist = i;
-        break;
-      case FrameStress::Bishear:
-        elem_bishear  = i;
-        break;
-      case FrameStress::Bimoment:
-        elem_bimoment  = i;
-        break;
-      default:
-      ;
-    }
-
     for (int j=0; j<m; j++)
       if (layout(j) == scheme[i])
         trial[j] = e[i];
   }
 
-  if (elem_twist != -1) {
+  if (l.m[0] != -1) {
     // Case 2 and 3
     // If element has a twisting DOF and no Bishear
     // DOF, then twist == alpha, where alpha is the
@@ -234,25 +270,26 @@ FrameSection::setTrialState(OpenSees::VectorND<n, double> e) {
     // optimized out by the compiler, however this might be 
     // optimistic
     //
-    if (elem_bishear == -1) {
-
+    if (l.v[0] == -1) {
       for (int j=0; j<m; j++)
         switch (layout(j)) {
           case FrameStress::Bishear:
-            // set alpha <- tau
-            trial[j] = e[elem_twist];
+            // Set alpha = tau
+            trial[j] = e[l.m[0]];
             break;
-          
-          // Case 2
-//        case FrameStress::Bimoment:
-//          if (elem_bimoment != -1)
-//            // set alpha' <- alpha'
-//            trial[j] = e[elem_bimoment];
-//          break;
+          case FrameStress::Qy:
+            // Set alpha_y = gamma_y
+            trial[j] = e[l.n[1]];
+            break;
+          case FrameStress::Qz:
+            // Set alpha_z = gamma_z
+            trial[j] = e[l.n[2]];
+            break;
+          default:
+            ;
         }
     }
   }
-
   return this->setTrialSectionDeformation(trial);
 }
 

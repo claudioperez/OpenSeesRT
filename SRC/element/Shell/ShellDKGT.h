@@ -41,8 +41,7 @@ class ShellDKGT : public Element {
   
   //null constructor
   ShellDKGT( ); 
-  
-  //full constructor
+
   ShellDKGT( int tag, 
          int node1,
          int node2,
@@ -61,20 +60,13 @@ class ShellDKGT : public Element {
   //return connected external nodes
   const ID &getExternalNodes( ) ;
   Node **getNodePtrs( );
-  
-  //return number of dofs
-  int getNumDOF( ) ;
-  
-  //commit state
-  int commitState( ) ;
-  
-  //revert to last commit 
-  int revertToLastCommit( ) ;
-  
-  //revert to start 
-  int revertToStart( ) ;
 
-  //print out element data
+  int getNumDOF( );
+  int commitState( );
+  int revertToLastCommit( );
+  int revertToStart( );
+
+  // print out element data
   void Print( OPS_Stream &s, int flag ) ;
   
   //return stiffness matrix 
@@ -83,7 +75,7 @@ class ShellDKGT : public Element {
   const Matrix &getMass( );
 
   // methods for applying loads
-  void zeroLoad( void );    
+  void zeroLoad();    
   int addLoad( ElementalLoad *theLoad, double loadFactor );
   int addInertiaLoadToUnbalance( const Vector &accel );
 
@@ -104,8 +96,13 @@ class ShellDKGT : public Element {
 
   int setParameter(const char **argv, int argc, Parameter &param);
 
-  private : 
+  private:
     constexpr static int nip = 4;
+    static constexpr int ndf         = 6;
+    static constexpr int numberNodes = 3;
+    static constexpr int numberGauss = 4;
+    static constexpr int nShape      = 3;
+    static constexpr int massIndex   = nShape - 1;
 
     //static data
     static Matrix stiff ;
@@ -129,13 +126,13 @@ class ShellDKGT : public Element {
     static double wg[nip] ;
 
     //node information
-    ID connectedExternalNodes ;  //four node numbers
-    Node *nodePointers[3] ;      //pointers to four nodes
+    ID connectedExternalNodes ;  // node numbers
+    Node *nodePointers[3] ;      // pointers to nodes
 
     //material information
-    SectionForceDeformation *materialPointers[nip] ; //pointers to four materials
+    SectionForceDeformation *materialPointers[nip] ; // pointers to materials
                       
-    //local nodal coordinates, two coordinates for each of four nodes
+    //local nodal coordinates, two coordinates for each of three nodes
     double xl[2][3] ; 
 
     //shell basis vectors
@@ -194,12 +191,5 @@ class ShellDKGT : public Element {
     double b[3];        // Body forces
     double appliedB[3]; // Body forces applied with load
     int applyLoad;
-
-
-    static constexpr int ndf         = 6;
-    static constexpr int numberNodes = 3;
-    static constexpr int numberGauss = 4;
-    static constexpr int nShape      = 3;
-    static constexpr int massIndex   = nShape - 1;
 
 } ; 

@@ -73,7 +73,7 @@ ShellDKGT::ShellDKGT()
       connectedExternalNodes(3), load(0), Ki(0), applyLoad(0)
 {
   for (int i = 0; i < 4; i++)
-    materialPointers[i] = 0;
+    materialPointers[i] = nullptr;
 
   sg[0] = one_over_three;
   sg[1] = one_over_five;
@@ -119,9 +119,9 @@ ShellDKGT::ShellDKGT(int tag, int node1, int node2, int node3,
     if (materialPointers[i] == 0) {
       opserr << "ShellDKGT::constructor - failed to get a material of type: "
                 "ShellSection\n";
-    } // end if
+    }
 
-  } // end for i
+  }
 
   sg[0] = one_over_three;
   sg[1] = one_over_five;
@@ -153,11 +153,9 @@ ShellDKGT::ShellDKGT(int tag, int node1, int node2, int node3,
 ShellDKGT::~ShellDKGT()
 {
   for (int i = 0; i < 4; i++) {
-
     delete materialPointers[i];
-    materialPointers[i] = 0;
-
-  } //end for i
+    materialPointers[i] = nullptr;
+  }
 
   for (int i = 0; i < ShellDKGT::numberNodes; i++) {
     nodePointers[i] = nullptr;
@@ -174,10 +172,9 @@ ShellDKGT::~ShellDKGT()
 //set domain
 void ShellDKGT::setDomain(Domain *theDomain)
 {
-  int i;
 
   //node pointers
-  for (i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     nodePointers[i] = theDomain->getNode(connectedExternalNodes(i));
     if (nodePointers[i] == 0) {
       opserr << "ShellDKGT::setDomain - no node " << connectedExternalNodes(i);
@@ -198,7 +195,10 @@ void ShellDKGT::setDomain(Domain *theDomain)
 }
 
 //get the number of external nodes
-int ShellDKGT::getNumExternalNodes() const { return ShellDKGT::numberNodes; }
+int ShellDKGT::getNumExternalNodes() const 
+{ 
+  return ShellDKGT::numberNodes; 
+}
 
 //return connected external nodes
 const ID &ShellDKGT::getExternalNodes() { return connectedExternalNodes; }
@@ -223,7 +223,7 @@ int ShellDKGT::commitState()
   return success;
 }
 
-//revert to last commit
+// revert to last commit
 int ShellDKGT::revertToLastCommit()
 {
   int i;
@@ -235,13 +235,11 @@ int ShellDKGT::revertToLastCommit()
   return success;
 }
 
-//revert to start
 int ShellDKGT::revertToStart()
 {
-  int i;
   int success = 0;
 
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < nip; i++)
     success += materialPointers[i]->revertToStart();
 
   return success;
@@ -300,6 +298,7 @@ void ShellDKGT::Print(OPS_Stream &s, int flag)
     s << connectedExternalNodes(1) << ", ";
     s << connectedExternalNodes(2) << "], ";
     s << "\"section\": \"" << materialPointers[0]->getTag() << "\"}";
+    return;
   }
 }
 
@@ -355,7 +354,7 @@ Response *ShellDKGT::setResponse(const char **argv, int argc,
 
   } else if (strcmp(argv[0], "stresses") == 0) {
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < nip; i++) {
       output.tag("GaussPoint");
       output.attr("number", i + 1);
       output.attr("eta", sg[i]);
@@ -467,8 +466,8 @@ int ShellDKGT::getResponse(int responseID, Information &eleInfo)
   //return 0;
 }
 
-//return stiffness matrix
-const Matrix &ShellDKGT::getTangentStiff()
+const Matrix &
+ShellDKGT::getTangentStiff()
 {
   int tang_flag = 1; //get the tangent
 
@@ -479,9 +478,10 @@ const Matrix &ShellDKGT::getTangentStiff()
   return stiff;
 }
 
-const Matrix &ShellDKGT::getInitialStiff()
+const Matrix &
+ShellDKGT::getInitialStiff()
 {
-  if (Ki != 0)
+  if (Ki != nullptr)
     return *Ki;
 
   static const int nstress  = 8; // three membrane, three moment, two shear
@@ -599,21 +599,20 @@ const Matrix &ShellDKGT::getInitialStiff()
     Bshear.Zero();
 
     // j-node loop to compute strain
-    for (j = 0; j < ShellDKGT::numberNodes; j++) {
+    for (int j = 0; j < ShellDKGT::numberNodes; j++) {
 
       // compute B matrix
       Bmembrane = computeBmembrane(j, shp, shpDrill);
       Bbend     = computeBbend(j, shpBend);
       BJ = assembleB(Bmembrane, Bbend, Bshear);
 
-      //save the B-matrix
-      for (p = 0; p < nstress; p++) {
-        for (q = 0; q < ndf; q++) {
+      // save the B-matrix
+      for (int p = 0; p < nstress; p++) {
+        for (int q = 0; q < ndf; q++) {
           saveB[p][q][j] = BJ(p, q);
         }
       }
-
-    } //end j-node loop
+    }
 
     dd = materialPointers[i]->getInitialTangent();
     dd *= dvol[i];

@@ -4,13 +4,13 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Written: cmp
-// Created: 04/01
-//
 // Description: This file contains the class definition for 
 // FrameFiberSection3d.h. FrameFiberSection3d provides the abstraction of a 
 // 3d beam section discretized by fibers. The section stiffness and
 // stress resultants are obtained by summing fiber contributions.
+//
+// Written: cmp
+// Created: 2024
 //
 #ifndef FrameFiberSection3d_h
 #define FrameFiberSection3d_h
@@ -60,14 +60,12 @@ class FrameFiberSection3d : public FrameSection
 		 FEM_ObjectBroker &theBroker);
     void Print(OPS_Stream &s, int flag = 0);
 	    
-    Response *setResponse(const char **argv, int argc, 
-			  OPS_Stream &s);
+    Response *setResponse(const char **argv, int argc, OPS_Stream &s);
     int getResponse(int responseID, Information &info);
 
     int addFiber(UniaxialMaterial &theMat, const double area, const double y, const double z);
 //  int setField(const char**, int, double);
 
-    // AddingSensitivity:BEGIN //////////////////////////////////////////
     int setParameter(const char **argv, int argc, Parameter &param);
 
     const Vector & getStressResultantSensitivity(int gradIndex, bool conditional);
@@ -75,32 +73,28 @@ class FrameFiberSection3d : public FrameSection
     int   commitSensitivity(const Vector& sectionDeformationGradient, int gradIndex, int numGrads);
 
     const Vector & getSectionDeformationSensitivity(int gradIndex);
-    // AddingSensitivity:END ///////////////////////////////////////////
 
-    //by SAJalali
     double getEnergy() const;
 
 
   protected:
+    constexpr static int nsr = 4;
+    constexpr static int nwm = 3;
 
   private:
-    struct Sample {
-      double loc;
-      double wgt,
-             psi_yy,
-             psi_yz,
-             psi_zz,
-             psi_zy,
-             phi,
-             phi_y,
-             phi_z;
+    struct FiberData {
+      double y;
+      double z;
+      double area,
+             warp[nwm][3];
     };
 
 
     int numFibers, sizeFibers;         // number of fibers in the section
     UniaxialMaterial **theMaterials;   // array of pointers to materials
     std::shared_ptr<double[]> matData; // data for the materials [yloc, zloc, and area]
-    OpenSees::MatrixND<4,4> ks;
+
+    OpenSees::MatrixND<nsr,nsr> ks;
 
     double QzBar, QyBar, Abar;
     double yBar;                       // Section centroid
@@ -112,7 +106,7 @@ class FrameFiberSection3d : public FrameSection
     Vector  e;         // trial section deformations 
     Vector  s;         // section resisting forces  (axial force, bending moment)
 
-    OpenSees::VectorND<4> es, sr;
+    OpenSees::VectorND<nsr> es, sr;
     UniaxialMaterial *theTorsion;
     void *pool;        // thread pool
 };

@@ -108,7 +108,7 @@ TclCommand_setStrainUniaxialMaterial(ClientData clientData,
 
   if (argc < 2) {
     opserr << G3_ERROR_PROMPT 
-           << "bad arguments - want: strainUniaxialTest strain? <temp?>\n";
+           << "missing " << 2 - argc << " arguments, want: strain strain? <temp?>\n";
     return TCL_ERROR;
   }
 
@@ -127,7 +127,7 @@ TclCommand_setStrainUniaxialMaterial(ClientData clientData,
     if (strcmp(argv[i], "-commit")==0){
       commit = true;
     } else if (Tcl_GetDouble(interp, argv[2], &temperature) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "could not read strain: strainUniaxialTest strain? "
+      opserr << G3_ERROR_PROMPT << "could not read strain: strain strain? "
                 "<temp?>\n";
       return TCL_ERROR;
     }

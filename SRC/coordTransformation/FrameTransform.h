@@ -323,6 +323,7 @@ pushLocal(const Vector& q, double L)
   return pl;
 }
 
+
 static inline void 
 formOffsets(const Matrix3D& R, 
             const double nodeIOffset[3], 

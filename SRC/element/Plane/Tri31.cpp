@@ -118,13 +118,13 @@ Tri31::~Tri31()
 int
 Tri31::getNumExternalNodes() const
 {
-    return NEN;
+  return NEN;
 }
 
 const ID&
 Tri31::getExternalNodes()
 {
-    return connectedExternalNodes;
+  return connectedExternalNodes;
 }
 
 Node **
@@ -312,7 +312,8 @@ Tri31::getTangentStiff()
 const Matrix& 
 Tri31::getInitialStiff()                                                               
 {
-    if (Ki != 0) return *Ki;
+    if (Ki != nullptr)
+        return *Ki;
 
     K.Zero();
   
@@ -433,7 +434,7 @@ Tri31::addLoad(ElementalLoad *theLoad, double loadFactor)
 int 
 Tri31::addInertiaLoadToUnbalance(const Vector &accel)
 {
-    static double rhoi[1]; //NIP
+    static double rhoi[NIP];
     double sum = 0.0;
     for (int i = 0; i < NIP; i++) {
         if(rho == 0) {
@@ -445,7 +446,7 @@ Tri31::addInertiaLoadToUnbalance(const Vector &accel)
     }
 
     if (sum == 0.0)
-    return 0;
+      return 0;
 
     // Get R * accel from the nodes
     const Vector &Raccel1 = theNodes[0]->getRV(accel);
@@ -920,8 +921,9 @@ Tri31::getResponse(int responseID, Information &eleInfo)
        }
        return eleInfo.setVector(stresses);
 
-  } else if (responseID == 11) {
+  }
 
+  else if (responseID == 11) {
     // extrapolate stress from Gauss points to element nodes
     static Vector stressGP(3*NIP);
     static Vector stressAtNodes(3*NEN); // 3*nnodes
@@ -938,8 +940,8 @@ Tri31::getResponse(int responseID, Information &eleInfo)
     }
 
     double We[NEN][NIP] = {{1.0},
-                             {1.0},
-                             {1.0}};
+                           {1.0},
+                           {1.0}};
 
     for (int i = 0; i < NEN; i++) {
       for (int k = 0; k < 3; k++) { // number of stress components
@@ -952,9 +954,8 @@ Tri31::getResponse(int responseID, Information &eleInfo)
     }
 
     return eleInfo.setVector(stressAtNodes);
-
-  } else
-
+  }
+  else
     return -1;
 }
 
