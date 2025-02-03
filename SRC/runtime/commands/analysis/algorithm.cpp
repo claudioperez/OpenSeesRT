@@ -168,7 +168,7 @@ G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else {
-    opserr << G3_ERROR_PROMPT << "No EquiSolnAlgo of type '" << argv[1] << "' exists\n";
+    opserr << G3_ERROR_PROMPT << "Unknown algorithm type '" << argv[1] << "'\n";
     return nullptr;
   }
 
