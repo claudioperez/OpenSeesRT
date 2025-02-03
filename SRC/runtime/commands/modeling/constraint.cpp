@@ -35,15 +35,15 @@ TclCommand_addHomogeneousBC(ClientData clientData, Tcl_Interp *interp, int argc,
 
 
   if (argc < 3) {
-    opserr << OpenSees::PromptValueError << "bad command - want: fix nodeId <fixities>\n";
+    opserr << OpenSees::PromptValueError << "bad command - want: fix tag <fixities>\n";
     return TCL_ERROR;
   }
 
 
-  // get the id of the node
+  // get the tag of the node
   int nodeId;
   if (Tcl_GetInt(interp, argv[1], &nodeId) != TCL_OK) {
-    opserr << OpenSees::PromptValueError << "invalid nodeId\n";
+    opserr << OpenSees::PromptValueError << "invalid tag\n";
     return TCL_ERROR;
   }
 
