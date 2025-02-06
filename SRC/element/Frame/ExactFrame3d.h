@@ -19,7 +19,6 @@
 #include <FrameTransform.h>
 #include <Frame/FiniteElement.h>
 #include <Rotations.hpp>
-//#include <BeamIntegration.h>
 
 
 namespace OpenSees {
@@ -64,14 +63,17 @@ public:
     if (this->Element::commitState() != 0)
       opserr << "ExactFrame3d::commitState () - failed in base class";
 
-    past = points;
+    past = pres;
 
-    for (GaussPoint& point : points) {
+    for (GaussPoint& point : pres) {
       if (point.material->commitState() != 0)
         return -1;
     }
     return OpenSees::Flag::Success;
   }
+
+  Response *setResponse(const char **argv, int argc, OPS_Stream &s) final;
+  virtual int getResponse(int responseID, Information &) final;
 
   // MovableObject
   int sendSelf(int cTag, Channel&);
@@ -87,9 +89,17 @@ public:
     constexpr static int 
           nsr = 6,              // Number of section resultants
           ndm = 3,              // Dimension of the problem (3D)
-          ndf = 6;              // Degrees of freedom per node
+          ndf = 6,              // Degrees of freedom per node
+          nwm = 0;
 
-
+    enum Respond: int {
+      GlobalForce = 1,
+      BasicPlasticDeformation = 4,
+      LocalForce  = 2,
+      BasicForce  = 7,
+      BasicStiff  =19,
+    };
+    
     // Layout of stress resultants
     static constexpr FrameStressLayout scheme = {
       FrameStress::N,
@@ -113,12 +123,11 @@ public:
       Vector3D curvature;
     };
 
-    std::array<GaussPoint,nip> points;
+    std::array<GaussPoint,nip> pres;
     std::array<GaussPoint,nip> past;
     BeamIntegration*        stencil;
     FrameTransform3d*       transform;
     Logarithm               logarithm;
-
 
     //
     //

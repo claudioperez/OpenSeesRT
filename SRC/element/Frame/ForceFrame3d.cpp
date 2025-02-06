@@ -2115,14 +2115,12 @@ ForceFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
       if (sectionNum > 0 && sectionNum <= points.size() && argc > 2) {
         if (this->setState(State::Init) != 0)
           return nullptr;
-        double xi[maxNumSections];
         double L = theCoordTransf->getInitialLength();
         const int numSections = points.size();
-        stencil->getSectionLocations(numSections, L, xi);
 
         output.tag("GaussPointOutput");
         output.attr("number", sectionNum);
-        output.attr("eta", 2.0 * xi[sectionNum - 1] - 1.0);
+        output.attr("eta", 2.0 * points[sectionNum - 1].point - 1.0);
 
         if (strcmp(argv[2], "dsdh") != 0) {
           theResponse = points[sectionNum - 1].material->setResponse(&argv[2], argc - 2, output);
@@ -2185,7 +2183,7 @@ ForceFrame3d::getResponse(int responseID, Information& info)
   THREAD_LOCAL Vector vp(6);
   THREAD_LOCAL MatrixND<NBV,NBV> fe;
 
-  if (responseID == 1)
+  if (responseID == Respond::GlobalForce)
     return info.setVector(this->getResistingForce());
 
   else if (responseID == Respond::LocalForce) {
