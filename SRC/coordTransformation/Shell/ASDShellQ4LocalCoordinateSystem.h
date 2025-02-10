@@ -1,21 +1,6 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Original implementation: Massimo Petracca (ASDEA)
@@ -30,7 +15,7 @@
 #include <array>
 #include <vector>
 
-/** \brief ASDShellQ4LocalCoordinateSystem
+/** ASDShellQ4LocalCoordinateSystem
 *
 * This class represent the local coordinate system of any element whose geometry
 * is a 4-node Quadrilateral in 3D space
@@ -47,6 +32,7 @@ public:
 	typedef std::vector<Vector3Type> Vector3ContainerType;
 
 	typedef Matrix MatrixType;
+	constexpr static int nen = 4;
 
 public:
 
@@ -67,22 +53,23 @@ public:
 		m_center += P4global;
 		m_center *= 0.25;
 
-		// compute the diagonal vectors
-		Vector3Type d13 = P3global - P1global;
-		Vector3Type d24 = P4global - P2global;
-
 		// compute the Normal vector at the element center
 		// as the cross product of the 2 diagonals.
 		// While normalizing the normal vector save its norm to compute the area.
 		// Note: the norm should be divided by 2 because it's computed from the
 		// cross product of the diagonals, which gives twice the area!
-		Vector3Type e3 = d13.cross(d24);
+
+		// compute the diagonal vectors
+		Vector3D d13 = P3global - P1global;
+		Vector3D d24 = P4global - P2global;
+
+		Vector3D e3 = d13.cross(d24);
 		m_area = e3.normalize();
 		m_area /= 2.0;
 
 		// compute the local X direction parallel to the projection of the side 1-2 onto
 		// the local xy plane.
-		Vector3Type e1 = P2global - P1global;
+		Vector3D e1 = P2global - P1global;
 		double e1_dot_e3 = e1.dot(e3);
 		e1 -= e1_dot_e3 * e3;
 
@@ -98,9 +85,9 @@ public:
 
 		// form the 3x3 transformation matrix (the transposed actually...)
 		for (int i = 0; i < 3; i++) {
-        m_orientation(0, i) = e1[i];
-        m_orientation(1, i) = e2[i];
-        m_orientation(2, i) = e3[i];
+          m_orientation(0, i) = e1[i];
+          m_orientation(1, i) = e2[i];
+          m_orientation(2, i) = e3[i];
 		}
 
 		// transform global coordinates to the local coordinate system
@@ -122,7 +109,7 @@ public:
 
 public:
 
-	inline const Vector3ContainerType& Nodes()const { return m_P; }
+	inline const Vector3ContainerType& Nodes() const { return m_P; }
 
 	inline const Vector3Type& P1()const { return m_P[0]; }
 	inline const Vector3Type& P2()const { return m_P[1]; }
@@ -145,13 +132,13 @@ public:
 	inline double Z3()const { return m_P[2][2]; }
 	inline double Z4()const { return m_P[3][2]; }
 
-	inline double X(size_t i)const { return m_P[i][0]; }
-	inline double Y(size_t i)const { return m_P[i][1]; }
-	inline double Z(size_t i)const { return m_P[i][2]; }
+	inline double X(size_t i) const { return m_P[i][0]; }
+	inline double Y(size_t i) const { return m_P[i][1]; }
+	inline double Z(size_t i) const { return m_P[i][2]; }
 
-	inline double Area()const { return m_area; }
+	inline double Area() const { return m_area; }
 
-	inline const MatrixType& Orientation()const { return m_orientation; }
+	inline const MatrixType& Orientation() const { return m_orientation; }
 
 	inline Vector3Type Vx() const { return Vector3Type{{m_orientation(0, 0), m_orientation(0, 1), m_orientation(0, 2)}} ; }
 	inline Vector3Type Vy() const { return Vector3Type{{m_orientation(1, 0), m_orientation(1, 1), m_orientation(1, 2)}} ; }
@@ -160,23 +147,28 @@ public:
 	inline double WarpageFactor()const { return Z1(); }
 	inline bool IsWarped()const { return std::abs(WarpageFactor()) > 0.0; }
 
-	inline void ComputeTotalRotationMatrix(MatrixType& R) const
+	template <typename MatT>
+	inline void 
+	ComputeTotalRotationMatrix(MatT& R) const
 	{
-      constexpr size_t mat_size = 24;
-      if (R.noRows() != mat_size || R.noCols() != mat_size)
-            R.resize(mat_size, mat_size);
-
-      R.Zero();
-
-      for (size_t k = 0; k < 8; k++) {
+	  // Note: R is 24x24
+	  // R.Zero();
+      for (size_t k = 0; k < nen*2; k++) {
             size_t i = k * 3;
-            R(i, i) = m_orientation(0, 0);   R(i, i + 1) = m_orientation(0, 1);   R(i, i + 2) = m_orientation(0, 2);
-            R(i + 1, i) = m_orientation(1, 0);   R(i + 1, i + 1) = m_orientation(1, 1);   R(i + 1, i + 2) = m_orientation(1, 2);
-            R(i + 2, i) = m_orientation(2, 0);   R(i + 2, i + 1) = m_orientation(2, 1);   R(i + 2, i + 2) = m_orientation(2, 2);
+            R(i, i    ) = m_orientation(0, 0);   
+			R(i, i + 1) = m_orientation(0, 1);   
+			R(i, i + 2) = m_orientation(0, 2);
+            R(i + 1, i    ) = m_orientation(1, 0);
+			R(i + 1, i + 1) = m_orientation(1, 1);
+			R(i + 1, i + 2) = m_orientation(1, 2);
+            R(i + 2, i    ) = m_orientation(2, 0);
+			R(i + 2, i + 1) = m_orientation(2, 1);
+			R(i + 2, i + 2) = m_orientation(2, 2);
       }
 	}
 
-	inline void ComputeTotalWarpageMatrix(MatrixType& W, double wf) const
+	inline void 
+	ComputeTotalWarpageMatrix(MatrixType& W, double wf) const
 	{
 		constexpr size_t mat_size = 24;
 		if (W.noRows() != mat_size || W.noCols() != mat_size)
@@ -187,19 +179,20 @@ public:
 			W(i, i) = 1.0;
 
 		W(0, 4) = -wf;
-		W(1, 3) = wf;
+		W(1, 3) =  wf;
 
-		W(6, 10) = wf;
-		W(7, 9) = -wf;
+		W(6, 10) =  wf;
+		W(7,  9) = -wf;
 
 		W(12, 16) = -wf;
 		W(13, 15) = wf;
 
-		W(18, 22) = wf;
+		W(18, 22) =  wf;
 		W(19, 21) = -wf;
 	}
 
-	inline void ComputeTotalWarpageMatrix(MatrixType& W) const {
+	inline void
+	ComputeTotalWarpageMatrix(MatrixType& W) const {
 		ComputeTotalWarpageMatrix(W, WarpageFactor());
 	}
 
@@ -215,14 +208,19 @@ private:
 template<class TStream>
 inline static TStream& operator << (TStream& s, const ASDShellQ4LocalCoordinateSystem& lc)
 {
-	s << "Points:\n";
-	s << "[";
-	for (size_t i = 0; i < 4; i++) {
-		s << " (" << lc.X(i) << ", " << lc.Y(i) << ") ";
-	}
-	s << "]";
-	s << "Normal: " << lc.Vz() << "\n";
-	return s;
+    s << "    " << "{\"points\": [";
+    for (size_t i = 0; i < 4; i++) {
+        s << "  [" << lc.X(i) << ", " << lc.Y(i) << "] ";
+    }
+    s << "],";
+    s << " \"normal\": [";
+    for (int i=0; i<3; i++) {
+        s << lc.Vz()[i];
+        if (i < 2)
+        s << ", ";
+    }
+    s << "]}\n";
+    return s;
 }
 
 #endif // !ASDShellQ4LocalCoordinateSystem_h
