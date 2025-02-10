@@ -1,42 +1,23 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // Implementation of a corotational coordinate transformation 4-node shells
 //
-
 #ifndef ASDShellQ4CorotationalTransformation_h
 #define ASDShellQ4CorotationalTransformation_h
 #include <ASDEICR.h>
 #include <ASDShellQ4Transformation.h>
 
-// this is experimental: it fits the corotational frame following the polar
-// decomposition rather than the 1-2 side allignement as per Felippa's work
-#define USE_POLAR_DECOMP_ALLIGN
-
-/** \brief ASDShellQ4CorotationalTransformation
+/** ASDShellQ4CorotationalTransformation
 *
 * This class represents a corotational (nonlinear) coordinate transformation
 * that can be used by any element whose geometry is a QUAD 4 in 3D space,
 * with 6 D.O.F.s per node.
+*
 * Its main aim is to:
 * 1) Create the local coordinate system
 * 2) Transform the incoming global displacements in local coordinate system
@@ -56,6 +37,10 @@
 *   Chapter 5 of B.Haugen's Thesis.
 *   link: http://www.colorado.edu/engineering/CAS/courses.d/AFEM.d/
 */
+
+// this is experimental: it fits the corotational frame following the polar
+// decomposition rather than the 1-2 side allignement as per Felippa's work
+#define USE_POLAR_DECOMP_ALLIGN
 
 class ASDShellQ4CorotationalTransformation : public ASDShellQ4Transformation
 {
@@ -80,9 +65,8 @@ public:
     {
     }
 
-public:
-
-    virtual ASDShellQ4Transformation* create()const
+    virtual ASDShellQ4Transformation* 
+    create() const
     {
         return new ASDShellQ4CorotationalTransformation();
     }
@@ -112,7 +96,8 @@ public:
         }
     }
 
-    virtual void setDomain(Domain* domain, const ID& node_ids, bool initialized)
+    virtual void
+    setDomain(Domain* domain, const ID& node_ids, bool initialized)
     {
         // call base class setDomain to
         // get nodes and save initial displacements and rotations
@@ -126,16 +111,17 @@ public:
         revertToStart();
     }
 
-    virtual void revertToLastCommit()
+    virtual void 
+    revertToLastCommit()
     {
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             m_RV[i] = m_RV_converged[i];
             m_QN[i] = m_QN_converged[i];
         }
     }
 
-    virtual void commit()
+    virtual void 
+    commit()
     {
         for (int i = 0; i < 4; i++) {
             m_RV_converged[i] = m_RV[i];
@@ -143,7 +129,8 @@ public:
         }
     }
 
-    virtual void update(const VectorType& globalDisplacements)
+    virtual void 
+    update(const Vector& globalDisplacements)
     {
         for (int i = 0; i < 4; i++) {
             // compute current rotation vector removing initial rotations if any
@@ -167,7 +154,8 @@ public:
         }
     }
 
-    virtual ASDShellQ4LocalCoordinateSystem createLocalCoordinateSystem(const VectorType& globalDisplacements)const
+    virtual ASDShellQ4LocalCoordinateSystem 
+    createLocalCoordinateSystem(const VectorType& globalDisplacements) const
     {
         // reference coordinate system
         ASDShellQ4LocalCoordinateSystem a = createReferenceCoordinateSystem();
@@ -230,7 +218,7 @@ public:
     virtual void calculateLocalDisplacements(
         const ASDShellQ4LocalCoordinateSystem& LCS,
         const VectorType& globalDisplacements,
-        VectorType& localDisplacements)
+        Vector& localDisplacements)
     {
         // orientation and center of current local coordinate system
         QuaternionType Q = QuaternionType::FromRotationMatrix(LCS.Orientation());
@@ -240,21 +228,21 @@ public:
             int index = i * 6;
 
             // centered undeformed position
-            Vector3Type X0;
+            Vector3D X0;
             X0 = m_nodes[i]->getCrds();
             X0 -= m_C0;
 
             // centered deformed position
-            Vector3Type X;
+            Vector3D X;
             X  = X0 + globalDisplacements.view(index, index+3);
             X -= C;
 
             // get deformational displacements
             Q.rotateVector(X);
             m_Q0.rotateVector(X0);
-            Vector3Type deformationalDisplacements = X - X0;
+            Vector3D deformationalDisplacements = X - X0;
 
-            localDisplacements[index] = deformationalDisplacements[0];
+            localDisplacements[index    ] = deformationalDisplacements[0];
             localDisplacements[index + 1] = deformationalDisplacements[1];
             localDisplacements[index + 2] = deformationalDisplacements[2];
 
@@ -283,15 +271,16 @@ public:
         // Here instead we already calculate a nonlinear Projector (P = Pu - S * G)!
 
         static MatrixType T(24, 24);
+        T.Zero();
         LCS.ComputeTotalRotationMatrix(T);
 
         // Form all matrices:
         // S: Spin-Fitter matrix
         // G: Spin-Lever matrix
         // P: Projector (Translational & Rotational)
-        static MatrixType P(24, 24);
-        static MatrixType S(24, 3);
-        static MatrixType G(3, 24);
+        static Matrix P(24, 24);
+        static Matrix S(24, 3);
+        static Matrix G(3, 24);
         EICR::Compute_Pt(4, P);
         EICR::Compute_S(LCS.Nodes(), S);
         RotationGradient(LCS, globalDisplacements, G);
@@ -323,7 +312,7 @@ public:
         // At this point 'LHS' contains the 'projected' Material Stiffness matrix
         // in local corotational coordinate system
 
-        static MatrixType temp(24, 24);
+        static Matrix temp(24, 24);
         temp.addMatrixProduct(0.0, LHS, H, 1.0);
         LHS.addMatrixProduct(0.0, temp, P, 1.0);
         temp.addMatrixTransposeProduct(0.0, P, LHS, 1.0);
@@ -336,14 +325,14 @@ public:
         // At this point 'LHS' contains also this term of the Geometric stiffness
         // (Ke = (P' * Km * H * P) - (G' * Fn' * P))
 
-        static MatrixType Fnm(24, 3);
+        static Matrix Fnm(24, 3);
         Fnm.Zero();
-        Fnm.addSpinAtRow(projectedLocalForces,  0);
-        Fnm.addSpinAtRow(projectedLocalForces,  6);
+        Fnm.addSpinAtRow(projectedLocalForces,   0);
+        Fnm.addSpinAtRow(projectedLocalForces,   6);
         Fnm.addSpinAtRow(projectedLocalForces,  12);
         Fnm.addSpinAtRow(projectedLocalForces,  18);
 
-        static MatrixType FnmT(3, 24);
+        static Matrix FnmT(3, 24);
         FnmT.addMatrixTranspose(0.0, Fnm, 1.0);
 
         temp.addMatrixTransposeProduct(0.0, G, FnmT, 1.0);
@@ -439,7 +428,8 @@ public:
 
         // 9*4 -> 9 quaternions +
         auto lamq = [&v, &pos](QuaternionType& x) {
-            x = QuaternionType(v(pos++), v(pos++), v(pos++), v(pos++));
+            x = QuaternionType(v(pos), v(pos+1), v(pos+2), v(pos+3));
+            pos += 4;
         };
         lamq(m_Q0);
         for (int i = 0; i < 4; i++)
