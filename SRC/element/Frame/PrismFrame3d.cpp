@@ -70,11 +70,12 @@ PrismFrame3d::PrismFrame3d(int tag,
 
   section_tag = section.getTag();
 
-  Jx = 1.0;
   section.getIntegral(Field::Unit,   State::Init, A);
+  section.getIntegral(Field::UnitY,  State::Init, Ay);
+  section.getIntegral(Field::UnitZ,  State::Init, Az);
   section.getIntegral(Field::UnitZZ, State::Init, Iy);
   section.getIntegral(Field::UnitYY, State::Init, Iz);
-
+  Jx = Iy + Iz;
 
   const Matrix &sectTangent = section.getInitialTangent();
   const ID &sectCode = section.getType();
@@ -86,7 +87,8 @@ PrismFrame3d::PrismFrame3d(int tag,
       E = sectTangent(i,i)/A;
       break;
     case SECTION_RESPONSE_T:
-      G  = sectTangent(i,i)/Jx;
+      if (Jx != 0)
+        G  = sectTangent(i,i)/Jx;
       break;
     default:
       break;
@@ -99,7 +101,6 @@ PrismFrame3d::PrismFrame3d(int tag,
       ;
     }
   }
-
 }
 
 int
@@ -118,6 +119,14 @@ PrismFrame3d::setNodes()
     return -1;
   }
 
+  if (Ay != 0)
+    phiY = 12.0 * E * Iz / (L * L * G * Ay);
+  else
+    phiY = 0.0;
+  if (Az != 0)
+    phiZ = 12.0 * E * Iz / (L * L * G * Ay);
+  else
+    phiZ = 0.0;
   //
   formBasicStiffness(km);
 
@@ -130,29 +139,29 @@ PrismFrame3d::setNodes()
 
 inline void
 PrismFrame3d::formBasicStiffness(OpenSees::MatrixND<6,6>& kb) const
-{
-//  const double L = this->getLength(State::Init);
-    const double oneOverL = 1.0/L;
-    
+{    
     kb.zero();
     kb(0,0) = E*A/L;
     kb(5,5) = G*Jx/L;
     if (releasez == 0) {
-      kb(1,1) = kb(2,2) = 4.0*E*Iz/L;  // iz-iz and jz-jz
+//    kb(1,1) = kb(2,2) = 4.0*E*Iz/L;  // iz-iz and jz-jz
+      kb(1,1) = kb(2,2) = E*Iz*(4+phiY)/(L*(1+phiY));
       kb(1,3) = kb(3,1) = 4.0*E*Iyz/L; // iz-iy and iy-iz
-      kb(1,2) = kb(2,1) = 2.0*E*Iz/L;  // iz-jz and jz-iz
+//    kb(1,2) = kb(2,1) = 2.0*E*Iz/L;  // iz-jz and jz-iz
+      kb(2,1) = kb(1,2) = E*Iz*(2-phiY)/(L*(1+phiY));
       kb(1,4) = kb(4,1) = 2.0*E*Iyz/L; // iz-jy and jy-iz
     }
-    if (releasez == 1)   // release I
+    if (releasez == 1)   // release I; TODO: shear correction
       kb(2,2) = 3.0*E*Iz/L;
 
-    if (releasez == 2)   // release J
+    if (releasez == 2)   // release J; TODO: shear correction
       kb(1,1) = 3.0*E*Iz/L;
 
-
     if (releasey == 0) {
-      kb(3,3) = kb(4,4) = 4.0*E*Iy/L;
-      kb(4,3) = kb(3,4) = 2.0*E*Iy/L;
+      // kb(3,3) = kb(4,4) = 4.0*E*Iy/L;
+      // kb(4,3) = kb(3,4) = 2.0*E*Iy/L;
+      kb(3,3) = kb(4,4) = E*Iy*(4.0 + phiZ)/(L*(1+phiZ));
+      kb(4,3) = kb(3,4) = E*Iy*(2.0 - phiZ)/(L*(1+phiZ));
     }
     if (releasey == 1)   // release I
       kb(4,4) = 3.0*E*Iy/L;
@@ -327,7 +336,7 @@ PrismFrame3d::update()
         break;
     }
 
-  q = ke*v;
+  q  = ke*v;
   q += q0;
 
   return ok;
@@ -350,19 +359,17 @@ PrismFrame3d::getResistingForce()
   double q4 = q[4];
   double q5 = q[5];
 
-  double oneOverL = 1.0 / theCoordTransf->getInitialLength();
-
   thread_local VectorND<12> pl;
-  pl[0]  = -q0;                    // Ni
-  pl[1]  =  oneOverL * (q1 + q2);  // Viy
-  pl[2]  = -oneOverL * (q3 + q4);  // Viz
-  pl[3]  = -q5;                    // Ti
+  pl[0]  = -q0;           // Ni
+  pl[1]  =  (q1 + q2)/L;  // Viy
+  pl[2]  = -(q3 + q4)/L;  // Viz
+  pl[3]  = -q5;           // Ti
   pl[4]  =  q3;
   pl[5]  =  q1;
-  pl[6]  =  q0;                    // Nj
-  pl[7]  = -pl[1];                 // Vjy
-  pl[8]  = -pl[2];                 // Vjz
-  pl[9]  = q5;                     // Tj
+  pl[6]  =  q0;           // Nj
+  pl[7]  = -pl[1];        // Vjy
+  pl[8]  = -pl[2];        // Vjz
+  pl[9]  = q5;            // Tj
   pl[10] = q4;
   pl[11] = q2;
 
@@ -572,7 +579,7 @@ PrismFrame3d::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroke
     opserr << "PrismFrame3d::recvSelf -- could not receive data Vector\n";
     return res;
   }
-  
+
   A  = data(0);
   E  = data(1); 
   G  = data(2); 
@@ -662,7 +669,7 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
         s << "\"Iy\": " << Iy << ", ";
         s << "\"Iz\": " << Iz;
       }
-      // 
+      //
       s << "}";
   }
     
@@ -675,44 +682,14 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
         s << "\t0\t0.0000000\n";
     }
 
-    else if (flag < -1) {
-      int counter = (flag + 1) * -1;
-      int eleTag = this->getTag();
-      const Vector &force = this->getResistingForce();
-
-      double P, MZ1, MZ2, VY, MY1, MY2, VZ, T;
-      double L = theCoordTransf->getInitialLength();
-      double oneOverL = 1.0 / L;
-
-      P   = q[0];
-      MZ1 = q[1];
-      MZ2 = q[2];
-      VY  = (MZ1 + MZ2)*oneOverL;
-      T   = q[5];
-      MY1 = q[3];
-      MY2 = q[4];
-      VZ  = (MY1 + MY2)*oneOverL;
-
-      s << "FORCE\t" << eleTag << "\t" << counter << "\t0";
-      s << "\t" << -P + p0[0] << "\t" << VY + p0[1] << "\t" << -VZ + p0[3] << "\n";
-      s << "FORCE\t" << eleTag << "\t" << counter << "\t1";
-      s << "\t" << P << ' ' << -VY + p0[2] << ' ' << VZ + p0[4] << "\n";
-      s << "MOMENT\t" << eleTag << "\t" << counter << "\t0";
-      s << "\t" << -T << "\t" << MY1 << "\t" << MZ1 << "\n";
-      s << "MOMENT\t" << eleTag << "\t" << counter << "\t1";
-      s << "\t" << T << ' ' << MY2 << ' ' << MZ2 << "\n";
-    }
-
     else if (flag == 2) {
-        this->getResistingForce(); // in case linear algo
-
         static Vector xAxis(3);
         static Vector yAxis(3);
         static Vector zAxis(3);
 
         theCoordTransf->getLocalAxes(xAxis, yAxis, zAxis);
 
-        s << "#ElasticBeamColumn3D\n";
+        s << "#PrismFrame3d\n";
         s << "#LocalAxis " << xAxis(0) << " " << xAxis(1) << " " << xAxis(2);
         s << " " << yAxis(0) << " " << yAxis(1) << " " << yAxis(2) << " ";
         s << zAxis(0) << " " << zAxis(1) << " " << zAxis(2) << "\n";
@@ -729,58 +706,16 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
         s << "#NODE " << node2Crd(0) << " " << node2Crd(1) << " " << node2Crd(2)
                 << " " << node2Disp(0) << " " << node2Disp(1) << " " << node2Disp(2)
                 << " " << node2Disp(3) << " " << node2Disp(4) << " " << node2Disp(5) << "\n";
-
-        double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
-        double L = theCoordTransf->getInitialLength();
-        double oneOverL = 1.0 / L;
-
-        N = q[0];
-        Mz1 = q[1];
-        Mz2 = q[2];
-        Vy = (Mz1 + Mz2)*oneOverL;
-        My1 = q[3];
-        My2 = q[4];
-        Vz = -(My1 + My2)*oneOverL;
-        T = q[5];
-
-        s << "#END_FORCES " << -N + p0[0] << ' ' << Vy + p0[1] << ' ' << Vz + p0[3] << ' '
-                            << -T << ' ' 
-                            << My1 << ' ' 
-                            << Mz1 << "\n";
-        s << "#END_FORCES " << N << ' ' 
-                            << -Vy + p0[2] << ' ' 
-                            << -Vz + p0[4] << ' '
-                            << T << ' ' 
-                            << My2 << ' ' 
-                            << Mz2 << "\n";
     }
     
     if (flag == OPS_PRINT_CURRENTSTATE) {
-        this->getResistingForce(); // in case linear algo
-
         s << "\n  PrismFrame3d: " << this->getTag() << "\n";
         s << "\tConnected Nodes: " << connectedExternalNodes;
         s << "\tCoordTransf: " << theCoordTransf->getTag() << "\n";
         s << "\tmass density:  " << total_mass/L << ", mass_type: " << mass_flag << "\n";
         s << "\trelease about z:  " << releasez << "\n";
-        s << "\trelease about y:  " << releasey << "\n";                
-        double N, Mz1, Mz2, Vy, My1, My2, Vz, T;
-        double L = theCoordTransf->getInitialLength();
-        double oneOverL = 1.0 / L;
-
-        N = q[0];
-        Mz1 = q[1];
-        Mz2 = q[2];
-        Vy = (Mz1 + Mz2)*oneOverL;
-        My1 = q[3];
-        My2 = q[4];
-        Vz = -(My1 + My2)*oneOverL;
-        T = q[5];
-
-        s << "\tEnd 1 Forces (P Mz Vy My Vz T): "
-                << -N + p0[0] << ' ' << Mz1 << ' ' << Vy + p0[1] << ' ' << My1 << ' ' << Vz + p0[3] << ' ' << -T << "\n";
-        s << "\tEnd 2 Forces (P Mz Vy My Vz T): "
-                << N << ' ' << Mz2 << ' ' << -Vy + p0[2] << ' ' << My2 << ' ' << -Vz + p0[4] << ' ' << T << "\n";
+        s << "\trelease about y:  " << releasey << "\n";
+        return;
     }
 }
 
@@ -895,7 +830,7 @@ PrismFrame3d::getResponse(int responseID, Information &info)
   static Vector Res(12);
   Res = this->getResistingForce();
   static Vector s(6);
-  
+
   switch (responseID) {
   case 1: // stiffness
     return info.setMatrix(this->getTangentStiff());
