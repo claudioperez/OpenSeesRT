@@ -226,7 +226,7 @@ PrismFrame2d::formBasicStiffness(OpenSees::MatrixND<3,3>& kb) const
 
   kb(0,0) = E*A/L;
 
-  double EI     = E*Iz;
+  double EI = E*Iz;
   if (release == 0) {
     kb(1,1) = kb(2,2) = EI*(4+phi)/(L*(1+phi));
     kb(2,1) = kb(1,2) = EI*(2-phi)/(L*(1+phi));    
