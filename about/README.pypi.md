@@ -1,4 +1,3 @@
-# `opensees`
 
 <img align="left" src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/peer-black-300.png" width="150px" alt="PEER Logo">
 
@@ -26,7 +25,7 @@ Nonlinear finite element analysis.
 [pypi-v-image]: https://img.shields.io/pypi/v/opensees.svg
 [pypi-v-link]: https://pypi.org/project/opensees
 
-
+<!--
 ## Support
 
 <table align="center" style="border: 0;">
@@ -47,7 +46,6 @@ Nonlinear finite element analysis.
   </td>
 
   <td>
-    <!-- <a href="https://brace2.herokuapp.com"> -->
     <a href="https://stairlab.berkeley.edu">
     <img src="https://raw.githubusercontent.com/claudioperez/sdof/master/docs/assets/stairlab.svg"
          alt="STAIRlab Logo" width="200"/>
@@ -56,4 +54,5 @@ Nonlinear finite element analysis.
  
  </tr>
 </table>
+-->
 

@@ -173,13 +173,18 @@ class Interpreter:
     def serialize(self)->dict:
         import tempfile, pathlib
         with tempfile.TemporaryDirectory() as tmp:
-            file = tmp/pathlib.Path("model.json")
-            self.eval(f"print -json -file {file}")
+            if os.name == 'nt':
+                file = ".model.json"
+                self.eval(f"print -json -file {file}")
+            else:
+                file = tmp/pathlib.Path("model.json")
+                self.eval(f"print -json -file {file}")
 
-            # Read in the generated JSON
             with open(file, "r") as f:
                 model = json.load(f)
 
+        if os.name == 'nt':
+            os.remove(file)
         return model
 
     def export(self, *args):

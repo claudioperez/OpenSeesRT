@@ -16,7 +16,7 @@
 #include <G3_Logging.h>
 #include <elementAPI.h>
 #include <BasicModelBuilder.h>
-
+#include <Parameter.h>
 #include <string.h>
 #include <fstream>
 #include <iostream>
@@ -45,6 +45,7 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <FiberSection2dInt.h>
 #include <FiberSection3d.h>
 #include <FrameFiberSection3d.h>
+#include <FrameSolidSection3d.h>
 #include <FiberSectionAsym3d.h>
 //#include <FiberSectionGJ.h>
 
@@ -134,7 +135,10 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       strcmp(argv[1], "fiberSec") == 0 ||
       strcmp(argv[1], "FiberFrame") == 0 ||
       strcmp(argv[1], "FrameFiber") == 0 ||
+      strcmp(argv[1], "AxialFiber") == 0 ||
       strcmp(argv[1], "FiberSection") == 0 ||
+      //
+      strcmp(argv[1], "ShearFiber") == 0 ||
       // Shear
       strcmp(argv[1], "NDFiber") == 0 ||
       strcmp(argv[1], "NDFiberWarping") == 0 ||
@@ -522,21 +526,16 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 
     if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid matTag" << endln;
-      opserr << "PlateFiberThermal section: " << matTag << endln;
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[4], &h) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid h" << endln;
-      opserr << "PlateFiberThermal section: " << tag << endln;
       return TCL_ERROR;
     }
 
     NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matTag);
     if (theMaterial == nullptr) {
-      opserr << G3_ERROR_PROMPT << "nD material does not exist\n";
-      opserr << "nD material: " << matTag;
-      opserr << "\nPlateFiberThermal section: " << tag << endln;
       return TCL_ERROR;
     }
 
@@ -781,12 +780,12 @@ initSectionCommands(ClientData clientData, Tcl_Interp *interp,
   assert(clientData != nullptr);
   BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
 
-  // dimension of the structure (1d, 2d, or 3d)
+  // Dimension of the structure
   int ndm = builder->getNDM();
 
   SectionBuilder  *sbuilder = nullptr;
   FrameSection    *section  = nullptr;
-  // create 2d section
+  // Create 2d section
   if (ndm == 2) {
     if (options.isND) {
       if (options.isWarping) {
@@ -814,11 +813,17 @@ initSectionCommands(ClientData clientData, Tcl_Interp *interp,
     assert(theTorsion != nullptr);
 
     if (options.isND) {
-      auto sec = new NDFiberSection3d(secTag,
-                                      options.computeCentroid);
-      sbuilder = new FiberSectionBuilder<3, NDMaterial, NDFiberSection3d>(*builder, *sec);
-      section = sec;
+      if (options.isNew) {
+        auto sec = new FrameSolidSection3d(secTag, 30, 1.0, options.computeCentroid);
+        sbuilder = new FiberSectionBuilder<3, NDMaterial, FrameSolidSection3d>(*builder, *sec);
+        section = sec;
 
+      } else {
+        auto sec = new NDFiberSection3d(secTag,
+                                        options.computeCentroid);
+        sbuilder = new FiberSectionBuilder<3, NDMaterial, NDFiberSection3d>(*builder, *sec);
+        section = sec;
+      }
     } else {
       if (options.isThermal) {
         auto sec = new FiberSection3dThermal(secTag, 30, *theTorsion,
@@ -899,7 +904,8 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
   builder->setCurrentSectionBuilder(secTag);
 
   FiberSectionConfig options;
-  if (strcmp(argv[1], "NDFiber") == 0)
+  if (strcmp(argv[1], "NDFiber") == 0 ||
+      strcmp(argv[1], "ShearFiber") == 0)
     options.isND = true;
 
   if (strcmp(argv[1], "NDFiberWarping") == 0) {
@@ -907,7 +913,10 @@ TclCommand_addFiberSection(ClientData clientData, Tcl_Interp *interp, int argc,
     options.isWarping = true;
   }
   else if (strcmp(argv[1], "FrameFiber") == 0 ||
-             strcmp(argv[1], "FiberFrame") == 0)
+             strcmp(argv[1], "FiberFrame") == 0 ||
+             strcmp(argv[1], "AxialFiber") == 0 ||
+             strcmp(argv[1], "ShearFiber") == 0 
+             )
     options.isNew = true;
 
   else if (strcmp(argv[1], "FiberThermal") == 0 ||
@@ -1051,11 +1060,11 @@ TclCommand_addFiberIntSection(ClientData clientData, Tcl_Interp *interp,
 
   builder->setCurrentSectionBuilder(secTag);
 
-
-  int brace = 3; // Start of recursive parse
+  //
+  int brace = 3;
   double GJ = 1.0;
   bool deleteTorsion = false;
-  UniaxialMaterial *torsion = 0;
+  UniaxialMaterial *torsion = nullptr;
   if (strcmp(argv[3], "-GJ") == 0) {
     if (Tcl_GetDouble(interp, argv[4], &GJ) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid GJ";
@@ -1404,7 +1413,7 @@ TclCommand_addPatch(ClientData clientData,
   return TCL_OK;
 }
 
-// add fiber to fiber section
+// Add a fiber to a fiber section
 int
 TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
                     TCL_Char ** const argv)
@@ -1413,7 +1422,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
   BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
   if (argc < 5) {
-    opserr << G3_ERROR_PROMPT << "invalid num args: fiber yLoc zLoc area matTag\n";
+    opserr << G3_ERROR_PROMPT << "invalid num args: fiber y z area matTag\n";
     return TCL_ERROR;
   }
 
@@ -1423,47 +1432,96 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
 
-//int numFibers = fiberSectionRepr->getNumFibers();
-
-
   double yLoc, zLoc, area;
   if (Tcl_GetDouble(interp, argv[1], &yLoc) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "invalid yLoc: fiber yLoc zLoc area matTag\n";
+    opserr << G3_ERROR_PROMPT << "invalid y: fiber y z area matTag\n";
     return TCL_ERROR;
   }
   if (Tcl_GetDouble(interp, argv[2], &zLoc) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "invalid zLoc: fiber yLoc zLoc area matTag\n";
+    opserr << G3_ERROR_PROMPT << "invalid z: fiber y z area matTag\n";
     return TCL_ERROR;
   }
   if (Tcl_GetDouble(interp, argv[3], &area) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "invalid area: fiber yLoc zLoc area matTag\n";
+    opserr << G3_ERROR_PROMPT << "invalid area: fiber y z area matTag\n";
     return TCL_ERROR;
   }
   int matTag;
   if (Tcl_GetInt(interp, argv[4], &matTag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "invalid matTag: fiber yLoc zLoc area matTag\n";
+    opserr << G3_ERROR_PROMPT << "invalid material: fiber y z area matTag\n";
     return TCL_ERROR;
+  }
+
+  static constexpr int WarpModeCount = 3;
+  double warp[WarpModeCount][3]{};
+  int argi = 5;
+  int i_warp=0;
+  for (; i_warp<WarpModeCount; i_warp++) {
+    if (argi >= argc)
+      break;
+    
+    if (strcmp(argv[argi], "-section") == 0) {
+      argi += 2;
+      continue;
+    }
+
+    //
+    // Tcl_SplitList will parse argv[argi] as a Tcl list and return
+    // split_argc (the number of elements) and split_argv (the elements).
+    //
+    int          split_argc;
+    const char **split_argv;
+    if (Tcl_SplitList(interp, argv[argi], &split_argc, &split_argv) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "invalid warp: fiber y z area matTag <warp>...\n";
+      return TCL_ERROR;
+    }
+
+    if (split_argc != 3) {
+        /* Handle error (e.g., wrong number of elements) */
+        Tcl_Free((char *) split_argv);
+        return TCL_ERROR;
+    }
+
+    for (int j = 0; j < 3; j++) {
+      if (Tcl_GetDouble(interp, split_argv[j], &warp[i_warp][j]) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "invalid warp: fiber y z area matTag <warp>...\n";
+        Tcl_Free((char *) split_argv);
+        return TCL_ERROR;
+      }
+    }
+
+    // Free memory allocated by Tcl_SplitList.
+    Tcl_Free((char *) split_argv);
+
+    argi++;
   }
 
   //
   // Add fiber to section builder
   //
   int ndm = builder->getNDM();
-  int error = 0;
+  int id = 0;
   if (ndm == 2) {
     Vector pos(2);
     pos(0) = yLoc;
     pos(1) = zLoc;
-    error = fiberSectionRepr->addFiber(0, matTag, area, pos);
+    id = fiberSectionRepr->addFiber(0, matTag, area, pos);
   } else if (ndm == 3) {
     Vector pos(2);
     pos(0) = yLoc;
     pos(1) = zLoc;
-    error = fiberSectionRepr->addFiber(0, matTag, area, pos);
+    id = fiberSectionRepr->addFiber(0, matTag, area, pos);
+  }
+  // set warping
+  while (i_warp > 0) {
+    if (0 > fiberSectionRepr->setWarping(id, i_warp-1, warp[i_warp-1])) {
+      opserr << G3_ERROR_PROMPT << "failed to set warping for fiber\n";
+      return TCL_ERROR;
+    }
+    i_warp--;
   }
 
-  if (error) {
-    opserr << G3_ERROR_PROMPT << "cannot add patch to section\n";
+  if (id < 0) {
+    opserr << G3_ERROR_PROMPT << "Failed to add fiber to section\n";
     return TCL_ERROR;
   }
 

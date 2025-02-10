@@ -932,10 +932,11 @@ LagrangeQuad<NEN,enh>::getResponse(int responseID, Information& eleInfo)
     return eleInfo.setVector(stresses);
 
   } else if (responseID == 11) {
-
     // extrapolate stress from Gauss points to element nodes
-    static Vector stressGP(12);      // 3*nip
-    static Vector stressAtNodes(12); // 3*nnodes
+    constexpr static int ns = 3; // number of stress components
+
+    static Vector stressGP(3*NIP);
+    static Vector stressAtNodes(3*NEN);
     stressAtNodes.Zero();
     int cnt = 0;
     // first get stress components (xx, yy, xy) at Gauss points
@@ -949,18 +950,18 @@ LagrangeQuad<NEN,enh>::getResponse(int responseID, Information& eleInfo)
     }
 
     // [nnodes][nip]
-    constexpr double We[4][4] = {{1.8660254037844386, -0.5, 0.1339745962155614, -0.5},
-                                 {-0.5, 1.8660254037844386, -0.5, 0.1339745962155614},
-                                 {0.1339745962155614, -0.5, 1.8660254037844386, -0.5},
-                                 {-0.5, 0.1339745962155614, -0.5, 1.8660254037844386}};
+    constexpr double We[NEN][NIP] = {{1.8660254037844386, -0.5, 0.1339745962155614, -0.5},
+                                     {-0.5, 1.8660254037844386, -0.5, 0.1339745962155614},
+                                     {0.1339745962155614, -0.5, 1.8660254037844386, -0.5},
+                                     {-0.5, 0.1339745962155614, -0.5, 1.8660254037844386}};
 
-    for (int i = 0; i < 4; i++) {   // nnodes
-      for (int k = 0; k < 3; k++) { // number of stress components
+    for (int i = 0; i < NEN; i++) {   // nnodes
+      for (int k = 0; k < ns; k++) { // number of stress components
         int p = 3 * i + k;
-        for (int j = 0; j < 4; j++) { // nip
+        for (int j = 0; j < NIP; j++) { // nip
+          // l is 
           int l = 3 * j + k;
           stressAtNodes(p) += We[i][j] * stressGP(l);
-          // opserr << "stressAtNodes(" << p << ") = We[" << i << "][" << j << "] * stressGP(" << l << ") = " << We[i][j] << " * " << stressGP(l) << " = " << stressAtNodes(p) <<  "\n";
         }
       }
     }

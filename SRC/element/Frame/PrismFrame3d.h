@@ -101,7 +101,6 @@ class PrismFrame3d : public BasicFrame3d
     void formBasicStiffness(OpenSees::MatrixND<6,6>& kb) const;
     VectorND<NBV> getBasicForceGrad(int grad);
 
-
     double E;    // elastic modulus
     double G;    // shear modulus
 

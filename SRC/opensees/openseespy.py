@@ -80,7 +80,8 @@ def _split_iter(source, sep=None, regex=False):
 
 class _Surface:
     def __init__(self, nodes, cells, child, points, split):
-        import shps.child, shps.plane
+        import shps.child
+        import shps.plane
         self.nodes  = nodes
         self.cells  = cells
         self.points = points
@@ -138,7 +139,7 @@ class OpenSeesPy:
         # Enable OpenSeesPy command behaviors
         self._interp.eval("pragma openseespy")
 
-    def _str_call(self, proc_name: str, *args, _final=None, _return_string=False, **kwds)->str:
+    def _invoke_proc(self, proc_name: str, *args, _final=None, _return_string=False, **kwds)->str:
         """
         Invoke the Interpreter's eval method, calling
         a procedure named `proc_name` with arguments
@@ -200,7 +201,7 @@ class OpenSeesPy:
 
     def block3D(self, *args, **kwds):
         if isinstance(args[6], list) or isinstance(args[7], dict):
-            return self._str_call("block3D", *args, **kwds)
+            return self._invoke_proc("block3D", *args, **kwds)
 
         # We have to imitate the OpenSeesPy parser, which
         # *requires* hard-coding the number of element args
@@ -213,18 +214,18 @@ class OpenSeesPy:
         elem_args = args[6]
 
         nl  = '\n'
-        ndm = self._str_call("getNDM")
+        ndm = self._invoke_proc("getNDM")
         # loop over remaining args to form node coords
         node_args = f"""{{
             {nl.join(" ".join(map(str,args[elem_argc+i*(ndm+1):elem_argc+(i+1)*(ndm+1)])) for i in range(int(len(args[elem_argc:])/(ndm+1))))}
         }}"""
 
-        return self._str_call("block3D", *args[:6], elem_args, node_args)
+        return self._invoke_proc("block3D", *args[:6], elem_args, node_args)
 
 
     def block2D(self, *args, **kwds):
         if isinstance(args[5], list):
-            return self._str_call("block2D", *args, **kwds)
+            return self._invoke_proc("block2D", *args, **kwds)
 
         # We have to imitate the OpenSeesPy parser, which
         # *requires* hard-coding the number of element args
@@ -253,13 +254,13 @@ class OpenSeesPy:
         elem_args = list(args[5:elem_argc])
 
         nl  = '\n'
-        ndm = self._str_call("getNDM")
+        ndm = self._invoke_proc("getNDM")
         # loop over remaining args to form node coords
         node_args = f"""{{
             {nl.join(" ".join(map(str,args[elem_argc+i*(ndm+1):elem_argc+(i+1)*(ndm+1)])) for i in range(int(len(args[elem_argc:])/(ndm+1))))}
         }}"""
 
-        return self._str_call("block2D", *args[:5], elem_args, node_args)
+        return self._invoke_proc("block2D", *args[:5], elem_args, node_args)
 
 
     def timeSeries(self, *args, **kwds):
@@ -296,24 +297,27 @@ class OpenSeesPy:
             time = args[it+1:it+nt]
             args = [a for a in args[:it+1]] + [time] + [a for a in args[it+nt:]]
 
-        return self._str_call("timeSeries", *args, **kwds)
+        return self._invoke_proc("timeSeries", *args, **kwds)
 
     def pattern(self, *args, load=None, **kwds):
         self._current_pattern = args[1]
+
+        if load is None and "loads" in kwds:
+            load = kwds.pop("loads")
 
         if load is not None:
             loads = [
                     ("load", k, *v) for k,v in load.items()
             ]
-            return self._str_call("pattern", *args, **kwds, _final=loads)
+            return self._invoke_proc("pattern", *args, **kwds, _final=loads)
         else:
-            return self._str_call("pattern", *args, **kwds)
+            return self._invoke_proc("pattern", *args, **kwds)
 
     def load(self, *args, pattern=None, load=None, **kwds):
         if pattern is None:
             pattern = self._current_pattern
 
-        return self._str_call("nodalLoad", *args, "-pattern", pattern, **kwds)
+        return self._invoke_proc("nodalLoad", *args, "-pattern", pattern, **kwds)
 
     def mesh(self, type, tag: int, *args, **kwds):
         if type == "line":
@@ -325,11 +329,11 @@ class OpenSeesPy:
         from itertools import count
 
         ndI, ndJ = ndtags
-        add_node    = partial(self._str_call, "node")
-        add_element = partial(self._str_call, "element")
+        add_node    = partial(self._invoke_proc, "node")
+        add_element = partial(self._invoke_proc, "element")
 
-        xi = np.array(self._str_call("nodeCoord", ndI))
-        xj = np.array(self._str_call("nodeCoord", ndJ))
+        xi = np.array(self._invoke_proc("nodeCoord", ndI))
+        xj = np.array(self._invoke_proc("nodeCoord", ndJ))
 
         L  = np.linalg.norm(xj - xi)
         nn = int(L//meshsize) + 1
@@ -338,9 +342,9 @@ class OpenSeesPy:
         nodes[0]    = ndI
         nodes[nn-1] = ndJ
 
-        node_tags = set(self._str_call("getNodeTags"))
+        node_tags = set(self._invoke_proc("getNodeTags"))
         new_node  = filter(lambda i: i not in node_tags, count(1))
-        elem_tags = set(self._str_call("getEleTags") or [])
+        elem_tags = set(self._invoke_proc("getEleTags") or [])
         new_elem  = filter(lambda i: i not in elem_tags, count(1))
 
         for i,x in enumerate(np.linspace(xi, xj, nn, endpoint=True)[1:]):
@@ -371,25 +375,33 @@ class OpenSeesPy:
         else:
             shape = None
 
-        ret = self._str_call("section", type, sec_tag, *args, **kwds)
+        ret = self._invoke_proc("section", type, sec_tag, *args, **kwds)
 
         if shape is not None:
             for fiber in shape.fibers:
-                self._str_call("fiber", *fiber.coord, fiber.area, fiber.material, section=sec_tag)
+                self._invoke_proc("fiber", *fiber.coord, fiber.area, fiber.material, section=sec_tag)
 
         return ret
 
     def patch(self, *args, **kwds):
+        if "section" not in kwds:
+            kwds["section"] = self._current_section
+        return self._invoke_proc("patch", *args, **kwds)
         section = self._current_section
-        return self._str_call("patch", *args, "-section", section, **kwds)
+        return self._invoke_proc("patch", *args, "-section", section, **kwds)
 
     def layer(self, *args, **kwds):
+        if "section" not in kwds:
+            kwds["section"] = self._current_section
+        return self._invoke_proc("layer", *args, **kwds)
         section = self._current_section
-        return self._str_call("layer", *args, "-section", section, **kwds)
+        return self._invoke_proc("layer", *args, "-section", section, **kwds)
 
     def fiber(self, *args, **kwds):
-        section = self._current_section
-        return self._str_call("fiber", *args, "-section", section, **kwds)
+        if "section" not in kwds:
+            kwds["section"] = self._current_section
+        return self._invoke_proc("fiber", *args, **kwds)
+        return self._invoke_proc("fiber", *args, "-section", section, **kwds)
 
 
 
@@ -397,7 +409,7 @@ class Model:
     def __init__(self, *args, echo_file=None, **kwds):
         self._openseespy = OpenSeesPy(echo_file=echo_file)
         if len(args) > 0 or len(kwds) > 0:
-            self._openseespy._str_call("model", *args, **kwds)
+            self._openseespy._invoke_proc("model", *args, **kwds)
 
     def eval(self, *args, **kwds):
         return self._openseespy.eval(*args, **kwds)
@@ -407,6 +419,13 @@ class Model:
 
     def lift(self, type_name: str, tag: int):
         return _lift(self._openseespy._interp._tcl.interpaddr(), type_name, tag)
+    
+    # def invoke(self, *args, **kwds):
+    #     if len(args) == 2:
+    #         from ._invoke import _Handle
+    #         return _Handle(self._openseespy, *args, **kwds)
+    #     else:
+    #         return self._openseespy._invoke_proc(*args, **kwds)
 
     def asdict(self):
         """April 2024"""
@@ -426,15 +445,15 @@ class Model:
                 if tag <= existing_tag:
                     tag = existing_tag + 1
 
-        self._openseespy._str_call("element", type, tag, *args, **kwds)
+        self._openseespy._invoke_proc("element", type, tag, *args, **kwds)
         return tag
 
     def getIterationCount(self):
-        return self._openseespy._str_call("numIter")
+        return self._openseespy._invoke_proc("numIter")
 
     def getResidual(self):
         import numpy as np
-        residual_string = self._openseespy._str_call("printB", "-ret", _return_string=True)
+        residual_string = self._openseespy._invoke_proc("printB", "-ret", _return_string=True)
         n = sum(1 for _ in _split_iter(residual_string))
         return np.fromiter(map(float, _split_iter(residual_string)), count=n, dtype=float)
 
@@ -442,7 +461,7 @@ class Model:
     def getTangent(self, **kwds):
         import numpy as np
 
-        tangent_string = self._openseespy._str_call("printA", "-ret", _return_string=True, **kwds)
+        tangent_string = self._openseespy._invoke_proc("printA", "-ret", _return_string=True, **kwds)
 
         nn = sum(1 for _ in _split_iter(tangent_string))
 
@@ -473,8 +492,8 @@ class Model:
         import numpy as np
         import shps.plane, shps.block
 
-        add_node    = partial(self._openseespy._str_call, "node")
-        add_element = partial(self._openseespy._str_call, "element")
+        add_node    = partial(self._openseespy._invoke_proc, "node")
+        add_element = partial(self._openseespy._invoke_proc, "element")
 
         if isinstance(element, str):
             # element is an element name
@@ -491,19 +510,19 @@ class Model:
             cell_type = element
             element = name
 
-        m_elems = self._openseespy._str_call("getEleTags")
+        m_elems = self._openseespy._invoke_proc("getEleTags")
         if isinstance(m_elems, int):
             m_elems = {m_elems}
 
         elif m_elems is not None:
             m_elems = {tag for tag in m_elems}
 
-        m_nodes = self._openseespy._str_call("getNodeTags")
+        m_nodes = self._openseespy._invoke_proc("getNodeTags")
         if isinstance(m_nodes, int):
             m_nodes = {m_nodes}
         if m_nodes is not None:
             m_nodes = {
-                    int(tag): self._openseespy._str_call("nodeCoord", f"{tag}")
+                    int(tag): self._openseespy._invoke_proc("nodeCoord", f"{tag}")
                     for tag in m_nodes
             }
 
@@ -538,7 +557,7 @@ class Model:
         if name in _OVERWRITTEN:
             return getattr(self._openseespy, name)
         else:
-            return self._openseespy._partial(self._openseespy._str_call, name)
+            return self._openseespy._partial(self._openseespy._invoke_proc, name)
 
 
 def _as_str_arg(arg, name: str = None):
@@ -575,6 +594,7 @@ __all__ = [
 # 
     "tcl",
     "OpenSeesError",
+    "invoke",
 
 # OpenSeesPy attributes
 
@@ -824,5 +844,5 @@ def __getattr__(name: str):
     if name in _OVERWRITTEN:
         return getattr(_openseespy, name)
     else:
-        return _openseespy._partial(_openseespy._str_call, name)
+        return _openseespy._partial(_openseespy._invoke_proc, name)
 

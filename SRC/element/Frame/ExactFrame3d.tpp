@@ -218,12 +218,14 @@ ExactFrame3d<nen,nip>::update()
 
   // Form displaced node locations xyz
   VectorND<ndm> xyz[nen];
+  double uwarp[nen];
   for (int i=0; i < nen; i++) {
     const Vector& xi = theNodes[i]->getCrds();
     const Vector& ui = theNodes[i]->getTrialDisp();
     for (int j=0; j<ndm; j++)
       xyz[i][j] = xi[j] + ui[j];
-
+    if (nsr > 6)
+      uwarp[i] = ui[6];
   }
 
   //
@@ -247,6 +249,19 @@ ExactFrame3d<nen,nip>::update()
         theta[l]  += points[i].shape[0][j]*ddu[j][l+3];
       for (int l=0; l<3; l++)
         dtheta[l] += points[i].shape[1][j]*ddu[j][l+3];
+    }
+
+    double warp  = 0;
+    double dwarp = 0;
+    if (nsr == 7 && scheme[6] == FrameStress::Bishear) {
+      for (int j=0; j < nen; j++)
+        dwarp += points[i].shape[0][j]*uwarp[j];
+
+    } else if (nsr == 8 && scheme[6] == FrameStress::Bishear) {
+      for (int j=0; j < nen; j++) {
+        warp  += points[i].shape[0][j]*uwarp[j];
+        dwarp += points[i].shape[1][j]*uwarp[j];
+      }
     }
 
     //
@@ -363,7 +378,7 @@ const Matrix &
 ExactFrame3d<nen,nip>::getMass()
 {
   // TODO
-  static MatrixND<ndf*nen,ndf*nen> M{0};
+  static MatrixND<ndf*nen,ndf*nen> M{};
   static Matrix wrapper(M);
   return wrapper;
 }

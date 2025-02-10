@@ -54,12 +54,16 @@ SixNodeTri::SixNodeTri(int tag,
                        const std::array<int,6> & nodes,
                        NDMaterial &m, 
                        const char *type, 
-                       double t,
-                       double p, double r, double b1, double b2)
+                       double thickness,
+                       double pressure, double rho, double b1, double b2)
 :Element (tag, ELE_TAG_SixNodeTri),
   connectedExternalNodes(NEN),
   Q(NDF*NEN), applyLoad(0),
-  pressureLoad(NDF*NEN), thickness(t), pressure(p), rho(r), Ki(0)
+  pressureLoad(NDF*NEN), 
+  thickness(thickness), 
+  pressure(pressure), 
+  rho(rho), 
+  Ki(nullptr)
 {
     pts[0][0] = 0.666666666666666667;
     pts[0][1] = 0.166666666666666667;
@@ -117,20 +121,20 @@ SixNodeTri::~SixNodeTri()
       delete theMaterial[i];
   }
 
-  if (Ki != 0)
+  if (Ki != nullptr)
     delete Ki;
 }
 
 int
 SixNodeTri::getNumExternalNodes() const
 {
-    return NEN;
+  return NEN;
 }
 
 const ID&
 SixNodeTri::getExternalNodes()
 {
-    return connectedExternalNodes;
+  return connectedExternalNodes;
 }
 
 
@@ -247,8 +251,7 @@ SixNodeTri::update()
         this->shapeFunction(pts[i][0], pts[i][1]);
 
         // Interpolate strains
-        //eps = B*u;
-        //eps.addMatrixVector(0.0, B, u, 1.0);
+        // eps = B*u;
         VectorND<3> eps{};
         for (int beta = 0; beta < NEN; beta++) {
             eps[0] += shp[0][beta]*u[0][beta];
@@ -270,14 +273,13 @@ SixNodeTri::getTangentStiff()
 
     K.Zero();
 
-    double dvol;
     double DB[3][2];
 
     // Loop over the integration points
     for (int i = 0; i < nip; i++) {
 
       // Determine Jacobian for this integration point
-      dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+      double dvol = this->shapeFunction(pts[i][0], pts[i][1]);
       dvol *= (thickness*wts[i]);
 
       // Get the material tangent
@@ -330,14 +332,13 @@ SixNodeTri::getInitialStiff()
 
   K.Zero();
 
-  double dvol;
   double DB[3][2];
 
   // Loop over the integration points
   for (int i = 0; i < nip; i++) {
 
     // Determine Jacobian for this integration point
-    dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+    double dvol = this->shapeFunction(pts[i][0], pts[i][1]);
     dvol *= (thickness*wts[i]);
 
     // Get the material tangent
@@ -393,19 +394,19 @@ SixNodeTri::getMass()
     if (sum == 0.0)
       return K;
 
-    double rhodvol, Nrho;
+    double Nrho;
 
     // Compute a lumped mass matrix
     for (int i = 0; i < nip; i++) {
 
         // Determine Jacobian for this integration point
-        rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
+        double dmass = this->shapeFunction(pts[i][0], pts[i][1]);
 
         // Element plus material density ... MAY WANT TO REMOVE ELEMENT DENSITY
-        rhodvol *= (rhoi[i]*thickness*wts[i]);
+        dmass *= (rhoi[i]*thickness*wts[i]);
 
         for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia++) {
-            Nrho = shp[2][alpha]*rhodvol;
+            Nrho = shp[2][alpha]*dmass;
             K(ia,ia) += Nrho;
             ia++;
             K(ia,ia) += Nrho;

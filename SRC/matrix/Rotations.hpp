@@ -212,7 +212,7 @@ VersorProduct(const Versor &qa, const Versor &qb)
 static inline Matrix3D
 MatrixFromVersor(const Versor &q)
 {
-    Matrix3D R{0.0};
+    Matrix3D R{};
 
     const double factor = q[3]*q[3] - (q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
 
@@ -233,7 +233,7 @@ VectorFromVersor(const Versor& q)
 {
 
   // Initialize to zero
-  Vector3D theta{0.0};
+  Vector3D theta{};
 
   // Scalar part of quaternion
   double q0 = q[3];
@@ -384,6 +384,7 @@ TanSO3(const Vector3D &vec, char repr='L')
         return T;
 
       case 'L':
+      default:
         T(0,0)  =         a[1] + a[3]*vec[0]*vec[0];
         T(0,1)  =  vec[2]*a[2] + a[3]*vec[1]*vec[0];
         T(0,2)  = -vec[1]*a[2] + a[3]*vec[2]*vec[0];
@@ -413,7 +414,7 @@ dExpSO3(const Vector3D &v)
   double a[4];
   GibSO3(v, a);
 
-  Matrix3D T{0.0};
+  Matrix3D T{};
   T.addDiagonal(a[1])
    .addSpin(v, a[2])
    .addTensorProduct(v, v, a[3]);
@@ -444,7 +445,7 @@ ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
   const Vector3D pxq = p.cross(q);
   const Vector3D vxp = v.cross(p);
 
-  Matrix3D dT{0.0};
+  Matrix3D dT{};
 
   dT.addTensorProduct(p, q, a[3])
     .addTensorProduct(q, p, a[3])

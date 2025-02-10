@@ -69,13 +69,20 @@ struct MatrixND {
 
 
   MatrixND<NR,NC,T> bun(const VectorND<NR,T>& a, const VectorND<NC,T> &b)
-    requires(NR == NC == 3)
   {
-    return MatrixND<NR,NC,T> {{{
-      {a[0]*b[0], a[1]*b[0], a[2]*b[0]},
-      {a[0]*b[1], a[1]*b[1], a[2]*b[1]},
-      {a[0]*b[2], a[1]*b[2], a[2]*b[2]}
-    }}}; // TODO
+    if constexpr (NR == 3)
+      return MatrixND<NR,NC,T> {{{
+        {a[0]*b[0], a[1]*b[0], a[2]*b[0]},
+        {a[0]*b[1], a[1]*b[1], a[2]*b[1]},
+        {a[0]*b[2], a[1]*b[2], a[2]*b[2]}
+      }}};
+
+    MatrixND<NR,NC,T> result;
+    for (int i=0; i<NR; i++)
+      for (int j=0; j<NC; j++)
+        result(i,j) = a[i]*b[j];
+    return result;
+  
   }
 
   int symeig(VectorND<NR>& vals) requires(NR == NC == 3) {
@@ -160,34 +167,6 @@ struct MatrixND {
     assert(index_r < NR && index_c < NC);
     return values[index_c][index_r];
   }
-
-#if 0
-  constexpr VectorND<NR>
-  column(index_t index) const {
-    assert(index >= 0);
-    assert(index < NC);
-    // TODO: ugly temporary implementation
-    return *(VectorND<NR>*)(&(values[index]));
-  }
-
-  constexpr VectorND<NC>
-  row(index_t index) const {
-    assert(index >= 0);
-    assert(index < NR);
-
-    VectorND<NC,T> rw;
-    for (index_t j = 0; j < NC; ++j) {
-      rw[j] = values[j][index];
-    }
-    return rw;
-  }
-
-  // TODO: change to std::pair,array, or tuple.
-  consteval VectorND<2,int>
-  size() const {
-    return {NR, NC};
-  }
-#endif
 
   //
   //
@@ -755,7 +734,7 @@ MatrixND<nr,nc,scalar_t>::addMatrixTripleProduct(double thisFact,
   if (otherFact == 0.0 && thisFact == 1.0)
     return 0;
 
-  MatrixND<nk, nc> BC {0.0};
+  MatrixND<nk, nc> BC {};
   BC.addMatrixProduct(B, C, otherFact);
   this->addMatrixTransposeProduct(thisFact, A, BC, 1.0);
   return 0;

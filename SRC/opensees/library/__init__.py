@@ -68,10 +68,6 @@ CorotTransform = Trf("CorotTransform", "Corotational",
   ],
 )
 
-
-class nd:
-    pass
-
 class uniaxial:
     """
     `UniaxialMaterial` object library.

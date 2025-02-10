@@ -7,13 +7,14 @@
 // Written: cmp
 //
 #ifndef FiberSectionBuilder_h 
-#define FiberSectionBuilder_h 
-
+#define FiberSectionBuilder_h
 #include <ReinfBar.h>
 #include <Patch.h>
 #include <ReinfLayer.h>
 #include <cell/Cell.h>
 #include <TaggedObject.h>
+#include <Parameter.h>
+#include <string>
 
 #include <FiberSection2dInt.h>
 
@@ -22,19 +23,21 @@ class SectionBuilder: public TaggedObject {
 public:
   SectionBuilder(int tag) : TaggedObject(tag) {}
 
-  virtual int addFiber(int tag, int mat, double area, const Vector& cPos) =0;
+  virtual int addFiber(int tag, int mat, double area, 
+                       const Vector& cPos) =0;
+
   virtual int addHFiber(int tag, int mat, double area, const Vector& cPos)=0;
+  virtual int setWarping(int tag, int field, double w[3]) =0;
 
   int addPatch(const Patch& patch) {
     Cell**  cells  = patch.getCells();
     const int nc   = patch.getNumCells();
     const int mat  = patch.getMaterialID();
     for(int j=0; j<nc; j++) {
-      // get fiber data
       double area        = cells[j]->getArea();
       const Vector& cPos = cells[j]->getCentroidPosition();
 
-      if (this->addFiber(j, mat, area, cPos) != 0)
+      if (this->addFiber(j, mat, area, cPos) < 0)
         return -1;
     }
     return 0;
@@ -47,10 +50,9 @@ public:
     int mat            = layer.getMaterialID();
 
     for(int j=0; j<numReinfBars; j++) {
-	// get fiber data
-	double area        = reinfBar[j].getArea();
-	const Vector& cPos = reinfBar[j].getPosition();
-        if (this->addFiber(j, mat, area, cPos) != 0)
+        double area        = reinfBar[j].getArea();
+        const Vector& cPos = reinfBar[j].getPosition();
+        if (this->addFiber(j, mat, area, cPos) < 0)
           return -1;
     }
     return 0;
@@ -65,7 +67,30 @@ public:
     : SectionBuilder(section_.getTag()), builder(builder_), section(section_) {}
 
   virtual int addHFiber(int tag, int mat, double area, const Vector& cPos);
-  int addFiber(int tag, int mat, double area, const Vector& cPos) {
+
+  int setWarping(int tag, int field, double w[3]) {
+    std::string ts = std::to_string(tag);
+
+    for (int i=0; i<3; i++) {
+      // Dont pass argv/argc in Parameters constructor because it cant
+      // signal errors that way.
+      Parameter p(-1, nullptr, nullptr, 0);
+
+      std::string s = std::to_string(w[i]);
+      std::string v = std::to_string(field*3+i);
+      const char* argv[] {"warp", ts.c_str(), v.c_str()};
+
+      if (0 > section.setParameter(argv, 3, p))
+        return -1;
+
+      p.update(w[i]);
+    }
+
+    return 0;
+  }
+
+  int addFiber(int tag, int mat, double area, const Vector& cPos) 
+  {
 
       MatT * theMaterial = builder.getTypedObject<MatT>(mat);
       if (theMaterial == nullptr) {
@@ -73,13 +98,14 @@ public:
         return -1;
       }
 
+      int id = -1;
       if constexpr (ndm==2) {
-          section.addFiber(*theMaterial, area, cPos(0));
+          id = section.addFiber(*theMaterial, area, cPos(0));
 
       } else {
-          section.addFiber(*theMaterial, area, cPos(0), cPos(1));
+          id = section.addFiber(*theMaterial, area, cPos(0), cPos(1));
       }
-      return 0;
+      return id;
   }
 
 private:
