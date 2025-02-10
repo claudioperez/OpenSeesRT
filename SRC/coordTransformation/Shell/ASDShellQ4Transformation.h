@@ -1,34 +1,19 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Original implementation: Massimo Petracca (ASDEA)
 //
 // Implementation of a linear coordinate transformation 4-node shells
 //
-
 #ifndef ASDShellQ4Transformation_h
 #define ASDShellQ4Transformation_h
 
 #include <Vector3D.h>
 #include <ASDShellQ4LocalCoordinateSystem.h>
 #include <Node.h>
+#include <ID.h>
 #include <Domain.h>
 #include <Logging.h>
 
@@ -143,34 +128,36 @@ public:
         );
     }
 
-    virtual ASDShellQ4LocalCoordinateSystem createLocalCoordinateSystem(const VectorType& globalDisplacements) const
+    virtual ASDShellQ4LocalCoordinateSystem createLocalCoordinateSystem(const Vector& globalDisplacements) const
     {
         // same as reference
         return createReferenceCoordinateSystem();
     }
 
-    virtual void computeGlobalDisplacements(VectorType& globalDisplacements) const
+    void computeGlobalDisplacements(Vector& globalDisplacements) const
     {
         for (int i = 0; i < 4; i++) {
             int index = i * 6;
-            const VectorType& iU = m_nodes[i]->getTrialDisp();
+            const Vector& iU = m_nodes[i]->getTrialDisp();
             for (int j = 0; j < 6; j++) {
                 globalDisplacements(index + j) = iU(j) - m_U0(index + j);
             }
         }
     }
 
-    virtual const MatrixType& computeTransformationMatrix(const ASDShellQ4LocalCoordinateSystem& LCS) const
+    virtual const Matrix& computeTransformationMatrix(const ASDShellQ4LocalCoordinateSystem& LCS) const
     {
-        static MatrixType R(24, 24);
-        static MatrixType T(24, 24);
-        static MatrixType W(24, 24);
+        static Matrix R(24, 24);
+        static Matrix T(24, 24);
+        static Matrix W(24, 24);
         if (LCS.IsWarped()) {
+            R.Zero();
             LCS.ComputeTotalRotationMatrix(R);
             LCS.ComputeTotalWarpageMatrix(W);
             T.addMatrixProduct(0.0, W, R, 1.0);
         }
         else {
+            T.Zero();
             LCS.ComputeTotalRotationMatrix(T);
         }
         return T;
@@ -181,7 +168,7 @@ public:
         const VectorType& globalDisplacements,
         VectorType& localDisplacements)
     {
-        const MatrixType& R = computeTransformationMatrix(LCS);
+        const Matrix& R = computeTransformationMatrix(LCS);
         localDisplacements.addMatrixVector(0.0, R, globalDisplacements, 1.0);
     }
 
@@ -189,8 +176,8 @@ public:
         const ASDShellQ4LocalCoordinateSystem& LCS,
         const VectorType& globalDisplacements,
         const VectorType& localDisplacements,
-        MatrixType& LHS,
-        VectorType& RHS,
+        Matrix& LHS,
+        Vector& RHS,
         bool LHSrequired)
     {
         static MatrixType RT_LHS(24, 24);
@@ -242,7 +229,7 @@ public:
 
 public:
 
-    inline const NodeContainerType& getNodes()const { return m_nodes; }
+    inline const NodeContainerType& getNodes() const { return m_nodes; }
     inline NodeContainerType& getNodes() { return m_nodes; }
 
 protected:
