@@ -51,7 +51,6 @@ Matrix ShellDKGQ::stiff(24, 24);
 Vector ShellDKGQ::resid(24);
 Matrix ShellDKGQ::mass(24, 24);
 
-// null constructor
 ShellDKGQ::ShellDKGQ()
     : Element(0, ELE_TAG_ShellDKGQ), connectedExternalNodes(4), load(0), Ki(0)
 {
@@ -61,26 +60,24 @@ ShellDKGQ::ShellDKGQ()
 }
 
 //*********************************************************************
-//full constructor
+// full constructor
 ShellDKGQ::ShellDKGQ(int tag, int node1, int node2, int node3, int node4,
                      SectionForceDeformation &theMaterial)
     : Element(tag, ELE_TAG_ShellDKGQ), connectedExternalNodes(4), load(0), Ki(0)
 {
-  int i;
 
   connectedExternalNodes(0) = node1;
   connectedExternalNodes(1) = node2;
   connectedExternalNodes(2) = node3;
   connectedExternalNodes(3) = node4;
 
-  for (i = 0; i < ShellDKGQ::nip; i++) {
+  for (int i = 0; i < ShellDKGQ::nip; i++) {
     materialPointers[i] = theMaterial.getCopy();
     assert(materialPointers[i] != nullptr);
   }
 }
 
 
-//destructor
 ShellDKGQ::~ShellDKGQ()
 {
   for (int i = 0; i < ShellDKGQ::nip; i++) {
@@ -149,7 +146,7 @@ int ShellDKGQ::commitState()
   return success;
 }
 
-//revert to last commit
+
 int ShellDKGQ::revertToLastCommit()
 {
   int i;
@@ -161,19 +158,18 @@ int ShellDKGQ::revertToLastCommit()
   return success;
 }
 
-//revert to start
+
 int ShellDKGQ::revertToStart()
 {
-  int i;
   int success = 0;
 
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
     success += materialPointers[i]->revertToStart();
 
   return success;
 }
 
-//print out element data
+
 void ShellDKGQ::Print(OPS_Stream &s, int flag)
 {
   if (flag == -1) {
@@ -188,6 +184,7 @@ void ShellDKGQ::Print(OPS_Stream &s, int flag)
     s << eleTag << "\t" << 1;
     s << "\t" << -1 << "\tSHELL\t1.0\0.0";
     s << endln;
+    return;
   }
 
   else if (flag < -1) {
@@ -203,6 +200,7 @@ void ShellDKGQ::Print(OPS_Stream &s, int flag)
         s << "\t" << stress(j);
       s << endln;
     }
+    return;
   }
 
   if (flag == OPS_PRINT_CURRENTSTATE) {
@@ -218,17 +216,20 @@ void ShellDKGQ::Print(OPS_Stream &s, int flag)
     materialPointers[0]->Print(s, flag);
 
     s << endln;
+    return;
   }
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-    s << "\t\t\t{";
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
     s << "\"name\": " << this->getTag() << ", ";
     s << "\"type\": \"ShellDKGQ\", ";
     s << "\"nodes\": [" << connectedExternalNodes(0) << ", "
       << connectedExternalNodes(1) << ", ";
     s << connectedExternalNodes(2) << ", " << connectedExternalNodes(3)
       << "], ";
-    s << "\"section\": \"" << materialPointers[0]->getTag() << "\"}";
+    s << "\"section\": \"" << materialPointers[0]->getTag();
+    s << "\"}";
+    return;
   }
 }
 
