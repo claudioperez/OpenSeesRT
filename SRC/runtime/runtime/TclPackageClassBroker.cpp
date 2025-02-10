@@ -121,8 +121,6 @@ using namespace OpenSees::Hash::literals;
 // Sections
 #include "ElasticSection2d.h"
 #include "ElasticSection3d.h"
-#include "ElasticShearSection2d.h"
-#include "ElasticShearSection3d.h"
 #include "GenericSection1d.h"
 //#include "GenericSectionNd.h"
 #include "SectionAggregator.h"
@@ -130,7 +128,6 @@ using namespace OpenSees::Hash::literals;
 #include "FiberSection2d.h"
 #include "FiberSection3d.h"
 #include "FiberSectionAsym3d.h" //Xinlong Du
-#include "ElasticPlateSection.h"
 #include "ElasticMembranePlateSection.h"
 #include "MembranePlateFiberSection.h"
 #include "Bidirectional.h"
@@ -536,6 +533,7 @@ using namespace OpenSees::Hash::literals;
 #  include "DistributedDiagonalSOE.h"
 #endif
 
+using namespace OpenSees;
 
 typedef struct uniaxialPackage {
   int classTag;
@@ -1169,12 +1167,6 @@ TclPackageClassBroker::getNewSection(int classTag)
   case SEC_TAG_Elastic3d:
     return new ElasticSection3d();
 
-  case SEC_TAG_ElasticShear2d:
-    return new ElasticShearSection2d();
-
-  case SEC_TAG_ElasticShear3d:
-    return new ElasticShearSection3d();
-
   case SEC_TAG_Generic1d:
     return new GenericSection1d();
 
@@ -1195,9 +1187,6 @@ TclPackageClassBroker::getNewSection(int classTag)
 
   case SEC_TAG_FiberSectionAsym3d:
     return new FiberSectionAsym3d(); // Xinlong Du
-
-  case SEC_TAG_ElasticPlateSection:
-    return new ElasticPlateSection();
 
   case SEC_TAG_ElasticMembranePlateSection:
     return new ElasticMembranePlateSection();
