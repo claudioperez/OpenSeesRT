@@ -115,8 +115,7 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 
   // Make sure there is a minimum number of arguments
   if (argc < 3) {
-    opserr << G3_ERROR_PROMPT << "insufficient number of section arguments\n";
-    opserr << "Want: section type? tag? <specific material args>" << endln;
+    opserr << G3_ERROR_PROMPT << "insufficient number of arguments\n";
     return TCL_ERROR;
   }
 
@@ -252,10 +251,10 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       else
           return TCL_ERROR;
   }
-  //
-  //
-  //
 
+  //
+  //
+  //
   else if (strcmp(argv[1], "PlateFiber") == 0) {
     if (argc < 5) {
       opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
@@ -266,19 +265,17 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     double h;
     int tag, matTag;
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid section PlateFiber tag" << endln;
+      opserr << G3_ERROR_PROMPT << "invalid section tag" << endln;
       return TCL_ERROR;
     }
 
     if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid matTag" << endln;
-      opserr << "PlateFiber section: " << matTag << endln;
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[4], &h) != TCL_OK) {
       opserr << G3_ERROR_PROMPT << "invalid h" << endln;
-      opserr << "PlateFiber section: " << tag << endln;
       return TCL_ERROR;
     }
 
@@ -286,7 +283,6 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     if (theMaterial == nullptr) {
       opserr << G3_ERROR_PROMPT << "nD material does not exist\n";
       opserr << "nD material: " << matTag;
-      opserr << "\nPlateFiber section: " << tag << endln;
       return TCL_ERROR;
     }
 
@@ -322,21 +318,19 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     int tag, nLayers, matTag;
     double h, *thickness;
     NDMaterial **theMats;
-
     if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid section LayeredShell tag" << endln;
+      opserr << G3_ERROR_PROMPT << "invalid section LayeredShell tag" << "\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetInt(interp, argv[3], &nLayers) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid nLayers" << endln;
-      opserr << "LayeredShell section: " << tag << endln;
+      opserr << G3_ERROR_PROMPT << "invalid nLayers" << "\n";
+      opserr << "LayeredShell section: " << tag << "\n";
       return TCL_ERROR;
     }
 
     if (nLayers < 3) {
       opserr << "ERROR number of layers must be larger than 2" << endln;
-      opserr << "LayeredShell section: " << tag << endln;
       return TCL_ERROR;
     }
 
@@ -388,8 +382,9 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     if (builder->addTaggedObject<SectionForceDeformation>(*theSection) < 0) {
       delete theSection;
       return TCL_ERROR;
-    } else
-      return TCL_OK;
+    }
+
+    return TCL_OK;
   }
   // end Yuli Huang & Xinzheng Lu LayeredShellFiberSection
 
@@ -1698,38 +1693,32 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
     int argi = 2;
 
     if (Tcl_GetInt(interp, argv[argi++], &matTag) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid matTag: layer circ matTag numReinfBars "
-                "reinfBarArea yCenter zCenter radius startAng endAng\n";
+      opserr << G3_ERROR_PROMPT << "invalid matTag\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetInt(interp, argv[argi++], &numReinfBars) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid numReinfBars: layer circ matTag numReinfBars "
-                "reinfBarArea yCenter zCenter radius startAng endAng\n";
+      opserr << G3_ERROR_PROMPT << "invalid numReinfBars\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[argi++], &reinfBarArea) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid reinfBarArea: layer circ matTag numReinfBars "
-                "reinfBarArea yCenter zCenter radius startAng endAng\n";
+      opserr << G3_ERROR_PROMPT << "invalid reinfBarArea\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[argi++], &yCenter) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid yCenter: layer circ matTag numReinfBars "
-                "reinfBarArea yCenter zCenter radius startAng endAng\n";
+      opserr << G3_ERROR_PROMPT << "invalid yCenter\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[argi++], &zCenter) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid zCenter: layer circ matTag numReinfBars "
-                "reinfBarArea yCenter zCenter radius startAng endAng\n";
+      opserr << G3_ERROR_PROMPT << "invalid zCenter\n";
       return TCL_ERROR;
     }
 
     if (Tcl_GetDouble(interp, argv[argi++], &radius) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid radius: layer circ matTag numReinfBars "
-                "reinfBarArea yCenter zCenter radius startAng endAng\n";
+      opserr << G3_ERROR_PROMPT << "invalid radius\n";
       return TCL_ERROR;
     }
 
@@ -1737,14 +1726,12 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
 
     if (argc > 9) {
       if (Tcl_GetDouble(interp, argv[argi++], &startAng) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "invalid startAng: layer circ matTag numReinfBars "
-                  "reinfBarArea yCenter zCenter radius startAng endAng\n";
+        opserr << G3_ERROR_PROMPT << "invalid startAng\n";
         return TCL_ERROR;
       }
 
       if (Tcl_GetDouble(interp, argv[argi++], &endAng) != TCL_OK) {
-        opserr << G3_ERROR_PROMPT << "invalid endAng: layer circ matTag numReinfBars "
-                  "reinfBarArea yCenter zCenter radius startAng endAng\n";
+        opserr << G3_ERROR_PROMPT << "invalid endAng\n";
         return TCL_ERROR;
       }
 
@@ -1827,7 +1814,7 @@ TclCommand_addUCFiberSection(ClientData clientData, Tcl_Interp *interp,
   }
 
   //
-  // now parse the output file containing the fiber data,
+  // Now parse the output file containing the fiber data,
   // create fibers and add them to the section
   //
 
