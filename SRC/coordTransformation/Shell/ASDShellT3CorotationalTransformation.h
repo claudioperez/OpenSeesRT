@@ -85,7 +85,7 @@ public:
 
 public:
 
-    virtual ASDShellT3Transformation* create()const
+    virtual ASDShellT3Transformation* create() const
     {
         return new ASDShellT3CorotationalTransformation();
     }
