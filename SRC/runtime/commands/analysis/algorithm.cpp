@@ -168,7 +168,7 @@ G3Parse_newEquiSolnAlgo(ClientData clientData, Tcl_Interp *interp, int argc,
   }
 
   else {
-    opserr << G3_ERROR_PROMPT << "No EquiSolnAlgo of type '" << argv[1] << "' exists\n";
+    opserr << G3_ERROR_PROMPT << "Unknown algorithm type '" << argv[1] << "'\n";
     return nullptr;
   }
 
@@ -557,10 +557,10 @@ TclCommand_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
   ConvergenceTest *theTest = builder->getConvergenceTest();
 
-//opserr << "KRYLOV \n";
-
+  // TODO: Fix this not showing
   if (theTest == nullptr) {
     opserr << G3_ERROR_PROMPT << "A ConvergenceTest must be specified before initializing KrylovNewton\n";
+    opserr.flush();
     return TCL_ERROR;
   }
 

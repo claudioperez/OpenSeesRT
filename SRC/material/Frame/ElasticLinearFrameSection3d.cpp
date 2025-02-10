@@ -26,8 +26,8 @@ static int layout_array[] = {
     FrameStress::T,
     FrameStress::My,
     FrameStress::Mz,
-    FrameStress::Bishear,
-    FrameStress::Bimoment
+    FrameStress::Bimoment,
+    FrameStress::Bishear
 };
 
 ID ElasticLinearFrameSection3d::layout(layout_array, nr);
