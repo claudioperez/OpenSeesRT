@@ -106,6 +106,15 @@ int TclCommand_classType(ClientData clientData, Tcl_Interp *interp, int argc,
   return TCL_OK;
 }
 
+template <typename T>
+static int
+printRegistryObject(const BasicModelBuilder& builder, int tag, int flag, OPS_Stream *output)
+{
+  TaggedObject* object = builder.getTypedObject<T>(tag);
+  object->Print(*output, flag);
+  return TCL_OK;
+}
+
 static int
 printRegistry(const BasicModelBuilder& builder, TCL_Char* type, int flag, OPS_Stream *output)
 {
@@ -341,6 +350,26 @@ TclCommand_print(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char *
                       *output);
       done = true;
     }
+
+    // if 'print material i j k ..' print out some nodes
+    else if ((strcmp(argv[currentArg], "-material") == 0)) {
+      currentArg++;
+      if (currentArg == argc) {
+        opserr << G3_ERROR_PROMPT << "print -material <tag> .. - no tag specified\n";
+        return TCL_ERROR;
+      }
+      for (int i = currentArg; i < argc; i++) {
+        int tag;
+        if (Tcl_GetInt(interp, argv[i], &tag) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "print -material failed to get integer tag: " << argv[i]
+                 << "\n";
+          return TCL_ERROR;
+        }
+        res += printRegistryObject<NDMaterial>(*((BasicModelBuilder*)clientData), tag, OPS_PRINT_PRINTMODEL_JSON, output);
+      }
+      done = true;
+    }
+
 
     else if ((strcmp(argv[currentArg], "-registry") == 0)) {
       currentArg++;
