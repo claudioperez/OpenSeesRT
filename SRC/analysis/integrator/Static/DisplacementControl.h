@@ -18,12 +18,6 @@
  **                                                                    **
  ** ****************************************************************** */
 //
-// File: ~/analysis/integrator/DisplacementControl.h
-// 
-// Written: fmk 
-// Created: 07/98
-// Revision: A
-//
 // Description: This file contains the class definition for DisplacementControl.
 // DisplacementControl is an algorithmic class for performing a static analysis
 // using the arc length scheme, that is within a load step the following
@@ -33,8 +27,10 @@
 // where dU is change in nodal displacements for step, dLambda is
 // change in applied load and DisplacementControl is a control parameter.
 //
-// What: "@(#) DisplacementControl.h, revA"
-
+// Written: fmk 
+// Created: 07/98
+// Revision: A
+//
 #ifndef DisplacementControl_h
 #define DisplacementControl_h
 

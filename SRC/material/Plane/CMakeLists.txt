@@ -11,8 +11,6 @@ target_sources(OPS_Material
     PRIVATE
         CycLiqCPPlaneStrain.cpp
         CycLiqCPSPPlaneStrain.cpp
-        ElasticIsotropicPlaneStrain2D.cpp
-        ElasticIsotropicPlaneStress2D.cpp
         J2PlaneStrain.cpp
         J2PlaneStress.cpp
         PlaneStrainMaterial.cpp
@@ -26,8 +24,6 @@ target_sources(OPS_Material
     PUBLIC
         CycLiqCPPlaneStrain.h
         CycLiqCPSPPlaneStrain.h
-        ElasticIsotropicPlaneStrain2D.h
-        ElasticIsotropicPlaneStress2D.h
         J2PlaneStrain.h
         J2PlaneStress.h
         PlaneStrainMaterial.h

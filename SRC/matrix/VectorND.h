@@ -130,8 +130,9 @@ struct VectorND {
   inline double normalize() {
     double n = norm();
 
-    for (int i=0; i<N; i++)
-      values[i] /= n;
+    if (n != 0.0)
+      for (int i=0; i<N; i++)
+        values[i] /= n;
 
     return n;
   }

@@ -17,17 +17,13 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.4 $
-// $Date: 2003-02-14 23:01:24 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/nD/BeamFiberMaterial.cpp,v $
-
+//
 // Written: MHS
 // Created: Aug 2001
 //
 // Description: This file contains the class definition of BeamFiberMaterial.
 // The BeamFiberMaterial class is a wrapper class that performs static
-// condensation on a three-dimensional material model to give the 11, 12, and 13
+// condensation on a 3D material model to give the 11, 12, and 13
 // stress components which can then be integrated over an area to model a
 // shear flexible 3D beam.
 
@@ -95,20 +91,20 @@ theMaterial(0), strain(3)
   // Get a copy of the material
   theMaterial = theMat.getCopy("ThreeDimensional");
   
-  if (theMaterial == 0) {
+  if (theMaterial == nullptr) {
     opserr << "BeamFiberMaterial::BeamFiberMaterial -- failed to get copy of material\n";
     exit(-1);
   }
 }
 
-BeamFiberMaterial::~BeamFiberMaterial(void) 
+BeamFiberMaterial::~BeamFiberMaterial() 
 { 
   if (theMaterial != 0)
     delete theMaterial;
 } 
 
 NDMaterial*
-BeamFiberMaterial::getCopy(void) 
+BeamFiberMaterial::getCopy() 
 {
   BeamFiberMaterial *theCopy =
     new BeamFiberMaterial(this->getTag(), *theMaterial);

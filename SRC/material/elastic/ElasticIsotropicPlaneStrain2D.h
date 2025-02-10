@@ -44,7 +44,7 @@ class ElasticIsotropicPlaneStrain2D : public ElasticIsotropicMaterial
 {
   public:
     ElasticIsotropicPlaneStrain2D (int tag, double E, double nu, double rho);
-	ElasticIsotropicPlaneStrain2D ();
+    ElasticIsotropicPlaneStrain2D ();
     ~ElasticIsotropicPlaneStrain2D ();
 
     const char *getClassType(void) const {return "ElasticIsotropicPlaneStrain2D";};
@@ -53,19 +53,19 @@ class ElasticIsotropicPlaneStrain2D : public ElasticIsotropicMaterial
     int setTrialStrain (const Vector &v, const Vector &r);
     int setTrialStrainIncr (const Vector &v);
     int setTrialStrainIncr (const Vector &v, const Vector &r);
-    const Matrix &getTangent (void);
-    const Matrix &getInitialTangent (void);
+    const Matrix &getTangent();
+    const Matrix &getInitialTangent();
 
-    const Vector &getStress (void);
-    const Vector &getStrain (void);
+    const Vector &getStress();
+    const Vector &getStrain();
     
-    int commitState (void);
-    int revertToLastCommit (void);
-    int revertToStart (void);
+    int commitState();
+    int revertToLastCommit();
+    int revertToStart();
     
-    NDMaterial *getCopy (void);
-    const char *getType (void) const;
-    int getOrder (void) const;
+    NDMaterial *getCopy(void);
+    const char *getType(void) const;
+    int getOrder(void) const;
 
     int sendSelf(int commitTag, Channel &theChannel);  
     int recvSelf(int commitTag, Channel &theChannel, 

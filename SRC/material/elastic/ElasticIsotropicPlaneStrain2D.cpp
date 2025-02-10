@@ -51,14 +51,14 @@ ElasticIsotropicPlaneStrain2D::~ElasticIsotropicPlaneStrain2D ()
 }
 
 int
-ElasticIsotropicPlaneStrain2D::setTrialStrain (const Vector &strain)
+ElasticIsotropicPlaneStrain2D::setTrialStrain(const Vector &strain)
 {
   epsilon = strain;
   return 0;
 }
 
 int
-ElasticIsotropicPlaneStrain2D::setTrialStrain (const Vector &strain, const Vector &rate)
+ElasticIsotropicPlaneStrain2D::setTrialStrain(const Vector &strain, const Vector &rate)
 {
   epsilon = strain;
   return 0;

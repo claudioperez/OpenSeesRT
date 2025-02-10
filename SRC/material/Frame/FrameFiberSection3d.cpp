@@ -106,7 +106,6 @@ FrameFiberSection3d::~FrameFiberSection3d()
 }
 
 
-//by SAJalali
 double
 FrameFiberSection3d::getEnergy() const
 {

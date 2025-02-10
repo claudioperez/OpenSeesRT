@@ -76,7 +76,7 @@ ElasticIsotropicPlaneStress2D::setTrialStrainIncr (const Vector &strain, const V
 }
 
 const Matrix&
-ElasticIsotropicPlaneStress2D::getTangent (void)
+ElasticIsotropicPlaneStress2D::getTangent()
 {
     double d00 = E/(1.0-v*v);
     double d01 = v*d00;
@@ -90,7 +90,7 @@ ElasticIsotropicPlaneStress2D::getTangent (void)
 }
 
 const Matrix&
-ElasticIsotropicPlaneStress2D::getInitialTangent (void)
+ElasticIsotropicPlaneStress2D::getInitialTangent()
 {
     double d00 = E/(1.0-v*v);
     double d01 = v*d00;
@@ -104,7 +104,7 @@ ElasticIsotropicPlaneStress2D::getInitialTangent (void)
 }
 
 const Vector&
-ElasticIsotropicPlaneStress2D::getStress (void)
+ElasticIsotropicPlaneStress2D::getStress()
 {
     double d00 = E/(1.0-v*v);
     double d01 = v*d00;
@@ -122,27 +122,27 @@ ElasticIsotropicPlaneStress2D::getStress (void)
 }
 
 const Vector&
-ElasticIsotropicPlaneStress2D::getStrain (void)
+ElasticIsotropicPlaneStress2D::getStrain()
 {
   return epsilon;
 }
 
 int
-ElasticIsotropicPlaneStress2D::commitState (void)
+ElasticIsotropicPlaneStress2D::commitState()
 {
   Cepsilon=epsilon;
   return 0;
 }
 
 int
-ElasticIsotropicPlaneStress2D::revertToLastCommit (void)
+ElasticIsotropicPlaneStress2D::revertToLastCommit()
 {
   epsilon=Cepsilon;
   return 0;
 }
 
 int
-ElasticIsotropicPlaneStress2D::revertToStart (void)
+ElasticIsotropicPlaneStress2D::revertToStart()
 {
   epsilon.Zero();
   Cepsilon.Zero();
@@ -150,7 +150,7 @@ ElasticIsotropicPlaneStress2D::revertToStart (void)
 }
 
 NDMaterial*
-ElasticIsotropicPlaneStress2D::getCopy (void)
+ElasticIsotropicPlaneStress2D::getCopy()
 {
   ElasticIsotropicPlaneStress2D *theCopy =
     new ElasticIsotropicPlaneStress2D (this->getTag(), E, v, rho);
@@ -161,13 +161,13 @@ ElasticIsotropicPlaneStress2D::getCopy (void)
 }
 
 const char*
-ElasticIsotropicPlaneStress2D::getType (void) const
+ElasticIsotropicPlaneStress2D::getType() const
 {
   return "PlaneStress";
 }
 
 int
-ElasticIsotropicPlaneStress2D::getOrder (void) const
+ElasticIsotropicPlaneStress2D::getOrder() const
 {
   return 3;
 }

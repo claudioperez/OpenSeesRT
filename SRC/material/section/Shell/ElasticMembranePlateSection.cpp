@@ -1,79 +1,28 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.9 $
-// $Date: 2003-02-14 23:01:33 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/ElasticMembranePlateSection.cpp,v $
-
+//
+// Elastic Plate Section with membrane
+//
 // Ed "C++" Love
 //
-//  Elastic Plate Section with membrane
-//
-
 // Out-of-Plane stiffness modifier added by Pearl Ranchal
 // Supported by Degenkolb Engineers
-
+//
 
 #include <ElasticMembranePlateSection.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <elementAPI.h>
 
-//parameters
-const double ElasticMembranePlateSection::five6 = 5.0/6.0 ; //shear correction
 
-//static vector and matrices
+const double ElasticMembranePlateSection::five6 = 5.0/6.0 ; // shear correction
+
 Vector  ElasticMembranePlateSection::stress(8) ;
 Matrix  ElasticMembranePlateSection::tangent(8,8) ;
 ID      ElasticMembranePlateSection::array(8) ;
 
-void *
-OPS_ADD_RUNTIME_VPV(OPS_ElasticMembranePlateSection)
-{
-    if (OPS_GetNumRemainingInputArgs() < 4) {
-        opserr << "WARNING insufficient arguments\n";
-        opserr << "Want: section ElasticMembranePlateSection tag? E? nu? h? <rho?> <Ep_modifer?>\n";
-        return 0;
-    }
 
-    int tag;
-    int numdata = 1;
-    if (OPS_GetIntInput(&numdata, &tag) < 0) {
-        opserr << "WARNING invalid tag\n";
-        return 0;
-    }
-
-    double data[5]  = {0, 0, 0, 0, 1};
-    numdata         = OPS_GetNumRemainingInputArgs();
-
-    if (numdata > 5) numdata = 5;
-
-    if (OPS_GetDoubleInput(&numdata, data) < 0) {
-        opserr << "WARNING invalid double values\n";
-        return 0;
-    }
-
-    return new ElasticMembranePlateSection(tag, data[0], data[1], data[2], data[3], data[4]);
-}
-
-//null constructor
 ElasticMembranePlateSection::ElasticMembranePlateSection( ) : 
 SectionForceDeformation( 0, SEC_TAG_ElasticMembranePlateSection ), 
 strain(8) 
@@ -81,15 +30,16 @@ strain(8)
 
 }
 
-//full constructor
+
 ElasticMembranePlateSection::ElasticMembranePlateSection(int    tag,
                                                          double young_membrane,
                                                          double poisson,
                                                          double thickness,
                                                          double r, 
-                                                         double young_plate_mod) :
-SectionForceDeformation(tag, SEC_TAG_ElasticMembranePlateSection),
-strain(8)
+                                                         double young_plate_mod)
+  :
+  SectionForceDeformation(tag, SEC_TAG_ElasticMembranePlateSection),
+  strain(8)
 {
     this->Em    = young_membrane;
     this->Ep    = young_membrane * young_plate_mod;
@@ -99,17 +49,14 @@ strain(8)
 }
 
 
-
-//destructor
-ElasticMembranePlateSection::~ElasticMembranePlateSection( ) 
+ElasticMembranePlateSection::~ElasticMembranePlateSection() 
 { 
 
 } 
 
 
-
-//make a clone of this material
-SectionForceDeformation*  ElasticMembranePlateSection::getCopy( ) 
+SectionForceDeformation*  
+ElasticMembranePlateSection::getCopy() 
 {
   ElasticMembranePlateSection *clone ;   
 
@@ -122,23 +69,23 @@ SectionForceDeformation*  ElasticMembranePlateSection::getCopy( )
   return clone ;
 }
 
-//density per unit area
+// density per unit area
 double
-ElasticMembranePlateSection::getRho( )
+ElasticMembranePlateSection::getRho()
 {
-  return rhoH ;
+  return rhoH;
 }
 
 
-//send back order of strain in vector form
-int ElasticMembranePlateSection::getOrder( ) const
+int
+ElasticMembranePlateSection::getOrder() const
 {
   return 8 ;
 }
 
 
 //send back order of strain in vector form
-const ID& ElasticMembranePlateSection::getType( )
+const ID& ElasticMembranePlateSection::getType()
 {
     static bool initialized = false;
     if (!initialized) {
@@ -157,30 +104,30 @@ const ID& ElasticMembranePlateSection::getType( )
 
 
 
-//swap history variables
-int ElasticMembranePlateSection::commitState( ) 
+int
+ElasticMembranePlateSection::commitState() 
+{
+  return 0 ;
+}
+
+
+int
+ElasticMembranePlateSection::revertToLastCommit()
+{
+  return 0 ;
+}
+
+
+int
+ElasticMembranePlateSection::revertToStart()
 {
   return 0 ;
 }
 
 
 
-//revert to last saved state
-int ElasticMembranePlateSection::revertToLastCommit( )
-{
-  return 0 ;
-}
-
-//revert to start
-int ElasticMembranePlateSection::revertToStart( )
-{
-  return 0 ;
-}
-
-
-//get the strain 
-int ElasticMembranePlateSection ::
-setTrialSectionDeformation( const Vector &strain_from_element)
+int
+ElasticMembranePlateSection::setTrialSectionDeformation(const Vector &strain_from_element)
 {
   this->strain = strain_from_element ;
 
@@ -188,22 +135,22 @@ setTrialSectionDeformation( const Vector &strain_from_element)
 }
 
 
-//send back the strain
-const Vector& ElasticMembranePlateSection::getSectionDeformation( )
+const Vector&
+ElasticMembranePlateSection::getSectionDeformation()
 {
   return this->strain ;
 }
 
 
-//send back the stress 
-const Vector&  ElasticMembranePlateSection::getStressResultant( )
+const Vector&
+ElasticMembranePlateSection::getStressResultant()
 {
 
-  double M  = Em / ( 1.0 - nu*nu ) ; //membrane modulus
+  double M  = Em / ( 1.0 - nu*nu ) ; // membrane modulus
 
-  double G  =  0.5 * Em / ( 1.0 + nu ) ; //shear modulus
+  double G  =  0.5 * Em / ( 1.0 + nu ) ; // shear modulus
  
-  G *= h ;  //multiply by thickness
+  G *= h ;
   M *= h ;
 
   //membrane resultants
@@ -218,9 +165,9 @@ const Vector&  ElasticMembranePlateSection::getStressResultant( )
 
   G *= (five6 * (Ep / Em));  //multiply by product of shear correction factor and ratio of bending to membrane moduli
 
-  double D  =  Ep * (h*h*h) / 12.0 / ( 1.0 - nu*nu ) ;  //bending modulus
+  double D  =  Ep * (h*h*h) / 12.0 / ( 1.0 - nu*nu ) ;  // bending modulus
 
-  //bending resultants
+  // bending resultants
 
   stress(3) = -( D*strain(3) + nu*D*strain(4) ) ;
  
@@ -237,8 +184,8 @@ const Vector&  ElasticMembranePlateSection::getStressResultant( )
 }
 
 
-//send back the tangent 
-const Matrix&  ElasticMembranePlateSection::getSectionTangent( )
+const Matrix&
+ElasticMembranePlateSection::getSectionTangent()
 {
 
   double M  = Em / ( 1.0 - nu*nu ) ; //membrane modulus
@@ -266,7 +213,7 @@ const Matrix&  ElasticMembranePlateSection::getSectionTangent( )
 
   double D  =  Ep * (h*h*h) / 12.0 / ( 1.0 - nu*nu ) ;  //bending modulus
 
-  //bending tangent terms
+  // bending tangent terms
 
   tangent(3,3) = -D ;
   tangent(4,4) = -D ;
@@ -285,12 +232,13 @@ const Matrix&  ElasticMembranePlateSection::getSectionTangent( )
 
 
 //send back the initial tangent 
-const Matrix&  ElasticMembranePlateSection::getInitialTangent( )
+const Matrix&
+ElasticMembranePlateSection::getInitialTangent()
 {
 
-  double M  = Em / ( 1.0 - nu*nu ) ; //membrane modulus
+  double M  = Em / ( 1.0 - nu*nu ) ; // membrane modulus
 
-  double G  =  0.5 * Em / ( 1.0 + nu ) ; //shear modulus
+  double G  =  0.5 * Em / ( 1.0 + nu ) ; // shear modulus
 
   G *= h ;  //multiply by thickness
   M *= h ;
@@ -338,13 +286,13 @@ void  ElasticMembranePlateSection::Print( OPS_Stream &s, int flag )
         s << "ElasticMembranePlateSection: \n ";
         s << "  Young's Modulus for Membrane (in-plane) Action, Em = " << Em << endln;
         s << "  Young's Modulus for Plate (out-of-plane) Action, Ep = " << Ep << endln;
-        s << "  Poisson's Ratio nu = " << nu << endln;
-        s << "  Thickness h = " << h << endln;
-        s << "  Density rho = " << (rhoH/h) << endln;
+        s << "  Poisson's Ratio nu = " << nu << "\n";
+        s << "  Thickness h = " << h << "\n";
+        s << "  Density rho = " << (rhoH/h) << "\n";
     }
     
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\t{";
+        s << OPS_PRINT_JSON_ELEM_INDENT << "{";
         s << "\"name\": \"" << this->getTag() << "\", ";
         s << "\"type\": \"ElasticMembranePlateSection\", ";
         s << "\"Em\": " << Em << ", ";
@@ -356,7 +304,8 @@ void  ElasticMembranePlateSection::Print( OPS_Stream &s, int flag )
 }
 
 
-int ElasticMembranePlateSection::sendSelf(int cTag, Channel &theChannel) 
+int
+ElasticMembranePlateSection::sendSelf(int cTag, Channel &theChannel) 
 {
   int res = 0;
   static Vector data(6);
@@ -375,7 +324,8 @@ int ElasticMembranePlateSection::sendSelf(int cTag, Channel &theChannel)
 }
 
 
-int ElasticMembranePlateSection::recvSelf(int cTag, Channel &theChannel, 
+int
+ElasticMembranePlateSection::recvSelf(int cTag, Channel &theChannel, 
 				      FEM_ObjectBroker &theBroker)
 {
   int res = 0;

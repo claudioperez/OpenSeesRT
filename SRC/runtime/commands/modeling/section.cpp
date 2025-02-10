@@ -15,6 +15,7 @@
 #include <runtimeAPI.h>
 #include <G3_Logging.h>
 #include <elementAPI.h>
+#include <PlaneSection.h>
 #include <BasicModelBuilder.h>
 #include <Parameter.h>
 #include <string.h>
@@ -29,13 +30,10 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
                                        Tcl_Interp *interp, int cArg, int mArg,
                                        TCL_Char ** const argv, Domain *domain);
 
+#include <PlaneStrainMaterial.h>
+#include <PlaneStressMaterial.h>
 #include <FrameSection.h>
 #include <ElasticMaterial.h>
-#include <ElasticSection2d.h>
-#include <ElasticSection3d.h>
-#include <ElasticShearSection2d.h>
-#include <ElasticShearSection3d.h>
-#include <ElasticWarpingShearSection2d.h>
 // #include <ElasticTubeSection3d.h>
 #include <ParallelSection.h>
 #include <FiberSection2d.h>
@@ -47,12 +45,10 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 #include <FrameFiberSection3d.h>
 #include <FrameSolidSection3d.h>
 #include <FiberSectionAsym3d.h>
-//#include <FiberSectionGJ.h>
 
 
 #include <LayeredShellFiberSection.h> // Yuli Huang & Xinzheng Lu
 
-#include <ElasticPlateSection.h>
 #include <ElasticMembranePlateSection.h>
 #include <MembranePlateFiberSection.h>
 
@@ -79,8 +75,6 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 //#include <McftSection2dfiber.h>
 
-extern OPS_Routine OPS_ElasticSection;
-extern OPS_Routine OPS_ElasticWarpingShearSection2d;
 // extern OPS_Routine OPS_ElasticTubeSection3d;
 extern OPS_Routine OPS_UniaxialSection;
 extern OPS_Routine OPS_ParallelSection;
@@ -97,6 +91,8 @@ Tcl_CmdProc TclCommand_addFiberSection;
 Tcl_CmdProc TclCommand_addFiberIntSection;
 Tcl_CmdProc TclCommand_addUCFiberSection;
 Tcl_CmdProc TclCommand_addSectionAggregator;
+Tcl_CmdProc TclCommand_addPlaneSection;
+Tcl_CmdProc TclCommand_addElasticShellSection;
 
 // extern OPS_Routine OPS_WFSection2d;
 // extern OPS_Routine OPS_RCCircularSection;
@@ -158,6 +154,10 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
+  else if ((strcmp(argv[1], "PlaneStrain") == 0) ||
+           (strcmp(argv[1], "PlaneStress") == 0))
+    return TclCommand_addPlaneSection(clientData, interp, argc, argv);
+
   else if (strcmp(argv[1], "UCFiber") == 0)
     return TclCommand_addUCFiberSection(clientData, interp, argc, argv);
 
@@ -173,36 +173,12 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       return TCL_OK;
   }
 
-  else if ((strcmp(argv[1], "FrameElastic") == 0) ||
+  else if ((strcmp(argv[1], "Elastic") == 0) ||
+           (strcmp(argv[1], "ElasticShear") == 0) ||
+           (strcmp(argv[1], "ElasticWarpingShear") == 0) ||
+           (strcmp(argv[1], "FrameElastic") == 0) ||
            (strcmp(argv[1], "ElasticFrame") == 0)) {
-    return TclCommand_newElasticSection(clientData, interp, argc, argv);
-  }
-
-  else if (strcmp(argv[1], "Elastic") == 0) {
-    if (getenv("SEC"))
       return TclCommand_newElasticSection(clientData, interp, argc, argv);
-
-    else {
-      FrameSection *theSection = (FrameSection *)OPS_ElasticSection(rt, argc, argv);
-      // Now add the section to the modelBuilder
-      if (theSection == nullptr || builder->addTaggedObject<FrameSection>(*theSection) < 0) {
-        if (theSection != nullptr)
-          delete theSection;
-        return TCL_ERROR;
-      } else
-        return TCL_OK;
-    }
-  }
-
-  else if (strcmp(argv[1], "ElasticWarpingShear") == 0) {
-    FrameSection *theSection = (FrameSection *)OPS_ElasticWarpingShearSection2d(rt, argc, argv);
-    // Now add the section to the modelBuilder
-    if (theSection == nullptr || builder->addTaggedObject<FrameSection>(*theSection) < 0) {
-      if (theSection != nullptr)
-        delete theSection;
-      return TCL_ERROR;
-    } else
-      return TCL_OK;
   }
 
   else if (strcmp(argv[1], "Generic1D") == 0 ||
@@ -250,6 +226,11 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
 #endif
   }
 
+  else if (strcmp(argv[1], "AddDeformation") == 0 ||
+           strcmp(argv[1], "Aggregator") == 0  ||
+           strcmp(argv[1], "Aggregate") == 0) 
+    return TclCommand_addSectionAggregator(clientData, interp, argc, argv);
+
 
   //
   // Membrane
@@ -271,115 +252,9 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       else
           return TCL_ERROR;
   }
-
-  else if (strcmp(argv[1], "ElasticMembraneSection") == 0) {
-      void* theMat = OPS_ElasticMembraneSection();
-      if (theMat != 0)
-          theSection = (SectionForceDeformation*)theMat;
-      else
-          return TCL_ERROR;
-  }
-
-  else if (strcmp(argv[1], "AddDeformation") == 0 ||
-           strcmp(argv[1], "Aggregator") == 0  ||
-           strcmp(argv[1], "Aggregate") == 0) 
-    return TclCommand_addSectionAggregator(clientData, interp, argc, argv);
-
-
-  else if (strcmp(argv[1], "ElasticPlateSection") == 0) {
-
-    if (argc < 5) {
-      opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
-      opserr << "Want: section ElasticPlateSection tag? E? nu? h? " << endln;
-      return TCL_ERROR;
-    }
-
-    int tag;
-    double E, nu, h;
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid section ElasticPlateSection tag" << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid E" << endln;
-      opserr << "ElasticPlateSection section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[4], &nu) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid nu" << endln;
-      opserr << "ElasticPlateSection section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[5], &h) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid h" << endln;
-      opserr << "ElasticPlateSection section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    theSection = new ElasticPlateSection(tag, E, nu, h);
-    // Now add the material to the modelBuilder
-    if (builder->addTaggedObject<SectionForceDeformation>(*theSection) < 0) {
-      delete theSection; // invoke the material objects destructor, otherwise mem leak
-      return TCL_ERROR;
-    } else
-      return TCL_OK;
-  }
-
-  else if (strcmp(argv[1], "ElasticMembranePlateSection") == 0) {
-    if (argc < 5) {
-      opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
-      opserr << "Want: section ElasticMembranePlateSection tag? E? nu? h? "
-                "<rho?> <Ep_mod?>"
-             << endln;
-      return TCL_ERROR;
-    }
-
-    int tag;
-    double E, nu, h;
-    double rho = 0.0;
-    double Ep_mod = 1.0;
-
-    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid section ElasticMembranePlateSection tag"
-             << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid E" << endln;
-      opserr << "ElasticMembranePlateSection section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[4], &nu) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid nu" << endln;
-      opserr << "ElasticMembranePlateSection section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (Tcl_GetDouble(interp, argv[5], &h) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid h" << endln;
-      opserr << "ElasticMembranePlateSection section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (argc > 6 && Tcl_GetDouble(interp, argv[6], &rho) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid rho" << endln;
-      opserr << "ElasticMembranePlateSection section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    if (argc > 7 && Tcl_GetDouble(interp, argv[7], &Ep_mod) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid Ep_mod" << endln;
-      opserr << "ElasticMembranePlateSection section: " << tag << endln;
-      return TCL_ERROR;
-    }
-
-    theSection = new ElasticMembranePlateSection(tag, E, nu, h, rho, Ep_mod);
-  }
+  //
+  //
+  //
 
   else if (strcmp(argv[1], "PlateFiber") == 0) {
     if (argc < 5) {
@@ -424,10 +299,20 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
       return TCL_OK;
   }
 
+  //
+  // Shell
+  //
+  else if ((strcmp(argv[1], "ElasticMembranePlateSection") == 0) ||
+           (strcmp(argv[1], "ElasticShell") == 0) ||
+           (strcmp(argv[1], "ElasticPlateSection") == 0) ||
+           (strcmp(argv[1], "ElasticMembraneSection") == 0)) {
+    return TclCommand_addElasticShellSection(clientData, interp, argc, argv);
+  }
+
   // start Yuli Huang & Xinzheng Lu LayeredShellFiberSection
   else if (strcmp(argv[1], "LayeredShell") == 0) {
     if (argc < 6) {
-      opserr << G3_ERROR_PROMPT << "insufficient arguments" << endln;
+      opserr << G3_ERROR_PROMPT << "insufficient arguments" << "\n";
       opserr << "Want: section LayeredShell tag? nLayers? matTag1? h1? ... "
                 "matTagn? hn? "
              << endln;
@@ -726,6 +611,125 @@ TclCommand_addSection(ClientData clientData, Tcl_Interp *interp,
     return TCL_OK;
 }
 
+int
+TclCommand_addElasticShellSection(ClientData clientData, Tcl_Interp* interp,
+                                  int argc, TCL_Char** const argv)
+{
+
+    BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
+
+    if (argc < 5) {
+      opserr << G3_ERROR_PROMPT << "insufficient arguments\n";
+      opserr << "Want: section ElasticMembranePlateSection tag? E? nu? h? "
+                "<rho?> <Ep_mod?>"
+             << endln;
+      return TCL_ERROR;
+    }
+
+    int tag;
+    double E, nu, h;
+    double rho = 0.0;
+    double Ep_mod = 1.0;
+
+    if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "invalid section ElasticMembranePlateSection tag"
+             << endln;
+      return TCL_ERROR;
+    }
+
+    if (Tcl_GetDouble(interp, argv[3], &E) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "invalid E" << endln;
+      opserr << "ElasticMembranePlateSection section: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    if (Tcl_GetDouble(interp, argv[4], &nu) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "invalid nu" << endln;
+      opserr << "ElasticMembranePlateSection section: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    if (Tcl_GetDouble(interp, argv[5], &h) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "invalid h" << endln;
+      opserr << "ElasticMembranePlateSection section: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    if (argc > 6 && Tcl_GetDouble(interp, argv[6], &rho) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "invalid rho" << endln;
+      opserr << "ElasticMembranePlateSection section: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    if (argc > 7 && Tcl_GetDouble(interp, argv[7], &Ep_mod) != TCL_OK) {
+      opserr << G3_ERROR_PROMPT << "invalid Ep_mod" << endln;
+      opserr << "ElasticMembranePlateSection section: " << tag << endln;
+      return TCL_ERROR;
+    }
+
+    builder->addTaggedObject<SectionForceDeformation>(*new ElasticMembranePlateSection(tag, E, nu, h, rho, Ep_mod));
+    return TCL_OK;
+}
+
+int
+TclCommand_addPlaneSection(ClientData clientData, Tcl_Interp *interp,
+                              int argc, TCL_Char ** const argv)
+{
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
+
+  // section Plane[Strain|Stress] $tag $material $thickness
+  if (argc != 5) {
+    opserr << G3_ERROR_PROMPT
+           << "incorrect number of arguments\n";
+    return TCL_ERROR;
+  }
+
+  int tag;
+  if (Tcl_GetInt(interp, argv[3], &tag) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT
+           << "failed to read integer tag\n";
+    return TCL_ERROR;
+  }
+
+  int mtag;
+  if (Tcl_GetInt(interp, argv[3], &mtag) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT
+           << "failed to read integer material tag\n";
+    return TCL_ERROR;
+  }
+
+  double thickness;
+  if (Tcl_GetDouble(interp, argv[4], &thickness) != TCL_OK) {
+    opserr << G3_ERROR_PROMPT
+           << "failed to read thickness\n";
+    return TCL_ERROR;
+  }
+
+  NDMaterial* mptr = builder->getTypedObject<NDMaterial>(mtag);
+  if (mptr == nullptr)
+    return TCL_ERROR;
+
+  NDMaterial* pptr = nullptr;
+  if (strcmp(argv[1], "PlaneStrain") == 0) {
+    if (!(pptr = mptr->getCopy("PlaneStrain"))) {
+      pptr = new PlaneStrainMaterial(tag, *mptr);
+    }
+  }
+  else if (strcmp(argv[1], "PlaneStress") == 0) {
+    if (!(pptr = mptr->getCopy("PlaneStress"))) {
+      pptr = new PlaneStressMaterial(tag, *mptr);
+    }
+  }
+  else {
+    opserr << G3_ERROR_PROMPT
+           << "unknown plane section\n";
+    return TCL_ERROR;
+  }
+
+  builder->addTaggedObject<PlaneSection<NDMaterial>>(*(new PlaneSection<NDMaterial>(tag, *pptr, thickness)));
+
+  return TCL_OK;
+}
 
 struct FiberSectionConfig {
    bool isND            = false;

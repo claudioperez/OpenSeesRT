@@ -18,8 +18,6 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// File: ~/analysis/integrator/DisplacementPath.h
-// 
 // Written: JZhong 
 // Created: 01/04
 //

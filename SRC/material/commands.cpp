@@ -140,8 +140,6 @@ TclCommand_addMaterial(ClientData clientData, Tcl_Interp* interp,
   if (cmd != MaterialLibrary.end())
     return (*cmd->second)(clientData, interp, argc, &argv[0]);
 
-  return TCL_ERROR;
-
 
 #if 0
   // Check argv[1] for ND material type
@@ -820,6 +818,8 @@ TclCommand_addMaterial(ClientData clientData, Tcl_Interp* interp,
 
   return TCL_OK;
 #endif
+
+  return TCL_ERROR;
 
 }
 

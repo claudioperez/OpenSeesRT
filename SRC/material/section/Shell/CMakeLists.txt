@@ -5,7 +5,7 @@ target_sources(OPS_Material
     LayeredShellFiberSectionThermal.cpp
     DoubleMembranePlateFiberSection.cpp
     ElasticMembranePlateSection.cpp
-    ElasticPlateSection.cpp
+#   ElasticPlateSection.cpp
     MembranePlateFiberSection.cpp
     MembranePlateFiberSectionThermal.cpp
   PUBLIC
@@ -13,7 +13,7 @@ target_sources(OPS_Material
     LayeredShellFiberSectionThermal.h
     DoubleMembranePlateFiberSection.h
     ElasticMembranePlateSection.h
-    ElasticPlateSection.h
+#   ElasticPlateSection.h
     MembranePlateFiberSection.h
     MembranePlateFiberSectionThermal.h
 )

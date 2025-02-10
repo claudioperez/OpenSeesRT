@@ -50,7 +50,9 @@ class Material : public TaggedObject, public MovableObject
 				       Information &info);
 
     // method for this material to update itself according to its new parameters
-    virtual void update(void) {return;}
+    virtual void update() {
+      return;
+    }
 
   protected:
     

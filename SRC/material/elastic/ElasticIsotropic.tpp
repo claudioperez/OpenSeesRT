@@ -13,7 +13,7 @@ template <int ndim, PlaneType type>
 ElasticIsotropic<ndim, type>::ElasticIsotropic(int tag, double E, double nu, double rho)
     : Mate<ndim>(tag), E(E), nu(nu), rho(rho)
 {
-    revertToStart();
+  revertToStart();
 }
 
 

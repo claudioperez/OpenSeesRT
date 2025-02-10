@@ -350,9 +350,6 @@ ExactFrame3d<nen,nip>::update()
       }
     }
   }
-
-//commitState();
-
   return OpenSees::Flag::Success;
 }
 

@@ -345,14 +345,13 @@ eleResponse(ClientData clientData, Tcl_Interp *interp, int argc,
   Domain* the_domain = (Domain*)clientData; 
 
   if (argc < 2) {
-    opserr << G3_ERROR_PROMPT << "want - eleResponse eleTag? eleArgs...\n";
+    opserr << G3_ERROR_PROMPT << "want - eleResponse tag? eleArgs...\n";
     return TCL_ERROR;
   }
 
   int tag;
-
   if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT << "eleResponse eleTag? args? - could not read eleTag? \n";
+    opserr << G3_ERROR_PROMPT << "eleResponse tag? args? - could not read tag? \n";
     return TCL_ERROR;
   }
 
