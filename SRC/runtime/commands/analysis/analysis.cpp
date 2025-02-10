@@ -143,6 +143,29 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder*)clientData;
 
   int result = 0;
+  int commit = BasicAnalysisBuilder::Increment
+             | BasicAnalysisBuilder::Iterate 
+             | BasicAnalysisBuilder::Commit;
+  
+  for (int i=2; i<argc; i++) {
+    if (strcmp(argv[i], "-operation") == 0) {
+      if (argc < i+2) {
+        opserr << G3_ERROR_PROMPT << "operation key requires argument\n";
+        return TCL_ERROR;
+      }
+      i++;
+      if (strcmp(argv[i], "commit") == 0) {
+        commit = BasicAnalysisBuilder::Commit;
+      }
+      else if (strcmp(argv[i], "increment") == 0) {
+        commit = BasicAnalysisBuilder::Increment;
+      }
+      else if (strcmp(argv[i], "iteration") == 0) {
+        commit = BasicAnalysisBuilder::Iterate;
+      }
+    }
+  }
+
   switch (builder->CurrentAnalysisFlag) {
     case BasicAnalysisBuilder::STATIC_ANALYSIS: {
       int numIncr;
@@ -154,7 +177,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
       if (Tcl_GetInt(interp, argv[1], &numIncr) != TCL_OK)
         return TCL_ERROR;
 
-      result = builder->analyze(numIncr, 0.0);
+      result = builder->analyze(numIncr, 0.0, commit);
       break;
     }
     case BasicAnalysisBuilder::TRANSIENT_ANALYSIS: {
@@ -182,7 +205,7 @@ analyzeModel(ClientData clientData, Tcl_Interp *interp, int argc,
         result = builder->analyzeVariable(numIncr, dT, dtMin, dtMax, Jd);
 
       } else {
-        result = builder->analyze(numIncr, dT);
+        result = builder->analyze(numIncr, dT, commit);
       }
       break;
     }

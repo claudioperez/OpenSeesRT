@@ -303,17 +303,17 @@ BasicAnalysisBuilder::domainChanged(void)
 }
 
 int
-BasicAnalysisBuilder::analyze(int num_steps, double size_steps)
+BasicAnalysisBuilder::analyze(int num_steps, double size_steps, int flag)
 {
 
   switch (this->CurrentAnalysisFlag) {
 
     case STATIC_ANALYSIS:
-      return this->analyzeStatic(num_steps);
+      return this->analyzeStatic(num_steps, flag);
       break;
 
     case TRANSIENT_ANALYSIS: {
-      // TODO: Set global timestep variable
+      // TODO: Need to remove global timestep variable;
       ops_Dt = size_steps;
       return this->analyzeTransient(num_steps, size_steps);
       break;
@@ -326,14 +326,13 @@ BasicAnalysisBuilder::analyze(int num_steps, double size_steps)
 }
 
 int
-BasicAnalysisBuilder::analyzeStatic(int numSteps)
+BasicAnalysisBuilder::analyzeStatic(int numSteps, int flag)
 {
   int result = 0;
 
   for (int i=0; i<numSteps; i++) {
-
-      result = theAnalysisModel->analysisStep();
-
+      // This is used for parallelization
+      result = theAnalysisModel->analysisStep(0.0);
       if (result < 0) {
         opserr << "StaticAnalysis::analyze - the AnalysisModel failed\n";
         opserr << " at step: " << i << " with domain at load factor ";
@@ -357,24 +356,28 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
         }
       }
 
-      result = theStaticIntegrator->newStep();
-      if (result < 0) {
-        opserr << "The Integrator failed at step: " << i
-               << " with domain at load factor " << theDomain->getCurrentTime() << "\n";
-        theDomain->revertToLastCommit();
-        theStaticIntegrator->revertToLastStep();
-        return -2;
+      if (flag & Increment) {
+        result = theStaticIntegrator->newStep();
+        if (result < 0) {
+          opserr << "The Integrator failed at step: " << i
+                << " with domain at load factor " << theDomain->getCurrentTime() << "\n";
+          theDomain->revertToLastCommit();
+          theStaticIntegrator->revertToLastStep();
+          return -2;
+        }
       }
 
-      result = theAlgorithm->solveCurrentStep();
-      if (result < 0) {
-        // Print error message if we have one
-        if (AnalyzeFailedMessage.find(result) != AnalyzeFailedMessage.end()) {
-            opserr << OpenSees::PromptAnalysisFailure << AnalyzeFailedMessage[result];
+      if (flag & Iterate) {
+        result = theAlgorithm->solveCurrentStep();
+        if (result < 0) {
+          // Print error message if we have one
+          if (AnalyzeFailedMessage.find(result) != AnalyzeFailedMessage.end()) {
+              opserr << OpenSees::PromptAnalysisFailure << AnalyzeFailedMessage[result];
+          }
+          theDomain->revertToLastCommit();
+          theStaticIntegrator->revertToLastStep();
+          return -3;
         }
-        theDomain->revertToLastCommit();
-        theStaticIntegrator->revertToLastStep();
-        return -3;
       }
 
       if (theStaticIntegrator->shouldComputeAtEachStep()) {
@@ -389,16 +392,18 @@ BasicAnalysisBuilder::analyzeStatic(int numSteps)
         }    
       }
 
-      result = theStaticIntegrator->commit();
-      if (result < 0) {
-        opserr << "StaticAnalysis::analyze - ";
-        opserr << "the Integrator failed to commit";
-        opserr << " at step: " << i << " with domain at load factor ";
-        opserr << theDomain->getCurrentTime() << "\n";
+      if (flag & Commit) {
+        result = theStaticIntegrator->commit();
+        if (result < 0) {
+          opserr << "StaticAnalysis::analyze - ";
+          opserr << "the Integrator failed to commit";
+          opserr << " at step: " << i << " with domain at load factor ";
+          opserr << theDomain->getCurrentTime() << "\n";
 
-        theDomain->revertToLastCommit();
-        theStaticIntegrator->revertToLastStep();
-        return -4;
+          theDomain->revertToLastCommit();
+          theStaticIntegrator->revertToLastStep();
+          return -4;
+        }
       }
   }
 

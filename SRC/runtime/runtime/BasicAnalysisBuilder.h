@@ -51,6 +51,12 @@ public:
       TRANSIENT_ANALYSIS
     };
 
+    enum Perform : int {
+      Increment = 1<<0,
+      Iterate   = 1<<1,
+      Commit    = 1<<2
+    };
+
     void set(ConstraintHandler* obj);
     void set(DOF_Numberer* obj);
     void set(EquiSolnAlgo* obj);
@@ -84,8 +90,8 @@ public:
     int domainChanged();
 
     // Performing analysis
-    int analyze(int num_steps, double size_steps=0.0);
-    int analyzeStatic(int num_steps);
+    int analyze(int num_steps, double size_steps, int flag=Increment|Iterate|Commit);
+    int analyzeStatic(int num_steps, int flag);
     
     int analyzeTransient(int numSteps, double dT);
     int analyzeStep(double dT);
