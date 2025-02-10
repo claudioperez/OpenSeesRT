@@ -14,9 +14,9 @@ target_sources(OPS_Material
     ElasticSection2d.cpp
     ElasticSection3d.cpp
     ElasticShearSection2d.cpp 
-    ElasticShearSection3d.cpp
+#   ElasticShearSection3d.cpp
 #   ElasticTubeSection3d.cpp
-    ElasticWarpingShearSection2d.cpp
+#   ElasticWarpingShearSection2d.cpp
     Elliptical2.cpp
     FiberSection2d.cpp
     FiberSection2dInt.cpp
@@ -36,7 +36,7 @@ target_sources(OPS_Material
     ParallelSection.cpp
     SectionAggregator.cpp
     SectionForceDeformation.cpp
-    TimoshenkoSection3d.cpp
+#   TimoshenkoSection3d.cpp
   PUBLIC
     ASDCoupledHinge3D.h
     BiaxialHysteretic.h
@@ -45,9 +45,9 @@ target_sources(OPS_Material
     ElasticSection2d.h 
     ElasticSection3d.h
     ElasticShearSection2d.h 
-    ElasticShearSection3d.h
+#   ElasticShearSection3d.h
 #   ElasticTubeSection3d.h
-    ElasticWarpingShearSection2d.h
+#   ElasticWarpingShearSection2d.h
     Elliptical2.h
     FiberSection2d.h
     FiberSection2dInt.h
@@ -66,7 +66,7 @@ target_sources(OPS_Material
     ParallelSection.h
     SectionAggregator.h
     SectionForceDeformation.h
-    TimoshenkoSection3d.h
+#   TimoshenkoSection3d.h
 )
 
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})
