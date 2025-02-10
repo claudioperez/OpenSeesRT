@@ -47,673 +47,559 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-void *
-OPS_ADD_RUNTIME_VPV(OPS_ASDShellQ4)
-{
-    static bool first_done = false;
-    if (!first_done) {
-        opserr << "Using ASDShellQ4 - Developed by: Massimo Petracca, Guido Camata, ASDEA Software Technology\n";
-        first_done = true;
-    }
-
-    int numArgs = OPS_GetNumRemainingInputArgs();
-    if (numArgs < 6) {
-        opserr << "Want: element ASDShellQ4 $tag $iNode $jNode $kNode $lNode $secTag "
-            "<-corotational> <-noeas> <-drillingStab $drillingStab> <-drillingNL>"
-            "<-local $x1 $x2 $x3>";
-        return 0;
-    }
-
-    int iData[6];
-    int numData = 6;
-    if (OPS_GetInt(&numData, iData) != 0) {
-        opserr << "WARNING invalid integer tag: element ASDShellQ4 \n";
-        return 0;
-    }
-
-    bool corotational = false;
-    bool use_eas = true;
-    bool use_drill_stab = false;
-    double drilling_stab = 0.01;
-    ASDShellQ4::DrillingDOFMode drill_mode = ASDShellQ4::DrillingDOF_Elastic;
-    int dampingTag = 0;
-    Damping *m_damping = 0;
-    Vector local_x(3);
-  
-    while (OPS_GetNumRemainingInputArgs() > 0) {
-        const char* type = OPS_GetString();
-        if ((strcmp(type, "-corotational") == 0) || (strcmp(type, "-Corotational") == 0)) {
-            corotational = true;
-        }
-        else if (strcmp(type, "-noeas") == 0) {
-            use_eas = false;
-        }
-        else if (strcmp(type, "-drillingStab") == 0) {
-            if (drill_mode != ASDShellQ4::DrillingDOF_Elastic) {
-                opserr << "Error: element ASDShellQ4: -drillingStab and -drillingNL options are mutually exclusive\n";
-                return 0;
-            }
-            if (OPS_GetNumRemainingInputArgs() == 0) {
-                opserr << "Error: element ASDShellQ4: drilling stabilization parameter not provided with -drillingStab option\n";
-                return 0;
-            }
-            numData = 1;
-            if (OPS_GetDoubleInput(&numData, &drilling_stab) == 0) {
-                drilling_stab = std::max(0.0, std::min(1.0, drilling_stab));
-            }
-            else {
-                opserr << "Error: element ASDShellQ4: cannot get drilling stabilization parameter with -drillingStab option\n";
-                return 0;
-            }
-            drill_mode = ASDShellQ4::DrillingDOF_Elastic;
-            use_drill_stab = true;
-        }
-        else if (strcmp(type, "-drillingNL") == 0) {
-            if (use_drill_stab) {
-                opserr << "Error: element ASDShellQ4: -drillingStab and -drillingNL options are mutually exclusive\n";
-                return 0;
-            }
-            drill_mode = ASDShellQ4::DrillingDOF_NonLinear;
-            drilling_stab = 1.0;
-        }
-        else if (strcmp(type, "-local") == 0) {
-            if (OPS_GetNumRemainingInputArgs() < 3) {
-                opserr << "Error: element ASDShellQ4: not enough arguments for -local options (3 components are required)\n";
-                return 0;
-            }
-            numData = 1;
-            for (int i = 0; i < 3; ++i) {
-                double local_x_com;
-                if (OPS_GetDoubleInput(&numData, &local_x_com) == 0) {
-                    local_x(i) = local_x_com;
-                }
-                else {
-                    opserr << "Error: element ASDShellQ4: cannot get the component " << i + 1 << " for the local X axis\n";
-                    return 0;
-                }
-            }
-        }
-        else if (strcmp(type, "-damp") == 0) {
-#ifdef OPS_USE_DAMPING
-            if (OPS_GetNumRemainingInputArgs() > 0) {
-                numData = 1;
-                if (OPS_GetIntInput(&numData, &dampingTag) < 0) return 0;
-                m_damping = OPS_getDamping(dampingTag);
-                if (m_damping == 0) {
-                    opserr << "Error: element ASDShellQ4: damping not found\n";
-                    return 0;
-                }
-            }
-#else
-            opserr << "Damping is not supported in this release\n";
-            return nullptr;
-#endif
-        }
-    }
-    SectionForceDeformation* section = OPS_getSectionForceDeformation(iData[5]);
-
-    if (section == 0) {
-        opserr << "ERROR:  element ASDShellQ4 " << iData[0] << " section " << iData[5] << " not found\n";
-        return 0;
-    }
-    
-    return new ASDShellQ4(iData[0], iData[1], iData[2], iData[3], iData[4], section, local_x, corotational, use_eas, drill_mode, drilling_stab, m_damping);
-}
+using namespace OpenSees;
 
 // anonymous namespace for utilities
 namespace
 {
-    // some typedefs
-    typedef Vector3D Vector3Type;
-
-    // calculation options
-    constexpr int OPT_NONE = 0;
-    constexpr int OPT_UPDATE = (1 << 0);
-    constexpr int OPT_LHS = (1 << 1);
-    constexpr int OPT_RHS = (1 << 2);
-    constexpr int OPT_LHS_IS_INITIAL = (1 << 3);
-
-    // gauss quadrature data
-    constexpr double GLOC = 0.577350269189626;
-    constexpr std::array<double, 4> XI = { -GLOC, GLOC, GLOC, -GLOC };
-    constexpr std::array<double, 4> ETA = { -GLOC, -GLOC, GLOC, GLOC };
-    constexpr std::array<double, 4> WTS = { 1.0, 1.0, 1.0, 1.0 };
-
-    // shape functions
-    inline void shapeFunctions(double xi, double eta, Vector& N)
-    {
-        N(0) = 0.25 * (1.0 - xi) * (1.0 - eta);
-        N(1) = 0.25 * (1.0 + xi) * (1.0 - eta);
-        N(2) = 0.25 * (1.0 + xi) * (1.0 + eta);
-        N(3) = 0.25 * (1.0 - xi) * (1.0 + eta);
-    }
-
-    // shape function derivatives in iso-parametric space
-    inline void shapeFunctionsNaturalDerivatives(double xi, double eta, Matrix& dN)
-    {
-        dN(0, 0) = -(1.0 - eta) * 0.25;
-        dN(1, 0) = (1.0 - eta) * 0.25;
-        dN(2, 0) = (1.0 + eta) * 0.25;
-        dN(3, 0) = -(1.0 + eta) * 0.25;
-
-        dN(0, 1) = -(1.0 - xi) * 0.25;
-        dN(1, 1) = -(1.0 + xi) * 0.25;
-        dN(2, 1) = (1.0 + xi) * 0.25;
-        dN(3, 1) = (1.0 - xi) * 0.25;
-    }
-
-    /** \brief JacobianOperator
-     *
-     * This class is a utility to compute at a given integration point,
-     * the Jacobian, its inverse, its determinant
-     * and the derivatives of the shape functions in the local
-     * cartesian coordinate system.
-     */
-    struct JacobianOperator
-    {
-        // Jacobian matrix
-        Matrix J = Matrix(2, 2);
-        // Jacobian inverse
-        Matrix invJ = Matrix(2, 2);
-        // Determinant of the Jacobian matrix
-        double detJ = 0.0;
-
-        void calculate(const ASDShellQ4LocalCoordinateSystem& CS, const Matrix& dN)
-        {
-            // jacobian
-            J(0, 0) = dN(0, 0) * CS.X1() + dN(1, 0) * CS.X2() + dN(2, 0) * CS.X3() + dN(3, 0) * CS.X4();
-            J(1, 0) = dN(0, 0) * CS.Y1() + dN(1, 0) * CS.Y2() + dN(2, 0) * CS.Y3() + dN(3, 0) * CS.Y4();
-            J(0, 1) = dN(0, 1) * CS.X1() + dN(1, 1) * CS.X2() + dN(2, 1) * CS.X3() + dN(3, 1) * CS.X4();
-            J(1, 1) = dN(0, 1) * CS.Y1() + dN(1, 1) * CS.Y2() + dN(2, 1) * CS.Y3() + dN(3, 1) * CS.Y4();
-
-            // determinant
-            detJ = J(0, 0) * J(1, 1) - J(1, 0) * J(0, 1);
-            double mult = 1.0 / detJ;
-
-            // inv(jacobian)
-            invJ(0, 0) = J(1, 1) * mult;
-            invJ(1, 1) = J(0, 0) * mult;
-            invJ(0, 1) = -J(0, 1) * mult;
-            invJ(1, 0) = -J(1, 0) * mult;
-        }
-    
-    };
-
-    /** \brief MITC4Params
-     *
-     * This class performs some operations and stores some data to compute
-     * the transverse shear contribution of the stiffness matrix using the
-     * M.I.T.C. formulation.
-     *
-     */
-    struct MITC4Params
-    {
-        double Ax = 0.0;
-        double Ay = 0.0;
-        double Bx = 0.0;
-        double By = 0.0;
-        double Cx = 0.0;
-        double Cy = 0.0;
-        Matrix transformation = Matrix(2, 2);
-        Matrix shearStrains = Matrix(4, 24);
-
-        void compute(const ASDShellQ4LocalCoordinateSystem& LCS)
-        {
-            double x21 = LCS.X2() - LCS.X1();
-            double y21 = LCS.Y2() - LCS.Y1();
-            double x34 = LCS.X3() - LCS.X4();
-            double y34 = LCS.Y3() - LCS.Y4();
-            double x41 = LCS.X4() - LCS.X1();
-            double y41 = LCS.Y4() - LCS.Y1();
-            double x32 = LCS.X3() - LCS.X2();
-            double y32 = LCS.Y3() - LCS.Y2();
-
-            Ax = -LCS.X1() + LCS.X2() + LCS.X3() - LCS.X4();
-            Bx = LCS.X1() - LCS.X2() + LCS.X3() - LCS.X4();
-            Cx = -LCS.X1() - LCS.X2() + LCS.X3() + LCS.X4();
-            Ay = -LCS.Y1() + LCS.Y2() + LCS.Y3() - LCS.Y4();
-            By = LCS.Y1() - LCS.Y2() + LCS.Y3() - LCS.Y4();
-            Cy = -LCS.Y1() - LCS.Y2() + LCS.Y3() + LCS.Y4();
-
-            double Alpha = std::atan(Ay / Ax);
-            double Beta = 3.141592653589793 * 0.5 - std::atan(Cx / Cy);
-
-            transformation(0, 0) = std::sin(Beta);
-            transformation(0, 1) = -std::sin(Alpha);
-            transformation(1, 0) = -std::cos(Beta);
-            transformation(1, 1) = std::cos(Alpha);
-
-            shearStrains.Zero();
-
-            shearStrains(0, 2) = -0.5;
-            shearStrains(0, 3) = -y41 * 0.25;
-            shearStrains(0, 4) = x41 * 0.25;
-
-            shearStrains(0, 20) = 0.5;
-            shearStrains(0, 21) = -y41 * 0.25;
-            shearStrains(0, 22) = x41 * 0.25;
-
-            shearStrains(1, 2) = -0.5;
-            shearStrains(1, 3) = -y21 * 0.25;
-            shearStrains(1, 4) = x21 * 0.25;
-
-            shearStrains(1, 8) = 0.5;
-            shearStrains(1, 9) = -y21 * 0.25;
-            shearStrains(1, 10) = x21 * 0.25;
-
-            shearStrains(2, 8) = -0.5;
-            shearStrains(2, 9) = -y32 * 0.25;
-            shearStrains(2, 10) = x32 * 0.25;
-
-            shearStrains(2, 14) = 0.5;
-            shearStrains(2, 15) = -y32 * 0.25;
-            shearStrains(2, 16) = x32 * 0.25;
-
-            shearStrains(3, 14) = 0.5;
-            shearStrains(3, 15) = -y34 * 0.25;
-            shearStrains(3, 16) = x34 * 0.25;
-
-            shearStrains(3, 20) = -0.5;
-            shearStrains(3, 21) = -y34 * 0.25;
-            shearStrains(3, 22) = x34 * 0.25;
-        }
-
-    };
-
-    /** \brief AGQIParams
-     *
-     * This class performs some operations and stores some data to compute
-     * the AGQI enhancement of the membrane part
-     *
-     */
-    struct AGQIParams
-    {
-        std::array<double, 4> X = { {0.0, 0.0, 0.0, 0.0} };
-        std::array<double, 4> Y = { {0.0, 0.0, 0.0, 0.0} };
-        std::array<double, 4> b = { {0.0, 0.0, 0.0, 0.0} };
-        std::array<double, 4> c = { {0.0, 0.0, 0.0, 0.0} };
-        double A1 = 0.0;
-        double A2 = 0.0;
-        double A3 = 0.0;
-        double A = 0.0;
-        std::array<double, 4> g = { {0.0, 0.0, 0.0, 0.0} };
-
-        void compute(const ASDShellQ4LocalCoordinateSystem& LCS)
-        {
-            // extract the x and y coordinates
-            // and compute bi = yj-yk, and ci = xk-xj
-            // Eq 3
-            for (int i = 0; i < 4; i++) {
-                X[i] = LCS.X(i);
-                Y[i] = LCS.Y(i);
-            }
-            for (int i = 0; i < 4; i++) {
-                int j = i + 1; if (j > 3) j = 0;
-                int k = j + 1; if (k > 3) k = 0;
-                b[i] = Y[j] - Y[k];
-                c[i] = X[k] - X[j];
-            }
-
-            // areas of sub-triangles
-            A1 = 0.5 * (X[1] * Y[3] + X[0] * Y[1] + X[3] * Y[0] - X[1] * Y[0] - X[3] * Y[1] - X[0] * Y[3]);
-            A2 = 0.5 * (X[1] * Y[2] + X[0] * Y[1] + X[2] * Y[0] - X[1] * Y[0] - X[2] * Y[1] - X[0] * Y[2]);
-            A3 = 0.5 * (X[2] * Y[3] + X[1] * Y[2] + X[3] * Y[1] - X[2] * Y[1] - X[3] * Y[2] - X[1] * Y[3]);
-            A = A1 + A3;
-            // characteristic parameters of a quadrilateral
-            // Eq 4
-            g[0] = A1 / A; g[1] = A2 / A; g[2] = 1.0 - g[0]; g[3] = 1.0 - g[1];
-        }
-
-    };
-
-    /** \brief ASDShellQ4Globals
-     *
-     * This singleton class stores some data for the shell calculations that
-     * can be statically instantiated to avoid useless re-allocations
-     *
-     */
-    class ASDShellQ4Globals
-    {
-    private:
-        ASDShellQ4Globals() = default;
-
-    public:
-
-        JacobianOperator jac; // Jacobian
-        MITC4Params mitc; // MITC4 parameters
-        AGQIParams agq; // GQ12 parameters
-
-        Vector UG = Vector(24); // global displacements
-        Vector UL = Vector(24); // local displacements
-
-        Matrix B = Matrix(8, 24); // strain-displacement matrix
-        Matrix B1 = Matrix(8, 24); // strain-displacement matrix with inverted bending terms
-        Matrix B1TD = Matrix(24, 8); // holds the B1^T*D terms
-        Vector Bd = Vector(24); // strain-displacement matrix for drilling
-        Vector Bd0 = Vector(24); // strain-displacement matrix for drilling (reduced integration)
-        Vector N = Vector(4); // shape functions
-        Matrix dN = Matrix(4, 2); // shape functions derivatives in isoparametric space
-        Matrix dNdX = Matrix(4, 2); // shape functions derivatives in cartesian space
-        Vector E = Vector(8); // strain vector
-        Vector S = Vector(8); // stress vector
-        Vector Elocal = Vector(8); // strain vector in local element coordinate system
-        Matrix Re = Matrix(8, 8); // rotation matrix for strains
-        Matrix Rs = Matrix(8, 8); // rotation matrix for stresses
-        Matrix RsT = Matrix(8, 8); // transpose of above
-        Matrix Dsection = Matrix(8, 8);
-        Matrix D = Matrix(8, 8); // section tangent
-        Matrix DRsT = Matrix(8, 8); // holds the product D * Rs^T
-
-        Matrix BQ = Matrix(8, 4); // B matrix for internal DOFs
-        Matrix BQ_mean = Matrix(8, 4); // Average B matrix for internal DOFs
-        Matrix BQTD = Matrix(4, 8); // holds the BQ^T*D terms
-        Matrix DBQ = Matrix(8, 4); // holds the D*BQ^T terms
-
-        Matrix LHS = Matrix(24, 24); // LHS matrix (tangent stiffness)
-        Matrix LHS_initial = Matrix(24, 24); // LHS matrix (initial stiffness)
-        Matrix LHS_mass = Matrix(24, 24); // LHS matrix (mass matrix)
-        Vector RHS = Vector(24); // RHS vector (residual vector)
-        Vector RHS_winertia = Vector(24); // RHS vector (residual vector with inertia terms)
-
-    public:
-        static ASDShellQ4Globals& instance() {
-            static ASDShellQ4Globals _instance;
-            return _instance;
-        }
-    };
-
-    // computes only the drilling B matrix
-    void computeBdrilling(
-        const ASDShellQ4LocalCoordinateSystem& LCS,
-        double xi, double eta,
-        const JacobianOperator& Jac,
-        const AGQIParams& agq,
-        const Vector& N,
-        const Matrix& dN,
-        Vector& Bd,
-        bool use_eas
-    )
-    {
-        // cartesian derivatives of standard shape function
-        auto& dNdX = ASDShellQ4Globals::instance().dNdX;
-        dNdX.addMatrixProduct(0.0, dN, Jac.invJ, 1.0);
-
-        // initialize
-        Bd.Zero();
-
-        // AGQI proc ***********************************************************************************************
-
-        if (use_eas) {
-
-            // area coordinates of the gauss point (Eq 7)
-            std::array<double, 4> L;
-            L[0] = 0.25 * (1.0 - xi) * (agq.g[1] * (1.0 - eta) + agq.g[2] * (1.0 + eta));
-            L[1] = 0.25 * (1.0 - eta) * (agq.g[3] * (1.0 - xi) + agq.g[2] * (1.0 + xi));
-            L[2] = 0.25 * (1.0 + xi) * (agq.g[0] * (1.0 - eta) + agq.g[3] * (1.0 + eta));
-            L[3] = 0.25 * (1.0 + eta) * (agq.g[0] * (1.0 - xi) + agq.g[1] * (1.0 + xi));
-
-            // computed modified shape function gradients for the strain matrix for external dofs
-            // using the area coordinate method as written in the reference paper of the AGQI element
-            static constexpr std::array<double, 4> NXI = { -1.0, 1.0, 1.0, -1.0 };
-            static constexpr std::array<double, 4> NETA = { -1.0, -1.0, 1.0, 1.0 };
-            for (int i = 0; i < 4; i++)
-            {
-                int j = i + 1; if (j > 3) j = 0;
-                int k = j + 1; if (k > 3) k = 0;
-                double SX = 0.0;
-                double SY = 0.0;
-                for (int ii = 0; ii < 4; ii++)
-                {
-                    int jj = ii + 1; if (jj > 3) jj = 0;
-                    int kk = jj + 1; if (kk > 3) kk = 0;
-                    int mm = kk + 1; if (mm > 3) mm = 0;
-                    SX = SX + agq.b[ii] * NXI[ii] * NETA[ii] * (3.0 * (L[jj] - L[mm]) + (agq.g[jj] - agq.g[kk]));
-                    SY = SY + agq.c[ii] * NXI[ii] * NETA[ii] * (3.0 * (L[jj] - L[mm]) + (agq.g[jj] - agq.g[kk]));
-                }
-                dNdX(i, 0) = (agq.b[i] + agq.b[j]) / agq.A / 2.0 +
-                    NXI[i] * NETA[i] * agq.g[k] * SX / 2.0 / agq.A / (1.0 + agq.g[0] * agq.g[2] + agq.g[1] * agq.g[3]);
-                dNdX(i, 1) = (agq.c[i] + agq.c[j]) / agq.A / 2.0 +
-                    NXI[i] * NETA[i] * agq.g[k] * SY / 2.0 / agq.A / (1.0 + agq.g[0] * agq.g[2] + agq.g[1] * agq.g[3]);
-            }
-        }
-
-        // We use the drilling penalty as defined by hughes and brezzi,
-        // where we link the independent rotation to the skew symmetric part of the in-plane displacement field.
-
-        Bd(0) = -0.5 * dNdX(0, 1);
-        Bd(1) = 0.5 * dNdX(0, 0);
-        Bd(5) = -N(0);
-
-        Bd(6) = -0.5 * dNdX(1, 1);
-        Bd(7) = 0.5 * dNdX(1, 0);
-        Bd(11) = -N(1);
-
-        Bd(12) = -0.5 * dNdX(2, 1);
-        Bd(13) = 0.5 * dNdX(2, 0);
-        Bd(17) = -N(2);
-
-        Bd(18) = -0.5 * dNdX(3, 1);
-        Bd(19) = 0.5 * dNdX(3, 0);
-        Bd(23) = -N(3);
-    }
-
-    // computes the complete B matrix
-    void computeBMatrix(
-        const ASDShellQ4LocalCoordinateSystem& LCS,
-        double xi, double eta,
-        const JacobianOperator& Jac, 
-        const AGQIParams& agq,
-        const MITC4Params& mitc,
-        const Vector& N,
-        const Matrix& dN,
-        const Matrix& BQ_mean,
-        Matrix& B,
-        Matrix& BQ,
-        Vector& Bd,
-        bool use_eas
-    )
-    {
-        // cartesian derivatives of standard shape function
-        auto& dNdX = ASDShellQ4Globals::instance().dNdX;
-        dNdX.addMatrixProduct(0.0, dN, Jac.invJ, 1.0);
-
-        // initialize
-        B.Zero();
-        Bd.Zero();
-
-        // AGQI proc ***********************************************************************************************
-
-        if (use_eas) {
-
-            // area coordinates of the gauss point (Eq 7)
-            std::array<double, 4> L;
-            L[0] = 0.25 * (1.0 - xi) * (agq.g[1] * (1.0 - eta) + agq.g[2] * (1.0 + eta));
-            L[1] = 0.25 * (1.0 - eta) * (agq.g[3] * (1.0 - xi) + agq.g[2] * (1.0 + xi));
-            L[2] = 0.25 * (1.0 + xi) * (agq.g[0] * (1.0 - eta) + agq.g[3] * (1.0 + eta));
-            L[3] = 0.25 * (1.0 + eta) * (agq.g[0] * (1.0 - xi) + agq.g[1] * (1.0 + xi));
-
-            // computed modified shape function gradients for the strain matrix for external dofs
-            // using the area coordinate method as written in the reference paper of the AGQI element
-            static constexpr std::array<double, 4> NXI = { -1.0, 1.0, 1.0, -1.0 };
-            static constexpr std::array<double, 4> NETA = { -1.0, -1.0, 1.0, 1.0 };
-            for (int i = 0; i < 4; i++)
-            {
-                int j = i + 1; if (j > 3) j = 0;
-                int k = j + 1; if (k > 3) k = 0;
-                double SX = 0.0;
-                double SY = 0.0;
-                for (int ii = 0; ii < 4; ii++)
-                {
-                    int jj = ii + 1; if (jj > 3) jj = 0;
-                    int kk = jj + 1; if (kk > 3) kk = 0;
-                    int mm = kk + 1; if (mm > 3) mm = 0;
-                    SX = SX + agq.b[ii] * NXI[ii] * NETA[ii] * (3.0 * (L[jj] - L[mm]) + (agq.g[jj] - agq.g[kk]));
-                    SY = SY + agq.c[ii] * NXI[ii] * NETA[ii] * (3.0 * (L[jj] - L[mm]) + (agq.g[jj] - agq.g[kk]));
-                }
-                dNdX(i, 0) = (agq.b[i] + agq.b[j]) / agq.A / 2.0 +
-                    NXI[i] * NETA[i] * agq.g[k] * SX / 2.0 / agq.A / (1.0 + agq.g[0] * agq.g[2] + agq.g[1] * agq.g[3]);
-                dNdX(i, 1) = (agq.c[i] + agq.c[j]) / agq.A / 2.0 +
-                    NXI[i] * NETA[i] * agq.g[k] * SY / 2.0 / agq.A / (1.0 + agq.g[0] * agq.g[2] + agq.g[1] * agq.g[3]);
-            }
-
-            // compute the BQ matrix for the internal DOFs
-            BQ.Zero();
-            for (int i = 0; i < 2; i++)
-            {
-                unsigned int j = i + 1; if (j > 3) j = 0;
-                unsigned int k = j + 1; if (k > 3) k = 0;
-                double NQX = (agq.b[i] * L[k] + agq.b[k] * L[i]) / agq.A / 2.0;
-                double NQY = (agq.c[i] * L[k] + agq.c[k] * L[i]) / agq.A / 2.0;
-                unsigned int index1 = i * 2;
-                unsigned int index2 = index1 + 1;
-                BQ(0, index1) += NQX;
-                BQ(1, index2) += NQY;
-                BQ(2, index1) += NQY;
-                BQ(2, index2) += NQX;
-            }
-            BQ.addMatrix(1.0, BQ_mean, -1.0);
-        }
-
-        // membrane ************************************************************************************************
-        // this is the memebrane part of the compatible standard in-plane displacement field
-
-        B(0, 0) = dNdX(0, 0);   B(0, 6) = dNdX(1, 0);   B(0, 12) = dNdX(2, 0);   B(0, 18) = dNdX(3, 0);
-        B(1, 1) = dNdX(0, 1);   B(1, 7) = dNdX(1, 1);   B(1, 13) = dNdX(2, 1);   B(1, 19) = dNdX(3, 1);
-        B(2, 0) = dNdX(0, 1);   B(2, 6) = dNdX(1, 1);   B(2, 12) = dNdX(2, 1);   B(2, 18) = dNdX(3, 1);
-        B(2, 1) = dNdX(0, 0);   B(2, 7) = dNdX(1, 0);   B(2, 13) = dNdX(2, 0);   B(2, 19) = dNdX(3, 0);
-
-        // We use the drilling penalty as defined by hughes and brezzi,
-        // where we link the independent rotation to the skew symmetric part of the in-plane displacement field.
-
-        Bd(0) = -0.5 * dNdX(0, 1);
-        Bd(1) = 0.5 * dNdX(0, 0);
-        Bd(5) = -N(0);
-        
-        Bd(6) = -0.5 * dNdX(1, 1);
-        Bd(7) = 0.5 * dNdX(1, 0);
-        Bd(11) = -N(1);
-        
-        Bd(12) = -0.5 * dNdX(2, 1);
-        Bd(13) = 0.5 * dNdX(2, 0);
-        Bd(17) = -N(2);
-        
-        Bd(18) = -0.5 * dNdX(3, 1);
-        Bd(19) = 0.5 * dNdX(3, 0);
-        Bd(23) = -N(3);
-
-        // bending *************************************************************************************************
-
-        B(3, 4) = -dNdX(0, 0);   B(3, 10) = -dNdX(1, 0);   B(3, 16) = -dNdX(2, 0);   B(3, 22) = -dNdX(3, 0);
-        B(4, 3) =  dNdX(0, 1);   B(4, 9)  =  dNdX(1, 1);   B(4, 15) =  dNdX(2, 1);   B(4, 21) =  dNdX(3, 1);
-        B(5, 3) =  dNdX(0, 0);   B(5, 9)  =  dNdX(1, 0);   B(5, 15) =  dNdX(2, 0);   B(5, 21) =  dNdX(3, 0);
-        B(5, 4) = -dNdX(0, 1);   B(5, 10) = -dNdX(1, 1);   B(5, 16) = -dNdX(2, 1);   B(5, 22) = -dNdX(3, 1);
-
-        // shear ***************************************************************************************************
-
-        // MITC modified shape functions
-        static Matrix MITCShapeFunctions(2, 4);
-        MITCShapeFunctions.Zero();
-        MITCShapeFunctions(1, 0) = 1.0 - xi;
-        MITCShapeFunctions(0, 1) = 1.0 - eta;
-        MITCShapeFunctions(1, 2) = 1.0 + xi;
-        MITCShapeFunctions(0, 3) = 1.0 + eta;
-
-        // strain displacement matrix in natural coordinate system.
-        // interpolate the shear strains given in MITC4Params
-        // using the modified shape function
-        static Matrix BN(2, 24);
-        BN.addMatrixProduct(0.0, MITCShapeFunctions, mitc.shearStrains, 1.0);
-
-        // modify the shear strain intensity in the tying points
-        // to match the values that would be obtained using standard
-        // interpolations
-        double Temp1, Temp2, Temp3;
-        Temp1 = mitc.Cx + xi * mitc.Bx;
-        Temp3 = mitc.Cy + xi * mitc.By;
-        Temp1 = Temp1 * Temp1 + Temp3 * Temp3;
-        Temp1 = std::sqrt(Temp1) / (8.0 * Jac.detJ);
-        Temp2 = mitc.Ax + eta * mitc.Bx;
-        Temp3 = mitc.Ay + eta * mitc.By;
-        Temp2 = Temp2 * Temp2 + Temp3 * Temp3;
-        Temp2 = std::sqrt(Temp2) / (8.0 * Jac.detJ);
-        for (int i = 0; i < 24; i++) {
-            BN(0, i) *= Temp1;
-            BN(1, i) *= Temp2;
-        }
-        
-        // transform the strain-displacement matrix from natural
-        // to local coordinate system taking into account the element distortion
-        static Matrix TBN(2, 24);
-        TBN.addMatrixProduct(0.0, mitc.transformation, BN, 1.0);
-        for (int i = 0; i < 2; i++)
-            for (int j = 0; j < 24; j++)
-                B(i + 6, j) = TBN(i, j);
-    }
-
-    // invert bending terms
-    void invertBBendingTerms(
-        const Matrix& B,
-        Matrix& B1) 
-    {
-        // due to the convention in the shell sections, we need to change the sign of the bending terms
-        // for the B^T case.
-        B1.addMatrix(0.0, B, 1.0);
-        for (int i = 3; i < 6; i++) {
-            for (int j = 0; j < 4; j++) {
-                B1(i, j * 6 + 3) *= -1.0;
-                B1(i, j * 6 + 4) *= -1.0;
-            }
-        }
-    }
-
-    // computes the transformation matrix for generalized strains
-    inline void getRotationMatrixForGeneralizedStrains(double radians, Matrix& T)
-    {
-        double c = std::cos(radians);
-        double s = std::sin(radians);
-
-        T.Zero();
-
-        T(0, 0) = c * c;			T(0, 1) = s * s;			T(0, 2) = -s * c;
-        T(1, 0) = s * s;			T(1, 1) = c * c;			T(1, 2) = s * c;
-        T(2, 0) = 2.0 * s * c;		T(2, 1) = -2.0 * s * c;		T(2, 2) = c * c - s * s;
-
-        T(3, 3) = c * c;			T(3, 4) = s * s;			T(3, 5) = -s * c;
-        T(4, 3) = s * s;			T(4, 4) = c * c;			T(4, 5) = s * c;
-        T(5, 3) = 2.0 * s * c;		T(5, 4) = -2.0 * s * c;		T(5, 5) = c * c - s * s;
-
-        T(6, 6) = c;		T(6, 7) = s;
-        T(7, 6) = -s;		T(7, 7) = c;
-    }
-
-    // computes the transformation matrix for generalized stresses
-    inline void getRotationMatrixForGeneralizedStresses(double radians, Matrix& T)
-    {
-        double c = std::cos(radians);
-        double s = std::sin(radians);
-
-        T.Zero();
-
-        T(0, 0) = c * c;		T(0, 1) = s * s;		T(0, 2) = -2.0 * s * c;
-        T(1, 0) = s * s;		T(1, 1) = c * c;		T(1, 2) = 2.0 * s * c;
-        T(2, 0) = s * c;		T(2, 1) = -s * c;		T(2, 2) = c * c - s * s;
-
-        T(3, 3) = c * c;		T(3, 4) = s * s;		T(3, 5) = -2.0 * s * c;
-        T(4, 3) = s * s;		T(4, 4) = c * c;		T(4, 5) = 2.0 * s * c;
-        T(5, 3) = s * c;		T(5, 4) = -s * c;		T(5, 5) = c * c - s * s;
-
-        T(6, 6) = c;		T(6, 7) = s;
-        T(7, 6) = -s;		T(7, 7) = c;
-    }
-
+// some typedefs
+typedef Vector3D Vector3Type;
+
+// calculation options
+constexpr int OPT_NONE = 0;
+constexpr int OPT_UPDATE = (1 << 0);
+constexpr int OPT_LHS = (1 << 1);
+constexpr int OPT_RHS = (1 << 2);
+constexpr int OPT_LHS_IS_INITIAL = (1 << 3);
+
+// gauss quadrature data
+constexpr double GLOC = 0.577350269189626;
+constexpr std::array<double, 4> XI  = { -GLOC, GLOC, GLOC, -GLOC };
+constexpr std::array<double, 4> ETA = { -GLOC, -GLOC, GLOC, GLOC };
+constexpr std::array<double, 4> WTS = { 1.0, 1.0, 1.0, 1.0 };
+
+// shape functions
+inline void shapeFunctions(double xi, double eta, Vector& N)
+{
+    N(0) = 0.25 * (1.0 - xi) * (1.0 - eta);
+    N(1) = 0.25 * (1.0 + xi) * (1.0 - eta);
+    N(2) = 0.25 * (1.0 + xi) * (1.0 + eta);
+    N(3) = 0.25 * (1.0 - xi) * (1.0 + eta);
 }
+
+// shape function derivatives in iso-parametric space
+inline void shapeFunctionsNaturalDerivatives(double xi, double eta, Matrix& dN)
+{
+    dN(0, 0) = -(1.0 - eta) * 0.25;
+    dN(1, 0) = (1.0 - eta) * 0.25;
+    dN(2, 0) = (1.0 + eta) * 0.25;
+    dN(3, 0) = -(1.0 + eta) * 0.25;
+
+    dN(0, 1) = -(1.0 - xi) * 0.25;
+    dN(1, 1) = -(1.0 + xi) * 0.25;
+    dN(2, 1) = (1.0 + xi) * 0.25;
+    dN(3, 1) = (1.0 - xi) * 0.25;
+}
+
+/** \brief JacobianOperator
+ *
+ * This class is a utility to compute at a given integration point,
+ * the Jacobian, its inverse, its determinant
+ * and the derivatives of the shape functions in the local
+ * cartesian coordinate system.
+ */
+struct JacobianOperator
+{
+    // Jacobian matrix
+    Matrix J = Matrix(2, 2);
+    // Jacobian inverse
+    Matrix invJ = Matrix(2, 2);
+    // Determinant of the Jacobian matrix
+    double detJ = 0.0;
+
+    void calculate(const ASDShellQ4LocalCoordinateSystem& CS, const Matrix& dN)
+    {
+        // jacobian
+        J(0, 0) = dN(0, 0) * CS.X1() + dN(1, 0) * CS.X2() + dN(2, 0) * CS.X3() + dN(3, 0) * CS.X4();
+        J(1, 0) = dN(0, 0) * CS.Y1() + dN(1, 0) * CS.Y2() + dN(2, 0) * CS.Y3() + dN(3, 0) * CS.Y4();
+        J(0, 1) = dN(0, 1) * CS.X1() + dN(1, 1) * CS.X2() + dN(2, 1) * CS.X3() + dN(3, 1) * CS.X4();
+        J(1, 1) = dN(0, 1) * CS.Y1() + dN(1, 1) * CS.Y2() + dN(2, 1) * CS.Y3() + dN(3, 1) * CS.Y4();
+
+        // determinant
+        detJ = J(0, 0) * J(1, 1) - J(1, 0) * J(0, 1);
+        double mult = 1.0 / detJ;
+
+        // inv(jacobian)
+        invJ(0, 0) = J(1, 1) * mult;
+        invJ(1, 1) = J(0, 0) * mult;
+        invJ(0, 1) = -J(0, 1) * mult;
+        invJ(1, 0) = -J(1, 0) * mult;
+    }
+
+};
+
+/** \brief MITC4Params
+ *
+ * This class performs some operations and stores some data to compute
+ * the transverse shear contribution of the stiffness matrix using the
+ * M.I.T.C. formulation.
+ *
+ */
+struct MITC4Params
+{
+    double Ax = 0.0;
+    double Ay = 0.0;
+    double Bx = 0.0;
+    double By = 0.0;
+    double Cx = 0.0;
+    double Cy = 0.0;
+    // MatrixND<2,2> transformation = MatrixND<2,2>();
+    // MatrixND<4,24> shearStrains = MatrixND<4,24>();
+    Matrix transformation = Matrix(2, 2);
+    Matrix shearStrains = Matrix(4, 24);
+
+    void compute(const ASDShellQ4LocalCoordinateSystem& LCS)
+    {
+        double x21 = LCS.X2() - LCS.X1();
+        double y21 = LCS.Y2() - LCS.Y1();
+        double x34 = LCS.X3() - LCS.X4();
+        double y34 = LCS.Y3() - LCS.Y4();
+        double x41 = LCS.X4() - LCS.X1();
+        double y41 = LCS.Y4() - LCS.Y1();
+        double x32 = LCS.X3() - LCS.X2();
+        double y32 = LCS.Y3() - LCS.Y2();
+
+        Ax = -LCS.X1() + LCS.X2() + LCS.X3() - LCS.X4();
+        Bx =  LCS.X1() - LCS.X2() + LCS.X3() - LCS.X4();
+        Cx = -LCS.X1() - LCS.X2() + LCS.X3() + LCS.X4();
+        Ay = -LCS.Y1() + LCS.Y2() + LCS.Y3() - LCS.Y4();
+        By =  LCS.Y1() - LCS.Y2() + LCS.Y3() - LCS.Y4();
+        Cy = -LCS.Y1() - LCS.Y2() + LCS.Y3() + LCS.Y4();
+
+        double Alpha = std::atan(Ay / Ax);
+        double Beta = 3.141592653589793 * 0.5 - std::atan(Cx / Cy);
+
+        transformation(0, 0) = std::sin(Beta);
+        transformation(0, 1) = -std::sin(Alpha);
+        transformation(1, 0) = -std::cos(Beta);
+        transformation(1, 1) = std::cos(Alpha);
+
+        shearStrains.Zero();
+
+        shearStrains(0, 2) = -0.5;
+        shearStrains(0, 3) = -y41 * 0.25;
+        shearStrains(0, 4) = x41 * 0.25;
+
+        shearStrains(0, 20) = 0.5;
+        shearStrains(0, 21) = -y41 * 0.25;
+        shearStrains(0, 22) = x41 * 0.25;
+
+        shearStrains(1, 2) = -0.5;
+        shearStrains(1, 3) = -y21 * 0.25;
+        shearStrains(1, 4) = x21 * 0.25;
+
+        shearStrains(1, 8) = 0.5;
+        shearStrains(1, 9) = -y21 * 0.25;
+        shearStrains(1, 10) = x21 * 0.25;
+
+        shearStrains(2, 8) = -0.5;
+        shearStrains(2, 9) = -y32 * 0.25;
+        shearStrains(2, 10) = x32 * 0.25;
+
+        shearStrains(2, 14) = 0.5;
+        shearStrains(2, 15) = -y32 * 0.25;
+        shearStrains(2, 16) = x32 * 0.25;
+
+        shearStrains(3, 14) = 0.5;
+        shearStrains(3, 15) = -y34 * 0.25;
+        shearStrains(3, 16) = x34 * 0.25;
+
+        shearStrains(3, 20) = -0.5;
+        shearStrains(3, 21) = -y34 * 0.25;
+        shearStrains(3, 22) = x34 * 0.25;
+    }
+
+};
+
+/** \brief AGQIParams
+ *
+ * This class performs some operations and stores some data to compute
+ * the AGQI enhancement of the membrane part
+ *
+ */
+struct AGQIParams
+{
+    std::array<double, 4> X = { {0.0, 0.0, 0.0, 0.0} };
+    std::array<double, 4> Y = { {0.0, 0.0, 0.0, 0.0} };
+    std::array<double, 4> b = { {0.0, 0.0, 0.0, 0.0} };
+    std::array<double, 4> c = { {0.0, 0.0, 0.0, 0.0} };
+    double A1 = 0.0;
+    double A2 = 0.0;
+    double A3 = 0.0;
+    double A = 0.0;
+    std::array<double, 4> g = { {0.0, 0.0, 0.0, 0.0} };
+
+    void compute(const ASDShellQ4LocalCoordinateSystem& LCS)
+    {
+        // Extract the x and y coordinates
+        // and compute bi = yj-yk, and ci = xk-xj
+        // Eq 3
+        for (int i = 0; i < 4; i++) {
+            X[i] = LCS.X(i);
+            Y[i] = LCS.Y(i);
+        }
+        for (int i = 0; i < 4; i++) {
+            int j = i + 1; if (j > 3) j = 0;
+            int k = j + 1; if (k > 3) k = 0;
+            b[i] = Y[j] - Y[k];
+            c[i] = X[k] - X[j];
+        }
+
+        // areas of sub-triangles
+        A1 = 0.5 * (X[1] * Y[3] + X[0] * Y[1] + X[3] * Y[0] - X[1] * Y[0] - X[3] * Y[1] - X[0] * Y[3]);
+        A2 = 0.5 * (X[1] * Y[2] + X[0] * Y[1] + X[2] * Y[0] - X[1] * Y[0] - X[2] * Y[1] - X[0] * Y[2]);
+        A3 = 0.5 * (X[2] * Y[3] + X[1] * Y[2] + X[3] * Y[1] - X[2] * Y[1] - X[3] * Y[2] - X[1] * Y[3]);
+        A = A1 + A3;
+
+        // characteristic parameters of a quadrilateral
+        // Eq 4
+        g[0] = A1 / A; 
+        g[1] = A2 / A; 
+        g[2] = 1.0 - g[0]; 
+        g[3] = 1.0 - g[1];
+    }
+
+};
+
+/** \brief ASDShellQ4Globals
+ *
+ * This singleton class stores some data for the shell calculations that
+ * can be statically instantiated to avoid useless re-allocations
+ *
+ */
+class ASDShellQ4Globals
+{
+private:
+    ASDShellQ4Globals() = default;
+
+public:
+
+    JacobianOperator jac; // Jacobian
+    MITC4Params mitc; // MITC4 parameters
+    AGQIParams agq; // GQ12 parameters
+
+    Vector UG = Vector(24); // global displacements
+    Vector UL = Vector(24); // local displacements
+
+    Matrix B = Matrix(8, 24); // strain-displacement matrix
+    Matrix B1 = Matrix(8, 24); // strain-displacement matrix with inverted bending terms
+    Matrix B1TD = Matrix(24, 8); // holds the B1^T*D terms
+    Vector Bd = Vector(24); // strain-displacement matrix for drilling
+    Vector Bd0 = Vector(24); // strain-displacement matrix for drilling (reduced integration)
+    Vector N = Vector(4); // shape functions
+    Matrix dN = Matrix(4, 2); // shape functions derivatives in isoparametric space
+    Matrix dNdX = Matrix(4, 2); // shape functions derivatives in cartesian space
+    // Vector E = Vector(8); // strain vector
+    Vector S = Vector(8); // stress vector
+    Matrix Re = Matrix(8, 8); // rotation matrix for strains
+    Matrix Rs = Matrix(8, 8); // rotation matrix for stresses
+    Matrix RsT = Matrix(8, 8); // transpose of above
+    Matrix Dsection = Matrix(8, 8);
+    Matrix D = Matrix(8, 8); // section tangent
+    Matrix DRsT = Matrix(8, 8); // holds the product D * Rs^T
+
+    Matrix BQ = Matrix(8, 4); // B matrix for internal DOFs
+    Matrix BQ_mean = Matrix(8, 4); // Average B matrix for internal DOFs
+    Matrix BQTD = Matrix(4, 8); // holds the BQ^T*D terms
+    Matrix DBQ = Matrix(8, 4); // holds the D*BQ^T terms
+
+    Matrix LHS = Matrix(24, 24); // LHS matrix (tangent stiffness)
+    Matrix LHS_initial = Matrix(24, 24); // LHS matrix (initial stiffness)
+    Matrix LHS_mass = Matrix(24, 24); // LHS matrix (mass matrix)
+    Vector RHS = Vector(24); // RHS vector (residual vector)
+    Vector RHS_winertia = Vector(24); // RHS vector (residual vector with inertia terms)
+
+public:
+    static ASDShellQ4Globals& instance() {
+        static ASDShellQ4Globals _instance;
+        return _instance;
+    }
+};
+
+// computes only the drilling B matrix
+void computeBdrilling(
+    const ASDShellQ4LocalCoordinateSystem& LCS,
+    double xi, double eta,
+    const JacobianOperator& Jac,
+    const AGQIParams& agq,
+    const Vector& N,
+    const Matrix& dN,
+    Vector& Bd,
+    bool use_eas
+)
+{
+    // cartesian derivatives of standard shape function
+    auto& dNdX = ASDShellQ4Globals::instance().dNdX;
+    dNdX.addMatrixProduct(0.0, dN, Jac.invJ, 1.0);
+
+    Bd.Zero();
+
+    // AGQI proc ***********************************************************************************************
+
+    if (use_eas) {
+        // area coordinates of the gauss point (Eq 7)
+        std::array<double, 4> L;
+        L[0] = 0.25 * (1.0 - xi) * (agq.g[1] * (1.0 - eta) + agq.g[2] * (1.0 + eta));
+        L[1] = 0.25 * (1.0 - eta) * (agq.g[3] * (1.0 - xi) + agq.g[2] * (1.0 + xi));
+        L[2] = 0.25 * (1.0 + xi) * (agq.g[0] * (1.0 - eta) + agq.g[3] * (1.0 + eta));
+        L[3] = 0.25 * (1.0 + eta) * (agq.g[0] * (1.0 - xi) + agq.g[1] * (1.0 + xi));
+
+        // computed modified shape function gradients for the strain matrix for external dofs
+        // using the area coordinate method as written in the reference paper of the AGQI element
+        static constexpr std::array<double, 4> NXI = { -1.0, 1.0, 1.0, -1.0 };
+        static constexpr std::array<double, 4> NETA = { -1.0, -1.0, 1.0, 1.0 };
+        for (int i = 0; i < 4; i++)
+        {
+            int j = i + 1; if (j > 3) j = 0;
+            int k = j + 1; if (k > 3) k = 0;
+            double SX = 0.0;
+            double SY = 0.0;
+            for (int ii = 0; ii < 4; ii++)
+            {
+                int jj = ii + 1; if (jj > 3) jj = 0;
+                int kk = jj + 1; if (kk > 3) kk = 0;
+                int mm = kk + 1; if (mm > 3) mm = 0;
+                SX = SX + agq.b[ii] * NXI[ii] * NETA[ii] * (3.0 * (L[jj] - L[mm]) + (agq.g[jj] - agq.g[kk]));
+                SY = SY + agq.c[ii] * NXI[ii] * NETA[ii] * (3.0 * (L[jj] - L[mm]) + (agq.g[jj] - agq.g[kk]));
+            }
+            dNdX(i, 0) = (agq.b[i] + agq.b[j]) / agq.A / 2.0 +
+                NXI[i] * NETA[i] * agq.g[k] * SX / 2.0 / agq.A / (1.0 + agq.g[0] * agq.g[2] + agq.g[1] * agq.g[3]);
+            dNdX(i, 1) = (agq.c[i] + agq.c[j]) / agq.A / 2.0 +
+                NXI[i] * NETA[i] * agq.g[k] * SY / 2.0 / agq.A / (1.0 + agq.g[0] * agq.g[2] + agq.g[1] * agq.g[3]);
+        }
+    }
+
+    // We use the drilling penalty as defined by Hughes and Brezzi,
+    // where we link the independent rotation to the skew symmetric part of the in-plane displacement field.
+
+    Bd(0) = -0.5 * dNdX(0, 1);
+    Bd(1) = 0.5 * dNdX(0, 0);
+    Bd(5) = -N(0);
+
+    Bd(6) = -0.5 * dNdX(1, 1);
+    Bd(7) = 0.5 * dNdX(1, 0);
+    Bd(11) = -N(1);
+
+    Bd(12) = -0.5 * dNdX(2, 1);
+    Bd(13) = 0.5 * dNdX(2, 0);
+    Bd(17) = -N(2);
+
+    Bd(18) = -0.5 * dNdX(3, 1);
+    Bd(19) = 0.5 * dNdX(3, 0);
+    Bd(23) = -N(3);
+}
+
+void computeBMatrix(
+    const ASDShellQ4LocalCoordinateSystem& LCS,
+    double xi, double eta,
+    const JacobianOperator& Jac, 
+    const AGQIParams& agq,
+    const MITC4Params& mitc,
+    const Vector& N,
+    const Matrix& dN,
+    const Matrix& BQ_mean,
+    Matrix& B,
+    Matrix& BQ,
+    Vector& Bd,
+    bool use_eas
+)
+{
+    // cartesian derivatives of standard shape function
+    auto& dNdX = ASDShellQ4Globals::instance().dNdX;
+    dNdX.addMatrixProduct(0.0, dN, Jac.invJ, 1.0);
+
+    // initialize
+    B.Zero();
+    Bd.Zero();
+
+    // AGQI proc ***********************************************************************************************
+
+    if (use_eas) {
+        // area coordinates of the gauss point (Eq 7)
+        std::array<double, 4> L;
+        L[0] = 0.25 * (1.0 - xi) * (agq.g[1] * (1.0 - eta) + agq.g[2] * (1.0 + eta));
+        L[1] = 0.25 * (1.0 - eta) * (agq.g[3] * (1.0 - xi) + agq.g[2] * (1.0 + xi));
+        L[2] = 0.25 * (1.0 + xi) * (agq.g[0] * (1.0 - eta) + agq.g[3] * (1.0 + eta));
+        L[3] = 0.25 * (1.0 + eta) * (agq.g[0] * (1.0 - xi) + agq.g[1] * (1.0 + xi));
+
+        // computed modified shape function gradients for the strain matrix for external dofs
+        // using the area coordinate method as written in the reference paper of the AGQI element
+        static constexpr std::array<double, 4> NXI  = { -1.0, 1.0, 1.0, -1.0 };
+        static constexpr std::array<double, 4> NETA = { -1.0, -1.0, 1.0, 1.0 };
+        for (int i = 0; i < 4; i++) {
+            int j = i + 1; if (j > 3) j = 0;
+            int k = j + 1; if (k > 3) k = 0;
+            double SX = 0.0;
+            double SY = 0.0;
+            for (int ii = 0; ii < 4; ii++) {
+                int jj = ii + 1; if (jj > 3) jj = 0;
+                int kk = jj + 1; if (kk > 3) kk = 0;
+                int mm = kk + 1; if (mm > 3) mm = 0;
+                SX = SX + agq.b[ii] * NXI[ii] * NETA[ii] * (3.0 * (L[jj] - L[mm]) + (agq.g[jj] - agq.g[kk]));
+                SY = SY + agq.c[ii] * NXI[ii] * NETA[ii] * (3.0 * (L[jj] - L[mm]) + (agq.g[jj] - agq.g[kk]));
+            }
+            dNdX(i, 0) = (agq.b[i] + agq.b[j]) / agq.A / 2.0 +
+                NXI[i] * NETA[i] * agq.g[k] * SX / 2.0 / agq.A / (1.0 + agq.g[0] * agq.g[2] + agq.g[1] * agq.g[3]);
+            dNdX(i, 1) = (agq.c[i] + agq.c[j]) / agq.A / 2.0 +
+                NXI[i] * NETA[i] * agq.g[k] * SY / 2.0 / agq.A / (1.0 + agq.g[0] * agq.g[2] + agq.g[1] * agq.g[3]);
+        }
+
+        // compute the BQ matrix for the internal DOFs
+        BQ.Zero();
+        for (int i = 0; i < 2; i++) {
+            unsigned int j = i + 1; if (j > 3) j = 0;
+            unsigned int k = j + 1; if (k > 3) k = 0;
+            double NQX = (agq.b[i] * L[k] + agq.b[k] * L[i]) / agq.A / 2.0;
+            double NQY = (agq.c[i] * L[k] + agq.c[k] * L[i]) / agq.A / 2.0;
+            unsigned int index1 = i * 2;
+            unsigned int index2 = index1 + 1;
+            BQ(0, index1) += NQX;
+            BQ(1, index2) += NQY;
+            BQ(2, index1) += NQY;
+            BQ(2, index2) += NQX;
+        }
+        BQ.addMatrix(1.0, BQ_mean, -1.0);
+    }
+
+    // membrane ************************************************************************************************
+    // this is the memebrane part of the compatible standard in-plane displacement field
+
+    B(0, 0) = dNdX(0, 0);   B(0, 6) = dNdX(1, 0);   B(0, 12) = dNdX(2, 0);   B(0, 18) = dNdX(3, 0);
+    B(1, 1) = dNdX(0, 1);   B(1, 7) = dNdX(1, 1);   B(1, 13) = dNdX(2, 1);   B(1, 19) = dNdX(3, 1);
+    B(2, 0) = dNdX(0, 1);   B(2, 6) = dNdX(1, 1);   B(2, 12) = dNdX(2, 1);   B(2, 18) = dNdX(3, 1);
+    B(2, 1) = dNdX(0, 0);   B(2, 7) = dNdX(1, 0);   B(2, 13) = dNdX(2, 0);   B(2, 19) = dNdX(3, 0);
+
+    // We use the drilling penalty as defined by hughes and brezzi,
+    // where we link the independent rotation to the skew symmetric part of the in-plane displacement field.
+
+    Bd(0) = -0.5 * dNdX(0, 1);
+    Bd(1) =  0.5 * dNdX(0, 0);
+    Bd(5) = -N(0);
+    
+    Bd(6) = -0.5 * dNdX(1, 1);
+    Bd(7) =  0.5 * dNdX(1, 0);
+    Bd(11) = -N(1);
+
+    Bd(12) = -0.5 * dNdX(2, 1);
+    Bd(13) =  0.5 * dNdX(2, 0);
+    Bd(17) = -N(2);
+    
+    Bd(18) = -0.5 * dNdX(3, 1);
+    Bd(19) =  0.5 * dNdX(3, 0);
+    Bd(23) = -N(3);
+
+    // bending *************************************************************************************************
+
+    B(3, 4) = -dNdX(0, 0);   B(3, 10) = -dNdX(1, 0);   B(3, 16) = -dNdX(2, 0);   B(3, 22) = -dNdX(3, 0);
+    B(4, 3) =  dNdX(0, 1);   B(4, 9)  =  dNdX(1, 1);   B(4, 15) =  dNdX(2, 1);   B(4, 21) =  dNdX(3, 1);
+    B(5, 3) =  dNdX(0, 0);   B(5, 9)  =  dNdX(1, 0);   B(5, 15) =  dNdX(2, 0);   B(5, 21) =  dNdX(3, 0);
+    B(5, 4) = -dNdX(0, 1);   B(5, 10) = -dNdX(1, 1);   B(5, 16) = -dNdX(2, 1);   B(5, 22) = -dNdX(3, 1);
+
+    // shear ***************************************************************************************************
+
+    // MITC modified shape functions
+    static Matrix MITCShapeFunctions(2, 4);
+    MITCShapeFunctions.Zero();
+    MITCShapeFunctions(1, 0) = 1.0 - xi;
+    MITCShapeFunctions(0, 1) = 1.0 - eta;
+    MITCShapeFunctions(1, 2) = 1.0 + xi;
+    MITCShapeFunctions(0, 3) = 1.0 + eta;
+
+    // strain displacement matrix in natural coordinate system.
+    // interpolate the shear strains given in MITC4Params
+    // using the modified shape function
+    static Matrix BN(2, 24);
+    BN.addMatrixProduct(0.0, MITCShapeFunctions, mitc.shearStrains, 1.0);
+
+    // Modify the shear strain intensity in the tying points
+    // to match the values that would be obtained using standard
+    // interpolations
+    double Temp1, Temp2, Temp3;
+    Temp1 = mitc.Cx + xi * mitc.Bx;
+    Temp3 = mitc.Cy + xi * mitc.By;
+    Temp1 = Temp1 * Temp1 + Temp3 * Temp3;
+    Temp1 = std::sqrt(Temp1) / (8.0 * Jac.detJ);
+    Temp2 = mitc.Ax + eta * mitc.Bx;
+    Temp3 = mitc.Ay + eta * mitc.By;
+    Temp2 = Temp2 * Temp2 + Temp3 * Temp3;
+    Temp2 = std::sqrt(Temp2) / (8.0 * Jac.detJ);
+    for (int i = 0; i < 24; i++) {
+        BN(0, i) *= Temp1;
+        BN(1, i) *= Temp2;
+    }
+
+    // transform the strain-displacement matrix from natural
+    // to local coordinate system taking into account the element distortion
+    static Matrix TBN(2, 24);
+    TBN.addMatrixProduct(0.0, mitc.transformation, BN, 1.0);
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 24; j++)
+            B(i + 6, j) = TBN(i, j);
+}
+
+// invert bending terms
+void invertBBendingTerms(
+    const Matrix& B,
+    Matrix& B1) 
+{
+    // due to the convention in the shell sections, we need to change the sign of the bending terms
+    // for the B^T case.
+    B1.addMatrix(0.0, B, 1.0);
+    for (int i = 3; i < 6; i++) {
+        for (int j = 0; j < 4; j++) {
+            B1(i, j * 6 + 3) *= -1.0;
+            B1(i, j * 6 + 4) *= -1.0;
+        }
+    }
+}
+
+// computes the transformation matrix for generalized strains
+inline void getRotationMatrixForGeneralizedStrains(double radians, Matrix& T)
+{
+    double c = std::cos(radians);
+    double s = std::sin(radians);
+
+    T.Zero();
+
+    T(0, 0) = c * c;			T(0, 1) = s * s;			T(0, 2) = -s * c;
+    T(1, 0) = s * s;			T(1, 1) = c * c;			T(1, 2) = s * c;
+    T(2, 0) = 2.0 * s * c;		T(2, 1) = -2.0 * s * c;		T(2, 2) = c * c - s * s;
+
+    T(3, 3) = c * c;			T(3, 4) = s * s;			T(3, 5) = -s * c;
+    T(4, 3) = s * s;			T(4, 4) = c * c;			T(4, 5) = s * c;
+    T(5, 3) = 2.0 * s * c;		T(5, 4) = -2.0 * s * c;		T(5, 5) = c * c - s * s;
+
+    T(6, 6) = c;		T(6, 7) = s;
+    T(7, 6) = -s;		T(7, 7) = c;
+}
+
+// computes the transformation matrix for generalized stresses
+inline void getRotationMatrixForGeneralizedStresses(double radians, Matrix& T)
+{
+    double c = std::cos(radians);
+    double s = std::sin(radians);
+
+    T.Zero();
+
+    T(0, 0) = c * c;		T(0, 1) = s * s;		T(0, 2) = -2.0 * s * c;
+    T(1, 0) = s * s;		T(1, 1) = c * c;		T(1, 2) = 2.0 * s * c;
+    T(2, 0) = s * c;		T(2, 1) = -s * c;		T(2, 2) = c * c - s * s;
+
+    T(3, 3) = c * c;		T(3, 4) = s * s;		T(3, 5) = -2.0 * s * c;
+    T(4, 3) = s * s;		T(4, 4) = c * c;		T(4, 5) = 2.0 * s * c;
+    T(5, 3) = s * c;		T(5, 4) = -s * c;		T(5, 5) = c * c - s * s;
+
+    T(6, 6) = c;		T(6, 7) = s;
+    T(7, 6) = -s;		T(7, 7) = c;
+}
+} // namespace
 
 ASDShellQ4::ASDShellQ4() 
     : Element(0, ELE_TAG_ASDShellQ4)
     , m_transformation(nullptr)
 {
-    for (int i = 0; i < 4; i++) m_damping[i] = nullptr;
+  for (int i = 0; i < 4; i++) 
+    m_damping[i] = nullptr;
 }
 
 ASDShellQ4::ASDShellQ4(
@@ -761,9 +647,8 @@ ASDShellQ4::ASDShellQ4(
     }
 
     // allocate eas data
-    if (use_eas) {
+    if (use_eas)
         m_eas = new EASData();
-    }
 
     // damping
     if (damping) {
@@ -777,11 +662,12 @@ ASDShellQ4::ASDShellQ4(
 #endif
     }
     else {
-        for (int i = 0; i < 4; i++) m_damping[i] = nullptr;
+        for (int i = 0; i < 4; i++)
+          m_damping[i] = nullptr;
     }
 }
 
-ASDShellQ4::~ASDShellQ4( )
+ASDShellQ4::~ASDShellQ4()
 {
     // clean up section
     for (int i = 0; i < 4; i++)
@@ -806,21 +692,10 @@ ASDShellQ4::~ASDShellQ4( )
     // clean up eas data
     if (m_eas)
         delete m_eas;
-
-    // clean up damping
-#ifdef OPS_USE_DAMPING
-    for (int i = 0; i < 4; i++) {
-        if (m_damping[i]) {
-            delete m_damping[i];
-            m_damping[i] = 0;
-        }
-    }
-#endif
 }
 
 void  ASDShellQ4::setDomain(Domain* theDomain)
 {
-    // if domain is null
     if (theDomain == nullptr) {
         for (int i = 0; i < 4; i++)
             nodePointers[i] = nullptr;
@@ -851,10 +726,10 @@ void  ASDShellQ4::setDomain(Domain* theDomain)
         // compute section orientation angle
         ASDShellQ4LocalCoordinateSystem reference_cs = m_transformation->createReferenceCoordinateSystem();
         Vector3Type e1_local = reference_cs.Vx();
-        Vector3Type e1;
+        Vector3Type e1{};
         if (m_local_x) {
             // user-defined (already normalized in c-tor)
-            e1 = Vector3Type(*m_local_x);
+            e1 = Vector3D(*m_local_x);
             // make sure it's on the reference x-y plane
             Vector3Type e3 = reference_cs.Vz();
             Vector3Type e2 = e3.cross(e1);
@@ -886,15 +761,6 @@ void  ASDShellQ4::setDomain(Domain* theDomain)
         // AGQI internal DOFs
         if(m_eas)
             AGQIinitialize();
-
-#ifdef OPS_USE_DAMPING
-        for (int i = 0; i < 4; i++) {
-          if (m_damping[i] && m_damping[i]->setDomain(theDomain, 8)) {
-            opserr << "ASDShellQ4::setDomain -- Error initializing damping\n";
-            exit(-1);
-          }
-        }
-#endif
 
         // initialized
         m_initialized = true;
@@ -948,60 +814,47 @@ void ASDShellQ4::Print(OPS_Stream& s, int flag)
     }
 
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\t{";
+        s << OPS_PRINT_JSON_ELEM_INDENT << "{";
         s << "\"name\": " << this->getTag() << ", ";
         s << "\"type\": \"ASDShellQ4\", ";
-        s << "\"nodes\": [" << m_node_ids(0) << ", " << m_node_ids(1) << ", ";
+        s << "\"nodes\": [" 
+          << m_node_ids(0) << ", " << m_node_ids(1) << ", ";
         s << m_node_ids(2) << ", " << m_node_ids(3) << "], ";
-        s << "\"section\": \"" << m_sections[0]->getTag() << "\"}";
+        s << "\"section\": " << m_sections[0]->getTag() ;
+        s << "}";
     }
 }
 
 int
 ASDShellQ4::setDamping(Domain *theDomain, Damping *damping)
 {
-#ifdef OPS_USE_DAMPING
-  if (theDomain && damping)
-  {
-    for (int i = 0; i < 4; i++) {
-      if (m_damping[i]) delete m_damping[i];
-      m_damping[i] = damping->getCopy();
-      if (!m_damping[i]) {
-        opserr << "ASDShellQ4::setDamping - failed to get copy of damping\n";
-        return -1;
-      }
-      if (m_damping[i] && m_damping[i]->setDomain(theDomain, 8)) {
-        opserr << "ASDShellQ4::setDamping -- Error initializing damping\n";
-        return -2;
-      }
-    }
-  }
-#endif
   return 0;
 }
 
 int  ASDShellQ4::getNumExternalNodes() const
 {
-    return 4;
+  return 4;
 }
 
 const ID& ASDShellQ4::getExternalNodes()
 {
-    return m_node_ids;
+  return m_node_ids;
 }
 
 Node**
-ASDShellQ4::getNodePtrs(void)
+ASDShellQ4::getNodePtrs()
 {
     return m_transformation->getNodes().data();
 }
 
-int  ASDShellQ4::getNumDOF()
+int
+ASDShellQ4::getNumDOF()
 {
     return 24;
 }
 
-int  ASDShellQ4::commitState()
+int
+ASDShellQ4::commitState()
 {
     int success = 0;
 
@@ -1011,6 +864,7 @@ int  ASDShellQ4::commitState()
     // sections
     for (int i = 0; i < 4; i++)
         success += m_sections[i]->commitState();
+
     if (m_drill_mode == DrillingDOF_NonLinear) {
         for (int i = 0; i < 4; i++) {
             m_nldrill->stress_comm[i] = m_sections[i]->getStressResultant();
@@ -1020,16 +874,10 @@ int  ASDShellQ4::commitState()
     }
 
     // AGQI internal DOFs
-    if(m_eas) {
+    if (m_eas) {
         m_eas->U_converged = m_eas->U;
         m_eas->Q_converged = m_eas->Q;
     }
-#ifdef OPS_USE_DAMPING
-    // damping
-    for (int i = 0; i < 4; i++ )
-      if (m_damping[i]) success += m_damping[i]->commitState();
-#endif
-    // done
     return success;
 }
 
@@ -1043,6 +891,7 @@ int  ASDShellQ4::revertToLastCommit()
     // sections
     for (int i = 0; i < 4; i++)
         success += m_sections[i]->revertToLastCommit();
+
     if (m_drill_mode == DrillingDOF_NonLinear) {
         for (int i = 0; i < 4; i++) {
             m_nldrill->stress_comm[i] = m_sections[i]->getStressResultant();
@@ -1056,12 +905,6 @@ int  ASDShellQ4::revertToLastCommit()
         m_eas->U = m_eas->U_converged;
         m_eas->Q = m_eas->Q_converged;
     }
-#ifdef OPS_USE_DAMPING
-    // damping
-    for (int i = 0; i < 4; i++ )
-      if (m_damping[i]) success += m_damping[i]->revertToLastCommit();
-#endif
-    // done
     return success;
 }
 
@@ -1086,11 +929,6 @@ int  ASDShellQ4::revertToStart()
     // AGQI internal DOFs
     if(m_eas)
         AGQIinitialize();
-#ifdef OPS_USE_DAMPING
-    // damping
-    for (int i = 0; i < 4; i++ )
-      if (m_damping[i]) success += m_damping[i]->revertToStart();
-#endif
     return success;
 }
 
@@ -1138,8 +976,7 @@ const Matrix& ASDShellQ4::getMass()
     auto& N = ASDShellQ4Globals::instance().N;
 
     // Gauss loop
-    for (int i = 0; i < 4; i++)
-    {
+    for (int i = 0; i < 4; i++) {
         // Current integration point data
         double xi = XI[i];
         double eta = ETA[i];
@@ -1153,8 +990,7 @@ const Matrix& ASDShellQ4::getMass()
         double rho = m_sections[i]->getRho();
 
         // Add current integration point contribution
-        for (int j = 0; j < 4; j++)
-        {
+        for (int j = 0; j < 4; j++) {
             int index = j * 6;
 
             // Translational mass contribution
@@ -1165,8 +1001,6 @@ const Matrix& ASDShellQ4::getMass()
             // Rotational mass neglected for the moment ...
         }
     }
-
-    // Done
     return LHS;
 }
 
@@ -1195,15 +1029,13 @@ ASDShellQ4::addInertiaLoadToUnbalance(const Vector& accel)
     const auto& M = getMass();
 
     // Add -M*R*acc to unbalance, taking advantage of lumped mass matrix
-    for (int i = 0; i < 4; i++)
-    {
+    for (int i = 0; i < 4; i++) {
         const auto& RV = m_transformation->getNodes()[i]->getRV(accel);
         int index = i * 6;
         for (int j = 0; j < 6; j++)
             F(index + j) -= M(index + j, index + j) * RV(j);
     }
 
-    // Done
     return 0;
 }
 
@@ -1401,21 +1233,6 @@ int  ASDShellQ4::sendSelf(int commitTag, Channel& theChannel)
             return res;
         }
     }
-
-    // Ask the Damping to send itself
-    if (m_damping[0]) {
-#ifdef OPS_USE_DAMPING
-      for (int i = 0 ;  i < 4; i++) {
-        res += m_damping[i]->sendSelf(commitTag, theChannel);
-        if (res < 0) {
-          opserr << "ASDShellQ4::sendSelf -- could not send Damping\n";
-          return res;
-        }
-      }
-#endif
-    }
-
-    // done
     return res;
 }
 
@@ -1864,7 +1681,7 @@ int ASDShellQ4::setParameter(const char** argv, int argc, Parameter& param)
     return res;
 }
 
-double ASDShellQ4::getCharacteristicLength(void)
+double ASDShellQ4::getCharacteristicLength()
 {
     // by default we return the min distance between 2 nodes, which should coincide
     // with lch = sqrt(A) in non-distorted elements.
@@ -1887,9 +1704,9 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
 
     // Zero output
     int result = 0;
-    if(options & OPT_RHS)
+    if (options & OPT_RHS)
         RHS.Zero();
-    if(options & OPT_LHS)
+    if (options & OPT_LHS)
         LHS.Zero();
 
     // Global displacements
@@ -1901,11 +1718,11 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
         m_transformation->update(UG);
 
     // Compute the reference coordinate system
-    ASDShellQ4LocalCoordinateSystem reference_cs =
+    const ASDShellQ4LocalCoordinateSystem reference_cs =
         m_transformation->createReferenceCoordinateSystem();
 
     // Compute the local coordinate system.
-    ASDShellQ4LocalCoordinateSystem local_cs =
+    const ASDShellQ4LocalCoordinateSystem local_cs =
         m_transformation->createLocalCoordinateSystem(UG);
 
     // Prepare all the parameters needed for the MITC4
@@ -1914,7 +1731,7 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
     auto& mitc = ASDShellQ4Globals::instance().mitc;
     auto& agq = ASDShellQ4Globals::instance().agq;
     mitc.compute(reference_cs);
-    if(m_eas)
+    if (m_eas)
         agq.compute(reference_cs);
 
     // Jacobian
@@ -1932,7 +1749,6 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
     auto& B1TD = ASDShellQ4Globals::instance().B1TD;
     auto& N = ASDShellQ4Globals::instance().N;
     auto& dN = ASDShellQ4Globals::instance().dN;
-    auto& E = ASDShellQ4Globals::instance().E;
     auto& S = ASDShellQ4Globals::instance().S;
     auto& D = ASDShellQ4Globals::instance().D;
     auto& Dsection = ASDShellQ4Globals::instance().Dsection;
@@ -1953,11 +1769,11 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
 
     // Update AGQI internal DOFs
     if (options & OPT_UPDATE)
-        if(m_eas)
+        if (m_eas)
             AGQIupdate(UL);
 
     // AGQI begin gauss loop (computes the BQ_mean correction matrix)
-    if(m_eas)
+    if (m_eas)
         AGQIbeginGaussLoop(reference_cs);
 
     // Drilling strain-displacement matrix at center for reduced integration
@@ -1969,8 +1785,7 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
     static Vector drill_dstress_el(8);
 
     // Gauss loop
-    for (int igauss = 0; igauss < 4; igauss++)
-    {
+    for (int igauss = 0; igauss < 4; igauss++) {
         // Current integration point data
         double xi = XI[igauss];
         double eta = ETA[igauss];
@@ -1981,7 +1796,8 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
         double dA = w * jac.detJ;
 
         // Strain-displacement matrix
-        computeBMatrix(reference_cs, xi, eta, jac, agq, mitc, N, dN, BQ_mean, B, BQ, Bd, m_eas);
+        computeBMatrix(reference_cs, xi, eta, jac, agq, mitc, N, dN, 
+                       BQ_mean, B, BQ, Bd, m_eas);
 
         // The drilling according to Hughes-Brezzi plays and important role in warped shells and
         // the stiffness should be proportional to the initial (elastic) in-plane shear modulus.
@@ -1997,25 +1813,23 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
         double drill_beta = std::sqrt(1.0 - m_drill_stab);
         Bd.addVector(drill_alpha, Bd0, drill_beta);
 
-        // Update strain strain
-        if (options & OPT_UPDATE)
-        {
-            // Section deformation
+        // Update strain
+        if (options & OPT_UPDATE) {
+            VectorND<8> e;
             if (m_angle != 0.0) {
-                auto& Elocal = ASDShellQ4Globals::instance().Elocal;
-                Elocal.addMatrixVector(0.0, B, UL, 1.0);
+                VectorND<8> e_local = B*UL;
                 if (m_eas)
-                    Elocal.addMatrixVector(1.0, BQ, m_eas->Q, 1.0);
-                E.addMatrixVector(0.0, Re, Elocal, 1.0);
+                    e_local.addMatrixVector(1.0, BQ, m_eas->Q, 1.0);
+                e = Re*e_local;
             }
             else {
-                E.addMatrixVector(0.0, B, UL, 1.0);
+                e = B*UL;
                 if (m_eas)
-                    E.addMatrixVector(1.0, BQ, m_eas->Q, 1.0);
+                    e.addMatrixVector(1.0, BQ, m_eas->Q, 1.0);
             }
 
             // Update section
-            result += m_sections[igauss]->setTrialSectionDeformation(E);
+            result += m_sections[igauss]->setTrialSectionDeformation(e);
 
             // Drilling strain Ed = Bd*UL
             double Ed = 0.0;
@@ -2029,29 +1843,13 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
             invertBBendingTerms(B, B1);
 
         // Integrate RHS
-        if (options & OPT_RHS)
-        {
+        if (options & OPT_RHS) {
             // Section force
             if (m_angle != 0.0) {
                 auto& Ssection = m_sections[igauss]->getStressResultant();
                 S.addMatrixVector(0.0, Rs, Ssection, 1.0);
-#ifdef OPS_USE_DAMPING
-                if (m_damping[igauss]) {
-                    m_damping[igauss]->update(Ssection);
-                    auto& Sdsection = m_damping[igauss]->getDampingForce();
-                    S.addMatrixVector(1.0, Rs, Sdsection, 1.0);
-                }
-#endif
-            }
-            else {
+            } else
                 S = m_sections[igauss]->getStressResultant();
-#ifdef OPS_USE_DAMPING
-                if (m_damping[igauss]) {
-                    m_damping[igauss]->update(S);
-                    S += m_damping[igauss]->getDampingForce();
-                }
-#endif
-            }
 
             // Add current integration point contribution (RHS)
             RHS.addMatrixTransposeVector(1.0, B1, S, dA);
@@ -2100,9 +1898,6 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
                 Dsection = (options & OPT_LHS_IS_INITIAL) ?
                     m_sections[igauss]->getInitialTangent() :
                     m_sections[igauss]->getSectionTangent();
-#ifdef OPS_USE_DAMPING
-                if(m_damping[igauss]) Dsection *= m_damping[igauss]->getStiffnessMultiplier();
-#endif
                 auto& RsT = ASDShellQ4Globals::instance().RsT;
                 RsT.addMatrixTranspose(0.0, Rs, 1.0);
                 auto& DRsT = ASDShellQ4Globals::instance().DRsT;
@@ -2113,9 +1908,6 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
                 D = (options & OPT_LHS_IS_INITIAL) ?
                     m_sections[igauss]->getInitialTangent() :
                     m_sections[igauss]->getSectionTangent();
-#ifdef OPS_USE_DAMPING
-                if(m_damping[igauss]) D *= m_damping[igauss]->getStiffnessMultiplier();
-#endif
             }
 
             // Matrices for AGQI static condensation of internal DOFs
@@ -2129,8 +1921,7 @@ int ASDShellQ4::calculateAll(Matrix& LHS, Vector& RHS, int options)
         }
 
         // Integrate LHS
-        if (options & OPT_LHS) 
-        {
+        if (options & OPT_LHS) {
             // Add current integration point contribution (LHS)
             B1TD.addMatrixTransposeProduct(0.0, B1, D, dA);
             LHS.addMatrixProduct(1.0, B1TD, B, 1.0);
@@ -2272,35 +2063,4 @@ void ASDShellQ4::AGQIbeginGaussLoop(const ASDShellQ4LocalCoordinateSystem& refer
 
     // Average
     BQ_mean /= Atot;
-}
-
-int
-ASDShellQ4::displaySelf(Renderer& theViewer, int displayMode, float fact, const char** modes, int numMode)
-{
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-    nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-    nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-    nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
-
-    // place values in coords matrix
-    static Matrix coords(4, 3);
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v2(i);
-        coords(2, i) = v3(i);
-        coords(3, i) = v4(i);
-    }
-
-    // set the quantity to be displayed at the nodes;
-    static Vector values(4);
-    for (int i = 0; i < 4; i++)
-        values(i) = 0.0;
-
-    // draw the polygon
-    return theViewer.drawPolygon(coords, values, this->getTag());
 }
