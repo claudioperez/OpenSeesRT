@@ -43,6 +43,10 @@ class FourNodeQuad : public Element,
                      protected GaussLegendre<2,4>
 {
   public:
+    FourNodeQuad(int tag, std::array<int,4>& nodes,
+                 NDMaterial &m, double thickness,
+                 double p, double r, double b1, double b2);
+
     FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
                  NDMaterial &m, const char *type,
                  double t, double pressure = 0.0, 

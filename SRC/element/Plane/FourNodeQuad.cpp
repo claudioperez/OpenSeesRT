@@ -48,6 +48,39 @@ Matrix FourNodeQuad::K(matrixData, 8, 8);
 Vector FourNodeQuad::P(8);
 double FourNodeQuad::shp[3][4];
 
+FourNodeQuad::FourNodeQuad(int tag, std::array<int,4>& nodes,
+                           NDMaterial &m, double thickness,
+                           double pressure, double r, 
+                           double b1, double b2)
+ : Element(tag, ELE_TAG_FourNodeQuad), 
+   connectedExternalNodes(4), 
+   Q(8), pressureLoad(8), thickness(thickness), 
+   applyLoad(0),
+   pressure(pressure), rho(r), Ki(0)
+{
+    // Body forces
+    b[0] = b1;
+    b[1] = b2;
+
+    for (int i = 0; i < NIP; i++) {
+
+      // Get copies of the material model for each integration point
+      theMaterial[i] = m.getCopy();
+                        
+      // Check allocation
+      if (theMaterial[i] == nullptr) {
+        opserr << "FourNodeQuad::FourNodeQuad -- failed to get a copy of material model\n";
+        return;
+      }
+    }
+
+    for (int i=0; i<NEN; i++) {
+      connectedExternalNodes(i) = nodes[i];
+      theNodes[i] = nullptr;
+    }
+
+}
+
 FourNodeQuad::FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
                            NDMaterial &m, const char *type, double t,
                            double p, double r, double b1, double b2)
@@ -67,7 +100,7 @@ FourNodeQuad::FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
     b[1] = b2;
 
     for (int i = 0; i < NIP; i++) {
-      
+
       // Get copies of the material model for each integration point
       theMaterial[i] = m.getCopy(type);
                         
