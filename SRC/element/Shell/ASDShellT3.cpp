@@ -123,8 +123,8 @@ OPS_ADD_RUNTIME_VPV(OPS_ASDShellT3)
             }
         }
     }
-    SectionForceDeformation* section = OPS_getSectionForceDeformation(iData[4]);
-    if (section == 0) {
+    SectionForceDeformation* section = G3_getSafeBuilder(rt)->getTypedObject<SectionForceDeformation>(iData[4]);
+    if (section == nullptr) {
         opserr << "ERROR:  element ASDShellT3 " << iData[0] << " section " << iData[4] << " not found\n";
         return 0;
     }
@@ -443,10 +443,10 @@ namespace
         double phi1 = std::atan2(y21, x21);
         double phi2 = 3.141592653589793 * 0.5 - std::atan2(x31, y31);
         auto& BsO = ASDShellT3Globals::instance().BsO;
-        BsO(0, 0) = std::sin(phi2);
+        BsO(0, 0) =  std::sin(phi2);
         BsO(0, 1) = -std::sin(phi1);
         BsO(1, 0) = -std::cos(phi2);
-        BsO(1, 1) = std::cos(phi1);
+        BsO(1, 1) =  std::cos(phi1);
         auto& BsC = ASDShellT3Globals::instance().BsC;
         BsC(0, 0) = std::sqrt(x13 * x13 + y13 * y13) / A2;
         BsC(0, 1) = 0.0;
