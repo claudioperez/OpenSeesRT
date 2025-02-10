@@ -60,9 +60,9 @@ Vector ShellMITC4::resid(24);
 Matrix ShellMITC4::mass(24, 24);
 
 
-// null constructor
 ShellMITC4::ShellMITC4()
-    : Element(0, ELE_TAG_ShellMITC4), connectedExternalNodes(4), load(0), Ki(0),
+    : Element(0, ELE_TAG_ShellMITC4), 
+      connectedExternalNodes(4), load(0), Ki(0),
       doUpdateBasis(false)
 {
 
@@ -77,7 +77,6 @@ ShellMITC4::ShellMITC4()
 }
 
 
-// full constructor
 ShellMITC4::ShellMITC4(int tag, int node1, int node2, int node3, int node4,
                        SectionForceDeformation &theMaterial, bool UpdateBasis)
     : Element(tag, ELE_TAG_ShellMITC4), 
@@ -108,7 +107,6 @@ ShellMITC4::ShellMITC4(int tag, int node1, int node2, int node3, int node4,
 }
 
 
-// destructor
 ShellMITC4::~ShellMITC4()
 {
   for (int i = 0; i < 4; i++) {
@@ -125,7 +123,6 @@ ShellMITC4::~ShellMITC4()
 }
 
 
-// set domain
 void ShellMITC4::setDomain(Domain *theDomain)
 {
   Vector3D eig;
@@ -170,13 +167,13 @@ void ShellMITC4::setDomain(Domain *theDomain)
   this->DomainComponent::setDomain(theDomain);
 }
 
-// get the number of external nodes
+
 int ShellMITC4::getNumExternalNodes() const 
 {
   return NEN; 
 }
 
-// return connected external nodes
+
 const ID &ShellMITC4::getExternalNodes() 
 {
   return connectedExternalNodes; 
@@ -184,7 +181,7 @@ const ID &ShellMITC4::getExternalNodes()
 
 
 Node **
-ShellMITC4::getNodePtrs(void) 
+ShellMITC4::getNodePtrs() 
 { 
   return &theNodes[0]; 
 }
@@ -1276,7 +1273,6 @@ void ShellMITC4::computeBasis()
   v3 = v1.cross(v2);
 
   // local nodal coordinates in plane of shell
-
   for (int i = 0; i < 4; i++) {
 
     const Vector &coorI = theNodes[i]->getCrds();
