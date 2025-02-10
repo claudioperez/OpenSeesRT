@@ -83,12 +83,14 @@
 #include <Vector.h>
 #include <Matrix.h>
 #include <vector>
+#include <VectorND.h>
 
 class Damping;
 class SectionForceDeformation;
 class ASDShellQ4Transformation;
 class ASDShellQ4LocalCoordinateSystem;
 
+namespace OpenSees {
 class ASDShellQ4 : public Element
 {
 public:
@@ -96,6 +98,7 @@ public:
         DrillingDOF_Elastic = 0,
         DrillingDOF_NonLinear = 1,
     };
+private:
     class NLDrillingData {
     public:
         std::vector<Vector> strain_comm = { Vector(8), Vector(8), Vector(8), Vector(8) };
@@ -134,7 +137,7 @@ public:
         Damping *theDamping = 0);
     virtual ~ASDShellQ4();
 
-    const char *getClassType(void) const {return "ASDShellQ4";}
+    const char *getClassType() const {return "ASDShellQ4";}
     
     // domain
     void setDomain(Domain* theDomain);
@@ -182,9 +185,6 @@ public:
     // calculate the characteristic length for this element
     double getCharacteristicLength(void);
 
-    // display -ambaker1
-    int displaySelf(Renderer&, int mode, float fact, const char** displayModes = 0, int numModes = 0);
-
 private:
 
     // internal method to compute everything using switches...
@@ -201,7 +201,7 @@ private:
 
     // nodal ids
     ID m_node_ids = ID(4);
-    Node* nodePointers[4] = { nullptr, nullptr, nullptr, nullptr }; //pointers to four nodes -ambaker1
+    Node* nodePointers[4] = { nullptr, nullptr, nullptr, nullptr };
 
     // coordinate transformation
     ASDShellQ4Transformation* m_transformation = nullptr;
@@ -231,5 +231,5 @@ private:
     // initialization flag
     bool m_initialized = false;
 };
-
+}
 #endif // ASDShellQ4_h
