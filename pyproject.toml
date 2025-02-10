@@ -73,7 +73,8 @@ testing = [
 
 [project.urls]
 Repository = "https://github.com/claudioperez/OpenSeesRT"
-Examples = "https://stairlab.github.io/opensees-gallery"
+Documentation = "https://opensees.stairlab.io"
+Examples = "https://gallery.stairlab.io"
 
 [build-system]
 requires = [
