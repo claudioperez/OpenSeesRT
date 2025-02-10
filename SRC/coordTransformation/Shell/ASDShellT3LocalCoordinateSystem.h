@@ -88,8 +88,7 @@ public:
 		m_area /= 2.0;
 		
 		// form the 3x3 transformation matrix (the transposed actually...)
-		for (int i = 0; i < 3; i++)
-		{
+		for (int i = 0; i < 3; i++) {
 			m_orientation(0, i) = e1(i);
 			m_orientation(1, i) = e2(i);
 			m_orientation(2, i) = e3(i);
@@ -137,7 +136,7 @@ public:
 	inline Vector3Type Vy()const { return Vector3Type{{m_orientation(1, 0), m_orientation(1, 1), m_orientation(1, 2)}}; }
 	inline Vector3Type Vz()const { return Vector3Type{{m_orientation(2, 0), m_orientation(2, 1), m_orientation(2, 2)}}; }
 
-	inline void ComputeTotalRotationMatrix(MatrixType& R)const
+	inline void ComputeTotalRotationMatrix(MatrixType& R) const
 	{
 		constexpr size_t mat_size = 18;
 		if (R.noRows() != mat_size || R.noCols() != mat_size)
