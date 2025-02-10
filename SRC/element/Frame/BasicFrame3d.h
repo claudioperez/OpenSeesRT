@@ -27,7 +27,8 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
     virtual ~BasicFrame3d();
     BasicFrame3d(int tag, int clstag, std::array<int, 2> &nodes, 
                  FrameTransform3d& tran)
-      : FiniteElement<2, 3, 6> (tag, clstag, nodes), theCoordTransf(tran.getCopy()),
+      : FiniteElement<2, 3, 6> (tag, clstag, nodes), 
+        theCoordTransf(tran.getCopy()),
         p_iner(12),
         wx(0.0), wy(0.0), wz(0.0),
         // numEleLoads(0), // sizeEleLoads(0), eleLoads(0), eleLoadFactors(0),
