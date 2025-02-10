@@ -557,10 +557,10 @@ TclCommand_newKrylovNewton(ClientData clientData, Tcl_Interp *interp, int argc,
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
   ConvergenceTest *theTest = builder->getConvergenceTest();
 
-//opserr << "KRYLOV \n";
-
+  // TODO: Fix this not showing
   if (theTest == nullptr) {
     opserr << G3_ERROR_PROMPT << "A ConvergenceTest must be specified before initializing KrylovNewton\n";
+    opserr.flush();
     return TCL_ERROR;
   }
 
