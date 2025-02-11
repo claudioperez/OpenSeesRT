@@ -40,8 +40,7 @@ BasicModelBuilder::BasicModelBuilder(Domain &domain, Tcl_Interp *interp,
       section_builder_is_set(false),
       theDomain(&domain),
       tclEnclosingPattern(nullptr),
-      next_node_load(0),
-      next_elem_load(0)
+      next_node_load(0)// , next_elem_load(0)
 {
   static int ncmd = sizeof(tcl_char_cmds)/sizeof(char_cmd);
 
@@ -193,10 +192,14 @@ BasicModelBuilder::printRegistry(const char *partition, OPS_Stream& stream, int 
 }
 
 void* 
-BasicModelBuilder::getRegistryObject(const char* partition, int tag, int flags) const
+BasicModelBuilder::getRegistryObject(const char* type, const char* specialize, int tag, int flags) const
 {
 
-  auto iter = m_registry.find(std::string{partition});
+  std::string partition = std::string{type};
+  if (specialize)
+    partition += std::string{specialize};
+
+  auto iter = m_registry.find(partition);
   if (iter == m_registry.end()) {
     if (flags == 0)
       opserr << "No objects of type \"" << partition
@@ -207,7 +210,7 @@ BasicModelBuilder::getRegistryObject(const char* partition, int tag, int flags) 
   auto iter_objs = iter->second.find(tag) ;
   if (iter_objs == iter->second.end()) {
     if (flags == 0)
-      opserr << "No object with tag \"" << tag << "\"in partition \"" 
+      opserr << "No object with tag \"" << tag << "\" in partition \"" 
              << partition << "\"\n";
     return nullptr;
   }
@@ -217,10 +220,13 @@ BasicModelBuilder::getRegistryObject(const char* partition, int tag, int flags) 
 }
 
 int
-BasicModelBuilder::addRegistryObject(const char* partition, int tag, void *obj)
+BasicModelBuilder::addRegistryObject(const char* type, const char* specialize, int tag, void *obj)
 {
-  // TODO: Change void* obj to TaggedObject*
-  m_registry[std::string{partition}][tag] = (TaggedObject*)obj;
+  std::string partition = std::string{type};
+  if (specialize)
+    partition += std::string{specialize};
+
+  m_registry[partition][tag] = (TaggedObject*)obj;
   return TCL_OK;
 }
 
