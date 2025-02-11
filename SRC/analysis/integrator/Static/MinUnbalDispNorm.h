@@ -20,9 +20,12 @@
 //
 // Description: This file contains the class definition for MinUnbalDispNorm.
 // MinUnbalDispNorm is an algorithmic class for perfroming a static analysis
-// using the minimum unbalanced displacement norm (Chan IJNME 26(2657:2669)1988
+// using the minimum unbalanced displacement norm.
+// 
+// S. L. Chan, “Geometric and Material Non-Linear Analysis of Beam-Columns and Frames Using the Minimum Residual Displacement Method,” 
+// International Journal for Numerical Methods in Engineering, Vol. 26, No. 12, 1988, pp. 2657-2669. 
+// doi:10.1002/nme.1620261206
 //
-// What: "@(#) MinUnbalDispNorm.h, revA"
 // 
 // Written: fmk 
 // Created: 07/99
