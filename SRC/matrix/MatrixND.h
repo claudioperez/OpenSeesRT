@@ -402,6 +402,21 @@ struct MatrixND {
     return mat;
   }
   
+  // template <index_t J>
+  // inline constexpr friend MatrixND<NR, NC>
+  // operator*(const MatrixND<NR, J> &left, const MatrixND<J, NC> &right) {
+  //   MatrixND<NR, NC> prod;
+  //   for (index_t i = 0; i < NR; ++i) {
+  //     for (index_t j = 0; j < NC; ++j) {
+  //       prod(i, j) = 0.0;
+  //       for (index_t k = 0; k < J; ++k) {
+  //         prod(i, j) += left(i,k) * right(k,j);
+  //       }
+  //     }
+  //   }
+  //   return prod;
+  // }
+
   template <index_t J>
   inline constexpr friend MatrixND<NR, J>
   operator*(const MatrixND<NR, NC> &left, const MatrixND<NC, J> &right) {
@@ -417,14 +432,14 @@ struct MatrixND {
     return prod;
   }
 
-  template <index_t J>
-  inline constexpr friend MatrixND<NR, J>
-  operator^(const MatrixND<NR, NC> &left, const MatrixND<NC, J> &right) {
-    MatrixND<NR, J> prod;
-    for (index_t i = 0; i < NR; ++i) {
-      for (index_t j = 0; j < J; ++j) {
+  template <index_t K>
+  inline constexpr friend MatrixND<NC,K>
+  operator^(const MatrixND<NR, NC> &left, const MatrixND<NR, K> &right) {
+    MatrixND<NC, K> prod;
+    for (index_t i = 0; i < NC; ++i) {
+      for (index_t j = 0; j < K; ++j) {
         prod(i, j) = 0.0;
-        for (index_t k = 0; k < NC; ++k) {
+        for (index_t k = 0; k < NR; ++k) {
           prod(i, j) += left(k,i) * right(k,j);
         }
       }
