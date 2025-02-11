@@ -177,7 +177,7 @@ MinUnbalDispNorm::newStep()
 
   /////////////////Abbas////////////////////////////
 
-  if (this->activateSensitivity()==true) { 
+  if (this->activateSensitivity() == true) { 
     Domain *theDomain=theModel->getDomainPtr();
     ParameterIter &paramIter = theDomain->getParameters();
     Parameter *theParam;
@@ -225,9 +225,9 @@ MinUnbalDispNorm::update(const Vector &dU)
    AnalysisModel *theModel = this->getAnalysisModel();
     LinearSOE *theLinSOE = this->getLinearSOE();    
     if (theModel == 0 || theLinSOE == 0) {
-	opserr << "WARNING MinUnbalDispNorm::update() ";
-	opserr << "No AnalysisModel or LinearSOE has been set\n";
-	return -1;
+      opserr << "WARNING MinUnbalDispNorm::update() ";
+      opserr << "No AnalysisModel or LinearSOE has been set\n";
+      return -1;
     }
 
     (*deltaUbar) = dU; // have to do this as the SOE is gonna change
@@ -275,7 +275,7 @@ MinUnbalDispNorm::update(const Vector &dU)
 
 
 int 
-MinUnbalDispNorm::domainChanged(void)
+MinUnbalDispNorm::domainChanged()
 {
    // we first create the Vectors needed
    AnalysisModel *theModel = this->getAnalysisModel();
