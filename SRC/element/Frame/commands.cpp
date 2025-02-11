@@ -795,7 +795,8 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
                                       *beamIntegr, *theTransf3d, mass, options.mass_flag);
       } 
 
-      else if (strstr(argv[1], "Force") != 0) {
+      else if ((strstr(argv[1], "Force") != 0) ||
+               (strcmp(argv[1], "MixedFrame") == 0)) {
         std::array<int, 2> nodes {iNode, jNode};
 
         if (strcmp(argv[1], "ForceDeltaFrame") == 0 || options.geom_flag) {
