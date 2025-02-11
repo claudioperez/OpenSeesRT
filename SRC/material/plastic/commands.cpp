@@ -16,7 +16,9 @@ TclCommand_newPlasticMaterial(ClientData clientData,
 {
   BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
-  if ((strcmp(argv[1], "J2Plasticity") == 0) || (strcmp(argv[1], "J2") == 0)) {
+  if ((strcmp(argv[1], "J2Plasticity") == 0) || 
+      (strcmp(argv[1], "J2") == 0)) {
+
     if (argc < 9) {
       opserr << "WARNING insufficient arguments\n";
       opserr << "Want: nDMaterial J2Plasticity tag? K? G? sig0? sigInf? delta? H? <eta?>" << "\n";
@@ -65,8 +67,7 @@ TclCommand_newPlasticMaterial(ClientData clientData,
       return TCL_ERROR;
     }
 
-    builder->addTaggedObject<NDMaterial>(
-        *new J2Plasticity(tag, 0, K, G, sig0, sigInf, delta, H, eta));
+    builder->addTaggedObject<NDMaterial>(*new J2Plasticity(tag, 0, K, G, sig0, sigInf, delta, H, eta));
   }
 }
 
