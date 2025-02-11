@@ -155,16 +155,16 @@ int CTestRelativeEnergyIncr::test(void)
         return currentIter;
     }
 
-    // algo failed to converged after specified number of iterations - but RETURN OK
+    // Failed to converged after specified number of iterations - but RETURN OK
     else if ((printFlag & ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter) {
         if (printFlag & ConvergenceTest::PrintFailure) {
             opserr << LOG_FAILURE
                    //<< "criteria CTestRelativeEnergyIncr but goin on -"
                    << "Iter: "            << pad(currentIter)
+                   << ", Norm dX: "  << pad(x.pNorm(nType))
+                   << ", Norm dR: "  << pad(b.pNorm(nType))
                    << ", dX*dR/dX1*dR1: " << pad(product)
-                   << ", Norm deltaX: "  << pad(x.pNorm(nType))
-                   << ", Norm deltaR: "  << pad(b.pNorm(nType))
-                   << endln;
+                   << "\n";
         }
         return currentIter;
     }
