@@ -88,14 +88,14 @@ ForceFrame3d::ForceFrame3d(int tag, std::array<int, 2>& nodes,
                            std::vector<FrameSection*>& sec,
                            BeamIntegration& bi,
                            FrameTransform3d& coordTransf, 
-                           double dens, int mass_flag_, bool use_density_,
+                           double dens, int mass_flag_, bool use_density,
                            int max_iter_, double tolerance
                            )
  : BasicFrame3d(tag, ELE_TAG_ForceFrame3d, nodes, coordTransf),
    stencil(nullptr),
    state_flag(0),
    Ki(nullptr),
-   density(dens), mass_flag(mass_flag_), use_density(use_density_),
+   density(dens), mass_flag(mass_flag_), use_density(use_density),
    mass_initialized(false),
    max_iter(max_iter_), tol(tolerance),
    parameterID(0)
