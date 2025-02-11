@@ -1,7 +1,8 @@
 //===----------------------------------------------------------------------===//
 //
-//         Please cite the following resource in any derivative works:
+//        Please cite the following resources in any derivative works:
 //                 https://doi.org/10.5281/zenodo.10456866
+//                 https://doi.org/10.1002/nme.7506
 //
 //===----------------------------------------------------------------------===//
 //
@@ -17,7 +18,8 @@
 //
 // [3] Perez C.M., and Filippou F.C. (2024):
 //     "On Nonlinear Geometric Transformations of Finite Elements" 
-//     Int. J. Numer. Meth. Engrg.
+//     Int. J. Numer. Meth. Engrg. 
+//     https://doi.org/10.1002/nme.7506
 //
 //===----------------------------------------------------------------------===//
 //
@@ -50,6 +52,9 @@ G_matrix(MatrixND<6,6> &G,
          double shape[2][nen], 
          int i, int j)
 {
+  //
+  // This is the sum of Equation (B4), and the unnumbered equation between (B3) and (B4).
+  //
   auto sn = Hat(&s[0]);
   auto sm = Hat(&s[3]);
   G.assemble(         sn, 0, 3, -shape[1][i]*shape[0][j]);
@@ -60,10 +65,11 @@ G_matrix(MatrixND<6,6> &G,
 }
 
 template<int nen> static void
-B_matrix(MatrixND<6,6> &B, double shape[2][nen], const Vector3D& dx, int n)
+B_nat(MatrixND<6,6> &B, double shape[2][nen], const Vector3D& dx, int n)
 {
   //
-  // NOTE This is the transpose of B in the paper by Perez and Filippou (2024)
+  // NOTE This is the transpose of B in Equation (B3) from the paper by 
+  // Perez and Filippou (2024)
   //
   for (int i=0; i<6; i++)
     B(i,i) = shape[1][n];
@@ -300,7 +306,6 @@ ExactFrame3d<nen,nip>::update()
 
     //
     //
-    //
     // A = diag(R, R);
     // Note that this is transposed
     MatrixND<6,6> A {{
@@ -316,7 +321,7 @@ ExactFrame3d<nen,nip>::update()
     for (int j=0; j<nen; j++) {
       MatrixND<6,6> Bj;
       Bj.zero();
-      B_matrix(Bj,  pres[i].shape, dx, j);
+      B_nat(Bj,  pres[i].shape, dx, j);
       B[j] = A^Bj;
 
       // p += B s w
