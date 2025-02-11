@@ -557,7 +557,7 @@ ExactFrame3d<nen, nip>::setResponse(const char** argv, int argc, OPS_Stream& out
       }
     }
   }
-  //by SAJalali
+
   else if (strcmp(argv[0], "energy") == 0) {
     return new ElementResponse(this, 2000, 0.0);
   }
@@ -622,7 +622,6 @@ ExactFrame3d<nen,nip>::getResponse(int responseID, Information &info)
     // ensure we have L, xi[] and wt[]
     if (this->setState(State::Init) != 0)
       return -1;
-
 
     Vector locs(pres.size());
     for (int i = 0; i < pres.size(); i++)
