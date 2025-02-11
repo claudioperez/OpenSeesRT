@@ -10,6 +10,10 @@
 // Written: rms, mhs, cmp
 // Created: 07/99
 //
+#include <set>
+#include <Parsing.h>
+#include <Logging.h>
+#include <ArgumentTracker.h>
 #include <assert.h>
 #include <tcl.h>
 #include <runtimeAPI.h>
@@ -671,34 +675,88 @@ TclCommand_addPlaneSection(ClientData clientData, Tcl_Interp *interp,
                               int argc, TCL_Char ** const argv)
 {
   BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
+  enum class Positions : int {
+    Material, Thickness, End
+  };
+  ArgumentTracker<Positions> tracker;
+  std::set<int> positional;
 
   // section Plane[Strain|Stress] $tag $material $thickness
-  if (argc != 5) {
+  if (argc < 5) {
     opserr << G3_ERROR_PROMPT
            << "incorrect number of arguments\n";
     return TCL_ERROR;
   }
 
   int tag;
-  if (Tcl_GetInt(interp, argv[3], &tag) != TCL_OK) {
+  if (Tcl_GetInt(interp, argv[2], &tag) != TCL_OK) {
     opserr << G3_ERROR_PROMPT
            << "failed to read integer tag\n";
     return TCL_ERROR;
   }
-
   int mtag;
-  if (Tcl_GetInt(interp, argv[3], &mtag) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT
-           << "failed to read integer material tag\n";
-    return TCL_ERROR;
+  double thickness;
+  for (int i=3; i<argc; ++i) {
+    if (strcmp(argv[i], "-material") == 0) {
+      if (argc == ++i || Tcl_GetInt(interp, argv[i], &mtag) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT
+               << "failed to read integer material tag\n";
+        return TCL_ERROR;
+      }
+      tracker.consume(Positions::Material);
+
+    }
+    else if (strcmp(argv[i], "-thickness") == 0) {
+      if (argc == ++i || Tcl_GetDouble(interp, argv[i], &thickness) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT
+               << "failed to read thickness\n";
+        return TCL_ERROR;
+      }
+      tracker.consume(Positions::Thickness);
+    }
+    else {
+      positional.insert(i);
+    }
+  }
+  for (int i: positional) {
+    switch (tracker.current()) {
+      case Positions::Material:
+        if (Tcl_GetInt(interp, argv[i], &mtag) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT
+                 << "failed to read integer material tag\n";
+          return TCL_ERROR;
+        }
+        tracker.increment();
+        break;
+
+      case Positions::Thickness:
+        if (Tcl_GetDouble(interp, argv[i], &thickness) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT
+                 << "failed to read thickness\n";
+          return TCL_ERROR;
+        }
+        tracker.increment();
+        break;
+
+      case Positions::End:
+      default:
+        opserr << G3_ERROR_PROMPT
+               << "unexpected argument\n";
+        return TCL_ERROR;
+    }
   }
 
-  double thickness;
-  if (Tcl_GetDouble(interp, argv[4], &thickness) != TCL_OK) {
-    opserr << G3_ERROR_PROMPT
-           << "failed to read thickness\n";
-    return TCL_ERROR;
-  }
+  // if (Tcl_GetInt(interp, argv[3], &mtag) != TCL_OK) {
+  //   opserr << G3_ERROR_PROMPT
+  //          << "failed to read integer material tag\n";
+  //   return TCL_ERROR;
+  // }
+
+  // if (Tcl_GetDouble(interp, argv[4], &thickness) != TCL_OK) {
+  //   opserr << G3_ERROR_PROMPT
+  //          << "failed to read thickness\n";
+  //   return TCL_ERROR;
+  // }
 
   NDMaterial* mptr = builder->getTypedObject<NDMaterial>(mtag);
   if (mptr == nullptr)
