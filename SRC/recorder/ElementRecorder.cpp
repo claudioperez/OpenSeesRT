@@ -49,6 +49,7 @@
 // #include <DatabaseStream.h>
 #include <TCP_Stream.h>
 
+#if 0
 #include <elementAPI.h>
 
 #include <string.h>
@@ -302,6 +303,7 @@ OPS_ADD_RUNTIME_VPV(OPS_ElementRecorder)
     
     return recorder;
 }
+#endif
 
 
 ElementRecorder::ElementRecorder()

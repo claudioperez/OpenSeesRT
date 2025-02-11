@@ -170,7 +170,6 @@ Tcl_CmdProc TclCommand_addTwoNodeLink;
 // Plane
 Tcl_CmdProc TclBasicBuilder_addFourNodeQuad;
 Tcl_CmdProc TclBasicBuilder_addFourNodeQuadWithSensitivity;
-Tcl_CmdProc TclBasicBuilder_addEnhancedQuad;
 Tcl_CmdProc TclBasicBuilder_addConstantPressureVolumeQuad;
 Tcl_CmdProc TclBasicBuilder_addNineNodeMixedQuad;
 Tcl_CmdProc TclBasicBuilder_addNineNodeQuad;
@@ -204,10 +203,9 @@ element_dispatch_tcl = {
   {"Quad",                      TclBasicBuilder_addFourNodeQuad},
   {"stdQuad",                   TclBasicBuilder_addFourNodeQuad},
   {"LagrangeQuad",              TclBasicBuilder_addFourNodeQuad},
+  {"enhancedQuad",              TclBasicBuilder_addFourNodeQuad},
 
   {"quadWithSensitivity",       TclBasicBuilder_addFourNodeQuadWithSensitivity},
-
-  {"enhancedQuad",              TclBasicBuilder_addEnhancedQuad},
 
   {"bbarQuad",                  TclBasicBuilder_addConstantPressureVolumeQuad},
   {"mixedQuad",                 TclBasicBuilder_addConstantPressureVolumeQuad},
@@ -216,16 +214,19 @@ element_dispatch_tcl = {
   {"nineNodeQuad",              TclBasicBuilder_addNineNodeMixedQuad},
 
   {"quad9n",                    TclBasicBuilder_addNineNodeQuad},
-
   {"quad8n",                    TclBasicBuilder_addEightNodeQuad},
 
   {"tri6n",                     TclBasicBuilder_addSixNodeTri},
   {"tri31",                     TclDispatch_newTri31},
+
+// U-P
+
   {"quadUP",                    TclBasicBuilder_addFourNodeQuadUP},
 
   {"9_4_QuadUP",                TclBasicBuilder_addNineFourNodeQuadUP},
 
   {"bbarQuadUP",                TclBasicBuilder_addBBarFourNodeQuadUP},
+
 //
 // Brick
 //

@@ -46,12 +46,13 @@
 #include <BinaryFileStream.h>
 #include <DatabaseStream.h>
 #include <TCP_Stream.h>
+#include <math.h>
+#include <stdlib.h>
 
+#if 1
 #include <elementAPI.h>
 
 #include <string.h>
-#include <stdlib.h>
-#include <math.h>
 
 void *
 OPS_ADD_RUNTIME_VPV(OPS_ElementRecorderRMS)
@@ -288,6 +289,7 @@ OPS_ADD_RUNTIME_VPV(OPS_ElementRecorderRMS)
 
     return recorder;
 }
+#endif
 
 
 ElementRecorderRMS::ElementRecorderRMS()
