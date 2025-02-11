@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2007-07-27 19:23:04 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/joint/BeamColumnJoint2d.cpp,v $
-                                                                        
+//
 // Written: NM (nmitra@u.washington.edu)
 // Created: April 2002
 // Last Revised: January 2007
@@ -1259,13 +1255,27 @@ BeamColumnJoint2d::displaySelf(Renderer &theViewer, int displayMode, float fact,
 void
 BeamColumnJoint2d::Print(OPS_Stream &s, int flag)
 {
-	s << "Element: " << this->getTag() << " Type: Beam Column Joint " << endln;
-	for (int i = 0; i<4; i++)
-	{
-		s << "Node :" << connectedExternalNodes(i);
-		s << "DOF :" << nodePtr[i]->getNumberDOF();
+	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+		s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+		s << "\"name\": \"" << this->getTag() << "\", ";
+		s << "\"type\": \"BeamColumnJoint2d\", ";
+		s << "\"nodes\": [" 
+		  << connectedExternalNodes(0) << ", " 
+		  << connectedExternalNodes(1) << ", " 
+		  << connectedExternalNodes(2) << ", " 
+		  << connectedExternalNodes(3) << "]";
+		s << "}";
+		return;
 	}
-	return;
+	else {
+		s << "Element: " << this->getTag() << " Type: Beam Column Joint " << endln;
+		for (int i = 0; i<4; i++)
+		{
+			s << "Node :" << connectedExternalNodes(i);
+			s << "DOF :" << nodePtr[i]->getNumberDOF();
+		}
+		return;
+	}
 }
 
 Response*

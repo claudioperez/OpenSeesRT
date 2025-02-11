@@ -1178,10 +1178,26 @@ const Matrix& Joint2D::getMass(void)
 
 void Joint2D::Print(OPS_Stream& s, int flag)
 {
-  s << "\nElement: " << getTag() << " type: Joint2D iNode: "
-    << ExternalNodes(0) << " jNode: " << ExternalNodes(1) << "\n"
-    << " kNode: " << ExternalNodes(2) << " lNode: " << ExternalNodes(3) << "\n"
-    << " Internal node: " << ExternalNodes(4) << "\n";
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+    s << "\"name\": \"" << this->getTag() << "\", ";
+    s << "\"class\": \"Joint2D\", ";
+    s << "\"nodes\": [" 
+      << ExternalNodes(0) << ", " 
+      << ExternalNodes(1) << ", " 
+      << ExternalNodes(2) << ", " 
+      << ExternalNodes(3) << ", " 
+      << ExternalNodes(4) << "]";
+    s << "}\n";
+    return;
+  }
+  else {
+    s << "\nElement: " << getTag() << " type: Joint2D iNode: "
+      << ExternalNodes(0) << " jNode: " << ExternalNodes(1) << "\n"
+      << " kNode: " << ExternalNodes(2) << " lNode: " << ExternalNodes(3) << "\n"
+      << " Internal node: " << ExternalNodes(4) << "\n";
+
+  }
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -1229,14 +1229,24 @@ BeamColumnJoint3d::displaySelf(Renderer &theViewer, int displayMode, float fact,
 void
 BeamColumnJoint3d::Print(OPS_Stream &s, int flag)
 {
-	s << "Element: " << this->getTag() << " Type: Beam Column Joint " << endln;
-	for (int i = 0; i<4; i++)
-	{
-		s << "Node :" << connectedExternalNodes(i);
-		s << "DOF :" << nodePtr[i]->getNumberDOF();
+	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+		s << OPS_PRINT_JSON_ELEM_INDENT << "{";
+		s << "\"name\": \"" << this->getTag() << "\", ";
+		s << "\"type\": \"BeamColumnJoint3d\", ";
+		s << "\"connectedNodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << ", " << connectedExternalNodes(2) << ", " << connectedExternalNodes(3) << "], ";
+		s << "}";
+		return;
 	}
-	s << "\nResisting Forces :" <<this->getResistingForce();
-	return;
+	else {
+		s << "Element: " << this->getTag() << " Type: Beam Column Joint " << endln;
+		for (int i = 0; i<4; i++)
+		{
+			s << "Node :" << connectedExternalNodes(i);
+			s << "DOF :" << nodePtr[i]->getNumberDOF();
+		}
+		s << "\nResisting Forces :" <<this->getResistingForce();
+		return;
+    }
 }
 
 Response*

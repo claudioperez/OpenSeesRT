@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-
-// $Revision: 1.11 $
-// $Date: 2010-04-23 22:53:56 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/joint/Joint2D.h,v $
-
+//
 // Written: Arash & GGD
 // Created: 03/02
 // Revision: Arash
@@ -64,7 +60,7 @@ public:
 
   ~Joint2D();
 
-  const char* getClassType(void) const { return "Joint2D"; };
+  const char* getClassType() const { return "Joint2D"; }
 
   // methods dealing with domain
   int	getNumExternalNodes(void) const;
