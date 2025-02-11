@@ -79,7 +79,8 @@ Matrix  PlaneStrainMaterial::tangent(3,3) ;
 PlaneStrainMaterial::PlaneStrainMaterial( ) : 
 NDMaterial(0, ND_TAG_PlaneStrainMaterial ), 
 strain(3) 
-{ }
+{
+}
 
 
 //full constructor
@@ -88,9 +89,9 @@ PlaneStrainMaterial::PlaneStrainMaterial(
 NDMaterial( tag, ND_TAG_PlaneStrainMaterial ),
 strain(3)
 {
-  theMaterial = the3DMaterial.getCopy("ThreeDimensional") ;
-  if (theMaterial==0){
-	theMaterial = the3DMaterial.getCopy( ) ;
+  theMaterial = the3DMaterial.getCopy("ThreeDimensional");
+  if (theMaterial == 0) {
+    theMaterial = the3DMaterial.getCopy( ) ;
   }
 }
 
