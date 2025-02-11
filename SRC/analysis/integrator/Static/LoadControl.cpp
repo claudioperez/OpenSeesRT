@@ -109,7 +109,7 @@ LoadControl::update(const Vector &deltaU)
       return -1;
     }
 
-    myModel->incrDisp(deltaU);    
+    myModel->incrDisp(deltaU);
     if (myModel->updateDomain() < 0) {
       opserr << "LoadControl::update - model failed to update for new dU\n";
       return -1;
