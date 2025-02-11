@@ -1,21 +1,6 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // based on FourNodeQuad by MHS
@@ -55,36 +40,34 @@ public:
   const char *getClassType(void) const { return "EightNodeQuad"; };
 
   int getNumExternalNodes(void) const;
-  const ID &getExternalNodes(void);
-  Node **getNodePtrs(void);
+  const ID &getExternalNodes();   
+  Node **getNodePtrs();   
 
-  int getNumDOF(void);
+  int getNumDOF();   
   void setDomain(Domain *theDomain);
 
   // public methods to set the state of the element
-  int commitState(void);
-  int revertToLastCommit(void);
-  int revertToStart(void);
-  int update(void);
+  int commitState();   
+  int revertToLastCommit();   
+  int revertToStart();   
+  int update();   
 
   // public methods to obtain stiffness, mass, damping and residual information
-  const Matrix &getTangentStiff(void);
-  const Matrix &getInitialStiff(void);
-  const Matrix &getMass(void);
+  const Matrix &getTangentStiff();
+  const Matrix &getInitialStiff();
+  const Matrix &getMass();
 
   void zeroLoad();
   int addLoad(ElementalLoad *theLoad, double loadFactor);
   int addInertiaLoadToUnbalance(const Vector &accel);
 
-  const Vector &getResistingForce(void);
-  const Vector &getResistingForceIncInertia(void);
+  const Vector &getResistingForce();   
+  const Vector &getResistingForceIncInertia();   
 
   // public methods for element output
   int sendSelf(int commitTag, Channel &theChannel);
   int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
 
-  int displaySelf(Renderer &, int mode, float fact,
-                  const char **displayModes = 0, int numModes = 0);
   void Print(OPS_Stream &s, int flag = 0);
 
   Response *setResponse(const char **argv, int argc, OPS_Stream &s);
@@ -100,12 +83,12 @@ public:
   friend class TzLiq1;
   friend class QzLiq1; // Sumeet
 
-protected:
 private:
   // private attributes - a copy for each object of the class
 
 //static constexpr int nip = 9;    // number of integration/Gauss points
   static constexpr int NEN = 8;    // number of nodes
+  static constexpr int NDM = 2;
 
   NDMaterial **theMaterial; // pointer to the ND material objects
 
@@ -133,9 +116,9 @@ private:
 //static double pts[nip][2]; // Stores quadrature points
 //static double wts[nip];    // Stores quadrature weights
 
-  // private member functions - only objects of this class can call these
+  // private member functions
   double shapeFunction(double xi, double eta);
-  void setPressureLoadAtNodes(void);
+  void setPressureLoadAtNodes();   
 
   Matrix *Ki;
 };

@@ -25,6 +25,7 @@
 #include <stdlib.h> 
 #include <math.h> 
 
+#include <array>
 #include <ID.h> 
 #include <Vector.h>
 #include <Matrix.h>
@@ -42,13 +43,9 @@ class EnhancedQuad : public Element,
 
   //full constructor
     EnhancedQuad(int tag, 
-		 int nd1, 
-		 int nd2, 
-		 int nd3, 
-		 int nd4,
+     std::array<int,4>& nodes,
 		 NDMaterial &theMaterial, 
-		 const char *type,
-         double t);
+     double thickness);
 
     //null constructor
     EnhancedQuad();
@@ -56,7 +53,7 @@ class EnhancedQuad : public Element,
     //destructor
     ~EnhancedQuad();
 
-    const char *getClassType(void) const {return "EnhancedQuad";};
+    const char *getClassType(void) const {return "EnhancedQuad";}
 
     //set domain
     void setDomain( Domain *theDomain ) ;
@@ -72,10 +69,7 @@ class EnhancedQuad : public Element,
     int commitState( ) ;
     int revertToLastCommit( ) ;
     int revertToStart( ) ;
-    int update(void);
-
-    //print out element data
-    void Print( OPS_Stream &s, int flag ) ;
+    int update();
 	
     //return stiffness matrix 
     const Matrix &getTangentStiff();
@@ -101,6 +95,9 @@ class EnhancedQuad : public Element,
     int sendSelf (int commitTag, Channel &theChannel);
     int recvSelf (int commitTag, Channel &theChannel, FEM_ObjectBroker 
 		  &theBroker);
+
+    //print out element data
+    void Print( OPS_Stream &s, int flag ) ;
 
   private:
     constexpr static int NEN = 4;
@@ -128,11 +125,11 @@ class EnhancedQuad : public Element,
 //  static const double tg[4] ;
 //  static const double wg[4] ;
 
-    //stress data
-    static double stressData[][4] ;
+    // //stress data
+    // static double stressData[][4] ;
 
-    //tangent data 
-    static double tangentData[][3][4] ;
+    // //tangent data 
+    // static double tangentData[][3][4] ;
 
     //node information
     ID connectedExternalNodes ;  //four node numbers
@@ -151,46 +148,33 @@ class EnhancedQuad : public Element,
     //    static double xl[2][4] ; 
     static double xl[][4] ; 
 
-    //save stress and tangent data
-    void saveData( int gp, 
-		   const Vector &stress,
-		   const Matrix &tangent ) ;
-
-    //recover stress and tangent data
-    void getData( int gp,
-		  Vector &stress,
-		  Matrix &tangent ) ;
-
     //compute enhanced strain B-matrices
-    const Matrix& computeBenhanced( int node, 
-			     double L1,
-			     double L2,
-			     double j, 
-			     const Matrix &Jinv ) ;
+    // const Matrix& computeBenhanced( int node, 
+		// 	     double L1,
+		// 	     double L2,
+		// 	     double j, 
+		// 	     const Matrix &Jinv ) ;
 
 			   
     //compute local coordinates and basis
     void computeBasis( ) ;
         
-    //form residual and tangent					  
-    void formResidAndTangent( int tang_flag ) ;
+    //
+    int formResidAndTangent( int tang_flag ) ;
 
     //inertia terms
     void formInertiaTerms( int tangFlag ) ;
 
 
-    //compute Jacobian matrix and inverse at point {L1,L2}
-    void  computeJacobian( double L1, double L2, 
-			   const double x[2][4], 
-                           Matrix &JJ, 
-                           Matrix &JJinv ) ;
+    // //compute Jacobian matrix and inverse at point {L1,L2}
+    // void  computeJacobian( double L1, double L2, 
+		// 	   const double x[2][4], 
+    //                        Matrix &JJ, 
+    //                        Matrix &JJinv ) ;
 
-    //compute Bbend matrix
-    const Matrix computeB(int node, const double shp[3][4], 
-                          OpenSees::MatrixND<3,2,double> &B) ;
-
-    // Matrix transpose of a 3x2 matrix
-    const Matrix& transpose( const Matrix &M ) ;
+    //
+    void computeB(int node, const double shp[3][4], 
+                          OpenSees::MatrixND<3,2,double> &B);
 
     //shape function routine for four node quads
     void shape2d( double ss, double tt, 

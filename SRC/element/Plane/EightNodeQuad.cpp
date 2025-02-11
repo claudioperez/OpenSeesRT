@@ -1,21 +1,6 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Description: This file contains the class definition for EightNodeQuad.
@@ -30,8 +15,8 @@
 #include <NDMaterial.h>
 #include <Matrix.h>
 #include <Vector.h>
+#include <VectorND.h>
 #include <ID.h>
-#include <Renderer.h>
 #include <Domain.h>
 #include <string.h>
 #include <Information.h>
@@ -40,6 +25,7 @@
 #include <FEM_ObjectBroker.h>
 #include <ElementResponse.h>
 #include <ElementalLoad.h>
+using namespace OpenSees;
 
 
 double EightNodeQuad::matrixData[(NEN*2)*(NEN*2)];
@@ -99,11 +85,6 @@ EightNodeQuad::EightNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
     // Allocate arrays of pointers to NDMaterials
     theMaterial = new NDMaterial *[nip];
 
-    if (theMaterial == 0) {
-      opserr << "EightNodeQuad::EightNodeQuad - failed allocate material model pointer\n";
-      exit(-1);
-    }
-
     for (int i = 0; i < nip; i++) {
 
       // Get copies of the material model for each integration point
@@ -131,9 +112,11 @@ EightNodeQuad::EightNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
 }
 
 EightNodeQuad::EightNodeQuad()
-:Element (0,ELE_TAG_EightNodeQuad),
-  theMaterial(0), connectedExternalNodes(NEN),
- Q(NEN*2), applyLoad(0), pressureLoad(NEN*2), thickness(0.0), pressure(0.0), Ki(0)
+:Element(0,ELE_TAG_EightNodeQuad),
+  theMaterial(nullptr), connectedExternalNodes(NEN),
+  Q(NEN*2), 
+  applyLoad(0), 
+  pressureLoad(NEN*2), thickness(0.0), pressure(0.0), Ki(0)
 {
     for (int i=0; i<NEN; i++)
       theNodes[i] = nullptr;
@@ -168,7 +151,7 @@ EightNodeQuad::getExternalNodes()
 
 
 Node **
-EightNodeQuad::getNodePtrs(void)
+EightNodeQuad::getNodePtrs()
 {
   return theNodes;
 }
@@ -184,58 +167,16 @@ EightNodeQuad::setDomain(Domain *theDomain)
 {
     // Check Domain is not null - invoked when object removed from a domain
     if (theDomain == nullptr) {
-      theNodes[0] = nullptr;
-      theNodes[1] = nullptr;
-      theNodes[2] = nullptr;
-      theNodes[3] = nullptr;
-      theNodes[4] = nullptr;
-      theNodes[5] = nullptr;
-      theNodes[6] = nullptr;
-      theNodes[7] = nullptr;
+      for (int i=0; i<NEN; i++)
+        theNodes[i] = nullptr;
       return;
     }
 
-    int Nd1 = connectedExternalNodes(0);
-    int Nd2 = connectedExternalNodes(1);
-    int Nd3 = connectedExternalNodes(2);
-    int Nd4 = connectedExternalNodes(3);
-    int Nd5 = connectedExternalNodes(4);
-    int Nd6 = connectedExternalNodes(5);
-    int Nd7 = connectedExternalNodes(6);
-    int Nd8 = connectedExternalNodes(7);
+    // node pointers
+    for (int i = 0; i < NEN; i++ ) 
+      theNodes[i] = theDomain->getNode( connectedExternalNodes(i) ) ;
 
-    theNodes[0] = theDomain->getNode(Nd1);
-    theNodes[1] = theDomain->getNode(Nd2);
-    theNodes[2] = theDomain->getNode(Nd3);
-    theNodes[3] = theDomain->getNode(Nd4);
-    theNodes[4] = theDomain->getNode(Nd5);
-    theNodes[5] = theDomain->getNode(Nd6);
-    theNodes[6] = theDomain->getNode(Nd7);
-    theNodes[7] = theDomain->getNode(Nd8);
-
-    if (theNodes[0] == 0 || theNodes[1] == 0 || theNodes[2] == 0 || theNodes[3] == 0 ||
-        theNodes[4] == 0 || theNodes[5] == 0 || theNodes[6] == 0 || theNodes[7] == 0) {
-
-      return;
-    }
-
-    int dofNd1 = theNodes[0]->getNumberDOF();
-    int dofNd2 = theNodes[1]->getNumberDOF();
-    int dofNd3 = theNodes[2]->getNumberDOF();
-    int dofNd4 = theNodes[3]->getNumberDOF();
-    int dofNd5 = theNodes[4]->getNumberDOF();
-    int dofNd6 = theNodes[5]->getNumberDOF();
-    int dofNd7 = theNodes[6]->getNumberDOF();
-    int dofNd8 = theNodes[7]->getNumberDOF();
-
-    if (dofNd1 != 2 || dofNd2 != 2 || dofNd3 != 2 || dofNd4 != 2 ||
-        dofNd5 != 2 || dofNd6 != 2 || dofNd7 != 2 || dofNd8 != 2) {
-    //opserr << "FATAL ERROR EightNodeQuad (tag: %d), has differing number of DOFs at its nodes",
-    //    this->getTag());
-
-    return;
-    }
-    this->DomainComponent::setDomain(theDomain);
+    this->DomainComponent::setDomain(theDomain) ;
 
     // Compute consistent nodal loads due to pressure
     this->setPressureLoadAtNodes();
@@ -244,18 +185,18 @@ EightNodeQuad::setDomain(Domain *theDomain)
 int
 EightNodeQuad::commitState()
 {
-    int retVal = 0;
+    int status = 0;
 
     // call element commitState to do any base class stuff
-    if ((retVal = this->Element::commitState()) != 0) {
+    if ((status = this->Element::commitState()) != 0) {
       opserr << "EightNodeQuad::commitState () - failed in base class";
     }
 
     // Loop over the integration points and commit the material states
     for (int i = 0; i < nip; i++)
-      retVal += theMaterial[i]->commitState();
+      status += theMaterial[i]->commitState();
 
-    return retVal;
+    return status;
 }
 
 int
@@ -286,35 +227,16 @@ EightNodeQuad::revertToStart()
 int
 EightNodeQuad::update()
 {
-    const Vector &disp1 = theNodes[0]->getTrialDisp();
-    const Vector &disp2 = theNodes[1]->getTrialDisp();
-    const Vector &disp3 = theNodes[2]->getTrialDisp();
-    const Vector &disp4 = theNodes[3]->getTrialDisp();
-    const Vector &disp5 = theNodes[4]->getTrialDisp();
-    const Vector &disp6 = theNodes[5]->getTrialDisp();
-    const Vector &disp7 = theNodes[6]->getTrialDisp();
-    const Vector &disp8 = theNodes[7]->getTrialDisp();
+  
+    // Collect displacements at each node into a local array
+    double u[NDM][NEN];
 
-    static double u[2][NEN];
-
-    u[0][0] = disp1(0);
-    u[1][0] = disp1(1);
-    u[0][1] = disp2(0);
-    u[1][1] = disp2(1);
-    u[0][2] = disp3(0);
-    u[1][2] = disp3(1);
-    u[0][3] = disp4(0);
-    u[1][3] = disp4(1);
-    u[0][4] = disp5(0);
-    u[1][4] = disp5(1);
-    u[0][5] = disp6(0);
-    u[1][5] = disp6(1);
-    u[0][6] = disp7(0);
-    u[1][6] = disp7(1);
-    u[0][7] = disp8(0);
-    u[1][7] = disp8(1);
-
-    static Vector eps(3);
+    for (int i=0; i<NEN; i++) {
+        const Vector &displ = theNodes[i]->getTrialDisp();
+        for (int j=0; j<NDM; j++) {
+           u[j][i] = displ[j];
+        }
+    }
 
     int ret = 0;
 
@@ -327,7 +249,8 @@ EightNodeQuad::update()
         // Interpolate strains
         //eps = B*u;
         //eps.addMatrixVector(0.0, B, u, 1.0);
-        eps.Zero();
+        VectorND<3> eps;
+        eps.zero();
         for (int beta = 0; beta < NEN; beta++) {
             eps(0) += shp[0][beta]*u[0][beta];
             eps(1) += shp[1][beta]*u[1][beta];
@@ -348,14 +271,13 @@ EightNodeQuad::getTangentStiff()
 
     K.Zero();
 
-    double dvol;
     double DB[3][2];
 
     // Loop over the integration points
     for (int i = 0; i < nip; i++) {
 
       // Determine Jacobian for this integration point
-      dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+      double dvol = this->shapeFunction(pts[i][0], pts[i][1]);
       dvol *= (thickness*wts[i]);
 
       // Get the material tangent
@@ -463,19 +385,17 @@ EightNodeQuad::getMass()
     if (sum == 0.0)
       return K;
 
-    double rhodvol, Nrho;
-
     // Compute a lumped mass matrix
     for (i = 0; i < nip; i++) {
 
         // Determine Jacobian for this integration point
-        rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
+        double rhodvol = this->shapeFunction(pts[i][0], pts[i][1]);
 
         // Element plus material density ... MAY WANT TO REMOVE ELEMENT DENSITY
         rhodvol *= (rhoi[i]*thickness*wts[i]);
 
         for (int alpha = 0, ia = 0; alpha < NEN; alpha++, ia++) {
-            Nrho = shp[2][alpha]*rhodvol;
+            double Nrho = shp[2][alpha]*rhodvol;
             K(ia,ia) += Nrho;
             ia++;
             K(ia,ia) += Nrho;
@@ -486,16 +406,16 @@ EightNodeQuad::getMass()
 }
 
 void
-EightNodeQuad::zeroLoad(void)
+EightNodeQuad::zeroLoad()
 {
-    Q.Zero();
+  Q.Zero();
 
-    applyLoad = 0;
+  applyLoad = 0;
 
-    appliedB[0] = 0.0;
-    appliedB[1] = 0.0;
+  appliedB[0] = 0.0;
+  appliedB[1] = 0.0;
 
-      return;
+  return;
 }
 
 int
@@ -878,7 +798,7 @@ EightNodeQuad::Print(OPS_Stream &s, int flag)
       s << "\"surfacePressure\": " << pressure << ", ";
       s << "\"masspervolume\": " << rho << ", ";
       s << "\"bodyForces\": [" << b[0] << ", " << b[1] << "], ";
-      s << "\"material\": \"" << theMaterial[0]->getTag() << "\"}";
+      s << "\"materials\": [" << theMaterial[0]->getTag() << "]}";
   }
 
   if (flag == 2) {
@@ -935,69 +855,6 @@ EightNodeQuad::Print(OPS_Stream &s, int flag)
 
 }
 
-int
-EightNodeQuad::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    static Vector v5(3);
-    static Vector v6(3);
-    static Vector v7(3);
-    static Vector v8(3);
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-    theNodes[2]->getDisplayCrds(v3, fact, displayMode);
-    theNodes[3]->getDisplayCrds(v4, fact, displayMode);
-    theNodes[4]->getDisplayCrds(v5, fact, displayMode);
-    theNodes[5]->getDisplayCrds(v6, fact, displayMode);
-    theNodes[6]->getDisplayCrds(v7, fact, displayMode);
-    theNodes[7]->getDisplayCrds(v8, fact, displayMode);
-
-    // place values in coords matrix
-    static Matrix coords(8, 3);
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v5(i);
-        coords(2, i) = v2(i);
-        coords(3, i) = v6(i);
-        coords(4, i) = v3(i);
-        coords(5, i) = v7(i);
-        coords(6, i) = v4(i);
-        coords(7, i) = v8(i);
-    }
-
-    // first set the quantity to be displayed at the nodes;
-    // if displayMode is 1 through 3 we will plot material stresses otherwise 0.0
-    static Vector values(nip);
-    if (displayMode < nip && displayMode > 0) {
-        const Vector& stress1 = theMaterial[0]->getStress();
-        const Vector& stress2 = theMaterial[1]->getStress();
-        const Vector& stress3 = theMaterial[2]->getStress();
-        const Vector& stress4 = theMaterial[3]->getStress();
-        const Vector& stress5 = theMaterial[4]->getStress();
-        const Vector& stress6 = theMaterial[5]->getStress();
-        const Vector& stress7 = theMaterial[6]->getStress();
-        const Vector& stress8 = theMaterial[7]->getStress();
-        values(0) = stress1(displayMode - 1);
-        values(1) = stress5(displayMode - 1);
-        values(2) = stress2(displayMode - 1);
-        values(3) = stress6(displayMode - 1);
-        values(4) = stress3(displayMode - 1);
-        values(5) = stress7(displayMode - 1);
-        values(6) = stress4(displayMode - 1);
-        values(7) = stress8(displayMode - 1);
-    }
-    else {
-        for (int i = 0; i < nip; i++)
-            values(i) = 0.0;
-    }
-
-    // draw the polygon
-    return theViewer.drawPolygon(coords, values, this->getTag());
-}
 
 Response*
 EightNodeQuad::setResponse(const char **argv, int argc,

@@ -12,9 +12,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <Domain.h>
+#include <set>
 
 #include <tcl.h>
+#include <Logging.h>
+#include <Parsing.h>
+#include <Domain.h>
+#include <ArgumentTracker.h>
+#include <PlaneSection.h>
 #include <FourNodeQuad.h>
 #include <FourNodeQuad3d.h>
 #include <FourNodeQuadWithSensitivity.h>
@@ -37,7 +42,11 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
 {
   assert(clientData != nullptr);
   BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
+  //         0         1         2       3      4      5      6     7        8      9        10      11  12  13
+  //  10  element FourNodeQuad eleTag? iNode? jNode? kNode? lNode? thk?    type?  matTag?
+  //  14  element FourNodeQuad eleTag? iNode? jNode? kNode? lNode? thk?    type?  matTag? <pressure? rho? b1? b2?>
+  //
+  //      element FourNodeQuad eleTag? iNode? jNode? kNode? lNode? sec? <pressure? rho?      b1?     b2?>
 
   if (builder->getNDM() != 2 || (builder->getNDF() != 2 && builder->getNDF() != 3)) {
     opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
@@ -45,88 +54,162 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
-  // check the number of arguments is correct
-  int argStart = 2;
-
-  if ((argc - argStart) < 8) {
+  // get the tag and end nodes
+  int FourNodeQuadId;
+  std::array<int,4> nodes;
+  if (argc < 8) {
     opserr << "WARNING insufficient arguments\n";
-    opserr << "Want: element FourNodeQuad eleTag? iNode? jNode? kNode? lNode? "
-              "thk? type? matTag? <pressure? rho? b1? b2?>\n";
+    return TCL_ERROR;
+  }
+  if (Tcl_GetInt(interp, argv[2], &FourNodeQuadId) != TCL_OK) {
+    opserr << "WARNING invalid element tag" << "\n";
     return TCL_ERROR;
   }
 
-  // get the id and end nodes
-  int FourNodeQuadId;
-  std::array<int,4> nodes;
-  int matID;
+  for (int i=0; i<4; i++)
+    if (Tcl_GetInt(interp, argv[3 + i], &nodes[i]) != TCL_OK) {
+      opserr << "WARNING invalid node tag\n";
+      return TCL_ERROR;
+    }
+
+
+  int argStart = 2;
+  int mat_tag;
+  NDMaterial *nd_mat = nullptr;
   double thickness = 1.0;
   double p = 0.0;   // uniform normal traction (pressure)
   double rho = 0.0; // mass density
   double b1 = 0.0;
   double b2 = 0.0;
+  TCL_Char *type = nullptr;
+  if (argc != 10 && argc != 14) {
+    enum class Position : int {
+      // Tag, // N1, N2, N3, N4, 
+      Thickness, Type, Material, End
+    };
+    ArgumentTracker<Position> tracker;
+    std::set<int> positional;
 
-  if (Tcl_GetInt(interp, argv[argStart], &FourNodeQuadId) != TCL_OK) {
-    opserr << "WARNING invalid FourNodeQuad eleTag" << "\n";
-    return TCL_ERROR;
+    //
+    // Keywords
+    //
+    for (int i=5; i<argc; i++) {
+      if (strcmp(argv[i], "-section") == 0) {
+        i++;
+        if (i== argc) {
+          opserr << "WARNING -section requires argument\n";
+          return TCL_ERROR;
+        }
+
+        int stag;
+        if (Tcl_GetInt(interp, argv[i], &stag) != TCL_OK) {
+          opserr << "WARNING failed to read section tag\n";
+          return TCL_ERROR;
+        }
+        PlaneSection<NDMaterial>* section = builder->getTypedObject<PlaneSection<NDMaterial>>(stag);
+        if (section == nullptr)
+          return TCL_ERROR;
+
+        thickness = section->getThickness();
+        nd_mat = section->getMaterial();
+        mat_tag = nd_mat->getTag();
+        tracker.consume(Position::Material);
+        tracker.consume(Position::Type);
+        tracker.consume(Position::Thickness);
+      }
+      else
+        continue;
+//      positional.insert(i);
+    }
+
+    //
+    // Positional arguments
+    //
+    for (int i : positional) {
+      switch (tracker.current()) {
+        case Position::Material :
+        case Position::Thickness :
+        case Position::Type :
+          continue;
+
+        case Position::End:
+          opserr << OpenSees::PromptParseError << "unexpected argument " << argv[i] << ".\n";
+          return TCL_ERROR;
+      }
+    }
   }
 
-  for (int i=0; i<4; i++)
-    if (Tcl_GetInt(interp, argv[1 + argStart + i], &nodes[i]) != TCL_OK) {
-      opserr << "WARNING invalid iNode\n";
+  // Original positional parse
+  else {
+    if (Tcl_GetDouble(interp, argv[5 + argStart], &thickness) != TCL_OK) {
+      opserr << "WARNING invalid thickness\n";
       return TCL_ERROR;
     }
 
-  if (Tcl_GetDouble(interp, argv[5 + argStart], &thickness) != TCL_OK) {
-    opserr << "WARNING invalid thickness\n";
-    return TCL_ERROR;
-  }
+    type = argv[6 + argStart];
 
-  TCL_Char *type = argv[6 + argStart];
+    if (Tcl_GetInt(interp, argv[7 + argStart], &mat_tag) != TCL_OK) {
+      opserr << "WARNING invalid material tag " << argv[7 + argStart] << "\n";
+      return TCL_ERROR;
+    } else {
+      nd_mat = builder->getTypedObject<NDMaterial>(mat_tag);
+      if (nd_mat == nullptr)
+        return TCL_ERROR;
 
-  if (Tcl_GetInt(interp, argv[7 + argStart], &matID) != TCL_OK) {
-    opserr << "WARNING invalid matID\n";
-    return TCL_ERROR;
-  }
+      nd_mat = nd_mat->getCopy(type);
+      if (nd_mat == nullptr) {
+        opserr << "WARNING invalid material\n";
+        return TCL_ERROR;
+      }
+    }
 
-  if ((argc - argStart) > 11) {
-    if (Tcl_GetDouble(interp, argv[8 + argStart], &p) != TCL_OK) {
-      opserr << "WARNING invalid pressure\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[9 + argStart], &rho) != TCL_OK) {
-      opserr << "WARNING invalid rho\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[10 + argStart], &b1) != TCL_OK) {
-      opserr << "WARNING invalid b1\n";
-      return TCL_ERROR;
-    }
-    if (Tcl_GetDouble(interp, argv[11 + argStart], &b2) != TCL_OK) {
-      opserr << "WARNING invalid b2\n";
-      return TCL_ERROR;
+    if ((argc - argStart) > 11) {
+      if (Tcl_GetDouble(interp, argv[8 + argStart], &p) != TCL_OK) {
+        opserr << "WARNING invalid pressure\n";
+        return TCL_ERROR;
+      }
+      if (Tcl_GetDouble(interp, argv[9 + argStart], &rho) != TCL_OK) {
+        opserr << "WARNING invalid rho\n";
+        return TCL_ERROR;
+      }
+      if (Tcl_GetDouble(interp, argv[10 + argStart], &b1) != TCL_OK) {
+        opserr << "WARNING invalid b1\n";
+        return TCL_ERROR;
+      }
+      if (Tcl_GetDouble(interp, argv[11 + argStart], &b2) != TCL_OK) {
+        opserr << "WARNING invalid b2\n";
+        return TCL_ERROR;
+      }
     }
   }
 
   Element* theElement = nullptr;
 
   if (strcmp(argv[1], "LagrangeQuad") == 0) {
-    Mate<2> *theMaterial = builder->getTypedObject<Mate<2>>(matID);
-    if (theMaterial == nullptr)
+    Mate<2> *mat_2d = builder->getTypedObject<Mate<2>>(mat_tag);
+    if (mat_2d == nullptr)
       return TCL_ERROR;
 
     theElement =
-        new LagrangeQuad<4>(FourNodeQuadId, nodes, *theMaterial,
+        new LagrangeQuad<4>(FourNodeQuadId, nodes, *mat_2d,
                             thickness, p, rho, b1, b2);
 
   } else {
-    NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
-    if (theMaterial == nullptr)
+    if (nd_mat == nullptr) {
+      opserr << "WARNING invalid material\n";
       return TCL_ERROR;
+    }
+    if (strcmp(argv[1], "EnhancedQuad") == 0) {
 
-    theElement =
-        new FourNodeQuad(FourNodeQuadId, 
-                         nodes[0], nodes[1], nodes[2], nodes[3], 
-                         *theMaterial, type, thickness, p, rho, b1, b2);
+      theElement =
+          new EnhancedQuad(FourNodeQuadId, nodes, *nd_mat, thickness);
+    }
+    else 
+      theElement =
+          new FourNodeQuad(FourNodeQuadId, 
+                          nodes, *nd_mat, thickness, 
+                          p, rho, b1, b2);
+
   }
 
   if (builder->getDomain()->addElement(theElement) == false) {
@@ -135,6 +218,8 @@ TclBasicBuilder_addFourNodeQuad(ClientData clientData, Tcl_Interp *interp, int a
     return TCL_ERROR;
   }
 
+  if (type != nullptr)
+    delete nd_mat;
   return TCL_OK;
 }
 
@@ -153,9 +238,9 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
     return TCL_ERROR;
   }
 
-  // check the number of arguments is correct
   int argStart = 2;
 
+  // check the number of arguments is correct
   if ((argc - argStart) < 7) {
     opserr << "WARNING insufficient arguments\n";
     opserr << "Want: element ConstantPressureVolumeQuad eleTag? iNode? jNode? "
@@ -237,101 +322,9 @@ TclBasicBuilder_addConstantPressureVolumeQuad(ClientData clientData,
     return TCL_ERROR;
   }
 
-  // if get here we have successfully created the element and added it to the
-  // domain
   return TCL_OK;
 }
 
-int
-TclBasicBuilder_addEnhancedQuad(ClientData clientData, Tcl_Interp *interp, int argc,
-                                TCL_Char ** const argv)
-{
-  assert(clientData != nullptr);
-  BasicModelBuilder *builder = (BasicModelBuilder*)clientData;
-
-  if (builder->getNDM() != 2 || builder->getNDF() != 2) {
-    opserr << "WARNING -- model dimensions and/or nodal DOF not compatible "
-              "with quad element\n";
-    return TCL_ERROR;
-  }
-
-  // check the number of arguments is correct
-  int argStart = 2;
-
-  if ((argc - argStart) < 8) {
-    opserr << "WARNING insufficient arguments\n";
-    opserr << "Want: element EnhancedQuad eleTag? iNode? jNode? kNode? lNode? "
-              "thk? type? matTag? \n";
-    return TCL_ERROR;
-  }
-
-  // get the id and end nodes
-  int EnhancedQuadId, iNode, jNode, kNode, lNode, matID;
-  double thickness = 1.0;
-
-  if (Tcl_GetInt(interp, argv[argStart], &EnhancedQuadId) != TCL_OK) {
-    opserr << "WARNING invalid EnhancedQuad eleTag" << "\n";
-    return TCL_ERROR;
-  }
-  if (Tcl_GetInt(interp, argv[1 + argStart], &iNode) != TCL_OK) {
-    opserr << "WARNING invalid iNode\n";
-    opserr << "EnhancedQuad element: " << EnhancedQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[2 + argStart], &jNode) != TCL_OK) {
-    opserr << "WARNING invalid jNode\n";
-    opserr << "EnhancedQuad element: " << EnhancedQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[3 + argStart], &kNode) != TCL_OK) {
-    opserr << "WARNING invalid kNode\n";
-    opserr << "EnhancedQuad element: " << EnhancedQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetInt(interp, argv[4 + argStart], &lNode) != TCL_OK) {
-    opserr << "WARNING invalid lNode\n";
-    opserr << "EnhancedQuad element: " << EnhancedQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  if (Tcl_GetDouble(interp, argv[5 + argStart], &thickness) != TCL_OK) {
-    opserr << "WARNING invalid thickness\n";
-    opserr << "EnhancedQuad element: " << EnhancedQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  TCL_Char *type = argv[6 + argStart];
-
-  if (Tcl_GetInt(interp, argv[7 + argStart], &matID) != TCL_OK) {
-    opserr << "WARNING invalid matID\n";
-    opserr << "EnhancedQuad element: " << EnhancedQuadId << "\n";
-    return TCL_ERROR;
-  }
-
-  NDMaterial *theMaterial = builder->getTypedObject<NDMaterial>(matID);
-  if (theMaterial == nullptr)
-    return TCL_ERROR;
-
-
-  // now create the EnhancedQuad and add it to the Domain
-  EnhancedQuad *theEnhancedQuad =
-      new EnhancedQuad(EnhancedQuadId, iNode, jNode, kNode, lNode, *theMaterial,
-                       type, thickness);
-
-  if (builder->getDomain()->addElement(theEnhancedQuad) == false) {
-    opserr << "WARNING could not add element to the domain\n";
-    opserr << "EnhancedQuad element: " << EnhancedQuadId << "\n";
-    delete theEnhancedQuad;
-    return TCL_ERROR;
-  }
-
-  // if get here we have successfully created the element and added it to the
-  // domain
-  return TCL_OK;
-}
 
 /*  *****************************************************************************
 

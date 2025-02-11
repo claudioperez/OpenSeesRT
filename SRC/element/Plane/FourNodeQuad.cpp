@@ -1,25 +1,9 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Description: This file contains the class definition for FourNodeQuad.
-// See https://portwooddigital.com/2022/09/11/unrolling-the-four-node-quad/
 //
 // Written: MHS
 // Created: Feb 2000
@@ -48,15 +32,18 @@ Matrix FourNodeQuad::K(matrixData, 8, 8);
 Vector FourNodeQuad::P(8);
 double FourNodeQuad::shp[3][4];
 
-FourNodeQuad::FourNodeQuad(int tag, std::array<int,4>& nodes,
+FourNodeQuad::FourNodeQuad(int tag, 
+                           std::array<int,4>& nodes,
                            NDMaterial &m, double thickness,
-                           double pressure, double r, 
+                           double pressure, double rho, 
                            double b1, double b2)
  : Element(tag, ELE_TAG_FourNodeQuad), 
    connectedExternalNodes(4), 
    Q(8), pressureLoad(8), thickness(thickness), 
    applyLoad(0),
-   pressure(pressure), rho(r), Ki(0)
+   pressure(pressure), 
+   rho(rho), 
+   Ki(nullptr)
 {
     // Body forces
     b[0] = b1;
@@ -81,51 +68,12 @@ FourNodeQuad::FourNodeQuad(int tag, std::array<int,4>& nodes,
 
 }
 
-FourNodeQuad::FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
-                           NDMaterial &m, const char *type, double t,
-                           double p, double r, double b1, double b2)
- : Element (tag, ELE_TAG_FourNodeQuad), 
-   connectedExternalNodes(4), 
-   Q(8), pressureLoad(8), thickness(t), applyLoad(0), pressure(p), rho(r), Ki(0)
-{
-
-    if (strcmp(type,"PlaneStrain") != 0 && strcmp(type,"PlaneStress") != 0
-        && strcmp(type,"PlaneStrain2D") != 0 && strcmp(type,"PlaneStress2D") != 0) {
-      opserr << "FourNodeQuad::FourNodeQuad -- improper material type: " << type << "for FourNodeQuad\n";
-      exit(-1);
-    }
-
-    // Body forces
-    b[0] = b1;
-    b[1] = b2;
-
-    for (int i = 0; i < NIP; i++) {
-
-      // Get copies of the material model for each integration point
-      theMaterial[i] = m.getCopy(type);
-                        
-      // Check allocation
-      if (theMaterial[i] == nullptr) {
-        opserr << "FourNodeQuad::FourNodeQuad -- failed to get a copy of material model\n";
-        return;
-      }
-    }
-
-    // Set connected external node IDs
-    connectedExternalNodes(0) = nd1;
-    connectedExternalNodes(1) = nd2;
-    connectedExternalNodes(2) = nd3;
-    connectedExternalNodes(3) = nd4;
-    
-    for (int i=0; i<NEN; i++)
-      theNodes[i] = nullptr;
-
-}
 
 FourNodeQuad::FourNodeQuad()
  : Element (0,ELE_TAG_FourNodeQuad),
    connectedExternalNodes(4), 
-   Q(8), pressureLoad(8), thickness(0.0), applyLoad(0), pressure(0.0), Ki(0)
+   Q(8), pressureLoad(8), 
+   thickness(0.0), applyLoad(0), pressure(0.0), Ki(0)
 {
   for (int i=0; i<NEN; i++)
     theNodes[i] = nullptr;
@@ -272,28 +220,24 @@ FourNodeQuad::update()
           eps[2] += shp[0][beta]*u[1][beta] + shp[1][beta]*u[0][beta];
       }
 
-      // Set the material strain
       ret += theMaterial[i]->setTrialStrain(eps);
     }
 
     return ret;
 }
 
-
 const Matrix&
 FourNodeQuad::getTangentStiff()
 {
-
+    // See https://portwooddigital.com/2022/09/11/unrolling-the-four-node-quad/
+    // for a discussion of the following code.
     K.Zero();
-
-    double dvol;
-    double DB[3][2];
 
     // Loop over the integration points
     for (int i = 0; i < nip; i++) {
 
       // Determine Jacobian for this integration point
-      dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+      double dvol = this->shapeFunction(pts[i][0], pts[i][1]);
       dvol *= (thickness*wts[i]);
       
       // Get the material tangent
@@ -310,7 +254,8 @@ FourNodeQuad::getTangentStiff()
       //          for (int beta = 0, ib = 0, colIb =0, colIbP1 = 8; 
       //   beta < 4; 
       //   beta++, ib += 2, colIb += 16, colIbP1 += 16) {
-        
+
+      double DB[3][2];
       for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 2) {
         for (int beta = 0, ib = 0; beta < 4; beta++, ib += 2) {
           
@@ -335,6 +280,55 @@ FourNodeQuad::getTangentStiff()
     }
     
     return K;
+}
+
+int
+FourNodeQuad::stateDetermination(Matrix* Kptr, Vector* pptr, int flag)
+{
+    int status = 0;
+    if (Kptr != nullptr) {
+      Matrix& K = *Kptr;
+      K.Zero();
+
+      // Loop over the integration points
+      for (int i = 0; i < nip; i++) {
+
+        // Determine Jacobian for this integration point
+        double dvol = this->shapeFunction(pts[i][0], pts[i][1]);
+        dvol *= thickness*wts[i];
+        
+        // Get the material tangent
+        const Matrix &D = theMaterial[i]->getTangent();
+
+        // Perform numerical integration
+        //K = K + (B^ D * B) * intWt(i)*intWt(j) * detJ;
+        
+        const double D00 = D(0,0),  D01 = D(0,1),  D02 = D(0,2),
+                    D10 = D(1,0),  D11 = D(1,1),  D12 = D(1,2),
+                    D20 = D(2,0),  D21 = D(2,1),  D22 = D(2,2);
+
+        double DB[3][2];
+        for (int alpha = 0, ia = 0; alpha < 4; alpha++, ia += 2) {
+          for (int beta = 0, ib = 0; beta < 4; beta++, ib += 2) {
+            
+            DB[0][0] = dvol * (D00 * shp[0][beta] + D02 * shp[1][beta]);
+            DB[1][0] = dvol * (D10 * shp[0][beta] + D12 * shp[1][beta]);
+            DB[2][0] = dvol * (D20 * shp[0][beta] + D22 * shp[1][beta]);
+            DB[0][1] = dvol * (D01 * shp[1][beta] + D02 * shp[0][beta]);
+            DB[1][1] = dvol * (D11 * shp[1][beta] + D12 * shp[0][beta]);
+            DB[2][1] = dvol * (D21 * shp[1][beta] + D22 * shp[0][beta]);
+            
+
+            K(ia,ib)     += shp[0][alpha]*DB[0][0] + shp[1][alpha]*DB[2][0];
+            K(ia,ib+1)   += shp[0][alpha]*DB[0][1] + shp[1][alpha]*DB[2][1];
+            K(ia+1,ib)   += shp[1][alpha]*DB[1][0] + shp[0][alpha]*DB[2][0];
+            K(ia+1,ib+1) += shp[1][alpha]*DB[1][1] + shp[0][alpha]*DB[2][1];       
+          }
+        }
+      }
+      
+    }
+    return status;
 }
 
 
@@ -799,7 +793,7 @@ FourNodeQuad::Print(OPS_Stream &s, int flag)
       s << "\"material\": [";
       for (int i = 0; i < nip - 1; i++)
         s << theMaterial[i]->getTag() << ", ";
-      s << theMaterial[nip - 1]->getTag() << "] ";
+      s << theMaterial[nip - 1]->getTag() << "]";
 
       s << "}";
       return;

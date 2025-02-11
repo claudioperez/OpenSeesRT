@@ -1,31 +1,13 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
 //
 // Ed "C++" Love
 //
 // Constant Presssure/Volume Four Node Quadrilateral
 // Plane Strain (NOT PLANE STRESS)
-
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <math.h> 
+//
 
 #include <ID.h> 
 #include <Vector.h>
@@ -49,12 +31,12 @@ class ConstantPressureVolumeQuad : public Element
                     double t) ;
     virtual ~ConstantPressureVolumeQuad( ) ;
 
-    const char *getClassType(void) const {return "ConstantPressureVolumeQuad";};
+    const char *getClassType(void) const {return "ConstantPressureVolumeQuad";}
     static constexpr const char* class_name = "ConstantPressureVolumeQuad";
 
     int getNumExternalNodes( ) const ;
     const ID &getExternalNodes( ) ;
-    Node **getNodePtrs(void);
+    Node **getNodePtrs();   
 
     int getNumDOF( ) ;
     void setDomain( Domain *theDomain ) ;
@@ -63,7 +45,7 @@ class ConstantPressureVolumeQuad : public Element
     int commitState( ) ;
     int revertToLastCommit( ) ;
     int revertToStart( ) ;
-    int update(void);
+    int update();   
 
     // public methods to obtain stiffness, mass, damping and residual information    
     const Matrix &getTangentStiff();
@@ -75,18 +57,16 @@ class ConstantPressureVolumeQuad : public Element
     int addLoad(ElementalLoad *theLoad, double loadFactor);
     int addInertiaLoadToUnbalance(const Vector &accel);
 
-    const Vector &getResistingForce( ) ;
-    const Vector &getResistingForceIncInertia( ) ;
+    const Vector &getResistingForce();
+    const Vector &getResistingForceIncInertia();
 
     // public methods for element output
     Response *setResponse(const char **argv, int argc, 
 			  OPS_Stream &s);
 
     int getResponse(int responseID, Information &eleInformation);
-    int sendSelf (int commitTag, Channel &theChannel);
-    int recvSelf (int commitTag, Channel &theChannel, FEM_ObjectBroker 
-		  &theBroker);
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
+    int sendSelf (int tag, Channel &);
+    int recvSelf (int tag, Channel &, FEM_ObjectBroker &);
 
     void Print( OPS_Stream &s, int flag ) ;
 
@@ -114,10 +94,9 @@ class ConstantPressureVolumeQuad : public Element
     static double wg[4] ;
     
     //node information
-    ID connectedExternalNodes ;  //four node numbers
-    Node *nodePointers[4] ;      //pointers to four nodes
-    
-    //element thickness
+    ID connectedExternalNodes ;  // node numbers
+    Node *nodePointers[4] ;      // pointers to nodes
+
     double thickness;
     
     //material information
@@ -125,8 +104,7 @@ class ConstantPressureVolumeQuad : public Element
 					  
     //nodal coordinates, two coordinates for each of four nodes
     double xl[2][4] ; 
-    
-    //form residual and tangent					  
+				  
     void formResidAndTangent( int tang_flag ) ;
 
     //inertia terms
@@ -137,7 +115,7 @@ class ConstantPressureVolumeQuad : public Element
 		  const double x[2][4], 
 		  double shp[3][4], 
 		  double &xsj, 
-		  Matrix &sx ) ;
+		  Matrix &sx);
 
     Vector *load;
 } ; 

@@ -1,32 +1,18 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
-                                                                        
-// $Revision: 1.19 $
-// $Date: 2007-02-02 01:35:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/ConstantPressureVolumeQuad.cpp,v $
-
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
+//
 // Ed "C++" Love
 //
 // Constant Presssure/Volume Four Node Quadrilateral
 // Plane Strain (NOT PLANE STRESS)
-
+// 
+// Q1/P0 Mixed three-field formulation (Bbar implementation)
+// Equivalent to the mean dilation formulation.
+//
 #include <string.h>
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -41,7 +27,6 @@
 #include <Domain.h>
 #include <ErrorHandler.h>
 #include <ConstantPressureVolumeQuad.h>
-#include <Renderer.h>
 #include <ElementResponse.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -51,22 +36,22 @@
 void * OPS_ADD_RUNTIME_VPV(OPS_ConstantPressureVolumeQuad)
 {
     if (OPS_GetNDM() != 2 || OPS_GetNDF() != 2) {
-	opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with quad element\n";
-	return 0;
+        opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with quad element\n";
+        return 0;
     }
     
     if (OPS_GetNumRemainingInputArgs() < 7) {
-	opserr << "WARNING insufficient arguments\n";
-	opserr << "Want: element ConstantPressureVolumeQuad eleTag? iNode? jNode? kNode? lNode? thk? matTag?\n";
-	return 0;
+        opserr << "WARNING insufficient arguments\n";
+        opserr << "Want: element ConstantPressureVolumeQuad eleTag? iNode? jNode? kNode? lNode? thk? matTag?\n";
+        return 0;
     }
 
     // ConstantPressureVolumeQuadId, iNode, jNode, kNode, lNode
     int idata[5];
     int num = 5;
     if (OPS_GetIntInput(&num,idata) < 0) {
-	opserr<<"WARNING: invalid integer input\n";
-	return 0;
+        opserr<<"WARNING: invalid integer input\n";
+        return 0;
     }
 
     double thk = 1.0;
@@ -85,10 +70,10 @@ void * OPS_ADD_RUNTIME_VPV(OPS_ConstantPressureVolumeQuad)
     
     NDMaterial* mat = OPS_getNDMaterial(matTag);
     if (mat == 0) {
-	opserr << "WARNING material not found\n";
-	opserr << "Material: " << matTag;
-	opserr << "\nConstantPressureVolumeQuad element: " << idata[0] << endln;
-	return 0;
+        opserr << "WARNING material not found\n";
+        opserr << "Material: " << matTag;
+        opserr << "\nConstantPressureVolumeQuad element: " << idata[0] << endln;
+        return 0;
     }
 
     return new ConstantPressureVolumeQuad(idata[0],idata[1],idata[2],idata[3],idata[4],
@@ -103,7 +88,7 @@ Vector ConstantPressureVolumeQuad :: resid(8)     ;
 Matrix ConstantPressureVolumeQuad :: mass(8,8)    ;
 Matrix ConstantPressureVolumeQuad :: damping(8,8) ;
  
-//volume-pressure constants
+// volume-pressure constants
 double ConstantPressureVolumeQuad :: one3  = 1.0 / 3.0 ;
 double ConstantPressureVolumeQuad :: two3  = 2.0 / 3.0 ;
 double ConstantPressureVolumeQuad :: four3 = 4.0 / 3.0 ;
@@ -114,9 +99,9 @@ double ConstantPressureVolumeQuad :: root3 = sqrt(3.0) ;
 double ConstantPressureVolumeQuad :: one_over_root3 = 1.0 / root3 ;
 
 double ConstantPressureVolumeQuad :: sg[] = { -one_over_root3,  
-					       one_over_root3, 
-					       one_over_root3, 
-					      -one_over_root3 } ;
+                                               one_over_root3, 
+                                               one_over_root3, 
+                                              -one_over_root3 } ;
 
 double ConstantPressureVolumeQuad :: tg[] = { -one_over_root3, 
                                               -one_over_root3, 
@@ -142,34 +127,30 @@ ConstantPressureVolumeQuad::ConstantPressureVolumeQuad(int tag,
                                                        int node3,
                                                        int node4,
                                                        NDMaterial &theMaterial,
-                                                       double t) :
+                                                       double thickness) :
 Element( tag, ELE_TAG_ConstantPressureVolumeQuad ),
-connectedExternalNodes(4), thickness(t), load(0)
+connectedExternalNodes(4), thickness(thickness), load(0)
 {
   connectedExternalNodes(0) = node1 ;
   connectedExternalNodes(1) = node2 ;
   connectedExternalNodes(2) = node3 ;
   connectedExternalNodes(3) = node4 ;
 
-  int i ;
-  for ( i = 0 ;  i < 4; i++ ) {
+  for (int i = 0 ;  i < 4; i++ ) {
 
       materialPointers[i] = theMaterial.getCopy("AxiSymmetric2D") ;
 
       if (materialPointers[i] == 0) {
-	opserr << "ConstantPressureVolumeQuad::constructor - failed to get a material of type: AxiSymmetric2D\n";
-	exit(-1);
-      } //end if
-      
-  } //end for i 
-
+        opserr << "ConstantPressureVolumeQuad::constructor - failed to get a material of type: AxiSymmetric2D\n";
+        exit(-1);
+      }   
+  }
 }
 
 //destructor 
 ConstantPressureVolumeQuad :: ~ConstantPressureVolumeQuad( )
 {
-  int i ;
-  for ( i = 0 ;  i < 4; i++ ) {
+  for (int i = 0 ;  i < 4; i++ ) {
 
     delete materialPointers[i] ;
     materialPointers[i] = 0 ; 
@@ -181,19 +162,18 @@ ConstantPressureVolumeQuad :: ~ConstantPressureVolumeQuad( )
     delete load;
 }
 
-//set domain
+
 void ConstantPressureVolumeQuad :: setDomain( Domain *theDomain ) 
-{  
-  int i ;
-  for ( i = 0;  i < 4; i++ ) {
+{
+  for (int i = 0;  i < 4; i++ ) {
 
      nodePointers[i] = theDomain->getNode( connectedExternalNodes(i)  ) ;
 
      if ( nodePointers[i] != 0 ) {
-	 const Vector &coor = nodePointers[i]->getCrds( ) ;
+         const Vector &coor = nodePointers[i]->getCrds( ) ;
 
-	 xl[0][i] = coor(0) ;
-	 xl[1][i] = coor(1) ; 
+         xl[0][i] = coor(0) ;
+         xl[1][i] = coor(1) ; 
      } // end if 
 
   } //end for i 
@@ -214,7 +194,7 @@ const ID& ConstantPressureVolumeQuad :: getExternalNodes( )
 } 
 
 Node **
-ConstantPressureVolumeQuad::getNodePtrs(void) 
+ConstantPressureVolumeQuad::getNodePtrs() 
 {
   return nodePointers;
 } 
@@ -244,10 +224,9 @@ int ConstantPressureVolumeQuad :: commitState( )
 //revert to last commit 
 int ConstantPressureVolumeQuad :: revertToLastCommit( ) 
 {
-  int i ;
   int success = 0 ;
 
-  for ( i = 0; i < 4; i++ ) 
+  for (int i = 0; i < 4; i++ ) 
     success += materialPointers[i]->revertToLastCommit( ) ;
   
   return success ;
@@ -279,22 +258,15 @@ ConstantPressureVolumeQuad :: update( )
   //  same ordering for stresses but no 2 
 
   int i,  k, l;
-  int node ;
   int success = 0;
   
   static double tmp_shp[3][4] ; //shape functions
 
   static double shp[3][4][4] ; //shape functions at each gauss point
 
-  static double vol_avg_shp[3][4] ; // volume averaged shape functions
-
   double xsj ;  // determinant jacaobian matrix 
 
   static Matrix sx(2,2) ; // inverse jacobian matrix 
-
-  double dvol[4] ; //volume elements
-
-  double volume = 0.0 ; //volume of element
 
   double theta = 0.0 ; //average volume change (trace of strain) 
 
@@ -311,53 +283,54 @@ ConstantPressureVolumeQuad :: update( )
   one(3) = 0.0 ;
 
 
-  //zero stuff
-  volume = 0.0 ;
+  // zero stuff
 
-  for ( k = 0; k < 3; k++ ){
-    for ( l = 0; l < 4; l++ ) 
+  static double vol_avg_shp[3][4] ; // volume averaged shape functions
+
+  for (int k = 0; k < 3; k++ ){
+    for (int l = 0; l < 4; l++ ) 
         vol_avg_shp[k][l] = 0.0 ; 
-  } //end for k
+  }
 
 
-  //gauss loop to compute volume averaged shape functions
+  // gauss loop to compute volume averaged shape functions
 
-  for ( i = 0; i < 4; i++ ){
+  double volume = 0.0 ;
+  double dvol[4] ; // volume elements
+
+  for (int i = 0; i < 4; i++ ){
     
     shape2d( sg[i], tg[i], xl, tmp_shp, xsj, sx ) ;
 
-    dvol[i] = wg[i] * xsj * thickness;  // multiply by radius for axisymmetry 
+    // multiply by radius for axisymmetry 
+    dvol[i] = wg[i] * xsj * thickness;
 
     volume += dvol[i] ;
 
     for ( k = 0; k < 3; k++ ){
       for ( l = 0; l < 4; l++ ) {
-
-	shp[k][l][i] = tmp_shp[k][l] ;
-
+        shp[k][l][i] = tmp_shp[k][l] ;
         vol_avg_shp[k][l] += tmp_shp[k][l] * dvol[i] ;
-
-      } // end for l
-    } //end for k
-
-  } //end for i 
+      }
+    }
+  } 
 
 
-  //compute volume averaged shape functions
-  for ( k = 0; k < 3; k++ ){
-    for ( l = 0; l < 4; l++ ) 
+  // compute volume averaged shape functions
+  for (int k = 0; k < 3; k++ ){
+    for (int l = 0; l < 4; l++ ) 
         vol_avg_shp[k][l] /= volume ; 
-  } //end for k
+  }
 
 
-  //compute theta
+  // compute theta
   theta = 0.0 ;
-  for ( i = 0; i < 4; i++ ) {
+  for (int i = 0; i < 4; i++ ) {
 
     strain.Zero( ) ;
 
-    //node loop to compute strain
-    for ( node = 0; node < 4; node++ ) {
+    // node loop to compute strain
+    for (int node = 0; node < 4; node++ ) {
 
       const Vector &ul = nodePointers[node]->getTrialDisp( ) ;
 
@@ -368,35 +341,30 @@ ConstantPressureVolumeQuad :: update( )
       strain(2) = 0.0 ;  // not zero for axisymmetry
 
     } // end for node
-
     trace  =  strain(0) + strain(1) + strain(2) ;
-
     theta +=  trace * dvol[i] ;
-
-  } // end for i
+  }
   theta /= volume ;
 
 
-  //compute strain in materials
-  for ( i = 0; i < 4; i++ ) {
+  // compute strain in materials
+  for (int i = 0; i < 4; i++ ) {
 
     strain.Zero( ) ;
 
-    //node loop to compute strain
-    for ( node = 0; node < 4; node++ ) {
+    // node loop to compute strain
+    for (int node = 0; node < 4; node++ ) {
 
-      const Vector &ul = nodePointers[node]->getTrialDisp( ) ;
+      const Vector &ul = nodePointers[node]->getTrialDisp() ;
 
       strain(0) += shp[0][node][i] * ul(0) ;
-
       strain(1) += shp[1][node][i] * ul(1) ;
-
       strain(2) = 0.0 ; // not zero for axisymmetry
 
-      strain(3) +=  shp[1][node][i] * ul(0) 	
-	          + shp[0][node][i] * ul(1) ; 
+      strain(3) +=  shp[1][node][i] * ul(0)     
+              + shp[0][node][i] * ul(1) ; 
 
-    } // end for node
+    }
 
     trace = strain(0) + strain(1) + strain(2) ;
 
@@ -406,15 +374,15 @@ ConstantPressureVolumeQuad :: update( )
     //strain += (one3*theta)*one ;
     strain.addVector(1.0,  one, one3*theta ) ;
 
-    success += materialPointers[i]->setTrialStrain( strain ) ;
-
-  } // end for i
+    success += materialPointers[i]->setTrialStrain( strain );
+  }
 
   return success;
 }
 
-//print out element data
-void ConstantPressureVolumeQuad :: Print( OPS_Stream &s, int flag )
+
+void
+ConstantPressureVolumeQuad::Print( OPS_Stream &s, int flag )
 {
     if (flag == OPS_PRINT_CURRENTSTATE) {
         s << endln;
@@ -437,7 +405,7 @@ void ConstantPressureVolumeQuad :: Print( OPS_Stream &s, int flag )
         s << connectedExternalNodes(1) << ", ";
         s << connectedExternalNodes(2) << ", ";
         s << connectedExternalNodes(3) << "], ";
-        s << "\"material\": \"" << materialPointers[0]->getTag() << "\"}";
+        s << "\"material\": " << materialPointers[0]->getTag() << "}";
     }
 }
 
@@ -547,9 +515,9 @@ const Matrix& ConstantPressureVolumeQuad :: getInitialStiff( )
   } //end for k
 
 
-  //gauss loop to compute volume averaged shape functions
+  // gauss loop to compute volume averaged shape functions
 
-  for ( i = 0; i < 4; i++ ){
+  for (int i = 0; i < 4; i++ ){
     
     shape2d( sg[i], tg[i], xl, tmp_shp, xsj, sx ) ;
 
@@ -557,10 +525,10 @@ const Matrix& ConstantPressureVolumeQuad :: getInitialStiff( )
 
     volume += dvol[i] ;
 
-    for ( k = 0; k < 3; k++ ){
-      for ( l = 0; l < 4; l++ ) {
+    for (int k = 0; k < 3; k++ ){
+      for (int l = 0; l < 4; l++ ) {
 
-	shp[k][l][i] = tmp_shp[k][l] ;
+        shp[k][l][i] = tmp_shp[k][l] ;
 
         vol_avg_shp[k][l] += tmp_shp[k][l] * dvol[i] ;
 
@@ -587,9 +555,9 @@ const Matrix& ConstantPressureVolumeQuad :: getInitialStiff( )
     
     //Pdev_dd_Pdev = Pdev * dd * Pdev ;
     Pdev_dd_Pdev.addMatrixTripleProduct(0.0,
-					Pdev,
-					dd,
-					1.0) ;
+                                        Pdev,
+                                        dd,
+                                        1.0) ;
       
     //Pdev_dd_one  = one3 * ( Pdev * dd * oneMatrix ) ;
     PdevDD.addMatrixProduct(0.0, Pdev, dd, 1.0) ;
@@ -606,8 +574,8 @@ const Matrix& ConstantPressureVolumeQuad :: getInitialStiff( )
     one_dd_Pdev(0,3) = one3 * (ddPdev(0,3) + ddPdev(1,3) + ddPdev(2,3));
     
     bulk = one9 * ( dd(0,0) + dd(0,1) + dd(0,2)  
-		    + dd(1,0) + dd(1,1) + dd(1,2) 
-		    + dd(2,0) + dd(2,1) + dd(2,2) ) ;
+                    + dd(1,0) + dd(1,1) + dd(1,2) 
+                    + dd(2,0) + dd(2,1) + dd(2,2) ) ;
     
     jj = 0 ;
     for ( j = 0; j < 4; j++ ) {
@@ -644,9 +612,9 @@ const Matrix& ConstantPressureVolumeQuad :: getInitialStiff( )
       // A += littleBJoneD;
       
       for (int colA = 0, loc = 0, colPdev = 0; colA<4; colA++, colPdev += 4) {
-	double data3colA = Pdev_dd_Pdev_data[3+colPdev];
-	Adata[loc++] = BJ00*Pdev_dd_Pdev_data[colPdev] + BJ30*data3colA + ltBJ00*one_dd_Pdev_data[colA];
-	Adata[loc++] = BJ11*Pdev_dd_Pdev_data[1+colPdev] + BJ31*data3colA + ltBJ01*one_dd_Pdev_data[colA];
+        double data3colA = Pdev_dd_Pdev_data[3+colPdev];
+        Adata[loc++] = BJ00*Pdev_dd_Pdev_data[colPdev] + BJ30*data3colA + ltBJ00*one_dd_Pdev_data[colA];
+        Adata[loc++] = BJ11*Pdev_dd_Pdev_data[1+colPdev] + BJ31*data3colA + ltBJ01*one_dd_Pdev_data[colA];
       }
       
       //BJtranDone       =  BJtran * Pdev_dd_one ;
@@ -665,24 +633,24 @@ const Matrix& ConstantPressureVolumeQuad :: getInitialStiff( )
       
       int colkk, colkkP1;
       for ( k = 0, kk=0, colkk =0, colkkP1 =8; 
-	    k < 4; 
-	    k++, kk += 2, colkk += 16, colkkP1 += 16 ) {
-	
-	double BK00 = shp[0][k][i];
-	double BK11 = shp[1][k][i];
-	double BK30 = shp[1][k][i];
-	double BK31 = shp[0][k][i];
-	
-	double littleBK00 = vol_avg_shp[0][k];
-	double littleBK01 = vol_avg_shp[1][k];
-
-	//compute stiffness matrix
+            k < 4; 
+            k++, kk += 2, colkk += 16, colkkP1 += 16 ) {
         
-	stiff( jj,   kk   ) += Adata[0]*BK00 + Adata[6]*BK30 + B1 * littleBK00;
-	stiff( jj+1, kk   ) += Adata[1]*BK00 + Adata[7]*BK30 + B2 * littleBK00;
-	stiff( jj,   kk+1 ) += Adata[2]*BK11 + Adata[6]*BK31 + B1 * littleBK01;
-	stiff( jj+1, kk+1 ) += Adata[3]*BK11 + Adata[7]*BK31 + B2 * littleBK01;
-	
+        double BK00 = shp[0][k][i];
+        double BK11 = shp[1][k][i];
+        double BK30 = shp[1][k][i];
+        double BK31 = shp[0][k][i];
+        
+        double littleBK00 = vol_avg_shp[0][k];
+        double littleBK01 = vol_avg_shp[1][k];
+
+        //compute stiffness matrix
+        
+        stiff( jj,   kk   ) += Adata[0]*BK00 + Adata[6]*BK30 + B1 * littleBK00;
+        stiff( jj+1, kk   ) += Adata[1]*BK00 + Adata[7]*BK30 + B2 * littleBK00;
+        stiff( jj,   kk+1 ) += Adata[2]*BK11 + Adata[6]*BK31 + B1 * littleBK01;
+        stiff( jj+1, kk+1 ) += Adata[3]*BK11 + Adata[7]*BK31 + B2 * littleBK01;
+        
       } // end for k
       
       jj += 2 ;
@@ -806,20 +774,12 @@ void   ConstantPressureVolumeQuad::formInertiaTerms( int tangFlag )
 {
 
   static const int ndm = 2 ;
-
   static const int ndf = 2 ; 
-
   static const int numberNodes = 4 ;
-
   static const int numberGauss = 4 ;
-
   static const int nShape = 3 ;
-
   static const int massIndex = nShape - 1 ;
 
-  double xsj ;  // determinant jacaobian matrix 
-
-  double dvol ; //volume element
 
   static double shp[nShape][numberNodes] ;  //shape functions at a gauss point
 
@@ -837,21 +797,22 @@ void   ConstantPressureVolumeQuad::formInertiaTerms( int tangFlag )
   mass.Zero( ) ;
 
   //gauss loop 
-  for ( i = 0; i < numberGauss; i++ ) {
+  for (int i = 0; i < numberGauss; i++ ) {
 
-    //get shape functions    
+    // get shape functions
+    double xsj ;  // determinant jacaobian matrix
     shape2d( sg[i], tg[i], xl, shp, xsj, sx ) ;
     
     //volume element
-    dvol = wg[i] * xsj * thickness;
+    double dvol = wg[i] * xsj * thickness;
 
     //node loop to compute acceleration
     momentum.Zero( ) ;
     for ( j = 0; j < numberNodes; j++ ) 
       //momentum += shp[massIndex][j] * ( nodePointers[j]->getTrialAccel()  ) ; 
       momentum.addVector( 1.0,
-			  nodePointers[j]->getTrialAccel(),
-			  shp[massIndex][j] ) ;
+                          nodePointers[j]->getTrialAccel(),
+                          shp[massIndex][j] ) ;
 
     //density
     rho = materialPointers[i]->getRho() ;
@@ -868,17 +829,17 @@ void   ConstantPressureVolumeQuad::formInertiaTerms( int tangFlag )
 
       if ( tangFlag == 1 ) {
 
-	 //multiply by density
-	 temp *= rho ;
+         //multiply by density
+         temp *= rho ;
 
-	 //node-node mass
+         //node-node mass
          kk = 0 ;
          for ( k = 0; k < numberNodes; k++ ) {
 
-	    massJK = temp * shp[massIndex][k] ;
+            massJK = temp * shp[massIndex][k] ;
 
             for ( p = 0; p < ndf; p++ )  
-	      mass( jj+p, kk+p ) += massJK ;
+              mass( jj+p, kk+p ) += massJK ;
             
             kk += ndf ;
           } // end for k loop
@@ -886,14 +847,12 @@ void   ConstantPressureVolumeQuad::formInertiaTerms( int tangFlag )
       } // end if tang_flag 
 
       else
-	for ( p = 0; p < ndf; p++ )
-	  resid( jj+p ) += ( temp * momentum(p) )  ;
+        for ( p = 0; p < ndf; p++ )
+          resid( jj+p ) += ( temp * momentum(p) )  ;
 
       jj += ndf ;
 
     } // end for j loop
-
-
   } //end for i gauss loop 
 
 
@@ -902,7 +861,7 @@ void   ConstantPressureVolumeQuad::formInertiaTerms( int tangFlag )
 
 //*********************************************************************
 //form residual and tangent
-void ConstantPressureVolumeQuad ::  formResidAndTangent( int tang_flag ) 
+void ConstantPressureVolumeQuad::formResidAndTangent( int tang_flag ) 
 {
   // strains ordered  00, 11, 22, 01  
   //            i.e.  11, 22, 33, 12 
@@ -1023,13 +982,12 @@ void ConstantPressureVolumeQuad ::  formResidAndTangent( int tang_flag )
     for ( k = 0; k < 3; k++ ){
       for ( l = 0; l < 4; l++ ) {
 
-	shp[k][l][i] = tmp_shp[k][l] ;
+        shp[k][l][i] = tmp_shp[k][l] ;
 
         vol_avg_shp[k][l] += tmp_shp[k][l] * dvol[i] ;
 
-      } // end for l
-    } //end for k
-
+      }
+    }
   } //end for i 
 
 
@@ -1066,9 +1024,9 @@ void ConstantPressureVolumeQuad ::  formResidAndTangent( int tang_flag )
       
       //Pdev_dd_Pdev = Pdev * dd * Pdev ;
       Pdev_dd_Pdev.addMatrixTripleProduct(0.0,
-					  Pdev,
-					  dd,
-					  1.0) ;
+                                          Pdev,
+                                          dd,
+                                          1.0) ;
       
       //Pdev_dd_one  = one3 * ( Pdev * dd * oneMatrix ) ;
       PdevDD.addMatrixProduct(0.0, Pdev, dd, 1.0) ;
@@ -1085,8 +1043,8 @@ void ConstantPressureVolumeQuad ::  formResidAndTangent( int tang_flag )
       one_dd_Pdev(0,3) = one3 * (ddPdev(0,3) + ddPdev(1,3) + ddPdev(2,3));
       
       bulk = one9 * ( dd(0,0) + dd(0,1) + dd(0,2)  
-		      + dd(1,0) + dd(1,1) + dd(1,2) 
-		      + dd(2,0) + dd(2,1) + dd(2,2) ) ;
+                      + dd(1,0) + dd(1,1) + dd(1,2) 
+                      + dd(2,0) + dd(2,1) + dd(2,2) ) ;
       
     } else { // compute stress for residual calculation
       //stress for equilibrium
@@ -1121,8 +1079,8 @@ void ConstantPressureVolumeQuad ::  formResidAndTangent( int tang_flag )
 
       // BJtran = this->transpose( 4, 2, BJ ) ;
       for (p=0; p<2; p++) {
-	for (q=0; q<4; q++) 
-	  BJtran(p,q) = BJ(q,p) ;
+        for (q=0; q<4; q++) 
+          BJtran(p,q) = BJ(q,p) ;
       }//end for p
 
       for (p=0; p<2; p++) {
@@ -1151,98 +1109,98 @@ void ConstantPressureVolumeQuad ::  formResidAndTangent( int tang_flag )
 
       if ( tang_flag == 1 ) { //stiffness matrix
 
-	double ltBJ00 = vol_avg_shp[0][j] ;
-	double ltBJ01 = vol_avg_shp[1][j] ;
+        double ltBJ00 = vol_avg_shp[0][j] ;
+        double ltBJ01 = vol_avg_shp[1][j] ;
 
-	//BJtranD          =  BJtran * Pdev_dd_Pdev ;
-	// BJtranD.addMatrixProduct(0.0,  BJtran, Pdev_dd_Pdev, 1.0);
+        //BJtranD          =  BJtran * Pdev_dd_Pdev ;
+        // BJtranD.addMatrixProduct(0.0,  BJtran, Pdev_dd_Pdev, 1.0);
 
-	//littleBJoneD     =  littleBJtran * one_dd_Pdev ;
-	// littleBJoneD.addMatrixProduct(0.0,  littleBJtran, one_dd_Pdev, 1.0);
+        //littleBJoneD     =  littleBJtran * one_dd_Pdev ;
+        // littleBJoneD.addMatrixProduct(0.0,  littleBJtran, one_dd_Pdev, 1.0);
 
-	static double Adata[8];
-	static Matrix A(Adata, 2, 4);
+        static double Adata[8];
+        static Matrix A(Adata, 2, 4);
 
-	// A = BJtranD;
-	// A += littleBJoneD;
+        // A = BJtranD;
+        // A += littleBJoneD;
 
-	for (int colA = 0, loc = 0, colPdev = 0; colA<4; colA++, colPdev += 4) {
-	  double data3colA = Pdev_dd_Pdev_data[3+colPdev];
-	  Adata[loc++] = BJ00*Pdev_dd_Pdev_data[colPdev] + BJ30*data3colA + ltBJ00*one_dd_Pdev_data[colA];
-	  Adata[loc++] = BJ11*Pdev_dd_Pdev_data[1+colPdev] + BJ31*data3colA + ltBJ01*one_dd_Pdev_data[colA];
-	}
+        for (int colA = 0, loc = 0, colPdev = 0; colA<4; colA++, colPdev += 4) {
+          double data3colA = Pdev_dd_Pdev_data[3+colPdev];
+          Adata[loc++] = BJ00*Pdev_dd_Pdev_data[colPdev] + BJ30*data3colA + ltBJ00*one_dd_Pdev_data[colA];
+          Adata[loc++] = BJ11*Pdev_dd_Pdev_data[1+colPdev] + BJ31*data3colA + ltBJ01*one_dd_Pdev_data[colA];
+        }
 
         //BJtranDone       =  BJtran * Pdev_dd_one ;
-	// BJtranDone.addMatrixProduct(0.0,  BJtran, Pdev_dd_one, 1.0);
+        // BJtranDone.addMatrixProduct(0.0,  BJtran, Pdev_dd_one, 1.0);
 
-	//littleBJtranBulk =  bulk * littleBJtran ;
-	// littleBJtranBulk = littleBJtran ;
-	// littleBJtranBulk *= bulk ;
+        //littleBJtranBulk =  bulk * littleBJtran ;
+        // littleBJtranBulk = littleBJtran ;
+        // littleBJtranBulk *= bulk ;
 
-	double B1, B2;
-	// B1 = BJtranDone(0,0) + littleBJtranBulk(0,0);
-	// B2 = BJtranDone(1,0) + littleBJtranBulk(1,0);
+        double B1, B2;
+        // B1 = BJtranDone(0,0) + littleBJtranBulk(0,0);
+        // B2 = BJtranDone(1,0) + littleBJtranBulk(1,0);
 
-	B1 = BJ00*Pdev_dd_one_data[0] + BJ30*Pdev_dd_one_data[3] + ltBJ00 *bulk;
-	B2 = BJ11*Pdev_dd_one_data[1] + BJ31*Pdev_dd_one_data[3] + ltBJ01 *bulk;
+        B1 = BJ00*Pdev_dd_one_data[0] + BJ30*Pdev_dd_one_data[3] + ltBJ00 *bulk;
+        B2 = BJ11*Pdev_dd_one_data[1] + BJ31*Pdev_dd_one_data[3] + ltBJ01 *bulk;
 
-	int colkk, colkkP1;
-	for ( k = 0, kk=0, colkk =0, colkkP1 =8; 
-	      k < 4; 
-	      k++, kk += 2, colkk += 16, colkkP1 += 16 ) {
+        int colkk, colkkP1;
+        for ( k = 0, kk=0, colkk =0, colkkP1 =8; 
+              k < 4; 
+              k++, kk += 2, colkk += 16, colkkP1 += 16 ) {
 
-	  /**************************************************************
-	   REPLACING THESE LINES WITH THE 4 BELOW COMMENT FOR EFFICIENCY
-	   BK.Zero( );
-	   BK(0,0) = shp[0][k][i];
-	   BK(1,1) = shp[1][k][i];
-	   
-	   // BK(2,0) for axi-symmetry 
-	   
-	   BK(3,0) = shp[1][k][i];
-	   BK(3,1) = shp[0][k][i];
-	  **************************************************************/
+          /**************************************************************
+           REPLACING THESE LINES WITH THE 4 BELOW COMMENT FOR EFFICIENCY
+           BK.Zero( );
+           BK(0,0) = shp[0][k][i];
+           BK(1,1) = shp[1][k][i];
+           
+           // BK(2,0) for axi-symmetry 
+           
+           BK(3,0) = shp[1][k][i];
+           BK(3,1) = shp[0][k][i];
+          **************************************************************/
 
-	  double BK00 = shp[0][k][i];
-	  double BK11 = shp[1][k][i];
-	  double BK30 = shp[1][k][i];
-	  double BK31 = shp[0][k][i];
+          double BK00 = shp[0][k][i];
+          double BK11 = shp[1][k][i];
+          double BK30 = shp[1][k][i];
+          double BK31 = shp[0][k][i];
 
-	  double littleBK00 = vol_avg_shp[0][k];
-	  double littleBK01 = vol_avg_shp[1][k];
+          double littleBK00 = vol_avg_shp[0][k];
+          double littleBK01 = vol_avg_shp[1][k];
 
-	  //compute stiffness matrix
+          //compute stiffness matrix
         
-	  // stiffJK =  ( BJtranD + littleBJoneD ) * BK
-	  //        +  ( BJtranDone + littleBJtranBulk ) * littleBK ; 
+          // stiffJK =  ( BJtranD + littleBJoneD ) * BK
+          //        +  ( BJtranDone + littleBJtranBulk ) * littleBK ; 
 
-	  /**************************************************************
-	    REPLACING THESE LINES WITH THE 4 BELOW COMMENT FOR EFFICIENCY
-	  //stiffJK.addMatrixProduct(0.0, A, BK, 1.0);
+          /**************************************************************
+            REPLACING THESE LINES WITH THE 4 BELOW COMMENT FOR EFFICIENCY
+          //stiffJK.addMatrixProduct(0.0, A, BK, 1.0);
 
-	  //stiff( jj,   kk   ) += stiffJK(0,0) + B1 * littleBK00;
-	  //stiff( jj+1, kk   ) += stiffJK(1,0) + B2 * littleBK00;
-	  //stiff( jj,   kk+1 ) += stiffJK(0,1) + B1 * littleBK01;
-	  //stiff( jj+1, kk+1 ) += stiffJK(1,1) + B2 * littleBK01;	  
-	  ***************************************************************/
+          //stiff( jj,   kk   ) += stiffJK(0,0) + B1 * littleBK00;
+          //stiff( jj+1, kk   ) += stiffJK(1,0) + B2 * littleBK00;
+          //stiff( jj,   kk+1 ) += stiffJK(0,1) + B1 * littleBK01;
+          //stiff( jj+1, kk+1 ) += stiffJK(1,1) + B2 * littleBK01;          
+          ***************************************************************/
 
-	  // matrixData[  colkk +   jj] += Adata[0]*BK00 + Adata[6]*BK30 + B1 * littleBK00;
-	  // matrixData[  colkk + jj+1] += Adata[1]*BK00 + Adata[7]*BK30 + B2 * littleBK00;
-	  // matrixData[colkkP1 +   jj] += Adata[2]*BK11 + Adata[6]*BK31 + B1 * littleBK01;
-	  // matrixData[colkkP1 + jj+1] += Adata[3]*BK11 + Adata[7]*BK31 + B2 * littleBK01;
-	  stiff( jj,   kk   ) += Adata[0]*BK00 + Adata[6]*BK30 + B1 * littleBK00;
-	  stiff( jj+1, kk   ) += Adata[1]*BK00 + Adata[7]*BK30 + B2 * littleBK00;
-	  stiff( jj,   kk+1 ) += Adata[2]*BK11 + Adata[6]*BK31 + B1 * littleBK01;
-	  stiff( jj+1, kk+1 ) += Adata[3]*BK11 + Adata[7]*BK31 + B2 * littleBK01;
+          // matrixData[  colkk +   jj] += Adata[0]*BK00 + Adata[6]*BK30 + B1 * littleBK00;
+          // matrixData[  colkk + jj+1] += Adata[1]*BK00 + Adata[7]*BK30 + B2 * littleBK00;
+          // matrixData[colkkP1 +   jj] += Adata[2]*BK11 + Adata[6]*BK31 + B1 * littleBK01;
+          // matrixData[colkkP1 + jj+1] += Adata[3]*BK11 + Adata[7]*BK31 + B2 * littleBK01;
+          stiff( jj,   kk   ) += Adata[0]*BK00 + Adata[6]*BK30 + B1 * littleBK00;
+          stiff( jj+1, kk   ) += Adata[1]*BK00 + Adata[7]*BK30 + B2 * littleBK00;
+          stiff( jj,   kk+1 ) += Adata[2]*BK11 + Adata[6]*BK31 + B1 * littleBK01;
+          stiff( jj+1, kk+1 ) += Adata[3]*BK11 + Adata[7]*BK31 + B2 * littleBK01;
 
-	} // end for k
+        } // end for k
 
       } else { // residual calculation
-	
-	//residJ = BJtran * sig; 
-	residJ.addMatrixVector(0.0,  BJtran, sig, 1.0);
-	resid( jj   ) += residJ(0);
-	resid( jj+1 ) += residJ(1);
+        
+        //residJ = BJtran * sig; 
+        residJ.addMatrixVector(0.0,  BJtran, sig, 1.0);
+        resid( jj   ) += residJ(0);
+        resid( jj+1 ) += residJ(1);
       }
       
       jj += 2 ;
@@ -1256,10 +1214,10 @@ void ConstantPressureVolumeQuad ::  formResidAndTangent( int tang_flag )
 
 //shape function routine for four node quads
 void ConstantPressureVolumeQuad :: shape2d( double ss, double tt, 
-		                            const double x[2][4], 
-		                            double shp[3][4], 
-		                            double &xsj, 
-		                            Matrix &sx ) 
+                                            const double x[2][4], 
+                                            double shp[3][4], 
+                                            double &xsj, 
+                                            Matrix &sx ) 
 { 
 
   int i, j, k ;
@@ -1287,7 +1245,7 @@ void ConstantPressureVolumeQuad :: shape2d( double ss, double tt,
 
       double value = 0;
       for ( k = 0; k < 4; k++ )
-	value +=  x[i][k] * shp[j][k] ;
+        value +=  x[i][k] * shp[j][k] ;
       // xs(i,j) +=  x[i][k] * shp[j][k] ;
       xs[i][j] = value;
       
@@ -1312,40 +1270,9 @@ void ConstantPressureVolumeQuad :: shape2d( double ss, double tt,
   return ;
 }
 
-int
-ConstantPressureVolumeQuad::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **mode, int numModes)
-{
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-    nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-    nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-    nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
-
-    // place values in coords matrix
-    static Matrix coords(4, 3);
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v2(i);
-        coords(2, i) = v3(i);
-        coords(3, i) = v4(i);
-    }
-
-    // fill RGB vector
-    static Vector values(4);
-    for (int i = 0; i < 4; i++)
-        values(i) = 1.0;
-
-    // draw the polygon
-    return theViewer.drawPolygon(coords, values, this->getTag());
-}
-
 Response*
 ConstantPressureVolumeQuad::setResponse(const char **argv, int argc, 
-					OPS_Stream &output)
+                                        OPS_Stream &output)
 {
   Response *theResponse =0;
 
@@ -1385,22 +1312,22 @@ ConstantPressureVolumeQuad::setResponse(const char **argv, int argc,
   } else if (strcmp(argv[0],"stresses") ==0) {
 
       for (int i=0; i<4; i++) {
-	output.tag("GaussPoint");
-	output.attr("number",i+1);
-	output.attr("eta",sg[i]);
-	output.attr("neta",tg[i]);
+        output.tag("GaussPoint");
+        output.attr("number",i+1);
+        output.attr("eta",sg[i]);
+        output.attr("neta",tg[i]);
 
-	output.tag("NdMaterialOutput");
-	output.attr("classType", materialPointers[i]->getClassTag());
-	output.attr("tag", materialPointers[i]->getTag());
+        output.tag("NdMaterialOutput");
+        output.attr("classType", materialPointers[i]->getClassTag());
+        output.attr("tag", materialPointers[i]->getTag());
 
-	output.tag("ResponseType","UnknownStress");
-	output.tag("ResponseType","UnknownStress");
-	output.tag("ResponseType","UnknownStress");
-	output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
 
-	output.endTag(); // GaussPoint
-	output.endTag(); // NdMaterialOutput
+        output.endTag(); // GaussPoint
+        output.endTag(); // NdMaterialOutput
       }
       
       theResponse =  new ElementResponse(this, 3, Vector(16));
@@ -1409,28 +1336,28 @@ ConstantPressureVolumeQuad::setResponse(const char **argv, int argc,
   else if (strcmp(argv[0],"strains") ==0) {
     
       for (int i=0; i<4; i++) {
-	output.tag("GaussPoint");
-	output.attr("number",i+1);
-	output.attr("eta",sg[i]);
-	output.attr("neta",tg[i]);
+        output.tag("GaussPoint");
+        output.attr("number",i+1);
+        output.attr("eta",sg[i]);
+        output.attr("neta",tg[i]);
 
-	output.tag("NdMaterialOutput");
-	output.attr("classType", materialPointers[i]->getClassTag());
-	output.attr("tag", materialPointers[i]->getTag());
-	
-	output.tag("ResponseType","UnknownStress");
-	output.tag("ResponseType","UnknownStress");
-	output.tag("ResponseType","UnknownStress");
-	output.tag("ResponseType","UnknownStress");
-	
-	output.endTag(); // GaussPoint
-	output.endTag(); // NdMaterialOutput
+        output.tag("NdMaterialOutput");
+        output.attr("classType", materialPointers[i]->getClassTag());
+        output.attr("tag", materialPointers[i]->getTag());
+        
+        output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
+        
+        output.endTag(); // GaussPoint
+        output.endTag(); // NdMaterialOutput
       }
 
       theResponse =  new ElementResponse(this, 4, Vector(16));
   }
 
-	
+        
   output.endTag(); // ElementOutput
   
   return theResponse;
@@ -1475,7 +1402,7 @@ ConstantPressureVolumeQuad::getResponse(int responseID, Information &eleInfo)
       cnt += 4;
     }
     return eleInfo.setVector(stresses);
-	
+        
   } else
 
     return -1;
@@ -1506,7 +1433,7 @@ ConstantPressureVolumeQuad :: sendSelf (int commitTag, Channel &theChannel)
   if (res < 0) {
     opserr << "WARNING ConstantPressureVolumeQuad::sendSelf() - " << this->getTag() << " failed to send Vector\n";
     return res;
-  }	      
+  }              
   
 
   // Now quad sends the ids of its materials
@@ -1522,7 +1449,7 @@ ConstantPressureVolumeQuad :: sendSelf (int commitTag, Channel &theChannel)
     // tag if we are sending to a database channel.
     if (matDbTag == 0) {
       matDbTag = theChannel.getDbTag();
-			if (matDbTag != 0)
+                        if (matDbTag != 0)
                 materialPointers[i]->setDbTag(matDbTag);
     }
     idData(i+4) = matDbTag;
@@ -1553,8 +1480,8 @@ ConstantPressureVolumeQuad :: sendSelf (int commitTag, Channel &theChannel)
     
 int 
 ConstantPressureVolumeQuad :: recvSelf (int commitTag, 
-					Channel &theChannel, 
-					FEM_ObjectBroker &theBroker)
+                                        Channel &theChannel, 
+                                        FEM_ObjectBroker &theBroker)
 {
   int res = 0;
   
@@ -1597,15 +1524,15 @@ ConstantPressureVolumeQuad :: recvSelf (int commitTag,
       // Allocate new material with the sent class tag
       materialPointers[i] = theBroker.getNewNDMaterial(matClassTag);
       if (materialPointers[i] == 0) {
-	    opserr << "ConstantPressureVolumeQuad::recvSelf() - Broker could not create NDMaterial of class type " << matClassTag << endln;
-	    return -1;
+            opserr << "ConstantPressureVolumeQuad::recvSelf() - Broker could not create NDMaterial of class type " << matClassTag << endln;
+            return -1;
       }
       // Now receive materials into the newly allocated space
       materialPointers[i]->setDbTag(matDbTag);
       res += materialPointers[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
         opserr << "ConstantPressureVolumeQuad::recvSelf() - material " << i << "failed to recv itself\n";
-	    return res;
+            return res;
       }
     }
   }
@@ -1618,19 +1545,19 @@ ConstantPressureVolumeQuad :: recvSelf (int commitTag,
       // Check that material is of the right type; if not,
       // delete it and create a new one of the right type
       if (materialPointers[i]->getClassTag() != matClassTag) {
-	    delete materialPointers[i];
+            delete materialPointers[i];
         materialPointers[i] = theBroker.getNewNDMaterial(matClassTag);
-	    if (materialPointers[i] == 0) {
+            if (materialPointers[i] == 0) {
           opserr << "ConstantPressureVolumeQuad::recvSelf() - material " << i << "failed to create\n";
-	      return -1;
-	    }
+              return -1;
+            }
       }
       // Receive the material
       materialPointers[i]->setDbTag(matDbTag);
       res += materialPointers[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
         opserr << "ConstantPressureVolumeQuad::recvSelf() - material " << i << "failed to recv itself\n";
-	    return res;
+            return res;
       }
     }
   }

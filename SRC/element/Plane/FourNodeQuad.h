@@ -47,12 +47,6 @@ class FourNodeQuad : public Element,
                  NDMaterial &m, double thickness,
                  double p, double r, double b1, double b2);
 
-    FourNodeQuad(int tag, int nd1, int nd2, int nd3, int nd4,
-                 NDMaterial &m, const char *type,
-                 double t, double pressure = 0.0, 
-                 double rho = 0.0,
-                 double b1 = 0.0, double b2 = 0.0);
-
     FourNodeQuad();
     ~FourNodeQuad();
 
@@ -120,14 +114,15 @@ class FourNodeQuad : public Element,
 
     //
     // private member functions 
-    // - only objects of this class can call these
+    //
+    int stateDetermination(Matrix* Kptr, Vector* pptr, int flag);
     double shapeFunction(double xi, double eta);
     void setPressureLoadAtNodes();
 
     //
     // private attributes 
-    // - a copy for each object of the class
-    std::array<NDMaterial *, NIP> theMaterial; // pointer to the ND material objects
+    //
+    std::array<NDMaterial *, NIP> theMaterial; // pointers to materials
     
     ID connectedExternalNodes; // Tags of the nodes
 
