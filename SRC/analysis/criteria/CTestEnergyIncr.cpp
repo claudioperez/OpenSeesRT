@@ -87,9 +87,9 @@ int CTestEnergyIncr::test(void)
     // check to ensure the SOE has been set - this should not happen if the
     // return from start() is checked
     if (theSOE == 0) {
-                opserr << "WARNING: CTestEnergyIncr::test() - no SOE set\n";
+        opserr << "WARNING: CTestEnergyIncr::test() - no SOE set\n";
         return -2;
-        }
+    }
     // check to ensure the algo does invoke start() - this is needed otherwise
     // may never get convergence later on in analysis!
     if (currentIter == 0) {
@@ -141,8 +141,10 @@ int CTestEnergyIncr::test(void)
 
         else if (printFlag & ConvergenceTest::PrintSuccess) {
             opserr << LOG_SUCCESS
-                   << "Iter: "         << pad(currentIter)
-                   << ", EnergyIncr: " << pad(product)
+                   << "Iter: "      << pad(currentIter)
+                   << ", Norm dX: " << pad(x.pNorm(nType))
+                   << ", Norm dR: " << pad(b.pNorm(nType))
+                   << ", Energy: "  << pad(product)
                    << endln;
         }
 
@@ -150,16 +152,15 @@ int CTestEnergyIncr::test(void)
         return currentIter;
     }
 
-    // algo failed to converged after specified number of iterations - but RETURN OK
+    // Failed to converged after specified number of iterations - but RETURN OK
     else if ((printFlag & ConvergenceTest::AlwaysSucceed) && currentIter >= maxNumIter) {
         if (printFlag & ConvergenceTest::PrintFailure) {
           opserr << LOG_FAILURE 
-                 << "failed to converge but goin on -"
-                 << ", EnergyIncr: "  << pad(product)
-                 << endln
-                 << ", Norm deltaX: " << pad(x.pNorm(nType))
-                 << ", Norm deltaR: " << pad(b.pNorm(nType))
-                 << endln;
+                 << "Iter: "          << pad(currentIter)
+                 << ", Norm dX: " << pad(x.pNorm(nType))
+                 << ", Norm dR: " << pad(b.pNorm(nType))
+                 << ", Energy: "  << pad(product)
+                 << "\n";
         }
         return currentIter;
     }
