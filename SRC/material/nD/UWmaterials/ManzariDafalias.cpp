@@ -881,7 +881,7 @@ void ManzariDafalias::integrate()
     // ElastoPlastic response
     else {  
         // implicit schemes
-        if ((mScheme == INT_BackwardEuler))
+        if (mScheme == INT_BackwardEuler)
             BackwardEuler_CPPM(mSigma_n, mEpsilon_n, mEpsilonE_n, mAlpha_n, mFabric_n, mAlpha_in,
                 mEpsilon, mEpsilonE, mSigma, mAlpha, mFabric, mDGamma, mVoidRatio, mG, 
                 mK, mCe, mCep, mCep_Consistent);
