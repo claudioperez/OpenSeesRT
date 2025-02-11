@@ -88,7 +88,8 @@ NineNodeQuad::NineNodeQuad(int tag,
 NineNodeQuad::NineNodeQuad()
 :Element (0,ELE_TAG_NineNodeQuad),
   theMaterial(0), connectedExternalNodes(NEN),
- Q(2*NEN), applyLoad(0), pressureLoad(2*NEN), thickness(0.0), pressure(0.0), Ki(0)
+ Q(2*NEN), applyLoad(0), pressureLoad(2*NEN), 
+ thickness(0.0), pressure(0.0), Ki(0)
 {
   for (int i=0; i<NEN; i++)
     theNodes[i] = nullptr;

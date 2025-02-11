@@ -18,15 +18,15 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: MHS
-// Created: Aug 2001
-//
 // Description: This file contains the class definition of BeamFiberMaterial.
 // The BeamFiberMaterial class is a wrapper class that performs static
 // condensation on a three-dimensional material model to give the 11, 12, and 13
 // stress components which can then be integrated over an area to model a
 // shear flexible 3D beam.
-
+//
+// Written: MHS
+// Created: Aug 2001
+//
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
@@ -40,22 +40,22 @@ class BeamFiberMaterial: public NDMaterial {
 
   public:
     BeamFiberMaterial(int tag, NDMaterial &theMat);
-    BeamFiberMaterial(void);
-    virtual ~BeamFiberMaterial(void);
+    BeamFiberMaterial();
+    virtual ~BeamFiberMaterial();
 
     int setTrialStrain( const Vector &strainFromElement);
-    const Vector& getStrain(void);
-    const Vector& getStress(void);
-    const Matrix& getTangent(void);
-    const Matrix& getInitialTangent(void);
+    const Vector& getStrain();
+    const Vector& getStress();
+    const Matrix& getTangent();
+    const Matrix& getInitialTangent();
 
-    double getRho(void);
+    double getRho();
 
-    int commitState(void);
-    int revertToLastCommit(void);
-    int revertToStart(void);
+    int commitState();
+    int revertToLastCommit();
+    int revertToStart();
 
-    NDMaterial *getCopy(void);
+    NDMaterial *getCopy();
     NDMaterial *getCopy(const char *type);
     const char *getType(void) const;
     int getOrder(void) const; 

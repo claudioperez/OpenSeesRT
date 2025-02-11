@@ -3,30 +3,14 @@
 **          Pacific Earthquake Engineering Research Center            **
 **                                                                    **
 **                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.12 $
-// $Date: 2007-02-02 01:35:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/NineNodeMixedQuad.cpp,v $
-
+//
 // Ed "C++" Love
 //
 // Mixed Presssure/Volume Nine Node Quadrilateral
 // Plane Strain (NOT PLANE STRESS)
-//
+// 
+// Q2/P1 ??
 
 #include <string.h>
 #include <stdio.h> 
@@ -43,8 +27,6 @@
 #include <ErrorHandler.h>
 #include <NineNodeMixedQuad.h>
 #include <ElementResponse.h>
-
-#include <Renderer.h>
 
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -65,17 +47,17 @@ double   NineNodeMixedQuad::wg[] = {  5.0/9.0,  8.0/9.0,  5.0/9.0 } ;
 void * OPS_ADD_RUNTIME_VPV(OPS_NineNodeMixedQuad)
 {
     if (OPS_GetNDM() != 2 || OPS_GetNDF() != 2) {
-	opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with quad element\n";
-	return 0;
+        opserr << "WARNING -- model dimensions and/or nodal DOF not compatible with quad element\n";
+        return 0;
     }
 
     // check the number of arguments is correct
     if (OPS_GetNumRemainingInputArgs() < 11) {
-	opserr << "WARNING insufficient arguments\n";
-	opserr << "Want: element NineNodeMixedQuad  eleTag?"  
-	       << " iNode? jNode? kNode? lNode? mNode, nNode, pNode, qNode, centerNode " 
-	       << " matTag?\n"; 
-	return 0;
+        opserr << "WARNING insufficient arguments\n";
+        opserr << "Want: element NineNodeMixedQuad  eleTag?"  
+               << " iNode? jNode? kNode? lNode? mNode, nNode, pNode, qNode, centerNode " 
+               << " matTag?\n"; 
+        return 0;
     }    
 
     // get the id and end nodes
@@ -87,23 +69,23 @@ void * OPS_ADD_RUNTIME_VPV(OPS_NineNodeMixedQuad)
     // int matID;
 
     if (OPS_GetIntInput(&numdata, idata) < 0) {
-	opserr << "WARNING invalid NineNodeMixedQuad int inputs" << endln;
-	return 0;
+        opserr << "WARNING invalid NineNodeMixedQuad int inputs" << endln;
+        return 0;
     }
     
     NDMaterial *theMaterial = OPS_getNDMaterial(idata[10]);
       
     if (theMaterial == 0) {
-	opserr << "WARNING material not found\n";
-	opserr << "Material: " << idata[10];
-	opserr << "\nNineNodeMixedQuad element: " << idata[0] << endln;
-	return 0;
+        opserr << "WARNING material not found\n";
+        opserr << "Material: " << idata[10];
+        opserr << "\nNineNodeMixedQuad element: " << idata[0] << endln;
+        return 0;
     }
   
     // now create the NineNodeMixedQuad and add it to the Domain
     NineNodeMixedQuad *theNineNodeMixed = 
-	new NineNodeMixedQuad(idata[0],idata[1],idata[2],idata[3],idata[4],
-			      idata[5],idata[6],idata[7],idata[8],idata[9], *theMaterial);
+        new NineNodeMixedQuad(idata[0],idata[1],idata[2],idata[3],idata[4],
+                              idata[5],idata[6],idata[7],idata[8],idata[9], *theMaterial);
 
     return theNineNodeMixed;
 }
@@ -121,16 +103,16 @@ connectedExternalNodes(9) , load(0), Ki(0)
 
 //full constructor
 NineNodeMixedQuad :: NineNodeMixedQuad( int tag, 
-					int node1,
-					int node2,
-					int node3,
-					int node4,
-					int node5,
-					int node6,
-					int node7,
-					int node8,
-					int node9,
-					NDMaterial &theMaterial ) :
+                                        int node1,
+                                        int node2,
+                                        int node3,
+                                        int node4,
+                                        int node5,
+                                        int node6,
+                                        int node7,
+                                        int node8,
+                                        int node9,
+                                        NDMaterial &theMaterial ) :
 Element( tag, ELE_TAG_NineNodeMixedQuad ),
 connectedExternalNodes(9) , load(0), Ki(0)
 {
@@ -144,8 +126,8 @@ connectedExternalNodes(9) , load(0), Ki(0)
   connectedExternalNodes(7) = node8 ;
   connectedExternalNodes(8) = node9 ;
 
-  int i ;
-  for ( i=0 ; i<9; i++ ) {
+
+  for (int i=0 ; i<9; i++ ) {
 
     materialPointers[i] = theMaterial.getCopy("AxiSymmetric2D") ;
     
@@ -161,14 +143,13 @@ connectedExternalNodes(9) , load(0), Ki(0)
 //destructor 
 NineNodeMixedQuad :: ~NineNodeMixedQuad( )
 {
-  int i ;
-  for ( i=0 ; i<9; i++ ) {
+  for (int i=0 ; i<9; i++ ) {
 
     delete materialPointers[i] ;
     materialPointers[i] = 0 ; 
 
     nodePointers[i] = 0 ;
-  } //end for i
+  }
 
   if (load != 0)
     delete load;
@@ -205,7 +186,7 @@ NineNodeMixedQuad::getExternalNodes( )
 } 
 
 Node **
-NineNodeMixedQuad::getNodePtrs(void) 
+NineNodeMixedQuad::getNodePtrs() 
 {
   return nodePointers;
 } 
@@ -215,11 +196,10 @@ NineNodeMixedQuad::getNodePtrs(void)
 int 
 NineNodeMixedQuad::getNumDOF( ) 
 {
-  return 18 ;
+  return 18 ; // 9 nodes * 2 dof per node
 }
 
 
-//commit state
 int 
 NineNodeMixedQuad::commitState( )
 {
@@ -428,7 +408,7 @@ NineNodeMixedQuad::getInitialStiff( )
       for (int p=0; p<nShape; p++ ) {
         for (int q=0; q<numberNodes; q++ )
           Shape[p][q][count] = shp[p][q] ;
-	    }
+            }
 
 
       //volume element to also be saved
@@ -475,8 +455,8 @@ NineNodeMixedQuad::getInitialStiff( )
     for ( q=0; q<numberNodes; q++ ) {
 
       for (r=0; r<nMixed; r++ ) {
-	for (s=0; s<nMixed; s++ ) 
-	  shpBar[p][q][r] += ( ProjInv(r,s) * rightHandSide[p][q][s] ) ;
+        for (s=0; s<nMixed; s++ ) 
+          shpBar[p][q][r] += ( ProjInv(r,s) * rightHandSide[p][q][s] ) ;
       }//end for r
 
     }//end for q
@@ -493,7 +473,7 @@ NineNodeMixedQuad::getInitialStiff( )
     //extract shape functions from saved array
     for ( p=0; p<nShape; p++ ) {
        for ( q=0; q<numberNodes; q++ )
-	  shp[p][q]  = Shape[p][q][i] ;
+          shp[p][q]  = Shape[p][q][i] ;
     } // end for p
 
     dd = materialPointers[i]->getInitialTangent( ) ;
@@ -721,8 +701,8 @@ NineNodeMixedQuad::formInertiaTerms( int tangFlag )
     for ( j = 0; j < numberNodes; j++ ) 
       //momentum += shp[massIndex][j] * ( nodePointers[j]->getTrialAccel()  ) ; 
       momentum.addVector( 1.0,
-			  nodePointers[j]->getTrialAccel(),
-			  shp[massIndex][j] ) ;
+                          nodePointers[j]->getTrialAccel(),
+                          shp[massIndex][j] ) ;
 
 
     //density
@@ -743,16 +723,16 @@ NineNodeMixedQuad::formInertiaTerms( int tangFlag )
       
       if ( tangFlag == 1 ) {
 
-	 //multiply by density
-	 temp *= rho ;
+         //multiply by density
+         temp *= rho ;
 
-	 //node-node mass
+         //node-node mass
          for ( kk=0, k=0; k<numberNodes; k++, kk+=ndf ) {
 
-	    massJK = temp * shp[massIndex][k] ;
+            massJK = temp * shp[massIndex][k] ;
 
             for ( r=0; r<ndf; r++ )  
-	      mass( jj+r, kk+r ) += massJK ;
+              mass( jj+r, kk+r ) += massJK ;
             
           } // end for k loop
 
@@ -774,21 +754,15 @@ void
 NineNodeMixedQuad::formResidAndTangent( int tang_flag ) 
 {
 
-  //strains ordered : eps11, eps22, eps33, 2*eps12 
-  //volumtric strains projected onto {1, \xi, \eta} natural coordinates
+  // strains ordered : eps11, eps22, eps33, 2*eps12 
+  // volumtric strains projected onto {1, \xi, \eta} natural coordinates
 
-  static const int ndm = 2 ;
-
-  static const int ndf = 2 ; 
-
-  static const int nstress = 4 ;
- 
+  static const int ndm = 2;
+  static const int ndf = 2;
+  static const int nstress = 4;
   static const int numberNodes = 9 ;
-
   static const int numberGauss = 9 ;
-
   static const int nShape = 3 ;
-
   static const int nMixed = 3 ;
 
   int i, j, k, p, q, r, s ;
@@ -837,21 +811,18 @@ NineNodeMixedQuad::formResidAndTangent( int tang_flag )
   //---------B-matrices------------------------------------
 
     static Matrix BJ(nstress,ndf) ;      // B matrix node J
-
     static Matrix BJtran(ndf,nstress) ;
-
     static Matrix BK(nstress,ndf) ;      // B matrix node k
-
     static Matrix BJtranD(ndf,nstress) ;
 
   //-------------------------------------------------------
 
   
-  //zero stiffness and residual 
+  // zero stiffness and residual 
   stiff.Zero( ) ;
   resid.Zero( ) ;
 
-  //node coordinates
+  // node coordinates
   computeBasis() ;
 
   //zero mean shape functions
@@ -859,12 +830,11 @@ NineNodeMixedQuad::formResidAndTangent( int tang_flag )
     for ( q=0; q<numberNodes; q++ ) {
 
       for (r=0; r<nMixed; r++ ) {
-	shpBar[p][q][r] = 0.0 ;
-	rightHandSide[p][q][r] = 0.0 ;
+        shpBar[p][q][r] = 0.0 ;
+        rightHandSide[p][q][r] = 0.0 ;
       }
-
-    }//end for q
-  } // end for p
+    }
+  }
 
 
   //zero volume
@@ -875,62 +845,62 @@ NineNodeMixedQuad::formResidAndTangent( int tang_flag )
   ProjInv.Zero( ) ;
 
 
-  //gauss loop to compute and save shape functions 
+  // gauss loop to compute and save shape functions 
   int count = 0 ;
 
-  for ( i = 0; i < 3; i++ ) {
-    for ( j = 0; j < 3; j++ ) {
+  for (int i = 0; i < 3; i++ ) {
+    for (int j = 0; j < 3; j++ ) {
 
         gaussPoint[0] = sg[i] ;        
-	gaussPoint[1] = sg[j] ;        
+        gaussPoint[1] = sg[j] ;        
 
 
-	//save gauss point locations
-	natCoorArray[0][count] = gaussPoint[0] ;
-	natCoorArray[1][count] = gaussPoint[1] ;
+        //save gauss point locations
+        natCoorArray[0][count] = gaussPoint[0] ;
+        natCoorArray[1][count] = gaussPoint[1] ;
 
 
-	//get shape functions    
-	shape2dNine( gaussPoint, xl, shp, xsj ) ;
+        //get shape functions    
+        shape2dNine( gaussPoint, xl, shp, xsj ) ;
 
 
-	//save shape functions
-	for ( p=0; p<nShape; p++ ) {
-	  for ( q=0; q<numberNodes; q++ )
-	    Shape[p][q][count] = shp[p][q] ;
-	} // end for p
+        //save shape functions
+        for ( p=0; p<nShape; p++ ) {
+          for ( q=0; q<numberNodes; q++ )
+            Shape[p][q][count] = shp[p][q] ;
+        } // end for p
 
-	
-	//volume element to also be saved
-	dvol[count] = ( wg[i]*wg[j] ) * xsj ;  
+        
+        //volume element to also be saved
+        dvol[count] = ( wg[i]*wg[j] ) * xsj ;  
 
 
         //add to projection matrix
-	interp[0] = 1.0 ;
-	interp[1] = gaussPoint[0] ;
-	interp[2] = gaussPoint[1] ;
-	
-	for ( r=0; r<nMixed; r++ ) {
-	  for ( s=0; s<nMixed; s++ ) 
-	    Proj(r,s) += ( interp[r]*interp[s] * dvol[count] ) ;
-	}//end for r
+        interp[0] = 1.0 ;
+        interp[1] = gaussPoint[0] ;
+        interp[2] = gaussPoint[1] ;
+        
+        for ( r=0; r<nMixed; r++ ) {
+          for ( s=0; s<nMixed; s++ ) 
+            Proj(r,s) += ( interp[r]*interp[s] * dvol[count] ) ;
+        }//end for r
 
-	volume += dvol[count] ;
-	
-	
-	//add to mean shape functions
-	for ( p=0; p<nShape; p++ ) {
-	  for ( q=0; q<numberNodes; q++ ) {
+        volume += dvol[count] ;
+        
+        
+        //add to mean shape functions
+        for ( p=0; p<nShape; p++ ) {
+          for ( q=0; q<numberNodes; q++ ) {
 
-	    for ( s=0; s<nMixed; s++ ) 
-	      rightHandSide[p][q][s] += ( shp[p][q] * interp[s] * dvol[count] ) ;
+            for ( s=0; s<nMixed; s++ ) 
+              rightHandSide[p][q][s] += ( shp[p][q] * interp[s] * dvol[count] ) ;
 
-	  }//end for q 
-	} // end for p
+          }//end for q 
+        } // end for p
 
 
-	//increment gauss point counter
-	count++ ;
+        //increment gauss point counter
+        count++ ;
 
     } //end for j
   } // end for i 
@@ -940,16 +910,15 @@ NineNodeMixedQuad::formResidAndTangent( int tang_flag )
   //invert projection matrix
   //int Solve(const Matrix &M, Matrix &res) const;
   Proj.Solve( Iden, ProjInv ) ;
-  
+
   //mean value of shape functions
-  for ( p=0; p<nShape; p++ ) {
-    for ( q=0; q<numberNodes; q++ ) {
+  for (int p=0; p<nShape; p++ ) {
+    for (int q=0; q<numberNodes; q++ ) {
 
       for (r=0; r<nMixed; r++ ) {
-	for (s=0; s<nMixed; s++ ) 
-	  shpBar[p][q][r] += ( ProjInv(r,s) * rightHandSide[p][q][s] ) ;
+        for (s=0; s<nMixed; s++ ) 
+          shpBar[p][q][r] += ( ProjInv(r,s) * rightHandSide[p][q][s] ) ;
       }//end for r
-
     }//end for q
   }//end for p
 
@@ -964,7 +933,7 @@ NineNodeMixedQuad::formResidAndTangent( int tang_flag )
     //extract shape functions from saved array
     for ( p=0; p<nShape; p++ ) {
        for ( q=0; q<numberNodes; q++ )
-	  shp[p][q]  = Shape[p][q][i] ;
+          shp[p][q]  = Shape[p][q][i] ;
     } // end for p
 
 
@@ -1015,8 +984,8 @@ NineNodeMixedQuad::formResidAndTangent( int tang_flag )
       //transpose 
       //BJtran = transpose( nstress, ndf, BJ ) ;
       for (p=0; p<ndf; p++) {
-	for (q=0; q<nstress; q++) 
-	  BJtran(p,q) = BJ(q,p) ;
+        for (q=0; q<nstress; q++) 
+          BJtran(p,q) = BJ(q,p) ;
       }//end for p
 
 
@@ -1031,8 +1000,8 @@ NineNodeMixedQuad::formResidAndTangent( int tang_flag )
 
       if ( tang_flag == 1 ) {
 
-	//BJtranD = BJtran * dd ;
-	BJtranD.addMatrixProduct(0.0,  BJtran,dd,1.0);
+        //BJtranD = BJtran * dd ;
+        BJtranD.addMatrixProduct(0.0,  BJtran,dd,1.0);
 
          kk = 0 ;
          for ( k=0; k<numberNodes; k++ ) {
@@ -1041,7 +1010,7 @@ NineNodeMixedQuad::formResidAndTangent( int tang_flag )
   
  
             //stiffJK =  BJtranD * BK  ;
-	    stiffJK.addMatrixProduct(0.0,  BJtranD,BK,1.0) ;
+            stiffJK.addMatrixProduct(0.0,  BJtranD,BK,1.0) ;
 
             for ( p=0; p<ndf; p++ )  {
                for ( q=0; q<ndf; q++ )
@@ -1049,7 +1018,7 @@ NineNodeMixedQuad::formResidAndTangent( int tang_flag )
             } //end for p
 
             kk += ndf ;
-	 }//end for k loop
+         }//end for k loop
 
       }//end if tang_flag 
 
@@ -1089,9 +1058,9 @@ NineNodeMixedQuad::computeBasis( )
 
 const Matrix&   
 NineNodeMixedQuad::computeBbar( int node, 
-			    const double natCoor[2],
-			    const double shp[3][9], 
-			    double shpBar[3][9][3] )
+                            const double natCoor[2],
+                            const double shp[3][9], 
+                            double shpBar[3][9][3] )
 {
 
   static Matrix Bbar(4,2) ;
@@ -1196,9 +1165,9 @@ NineNodeMixedQuad::computeBbar( int node,
 
 void 
 NineNodeMixedQuad::shape2dNine( double coor[2], 
-		            const double x[2][9], 
-		            double shp[3][9], 
-			    double &xsj )  
+                            const double x[2][9], 
+                            double shp[3][9], 
+                            double &xsj )  
 { 
   static const int nNode = 9 ;
   static const int ndm   = 2 ;
@@ -1244,7 +1213,7 @@ NineNodeMixedQuad::shape2dNine( double coor[2],
       xs[i][j] = 0.0 ;
 
       for ( k=0; k<nNode; k++ )
-	  xs[i][j] += ( x[i][k] * shp[j][k] ) ;
+          xs[i][j] += ( x[i][k] * shp[j][k] ) ;
 
     } //end for j
   }  // end for i 
@@ -1271,7 +1240,7 @@ NineNodeMixedQuad::shape2dNine( double coor[2],
 
   return ;
 }
-	
+        
 //***********************************************************************
 //1d quadratic shape functions
 
@@ -1319,70 +1288,11 @@ NineNodeMixedQuad::shape1d( int code, int node, double xi )
   return result ;
 }
 
-//***********************************************************************
-
-int
-NineNodeMixedQuad::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // get the end point display coords
-    static Vector v1(3);
-    static Vector v2(3);
-    static Vector v3(3);
-    static Vector v4(3);
-    static Vector v5(3);
-    static Vector v6(3);
-    static Vector v7(3);
-    static Vector v8(3);
-    nodePointers[0]->getDisplayCrds(v1, fact, displayMode);
-    nodePointers[1]->getDisplayCrds(v2, fact, displayMode);
-    nodePointers[2]->getDisplayCrds(v3, fact, displayMode);
-    nodePointers[3]->getDisplayCrds(v4, fact, displayMode);
-    nodePointers[4]->getDisplayCrds(v5, fact, displayMode);
-    nodePointers[5]->getDisplayCrds(v6, fact, displayMode);
-    nodePointers[6]->getDisplayCrds(v7, fact, displayMode);
-    nodePointers[7]->getDisplayCrds(v8, fact, displayMode);
-
-    // place values in coords matrix
-    static Matrix coords(8, 3);
-    for (int i = 0; i < 3; i++) {
-        coords(0, i) = v1(i);
-        coords(1, i) = v5(i);
-        coords(2, i) = v2(i);
-        coords(3, i) = v6(i);
-        coords(4, i) = v3(i);
-        coords(5, i) = v7(i);
-        coords(6, i) = v4(i);
-        coords(7, i) = v8(i);
-    }
-
-    // set the quantity to be displayed at the nodes;
-    static Vector values(8);
-    static Vector P(8);
-    if (displayMode < 8 && displayMode > 0) {
-        P = this->getResistingForce();
-        for (int i = 0; i < 8; i++) {
-            // values(i) = P(displayMode * 2 + i); // this was commented out in previous version -ambaker1
-            values(i) = 1;
-        }
-    }
-    else {
-        for (int i = 0; i < 8; i++) {
-            values(i) = 1;
-        }
-    }
-
-    // draw the polygon
-    return theViewer.drawPolygon(coords, values, this->getTag());
-}
-   
-//**************************************************************************
-
-
 Response*
 NineNodeMixedQuad::setResponse(const char **argv, int argc, 
-			       OPS_Stream &output)
+                               OPS_Stream &output)
 {
-  Response *theResponse =0;
+  Response *theResponse = nullptr;
 
   output.tag("ElementOutput");
   output.attr("eleType","NineNodeMixedQuad");
@@ -1424,28 +1334,28 @@ NineNodeMixedQuad::setResponse(const char **argv, int argc,
   } else if (strcmp(argv[0],"stresses") ==0) {
 
       for (int i=0; i<9; i++) {
-	// output.tag("GaussPoint");
-	// output.attr("number",i+1);
-	// output.attr("eta",sg[i]);
-	// output.attr("neta",sg[i]);
+        // output.tag("GaussPoint");
+        // output.attr("number",i+1);
+        // output.attr("eta",sg[i]);
+        // output.attr("neta",sg[i]);
 
-	output.tag("NdMaterialOutput");
-	output.attr("classType", materialPointers[i]->getClassTag());
-	output.attr("tag", materialPointers[i]->getTag());
+        output.tag("NdMaterialOutput");
+        output.attr("classType", materialPointers[i]->getClassTag());
+        output.attr("tag", materialPointers[i]->getTag());
 
-	output.tag("ResponseType","UnknownStress");
-	output.tag("ResponseType","UnknownStress");
-	output.tag("ResponseType","UnknownStress");
-	output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
+        output.tag("ResponseType","UnknownStress");
 
-	output.endTag(); // GaussPoint
-	output.endTag(); // NdMaterialOutput
+        output.endTag(); // GaussPoint
+        output.endTag(); // NdMaterialOutput
       }
 
       theResponse =  new ElementResponse(this, 3, Vector(4*9));
     }
   }
-	
+        
   output.endTag(); // ElementOutput
 
   return theResponse;
@@ -1474,7 +1384,7 @@ NineNodeMixedQuad::getResponse(int responseID, Information &eleInfo)
       cnt += 4;
     }
     return eleInfo.setVector(stresses);
-	
+        
   } else
 
     return -1;
@@ -1505,8 +1415,8 @@ NineNodeMixedQuad::sendSelf (int commitTag, Channel &theChannel)
     // tag if we are sending to a database channel.
     if (matDbTag == 0) {
       matDbTag = theChannel.getDbTag();
-			if (matDbTag != 0)
-			  materialPointers[i]->setDbTag(matDbTag);
+                        if (matDbTag != 0)
+                          materialPointers[i]->setDbTag(matDbTag);
     }
     idData(i+9) = matDbTag;
   }
@@ -1544,8 +1454,8 @@ NineNodeMixedQuad::sendSelf (int commitTag, Channel &theChannel)
     
 int 
 NineNodeMixedQuad::recvSelf (int commitTag, 
-			     Channel &theChannel, 
-			     FEM_ObjectBroker &theBroker)
+                             Channel &theChannel, 
+                             FEM_ObjectBroker &theBroker)
 {
   int res = 0;
   
@@ -1580,16 +1490,16 @@ NineNodeMixedQuad::recvSelf (int commitTag,
       // Allocate new material with the sent class tag
       materialPointers[i] = theBroker.getNewNDMaterial(matClassTag);
       if (materialPointers[i] == 0) {
-	opserr << "NineNodeMixedQuad::recvSelf() - Broker could not create NDMaterial of class type" << matClassTag << endln;
-	return -1;
+        opserr << "NineNodeMixedQuad::recvSelf() - Broker could not create NDMaterial of class type" << matClassTag << endln;
+        return -1;
       }
       // Now receive materials into the newly allocated space
       materialPointers[i]->setDbTag(matDbTag);
       res += materialPointers[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
-	opserr << "NineNodeMixedQuad::recvSelf() - material " <<
-	  i << "failed to recv itself\n";
-	return res;
+        opserr << "NineNodeMixedQuad::recvSelf() - material " <<
+          i << "failed to recv itself\n";
+        return res;
       }
     }
   }
@@ -1601,20 +1511,20 @@ NineNodeMixedQuad::recvSelf (int commitTag,
       // Check that material is of the right type; if not,
       // delete it and create a new one of the right type
       if (materialPointers[i]->getClassTag() != matClassTag) {
-	delete materialPointers[i];
-	materialPointers[i] = theBroker.getNewNDMaterial(matClassTag);
-	if (materialPointers[i] == 0) {
-	  opserr << "NineNodeMixedQuad::recvSelf() - Broker could not create NDMaterial of class type" << matClassTag << endln;
-	  exit(-1);
-	}
+        delete materialPointers[i];
+        materialPointers[i] = theBroker.getNewNDMaterial(matClassTag);
+        if (materialPointers[i] == 0) {
+          opserr << "NineNodeMixedQuad::recvSelf() - Broker could not create NDMaterial of class type" << matClassTag << endln;
+          exit(-1);
+        }
       }
       // Receive the material
       materialPointers[i]->setDbTag(matDbTag);
       res += materialPointers[i]->recvSelf(commitTag, theChannel, theBroker);
       if (res < 0) {
-	opserr << "NineNodeMixedQuad::recvSelf() - material " <<
-	  i << "failed to recv itself\n";
-	return res;
+        opserr << "NineNodeMixedQuad::recvSelf() - material " <<
+          i << "failed to recv itself\n";
+        return res;
       }
     }
   }

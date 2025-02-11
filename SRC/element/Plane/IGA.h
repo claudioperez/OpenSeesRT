@@ -12,7 +12,8 @@ void   GaussRule(int NGPs1, Vector* Xg, Vector* WXg);
 Vector dotProduct(Vector VecA, Vector VecB);
 Vector dotDivide(Vector VecA, Vector VecB);
 
-Vector dotDivide(Vector VecA, Vector VecB)
+Vector
+dotDivide(Vector VecA, Vector VecB)
 {
     Vector result(VecA.Size());
     for (int i = 1; i <= VecA.Size();i++) {
@@ -21,7 +22,8 @@ Vector dotDivide(Vector VecA, Vector VecB)
     return result;
 }
 
-Vector dotProduct(Vector VecA, Vector VecB)
+Vector
+dotProduct(Vector VecA, Vector VecB)
 {
     Vector result(VecA.Size());
     for (int i = 1; i <= VecA.Size();i++) {
@@ -30,7 +32,8 @@ Vector dotProduct(Vector VecA, Vector VecB)
     return result;
 }
 
-void GaussRule(int NGPs1, Vector* Xg, Vector* WXg)
+void 
+GaussRule(int NGPs1, Vector* Xg, Vector* WXg)
 {
     double NGPs = (double)NGPs1;
     Vector X(NGPs), W(NGPs);
@@ -49,7 +52,8 @@ void GaussRule(int NGPs1, Vector* Xg, Vector* WXg)
         kk++;
     }
     Vector x0(tt.Size());
-    Vector h(tt.Size()), d1(tt.Size()), pk(tt.Size()), dpn(tt.Size()), d2pn(tt.Size()), d3pn(tt.Size()), d4pn(tt.Size());
+    Vector h(tt.Size()), 
+           d1(tt.Size()), pk(tt.Size()), dpn(tt.Size()), d2pn(tt.Size()), d3pn(tt.Size()), d4pn(tt.Size());
     for (int i = 1; i <= tt.Size();i++) {
         x0(i - 1) = (1 - (1 - 1 / NGPs) / (8 * NGPs * NGPs)) * cos(tt(i - 1));
     }

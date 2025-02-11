@@ -1,33 +1,13 @@
 /* ****************************************************************** **
 **    OpenSees - Open System for Earthquake Engineering Simulation    **
 **          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.7 $
-// $Date: 2007-02-02 01:35:22 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/fourNodeQuad/NineNodeMixedQuad.h,v $
-
+//
 // Ed "C++" Love
 //
-// Constant Presssure/Volume Four Node Quadrilateral
+// Mixed Presssure/Volume Nine Node Quadrilateral
 // Plane Strain (NOT PLANE STRESS)
 //
-
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
@@ -42,11 +22,9 @@
 class NineNodeMixedQuad : public Element {
 
   public :
-    
-    //null constructor
-    NineNodeMixedQuad( ) ;
-  
-    //full constructor
+
+    NineNodeMixedQuad();
+
     NineNodeMixedQuad( int tag, 
 		       int node1,
 		       int node2,
@@ -59,38 +37,31 @@ class NineNodeMixedQuad : public Element {
 		       int node9,
 		       NDMaterial &theMaterial ) ;
 
-    //destructor 
     ~NineNodeMixedQuad( ) ;
 
-    const char *getClassType(void) const {return "NineNodeMixedQuad";};
+    const char *getClassType(void) const {return "NineNodeMixedQuad";}
     static constexpr const char* class_name = "NineNodeMixedQuad";
 
     //set domain 
     void setDomain( Domain *theDomain ) ;
 
     //get the number of external nodes
-    int getNumExternalNodes( ) const ;
+    int getNumExternalNodes() const;
+    int getNumDOF();
  
     //return connected external nodes
     const ID &getExternalNodes( ) ;
-    Node **getNodePtrs(void);
+    Node **getNodePtrs();
 
-    //return number of dofs
-    int getNumDOF( ) ;
 
-    //commit state
+    //
     int commitState( ) ;
-    
-    //revert to last commit 
     int revertToLastCommit( ) ;
-    
-    //revert to start 
     int revertToStart( ) ;
 
-    //print out element data
     void Print( OPS_Stream &s, int flag ) ;
 	
-    //return stiffness matrix 
+    // 
     const Matrix &getTangentStiff();
     const Matrix &getInitialStiff();     
     const Matrix &getMass();
@@ -106,18 +77,13 @@ class NineNodeMixedQuad : public Element {
     const Vector &getResistingForceIncInertia( ) ;
 
     // public methods for element output
-    Response *setResponse(const char **argv, int argc, 
-			  OPS_Stream &s);
+    Response *setResponse(const char **argv, int argc, OPS_Stream &s);
 
     int getResponse(int responseID, Information &eleInformation);
 
-    int sendSelf (int commitTag, Channel &theChannel);
-    int recvSelf (int commitTag, Channel &theChannel, FEM_ObjectBroker 
-		  &theBroker);
+    int sendSelf (int commitTag, Channel &);
+    int recvSelf (int commitTag, Channel &, FEM_ObjectBroker &);
 
-    //plotting 
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
-  
   private : 
 
     //static data
@@ -127,7 +93,7 @@ class NineNodeMixedQuad : public Element {
     static Matrix damping ;
     
     
-    //quadrature data
+    // quadrature data
     static double root06;
     static double sg[3] ;
     static double wg[3] ;

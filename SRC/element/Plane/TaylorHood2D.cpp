@@ -298,7 +298,7 @@ TaylorHood2D::getDamp()
 	// Jacobian matrix
 	Matrix J;
 	Jacobian(J,X,dNv);
-	double detJ = J(0,0)*J(1,1)-J(1,0)*J(0,1);
+	double detJ = J(0,0)*J(1,1) - J(1,0)*J(0,1);
 	Matrix invJ = J;
 	invJ(0,0) = J(1,1);
 	invJ(1,1) = J(0,0);

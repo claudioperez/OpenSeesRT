@@ -918,6 +918,7 @@ int  ASDShellQ4::revertToStart()
     // sections
     for (int i = 0; i < 4; i++)
         success += m_sections[i]->revertToStart();
+
     if (m_drill_mode == DrillingDOF_NonLinear) {
         for (int i = 0; i < 4; i++) {
             m_nldrill->stress_comm[i].Zero();
@@ -927,14 +928,13 @@ int  ASDShellQ4::revertToStart()
     }
 
     // AGQI internal DOFs
-    if(m_eas)
+    if (m_eas)
         AGQIinitialize();
     return success;
 }
 
 int ASDShellQ4::update()
 {
-    // calculate
     auto& LHS = ASDShellQ4Globals::instance().LHS;
     auto& RHS = ASDShellQ4Globals::instance().RHS;
     return calculateAll(LHS, RHS, (OPT_UPDATE));
@@ -942,7 +942,6 @@ int ASDShellQ4::update()
 
 const Matrix& ASDShellQ4::getTangentStiff()
 {
-    // calculate
     auto& LHS = ASDShellQ4Globals::instance().LHS;
     auto& RHS = ASDShellQ4Globals::instance().RHS;
     calculateAll(LHS, RHS, (OPT_LHS));
@@ -951,7 +950,6 @@ const Matrix& ASDShellQ4::getTangentStiff()
 
 const Matrix& ASDShellQ4::getInitialStiff()
 {
-    // calculate
     auto& LHS = ASDShellQ4Globals::instance().LHS_initial;
     auto& RHS = ASDShellQ4Globals::instance().RHS;
     calculateAll(LHS, RHS, (OPT_LHS | OPT_LHS_IS_INITIAL));
@@ -1039,9 +1037,9 @@ ASDShellQ4::addInertiaLoadToUnbalance(const Vector& accel)
     return 0;
 }
 
-const Vector& ASDShellQ4::getResistingForce()
+const Vector&
+ASDShellQ4::getResistingForce()
 {
-    // calculate
     auto& LHS = ASDShellQ4Globals::instance().LHS;
     auto& RHS = ASDShellQ4Globals::instance().RHS;
     calculateAll(LHS, RHS, (OPT_RHS));
@@ -1050,7 +1048,6 @@ const Vector& ASDShellQ4::getResistingForce()
 
 const Vector& ASDShellQ4::getResistingForceIncInertia()
 {
-    // calculate
     auto& LHS = ASDShellQ4Globals::instance().LHS;
     auto& RHS = ASDShellQ4Globals::instance().RHS_winertia;
     calculateAll(LHS, RHS, (OPT_RHS));
@@ -1070,12 +1067,11 @@ const Vector& ASDShellQ4::getResistingForceIncInertia()
         for (int j = 0; j < 6; j++)
             RHS(index + j) += M(index + j, index + j) * A(j);
     }
-
-    // Done
     return RHS;
 }
 
-int  ASDShellQ4::sendSelf(int commitTag, Channel& theChannel)
+int
+ASDShellQ4::sendSelf(int commitTag, Channel& theChannel)
 {
     int res = 0;
 
@@ -1123,17 +1119,6 @@ int  ASDShellQ4::sendSelf(int commitTag, Channel& theChannel)
     }
 
     if (m_damping[0]) {
-#ifdef OPS_USE_DAMPING
-        idData(counter++) = m_damping[0]->getClassTag();
-        int dbTag = m_damping[0]->getDbTag();
-        if (dbTag == 0) {
-            dbTag = theChannel.getDbTag();
-            if (dbTag != 0)
-                for (int i = 0; i < 4; i++)
-                    m_damping[i]->setDbTag(dbTag);
-        }
-        idData(counter++) = dbTag;
-#endif
     }
     else {
         idData(counter++) = 0;
