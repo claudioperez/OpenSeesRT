@@ -67,7 +67,7 @@ class FiberSection3d : public FrameSection
  
     FrameSection *getFrameCopy();
     const ID &getType();
-    int getOrder () const; //  {return 4;};
+    int getOrder () const;
  
     int sendSelf(int cTag, Channel &theChannel);
     int recvSelf(int cTag, Channel &theChannel, 

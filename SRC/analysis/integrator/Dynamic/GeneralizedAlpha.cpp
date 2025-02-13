@@ -283,7 +283,7 @@ int GeneralizedAlpha::domainChanged()
       Ualpha = new Vector(size);
       Ualphadot = new Vector(size);
       Ualphadotdot = new Vector(size);
-      
+
       // check we obtained the new
       if (Ut == 0 || Ut->Size() != size ||
           Utdot == 0 || Utdot->Size() != size ||

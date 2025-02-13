@@ -35,12 +35,12 @@
 #define ProfileSPDLinDirectThreadSolver_h
 
 #include <ProfileSPDLinSolver.h>
-class ProfileSPDLinSOE;
+class  ProfileSPDLinSOE;
+struct ProfileTCB;
 
 class ProfileSPDLinDirectThreadSolver : public ProfileSPDLinSolver
 {
   public:
-    ProfileSPDLinDirectThreadSolver();      
     ProfileSPDLinDirectThreadSolver(int numProcessors, int blockSize, double tol);    
     virtual ~ProfileSPDLinDirectThreadSolver();
 
@@ -65,6 +65,7 @@ class ProfileSPDLinDirectThreadSolver : public ProfileSPDLinSolver
     double **topRowPtr, *invD;
     
   private:
+    struct ProfileTCB* tcb;
 
 };
 

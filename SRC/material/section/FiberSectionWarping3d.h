@@ -29,14 +29,14 @@
 #ifndef FiberSectionWarping3d_h
 #define FiberSectionWarping3d_h
 
-#include <SectionForceDeformation.h>
+#include <FrameSection.h>
 #include <Vector.h>
 #include <Matrix.h>
 
 class UniaxialMaterial;
 class Response;
 
-class FiberSectionWarping3d : public SectionForceDeformation
+class FiberSectionWarping3d : public FrameSection
 {
   public:
     FiberSectionWarping3d(); 
@@ -62,7 +62,7 @@ class FiberSectionWarping3d : public SectionForceDeformation
     int   revertToLastCommit(void);    
     int   revertToStart(void);
  
-    SectionForceDeformation *getCopy(void);
+    FrameSection *getFrameCopy();
     const ID &getType();
     int getOrder (void) const;
     

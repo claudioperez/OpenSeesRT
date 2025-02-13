@@ -18,13 +18,13 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: fmk
-// Created: 04/04
-//
 // Description: This file contains the class implementation of FiberSectionWarping3d.
 // Modified by Xi Zhang from University of Sydney, Australia (include warping degrees of freedom). Refer to 
 // Formulation and Implementation of Three-dimensional Doubly Symmetric Beam-Column Analyses with Warping Effects in OpenSees
 // Research Report R917, School of Civil Engineering, University of Sydney.
+//
+// Written: fmk
+// Created: 04/04
 //
 #include <stdlib.h>
 
@@ -36,15 +36,14 @@
 #include <ID.h>
 #include <FEM_ObjectBroker.h>
 #include <Information.h>
-#include <SensitiveResponse.h>
-typedef SensitiveResponse<SectionForceDeformation> SectionResponse;
 #include <UniaxialMaterial.h>
 #include <ElasticMaterial.h>
 #include <math.h>
-#include <iostream>
 #include <fstream>
 #include <string.h>
 #include <elementAPI.h>
+#include <SensitiveResponse.h>
+typedef SensitiveResponse<FrameSection> SectionResponse;
 
 
 ID FiberSectionWarping3d::code(6);
@@ -104,16 +103,17 @@ void * OPS_ADD_RUNTIME_VPV(OPS_FiberSectionWarping3d)
     }
     
     int num = 30;
-    SectionForceDeformation *section = new FiberSectionWarping3d(tag, num, *torsion);
+    FrameSection *section = new FiberSectionWarping3d(tag, num, *torsion);
     if (deleteTorsion)
       delete torsion;
     return section;
 }
+
 #if 0
 // constructors:
 FiberSectionWarping3d::FiberSectionWarping3d(int tag, int num, Fiber **fibers,
                                              UniaxialMaterial &torsion): 
-  SectionForceDeformation(tag, SEC_TAG_FiberSectionWarping3d),
+  FrameSection(tag, SEC_TAG_FiberSectionWarping3d),
   numFibers(num), sizeFibers(num),  theMaterials(0), matData(0),
   yBar(0.0), zBar(0.0), e(8), eCommit(8), s(0), ks(0), theTorsion(0)
 {
@@ -187,7 +187,7 @@ FiberSectionWarping3d::FiberSectionWarping3d(int tag, int num, Fiber **fibers,
 #endif
 
 FiberSectionWarping3d::FiberSectionWarping3d(int tag, int num, UniaxialMaterial &torsion): 
-    SectionForceDeformation(tag, SEC_TAG_FiberSectionWarping3d),
+    FrameSection(tag, SEC_TAG_FiberSectionWarping3d),
     numFibers(0), sizeFibers(num), theMaterials(0), matData(0),
     yBar(0.0), zBar(0.0),
     e(8), eCommit(8), s(0), ks(0), theTorsion(0)
@@ -225,7 +225,7 @@ FiberSectionWarping3d::FiberSectionWarping3d(int tag, int num, UniaxialMaterial 
 
 // constructor for blank object that recvSelf needs to be invoked upon
 FiberSectionWarping3d::FiberSectionWarping3d():
-  SectionForceDeformation(0, SEC_TAG_FiberSectionWarping3d),
+  FrameSection(0, SEC_TAG_FiberSectionWarping3d),
   numFibers(0), theMaterials(nullptr), matData(nullptr),
   yBar(0.0), zBar(0.0), e(8), eCommit(8), s(0), ks(0), theTorsion(0)
 {
@@ -278,6 +278,14 @@ FiberSectionWarping3d::addFiber(UniaxialMaterial &theMat, const double Area, con
 //newFiber.getFiberLocation(yLoc, zLoc);
 //Area = newFiber.getArea();
 //Height = newFiber.getd();
+
+//// calculate sectorial area
+//double omig=0.0;
+//if (y>0.0)
+//  omig = -zLoc*(yLoc-Height);
+//else
+//  omig = -zLoc*(yLoc+Height);
+
   newMatData[numFibers*4]   = -yLoc;
   newMatData[numFibers*4+1] =  zLoc;
   newMatData[numFibers*4+2] =  Area;
@@ -285,7 +293,7 @@ FiberSectionWarping3d::addFiber(UniaxialMaterial &theMat, const double Area, con
 //UniaxialMaterial *theMat = newFiber.getMaterial();
   newArray[numFibers] = theMat.getCopy();
 
-  if (newArray[numFibers] == 0) {
+  if (newArray[numFibers] == nullptr) {
     opserr << "FiberSectionWarping3d::addFiber -- failed to get copy of a Material\n";
     delete [] newArray;
     delete [] newMatData;
@@ -350,7 +358,7 @@ FiberSectionWarping3d::~FiberSectionWarping3d()
 }
 
 int
-FiberSectionWarping3d::setTrialSectionDeformation (const Vector &deforms)
+FiberSectionWarping3d::setTrialSectionDeformation(const Vector &deforms)
 {
   int res = 0;
   e = deforms;
@@ -381,47 +389,53 @@ FiberSectionWarping3d::setTrialSectionDeformation (const Vector &deforms)
     double y    = matData[loc++] - yBar;
     double z    = matData[loc++] - zBar;
     double A    = matData[loc++];
-    double omig = matData[loc++];
+    double omig = matData[loc++];         // SV warping function
 
     // determine material strain and set it, include second order terms
-    double strain = d0 - y*d1 - z*d2 - omig*d3 + 0.5*d5*d5 + 0.5*d6*d6 + 0.5*(y*y+z*z)*d4*d4 - y*d7*d2 + z*d7*d1;
+    double strain = d0 - y*d1 - z*d2 - omig*d3 
+                  + 0.5*d5*d5 + 0.5*d6*d6 + 0.5*(y*y + z*z)*d4*d4 
+                  - y*d7*d2 + z*d7*d1;
     double tangent, stress;
     res += theMat->setTrial(strain, stress, tangent);
 
-    double value = tangent * A;
-    double vas1 = y*value;
-    double vas2 = z*value;
+    //
+    // section force vector D, refer to Alemdar
+    //
+    double fs0 = stress * A;
+    sData[0] += fs0;                // N
+    sData[1] += -y*fs0;             // Mz
+    sData[2] += -z*fs0;             // My
+    sData[3] +=  fs0 * (y*y + z*z); // W
+    sData[4] += -fs0 * omig;        // B
+
+    // 
+    // Section stiffness matrix k, refer to Alemdar
+    // 
+    double EA = tangent * A;
+    double vas1 = y*EA;
+    double vas2 = z*EA;
     double vas1as2 = vas1*z;
 
-    // section stiffness matrix k, refer to Alemdar
+    kData[ 0] += EA;
+    kData[ 1] += -vas1;
+    kData[ 2] += -vas2;
+    kData[ 3] += (y*y + z*z)*EA;
+    kData[ 4] += omig*EA;
     
-    kData[0] += value;
-    kData[1] += -vas1;
-    kData[2] += -vas2;
-    kData[3] += (y*y+z*z)*value;
-    kData[4] += omig*value;
-    
-    kData[7] += vas1 * y;
-    kData[8] += y*z*value;
-    kData[9] += -y*(y*y+z*z)*value;
-    kData[10] += -y*omig*value;
+    kData[ 7] += vas1 * y;
+    kData[ 8] += y*z*EA;
+    kData[ 9] += -y*(y*y + z*z)*EA;
+    kData[10] += -y*omig*EA;
       
     kData[14] += vas2 * z;
-    kData[15] += -z*(y*y+z*z)*value;
-    kData[16] += -z*omig*value;
+    kData[15] += -z*(y*y+z*z)*EA;
+    kData[16] += -z*omig*EA;
     
-    kData[21] += (y*y+z*z)*(y*y+z*z)*value;
-    kData[22] += omig*(y*y+z*z)*value;
+    kData[21] += (y*y+z*z)*(y*y+z*z)*EA;
+    kData[22] += omig*(y*y+z*z)*EA;
       
-    kData[28] += omig*omig*value;
+    kData[28] += omig*omig*EA;
 
-    // section force vector D, refer to Alemdar
-    double fs0 = stress * A;
-    sData[0] += fs0;
-    sData[1] += -1.0 * fs0 * y;
-    sData[2] += -1.0 * fs0 * z;
-    sData[3] +=  fs0 * (y*y+z*z);
-    sData[4] += -fs0 * omig;
   }
   
   kData[ 6] = kData[1];
@@ -449,7 +463,7 @@ FiberSectionWarping3d::setTrialSectionDeformation (const Vector &deforms)
 }
 
 const Matrix&
-FiberSectionWarping3d::getInitialTangent(void)
+FiberSectionWarping3d::getInitialTangent()
 {
   static double kInitialData[36];
   static Matrix kInitial(kInitialData, 6, 6);
@@ -491,27 +505,27 @@ FiberSectionWarping3d::getInitialTangent(void)
 }
 
 const Vector&
-FiberSectionWarping3d::getSectionDeformation(void)
+FiberSectionWarping3d::getSectionDeformation()
 {
   return e;
 }
 
 const Matrix&
-FiberSectionWarping3d::getSectionTangent(void)
+FiberSectionWarping3d::getSectionTangent()
 {
   return *ks;
 }
 
 const Vector&
-FiberSectionWarping3d::getStressResultant(void)
+FiberSectionWarping3d::getStressResultant()
 {
   return *s;
 }
 
-SectionForceDeformation*
-FiberSectionWarping3d::getCopy(void)
+FrameSection*
+FiberSectionWarping3d::getFrameCopy()
 {
-  FiberSectionWarping3d *theCopy = new FiberSectionWarping3d ();
+  FiberSectionWarping3d *theCopy = new FiberSectionWarping3d();
   theCopy->setTag(this->getTag());
 
   theCopy->numFibers = numFibers;
@@ -520,20 +534,14 @@ FiberSectionWarping3d::getCopy(void)
     theCopy->theMaterials = new UniaxialMaterial *[numFibers];
 
     theCopy->matData = new double [numFibers*4];
-                            
-    
-    for (int i = 0; i < numFibers; i++) {
-      theCopy->matData[i*4] = matData[i*4];
-      theCopy->matData[i*4+1] = matData[i*4+1];
-      theCopy->matData[i*4+2] = matData[i*4+2];
-      theCopy->matData[i*4+3] = matData[i*4+3];
-      theCopy->theMaterials[i] = theMaterials[i]->getCopy();
 
-      if (theCopy->theMaterials[i] == 0) {
-        opserr << "FiberSectionWarping3d::getCopy -- failed to get copy of a Material\n";
-        exit(-1);
-      }
-    }    
+    for (int i = 0; i < numFibers; i++) {
+      theCopy->matData[i*4]    = matData[i*4];
+      theCopy->matData[i*4+1]  = matData[i*4+1];
+      theCopy->matData[i*4+2]  = matData[i*4+2];
+      theCopy->matData[i*4+3]  = matData[i*4+3];
+      theCopy->theMaterials[i] = theMaterials[i]->getCopy();
+    }
   }
 
   theCopy->eCommit = eCommit;
@@ -551,10 +559,10 @@ FiberSectionWarping3d::getCopy(void)
   theCopy->sData[4] = sData[4];
   theCopy->sData[5] = sData[5];  
 
-  if (theTorsion != 0)
+  if (theTorsion != nullptr)
     theCopy->theTorsion = theTorsion->getCopy();
   else
-    theCopy->theTorsion = 0;
+    theCopy->theTorsion = nullptr;
   
   return theCopy;
 }
@@ -880,6 +888,7 @@ FiberSectionWarping3d::recvSelf(int commitTag, Channel &theChannel,
       // release old and create a new one
       if (theMaterials[i] == 0)
         theMaterials[i] = theBroker.getNewUniaxialMaterial(classTag);
+
       else if (theMaterials[i]->getClassTag() != classTag) {
         delete theMaterials[i];
         theMaterials[i] = theBroker.getNewUniaxialMaterial(classTag);      
@@ -1166,7 +1175,7 @@ FiberSectionWarping3d::getResponse(int responseID, Information &sectInfo)
 {
   // Just call the base class method ... don't need to define
   // this function, but keeping it here just for clarity
-  return SectionForceDeformation::getResponse(responseID, sectInfo);
+  return FrameSection::getResponse(responseID, sectInfo);
 }
 
 int

@@ -33,7 +33,7 @@ TclCommand_newNewmarkIntegrator(ClientData clientData, Tcl_Interp* interp, int a
   double gamma, beta;
   double alphaM = 1.0,
          alphaF = 1.0;
-  bool useGeneralized = false;
+  bool useGeneralized = true;
 
   // Keep track of required arguments
   bool gotBeta  = false,

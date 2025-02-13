@@ -5,9 +5,9 @@
 template <int ndm, int ndf>
 class NodeND: public Node {
   public:
-  NodeND(int tag, double crd)                            requires(ndm == 1): Node(tag, ndf, crd) { createDisp();}
-  NodeND(int tag, double crd1, double crd2)              requires(ndm == 2): Node(tag, ndf, crd1, crd2) { createDisp();}
-  NodeND(int tag, double crd1, double crd2, double crd3) requires(ndm == 3): Node(tag, ndf, crd1, crd2, crd3) { createDisp();}
+  NodeND(int tag, double crd)                            requires(ndm == 1): Node(tag, ndf) { createDisp();}
+  NodeND(int tag, double crd1, double crd2)              requires(ndm == 2): Node(tag, ndf) { createDisp();}
+  NodeND(int tag, double crd1, double crd2, double crd3) requires(ndm == 3): Node(tag, ndf) { createDisp();}
 
 
   virtual int setTrialDisp  (double value, int dof) final {
@@ -66,7 +66,7 @@ class NodeND: public Node {
       return 0;
   }
 
-  virtual int revertToLastCommit() override final {
+  virtual int revertToLastCommit() final {
       // check disp exists, if does set trial = last commit, incr = 0
       for (int i=0 ; i<ndf; i++) {
         displ[i] = displ[i+ndf];
@@ -112,8 +112,25 @@ class NodeND: public Node {
       return 0;
   }
 
+  // MovableObject
+  virtual int sendSelf(int commitTag, Channel &theChannel) {
+    return -1;
+  }
+
+  virtual int recvSelf(int commitTag, Channel &theChannel, 
+                       FEM_ObjectBroker &theBroker) {
+    return -1;
+  }
+
   private:
-    int createDisp(void) override final {
+    double *disp;
+    double *vel, *accel;              // double arrays holding the vel and accel values
+    Vector *trialDisp, *commitDisp, *incrDisp, *incrDeltaDisp;
+    Vector *commitVel, *commitAccel;  // committed quantities
+    Vector *trialVel,  *trialAccel;   // trial quantities
+    Vector *unbalLoad;                // unbalanced load
+
+    int createDisp() {
       trialDisp     = new Vector(displ, ndf);
       commitDisp    = new Vector(&displ[ndf], ndf); 
       incrDisp      = new Vector(&displ[2*ndf], ndf);

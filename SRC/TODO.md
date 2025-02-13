@@ -2,6 +2,8 @@
 
 General
 
+- remove `database` command.
+
 - Warn on `0` tags
 - Why does `Node` call `exit()` on failure in `getEigenvector`?
 - Some methods are preemptively marked `virtual`; I've changed
@@ -26,6 +28,8 @@ Organizing:
   - `euclid/`
   - `Vector.h`
   - `Matrix.h`
+
+- Organize `TimeSeriesIntegrators` from C++; handle in pre-processing?
 
 
 Commands:

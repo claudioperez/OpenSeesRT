@@ -89,8 +89,8 @@ private:
     // Sensitivity
     int sensitivityFlag;
     int gradNumber;
-    Vector *massMatrixMultiplicator;
-    Vector *dampingMatrixMultiplicator;
+    Vector *dAa;
+    Vector *dVa;
     int assemblyFlag;
     Vector independentRHS;
     Vector dUn, dVn, dAn;

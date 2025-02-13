@@ -334,7 +334,7 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
           mass, use_mass                                // mass
       );
     }
-    else if (argc > 8) {
+    else if (argc > 6) {
       theSection = new ElasticLinearFrameSection3d(tag, E,  consts.A,
                                                    consts.Iz, consts.Iy, 
                                                    G, J, mass, use_mass);

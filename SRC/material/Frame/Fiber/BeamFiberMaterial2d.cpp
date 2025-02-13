@@ -18,14 +18,13 @@
 **                                                                    **
 ** ****************************************************************** */
 //
-// Written: MHS
-// Created: Aug 2001
-//
-// Description: This file contains the class definition of BeamFiberMaterial.
 // The BeamFiberMaterial class is a wrapper class that performs static
 // condensation on a three-dimensional material model to give the 11 and 12
 // stress components which can then be integrated over an area to model a
 // shear flexible 2D beam.
+//
+// Written: MHS
+// Created: Aug 2001
 //
 #include <BeamFiberMaterial2d.h>
 #include <Channel.h>
@@ -40,16 +39,16 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BeamFiberMaterial2d)
 {
     int argc = OPS_GetNumRemainingInputArgs() + 2;
     if (argc < 4) {
-	opserr << "WARNING insufficient arguments\n";
-	opserr << "Want: nDMaterial BeamFiber2d tag? matTag?" << endln;
-	return 0;
+        opserr << "WARNING insufficient arguments\n";
+        opserr << "Want: nDMaterial BeamFiber2d tag? matTag?" << endln;
+        return 0;
     }
 
     int tags[2];
     int numdata = 2;
     if (OPS_GetIntInput(&numdata, tags) < 0) {
-	opserr << "WARNING invalid nDMaterial BeamFiber2d tag or matTag" << endln;
-	return 0;
+        opserr << "WARNING invalid nDMaterial BeamFiber2d tag or matTag" << endln;
+        return 0;
     }
 
     int tag = tags[0];
@@ -57,10 +56,10 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BeamFiberMaterial2d)
 
     NDMaterial *threeDMaterial = OPS_getNDMaterial(matTag);
     if (threeDMaterial == 0) {
-	opserr << "WARNING nD material does not exist\n";
-	opserr << "nD material: " << matTag;
-	opserr << "\nBeamFiber2d nDMaterial: " << tag << endln;
-	return 0;
+        opserr << "WARNING nD material does not exist\n";
+        opserr << "nD material: " << matTag;
+        opserr << "\nBeamFiber2d nDMaterial: " << tag << endln;
+        return 0;
     }
 
     return new BeamFiberMaterial2d(tag, *threeDMaterial);
@@ -70,13 +69,13 @@ void * OPS_ADD_RUNTIME_VPV(OPS_BeamFiberMaterial2d)
 // ND: 11 22 33 12 23 31
 // BF: 11 12 22 33 23 31
 
-BeamFiberMaterial2d::BeamFiberMaterial2d(void)
+BeamFiberMaterial2d::BeamFiberMaterial2d()
   :NDMaterial(0, ND_TAG_BeamFiberMaterial2d),
    Tstrain22(0.0), Tstrain33(0.0), Tgamma31(0.0), Tgamma23(0.0),
    Cstrain22(0.0), Cstrain33(0.0), Cgamma31(0.0), Cgamma23(0.0),
    theMaterial(0), strain(2)
 {
-	// Nothing to do
+  // Nothing to do
 }
 
 BeamFiberMaterial2d::BeamFiberMaterial2d(int tag, NDMaterial &theMat)
@@ -95,14 +94,14 @@ BeamFiberMaterial2d::BeamFiberMaterial2d(int tag, NDMaterial &theMat)
   }
 }
 
-BeamFiberMaterial2d::~BeamFiberMaterial2d(void) 
+BeamFiberMaterial2d::~BeamFiberMaterial2d() 
 { 
-  if (theMaterial != 0)
+  if (theMaterial != nullptr)
     delete theMaterial;
 } 
 
 NDMaterial*
-BeamFiberMaterial2d::getCopy(void) 
+BeamFiberMaterial2d::getCopy() 
 {
   BeamFiberMaterial2d *theCopy =
     new BeamFiberMaterial2d(this->getTag(), *theMaterial);
@@ -129,19 +128,19 @@ BeamFiberMaterial2d::getCopy(const char *type)
 }
 
 int 
-BeamFiberMaterial2d::getOrder(void) const
+BeamFiberMaterial2d::getOrder() const
 {
   return 2;
 }
 
 const char*
-BeamFiberMaterial2d::getType(void) const 
+BeamFiberMaterial2d::getType() const 
 {
   return "BeamFiber2d";
 }
 
 int 
-BeamFiberMaterial2d::commitState(void)
+BeamFiberMaterial2d::commitState()
 {
   Cstrain22 = Tstrain22;
   Cstrain33 = Tstrain33;
@@ -152,7 +151,7 @@ BeamFiberMaterial2d::commitState(void)
 }
 
 int 
-BeamFiberMaterial2d::revertToLastCommit(void)
+BeamFiberMaterial2d::revertToLastCommit()
 {
   Tstrain22 = Cstrain22;
   Tstrain33 = Cstrain33;
@@ -180,7 +179,7 @@ BeamFiberMaterial2d::revertToStart()
 }
 
 double
-BeamFiberMaterial2d::getRho(void)
+BeamFiberMaterial2d::getRho()
 {
   return theMaterial->getRho();
 }
@@ -273,7 +272,7 @@ BeamFiberMaterial2d::setTrialStrain(const Vector &strainFromElement)
 }
 
 const Vector& 
-BeamFiberMaterial2d::getStrain(void)
+BeamFiberMaterial2d::getStrain()
 {
   return strain;
 }
@@ -291,7 +290,7 @@ BeamFiberMaterial2d::getStress()
 
 const Vector& 
 BeamFiberMaterial2d::getStressSensitivity(int gradIndex,
-					  bool conditional)
+                                          bool conditional)
 {
   const Vector &threeDstress = theMaterial->getStressSensitivity(gradIndex, conditional);
 
@@ -351,7 +350,7 @@ BeamFiberMaterial2d::getStressSensitivity(int gradIndex,
 
 int
 BeamFiberMaterial2d::commitSensitivity(const Vector &depsdh, int gradIndex,
-				       int numGrads)
+                                       int numGrads)
 {
   static Vector dstraindh(6);
 
@@ -679,7 +678,7 @@ BeamFiberMaterial2d::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBrok
 
 int
 BeamFiberMaterial2d::setParameter(const char **argv, int argc,
-				  Parameter &param)
+                                  Parameter &param)
 {
   return theMaterial->setParameter(argv, argc, param);
 }

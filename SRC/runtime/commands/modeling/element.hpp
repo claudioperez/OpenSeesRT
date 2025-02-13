@@ -69,6 +69,7 @@ extern OPS_Routine OPS_PML2D;
 extern OPS_Routine OPS_CorotTruss2;
 extern OPS_Routine OPS_HDR;
 extern OPS_Routine OPS_LeadRubberX;
+extern OPS_Routine OPS_LeadRubberY;
 extern OPS_Routine OPS_ElastomericX;
 extern OPS_Routine OPS_N4BiaxialTruss;
 extern OPS_Routine OPS_AC3D8HexWithSensitivity;
@@ -294,7 +295,8 @@ element_dispatch = {
   {"TripleFrictionPendulum",       OPS_TripleFrictionPendulum},
   {"TripleFrictionPendulumX",      OPS_TripleFrictionPendulumX},
   {"HDR",                          OPS_HDR},
-  {"LeadRubberX",                  OPS_LeadRubberX},
+//{"LeadRubberX",                  OPS_LeadRubberX},
+  {"LeadRubberX",                  OPS_LeadRubberY},
   {"ElastomericX",                 OPS_ElastomericX},
 
   {"AxEqDispBeamColumn2d",         OPS_AxEqDispBeamColumn2d},
