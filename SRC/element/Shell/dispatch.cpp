@@ -226,7 +226,7 @@ TclDispatch_newShellDKGT(ClientData clientData, Tcl_Interp* interp, int argc, TC
 
 
 
-Element*
+int
 TclDispatch_newShellMITC4(ClientData clientData, Tcl_Interp* interp, int argc, TCL_Char** const argv)
 {
   assert(clientData != nullptr);
@@ -238,14 +238,14 @@ TclDispatch_newShellMITC4(ClientData clientData, Tcl_Interp* interp, int argc, T
   if (argc < 6) {
     opserr << "Want: element ShellMITC4 $tag $iNode $jNode $kNode $lNode "
               "$secTag<-updateBasis>";
-    return nullptr;
+    return TCL_ERROR;
   }
 
   int iData[6];
   int numData = 6;
   if (OPS_GetInt(&numData, iData) != 0) {
     opserr << "WARNING invalid integer tag: element ShellMITC4 \n";
-    return nullptr;
+    return TCL_ERROR;
   }
 
   if (argc == 7) {
@@ -256,12 +256,14 @@ TclDispatch_newShellMITC4(ClientData clientData, Tcl_Interp* interp, int argc, T
 
   SectionForceDeformation *theSection = builder->getTypedObject<SectionForceDeformation>(iData[5]);
   if (theSection == nullptr)
-    return nullptr;
+    return TCL_ERROR;
 
   theElement = new ShellMITC4(iData[0], iData[1], iData[2], iData[3], iData[4],
                               *theSection, updateBasis);
 
-  return theElement;
+  if (builder->getDomain()->addElement(theElement) == false)
+    return TCL_ERROR;
+  return TCL_OK;
 }
 
 

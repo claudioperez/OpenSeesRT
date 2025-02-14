@@ -116,7 +116,7 @@ Element* TclDispatch_newASDShellQ4(ClientData, Tcl_Interp*, int, TCL_Char** cons
 Element* TclDispatch_newShellANDeS(ClientData, Tcl_Interp*, int, TCL_Char** const);
 Element* TclDispatch_newShellDKGQ(ClientData, Tcl_Interp*, int, TCL_Char** const);
 Element* TclDispatch_newShellDKGT(ClientData, Tcl_Interp*, int, TCL_Char** const);
-Element* TclDispatch_newShellMITC4(ClientData, Tcl_Interp*, int, TCL_Char** const);
+Tcl_CmdProc TclDispatch_newShellMITC4;
 Element* TclDispatch_newShellMITC4Thermal(ClientData, Tcl_Interp*, int, TCL_Char** const);
 Element* TclDispatch_newShellMITC9(ClientData, Tcl_Interp*, int, TCL_Char** const);
 Element* TclDispatch_newShellNLDKGQ(ClientData, Tcl_Interp*, int, TCL_Char** const);
@@ -321,7 +321,12 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
 //
   else if ((strcmp(argv[1], "Shell") == 0) ||
            (strcmp(argv[1], "ShellMITC4") == 0)) {
-    theEle = TclDispatch_newShellMITC4(clientData, interp, argc, argv);
+    return TclDispatch_newShellMITC4(clientData, interp, argc, argv);
+  }
+
+  else if ((strcmp(argv[1], "ShellNL") == 0) ||
+             (strcmp(argv[1], "ShellMITC9") == 0)) {
+    theEle = TclDispatch_newShellMITC9(clientData, interp, argc, argv);
   }
 
   else if (strcmp(argv[1], "ShellMITC4Thermal") == 0) {
@@ -332,10 +337,6 @@ TclCommand_addElement(ClientData clientData, Tcl_Interp *interp, int argc, TCL_C
     theEle = TclDispatch_newShellNLDKGQThermal(clientData, interp, argc, argv);
   }
 
-  else if ((strcmp(argv[1], "ShellNL") == 0) ||
-             (strcmp(argv[1], "ShellMITC9") == 0)) {
-    theEle = TclDispatch_newShellMITC9(clientData, interp, argc, argv);
-  }
 
   else if ((strcmp(argv[1], "shellDKGQ") == 0) ||
            (strcmp(argv[1], "ShellDKGQ") == 0)) {
