@@ -34,9 +34,9 @@
 #define OPS_PRINT_PRINTMODEL_MATERIAL 2
 #define OPS_PRINT_PRINTMODEL_JSON   25000
 
-#define OPS_PRINT_JSON_ELEM_INDENT "          "
-#define OPS_PRINT_JSON_NODE_INDENT "          "
-#define OPS_PRINT_JSON_MATE_INDENT "          "
+#define OPS_PRINT_JSON_ELEM_INDENT "       "
+#define OPS_PRINT_JSON_NODE_INDENT "       "
+#define OPS_PRINT_JSON_MATE_INDENT "       "
 
 class OPS_Stream;
 
@@ -62,10 +62,8 @@ class TaggedObject
     int theTag;    
 };
 
-// INLINED TAGGED_OBJECT FUNCTIONS
-
 inline int 
-TaggedObject::getTag(void) const
+TaggedObject::getTag() const
 {
     return theTag;
 }
