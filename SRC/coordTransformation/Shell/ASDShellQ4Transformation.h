@@ -59,21 +59,24 @@ private:
 
 public:
 
-    virtual ASDShellQ4Transformation* create()const
-    {
-        return new ASDShellQ4Transformation();
-    }
+    // virtual ASDShellQ4Transformation* create()const
+    // {
+    //     return new ASDShellQ4Transformation();
+    // }
 
-    virtual bool isLinear() const
+    virtual bool 
+    isLinear() const
     {
         return true;
     }
 
-    virtual void revertToStart()
+    virtual void 
+    revertToStart()
     {
     }
 
-    virtual void setDomain(Domain* domain, const ID& node_ids, bool initialized)
+    virtual void 
+    setDomain(Domain* domain, const ID& node_ids, bool initialized)
     {
         // if domain is null
         if (domain == nullptr) {
@@ -116,7 +119,8 @@ public:
     {
     }
 
-    virtual ASDShellQ4LocalCoordinateSystem createReferenceCoordinateSystem() const
+    virtual ASDShellQ4LocalCoordinateSystem 
+    createReferenceCoordinateSystem() const
     {
         // the reference coordinate system in the underformed configuration
         // using the default alignment to the first column of the jacobian at center
@@ -128,7 +132,8 @@ public:
         );
     }
 
-    virtual ASDShellQ4LocalCoordinateSystem createLocalCoordinateSystem(const Vector& globalDisplacements) const
+    virtual ASDShellQ4LocalCoordinateSystem 
+    createLocalCoordinateSystem(const Vector& globalDisplacements) const
     {
         // same as reference
         return createReferenceCoordinateSystem();
