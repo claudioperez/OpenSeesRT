@@ -3,6 +3,12 @@ All files are in the following subdirectories:
 
 <dl>
 
+<dt><a href="./api"><code>api</code></a></dt>
+<dd>
+- `internal/` internal C API for extending
+- `external/` implementation of Tcl commands
+</dd>
+
 <dt><a href="./element"><code>element</code></a></dt>
 <dd>Contains the element classes, all in subdirectories, i.e. the
 `Truss.h` and `Truss.C` files are in a subdirectory `truss/`.
