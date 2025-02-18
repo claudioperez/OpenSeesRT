@@ -17,12 +17,11 @@
 #pragma once
 
 #include <cmath>
+#include "Versor.h"
 #include "Matrix3D.h"
 #include "Vector3D.h"
-#include "Quaternion.h"
 using OpenSees::Matrix3D;
 
-using Versor = OpenSees::VectorND<4,double>;
 
 #define cot(x) std::cos(x)/std::sin(x)
 
@@ -164,29 +163,6 @@ CayleyFromVersor(const Versor &q)
 
 
 static inline Versor
-VersorFromVector(const Vector  &theta)
-{
-    // normalized quaternion
-    Versor q;
-
-    double t = theta.Norm();
-    if (t == 0)
-        q.zero();
-
-    else {
-        const double factor = std::sin(t*0.5)/ t;
-        for (int i = 0; i < 3; i++)
-            q[i] = theta[i] * factor;
-    }
-
-    // Scalar part
-    q[3] = std::cos(t*0.5);
-
-    return q;
-}
-
-
-static inline Versor
 VersorProduct(const Versor &qa, const Versor &qb)
 {
     const double qa0 = qa[0],
@@ -240,7 +216,6 @@ MatrixFromVersor(const Versor &q)
 static inline Vector3D
 VectorFromVersor(const Versor& q)
 {
-
   // Initialize to zero
   Vector3D theta{};
 
@@ -248,7 +223,7 @@ VectorFromVersor(const Versor& q)
   double q0 = q[3];
 
   // qn = norm(qv);  % Norm of the vector part
-  double qn = sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
+  double qn = std::sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
 
   const double* const qv = &q[0];
 

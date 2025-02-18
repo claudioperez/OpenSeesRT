@@ -41,6 +41,7 @@
 
 class Vector;
 class Matrix;
+struct Versor;
 class Channel;
 class DOF_Group;
 class NodalThermalAction; //L.Jiang [ SIF ]
@@ -100,6 +101,7 @@ class Node :
     VIRTUAL const Vector &getIncrDisp();
     VIRTUAL const Vector &getIncrDeltaDisp();
     VIRTUAL const Vector &getTrialDisp();
+    VIRTUAL       Versor  getTrialRotation();
 
     VIRTUAL const Vector &getVel();
     VIRTUAL const Vector &getAccel();
@@ -201,6 +203,7 @@ class Node :
     Vector *commitVel, *commitAccel;  // committed quantities
     Vector *trialVel,  *trialAccel;   // trial quantities
     Vector *unbalLoad;                // unbalanced load
+    Versor *rotation;
 
   private:
     double *disp;
