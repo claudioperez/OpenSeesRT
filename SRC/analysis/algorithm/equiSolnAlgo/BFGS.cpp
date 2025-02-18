@@ -29,37 +29,6 @@
 #include <FEM_ObjectBroker.h>
 #include <ConvergenceTest.h>
 #include <ID.h>
-#include <elementAPI.h>
-
-void *
-OPS_ADD_RUNTIME_VPV(OPS_BFGS)
-{
-    int formTangent = CURRENT_TANGENT;
-    int count = -1;
-
-    while (OPS_GetNumRemainingInputArgs() > 0) {
-        const char* flag = OPS_GetString();
-        
-        if (strcmp(flag,"-secant") == 0) {
-            formTangent = CURRENT_SECANT;
-            
-        } else if (strcmp(flag,"-initial") == 0) {
-            formTangent = INITIAL_TANGENT;
-            
-        } else if (strcmp(flag,"-count") == 0 && OPS_GetNumRemainingInputArgs()>0) {
-            int numdata = 1;
-            if (OPS_GetIntInput(&numdata, &count) < 0) {
-                opserr << "WARNING Broyden failed to read count\n";
-                return 0;
-            }
-        }
-    }
-
-    if (count == -1)
-        return new BFGS(formTangent); 
-    else
-        return new BFGS(formTangent, count);
-}
 
 // Constructor
 BFGS::BFGS(int theTangentToUse, int n )
@@ -83,9 +52,9 @@ BFGS::BFGS(int theTangentToUse, int n )
   rdotz = 0;
   sdotr = 0;
 
-  localTest = 0;
+  localTest = nullptr;
 }
-
+#if 0
 //Constructor
 BFGS::BFGS(ConvergenceTest &theT, int theTangentToUse, int n)
 :EquiSolnAlgo(EquiALGORITHM_TAGS_BFGS),
@@ -108,6 +77,7 @@ BFGS::BFGS(ConvergenceTest &theT, int theTangentToUse, int n)
 
   localTest = theTest->getCopy(numberLoops);
 }
+#endif 
 
 // Destructor
 BFGS::~BFGS()
@@ -128,7 +98,8 @@ BFGS::~BFGS()
     delete du;
   du = nullptr;
 
-  if (b != 0 ) delete b;
+  if (b != 0 )
+    delete b;
   b = 0;
 
   if (rdotz != 0 ) delete [] rdotz;
@@ -168,10 +139,10 @@ BFGS::setLinks(AnalysisModel &theModel,
 {
   this->EquiSolnAlgo::setLinks(theModel, theIntegrator, theSOE, theTest);
 
-  if (theTest == 0)
+  if (theTest == nullptr)
     return;
 
-  if ( localTest != 0 )  
+  if (localTest != nullptr)  
     delete localTest ;
   
   localTest = theTest->getCopy( this->numberLoops ) ;
@@ -185,14 +156,14 @@ BFGS::setConvergenceTest(ConvergenceTest *newTest)
 {
   this->EquiSolnAlgo::setConvergenceTest(newTest);
 
-  if (theTest == 0)
+  if (theTest == nullptr)
     return 0;
 
-  if ( localTest != 0 )  
+  if ( localTest != nullptr)  
     delete localTest;
   
   localTest = theTest->getCopy( this->numberLoops );
-  if (localTest == 0) {
+  if (localTest == nullptr) {
     opserr << "BFGS::setConvergenceTest() - could not get copy for local test\n";
     return -1;
   } else
@@ -202,9 +173,8 @@ BFGS::setConvergenceTest(ConvergenceTest *newTest)
 
 
 int 
-BFGS::solveCurrentStep(void)
+BFGS::solveCurrentStep()
 {
- 
     // set up some pointers and check they are valid
     // NOTE this could be taken away if we set Ptrs as protecetd in superclass
 
@@ -224,8 +194,6 @@ BFGS::solveCurrentStep(void)
     // set itself as the ConvergenceTest objects EquiSolnAlgo
     theTest->setEquiSolnAlgo(*this);
     if (theTest->start() < 0) {
-      opserr << "BFGS::solveCurrentStep() - ";
-      opserr << "the ConvergenceTest object failed in start()\n";
       return SolutionAlgorithm::BadTestStart;
     }
 
@@ -242,12 +210,9 @@ BFGS::solveCurrentStep(void)
     int count = 0;
     do {
 
-      // form the initial tangent
-      if (theIntegrator->formTangent(tangent) < 0){
-         opserr << "WARNING BFGS::solveCurrentStep() - ";
-         opserr << "the Integrator failed in formTangent()\n";
+      // Form the initial tangent
+      if (theIntegrator->formTangent(tangent) < 0)
          return SolutionAlgorithm::BadFormTangent;
-      }
 
       // form the initial residual 
       if (theIntegrator->formUnbalance() < 0) {
@@ -280,7 +245,7 @@ BFGS::solveCurrentStep(void)
       if ( s[1] == 0 ) 
         s[1] = new Vector(systemSize);
 
-      *s[1] = theSOE->getX( );
+      *s[1] = theSOE->getX();
 
       if ( residOld == 0 ) 
         residOld = new Vector(systemSize);
@@ -288,7 +253,7 @@ BFGS::solveCurrentStep(void)
       *residOld = theSOE->getB( ) ;
       *residOld *= (-1.0 );
 
-      //form the residual again
+      // form the residual again
       if (theIntegrator->formUnbalance() < 0)
         return SolutionAlgorithm::BadFormResidual;
 
@@ -307,7 +272,7 @@ BFGS::solveCurrentStep(void)
       do {
 
         // save residual
-        *residNew =  theSOE->getB( ); 
+        *residNew =  theSOE->getB(); 
         *residNew *= (-1.0 );
 
       
@@ -351,7 +316,7 @@ BFGS::solveCurrentStep(void)
 
       this->record(count++);
 
-    }   while (result == ConvergenceTest::Continue);
+    } while (result == ConvergenceTest::Continue);
 
 
     if (result == ConvergenceTest::Failure)

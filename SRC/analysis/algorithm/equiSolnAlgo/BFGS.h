@@ -36,7 +36,7 @@ class BFGS: public EquiSolnAlgo
   public:
 
     BFGS(int tangent = CURRENT_TANGENT, int n = 10);    
-    BFGS(ConvergenceTest &theTest, int tangent = CURRENT_TANGENT, int n = 10);
+    // BFGS(ConvergenceTest &theTest, int tangent = CURRENT_TANGENT, int n = 10);
     ~BFGS();
 
     int solveCurrentStep(void);    
@@ -63,11 +63,11 @@ class BFGS: public EquiSolnAlgo
 
     int numberLoops;
 
-    Vector **s;  //displacement increments
+    Vector **s;  // displacement increments
 
     Vector **z;  
 
-    Vector *residOld;  //residuals
+    Vector *residOld;  // residuals
     Vector *residNew;
 
     Vector *du; //displacement increment
