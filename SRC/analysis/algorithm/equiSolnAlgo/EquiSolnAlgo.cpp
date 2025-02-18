@@ -17,28 +17,20 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.5 $
-// $Date: 2008-09-16 18:17:45 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/EquiSolnAlgo.cpp,v $
-                                                                        
-                                                                        
+//
 // File: ~/OOP/analysis/algorithm/EquiSolnAlgo.C 
 // 
 // Written: fmk 
 // Created: 11/96 
 // Revision: A 
 //
-
+//
 // Description: This file contains the class implementation for 
 // EquiSolnAlgo. EquiSolnAlgo is an abstract base class, 
 // i.e. no objects of it's type can be created.  Its subclasses deifine
 // the sequence of operations to be performed in the analysis by static
 // equilibrium of a finite element model.  
-// 
-// What: "@(#)EquiSolnAlgo.C, revA"
-
-
+//
 #include <EquiSolnAlgo.h>
 #include <AnalysisModel.h>
 #include <IncrementalIntegrator.h>
@@ -80,7 +72,7 @@ EquiSolnAlgo::setConvergenceTest(ConvergenceTest *theConvergenceTest)
 }
 
 ConvergenceTest *
-EquiSolnAlgo::getConvergenceTest(void)
+EquiSolnAlgo::getConvergenceTest()
 {
   return theTest;
 }
@@ -89,7 +81,7 @@ EquiSolnAlgo::getConvergenceTest(void)
 
 
 AnalysisModel *
-EquiSolnAlgo::getAnalysisModelPtr(void) const
+EquiSolnAlgo::getAnalysisModelPtr() const
 {
     return theModel;
 }
@@ -97,7 +89,7 @@ EquiSolnAlgo::getAnalysisModelPtr(void) const
 
 
 IncrementalIntegrator *
-EquiSolnAlgo::getIncrementalIntegratorPtr(void) const
+EquiSolnAlgo::getIncrementalIntegratorPtr() const
 {
     return theIntegrator;
 }
@@ -105,9 +97,7 @@ EquiSolnAlgo::getIncrementalIntegratorPtr(void) const
 
 
 LinearSOE *
-EquiSolnAlgo::getLinearSOEptr(void) const
+EquiSolnAlgo::getLinearSOEptr() const
 {
     return theSysOfEqn;
 }
-    
-

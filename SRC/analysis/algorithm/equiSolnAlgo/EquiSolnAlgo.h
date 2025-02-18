@@ -68,9 +68,9 @@ class EquiSolnAlgo: public SolutionAlgorithm
  
     // the following are not protected as convergence test
     // may need access to them
-    AnalysisModel           *getAnalysisModelPtr(void) const;
-    IncrementalIntegrator   *getIncrementalIntegratorPtr(void) const;
-    LinearSOE                    *getLinearSOEptr(void) const;
+    AnalysisModel           *getAnalysisModelPtr() const;
+    IncrementalIntegrator   *getIncrementalIntegratorPtr() const;
+    LinearSOE                    *getLinearSOEptr() const;
 
   protected:
     ConvergenceTest *theTest;
