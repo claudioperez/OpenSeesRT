@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.0 $
-// $Date: 2019-01-28 17:53:01 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/algorithm/equiSolnAlgo/ExpressNewton.cpp,v $
-
+//
 // Written: Yuli Huang (yulee@berkeley.edu)
 // Created: 02/2020
 // Revision: A
