@@ -243,7 +243,7 @@ EulerFrame3d::update()
   const Vector &v = theCoordTransf->getBasicTrialDisp();
   
   //
-  // Gauss loop
+  // Gauss points
   //
   for (int i = 0; i < points.size(); i++) {
       double xi6 = 6.0*xi[i];
@@ -258,9 +258,6 @@ EulerFrame3d::update()
       // Set the section deformations
       err += points[i].material->setTrialState<4, scheme>(e);
   }
-
-  if (err != 0)
-    opserr << "EulerFrame3d::update() - failed setTrialSectionDeformations()\n";
 
   return err;
 }
@@ -324,7 +321,7 @@ MatrixND<6,6>&
 EulerFrame3d::getBasicTangent(State state, int rate)
 {
   // Matrix kb(6,6);
-  
+
   // Zero for integral
   kb.zero();
   q.zero();
@@ -332,7 +329,9 @@ EulerFrame3d::getBasicTangent(State state, int rate)
   double L = theCoordTransf->getInitialLength();
   double jsx = 1.0/L;
 
-  // Loop over the integration points
+  //
+  // Gauss loop
+  //
   for (int i = 0; i < numSections; i++) {
     GaussPoint& point = points[i];
 
@@ -341,9 +340,7 @@ EulerFrame3d::getBasicTangent(State state, int rate)
 
     double xi6 = 6.0*point.point;
 
-    // Get the section tangent stiffness and stress resultant
-
-    const MatrixND<nsr,nsr,double> ks = 
+    /*  */ const MatrixND<nsr,nsr> ks = 
       point.material->getTangent<nsr,scheme>(state);
                
     // Perform numerical integration
@@ -679,18 +676,18 @@ EulerFrame3d::Print(OPS_Stream &s, int flag)
       s << ", ";
 
       // Transform
-      s << "\"crdTransformation\": \"" << theCoordTransf->getTag();
+      s << "\"crdTransformation\": " << theCoordTransf->getTag();
       s << ", ";
 
       //
       s << "\"sections\": [";
       for (int i = 0; i < numSections - 1; i++)
-              s << "\"" << points[i].material->getTag() << "\", ";
-      s << "\"" << points[numSections - 1].material->getTag() << "\"], ";
+              s << points[i].material->getTag() << ", ";
+      s << points[numSections - 1].material->getTag() << "], ";
       s << "\"integration\": ";
       stencil->Print(s, flag);
       //
-      s << "\"}";
+      s << "}";
   }
 
   if (flag == OPS_PRINT_CURRENTSTATE) {
@@ -995,6 +992,7 @@ EulerFrame3d::getResponse(int responseID, Information &info)
   else if (responseID == 2) {
     double V, M1, M2, T;
     double L = theCoordTransf->getInitialLength();
+    static Vector P(12);
 
     // Axial
     double N = q[0];
@@ -1166,6 +1164,7 @@ EulerFrame3d::setParameter(const char **argv, int argc, Parameter &param)
 const Matrix &
 EulerFrame3d::getInitialStiffSensitivity(int gradNumber)
 {
+  static Matrix K(12,12);
   K.Zero();
   return K;
 }
