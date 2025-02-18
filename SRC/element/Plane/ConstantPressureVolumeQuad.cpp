@@ -4,14 +4,13 @@
 //
 //===----------------------------------------------------------------------===//
 //
-//
-// Ed "C++" Love
-//
 // Constant Presssure/Volume Four Node Quadrilateral
 // Plane Strain (NOT PLANE STRESS)
 // 
 // Q1/P0 Mixed three-field formulation (Bbar implementation)
 // Equivalent to the mean dilation formulation.
+//
+// Ed "C++" Love
 //
 #include <string.h>
 #include <stdio.h> 
