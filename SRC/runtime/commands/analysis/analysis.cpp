@@ -532,9 +532,9 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
 
   bool ret = false;
-  int currentArg = 1;
   double m = 0.0, c = 0.0, k = 0.0;
   bool do_mck = false;
+  int currentArg = 1;
   while (currentArg < argc) {
     if ((strcmp(argv[currentArg], "file") == 0) ||
         (strcmp(argv[currentArg], "-file") == 0)) {
@@ -546,12 +546,12 @@ printA(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** const ar
 
       if (outputFile.setFile(argv[currentArg]) != 0) {
         opserr << "printA <filename> .. - failed to open file: "
-               << argv[currentArg] << endln;
+               << argv[currentArg] << "\n";
         return TCL_ERROR;
       }
       output = &outputFile;
-
-    } else if ((strcmp(argv[currentArg], "ret") == 0) ||
+    }
+    else if ((strcmp(argv[currentArg], "ret") == 0) ||
                (strcmp(argv[currentArg], "-ret") == 0)) {
       ret = true;
 
