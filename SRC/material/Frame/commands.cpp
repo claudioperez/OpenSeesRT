@@ -14,6 +14,7 @@
 #include <BasicModelBuilder.h>
 //
 #include <ElasticLinearFrameSection3d.h>
+#include <ElasticSection3d.h>
 #include <SectionAggregator.h>
 
 
@@ -118,7 +119,6 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
         }
         use_mass = true;
       }
-
       else if ((strcmp(argv[i], "-youngs-modulus") == 0) ||
                (strcmp(argv[i], "-E") == 0)) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &E) != TCL_OK) {
@@ -127,7 +127,6 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
         }
         tracker.consume(Position::E);
       }
-
       else if ((strcmp(argv[i], "-shear-modulus") == 0) ||
                (strcmp(argv[i], "-G") == 0)) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &G) != TCL_OK) {
@@ -136,12 +135,9 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
         }
         tracker.consume(Position::G);
       }
-
-
       //
       // Section constants
       //
-
       else if ((strcmp(argv[i], "-area") == 0) ||
                (strcmp(argv[i], "-A") == 0)) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.A) != TCL_OK) {
@@ -191,17 +187,52 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
       else if ((strcmp(argv[i], "-venant") == 0) ||
                (strcmp(argv[i], "-J") == 0)) {
         if (argc == ++i || Tcl_GetDouble (interp, argv[i], &J) != TCL_OK) {
-          opserr << OpenSees::PromptParseError << "invalid St. Venant constant..\n";
+          opserr << OpenSees::PromptParseError << "invalid St. Venant constant.\n";
           return TCL_ERROR;
         }
         tracker.consume(Position::J);
       }
 
+      else if (strcmp(argv[i], "-Qy")==0) {
+        if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.Qy) != TCL_OK) {
+          opserr << OpenSees::PromptParseError << "invalid Qy.\n";
+          return TCL_ERROR;
+        }
+      }
+      else if (strcmp(argv[i], "-Qz")==0) {
+        if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.Qz) != TCL_OK) {
+          opserr << OpenSees::PromptParseError << "invalid Qz.\n";
+          return TCL_ERROR;
+        }
+      }
+      else if (strcmp(argv[i], "-Sy")==0) {
+        if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.Sy) != TCL_OK) {
+          opserr << OpenSees::PromptParseError << "invalid Sy.\n";
+          return TCL_ERROR;
+        }
+      }
+      else if (strcmp(argv[i], "-Sz")==0) {
+        if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.Sz) != TCL_OK) {
+          opserr << OpenSees::PromptParseError << "invalid Sz.\n";
+          return TCL_ERROR;
+        }
+      }
+      else if (strcmp(argv[i], "-Ry")==0) {
+        if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.Ry) != TCL_OK) {
+          opserr << OpenSees::PromptParseError << "invalid Ry.\n";
+          return TCL_ERROR;
+        }
+      }
+      else if (strcmp(argv[i], "-Rz")==0) {
+        if (argc == ++i || Tcl_GetDouble (interp, argv[i], &consts.Rz) != TCL_OK) {
+          opserr << OpenSees::PromptParseError << "invalid Rz.\n";
+          return TCL_ERROR;
+        }
+      }
       else
         positional.insert(i);
 
     }
-
 
     //
     // Positional arguments
@@ -328,13 +359,16 @@ TclCommand_newElasticSection(ClientData clientData, Tcl_Interp *interp,
           consts.A,  consts.Ay, consts.Az,              // n-n
           consts.Iy, consts.Iz, consts.Iyz,             // m-m
           consts.Cw, consts.Ca,                         // w-w
-          consts.Qy, consts.Qz, consts.Qyx, consts.Qzx, // n-m
+          consts.Qy, consts.Qz,                         // n-m
           consts.Rw, consts.Ry, consts.Rz,              // n-w
           consts.Sa, consts.Sy, consts.Sz,              // m-w
           mass, use_mass                                // mass
       );
     }
-    else if (argc > 8) {
+    else if (strcmp(argv[1], "Elastic") == 0)
+      theSection = new ElasticSection3d(tag, E, consts.A, consts.Iz, consts.Iy, G, J);
+
+    else if (builder->getNDM() == 3) { //argc > 8) {
       theSection = new ElasticLinearFrameSection3d(tag, E,  consts.A,
                                                    consts.Iz, consts.Iy, 
                                                    G, J, mass, use_mass);
