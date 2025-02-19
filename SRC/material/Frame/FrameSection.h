@@ -60,27 +60,30 @@ struct FrameLayout {
 
 typedef int FrameStressLayout[FrameStress::Max];
 
-static inline consteval void WarpIndex(const FrameStressLayout& layout, FrameLayout& e) {
+static inline constexpr FrameLayout
+WarpIndex(const int n, const FrameStressLayout& layout) {
+    
+    FrameLayout L {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
     // Save layout locations
-    for (int i=0; i<FrameStress::Max; i++) {
+    for (int i=0; i<n; i++) {
       switch (layout[i]) {
-        case FrameStress::N:        e.n[0] = i;  break;
-        case FrameStress::Vy:       e.n[1] = i;  break;
-        case FrameStress::Vz:       e.n[2] = i;  break;
-        case FrameStress::T:        e.m[0] = i;  break;
-        case FrameStress::My:       e.m[1] = i;  break;
-        case FrameStress::Mz:       e.m[2] = i;  break;
-        case FrameStress::Bimoment: e.w[0] = i;  break;
-        case FrameStress::Bishear:  e.v[0] = i;  break;
-        case FrameStress::By:       e.w[1] = i;  break;
-        case FrameStress::Qy:       e.v[1] = i;  break;
-        case FrameStress::Bz:       e.w[2] = i;  break;
-        case FrameStress::Qz:       e.v[2] = i;  break;
+        case FrameStress::N:        L.n[0] = i;  break;
+        case FrameStress::Vy:       L.n[1] = i;  break;
+        case FrameStress::Vz:       L.n[2] = i;  break;
+        case FrameStress::T:        L.m[0] = i;  break;
+        case FrameStress::My:       L.m[1] = i;  break;
+        case FrameStress::Mz:       L.m[2] = i;  break;
+        case FrameStress::Bimoment: L.w[0] = i;  break;
+        case FrameStress::By:       L.w[1] = i;  break;
+        case FrameStress::Bz:       L.w[2] = i;  break;
+        case FrameStress::Bishear:  L.v[0] = i;  break;
+        case FrameStress::Qy:       L.v[1] = i;  break;
+        case FrameStress::Qz:       L.v[2] = i;  break;
         default:
         ;
       }
     }
-  return;
+  return L;
 }
 
 class FrameSection : public SectionForceDeformation {
@@ -115,30 +118,32 @@ public:
   template <int n, const FrameStressLayout& scheme>
   int setTrialState(OpenSees::VectorND<n, double> e);
 
+  // template <int n, const FrameStressLayout& scheme>
+  // OpenSees::VectorND<n, double> 
+  // getDeformation() {
+
+  //   OpenSees::VectorND<n,double> sout;
+
+  //   const ID& layout = this->getType();
+
+  //   int m = this->getOrder();
+
+  //   const Vector& es = this->getSectionDeformation();
+  //   for (int i=0; i<n; i++) {
+  //     sout[i] = 0.0;
+  //     for (int j=0; j<m; j++)
+  //       if (layout(j) == scheme[i])
+  //         sout[i] = es(j);
+  //   }
+
+  //   return sout;
+  // }
+
   template <int n, const FrameStressLayout& scheme>
-  OpenSees::VectorND<n, double> getDeformation() {
+  OpenSees::VectorND<n> 
+  getResultant() {
 
-    OpenSees::VectorND<n,double> sout;
-
-    const ID& layout = this->getType();
-
-    int m = this->getOrder();
-
-    const Vector& es = this->getSectionDeformation();
-    for (int i=0; i<n; i++) {
-      sout[i] = 0.0;
-      for (int j=0; j<m; j++)
-        if (layout(j) == scheme[i])
-          sout[i] = es(j);
-    }
-
-    return sout;
-  }
-
-  template <int n, const FrameStressLayout& scheme>
-  OpenSees::VectorND<n, double> getResultant() {
-
-    OpenSees::VectorND<n,double> sout;
+    OpenSees::VectorND<n> sout;
 
     const ID& layout = this->getType();
 
@@ -169,8 +174,7 @@ public:
                       ? this->getInitialTangent()
                       : this->getSectionTangent();
 
-    FrameLayout e {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
-    WarpIndex(scheme, e);
+    constexpr FrameLayout e = WarpIndex(n, scheme);
 
     int sect_bishear[3] = {-1,-1,-1};
 
@@ -203,32 +207,43 @@ public:
     // If element has a twisting DOF and no Bishear
     // DOF, then twist == alpha, where alpha is the
     // bishear DOF.
-    if (e.m[0] != -1 && sect_bishear[0] != -1 && e.v[0] == -1)
-      for (int i=0; i<n; i++)
-        for (int j=0; j<m; j++)
-          if (layout(j) == scheme[i]) {
-            kout(i,e.m[0]) += ks(j,sect_bishear[0]);
-            kout(e.m[0],i) += ks(sect_bishear[0],j);
-          }
+    if constexpr (e.m[0] != -1 && e.v[0] == -1)
+      if (sect_bishear[0] != -1) {
+        kout(e.m[0],e.m[0]) += ks(sect_bishear[0],sect_bishear[0]);
+        for (int i=0; i<n; i++)
+          for (int j=0; j<m; j++)
+            if (layout(j) == scheme[i]) {
+              if (std::fabs(ks(j,sect_bishear[0])) > 1e-12)
+                kout(i,e.m[0]) += ks(j,sect_bishear[0]);
+              if (std::fabs(ks(sect_bishear[0],j)) > 1e-12)
+                kout(e.m[0],i) += ks(sect_bishear[0],j);
+            }
+      }
 
     // If element has a shear (Vy) DOF and no Qy
-    if (e.n[1] != -1 && sect_bishear[1] != -1 && e.v[1] == -1)
-      for (int i=0; i<n; i++)
-        for (int j=0; j<m; j++)
-          if (layout(j) == scheme[i]) {
-            kout(i,e.n[1]) += ks(j,sect_bishear[1]);
-            kout(e.n[1],i) += ks(sect_bishear[1],j);
-          }
+    if constexpr (e.n[1] != -1 && e.v[1] == -1)
+      if (sect_bishear[1] != -1) {
+        kout(e.n[1],e.n[1]) += ks(sect_bishear[1],sect_bishear[1]);
+        for (int i=0; i<n; i++)
+          for (int j=0; j<m; j++)
+            if (layout(j) == scheme[i]) {
+              kout(i,e.n[1]) += ks(j,sect_bishear[1]);
+              kout(e.n[1],i) += ks(sect_bishear[1],j);
+            }
+      }
 
     // If element has a shear (Vz) DOF and no Qz
-    if (e.n[2] != -1 && sect_bishear[2] != -1 && e.v[2] == -1)
-      for (int i=0; i<n; i++)
-        for (int j=0; j<m; j++)
-          if (layout(j) == scheme[i]) {
-            kout(i,e.n[2]) += ks(j,sect_bishear[2]);
-            kout(e.n[2],i) += ks(sect_bishear[2],j);
-          }
-
+    if constexpr (e.n[2] != -1 && e.v[2] == -1)
+      if (sect_bishear[2] != -1) {
+        kout(e.n[2],e.n[2]) += ks(sect_bishear[2],sect_bishear[2]);
+        for (int i=0; i<n; i++)
+          for (int j=0; j<m; j++)
+            if (layout(j) == scheme[i]) {
+              kout(i,e.n[2]) += ks(j,sect_bishear[2]);
+              kout(e.n[2],i) += ks(sect_bishear[2],j);
+            }
+      }
+    // opserr << Matrix(kout) ;
     return kout;
   }
 
@@ -247,12 +262,12 @@ FrameSection::setTrialState(OpenSees::VectorND<n, double> e) {
 
   const int m = this->getOrder();
   Vector trial(strain_data, m);
+  trial.Zero();
 
   const ID& layout = this->getType();
 
 
-  FrameLayout l {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
-  WarpIndex(scheme, l);
+  constexpr FrameLayout l = WarpIndex(n, scheme);
 
   for (int i=0; i<n; i++) {
     for (int j=0; j<m; j++)
@@ -297,29 +312,35 @@ template <int n, const FrameStressLayout& scheme>
 OpenSees::MatrixND<n,n, double> 
 FrameSection::getFlexibility(State state)
 {
-  OpenSees::MatrixND<n,n,double> fout;
+  OpenSees::MatrixND<n,n,double> K = getTangent<n,scheme>(state);
+  OpenSees::MatrixND<n,n,double> F;
+  K.invert(F);
+  return F;
+
+  OpenSees::MatrixND<n,n,double> Fout;
+
 
   const ID& layout = this->getType();
 
   int m = this->getOrder();
 
-  const Matrix& ks = (state == State::Init)
+  const Matrix& Fs = (state == State::Init)
                     ? this->getInitialFlexibility()
                     : this->getSectionFlexibility();
 
   for (int i=0; i<n; i++) {
     for (int j=0; j<n; j++) {  
-      fout(i,j) = 0.0;
+      Fout(i,j) = 0.0;
       for (int k=0; k<m; k++) {
         if (layout(k) == scheme[i]) {
           for (int l=0; l<m; l++)
             if (layout(l) == scheme[j]) {
-              fout(i,j) = ks(k,l);
+              Fout(i,j) = Fs(k,l);
             }
         }
       }
     }
   }
 
-  return fout;
+  return Fout;
 }
