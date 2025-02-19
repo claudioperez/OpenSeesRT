@@ -7,6 +7,7 @@
 //
 #include <tcl.h>
 #include <Parsing.h>
+#include <ArgumentTracker.h>
 #include <Logging.h>
 #include <BasicModelBuilder.h>
 #include <Domain.h>
@@ -14,6 +15,7 @@
 #include <cstddef>
 
 #include <ElementalLoad.h>
+#include <FrameLoad.h>
 #include <Beam2dPointLoad.h>
 #include <Beam2dUniformLoad.h>
 #include <Beam2dPartialUniformLoad.h>
@@ -31,21 +33,264 @@
 #include <SelfWeight.h>
 #include <LoadPattern.h>
 
+int
+TclCommand_addFrameLoad(ClientData clientData, Tcl_Interp *interp, int argc,
+                        TCL_Char **const argv)
+{
+  BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
+  Domain *domain       = builder->getDomain();
+
+  std::vector<int>   tags;
+  std::vector<Vector3D> n(1);
+  std::vector<Vector3D> m(1);
+  std::vector<Vector3D> r(1);
+  int shape, basis=FrameLoad::Reference;
+  enum class Position : int {
+    Force, End
+  };
+  ArgumentTracker<Position> tracker;
+
+
+  LoadPattern *pattern = builder->getEnclosingPattern();
+
+  // eleLoad FrameForce $shape -n $n -offset $r -pattern $pattern -basis $basis -ele $ele
+
+  if (argc < 3) {
+    opserr << "WARNING eleLoad FrameLoad $shape -force $n -couple $m -offset r -pattern pattern -basis $basis\n";
+    return TCL_ERROR;
+  }
+
+  if (strcmp(argv[2], "Dirac") == 0)
+    shape = FrameLoad::Dirac;
+  else if (strcmp(argv[2], "Heaviside") == 0)
+    shape = FrameLoad::Heaviside;
+  else if (strcmp(argv[2], "Lagrange") == 0) {
+    shape = FrameLoad::Lagrange;
+    opserr << "Lagrange shape not yet implemented\n";
+    return TCL_ERROR;
+  }
+  else {
+    opserr << "WARNING unknown shape for FrameLoad " << argv[2] << "\n";
+    return TCL_ERROR;
+  }
+
+  // Keywords
+  for (int i=0; i<argc; i++) {
+    if (strcmp(argv[i], "-pattern") == 0) {
+      if (i == argc-1) {
+        opserr << "WARNING -pattern paramter missing required argument\n";
+        return TCL_ERROR;
+      }
+      int ptag;
+      if (Tcl_GetInt(interp, argv[i+1], &ptag) != TCL_OK) {
+        opserr << "WARNING pattern parameter expected integer\n";
+        return TCL_ERROR;
+      }
+      pattern = builder->getDomain()->getLoadPattern(ptag);
+      if (pattern == nullptr) {
+        opserr << "WARNING pattern " << argv[i+1] << " not found\n";
+        return TCL_ERROR;
+      }
+      i++;
+    }
+    else if (strcmp(argv[i], "-basis") == 0) {
+      if (i == argc-1) {
+        opserr << "WARNING -basis paramter missing required argument\n";
+        return TCL_ERROR;
+      }
+      if (strcmp(argv[i+1], "global") == 0)
+        basis = FrameLoad::Embedding;
+      else if (strcmp(argv[i+1], "reference") == 0)
+        basis = FrameLoad::Reference;
+      else if (strcmp(argv[i+1], "director") == 0)
+        basis = FrameLoad::Director;
+      else {
+        opserr << "WARNING unknown basis for FrameLoad " << argv[i+1] << "\n";
+        return TCL_ERROR;
+      }
+      i++;
+    }
+    else if (strcmp(argv[i], "-force") == 0) {
+      if (i == argc-1) {
+        opserr << "WARNING -force paramter missing required argument\n";
+        return TCL_ERROR;
+      }
+      int list_argc;
+      TCL_Char **list_argv;
+      if (Tcl_SplitList(interp, argv[i+1], &list_argc, &list_argv) != TCL_OK) {
+        opserr << "WARNING force parameter expected list of floats\n";
+        return TCL_ERROR;
+      }
+      if (list_argc != 3) {
+        opserr << "WARNING force parameter expected list of 3 floats\n";
+        Tcl_Free((char *) list_argv);
+        return TCL_ERROR;
+      }
+      Vector3D force;
+      for (int j = 0; j < 3; j++) {
+        if (Tcl_GetDouble(interp, list_argv[j], &force[j]) != TCL_OK) {
+          opserr << "WARNING force parameter expected list of 3 floats\n";
+          Tcl_Free((char *) list_argv);
+          return TCL_ERROR;
+        }
+      }
+      // n.push_back(force);
+      n[0] = force;
+      Tcl_Free((char *) list_argv);
+
+      tracker.consume(Position::Force);
+    }
+    else if (strcmp(argv[i], "-couple") == 0) {
+      if (i == argc-1) {
+        opserr << "WARNING -couple paramter missing required argument\n";
+        return TCL_ERROR;
+      }
+      int list_argc;
+      TCL_Char **list_argv;
+      if (Tcl_SplitList(interp, argv[i+1], &list_argc, &list_argv) != TCL_OK) {
+        opserr << "WARNING couple parameter expected list of floats\n";
+        return TCL_ERROR;
+      }
+      if (list_argc != 3) {
+        opserr << "WARNING couple parameter expected list of 3 floats\n";
+        Tcl_Free((char *) list_argv);
+        return TCL_ERROR;
+      }
+      Vector3D couple;
+      for (int j = 0; j < 3; j++) {
+        if (Tcl_GetDouble(interp, list_argv[j], &couple[j]) != TCL_OK) {
+          opserr << "WARNING couple parameter expected list of 3 floats\n";
+          Tcl_Free((char *) list_argv);
+          return TCL_ERROR;
+        }
+      }
+      // m.push_back(couple);
+      m[0] = couple;
+      Tcl_Free((char *) list_argv);
+
+      tracker.consume(Position::Force);
+    }
+    else if (strcmp(argv[i], "-offset") == 0) {
+      if (i == argc-1) {
+        opserr << "WARNING -offset paramter missing required argument\n";
+        return TCL_ERROR;
+      }
+      int list_argc;
+      TCL_Char **list_argv;
+      if (Tcl_SplitList(interp, argv[i+1], &list_argc, &list_argv) != TCL_OK) {
+        opserr << "WARNING offset parameter expected list of floats\n";
+        return TCL_ERROR;
+      }
+      if (list_argc != 3) {
+        opserr << "WARNING offset parameter expected list of 3 floats\n";
+        Tcl_Free((char *) list_argv);
+        return TCL_ERROR;
+      }
+      Vector3D offset;
+      for (int j = 0; j < 3; j++) {
+        if (Tcl_GetDouble(interp, list_argv[j], &offset[j]) != TCL_OK) {
+          opserr << "WARNING offset parameter expected list of 3 floats\n";
+          Tcl_Free((char *) list_argv);
+          return TCL_ERROR;
+        }
+      }
+      // r.push_back(offset);
+      r[0] = offset;
+      Tcl_Free((char *) list_argv);
+    }
+    else if (strcmp(argv[i], "-elements") == 0) {
+      if (i == argc-1) {
+        opserr << "WARNING -elements paramter missing required argument\n";
+        return TCL_ERROR;
+      }
+      int list_argc;
+      TCL_Char **list_argv;
+      if (Tcl_SplitList(interp, argv[i+1], &list_argc, &list_argv) != TCL_OK) {
+        opserr << "WARNING elements parameter expected list of integers\n";
+        return TCL_ERROR;
+      }
+      for (int j = 0; j < list_argc; j++) {
+        int tag;
+        if (Tcl_GetInt(interp, list_argv[j], &tag) != TCL_OK) {
+          opserr << "WARNING elements parameter expected list of integers\n";
+          Tcl_Free((char *) list_argv);
+          return TCL_ERROR;
+        }
+        tags.push_back(tag);
+      }
+      Tcl_Free((char *) list_argv);
+    }
+  }
+
+  // Make sure we got everything we need.
+  if (tracker.current() != Position::End) {
+    opserr << OpenSees::PromptParseError
+           << "missing required arguments: ";
+    while (tracker.current() != Position::End) {
+      switch (tracker.current()) {
+        case Position::Force :
+          opserr << "force ";
+          break;
+        case Position::End:
+          break;
+      }
+      if (tracker.current() == Position::End)
+        break;
+      tracker.consume(tracker.current());
+    }
+    opserr << "\n";
+    return TCL_ERROR;
+  }
+
+  if (pattern == nullptr) {
+    opserr << "WARNING no current load pattern\n";
+    return TCL_ERROR;
+  }
+
+  FrameLoad *load = new FrameLoad(basis, shape, n, m, r, *pattern);
+
+  for (int i : tags) {
+    Element *elem = domain->getElement(i);
+    if (elem == nullptr) {
+      opserr << "WARNING eleLoad - no element with tag " << i << "\n";
+      delete load;
+      return TCL_ERROR;
+    }
+    if (load->addElement(*elem) != 0) {
+      opserr << "WARNING eleLoad - could not add load to element\n";
+      delete load;
+      return TCL_ERROR;
+    }
+  }
+
+  if (domain->addElementalLoad(load, pattern->getTag()) == false) {
+    opserr
+        << "WARNING eleLoad - could not add load to domain\n ";
+    delete load;
+    return TCL_ERROR;
+  }
+
+  return TCL_OK;
+}
+
 
 int
 TclCommand_addElementalLoad(ClientData clientData, Tcl_Interp *interp, int argc,
                             TCL_Char **const argv)
 {
+  if (argc < 2) {
+    opserr << "WARNING eleLoad - expecting eleLoad type\n";
+    return TCL_ERROR;
+  }
+
+  if (strcmp(argv[1], "Frame") == 0) {
+    return TclCommand_addFrameLoad(clientData, interp, argc, argv);
+  }
+
+
   BasicModelBuilder *builder = static_cast<BasicModelBuilder*>(clientData);
   Domain *domain       = builder->getDomain();
   static int eleLoadTag      = 0; // TODO: this is ugly
-
-  // ensure the destructor has not been called
-
-  if (builder == 0 || clientData == 0) {
-    opserr << "WARNING current builder has been destroyed - eleLoad\n";
-    return TCL_ERROR;
-  }
 
 
   int ndm = builder->getNDM();
