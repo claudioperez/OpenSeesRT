@@ -95,6 +95,7 @@ class FrameFiberSection3d : public FrameSection
     std::shared_ptr<double[]> matData; // data for the materials [yloc, zloc, and area]
 
     OpenSees::MatrixND<nsr,nsr> ks;
+    Matrix K_wrap;
 
     double QzBar, QyBar, Abar;
     double yBar;                       // Section centroid
@@ -103,10 +104,10 @@ class FrameFiberSection3d : public FrameSection
 
     static ID code;
 
+    OpenSees::VectorND<nsr> es, sr;
     Vector  e;         // trial section deformations 
     Vector  s;         // section resisting forces  (axial force, bending moment)
 
-    OpenSees::VectorND<nsr> es, sr;
     UniaxialMaterial *theTorsion;
     void *pool;        // thread pool
 };
