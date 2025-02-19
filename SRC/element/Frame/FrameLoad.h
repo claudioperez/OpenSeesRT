@@ -209,6 +209,7 @@ public:
                     break;
             }
             opserr << "  p = " << Vector(px)
+                   << "|p| = " << px.norm() << "\n"
                    << ", r = " << Vector(rx)
                    << ", m = " << Vector(mx) 
                    << ", w = " << w 
@@ -271,7 +272,7 @@ public:
 
             Matrix3D Px = Hat(px);
             if (basis == Director) {
-                K.assemble(        Px,   i*n, 3+j*n,  scale);
+                K.assemble(        Px,   i*n, 3+j*n, -scale);
                 K.assemble(Hat(rx)*Px, 3+i*n, 3+j*n, -scale);
             }
             
