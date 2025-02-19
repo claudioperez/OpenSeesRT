@@ -1,4 +1,14 @@
 
+  template <int ir, int nr> inline void
+  assemble(const VectorND<nr> &M, double fact)
+  {
+    static_assert((ir >= 0) && ((ir + nr - 1) < N));
+
+     for (int j=0; j<nr; j++)
+        (*this)(ir + j) += M[j]*fact;
+  }
+
+
   int
   addVector(const T thisFact, const Vector &other, const T otherFact) {
     if (otherFact == 0.0 && thisFact == 1.0)
