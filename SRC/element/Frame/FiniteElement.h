@@ -41,10 +41,10 @@ public:
 //  ~FiniteElement();
 
     // For Element
-    virtual const ID& getExternalNodes() final {return connectedExternalNodes;};
-    virtual Node **getNodePtrs() final {return theNodes.data();};
-    virtual int  getNumExternalNodes() const final {return nen;};
-    virtual int  getNumDOF() final {return nen*ndf;};
+    virtual const ID& getExternalNodes() final {return connectedExternalNodes;}
+    virtual Node **getNodePtrs() final {return theNodes.data();}
+    virtual int  getNumExternalNodes() const final {return nen;}
+    virtual int  getNumDOF() final {return nen*ndf;}
 
     void setDomain(Domain *theDomain) final
     {
