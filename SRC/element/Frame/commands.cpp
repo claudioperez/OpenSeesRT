@@ -331,7 +331,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     int ok = 0;
     if ((ndm == 2 && ndf == 3) || (ndm == 2 && ndf == 4))
       ok = 1;
-    if (ndm == 3 && ndf == 6)
+    if (ndm == 3 && ndf >= 6)
       ok = 1;
 
     if (ok == 0) {
@@ -357,16 +357,51 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  int iNode, jNode;
+  int argi = 5;
+  int iNode=0, jNode=0;
+  bool multi_node = false;
+  std::vector<int> multi_nodes;
   {
-    if (Tcl_GetInt(interp, argv[3], &iNode) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid iNode\n";
-      return TCL_ERROR;
+    int list_argc;
+    TCL_Char **list_argv;
+    if (Tcl_SplitList(interp, argv[3], &list_argc, &list_argv) == TCL_OK && list_argc >= 2) {
+      argi -= 1;
+      if (list_argc == 2) {
+        // Nodes were passed as a list, but still only two nodes
+        multi_node = false;
+        if (Tcl_GetInt(interp, list_argv[0], &iNode) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "invalid iNode\n";
+          return TCL_ERROR;
+        }
+    
+        if (Tcl_GetInt(interp, list_argv[1], &jNode) != TCL_OK) {
+          opserr << G3_ERROR_PROMPT << "invalid jNode\n";
+          return TCL_ERROR;
+        }
+      } else {
+        // More than 2 nodes
+        multi_node = true;
+        for (int i = 0; i < list_argc; ++i) {
+          int node;
+          if (Tcl_GetInt(interp, list_argv[i], &node) != TCL_OK) {
+            opserr << G3_ERROR_PROMPT << "invalid node\n";
+            return TCL_ERROR;
+          }
+          multi_nodes.push_back(node); 
+        }
+      }
+      Tcl_Free((char *)list_argv);
     }
-
-    if (Tcl_GetInt(interp, argv[4], &jNode) != TCL_OK) {
-      opserr << G3_ERROR_PROMPT << "invalid jNode\n";
-      return TCL_ERROR;
+    else {
+      if (Tcl_GetInt(interp, argv[3], &iNode) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "invalid iNode\n";
+        return TCL_ERROR;
+      }
+  
+      if (Tcl_GetInt(interp, argv[4], &jNode) != TCL_OK) {
+        opserr << G3_ERROR_PROMPT << "invalid jNode\n";
+        return TCL_ERROR;
+      }
     }
   }
 
@@ -392,7 +427,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
 
   {
-    int argi = 5;
     while (argi < argc) {
       // Shear
       if (strcmp(argv[argi], "-shear") == 0) {
@@ -817,8 +851,135 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       }
 
       else if (strcmp(argv[1], "ExactFrame") == 0) {
-        std::array<int, 2> nodes {iNode, jNode};
-        theElement = new ExactFrame3d<2,1>(tag, nodes, sections.data(), *theTransf3d);
+        int ndf = builder->getNDF();
+        if (multi_node && sections.size() < multi_nodes.size()-1)
+          for (int i = 0; i < multi_nodes.size()-1; ++i)
+            sections.push_back(sections[0]);
+
+        // for_int<4>([&](auto nen) constexpr {
+        //   if (multi_nodes.size() == nen.value+1) {
+        //     std::array<int, nen.value+1> nodes;
+        //     std::copy_n(multi_nodes.begin(), nen.value+1, nodes.begin());
+        //     for_int<3>([&](auto nwm) constexpr {
+        //       if (ndf-6 == nwm.value)
+        //         theElement = new ExactFrame3d<nen.value+1, nwm.value>(tag, nodes, sections.data(), *theTransf3d);
+        //     });
+        //   }
+        // });
+
+        if (!multi_node) {
+          std::array<int, 2> nodes {iNode, jNode};
+          switch (ndf) {
+            case 6:
+              theElement = new ExactFrame3d<2>(tag, nodes, sections.data(), *theTransf3d);
+              break;
+            case 7:
+              theElement = new ExactFrame3d<2,1>(tag, nodes, sections.data(), *theTransf3d);
+              break;
+            case 8:
+              theElement = new ExactFrame3d<2,2>(tag, nodes, sections.data(), *theTransf3d);
+              break;
+            case 9:
+              theElement = new ExactFrame3d<2,3>(tag, nodes, sections.data(), *theTransf3d);
+              break;
+            default:
+              opserr << G3_ERROR_PROMPT << "invalid number of dofs for ExactFrame\n";
+              status = TCL_ERROR;
+              goto clean_up;
+          }
+        }
+        else {
+          switch (multi_nodes.size()) {
+            case 3: {
+              std::array<int, 3> nodes {multi_nodes[0], multi_nodes[1], multi_nodes[2]};
+              switch (ndf) {
+                case 6:
+                  theElement = new ExactFrame3d<3,0>(tag, nodes, sections.data(), *theTransf3d);
+                  break;
+                case 7:
+                  theElement = new ExactFrame3d<3,1>(tag, nodes, sections.data(), *theTransf3d);
+                  break;
+                // case 8:
+                //   theElement = new ExactFrame3d<3,2>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+                // case 9:
+                //   theElement = new ExactFrame3d<3,3>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+                default:
+                  opserr << G3_ERROR_PROMPT << "invalid number of dofs for ExactFrame\n";
+                  status = TCL_ERROR;
+                  goto clean_up;
+              }
+              break;
+            }
+            case 4: {
+              std::array<int, 4> nodes {multi_nodes[0], multi_nodes[1], multi_nodes[2], multi_nodes[3]};
+              switch (ndf) {
+                case 6:
+                  theElement = new ExactFrame3d<4,0>(tag, nodes, sections.data(), *theTransf3d);
+                  break;
+                // case 7:
+                //   theElement = new ExactFrame3d<4,1>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+                // case 8:
+                //   theElement = new ExactFrame3d<4,2>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+                // case 9:
+                //   theElement = new ExactFrame3d<4,3>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+                default:
+                  opserr << G3_ERROR_PROMPT << "invalid number of dofs for ExactFrame\n";
+                  status = TCL_ERROR;
+                  goto clean_up;
+              }
+              break;
+            }
+            case 5: {
+              std::array<int, 5> nodes {multi_nodes[0], multi_nodes[1], multi_nodes[2], multi_nodes[3], multi_nodes[4]};
+              switch (ndf) {
+                case 6:
+                  theElement = new ExactFrame3d<5,0>(tag, nodes, sections.data(), *theTransf3d);
+                  break;
+                // case 7:
+                //   theElement = new ExactFrame3d<5,1>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+                // case 8:
+                //   theElement = new ExactFrame3d<5,2>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+                // case 9:
+                //   theElement = new ExactFrame3d<5,3>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+                default:
+                  opserr << G3_ERROR_PROMPT << "invalid number of dofs for ExactFrame\n";
+                  status = TCL_ERROR;
+                  goto clean_up;
+              }
+              break;
+            }
+            case 6: {
+              std::array<int, 6> nodes {multi_nodes[0], multi_nodes[1], multi_nodes[2], multi_nodes[3], multi_nodes[4], multi_nodes[5]};
+              switch (ndf) {
+                case 6:
+                  theElement = new ExactFrame3d<6,0>(tag, nodes, sections.data(), *theTransf3d);
+                  break;
+                // case 7:
+                //   theElement = new ExactFrame3d<6,1,1>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+                // case 8:
+                //   theElement = new ExactFrame3d<6,1,2>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+                // case 9:
+                //   theElement = new ExactFrame3d<6,1,3>(tag, nodes, sections.data(), *theTransf3d);
+                //   break;
+              }
+              break;
+            }
+            default:
+              opserr << G3_ERROR_PROMPT << "invalid number of nodes for ExactFrame\n";
+              status = TCL_ERROR;
+              goto clean_up;
+          }
+        }
       }
 
 
