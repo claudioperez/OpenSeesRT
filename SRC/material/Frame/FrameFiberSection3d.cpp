@@ -45,7 +45,7 @@ FrameFiberSection3d::FrameFiberSection3d(int tag, int num, UniaxialMaterial &tor
 #ifdef N_FIBER_THREADS
     pool((void*)new OpenSees::thread_pool{N_FIBER_THREADS}),
 #endif
-    e(es), s(sr)
+    e(es), s(sr), K_wrap(ks)
 {
     if (sizeFibers != 0) {
       theMaterials = new UniaxialMaterial *[sizeFibers]{};
@@ -78,7 +78,8 @@ FrameFiberSection3d::FrameFiberSection3d():
 #ifdef N_FIBER_THREADS
   pool((void*)new OpenSees::thread_pool{N_FIBER_THREADS}),
 #endif
-  e(es), s(sr), theTorsion(nullptr)
+  e(es), s(sr), K_wrap(ks),
+  theTorsion(nullptr)
 {
   es.zero();
   sr.zero();
@@ -101,7 +102,7 @@ FrameFiberSection3d::~FrameFiberSection3d()
     delete [] theMaterials;
   }
 
-  if (theTorsion != 0)
+  if (theTorsion != nullptr)
     delete theTorsion;
 }
 
@@ -414,8 +415,7 @@ FrameFiberSection3d::getSectionDeformation()
 const Matrix&
 FrameFiberSection3d::getSectionTangent()
 {
-  static Matrix wrapper(ks);
-  return wrapper;
+  return K_wrap;
 }
 
 const Vector&
