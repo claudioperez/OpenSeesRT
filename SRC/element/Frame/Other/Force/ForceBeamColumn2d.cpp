@@ -3172,7 +3172,7 @@ ForceBeamColumn2d::setParameter(const char **argv, int argc, Parameter &param)
 
 
 int
-ForceBeamColumn2d::updateParameter (int parameterID, Information &info)
+ForceBeamColumn2d::updateParameter(int parameterID, Information &info)
 {
   if (parameterID == 1) {
     rho = info.theDouble;
