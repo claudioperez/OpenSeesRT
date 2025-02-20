@@ -447,10 +447,10 @@ struct MatrixND {
     return prod;
   }
 
-  VectorND<NR>
+  VectorND<NC>
   operator^(const VectorND<NR> &V) const
   {
-      VectorND<NR> result;
+      VectorND<NC> result;
 
       const double *dataPtr = &values[0][0];
       for (int i=0; i<NC; i++) {
