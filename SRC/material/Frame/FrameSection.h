@@ -118,26 +118,6 @@ public:
   template <int n, const FrameStressLayout& scheme>
   int setTrialState(OpenSees::VectorND<n, double> e);
 
-  // template <int n, const FrameStressLayout& scheme>
-  // OpenSees::VectorND<n, double> 
-  // getDeformation() {
-
-  //   OpenSees::VectorND<n,double> sout;
-
-  //   const ID& layout = this->getType();
-
-  //   int m = this->getOrder();
-
-  //   const Vector& es = this->getSectionDeformation();
-  //   for (int i=0; i<n; i++) {
-  //     sout[i] = 0.0;
-  //     for (int j=0; j<m; j++)
-  //       if (layout(j) == scheme[i])
-  //         sout[i] = es(j);
-  //   }
-
-  //   return sout;
-  // }
 
   template <int n, const FrameStressLayout& scheme>
   OpenSees::VectorND<n> 
@@ -169,7 +149,6 @@ public:
 
     int m = this->getOrder();
 
-//  const Matrix& ks = this->getSectionTangent();
     const Matrix& ks = (state == State::Init)
                       ? this->getInitialTangent()
                       : this->getSectionTangent();
@@ -243,7 +222,6 @@ public:
               kout(e.n[2],i) += ks(sect_bishear[2],j);
             }
       }
-    // opserr << Matrix(kout) ;
     return kout;
   }
 
