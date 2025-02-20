@@ -23,15 +23,17 @@
 #include <vector>
 #include <Matrix.h>
 #include <MatrixND.h>
+#include <VectorND.h>
 
 class NDMaterial;
 class Response;
 
+namespace OpenSees {
 class FrameSolidSection3d : public FrameSection
 {
   public:
     FrameSolidSection3d(); 
-    FrameSolidSection3d(int tag, int numFibers, double alpha, bool compCentroid);
+    FrameSolidSection3d(int tag, int numFibers);
     ~FrameSolidSection3d();
 
     int addFiber(NDMaterial&, double area, double y, double z);
@@ -75,8 +77,25 @@ class FrameSolidSection3d : public FrameSection
     int commitSensitivity(const Vector& strainGrad, int gradIndex, int numGrads);
 
 
-  private: 
-    int stateDetermination(Matrix& ksi, Vector* s_trial, const Vector * const e_trial, int);
+  private:
+    constexpr static int nsr = 12;
+    constexpr static int nwm =  3; // Number of warping modes
+
+    struct Tangent {
+      OpenSees::MatrixND<3,3> nn,     nw, nv, 
+                              mn, mm, mw, mv, 
+                                      ww,
+                                          vv;
+      void zero() {
+        nn.zero();            nw.zero(); nv.zero();
+        mn.zero(); mm.zero(); mw.zero(); mv.zero();
+        ww.zero();
+        vv.zero();
+      }
+    } K_pres;
+    std::shared_ptr<Tangent> K_init;
+  
+    int stateDetermination(Tangent& K, VectorND<nsr>* s_trial, const VectorND<nsr> * const e_trial, int tangentFlag);
 
     struct Param {
       enum : int {
@@ -97,15 +116,11 @@ class FrameSolidSection3d : public FrameSection
       };
     };
 
-    constexpr static int nsr = 12;
-    constexpr static int nwm =  3; // Number of warping modes
-
     enum: int {
       CurrentTangent, InitialTangent
     };
 
     enum : int {
-# if 1 
       inx = 0, 
       iny,
       inz,
@@ -121,22 +136,6 @@ class FrameSolidSection3d : public FrameSection
       ivx,     
       ivy,
       ivz
-#else
-      inx = 0, 
-      imz,  
-      imy,
-      iny,
-      inz,
-      imx,
-
-      iwx,     
-      iwy,
-      iwz,
-
-      ivx,     
-      ivy,
-      ivz
-#endif
     };
     
     struct FiberData {
@@ -145,36 +144,25 @@ class FrameSolidSection3d : public FrameSection
       double y;
       double z;
       double area;
-      std::array<std::array<double,3>,nwm> warp{0};
+      std::array<std::array<double,3>,nwm> warp{{{0}}};
       OpenSees::VectorND<3> r;
     };
     std::shared_ptr<std::vector<FiberData>> fibers;
     std::vector<NDMaterial*> materials;
 
+    VectorND<nsr> s, e;
+    Vector s_wrap, e_wrap;
 
-    OpenSees::MatrixND<3,3> Knn,      Knw, Knv, 
-                            Kmn, Kmm, Kmw, Kmv, 
-                                      Kww,
-                                           Kvv;
-    double   kData[nsr*nsr];            // data for ks matrix 
-    double   sData[nsr];                // data for s vector 
-
-    double Abar,QyBar, QzBar;
     Vector3D centroid;
     double yBar;                      // Section centroid
     double zBar;                      // Section centroid
-    bool computeCentroid;
-    double alpha;      // Shear shape factor
 
 
     static ID code;
-
-    Vector e;          // trial section deformations 
-    Vector *s;         // section resisting forces  (axial force, bending moment)
-    Matrix *ks;        // section stiffness
 
     int parameterID;
     Vector dedh;
 };
 
 #endif
+} // namespace OpenSees
