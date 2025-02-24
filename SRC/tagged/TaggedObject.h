@@ -55,8 +55,8 @@ class TaggedObject
   protected:
     void setTag(int newTag);  // CAUTION: this is a dangerous method to call
     
-    constexpr static char JsonGeometryIndent[] = "\t\t\t";
-    constexpr static char JsonPropertyIndent[] = "\t\t\t";
+    constexpr static char JsonGeometryIndent[] = "       ";
+    constexpr static char JsonPropertyIndent[] = "       ";
 
   private:    
     int theTag;    
