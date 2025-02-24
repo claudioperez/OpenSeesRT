@@ -9,8 +9,6 @@
 // 3D beam section discretized by fibers. The section stiffness and
 // stress resultants are obtained by summing fiber contributions.
 //
-// Adapted from NDFiberSection3d
-//
 // Written: cmp
 // Created: Spring 2025
 //
