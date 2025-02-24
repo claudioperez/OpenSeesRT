@@ -7,7 +7,7 @@
 // Claudio M. Perez
 //
 #pragma once
-#include <vector>
+#include <set>
 #include <array>
 #include <Flag.h>
 #include <Element.h>
@@ -20,12 +20,11 @@
 #include <Frame/FiniteElement.h>
 #include <Rotations.hpp>
 
-
 namespace OpenSees {
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm=0>
 class ExactFrame3d: 
-  public FiniteElement<nen, 3, 6>
+  public FiniteElement<nen, 3, 6+nwm>
 {
 public:
   enum Logarithm {
@@ -35,7 +34,7 @@ public:
   };
 
   ExactFrame3d(int tag, std::array<int,nen>& nodes,
-               FrameSection *section[nip], 
+               FrameSection *section[nen-1], 
                FrameTransform3d& transf
 //             int mass_type
   );
@@ -55,6 +54,7 @@ public:
   virtual const Matrix &getInitialStiff();
 
   virtual int update() final;
+  virtual int addLoad(ElementalLoad* , double scale) override final;
 
   virtual int revertToStart();
   virtual int revertToLastCommit();
@@ -87,10 +87,10 @@ public:
     // Constexpr
     //
     constexpr static int 
-          nsr = 6,              // Number of section resultants
+          nsr = 6+2*nwm,        // Number of section resultants
           ndm = 3,              // Dimension of the problem (3D)
-          ndf = 6,              // Degrees of freedom per node
-          nwm = 0;
+          nip = nen-1,          // Number of integration points
+          ndf = 6+nwm;          // Degrees of freedom per node
 
     enum Respond: int {
       GlobalForce = 1,
@@ -108,6 +108,12 @@ public:
       FrameStress::T,
       FrameStress::My,
       FrameStress::Mz,
+      FrameStress::Bimoment,
+  //  FrameStress::By,
+  //  FrameStress::Bz,
+      FrameStress::Bishear,
+  //  FrameStress::Qy,
+  //  FrameStress::Qz
     };
 
     //
@@ -122,6 +128,13 @@ public:
       Matrix3D rotation;
       Vector3D curvature;
     };
+    // Node locations in local (scalar) coordinate
+    double xn[nen];
+    double jxs;
+
+    Matrix3D R0;
+
+    std::set<FrameLoad*> frame_loads;
 
     std::array<GaussPoint,nip> pres;
     std::array<GaussPoint,nip> past;
