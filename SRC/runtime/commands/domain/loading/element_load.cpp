@@ -100,7 +100,8 @@ TclCommand_addFrameLoad(ClientData clientData, Tcl_Interp *interp, int argc,
       }
       if (strcmp(argv[i+1], "global") == 0)
         basis = FrameLoad::Embedding;
-      else if (strcmp(argv[i+1], "reference") == 0)
+      else if ((strcmp(argv[i+1], "reference") == 0) || 
+               (strcmp(argv[i+1], "local") == 0))
         basis = FrameLoad::Reference;
       else if (strcmp(argv[i+1], "director") == 0)
         basis = FrameLoad::Director;
