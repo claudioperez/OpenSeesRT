@@ -93,7 +93,6 @@ public:
     int 
     addElement(Element& element) {
         auto name = element.getClassType();
-        opserr << "Adding element " << name << '\n';
         if (strstr(name, "Frame") == nullptr) {
             opserr << "WARNING FrameLoad::addElement() - cannot add load to element of type " << name << '\n';
             return -1;
@@ -120,13 +119,9 @@ public:
         return gauss;
     }
 
-#if 0
-    int addIntegral(VectorND<n> &p, double (*)(double), double L,
-                    Vector3D* u, Vector3D* v)
-    {
-    }
-#endif
     virtual void applyLoad(double loadFactor) final {
+        for (auto e: elements)
+            e->update();
     }
     
     virtual const Vector&
@@ -208,13 +203,6 @@ public:
                         scale *= (x - r[s][0]) / (r[q][0] - r[s][0]);
                     break;
             }
-            opserr << "  p = " << Vector(px)
-                   << "|p| = " << px.norm() << "\n"
-                   << ", r = " << Vector(rx)
-                   << ", m = " << Vector(mx) 
-                   << ", w = " << w 
-                   << ", and scale = " << pattern.getLoadFactor()
-            << "\n";
             pe.template assemble<  i*n>(px, scale);
             pe.template assemble<3+i*n>(mx, scale);
         }
