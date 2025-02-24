@@ -312,7 +312,9 @@ FrameSolidSection3d::stateDetermination(Tangent& K, VectorND<nsr>* s_trial, cons
       (*s_trial)(imy) +=  z*sig0;
       (*s_trial)(imz) += -y*sig0;
       for (int j=0; j<nwm; j++) {
+        // w += w[j]*s da
         (*s_trial)(iwx+j) += w[j][0]*sig0;
+        // v += dw[j]*s da
         (*s_trial)(ivx+j) += w[j][1]*sig1;
         (*s_trial)(ivx+j) += w[j][2]*sig2;
       }
@@ -470,14 +472,14 @@ FrameSolidSection3d::revertToStart()
 int
 FrameSolidSection3d::sendSelf(int commitTag, Channel &theChannel)
 {
-  return 0;
+  return -1;
 }
 
 int
 FrameSolidSection3d::recvSelf(int , Channel &,
                               FEM_ObjectBroker &)
 {
-  return 0;
+  return -1;
 }
 
 void
@@ -663,7 +665,7 @@ FrameSolidSection3d::setParameter(const char **argv, int argc, Parameter &param)
   }
 
   // Check if the parameter belongs to the material (only option for now)
-  if (strstr(argv[0],"material") != 0) {
+  if (strstr(argv[0], "material") != 0) {
     
     if (argc < 3)
       return 0;
