@@ -105,7 +105,6 @@ ForceDeltaFrame3d::getHgp(int n, double xi[], Matrix& H)
 }
 
 
-// constructor:
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
 ForceDeltaFrame3d::ForceDeltaFrame3d()
  : BasicFrame3d(0, ELE_TAG_ForceDeltaFrame3d),
