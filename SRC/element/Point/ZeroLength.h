@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.14 $
-// $Date: 2010-02-04 01:17:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/zeroLength/ZeroLength.h,v $
-                                                                        
-                                                                        
+//
 #ifndef ZeroLength_h
 #define ZeroLength_h
 
@@ -139,7 +134,7 @@ class ZeroLength : public Element
     // public methods for element output
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
-    int displaySelf(Renderer &, int mode, float fact, const char **displayModes=0, int numModes=0);
+    // TaggedObject
     void Print(OPS_Stream &s, int flag =0);    
 
     Response *setResponse(const char **argv, int argc, OPS_Stream &s);
