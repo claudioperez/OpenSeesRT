@@ -449,7 +449,7 @@ ForceFrame3d::update()
   double L        = theCoordTransf->getInitialLength();
   double jsx = 1.0 / L;
 
-  // get basic displacements and increments
+  //
   const Vector& v = theCoordTransf->getBasicTrialDisp();
 
   THREAD_LOCAL VectorND<NBV> dv{0.0};
@@ -466,7 +466,7 @@ ForceFrame3d::update()
   THREAD_LOCAL VectorND<NBV> vr;      // element residual displacements
   THREAD_LOCAL MatrixND<NBV, NBV> F;   // element flexibility matrix
   THREAD_LOCAL VectorND<NBV> dvToDo,
-                            dv_trial;
+                             dv_trial;
 
   dvToDo  = dv;
   dv_trial = dvToDo;
@@ -515,11 +515,10 @@ ForceFrame3d::update()
       VectorND<NBV>     q_trial = q_pres;
       MatrixND<NBV, NBV> K_trial = K_pres;
 
-      // calculate nodal force increments and update nodal forces
       q_trial += K_pres*dv;
 
       for (int j = 0; j < numIters; j++) {
-        // initialize F and vr for integration
+        // Initialize F and vr for integration
         F.zero();
         vr.zero();
 
@@ -697,10 +696,10 @@ ForceFrame3d::update()
             vr[5] += des[3]*wtL;
             // SECTION_RESPONSE_MY:
             vr[3] += xL1 * des[4]*wtL;
-            vr[4] += xL * des[4]*wtL;
+            vr[4] += xL  * des[4]*wtL;
             // SECTION_RESPONSE_MZ:
             vr[1] += xL1 * des[5]*wtL;
-            vr[2] += xL * des[5]*wtL;
+            vr[2] += xL  * des[5]*wtL;
           }
         } // Gauss loop
 
@@ -786,10 +785,10 @@ iterations_completed:
 
 
   if (converged == false) {
-    opserr << "WARNING - ForceFrame3d::update - failed to get compatible ";
-    opserr << "element forces & deformations for element: ";
-    opserr << this->getTag() << "; dW: << " << dW << ", dW0: " << dW0 << ")\n";
-
+    opserr << "WARNING - ForceFrame3d failed internal state determination ";
+    opserr << "for element " << this->getTag() 
+           << "; dW = " << dW << ", dW0 = " << dW0
+           << "\n";
     return -1;
   }
 
@@ -897,8 +896,48 @@ ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, double x)
         default:                  break;
         }
       }
-
     }
+  
+    else if (type == LOAD_TAG_Beam3dPointLoad) {
+      double Py     = data(0) * loadFactor;
+      double Pz     = data(1) * loadFactor;
+      double N      = data(2) * loadFactor;
+      double aOverL = data(3);
+
+      if (aOverL < 0.0 || aOverL > 1.0)
+        continue;
+
+      double a = aOverL * L;
+
+      double Vy1 = Py * (1.0 - aOverL);
+      double Vy2 = Py * aOverL;
+
+      double Vz1 = Pz * (1.0 - aOverL);
+      double Vz2 = Pz * aOverL;
+
+      for (int ii = 0; ii < nsr; ii++) {
+
+        if (x <= a) {
+          switch (scheme[ii]) {
+          case SECTION_RESPONSE_P:  sp[ii] +=       N; break;
+          case SECTION_RESPONSE_VY: sp[ii] -=     Vy1; break;
+          case SECTION_RESPONSE_VZ: sp[ii] -=     Vz1; break;
+          case SECTION_RESPONSE_MY: sp[ii] += x * Vz1; break;
+          case SECTION_RESPONSE_MZ: sp[ii] -= x * Vy1; break;
+          default:                  break;
+          }
+        } else {
+          switch (scheme[ii]) {
+          case SECTION_RESPONSE_MZ: sp[ii] -= (L - x) * Vy2; break;
+          case SECTION_RESPONSE_VY: sp[ii] += Vy2; break;
+          case SECTION_RESPONSE_MY: sp[ii] += (L - x) * Vz2; break;
+          case SECTION_RESPONSE_VZ: sp[ii] += Vz2; break;
+          default:                  break;
+          }
+        }
+      }
+    } 
+  
     else if (type == LOAD_TAG_Beam3dPartialUniformLoad) {
       double wy = data(0) * loadFactor;  // Transverse Y at start
       double wz = data(1) * loadFactor;  // Transverse Z at start
@@ -989,45 +1028,7 @@ ForceFrame3d::addLoadAtSection(VectorND<nsr>& sp, double x)
         }
       }
     }
-    else if (type == LOAD_TAG_Beam3dPointLoad) {
-      double Py     = data(0) * loadFactor;
-      double Pz     = data(1) * loadFactor;
-      double N      = data(2) * loadFactor;
-      double aOverL = data(3);
-
-      if (aOverL < 0.0 || aOverL > 1.0)
-        continue;
-
-      double a = aOverL * L;
-
-      double Vy1 = Py * (1.0 - aOverL);
-      double Vy2 = Py * aOverL;
-
-      double Vz1 = Pz * (1.0 - aOverL);
-      double Vz2 = Pz * aOverL;
-
-      for (int ii = 0; ii < nsr; ii++) {
-
-        if (x <= a) {
-          switch (scheme[ii]) {
-          case SECTION_RESPONSE_P:  sp[ii] += N; break;
-          case SECTION_RESPONSE_VY: sp[ii] -= Vy1; break;
-          case SECTION_RESPONSE_VZ: sp[ii] -= Vz1; break;
-          case SECTION_RESPONSE_MY: sp[ii] += x * Vz1; break;
-          case SECTION_RESPONSE_MZ: sp[ii] -= x * Vy1; break;
-          default:                  break;
-          }
-        } else {
-          switch (scheme[ii]) {
-          case SECTION_RESPONSE_MZ: sp[ii] -= (L - x) * Vy2; break;
-          case SECTION_RESPONSE_VY: sp[ii] += Vy2; break;
-          case SECTION_RESPONSE_MY: sp[ii] += (L - x) * Vz2; break;
-          case SECTION_RESPONSE_VZ: sp[ii] += Vz2; break;
-          default:                  break;
-          }
-        }
-      }
-    } else {
+    else {
       opserr << "ForceFrame3d::addLoad -- load type unknown for element with tag: "
              << this->getTag() << "\n";
     }
@@ -1670,24 +1671,26 @@ ForceFrame3d::getInitialDeformations(Vector& v0)
     for (int ii = 0; ii < nsr; ii++) {
       double dei = e[ii] * wtL;
       switch (scheme[ii]) {
-      case SECTION_RESPONSE_P: v0(0) += dei; break;
-      case SECTION_RESPONSE_MZ:
-        v0[1] += xL1 * dei;
-        v0[2] += xL * dei;
+      case SECTION_RESPONSE_P:
+        v0(0) += dei;
         break;
       case SECTION_RESPONSE_VY:
         tmp = jsx * dei;
         v0[1] += tmp;
         v0[2] += tmp;
         break;
-      case SECTION_RESPONSE_MY:
-        v0[3] += xL1 * dei;
-        v0[4] += xL * dei;
-        break;
       case SECTION_RESPONSE_VZ:
         tmp = jsx * dei;
         v0[3] += tmp;
         v0[4] += tmp;
+        break;
+      case SECTION_RESPONSE_MY:
+        v0[3] += xL1 * dei;
+        v0[4] += xL  * dei;
+        break;
+      case SECTION_RESPONSE_MZ:
+        v0[1] += xL1 * dei;
+        v0[2] += xL  * dei;
         break;
       default: break;
       }
@@ -1725,14 +1728,16 @@ ForceFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDis
 
   for (int i = 0; i < numSections; i++) {
     // get section deformations
-    VectorND<nsr> es = points[i].material->getDeformation<nsr,scheme>();
+    // TODO: Im removing getDeformation, deformations should just be computed
+    // right here by the element;
+    // VectorND<nsr> es = points[i].material->getDeformation<nsr,scheme>();
 
-    for (int j = 0; j < nsr; j++) {
-      if (scheme[j] == SECTION_RESPONSE_MZ)
-        kappa_z(i) = es[j];
-      if (scheme[j] == SECTION_RESPONSE_MY)
-        kappa_y(i) = es[j];
-    }
+    // for (int j = 0; j < nsr; j++) {
+    //   if (scheme[j] == SECTION_RESPONSE_MZ)
+    //     kappa_z(i) = es[j];
+    //   if (scheme[j] == SECTION_RESPONSE_MY)
+    //     kappa_y(i) = es[j];
+    // }
   }
 
   Vector v(numSections),
