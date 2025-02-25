@@ -29,6 +29,7 @@ TclObjCommand_pragma([[maybe_unused]] ClientData clientData,
         "proc system {args} {}\n"
         "proc test {args} {}\n"
         "proc algorithm {args} {}\n"
+        "proc sensitivityAlgorithm {args} {}\n"
         "proc integrator {args} {}\n"
         "proc analysis {args} {}\n"
         "proc analyze {args} {return 0}\n"

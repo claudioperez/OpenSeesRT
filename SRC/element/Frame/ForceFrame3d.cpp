@@ -529,13 +529,13 @@ ForceFrame3d::update()
           double xL = points[i].point;
           double xL1 = xL - 1.0;
           double wtL = points[i].weight * L;
-
+          // Retrieve section flexibility, deformations, and forces from last iteration
           auto& Fs = Fs_trial[i];
           auto& sr = sr_trial[i];
           FrameSection& section = *points[i].material;
 
           //
-          // a. Calculate interpolated section force
+          // a. Calculate section force by interpolation of q_trial
           //
           //    si = b*q + bp*w;
 
@@ -550,14 +550,14 @@ ForceFrame3d::update()
                xL1 * q_trial[3] + xL * q_trial[4],   // MY
                xL1 * q_trial[1] + xL * q_trial[2],   // MZ
           };
-          // Add the effects of element loads
+          // Add the particular solution
           // si += bp*w
           if (eleLoads.size() != 0)
             this->addLoadAtSection(si, points[i].point * L);
 
 
           //
-          // b. Compute section strain es_trial
+          // b. Compute section deformations es_trial
           //
           //    es += Fs * ( si - sr(e) );
           //
@@ -565,8 +565,8 @@ ForceFrame3d::update()
 
             VectorND<nsr> ds; //, des;
 
-            // Form stress increment ds
-            // ds = si - sr(e);
+            // Form stress increment ds from last iteration
+            // ds = si - si_past;
             ds = si;
             ds.addVector(1.0, sr, -1.0);
 
@@ -601,7 +601,7 @@ ForceFrame3d::update()
           // c. Set trial section state and get response
           //
           if (section.setTrialState<nsr,scheme>(es_trial[i]) < 0) {
-            opserr << "ForceFrame3d::update - section failed in setTrial\n";
+            opserr << "ForceFrame3d::update - section " << i << " failed in setTrial\n";
             return -1;
           }
 
@@ -772,7 +772,6 @@ ForceFrame3d::update()
             dv_trial /= factor;
             subdivision++;
           }
-
         }
       } // for (int j=0; j < numIters; j++)
     }   // for (int l=0; l < 3; l++)

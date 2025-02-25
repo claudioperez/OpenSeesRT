@@ -5,6 +5,8 @@
 //                 https://doi.org/10.1002/nme.7506
 //
 //===----------------------------------------------------------------------===//
+// 
+// Torsion warping is due to [4], shear warping is due to [5]
 //
 // [1] Simo J.C. (1985): A finite strain beam formulation. The three-dimensional
 //     dynamic problem. Part I.
@@ -21,11 +23,17 @@
 //     Int. J. Numer. Meth. Engrg. 
 //     https://doi.org/10.1002/nme.7506
 //
+// [4] Simo J.C., Vu-Quoc L. (1991): A Geometrically-exact rod model incorporating shear
+//     and torsion-warping deformation. 
+//     International Journal of Solids and Structures, 27(3):371-393.
+//     doi: 10.1016/0020-7683(91)90089-x
+//
+// [5] Perez C.M., Filippou F.C., Mosalam K.M. (2025): Untitled work.
+//
 //===----------------------------------------------------------------------===//
 //
 // Claudio M. Perez
 //
-// Implementation
 #include <utility>
 #include <cstddef>
 #include <ExactFrame3d.h>

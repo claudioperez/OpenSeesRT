@@ -319,13 +319,18 @@ int AcousticMedium::getResponse (int responseID, Information &matInfo)  {
 
 
 void
-AcousticMedium::Print (OPS_Stream &s, int flag)
+AcousticMedium::Print(OPS_Stream &s, int flag)
 {
-	s << "Elastic Isotropic Material Model" << endln;
-	s << "\tKf:  " << Kf << endln;
-	s << "\trho:  " << rho << endln;
-	s << "\tGamma:  " << Gamma << endln;
-
+  if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+    s << TaggedObject::JsonPropertyIndent;
+    s << "{";
+    s << "\"name\": " << this->getTag() << ", ";
+    s << "\"type\":\"" << this->getClassType() << "\", ";
+    s << "\"Kf\": " << Kf << ", ";
+    s << "\"rho\": " << rho << ", ";
+    s << "\"gamma\": " << Gamma << "}";
+    return;
+  }
 	return;
 }
 
