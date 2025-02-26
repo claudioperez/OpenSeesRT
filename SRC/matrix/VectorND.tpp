@@ -118,7 +118,7 @@
           double value = *dataPtr * thisFact + *otherDataPtr++;
           *dataPtr++ = value;
         }
-      } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
+      } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact ==-1.0
         for (int i=0; i<N; i++) {
           double value = *dataPtr * thisFact - *otherDataPtr++;
           *dataPtr++ = value;
@@ -130,7 +130,6 @@
       }
     }
 
-    // successfull
     return 0;
   }
 

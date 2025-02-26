@@ -18,6 +18,7 @@
 #include <array>
 #include "FrameTransform.h"
 #include <Vector.h>
+#include <Versor.h>
 #include <Matrix.h>
 #include <Matrix3D.h>
 #include <Vector3D.h>
@@ -35,7 +36,9 @@ public:
     CorotFrameTransf3d();
     ~CorotFrameTransf3d();
 
-    const char *getClassType() const {return "CorotFrameTransf3d";}
+    const char *getClassType() const {
+      return "CorotFrameTransf3d";
+    }
 
     FrameTransform3d *getCopy();
 
@@ -87,29 +90,6 @@ public:
 protected:
     int addTangent(MatrixND<12,12>& M, const VectorND<12>& pl);
 
-    virtual const Layout& getNodeLayout() const {
-      static std::vector<int> l {
-         1,
-         1,
-         0,
-         0,
-         1,
-         1,
-      };
-      return l;
-    }
-    virtual const Layout& getForceLayout() const {
-      static std::vector<int> l {
-        FrameTransform3d::N,  // 1
-        FrameTransform3d::T,  // 1
-        FrameTransform3d::My, // 0
-        FrameTransform3d::Mz, // 0
-        FrameTransform3d::My, // 1
-        FrameTransform3d::Mz, // 1
-      };
-      return l;
-    }
-
 protected:
 
 private:
@@ -125,7 +105,7 @@ private:
 
     Vector xAxis;                              // local x axis
     Vector vAxis;                              // Vector that lies in local plane xz
-    Vector3D xi, xj, vz;
+    Vector3D xi, xj;
 
     // Rigid joint offsets
     enum {
@@ -141,10 +121,10 @@ private:
     double Ln;                                 // current element length (at trial state)
     
                                                // (the columns of which are the element local axes)
-    OpenSees::VectorND<4> alphaIq;             // quaternion for node I
-    OpenSees::VectorND<4> alphaJq;             // quaternion for node I 
-    OpenSees::VectorND<4> alphaIqcommit;       // commited quaternion for node I
-    OpenSees::VectorND<4> alphaJqcommit;       // commited quaternion for node J
+    Versor alphaIq;             // quaternion for node I
+    Versor alphaJq;             // quaternion for node I 
+    Versor alphaIqcommit;       // commited quaternion for node I
+    Versor alphaJqcommit;       // commited quaternion for node J
     Vector alphaI;                             // last trial rotations end i
     Vector alphaJ;                             // last trial rotatations end j
 
@@ -158,7 +138,7 @@ private:
     OpenSees::Matrix3D A;
     OpenSees::Matrix3D R0;         // rotation matrix from local to global coordinates
     OpenSees::Matrix3D e, RI, RJ, Rbar;
-    
+
     double *nodeIInitialDisp,
            *nodeJInitialDisp;
     bool initialDispChecked;
