@@ -454,11 +454,12 @@ Node::getIncrDeltaDisp()
 Versor
 Node::getTrialRotation()
 {
-  if (rotation == nullptr)
+  if (rotation == nullptr) {
     if (this->getNumberDOF() < 6)
       return Versor();
     else
       rotation = new Versor{0.0, 0.0, 0.0, 1.0};
+  }
 
   return *rotation;
 }
@@ -570,7 +571,7 @@ Node::incrTrialDisp(const Vector &incrDispl)
         disp[i+2*numberDOF] += incrDispI;
         disp[i+3*numberDOF]  = incrDispI;
     }
-    if (rotation != nullptr && this->getNumberDOF() == 6) {
+    if (rotation != nullptr && this->getNumberDOF() >= 6) {
       (*rotation) = (*rotation) * Versor::from_vector(&disp[3+3*numberDOF]);
     }
 
