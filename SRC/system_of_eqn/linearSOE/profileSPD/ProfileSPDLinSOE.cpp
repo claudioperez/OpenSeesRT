@@ -31,7 +31,7 @@
 #include <Vertex.h>
 #include <VertexIter.h>
 #include <math.h>
-
+#include <Logging.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 

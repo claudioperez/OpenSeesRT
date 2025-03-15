@@ -32,3 +32,4 @@ add_subdirectory(damage)
 add_subdirectory(parallel)
 
 add_subdirectory(executable)
+add_subdirectory(testing)

@@ -6,7 +6,7 @@
 #==============================================================================
 
 target_sources(OPS_SysOfEqn
-    PRIVATE
+  PRIVATE
     ProfileSPDLinSOE.cpp
     ProfileSPDLinSolver.cpp
     ProfileSPDLinDirectSolver.cpp
@@ -18,7 +18,10 @@ target_sources(OPS_SysOfEqn
     DistributedProfileSPDLinSOE.cpp
     SProfileSPDLinSOE.cpp
     SProfileSPDLinSolver.cpp
-    PUBLIC
+
+    ProfileSPDLinDirectThreadSolver.cpp
+
+  PUBLIC
     ProfileSPDLinSOE.h
     ProfileSPDLinSolver.h
     ProfileSPDLinDirectSolver.h

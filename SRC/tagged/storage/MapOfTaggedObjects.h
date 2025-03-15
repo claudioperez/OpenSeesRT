@@ -36,9 +36,18 @@
 #ifndef MapOfTaggedObjects_h
 #define MapOfTaggedObjects_h
 //
+#if defined __has_include
+#  if __has_include (<stdatomic.h>)
+#    include <stdatomic.h>
+#  endif
+#endif
 #include <map>
 #include <TaggedObjectStorage.h>
 #include <MapOfTaggedObjectsIter.h>
+
+
+template <typename K, typename V>
+using Map = std::map<K,V>;
 
 class MapOfTaggedObjects : public TaggedObjectStorage
 {
@@ -67,7 +76,7 @@ class MapOfTaggedObjects : public TaggedObjectStorage
   protected:    
     
   private:
-    std::map<int, TaggedObject *> theMap; // the map container for storing the pointers
+    Map<int, TaggedObject *> theMap; // the map container for storing the pointers
     MapOfTaggedObjectsIter  myIter;  // the iter for this object
 };
 

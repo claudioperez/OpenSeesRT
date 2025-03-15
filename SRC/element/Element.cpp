@@ -47,8 +47,8 @@ Vector **Element::theVectors2;
 int  Element::numMatrices(0);
 
 // Element(int tag, int noExtNodes);
-// 	constructor that takes the element's unique tag and the number
-//	of external nodes for the element.
+//         constructor that takes the element's unique tag and the number
+//        of external nodes for the element.
 
 Element::Element(int tag, int cTag) 
   :DomainComponent(tag, cTag), alphaM(0.0), 
@@ -123,15 +123,15 @@ Element::setRayleighDampingFactors(double alpham, double betak, double betak0, d
     for (int i=0; i<numMatrices; i++) {
       Matrix *aMatrix = theMatrices[i];
       if (aMatrix->noRows() == numDOF) {
-	index = i;
-	i = numMatrices;
+        index = i;
+        i = numMatrices;
       }
     }
     if (index == -1) {
       Matrix **nextMatrices = new Matrix *[numMatrices+1];
 
       for (int j=0; j<numMatrices; j++)
-	nextMatrices[j] = theMatrices[j];
+        nextMatrices[j] = theMatrices[j];
 
       Matrix *theMatrix = new Matrix(numDOF, numDOF);
 
@@ -140,15 +140,15 @@ Element::setRayleighDampingFactors(double alpham, double betak, double betak0, d
       Vector **nextVectors1 = new Vector *[numMatrices+1];
       Vector **nextVectors2 = new Vector *[numMatrices+1];
       if (nextVectors1 == 0 || nextVectors2 == 0) {
-	opserr << "Element::getTheVector - out of memory\n";
-	exit(-1);
+        opserr << "Element::getTheVector - out of memory\n";
+        exit(-1);
       }
 
       for (int j=0; j<numMatrices; j++) {
-	nextVectors1[j] = theVectors1[j];
-	nextVectors2[j] = theVectors2[j];
+        nextVectors1[j] = theVectors1[j];
+        nextVectors2[j] = theVectors2[j];
       }
-	
+        
       Vector *theVector1 = new Vector(numDOF);
       Vector *theVector2 = new Vector(numDOF);
 
@@ -156,9 +156,9 @@ Element::setRayleighDampingFactors(double alpham, double betak, double betak0, d
       nextVectors2[numMatrices] = theVector2;
 
       if (numMatrices != 0) {
-	delete [] theMatrices;
-	delete [] theVectors1;
-	delete [] theVectors2;
+        delete [] theMatrices;
+        delete [] theVectors1;
+        delete [] theVectors2;
       }
 
       index = numMatrices;
@@ -366,9 +366,9 @@ Element::addInertiaLoadToUnbalance(const Vector &accel)
       const Vector &nodeRV = theNode->getRV(accel);
       for (int j=0; j<numNodeDOF; j++)
 #ifdef _G3DEBUG
- 	if (loc<ndof)
+         if (loc<ndof)
 #endif
-	  RV(loc++) = nodeRV(j);
+          RV(loc++) = nodeRV(j);
     }
   }
 
@@ -473,7 +473,7 @@ Element::getResponse(int responseID, Information &eleInfo)
 
 int
 Element::getResponseSensitivity(int responseID, int gradIndex,
-				Information &eleInfo)
+                                Information &eleInfo)
 {
   return -1;
 }
@@ -566,13 +566,13 @@ Element::getMassSensitivity(int gradIndex)
 int
 Element::commitSensitivity(int gradIndex, int numGrads)
 {
-	return -1;
+        return -1;
 }
 
 int
 Element::addInertiaLoadSensitivityToUnbalance(const Vector &accel, bool tag)
 {
-	return -1;
+        return -1;
 }
 
 
@@ -670,13 +670,13 @@ double Element::getCharacteristicLength(void)
       int jDOF = jCoords.Size(); // nodeI->getNumberDOF(); // bugfix: Massimo Petracca 03/25/2020
       double ijLength = 0;
       for (int k=0; k<iDOF && k<jDOF; k++) {
-	ijLength += (jCoords(k)-iCoords(k))*(jCoords(k)-iCoords(k)); //Tesser
-      }	
+        ijLength += (jCoords(k)-iCoords(k))*(jCoords(k)-iCoords(k)); //Tesser
+      }        
       ijLength = sqrt(ijLength);
       if (ijLength > cLength)
-	cLength = ijLength;
+        cLength = ijLength;
       if (ijLength < minSize) 
-	minSize = ijLength;
+        minSize = ijLength;
     }
   }
   return minSize;
@@ -706,7 +706,7 @@ Element::storePreviousK(int numK) {
       theKMatrices[i] = new Matrix(numEleDOF, numEleDOF);
 
       if (theKMatrices[i] == 0)
-	return -1;
+        return -1;
     }
     
     if (previousK != 0)
@@ -746,7 +746,7 @@ const Matrix &
 Element::getGeometricTangentStiff()
 {
     if (index == -1) {
-	this->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
+        this->setRayleighDampingFactors(alphaM, betaK, betaK0, betaKc);
     }
     
     Matrix *theMatrix = theMatrices[index];

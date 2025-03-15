@@ -31,7 +31,11 @@
 #ifndef Node_h
 #define Node_h
 
-#define VIRTUAL
+#ifdef VIRTUAL
+#undef VIRTUAL
+#endif
+
+#define VIRTUAL virtual
 
 #include <TaggedObject.h>
 #include <MovableObject.h>
@@ -255,5 +259,6 @@ class Node :
     Vector *reaction;
 };
 
+#undef VIRTUAL
 #endif
 

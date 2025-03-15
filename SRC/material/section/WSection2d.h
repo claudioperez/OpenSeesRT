@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.1 $
-// $Date: 2008-12-03 23:46:59 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/section/WSection2d.h,v $
-                                                                        
+//
 // Written: MHS
 // Created: Aug 2001
 //
@@ -31,7 +27,7 @@
 // stress resultants are obtained by summing fiber contributions.
 // The fiber stresses are the 11, 12, and 13 components of stress, from
 // which all six beam stress resultants are obtained.
-
+//
 #ifndef WSection2d_h
 #define WSection2d_h
 

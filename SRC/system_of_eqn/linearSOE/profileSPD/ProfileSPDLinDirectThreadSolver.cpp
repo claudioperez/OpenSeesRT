@@ -17,13 +17,6 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:02:03 $
-// $Source: /usr/local/cvs/OpenSees/SRC/system_of_eqn/linearSOE/profileSPD/ProfileSPDLinDirectThreadSolver.cpp,v $
-                                                                        
-                                                                        
-// File: ~/system_of_eqn/linearSOE/ProfileSPD/ProfileSPDLinDirectThreadSolver.C
 //
 // Written: fmk 
 // Created: Mar 1998
@@ -33,21 +26,20 @@
 // ProfileSPDLinDirectThreadSolver. ProfileSPDLinDirectThreadSolver will solve
 // a linear system of equations stored using the profile scheme using threads.
 // It solves a ProfileSPDLinSOE object using the LDL^t factorization and a block approach.
-
-// What: "@(#) ProfileSPDLinDirectThreadSolver.C, revA"
-
+//
 #include <ProfileSPDLinDirectThreadSolver.h>
 #include <ProfileSPDLinSOE.h>
 #include <math.h>
+#include <assert.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-
-#define _REENTRANT    /* basic 3-lines for threads */
-// #include <pthread.h>
-#include <thread.h>
+#include <Logging.h>
+#include <pthread.h>
+#include <threads/solaris2posix.h>
+// #include <thread.h>
 
 // global data that will be needed by the threads
-struct thread_control_block {
+struct ProfileTCB {
   mutex_t start_mutex;
   mutex_t end_mutex;
   mutex_t startBlock_mutex;
@@ -74,27 +66,51 @@ struct thread_control_block {
   int numThreads;
   int threadsDone;
   int threadsDoneBlock;
-} TCB_ProfileSPDDirectThreadSolver;
+} ; //TCB_ProfileSPDDirectThreadSolver;
 
 
 void *ProfileSPDLinDirectThreadSolver_Worker(void *arg);
 
-ProfileSPDLinDirectThreadSolver::ProfileSPDLinDirectThreadSolver()
-:ProfileSPDLinSolver(SOLVER_TAGS_ProfileSPDLinDirectThreadSolver),
- NP(2), running(false),
- minDiagTol(1.0e-12), blockSize(4), maxColHeight(0), 
- size(0), RowTop(0), topRowPtr(0), invD(0)
-{
-
-}
 
 ProfileSPDLinDirectThreadSolver::ProfileSPDLinDirectThreadSolver
          (int numProcessors, int blckSize, double tol) 
 :ProfileSPDLinSolver(SOLVER_TAGS_ProfileSPDLinDirectThreadSolver),
  NP(numProcessors), running(false),
  minDiagTol(tol), blockSize(blckSize), maxColHeight(0), 
- size(0), RowTop(0), topRowPtr(0), invD(0)
+ size(0), RowTop(0), topRowPtr(0), invD(0), tcb(new ProfileTCB)
 {
+    mutex_init(&tcb->start_mutex, USYNC_THREAD, 0);
+    mutex_init(&tcb->end_mutex, USYNC_THREAD, 0);
+    mutex_init(&tcb->startBlock_mutex, USYNC_THREAD, 0);
+    mutex_init(&tcb->endBlock_mutex, USYNC_THREAD, 0);
+    cond_init(&tcb->start_cond, USYNC_THREAD, 0);
+    cond_init(&tcb->end_cond, USYNC_THREAD, 0);
+    cond_init(&tcb->startBlock_cond, USYNC_THREAD, 0);
+    cond_init(&tcb->endBlock_cond, USYNC_THREAD, 0);
+    tcb->workToDo = 0;
+
+#if 1
+    // pthread_attr_t* attr = nullptr;
+    pthread_attr_t  attr;
+    pthread_attr_init(&attr);
+    // pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
+    // PTHREAD_CREATE_DETACHED
+    pthread_t thread;
+    for (int j = 0; j < NP; j++) {
+      pthread_create(&thread, &attr, 
+                 ProfileSPDLinDirectThreadSolver_Worker,
+                 (void*)tcb);
+      pthread_detach(thread);
+    }
+    pthread_attr_destroy(&attr);
+#else 
+    // THR_DAEMON implies THR_DETACHED
+    int attr = THR_BOUND|THR_DAEMON;
+    // Create the threads - Bound daemon threads
+    for (int j = 0; j < NP; j++) 
+      thr_create(NULL,0, ProfileSPDLinDirectThreadSolver_Worker, 
+                 (void*)&TCB_ProfileSPDDirectThreadSolver, attr, NULL);
+#endif 
 
 }
 
@@ -104,23 +120,21 @@ ProfileSPDLinDirectThreadSolver::~ProfileSPDLinDirectThreadSolver()
     if (RowTop != 0) delete [] RowTop;
     if (topRowPtr != 0) free((void *)topRowPtr);
     if (invD != 0) delete [] invD;
+    // TODO: free TCB
 }
 
 int
 ProfileSPDLinDirectThreadSolver::setSize(void)
 {
-    if (theSOE == 0) {
-	opserr << "ProfileSPDLinDirectThreadSolver::setSize()";
-	opserr << " No system has been set\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
 
     // check for quick return 
     if (theSOE->size == 0)
 	return 0;
+
     if (size != theSOE->size) {    
       size = theSOE->size;
-    
+
       if (RowTop != 0) delete [] RowTop;
       if (topRowPtr != 0) delete [] topRowPtr;
       if (invD != 0) delete [] invD;
@@ -131,12 +145,6 @@ ProfileSPDLinDirectThreadSolver::setSize(void)
       topRowPtr = (double **)malloc(size *sizeof(double *));
 
       invD = new double[size]; 
-	
-      if (RowTop == 0 || topRowPtr == 0 || invD == 0) {
-	opserr << "Warning :ProfileSPDLinDirectThreadSolver::ProfileSPDLinDirectThreadSolver :"; 
-	opserr << " ran out of memory for work areas \n";
-	return -1;
-      }
     }
 
 
@@ -164,13 +172,9 @@ ProfileSPDLinDirectThreadSolver::setSize(void)
 int 
 ProfileSPDLinDirectThreadSolver::solve(void)
 {
-    // check for quick returns
-    if (theSOE == 0) {
-	opserr << "ProfileSPDLinDirectThreadSolver::solve(void): ";
-	opserr << " - No ProfileSPDSOE has been assigned\n";
-	return -1;
-    }
+    assert(theSOE != nullptr);
     
+    // check for quick returns
     if (theSOE->size == 0)
 	return 0;
 
@@ -186,68 +190,46 @@ ProfileSPDLinDirectThreadSolver::solve(void)
 	X[ii] = B[ii];
     
     if (theSOE->isAfactored == false)  {
-      // start threads running
-      if (running == false) {
-	mutex_init(&TCB_ProfileSPDDirectThreadSolver.start_mutex, USYNC_THREAD, 0);
-	mutex_init(&TCB_ProfileSPDDirectThreadSolver.end_mutex, USYNC_THREAD, 0);
-	mutex_init(&TCB_ProfileSPDDirectThreadSolver.startBlock_mutex, USYNC_THREAD, 0);
-	mutex_init(&TCB_ProfileSPDDirectThreadSolver.endBlock_mutex, USYNC_THREAD, 0);
-	cond_init(&TCB_ProfileSPDDirectThreadSolver.start_cond, USYNC_THREAD, 0);
-	cond_init(&TCB_ProfileSPDDirectThreadSolver.end_cond, USYNC_THREAD, 0);
-	cond_init(&TCB_ProfileSPDDirectThreadSolver.startBlock_cond, USYNC_THREAD, 0);
-	cond_init(&TCB_ProfileSPDDirectThreadSolver.endBlock_cond, USYNC_THREAD, 0);
-	TCB_ProfileSPDDirectThreadSolver.workToDo = 0;
 
-        
-	// Create the threads - Bound daemon threads
-	for (int j = 0; j < NP; j++) 
-	  thr_create(NULL,0, ProfileSPDLinDirectThreadSolver_Worker, 
-		     NULL, THR_BOUND|THR_DAEMON, NULL);
+      mutex_lock(&tcb->start_mutex); 
 
-        running = true;
-      }
+      invD[0] = 1.0/A[0];	
+
+      // assign the global variables the threads will need
+      tcb->A = A;
+      tcb->X = X;
+      tcb->B = B;
+      tcb->size = size;
+      tcb->minDiagTol = minDiagTol;
+      tcb->maxColHeight = maxColHeight;
+      tcb->RowTop = RowTop;
+      tcb->topRowPtr = topRowPtr;
+      tcb->invD = invD;
+      tcb->blockSize    = blockSize;
+      tcb->iDiagLoc     = iDiagLoc;
       
-  
-      mutex_lock(&TCB_ProfileSPDDirectThreadSolver.start_mutex); 
+      tcb->info = 0;
+      tcb->workToDo     = NP;
+      tcb->currentBlock = -1;
+      tcb->threadID     = 0;
+      tcb->numThreads   = NP;
+      tcb->threadsDone  = 0;
+      tcb->threadsDoneBlock = NP;
 
-	invD[0] = 1.0/A[0];	
-
-        // assign the global variables the threads will need
-        TCB_ProfileSPDDirectThreadSolver.A = A;
-	TCB_ProfileSPDDirectThreadSolver.X = X;
-	TCB_ProfileSPDDirectThreadSolver.B = B;
-	TCB_ProfileSPDDirectThreadSolver.size = size;
-	TCB_ProfileSPDDirectThreadSolver.minDiagTol = minDiagTol;
-	TCB_ProfileSPDDirectThreadSolver.maxColHeight = maxColHeight;
-	TCB_ProfileSPDDirectThreadSolver.RowTop = RowTop;
-	TCB_ProfileSPDDirectThreadSolver.topRowPtr = topRowPtr;
-	TCB_ProfileSPDDirectThreadSolver.invD = invD;
-        TCB_ProfileSPDDirectThreadSolver.blockSize = blockSize;
-        TCB_ProfileSPDDirectThreadSolver.iDiagLoc = iDiagLoc;
-	
-	TCB_ProfileSPDDirectThreadSolver.info = 0;
-        TCB_ProfileSPDDirectThreadSolver.workToDo = NP;
-        TCB_ProfileSPDDirectThreadSolver.currentBlock = -1;
-	TCB_ProfileSPDDirectThreadSolver.threadID = 0;
-	TCB_ProfileSPDDirectThreadSolver.numThreads = NP;
-        TCB_ProfileSPDDirectThreadSolver.threadsDone = 0;
-        TCB_ProfileSPDDirectThreadSolver.threadsDoneBlock = NP;
-
-        // wake up the threads
-        cond_broadcast(&TCB_ProfileSPDDirectThreadSolver.start_cond);
-      mutex_unlock(&TCB_ProfileSPDDirectThreadSolver.start_mutex); 
+      // wake up the threads
+      cond_broadcast(&tcb->start_cond);
+      mutex_unlock(&tcb->start_mutex); 
 
       // yield the LWP
       thr_yield();
  
       // wait for all the threads to finish
-      mutex_lock(&TCB_ProfileSPDDirectThreadSolver.end_mutex);
+      mutex_lock(&tcb->end_mutex);
 
-         while (TCB_ProfileSPDDirectThreadSolver.threadsDone < NP) 
-           cond_wait(&TCB_ProfileSPDDirectThreadSolver.end_cond, &TCB_ProfileSPDDirectThreadSolver.end_mutex);
+      while (tcb->threadsDone < NP) 
+        cond_wait(&tcb->end_cond, &tcb->end_mutex);
 
-      mutex_unlock(&TCB_ProfileSPDDirectThreadSolver.end_mutex);
-
+      mutex_unlock(&tcb->end_mutex);
 
       theSOE->isAfactored = true;
 	
@@ -257,7 +239,6 @@ ProfileSPDLinDirectThreadSolver::solve(void)
       for (int j=0; j<size; j++) 
 	*bjPtr++ = *aiiPtr++ * X[j];
 
-    
       // now do the back substitution storing result in X
       for (int k=(size-1); k>0; k--) {
       
@@ -308,12 +289,7 @@ ProfileSPDLinDirectThreadSolver::solve(void)
 int 
 ProfileSPDLinDirectThreadSolver::setProfileSOE(ProfileSPDLinSOE &theNewSOE)
 {
-    if (theSOE != 0) {
-	opserr << "ProfileSPDLinDirectThreadSolver::setProfileSOE() - ";
-	opserr << " has already been called \n";	
-	return -1;
-    }
-    
+    assert(theSOE == nullptr); 
     theSOE = &theNewSOE;
     return 0;
 }
@@ -322,8 +298,8 @@ int
 ProfileSPDLinDirectThreadSolver::sendSelf(int cTag,
 					  Channel &theChannel)
 {
-    if (size != 0)
-	opserr << "ProfileSPDLinDirectThreadSolver::sendSelf - does not send itself YET\n"; 
+//     if (size != 0)
+// 	opserr << "ProfileSPDLinDirectThreadSolver::sendSelf - does not send itself YET\n"; 
     return 0;
 }
 
@@ -340,44 +316,44 @@ ProfileSPDLinDirectThreadSolver::recvSelf(int cTag,
 
 void *ProfileSPDLinDirectThreadSolver_Worker(void *arg)
 {
+  struct ProfileTCB* tcb = (struct ProfileTCB*)arg;
   // Do this loop forever - or until all the Non-Daemon threads have exited
-  while(true)
-    {
+  while (true) {
 
       // Wait for some work to do
-      mutex_lock(&TCB_ProfileSPDDirectThreadSolver.start_mutex);
+      mutex_lock(&tcb->start_mutex);
 
-        while (TCB_ProfileSPDDirectThreadSolver.workToDo == 0)
-          cond_wait(&TCB_ProfileSPDDirectThreadSolver.start_cond, &TCB_ProfileSPDDirectThreadSolver.start_mutex);
+      while (tcb->workToDo == 0)
+        cond_wait(&tcb->start_cond, 
+                  &tcb->start_mutex);
 
-        TCB_ProfileSPDDirectThreadSolver.workToDo--;
+      tcb->workToDo--;
 
-        // get an id;
-	int myID = TCB_ProfileSPDDirectThreadSolver.threadID++;
+      // get an id;
+      int myID = tcb->threadID++;
 
-      mutex_unlock(&TCB_ProfileSPDDirectThreadSolver.start_mutex);
+      mutex_unlock(&tcb->start_mutex);
 
       // do some initialisation for the factorization
-      double *A = TCB_ProfileSPDDirectThreadSolver.A;
-      double *B = TCB_ProfileSPDDirectThreadSolver.B;
-      double *X = TCB_ProfileSPDDirectThreadSolver.X;
-      int *iDiagLoc = TCB_ProfileSPDDirectThreadSolver.iDiagLoc;
-      int size = TCB_ProfileSPDDirectThreadSolver.size;
-      double minDiagTol = TCB_ProfileSPDDirectThreadSolver.minDiagTol;
-      int maxColHeight = TCB_ProfileSPDDirectThreadSolver.maxColHeight;
-      int *RowTop = TCB_ProfileSPDDirectThreadSolver.RowTop;
-      double **topRowPtr = TCB_ProfileSPDDirectThreadSolver.topRowPtr;
-      double *invD = TCB_ProfileSPDDirectThreadSolver.invD;
-      int blockSize = TCB_ProfileSPDDirectThreadSolver.blockSize;
+//    double *A     = tcb->A;
+//    double *B     = tcb->B;
+      double *X     = tcb->X;
+      int *iDiagLoc = tcb->iDiagLoc;
+      int size      = tcb->size;
+      double minDiagTol = tcb->minDiagTol;
+      int maxColHeight  = tcb->maxColHeight;
+      int *RowTop = tcb->RowTop;
+      double **topRowPtr = tcb->topRowPtr;
+      double *invD = tcb->invD;
+      int blockSize = tcb->blockSize;
 
-      int currentBlock =0;
-      int numThreads = TCB_ProfileSPDDirectThreadSolver.numThreads;
-
+      int currentBlock = 0;
+      int numThreads = tcb->numThreads;
 
       // FACTOR 
-      int startRow = 0;
-      int lastRow = startRow+blockSize-1;
-      int lastColEffected = lastRow+maxColHeight -1;
+      int startRow        = 0;
+      int lastRow         = startRow + blockSize-1;
+      int lastColEffected = lastRow  + maxColHeight -1;
       int nBlck = size/blockSize;
       if ((size % blockSize) != 0)
 	nBlck++;
@@ -386,6 +362,7 @@ void *ProfileSPDLinDirectThreadSolver_Worker(void *arg)
       for (int i=0; i<nBlck; i++) {
 
         int currentDiagThread = i%numThreads;
+
         if (myID == currentDiagThread) {
 
 	  // first factor the diagonal block int Ui,i and Di
@@ -396,7 +373,7 @@ void *ProfileSPDLinDirectThreadSolver_Worker(void *arg)
 	    if (currentRow < size) { // this is for case when size%blockSize != 0
 
 	      int rowjTop = RowTop[currentRow];
-	      //	      double *akjPtr = &A[iDiagLoc[currentRow-1]];
+	      //  double *akjPtr = &A[iDiagLoc[currentRow-1]];
 	      double *akjPtr = topRowPtr[currentRow];
 	      int maxRowijTop;
 	      if (rowjTop < startRow) {
@@ -445,16 +422,16 @@ void *ProfileSPDLinDirectThreadSolver_Worker(void *arg)
 
 	      // check that the diag > the tolerance specified
 	      if (ajj <= 0.0) {
-		opserr << "ProfileSPDLinDirectThreadSolver::solve() - ";
-		opserr << " aii < 0 (i, aii): (" << currentRow << ", " << ajj << ")\n"; 
-		TCB_ProfileSPDDirectThreadSolver.info = -2;
+		// opserr << "ProfileSPDLinDirectThreadSolver::solve() - ";
+		// opserr << " aii < 0 (i, aii): (" << currentRow << ", " << ajj << ")\n"; 
+		tcb->info = -2;
 		return NULL;
 	      }
 	      if (ajj <= minDiagTol) {
-		opserr << "ProfileSPDLinDirectThreadSolver::solve() - ";
-		opserr << " aii < minDiagTol (i, aii): (" << currentRow;
-		opserr << ", " << ajj << ")\n"; 
-		TCB_ProfileSPDDirectThreadSolver.info = -2;
+		// opserr << "ProfileSPDLinDirectThreadSolver::solve() - ";
+		// opserr << " aii < minDiagTol (i, aii): (" << currentRow;
+		// opserr << ", " << ajj << ")\n"; 
+		tcb->info = -2;
 		return NULL;
 	      }		
 	      invD[currentRow] = 1.0/ajj; 
@@ -465,11 +442,11 @@ void *ProfileSPDLinDirectThreadSolver_Worker(void *arg)
 	  }
 
           // allow other threads to now proceed
-          mutex_lock(&TCB_ProfileSPDDirectThreadSolver.startBlock_mutex);
-	    TCB_ProfileSPDDirectThreadSolver.currentBlock = i;
+          mutex_lock(&tcb->startBlock_mutex);
+	  tcb->currentBlock = i;
 
-            cond_broadcast(&TCB_ProfileSPDDirectThreadSolver.startBlock_cond);
-          mutex_unlock(&TCB_ProfileSPDDirectThreadSolver.startBlock_mutex);        
+          cond_broadcast(&tcb->startBlock_cond);
+          mutex_unlock(&tcb->startBlock_mutex);        
 
 
 	  // now do rest of i'th block row belonging to thread
@@ -478,7 +455,6 @@ void *ProfileSPDLinDirectThreadSolver_Worker(void *arg)
 	  for (j=i+1; j<nBlck; j++) {
 
 	    if (j%numThreads == myID) {
-
 	      for (int k=0; k<blockSize; k++) {
 
 		if (currentCol < size) { // this is for case when size%blockSize != 0
@@ -527,10 +503,11 @@ void *ProfileSPDLinDirectThreadSolver_Worker(void *arg)
 	  }
 	} else {
           // wait till diag i is done 
-          mutex_lock(&TCB_ProfileSPDDirectThreadSolver.startBlock_mutex);
-             while (TCB_ProfileSPDDirectThreadSolver.currentBlock < i)
-                cond_wait(&TCB_ProfileSPDDirectThreadSolver.startBlock_cond, &TCB_ProfileSPDDirectThreadSolver.startBlock_mutex);
-          mutex_unlock(&TCB_ProfileSPDDirectThreadSolver.startBlock_mutex);
+          mutex_lock(&tcb->startBlock_mutex);
+          while (tcb->currentBlock < i)
+             cond_wait(&tcb->startBlock_cond, &tcb->startBlock_mutex);
+
+          mutex_unlock(&tcb->startBlock_mutex);
 
           // FACTOR REST OF BLOCK ROW BELONGING TO THREAD
 	  // now do rest of i'th block row belonging to thread
@@ -584,10 +561,8 @@ void *ProfileSPDLinDirectThreadSolver_Worker(void *arg)
 		  k = blockSize;
 	      }
 	    } else
-	      currentCol += blockSize;
-	  
+	      currentCol += blockSize;  
 	  }
-
 	}
 
 	// update the data for the next block
@@ -597,10 +572,10 @@ void *ProfileSPDLinDirectThreadSolver_Worker(void *arg)
       }
 
       // signal the main thread that this thread is done with the work
-      mutex_lock(&TCB_ProfileSPDDirectThreadSolver.end_mutex);
-         TCB_ProfileSPDDirectThreadSolver.threadsDone++;
+      mutex_lock(&tcb->end_mutex);
+      tcb->threadsDone++;
 
-         cond_signal(&TCB_ProfileSPDDirectThreadSolver.end_cond);
-      mutex_unlock(&TCB_ProfileSPDDirectThreadSolver.end_mutex);
-    } 
+      cond_signal(&tcb->end_cond);
+      mutex_unlock(&tcb->end_mutex);
+    }
 }

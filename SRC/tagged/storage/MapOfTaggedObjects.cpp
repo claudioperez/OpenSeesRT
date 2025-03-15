@@ -31,7 +31,7 @@
 #include <OPS_Globals.h>
 
 // some typedefs that will be useful
-typedef std::map<int, TaggedObject *> MAP_TAGGED;
+typedef Map<int, TaggedObject*> MAP_TAGGED;
 typedef MAP_TAGGED::value_type        MAP_TAGGED_TYPE;
 typedef MAP_TAGGED::iterator          MAP_TAGGED_ITERATOR;
 
@@ -107,14 +107,14 @@ MapOfTaggedObjects::removeComponent(int tag)
     // return 0 if component does not exist, otherwise remove it
     theEle = theMap.find(tag);
     if (theEle == theMap.end()) // the object has not been added
-	return 0;
+	return nullptr;
     else { // the object exists so we remove it
 	removed = (*theEle).second;
 	int ok = int(theMap.erase(tag));
 	if (ok != 1) { // ensure the map did remove the object
 	  opserr << "MapOfTaggedObjects::removeComponent - map STL failed to remove object with tag " << 
 	    tag << "\n";
-	  return 0;
+	  return nullptr;
 	}
     }
 

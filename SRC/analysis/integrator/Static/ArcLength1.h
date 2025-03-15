@@ -17,12 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.2 $
-// $Date: 2003-02-14 23:00:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/analysis/integrator/ArcLength1.h,v $
-                                                                        
-                                                                        
+//
 // File: ~/analysis/integrator/ArcLength1.h
 // 
 // Written: fmk 
@@ -57,9 +52,9 @@ class ArcLength1 : public StaticIntegrator
 
     ~ArcLength1();
 
-    int newStep(void);    
+    int newStep();    
     int update(const Vector &deltaU);
-    int domainChanged(void);
+    int domainChanged();
     
     int sendSelf(int commitTag, Channel &theChannel);
     int recvSelf(int commitTag, Channel &theChannel, 

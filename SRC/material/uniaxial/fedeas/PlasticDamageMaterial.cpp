@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.6 $
-// $Date: 2007-02-23 01:04:40 $
-// $Source: /usr/local/cvs/OpenSees/SRC/material/uniaxial/fedeas/PlasticDamageMaterial.cpp,v $
-                                                                      
+//
 // Written: Jeeho Lee
 // Created: Feb 2007
 //
@@ -30,6 +26,7 @@
 // 1d Material subroutine: PD_1
 
 #include <stdlib.h>
+#include <Logging.h>
 #include <PlasticDamageMaterial.h>
 
 PlasticDamageMaterial::PlasticDamageMaterial(int tag, double E, double Ft, double Fc,

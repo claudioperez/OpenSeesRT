@@ -48,8 +48,8 @@ GeneralizedNewmark::GeneralizedNewmark(double gamma,  double beta,
       Un(nullptr), Vn(nullptr), An(nullptr),
       determiningMass(false),
       sensitivityFlag(0), gradNumber(0), 
-      massMatrixMultiplicator(0),
-      dampingMatrixMultiplicator(0), 
+      dAa(0),
+      dVa(0), 
       assemblyFlag(aFlag), 
       independentRHS(),
       dUn(), dVn(), dAn()
@@ -81,11 +81,11 @@ GeneralizedNewmark::~GeneralizedNewmark()
         delete An;
 
     // clean up sensitivity
-    if (massMatrixMultiplicator != nullptr)
-      delete massMatrixMultiplicator;
+    if (dAa != nullptr)
+      delete dAa;
     
-    if (dampingMatrixMultiplicator != nullptr)
-      delete dampingMatrixMultiplicator;
+    if (dVa != nullptr)
+      delete dVa;
 }
 
 
@@ -115,8 +115,6 @@ GeneralizedNewmark::newStep(double deltaT)
     (*Vo) = *Vn;  
     (*Ao) = *An;
 
-    AnalysisModel *theModel = this->getAnalysisModel();
-    
     // set the constants
     switch (unknown) {
     case Displacement:
@@ -162,24 +160,27 @@ GeneralizedNewmark::newStep(double deltaT)
 
       double bau =  1/(beta*deltaT*deltaT);
       double bav = -1.0/(beta*deltaT);
-      double baa =  1.0 + 0.5/beta;
+      double baa =  1.0 - 0.5/beta;
 
       switch (init) {
         case Displacement:
-          Vn->addVector(bvv, *Ao, bva);
+      //  Vn->addVector(bvv, *Ao, bva);
+          Vn->addVector(0.0, *Uo,  bvu  + cv/cu*(1.0 - buu)); //  = 0
+          Vn->addVector(1.0, *Vo,  bvv  + cv/cu*(    - buv)); // += bvv*Vo
+          Vn->addVector(1.0, *Ao,  bva  + cv/cu*(    - bua)); // += bva*Ao
 
-          An->addVector(baa-1/beta, *Vo, bav);
-//        Udotdot->addVector(baa, *Utdot, bav);
+          // An->addVector(baa-1/beta, *Vo, bav);
+          An->addVector(baa, *Vo, bav);
           break;
 
         case Acceleration:
-          Un->addVector(0.0, *Uo,  buu  + cu*(    - bau)/ca);
-          Un->addVector(1.0, *Vo,  buv  + cu*(    - bav)/ca);
-          Un->addVector(1.0, *Ao,  bua  + cu*(1.0 - baa)/ca);
+          Un->addVector(0.0, *Uo,  buu  + cu/ca*(    - bau));
+          Un->addVector(1.0, *Vo,  buv  + cu/ca*(    - bav));
+          Un->addVector(1.0, *Ao,  bua  + cu/ca*(1.0 - baa));
 
-          Vn->addVector(0.0, *Uo,  bvu  + cv*(    - bau)/ca);
-          Vn->addVector(1.0, *Vo,  bvv  + cv*(    - bav)/ca);
-          Vn->addVector(1.0, *Ao,  bva  + cv*(1.0 - baa)/ca);
+          Vn->addVector(0.0, *Uo,  bvu  + cv/ca*(    - bau));
+          Vn->addVector(1.0, *Vo,  bvv  + cv/ca*(    - bav));
+          Vn->addVector(1.0, *Ao,  bva  + cv/ca*(1.0 - baa));
           break;
 
         case Velocity:
@@ -312,6 +313,8 @@ GeneralizedNewmark::newStep(double deltaT)
     // determine the velocities at t+alphaM*deltaT
     (*Aa) = *Ao;
     Aa->addVector((1.0-alphaM), *An, alphaM);
+
+    AnalysisModel *theModel = this->getAnalysisModel();
     
     theModel->setResponse(*Ua, *Va, *Aa);
 
@@ -731,14 +734,14 @@ GeneralizedNewmark::formEleResidual(FE_Element* theEle)
       tmp2.addVector(1.0, dVn, bvv);
       tmp2.addVector(1.0, dAn, bva);
 
-      if (massMatrixMultiplicator == nullptr)
-          massMatrixMultiplicator = new Vector(tmp1.Size());
+      if (dAa == nullptr)
+          dAa = new Vector(tmp1.Size());
 
-      if (dampingMatrixMultiplicator == nullptr)
-          dampingMatrixMultiplicator = new Vector(tmp2.Size());
+      if (dVa == nullptr)
+          dVa = new Vector(tmp2.Size());
 
-      (*massMatrixMultiplicator) = tmp1;
-      (*dampingMatrixMultiplicator) = tmp2;
+      (*dAa) = tmp1;
+      (*dVa) = tmp2;
 
 
       // Now we're ready to make calls to the FE Element:
@@ -750,10 +753,10 @@ GeneralizedNewmark::formEleResidual(FE_Element* theEle)
       theEle->addM_ForceSensitivity(gradNumber, *An, -1.0);
 
       // The term -M*(a2*v + a3*vdot + a4*vdotdot)
-      theEle->addM_Force(*massMatrixMultiplicator, -1.0);
+      theEle->addM_Force(*dAa, -1.0);
 
       // The term -C*(bvu*v + bvv*vdot + bva*vdotdot)
-      theEle->addD_Force(*dampingMatrixMultiplicator, -1.0);
+      theEle->addD_Force(*dVa, -1.0);
 
       // The term -dC/dh*vel
       theEle->addD_ForceSensitivity(gradNumber, *Vn, -1.0);
@@ -775,13 +778,13 @@ GeneralizedNewmark::formNodUnbalance(DOF_Group *theDof)
       theDof->zeroUnbalance();
 
       // The term -M*(a2*v + a3*vdot + a4*vdotdot)
-      theDof->addM_Force(*massMatrixMultiplicator,-1.0);
+      theDof->addM_Force(*dAa,-1.0);
 
       // The term -dM/dh*acc
       theDof->addM_ForceSensitivity(*An, -1.0);
 
       // The term -C*(bvu*v + bvv*vdot + bva*vdotdot)
-      theDof->addD_Force(*dampingMatrixMultiplicator,-1.0);
+      theDof->addD_Force(*dVa,-1.0);
 
       // The term -dC/dh*vel
       theDof->addD_ForceSensitivity(*Vn,-1.0);
