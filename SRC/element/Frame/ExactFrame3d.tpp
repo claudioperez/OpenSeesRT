@@ -1,9 +1,12 @@
 //===----------------------------------------------------------------------===//
 //
-//         Please cite the following resource in any derivative works:
+//        Please cite the following resources in any derivative works:
 //                 https://doi.org/10.5281/zenodo.10456866
+//                 https://doi.org/10.1002/nme.7506
 //
 //===----------------------------------------------------------------------===//
+// 
+// Torsion warping is due to [4], shear warping is due to [5]
 //
 // [1] Simo J.C. (1985): A finite strain beam formulation. The three-dimensional
 //     dynamic problem. Part I.
@@ -17,13 +20,22 @@
 //
 // [3] Perez C.M., and Filippou F.C. (2024):
 //     "On Nonlinear Geometric Transformations of Finite Elements" 
-//     Int. J. Numer. Meth. Engrg.
+//     Int. J. Numer. Meth. Engrg. 
+//     https://doi.org/10.1002/nme.7506
+//
+// [4] Simo J.C., Vu-Quoc L. (1991): A Geometrically-exact rod model incorporating shear
+//     and torsion-warping deformation. 
+//     International Journal of Solids and Structures, 27(3):371-393.
+//     doi: 10.1016/0020-7683(91)90089-x
+//
+// [5] Perez C.M., Filippou F.C., Mosalam K.M. (2025): Untitled work.
 //
 //===----------------------------------------------------------------------===//
 //
 // Claudio M. Perez
 //
-// Implementation
+#include <utility>
+#include <cstddef>
 #include <ExactFrame3d.h>
 #include <Flag.h>
 #include <Node.h>
@@ -44,12 +56,15 @@
 
 namespace OpenSees {
 
-template<int nen> static void
-G_matrix(MatrixND<6,6> &G, 
-         const VectorND<6>& s, const Vector3D& dx, 
+template<std::size_t nen, int nwm> static void
+G_matrix(MatrixND<6+nwm,6+nwm> &G, 
+         const VectorND<6+2*nwm>& s, const Vector3D& dx, 
          double shape[2][nen], 
          int i, int j)
 {
+  //
+  // This is the sum of Equation (B4), and the unnumbered equation between (B3) and (B4).
+  //
   auto sn = Hat(&s[0]);
   auto sm = Hat(&s[3]);
   G.assemble(         sn, 0, 3, -shape[1][i]*shape[0][j]);
@@ -59,14 +74,19 @@ G_matrix(MatrixND<6,6> &G,
   G.assemble( Hat(dx)*sn, 3, 3,  shape[0][i]*shape[0][j]);
 }
 
-template<int nen> static void
-B_matrix(MatrixND<6,6> &B, double shape[2][nen], const Vector3D& dx, int n)
+template<std::size_t nen, int nwm> static void
+B_nat(MatrixND<6+2*nwm,6+nwm> &B, double shape[2][nen], const Vector3D& dx, int n)
 {
   //
-  // NOTE This is the transpose of B in the paper by Perez and Filippou (2024)
+  // NOTE This is the transpose of B in Equation (B3) from the paper by 
+  // Perez and Filippou (2024)
   //
-  for (int i=0; i<6; i++)
+  B.zero();
+  for (int i=0; i<6+nwm; i++)
     B(i,i) = shape[1][n];
+
+  for (int i=0; i<nwm; i++)
+    B(6+nwm+i, 6+i) = shape[0][n];
   
   //
   // B(1:3, 4:end) = shape*Hat(dx);
@@ -82,15 +102,28 @@ B_matrix(MatrixND<6,6> &B, double shape[2][nen], const Vector3D& dx, int n)
   B(2,3) = -shape[0][n]*dx[1];
   B(2,4) =  shape[0][n]*dx[0];
   B(2,5) =  0;
+
 }
 
 
-template<int nen, int nip>
-ExactFrame3d<nen,nip>::ExactFrame3d(int tag, 
+template<std::size_t N>
+struct num { static constexpr std::size_t value = N; };
+
+template <std::size_t N, class F>
+void for_int(F func) {
+    // Lambda with templated parameter pack (C++20 feature)
+    ([]<std::size_t... Is>(F func, std::index_sequence<Is...>){
+        (func(num<Is>{}), ...);
+    })(func, std::make_index_sequence<N>{});
+}
+
+
+template<std::size_t nen, int nwm>
+ExactFrame3d<nen,nwm>::ExactFrame3d(int tag, 
                                     std::array<int,nen>& nodes, 
-                                    FrameSection *section[nip],
+                                    FrameSection *section[nen-1],
                                     FrameTransform3d& transf)
-    : FiniteElement<nen, 3, 6>(tag, 0, nodes),
+    : FiniteElement<nen,ndm,ndf>(tag, 0, nodes),
       transform(&transf),
       logarithm(Logarithm::None),
       stencil(nullptr)
@@ -112,8 +145,8 @@ ExactFrame3d<nen,nip>::ExactFrame3d(int tag,
 }
 
 
-template<int nen, int nip>
-ExactFrame3d<nen,nip>::~ExactFrame3d()
+template<std::size_t nen, int nwm>
+ExactFrame3d<nen,nwm>::~ExactFrame3d()
 {
   for (GaussPoint& point : pres)
     if (point.material != nullptr)
@@ -124,11 +157,11 @@ ExactFrame3d<nen,nip>::~ExactFrame3d()
 }
 
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 int
-ExactFrame3d<nen,nip>::setNodes()
+ExactFrame3d<nen,nwm>::setNodes()
 {
-  auto& theNodes = this->FiniteElement<nen,3,6>::theNodes;
+  auto& theNodes = this->FiniteElement<nen,3,6+nwm>::theNodes;
 
   if (transform->initialize(theNodes[0], theNodes[nen-1]) != 0) {
       opserr << " -- Error initializing coordinate transformation\n";
@@ -137,18 +170,18 @@ ExactFrame3d<nen,nip>::setNodes()
   const Vector& xi = theNodes[    0]->getCrds();
   const Vector& xj = theNodes[nen-1]->getCrds();
   double L = (xi-xj).Norm();
+  jxs = L;
 
 
   // Node locations in local (scalar) coordinate
-  double x[nen];
   for (int i=0; i < nen; i++)
-    x[i] = i*L/(nen-1);
+    xn[i] = i*L/(nen-1);
 
   GaussLegendre<1, nip>    gauss;
   for (int i=0; i < nip; i++) {
     pres[i].point  = (gauss.pts[i] + 1.0)*L/2.0;
     pres[i].weight =  gauss.wts[i]*L/2.0;
-    lagrange<nen>(pres[i].point, x, pres[i].shape);
+    lagrange<nen>(pres[i].point, xn, pres[i].shape);
   }
 
   // Zero out the state of the Gauss pres
@@ -157,9 +190,9 @@ ExactFrame3d<nen,nip>::setNodes()
   return 0;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 int
-ExactFrame3d<nen,nip>::revertToStart()
+ExactFrame3d<nen,nwm>::revertToStart()
 {
   // Revert the transformation to start
   if (transform->revertToStart() != 0)
@@ -168,11 +201,15 @@ ExactFrame3d<nen,nip>::revertToStart()
   Vector E1(3), E2(3), E3(3);
   transform->getLocalAxes(E1, E2, E3);
 
-  Matrix3D R0;
+  // for (int i=0; i<ndm; i++) {
+  //   R0(0,i) =  E1[i];
+  //   R0(1,i) =  E2[i];
+  //   R0(2,i) =  E3[i];
+  // }
   for (int i=0; i<ndm; i++) {
-    R0(i, 0) =  E1[i];
-    R0(i, 1) =  E2[i];
-    R0(i, 2) =  E3[i];
+    R0(i,0) =  E1[i];
+    R0(i,1) =  E2[i];
+    R0(i,2) =  E3[i];
   }
 
   // Revert the of the Gauss pres to start
@@ -193,9 +230,9 @@ ExactFrame3d<nen,nip>::revertToStart()
 }
 
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 int
-ExactFrame3d<nen,nip>::revertToLastCommit()
+ExactFrame3d<nen,nwm>::revertToLastCommit()
 {
   pres = past;
 
@@ -209,12 +246,12 @@ ExactFrame3d<nen,nip>::revertToLastCommit()
   return 0;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 int
-ExactFrame3d<nen,nip>::update()
+ExactFrame3d<nen,nwm>::update()
 {
   const Vector3D D {1, 0, 0};
-  auto& theNodes = this->FiniteElement<nen,3,6>::theNodes;
+  auto& theNodes = this->FiniteElement<nen,3,ndf>::theNodes;
 
   //
   // Collect nodal parameters
@@ -228,14 +265,14 @@ ExactFrame3d<nen,nip>::update()
 
   // Form displaced node locations xyz
   VectorND<ndm> xyz[nen];
-  double uwarp[nen];
+  double uwarp[nen][nwm]{};
   for (int i=0; i < nen; i++) {
     const Vector& xi = theNodes[i]->getCrds();
     const Vector& ui = theNodes[i]->getTrialDisp();
     for (int j=0; j<ndm; j++)
       xyz[i][j] = xi[j] + ui[j];
     for (int j=0; j<nwm; j++)
-      uwarp[i] = ui[6+j];
+      uwarp[i][j] = ui[6+j];
   }
 
   //
@@ -260,22 +297,25 @@ ExactFrame3d<nen,nip>::update()
         dtheta[l] += pres[i].shape[1][j]*ddu[j][l+3];
     }
 
-    double warp  = 0;
-    double dwarp = 0;
-    if (nsr == 7 && scheme[6] == FrameStress::Bishear) {
+    double warp[nwm]{};
+    double dwarp[nwm]{};
+    if (false) {//(nsr == 7 && scheme[6] == FrameStress::Bishear) {
       for (int j=0; j < nen; j++)
-        dwarp += pres[i].shape[0][j]*uwarp[j];
-
-    } else if (nsr == 8 && scheme[6] == FrameStress::Bishear) {
-      for (int j=0; j < nen; j++) {
-        warp  += pres[i].shape[0][j]*uwarp[j];
-        dwarp += pres[i].shape[1][j]*uwarp[j];
+        ;
+        // dwarp += pres[i].shape[0][j]*uwarp[j];
+    }
+    else {//if (nsr == 8 && scheme[6] == FrameStress::Bishear) {
+      for (int k=0; k<nwm; k++) {
+        for (int j=0; j < nen; j++) {
+          warp[k]  += pres[i].shape[0][j]*uwarp[j][k];
+          dwarp[k] += pres[i].shape[1][j]*uwarp[j][k];
+        }
       }
     }
 
     //
     //
-    MatrixND<3,3> dR = ExpSO3(theta);
+    Matrix3D dR = ExpSO3(theta);
     Matrix3D R = dR*pres[i].rotation;
 
     pres[i].rotation = R;
@@ -288,10 +328,14 @@ ExactFrame3d<nen,nip>::update()
     Vector3D gamma = (R^dx) - D;
     Vector3D kappa = R^pres[i].curvature;
 
-    VectorND<6> e {
+    VectorND<nsr> e {
       gamma[0], gamma[1], gamma[2],
       kappa[0], kappa[1], kappa[2],
     };
+    for (int j=0; j<nwm; j++) {
+      e[6+j] = dwarp[j];
+      e[6+nwm+j] = warp[j];
+    }
 
     FrameSection& section = *pres[i].material;
     section.setTrialState<nsr,scheme>(e);
@@ -300,10 +344,9 @@ ExactFrame3d<nen,nip>::update()
 
     //
     //
-    //
     // A = diag(R, R);
     // Note that this is transposed
-    MatrixND<6,6> A {{
+    MatrixND<nsr,nsr> A {{
       {R(0,0), R(1,0), R(2,0), 0, 0, 0},
       {R(0,1), R(1,1), R(2,1), 0, 0, 0},
       {R(0,2), R(1,2), R(2,2), 0, 0, 0},
@@ -311,12 +354,14 @@ ExactFrame3d<nen,nip>::update()
       {0, 0, 0, R(0,1), R(1,1), R(2,1)},
       {0, 0, 0, R(0,2), R(1,2), R(2,2)},
     }};
+    for (int j=0; j<2*nwm; j++)
+      A(6+j,6+j) = 1.0;
 
-    MatrixND<6,6> B[nen];
+    MatrixND<nsr,ndf> B[nen];
     for (int j=0; j<nen; j++) {
-      MatrixND<6,6> Bj;
+      MatrixND<nsr,ndf> Bj;
       Bj.zero();
-      B_matrix(Bj,  pres[i].shape, dx, j);
+      B_nat<nen,nwm>(Bj,  pres[i].shape, dx, j);
       B[j] = A^Bj;
 
       // p += B s w
@@ -336,7 +381,6 @@ ExactFrame3d<nen,nip>::update()
             K(j*ndf+ii, k*ndf+jj) += Kjk(ii,jj);
           }
         }
-
       }
     }
 
@@ -345,44 +389,75 @@ ExactFrame3d<nen,nip>::update()
     for (int j=0; j<nen; j++) {
       for (int k=0; k<nen; k++) {
         G.zero();
-        G_matrix(G, A*s, dx, pres[i].shape, j, k);
+        G_matrix<nen,nwm>(G, A*s, dx, pres[i].shape, j, k);
         K.assemble(G, ndf*j, ndf*k, pres[i].weight);
       }
+    }
+  } // Main Gauss loop
+
+
+  for (FrameLoad* load : frame_loads) {
+    for (auto [xp, wp] : load->quadrature()) {
+      double shp[2][nen];
+      lagrange<nen>(xp*jxs, xn, shp);
+      Versor q;
+      if (xp == 0.0)
+        q = theNodes[0]->getTrialRotation();
+      else if (xp == 1.0)
+        q = theNodes[nen-1]->getTrialRotation();
+      else {
+        opserr << "ERROR\n";
+        Vector3D v;
+        for (int i=0; i<nen; i++)
+          v += shp[0][i]*theNodes[i]->getTrialDisp();
+        q = VersorFromMatrix(R0*ExpSO3(v));
+      }
+      Matrix3D R  = MatrixFromVersor(q);
+      const double w = wp; // /jxs;
+      const double xc = xp;
+      for_int<nen>([&](auto i_) constexpr {
+        constexpr int i = i_.value;
+        load->addLoadAtPoint<i,nen,ndf>(p, xc, w*shp[0][i], R0, R);
+        for_int<nen>([&](auto j_) constexpr {
+          constexpr int j = j_.value;
+          load->addTangAtPoint<i,j,nen,ndf>(K, xc, w*shp[0][i]*shp[0][j], R0, R);
+        });
+      });
     }
   }
   return OpenSees::Flag::Success;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 const Vector &
-ExactFrame3d<nen,nip>::getResistingForce()
+ExactFrame3d<nen,nwm>::getResistingForce()
 {
   thread_local Vector wrapper;
   wrapper.setData(p);
   return wrapper;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 const Matrix &
-ExactFrame3d<nen,nip>::getTangentStiff()
+ExactFrame3d<nen,nwm>::getTangentStiff()
 {
   thread_local Matrix wrapper;
   wrapper.setData(K);
   return wrapper;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 const Matrix &
-ExactFrame3d<nen,nip>::getInitialStiff()
+ExactFrame3d<nen,nwm>::getInitialStiff()
 {
   static MatrixND<ndf*nen,ndf*nen> Ki{};
   static Matrix wrapper(Ki);
   return wrapper;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 const Matrix &
-ExactFrame3d<nen,nip>::getMass()
+ExactFrame3d<nen,nwm>::getMass()
 {
   // TODO
   static MatrixND<ndf*nen,ndf*nen> M{};
@@ -390,16 +465,35 @@ ExactFrame3d<nen,nip>::getMass()
   return wrapper;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
+int
+ExactFrame3d<nen,nwm>::addLoad(ElementalLoad* theLoad, double loadFactor)
+{
+
+  int type = theLoad->getClassTag();
+
+  if (type == LOAD_TAG_FrameLoad && loadFactor == 0.0)
+    frame_loads.erase((FrameLoad*)theLoad);
+  
+  else if (type == LOAD_TAG_FrameLoad) {// && loadFactor == 1.0)
+    frame_loads.insert((FrameLoad*)theLoad);
+  }
+  else 
+    return -1;
+
+  return 0;
+}
+
+template<std::size_t nen, int nwm>
 Response*
-ExactFrame3d<nen, nip>::setResponse(const char** argv, int argc, OPS_Stream& output)
+ExactFrame3d<nen,nwm>::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
   for (int i=0; i<argc; i++)
     opserr << argv[i] << " ";
   Response* theResponse = nullptr;
   double L = 0;
   if (this->setState(State::Init) == 0) {
-    auto& theNodes = this->FiniteElement<nen,3,6>::theNodes;
+    auto& theNodes = this->FiniteElement<nen,3,6+nwm>::theNodes;
     const Vector& xi = theNodes[    0]->getCrds();
     const Vector& xj = theNodes[nen-1]->getCrds();
     L = (xi-xj).Norm();
@@ -513,7 +607,6 @@ ExactFrame3d<nen, nip>::setResponse(const char** argv, int argc, OPS_Stream& out
       if (sectionNum > 0 && sectionNum <= pres.size() && argc > 2) {
         if (this->setState(State::Init) != 0)
           return nullptr;
-        const int numSections = pres.size();
 
         output.tag("GaussPointOutput");
         output.attr("number", sectionNum);
@@ -567,14 +660,14 @@ ExactFrame3d<nen, nip>::setResponse(const char** argv, int argc, OPS_Stream& out
   return theResponse;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 int
-ExactFrame3d<nen,nip>::getResponse(int responseID, Information &info)
+ExactFrame3d<nen,nwm>::getResponse(int responseID, Information &info)
 {
 
   double L = 0;
   if (this->setState(State::Init) == 0) {
-    auto& theNodes = this->FiniteElement<nen,3,6>::theNodes;
+    auto& theNodes = this->FiniteElement<nen,3,6+nwm>::theNodes;
     const Vector& xi = theNodes[    0]->getCrds();
     const Vector& xj = theNodes[nen-1]->getCrds();
     L = (xi-xj).Norm();
@@ -590,15 +683,6 @@ ExactFrame3d<nen,nip>::getResponse(int responseID, Information &info)
     thread_local VectorND<nen*ndf> q{0.0};
     Vector q_resp(q);
 
-    Vector E1(3), E2(3), E3(3);
-    transform->getLocalAxes(E1, E2, E3);
-
-    Matrix3D R0;
-    for (int i=0; i<ndm; i++) {
-      R0(i, 0) =  E1[i];
-      R0(i, 1) =  E2[i];
-      R0(i, 2) =  E3[i];
-    }
     auto p = this->getResistingForce();
   
     for (int i=0; i<nen; i++) {
@@ -656,25 +740,25 @@ ExactFrame3d<nen,nip>::getResponse(int responseID, Information &info)
   return -1;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 int
-ExactFrame3d<nen,nip>::sendSelf(int commitTag, Channel& theChannel)
+ExactFrame3d<nen,nwm>::sendSelf(int commitTag, Channel& theChannel)
 {
   // TODO
   return -1;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 int
-ExactFrame3d<nen,nip>::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& theBroker)
+ExactFrame3d<nen,nwm>::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& theBroker)
 {
   // TODO
   return -1;
 }
 
-template<int nen, int nip>
+template<std::size_t nen, int nwm>
 void
-ExactFrame3d<nen,nip>::Print(OPS_Stream& stream, int flag)
+ExactFrame3d<nen,nwm>::Print(OPS_Stream& stream, int flag)
 {
   const ID& node_tags = this->getExternalNodes();
 
@@ -683,8 +767,10 @@ ExactFrame3d<nen,nip>::Print(OPS_Stream& stream, int flag)
     stream << OPS_PRINT_JSON_ELEM_INDENT << "{";
     stream << "\"name\": " << this->getTag() << ", ";
     stream << "\"type\": \"" << this->getClassType() << "\", ";
-    stream << "\"nodes\": [" << node_tags(0) << ", " 
-                             << node_tags(1) << "]";
+    stream << "\"nodes\": [";
+    for (int i = 0; i < nen - 1; i++)
+      stream << node_tags(i) << ", ";
+    stream << node_tags(nen - 1) << "]";
     stream << ", ";
 
 

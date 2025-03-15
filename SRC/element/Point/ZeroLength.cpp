@@ -17,11 +17,7 @@
 **   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
 **                                                                    **
 ** ****************************************************************** */
-                                                                        
-// $Revision: 1.27 $
-// $Date: 2010-02-04 01:17:46 $
-// $Source: /usr/local/cvs/OpenSees/SRC/element/zeroLength/ZeroLength.cpp,v $
-
+//
 // Written: GLF
 // Created: 12/99
 // Revision: A
@@ -38,7 +34,6 @@
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
 #include <UniaxialMaterial.h>
-#include <Renderer.h>
 
 #include <math.h>
 #include <stdlib.h>
@@ -1139,33 +1134,6 @@ ZeroLength::recvSelf(int commitTag, Channel &theChannel, FEM_ObjectBroker &theBr
 }
 
 
-int
-ZeroLength::displaySelf(Renderer &theViewer, int displayMode, float fact, const char **modes, int numMode)
-{
-    // ensure setDomain() worked
-    if (theNodes[0] == 0 || theNodes[1] == 0 )
-       return 0;
-
-    // get the end point display coords    
-    static Vector v1(3);
-    static Vector v2(3);
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    // get the color
-    float d1 = 1.0;
-    if (displayMode == 1)
-        d1 = theMaterial1d[0]->getStress();
-    else if (displayMode == 2)
-        d1 = theMaterial1d[0]->getStrain();
-
-    // draw the line
-    if (v1 != v2)
-        return theViewer.drawLine(v1, v2, d1, d1, this->getTag());
-    else
-        return 0; // no need to draw a point, as was done before. There will be points for the nodes.
-}
-
 
 void
 ZeroLength::Print(OPS_Stream &s, int flag)
@@ -1175,7 +1143,7 @@ ZeroLength::Print(OPS_Stream &s, int flag)
     double force =0.0;
      
     for (int i=0; i<numDOF; i++)
-	(*theVector)(i) = (*t1d)(0,i)*force;
+      (*theVector)(i) = (*t1d)(0,i)*force;
     
     if (flag == OPS_PRINT_CURRENTSTATE) { // print everything
         s << "Element: " << this->getTag();
@@ -1201,7 +1169,7 @@ ZeroLength::Print(OPS_Stream &s, int flag)
     }
 
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\t{";
+        s << TaggedObject::JsonGeometryIndent << "{";
         s << "\"name\": " << this->getTag() << ", ";
         s << "\"type\": \"ZeroLength\", ";
         s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";
@@ -1253,7 +1221,7 @@ ZeroLength::Print(OPS_Stream &s, int flag)
 Response*
 ZeroLength::setResponse(const char **argv, int argc, OPS_Stream &output)
 {
-    Response *theResponse = 0;
+    Response *theResponse = nullptr;
 
     output.tag("ElementOutput");
     output.attr("eleType","ZeroLength");

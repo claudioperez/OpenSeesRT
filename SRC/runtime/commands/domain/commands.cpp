@@ -132,6 +132,7 @@ G3_AddTclDomainCommands(Tcl_Interp *interp, Domain* the_domain)
   Tcl_CreateCommand(interp, "setNodeDisp",         &setNodeDisp,             domain, nullptr);
   Tcl_CreateCommand(interp, "setNodeAccel",        &setNodeAccel,            domain, nullptr);
   Tcl_CreateCommand(interp, "setNodeCoord",        &setNodeCoord,            domain, nullptr);
+  Tcl_CreateCommand(interp, "nodeRotation",        &nodeRotation,            domain, nullptr);
 
   Tcl_CreateCommand(interp, "getEleTags",          &getEleTags,              domain, nullptr);
   Tcl_CreateCommand(interp, "getNodeTags",         &getNodeTags,             domain, nullptr);

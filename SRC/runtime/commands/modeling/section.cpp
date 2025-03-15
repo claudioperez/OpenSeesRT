@@ -865,17 +865,18 @@ initSectionCommands(ClientData clientData, Tcl_Interp *interp,
         section = sec;
       }
     }
-  } else if (ndm == 3) {
+  }
+  else if (ndm == 3) {
     // This function is not called when torsion is NULL and num==3
     assert(theTorsion != nullptr);
 
     if (options.isND) {
       if (options.isNew) {
-        auto sec = new FrameSolidSection3d(secTag, 30, 1.0, options.computeCentroid);
+        auto sec = new FrameSolidSection3d(secTag, 30);
         sbuilder = new FiberSectionBuilder<3, NDMaterial, FrameSolidSection3d>(*builder, *sec);
         section = sec;
-
-      } else {
+      }
+      else {
         auto sec = new NDFiberSection3d(secTag,
                                         options.computeCentroid);
         sbuilder = new FiberSectionBuilder<3, NDMaterial, NDFiberSection3d>(*builder, *sec);
@@ -1533,7 +1534,7 @@ TclCommand_addFiber(ClientData clientData, Tcl_Interp *interp, int argc,
     }
 
     if (split_argc != 3) {
-        /* Handle error (e.g., wrong number of elements) */
+      opserr << "WARNING force parameter expected list of 3 floats\n";
         Tcl_Free((char *) split_argv);
         return TCL_ERROR;
     }

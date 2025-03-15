@@ -419,7 +419,7 @@ class Model:
 
     def lift(self, type_name: str, tag: int):
         return _lift(self._openseespy._interp._tcl.interpaddr(), type_name, tag)
-    
+
     # def invoke(self, *args, **kwds):
     #     if len(args) == 2:
     #         from ._invoke import _Handle
@@ -671,6 +671,7 @@ __all__ = [
     "eleDynamicalForce",
     "nodeUnbalance",
     "nodeDisp",
+    "nodeRotation",
     "setNodeDisp",
     "nodeVel",
     "setNodeVel",

@@ -61,8 +61,9 @@ class IncrementalIntegrator : public Integrator
                   LinearSOE &theSOE,
                   ConvergenceTest *theTest);
 
-    // methods to set up the system of equations, called by
-    // the Algorithm
+    // methods to set up the system of equations.
+    // These are invoked by the Algorithm, and therefore must be 
+    // in the IncrementalIntegrator interface.
     virtual int  update(const Vector &deltaU) =0;
     virtual int  formUnbalance() = 0;
 

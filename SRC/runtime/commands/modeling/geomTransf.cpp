@@ -136,7 +136,7 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
     if (builder->addTaggedObject<FrameTransform2d>(*crdTransf2d) != TCL_OK)
       return TCL_ERROR;
 
-  } else if (ndm == 3 && ndf == 6) {
+  } else if (ndm == 3 && ndf >= 6) {
     int crdTransfTag;
     Vector vecxzPlane(3);                // vector that defines local xz plane
     Vector jntOffsetI(3), jntOffsetJ(3); // joint offsets in global coordinates

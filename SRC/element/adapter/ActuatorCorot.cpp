@@ -30,7 +30,6 @@
 #include <Node.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
-#include <Renderer.h>
 #include <Information.h>
 #include <ElementResponse.h>
 #include <TCP_Socket.h>
@@ -772,19 +771,6 @@ int ActuatorCorot::recvSelf(int commitTag, Channel &rChannel,
 }
 
 
-int ActuatorCorot::displaySelf(Renderer &theViewer,
-    int displayMode, float fact, const char **modes, int numMode)
-{
-    static Vector v1(3);
-    static Vector v2(3);
-
-    theNodes[0]->getDisplayCrds(v1, fact, displayMode);
-    theNodes[1]->getDisplayCrds(v2, fact, displayMode);
-
-    return theViewer.drawLine(v1, v2, 1.0, 1.0, this->getTag());
-}
-
-
 void ActuatorCorot::Print(OPS_Stream &s, int flag)
 {
     if (flag == OPS_PRINT_CURRENTSTATE) {
@@ -801,7 +787,7 @@ void ActuatorCorot::Print(OPS_Stream &s, int flag)
     }
 
     if (flag == OPS_PRINT_PRINTMODEL_JSON) {
-        s << "\t\t\t{";
+        s << TaggedObject::JsonGeometryIndent << "{";
         s << "\"name\": " << this->getTag() << ", ";
         s << "\"type\": \"ActuatorCorot\", ";
         s << "\"nodes\": [" << connectedExternalNodes(0) << ", " << connectedExternalNodes(1) << "], ";

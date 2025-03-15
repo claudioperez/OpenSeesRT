@@ -1,30 +1,9 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-**                                                                    **
-**                                                                    **
-** (C) Copyright 1999, The Regents of the University of California    **
-** All Rights Reserved.                                               **
-**                                                                    **
-** Commercial use of this program without express permission of the   **
-** University of California, Berkeley, is strictly prohibited.  See   **
-** file 'COPYRIGHT'  in main directory for information on usage and   **
-** redistribution,  and for a DISCLAIMER OF ALL WARRANTIES.           **
-**                                                                    **
-** Developed by:                                                      **
-**   Frank McKenna (fmckenna@ce.berkeley.edu)                         **
-**   Gregory L. Fenves (fenves@ce.berkeley.edu)                       **
-**   Filip C. Filippou (filippou@ce.berkeley.edu)                     **
-**                                                                    **
-** ****************************************************************** */
-                                                                        
-// $Revision: 1.10 $
-// $Date: 2007-02-02 01:35:22 $
-                                                                
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <math.h> 
-
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
 #include <array>
 #include <ID.h> 
 #include <Vector.h>
@@ -41,28 +20,24 @@ class EnhancedQuad : public Element,
 {
   public:
 
-  //full constructor
     EnhancedQuad(int tag, 
      std::array<int,4>& nodes,
 		 NDMaterial &theMaterial, 
      double thickness);
 
-    //null constructor
     EnhancedQuad();
 
-    //destructor
     ~EnhancedQuad();
 
-    const char *getClassType(void) const {return "EnhancedQuad";}
+    const char *getClassType() const {return "EnhancedQuad";}
 
     //set domain
     void setDomain( Domain *theDomain ) ;
 
     int getNumExternalNodes( ) const ;
     const ID &getExternalNodes( ) ;
-    Node **getNodePtrs(void);
+    Node **getNodePtrs();
 
-    //return number of dofs
     int getNumDOF( ) ;
 
     // methods dealing with state updates
@@ -76,28 +51,27 @@ class EnhancedQuad : public Element,
     const Matrix &getInitialStiff();
     const Matrix &getMass();
 
-    //zero the load -- what load?
-    void zeroLoad( ) ;
+    // zero the load -- what load?
+    void zeroLoad();
     int addLoad(ElementalLoad *theLoad, double loadFactor);
     int addInertiaLoadToUnbalance(const Vector &accel);
 
     //get residual
-    const Vector &getResistingForce( ) ;
+    const Vector &getResistingForce();
     
     //get residual with inertia terms
-    const Vector &getResistingForceIncInertia( ) ;
+    const Vector &getResistingForceIncInertia();
 
     // public methods for element output
     Response *setResponse(const char **argv, int argc, 
 			  OPS_Stream &s);
 
     int getResponse(int responseID, Information &eleInformation);
-    int sendSelf (int commitTag, Channel &theChannel);
-    int recvSelf (int commitTag, Channel &theChannel, FEM_ObjectBroker 
-		  &theBroker);
+    int sendSelf (int commitTag, Channel &);
+    int recvSelf (int commitTag, Channel &, FEM_ObjectBroker &);
 
     //print out element data
-    void Print( OPS_Stream &s, int flag ) ;
+    void Print( OPS_Stream &s, int flag );
 
   private:
     constexpr static int NEN = 4;

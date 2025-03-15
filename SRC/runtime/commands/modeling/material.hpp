@@ -4,9 +4,12 @@
 //
 //===----------------------------------------------------------------------===//
 //
+#include <tcl.h>
 #include <string>
 #include <unordered_map>
 #include <elementAPI.h>
+
+Tcl_CmdProc TclCommand_newJ2Material;
 
 extern OPS_Routine OPS_ASDConcrete3DMaterial;
 extern OPS_Routine OPS_ReinforcedConcretePlaneStressMaterial;

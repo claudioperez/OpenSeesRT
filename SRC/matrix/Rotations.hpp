@@ -4,22 +4,24 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Written: cmp
+// Functions related to exponential coordinates on SO(3). The implementation
+// follows value semantics with the expectation that RVO will make this
+// performant.
 //
+// Written: cmp
 //
 // [1] Perez, C. M., and Filippou F. C. (2024) "On Nonlinear Geometric 
 //     Transformations of Finite Elements" 
-//     Int. J. Numer. Meth. Engrg. 2024 https://doi.org/10.1002/nme.7506
+//     Int. J. Numer. Meth. Engrg. https://doi.org/10.1002/nme.7506
 //
 #pragma once
 
 #include <cmath>
+#include "Versor.h"
 #include "Matrix3D.h"
 #include "Vector3D.h"
-#include "Quaternion.h"
 using OpenSees::Matrix3D;
 
-using Versor = OpenSees::VectorND<4,double>;
 
 #define cot(x) std::cos(x)/std::sin(x)
 
@@ -87,6 +89,9 @@ GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr)
   double angle2 =  vec.dot(vec);
 
   if (angle2  <= 1e-07) {
+    //
+    // Use series formula of Equation (A9) from [1]
+    //
     if (a != nullptr) {
       a[0]   =   0.0;
       a[1]   =   1.0        - angle2*(1.0/6.0   - angle2*(1.0/120.0  - angle2/5040.0));
@@ -105,6 +110,9 @@ GibSO3(const Vector3D &vec, double *a, double *b=nullptr, double *c=nullptr)
     }
 
   } else {
+    //
+    // Use formulas of Equation (A8) from [1]
+    //
 
     double angle  = vec.norm();
 //  double angle  = sqrt(angle2);
@@ -151,29 +159,6 @@ CayleyFromVersor(const Versor &q)
     w[i] = 2.0 * q[i]/q0;
 
   return w;
-}
-
-
-static inline Versor
-VersorFromVector(const Vector  &theta)
-{
-    // normalized quaternion
-    Versor q;
-
-    double t = theta.Norm();
-    if (t == 0)
-        q.zero();
-
-    else {
-        const double factor = std::sin(t*0.5)/ t;
-        for (int i = 0; i < 3; i++)
-            q[i] = theta[i] * factor;
-    }
-
-    // Scalar part
-    q[3] = std::cos(t*0.5);
-
-    return q;
 }
 
 
@@ -231,7 +216,6 @@ MatrixFromVersor(const Versor &q)
 static inline Vector3D
 VectorFromVersor(const Versor& q)
 {
-
   // Initialize to zero
   Vector3D theta{};
 
@@ -239,7 +223,7 @@ VectorFromVersor(const Versor& q)
   double q0 = q[3];
 
   // qn = norm(qv);  % Norm of the vector part
-  double qn = sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
+  double qn = std::sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
 
   const double* const qv = &q[0];
 
@@ -335,9 +319,11 @@ static inline Matrix3D
 CaySO3(const Vector3D &cayley)
 {
   // Cayley map for a rotation matrix given the "tangent-scaled pseudo-vector"
+  //
+  // R = I + (S + S*S/2)/(1 + w' * w / 4);
+  //
   //===--------------------------------------------------------------------===//
 
-  // R = I + (S + S*S/2)/(1 + w' * w / 4);
   const double c = 1.0/(1 + cayley.dot(cayley)/4.0);
 
   Matrix3D R;
@@ -358,12 +344,12 @@ CaySO3(const Vector3D &cayley)
 inline Matrix3D
 TanSO3(const Vector3D &vec, char repr='L')
 {
-//
-//  Compute right differential of the exponential.
-//
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
+  //
+  //  Compute right and left differential of the exponential.
+  //
+  //===--------------------------------------------------------------------===//
+  // function by Claudio Perez                                            2023
+  //===--------------------------------------------------------------------===//
     double a[4];
     GibSO3(vec, a);
 
@@ -403,8 +389,10 @@ TanSO3(const Vector3D &vec, char repr='L')
 inline Matrix3D
 dExpSO3(const Vector3D &v)
 {
+// Compute the right differential of the exponential on SO(3) using the formula in
+// Equation (A11) in [1]:
 //
-// return a[1]*Eye3 + a[2]*v.hat() + a[3]*v.bun(v);
+//        T = a[1]*Eye3 + a[2]*v.hat() + a[3]*v.bun(v);
 //
 // =========================================================================================
 // function by Claudio Perez                                                            2023
@@ -470,12 +458,14 @@ ddTanSO3(const Vector3D &v, const Vector3D &p, const Vector3D &q)
 inline Matrix3D
 dTanSO3(const Vector3D &v, const Vector3D &p, char repr='L')
 {
-//
-// repr     'L' or 'R' indicating left or right representation, 
-//          respectively, for the tangent space of SO(3)
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
+  // Tangents of the right and left exponential differentials using Equations (A13) and (A14),
+  // respectively from [1].
+  //
+  // repr     'L' or 'R' indicating left or right representation, 
+  //          respectively, for the tangent space of SO(3)
+  // =========================================================================================
+  // function by Claudio Perez                                                            2023
+  // -----------------------------------------------------------------------------------------
 
 
   double a[4], b[4];
@@ -499,33 +489,34 @@ dTanSO3(const Vector3D &v, const Vector3D &p, char repr='L')
 inline Vector3D
 LogSO3(const Matrix3D &R)
 {
-//
-// Inverse of the exponential map on SO(3).
-//
-// Returns the axial parameters associated with the rotation `R`. The result
-// should satisfy the following equality for any 3-vector, `v`:
-//
-//       LogSO3(expm(Hat(v))) == v
-//
-// where `expm` is matrix exponential, and `Hat` is a function
-// which produces the skew-symmetric 3x3 matrix associated with vector `v`.
-//
-// Parameters
-//   R       (3x3)   Rotation (proper orthogonal) matrix.
-//
-// Remarks
-//
-// - Does not check if input is really a rotation.
-// - The angle corresponding to the returned vector is always in the interval [0,pi].
-//
-//
-// References
-// 1. Nurlanov Z (2021) Exploring SO(3) logarithmic map: degeneracies and 
-//    derivatives.
-//
-// =========================================================================================
-// function by Claudio Perez                                                            2023
-// -----------------------------------------------------------------------------------------
+  //===--------------------------------------------------------------------===//
+  //
+  // Inverse of the exponential map on SO(3).
+  //
+  // Returns the axial parameters associated with the rotation `R`. The result
+  // should satisfy the following equality for any 3-vector, `v`:
+  //
+  //       LogSO3(expm(Hat(v))) == v
+  //
+  // where `expm` is matrix exponential, and `Hat` is a function
+  // which produces the skew-symmetric 3x3 matrix associated with vector `v`.
+  //
+  // Parameters
+  //   R       (3x3)   Rotation (proper orthogonal) matrix.
+  //
+  // Remarks
+  //
+  // - Does not check if input is really a rotation.
+  // - The angle corresponding to the returned vector is always in the interval [0,pi].
+  //
+  //
+  // References
+  // 1. Nurlanov Z (2021) Exploring SO(3) logarithmic map: degeneracies and 
+  //    derivatives.
+  //
+  //===--------------------------------------------------------------------===//
+  // function by Claudio Perez                                            2023
+  //===--------------------------------------------------------------------===//
 
   return VectorFromVersor(VersorFromMatrix(R));
 
@@ -535,6 +526,14 @@ LogSO3(const Matrix3D &R)
 static inline Vector3D
 LogC90(const Matrix3D &R)
 {
+  //===--------------------------------------------------------------------===//
+  //
+  //   Crisfield M (1990) A consistent co-rotational formulation for non-linear,
+  //   three-dimensional, beam-elements
+  //
+  //===--------------------------------------------------------------------===//
+  // function by Claudio Perez                                            2024
+  //===--------------------------------------------------------------------===//
   // Crisfield's approximation to the logarithm on SO(3)
   return Vector3D {
     std::asin(0.5*(R(1,2) - R(2,1))),
@@ -592,7 +591,6 @@ ddLogSO3(const Vector3D& th, const Vector3D& v)
 //  angle = v.norm();
 //}
 
-  
   double angle2 = angle*angle;
   double angle3 = angle*angle2;
   double angle4 = angle*angle3;

@@ -16,7 +16,6 @@
 //
 // Adapted from: Remo Magalhaes de Souza (rmsouza@ce.berkeley.edu)
 //
-
 #if __cplusplus >= 202302L
     // C++23 (and later) code
 #  include <utility>
@@ -64,18 +63,6 @@ MatrixND<12,3> CorotFrameTransf3d::Lr3{};
 
 // Permutation matrix (to renumber basic dof's)
 
-// v = Tp * ul
-//
-//      |   thI  |   thJ  |
-//      | x z -y | x 
-//      | 0 1  2 | 3 4  5 | 6
-// Tp=  [ 0 0  0   0 0  0   1;  0 // axial
-//        0 1  0   0 0  0   0;  1 // rot z I
-//        0 0  0   0 1  0   0;  2 // rot z J
-//        0 0 -1   0 0  0   0;  3 // rot y I
-//        0 0  0   0 0 -1   0;  4 // rot y J
-//       -1 0  0   1 0  0   0]; 5 // torsion
-//
 //
 // constexpr MatrixND<6,7> T = {{
 //     {0,    0,    0,    0,    0,   -1 },
@@ -86,20 +73,32 @@ MatrixND<12,3> CorotFrameTransf3d::Lr3{};
 //     {0,    0,    0,    0,   -1,    0 },
 //     {1,    0,    0,    0,    0,    0 }}};
 
+// v = Tp * ul
+//
+//      |   thI  |   thJ  |
+//      | x z -y | x 
+//      | 0 1  2 | 3 4  5 | 6
+// Tp=  [ 0 0  0   0 0  0   1;  0 // axial
+//        0 1  0   0 0  0   0;  1 // Mz I
+//        0 0  0   0 1  0   0;  2 // Mz J
+//        0 0 -1   0 0  0   0;  3 // My I
+//        0 0  0   0 0 -1   0;  4 // My J
+//       -1 0  0   1 0  0   0]; 5 // T
+//
 constexpr static MatrixND<7,12> Tbl {
 //      |  thI    |    thJ    |
 //      |0  1   2 | 3   4   5 | 6
-      {{ 0, 0,  0,  0,  0,  0,  0},  //   0 // axial
+      {{ 0, 0,  0,  0,  0,  0,  0},  //   0 // N
        { 0, 0,  0,  0,  0,  0,  0},  //   1 // Vy
        { 0, 0,  0,  0,  0,  0,  0},  //   2 // Vz
-       { 0, 0,  0,  0,  0,  0,  0},  //   3 // torsion
+       { 0, 0,  0,  0,  0,  0,  0},  //   3 // Ti
        { 0, 0, -1,  0,  0,  0,  0},  //   4 // rot y I
        { 0, 1,  0,  0,  0,  0,  0},  //   5 // rot z I
   
-       { 0, 0,  0,  0,  0,  0,  1},  //   6 // axial
+       { 0, 0,  0,  0,  0,  0,  1},  //   6 // N
        { 0, 0,  0,  0,  0,  0,  0},  //   7
        { 0, 0,  0,  0,  0,  0,  0},  //   8
-       {-1, 0,  0,  1,  0,  0,  0},  //   9 // torsion
+       {-1, 0,  0,  1,  0,  0,  0},  //   9 // Tj
        { 0, 0,  0,  0,  0, -1,  0},  //  10 // rot y J
        { 0, 0,  0,  0,  1,  0,  0}}  //  11 // rot z J
 };
@@ -352,7 +351,6 @@ CorotFrameTransf3d::CorotFrameTransf3d():
   FrameTransform3d(0, CRDTR_TAG_CorotFrameTransf3d),
   vAxis(3), nodeIOffset(3), nodeJOffset(3), xAxis(3),
   L(0), Ln(0),
-//  alphaIq(4), alphaJq(4),  alphaIqcommit(4), alphaJqcommit(4), 
   alphaI(3), alphaJ(3),
   ulcommit(7), ul(7),  ulpr(7), // T(7,12),
   nodeIInitialDisp(0), nodeJInitialDisp(0), initialDispChecked(false)
@@ -672,13 +670,14 @@ CorotFrameTransf3d::compTransfMatrixBasicGlobal(const Triad& __restrict r,
       T(4,i) += T4i;
     }
 
+    // Ti
     for (int i = 0; i < 12; i++) {
       double T0i = 0;
       for (int k=0; k<3; k++)
         T0i += Lr3(i,k)*rI2[k] - Lr2(i,k)*rI3[k];
       T(0,i) += T0i;
     }
-
+    // Tj
     for (int i = 0; i < 12; i++) {
       double T3i = 0;
       for (int k=0; k<3; k++)
@@ -772,8 +771,8 @@ CorotFrameTransf3d::update()
 
       // update the nodal triads TI and RJ using quaternions
 
-      const VectorND<4> dAlphaIq = VersorFromVector(dAlphaI);
-      const VectorND<4> dAlphaJq = VersorFromVector(dAlphaJ);
+      const Versor dAlphaIq = Versor::from_vector(dAlphaI);
+      const Versor dAlphaJq = Versor::from_vector(dAlphaJ);
 
       alphaIq = VersorProduct(alphaIq, dAlphaIq);
       alphaJq = VersorProduct(alphaJq, dAlphaJq);
@@ -795,7 +794,7 @@ CorotFrameTransf3d::update()
         }
 
       // pseudo-vector for node J
-      VectorND<4> gammaq = VersorFromMatrix(dRgamma);
+      Versor gammaq = VersorFromMatrix(dRgamma);
 
       OPS_STATIC Vector3D gammaw;
       gammaw = CayleyFromVersor(gammaq);

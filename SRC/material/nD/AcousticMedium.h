@@ -34,9 +34,11 @@ class AcousticMedium : public NDMaterial
 
     virtual ~AcousticMedium (void);
 
-    virtual const char *getClassType(void) const {return "AcousticMedium";};
+    virtual const char *getClassType(void) const {
+      return "AcousticMedium";
+    }
 
-    virtual double getRho( ) ;
+    virtual double getRho();
 
     virtual int setTrialStrain (const Vector &v);
     virtual int setTrialStrain (const Vector &v, const Vector &r);

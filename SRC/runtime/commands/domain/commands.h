@@ -15,6 +15,7 @@ Tcl_CmdProc nodeReaction;
 Tcl_CmdProc nodeUnbalance;
 Tcl_CmdProc nodeEigenvector;
 Tcl_CmdProc setNodeCoord;
+Tcl_CmdProc nodeRotation;
 
 // domain/region.cpp
 Tcl_CmdProc TclCommand_addMeshRegion;

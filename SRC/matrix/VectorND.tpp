@@ -1,4 +1,21 @@
 
+  template <int ir, int nr> inline void
+  assemble(const VectorND<nr> &v, double fact)
+  {
+    static_assert((ir >= 0) && ((ir + nr - 1) < N));
+
+     for (int j=0; j<nr; j++)
+        (*this)(ir + j) += v[j]*fact;
+  }
+
+  template<int nr> void
+  assemble(int a, const VectorND<nr>& v, double scale)
+  {
+    for (int i=0; i<nr; i++)
+      (*this)[a+i] += v[i]*scale;
+  }
+
+
   int
   addVector(const T thisFact, const Vector &other, const T otherFact) {
     if (otherFact == 0.0 && thisFact == 1.0)
@@ -101,7 +118,7 @@
           double value = *dataPtr * thisFact + *otherDataPtr++;
           *dataPtr++ = value;
         }
-      } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact == 1.0
+      } else if (otherFact == -1.0) { // no point doing a multiplication if otherFact ==-1.0
         for (int i=0; i<N; i++) {
           double value = *dataPtr * thisFact - *otherDataPtr++;
           *dataPtr++ = value;
@@ -113,7 +130,6 @@
       }
     }
 
-    // successfull
     return 0;
   }
 

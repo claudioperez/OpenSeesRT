@@ -1,7 +1,8 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
+//
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
 //
 #include <tcl.h>
 #include <string.h>
@@ -13,7 +14,7 @@
 #include "BasicModelBuilder.h"
 #include "Logging.h"
 #include "Parsing.h"
-#include "isotropy.h"   // Declares: isotropic_parameters() and Isotropy::Parameter
+#include "isotropy.h"
 
 #include <ElasticMaterial.h>
 #include <ElasticIsotropic.h>
@@ -125,8 +126,13 @@ TclCommand_newIsotropicMaterial(ClientData clientData, Tcl_Interp *interp,
                     opserr << "Invalid value for option " << argv[i-1] << "\n";
                     return TCL_ERROR;
                 }
-                if (!gotParam1) { gotParam1 = true; val1 = val; flag1 = static_cast<int>(Isotropy::Parameter::YoungModulus); }
-                else if (!gotParam2) { gotParam2 = true; val2 = val; flag2 = static_cast<int>(Isotropy::Parameter::YoungModulus); }
+                if (!gotParam1) { 
+                    gotParam1 = true; 
+                    val1 = val; 
+                    flag1 = static_cast<int>(Isotropy::Parameter::YoungModulus);
+                }
+                else if (!gotParam2) { 
+                    gotParam2 = true; val2 = val; flag2 = static_cast<int>(Isotropy::Parameter::YoungModulus); }
                 else {
                     opserr << "Too many elastic parameter options provided.\n";
                     return TCL_ERROR;
@@ -231,13 +237,13 @@ TclCommand_newIsotropicMaterial(ClientData clientData, Tcl_Interp *interp,
         }
         
         // Use the conversion utility to compute canonical Young's modulus and Poisson's ratio.
-        int ret = isotropic_parameters(flag1, val1, flag2, val2,
+        int ret = isotropic_convert(flag1, val1, flag2, val2,
                                        static_cast<int>(Isotropy::Parameter::YoungModulus), E);
         if (ret != 0) {
             opserr << "Error converting elastic parameters to Young's modulus.\n";
             return TCL_ERROR;
         }
-        ret = isotropic_parameters(flag1, val1, flag2, val2,
+        ret = isotropic_convert(flag1, val1, flag2, val2,
                                    static_cast<int>(Isotropy::Parameter::PoissonsRatio), nu);
         if (ret != 0) {
             opserr << "Error converting elastic parameters to Poisson's ratio.\n";

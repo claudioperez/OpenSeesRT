@@ -30,6 +30,7 @@
 #include <assert.h>
 #include <Element.h>
 #include <Vector.h>
+#include <Versor.h>
 #include <Matrix.h>
 #include <Channel.h>
 #include <FEM_ObjectBroker.h>
@@ -50,6 +51,7 @@
 
 #include <OPS_Globals.h>
 
+using namespace OpenSees;
 Matrix **Node::theMatrices = nullptr;
 int Node::numMatrices = 0;
 
@@ -61,7 +63,9 @@ Node::Node(int theClassTag)
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0),
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
  incrDeltaDisp(0),
- disp(0), vel(0), accel(0), dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
+ disp(0), vel(0), accel(0), dbTag1(0), 
+ rotation(nullptr),
+ dbTag2(0), dbTag3(0), dbTag4(0),
  R(0), mass(0), unbalLoadWithInertia(0), alphaM(0.0), theEigenvectors(0),
  index(-1), reaction(0)//, displayLocation(0)
 {
@@ -84,7 +88,9 @@ Node::Node(int tag, int theClassTag)
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0),
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
  incrDeltaDisp(0),
- disp(0), vel(0), accel(0), dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
+ disp(0), vel(0), accel(0), 
+ rotation(nullptr),
+ dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
   R(0), mass(0), unbalLoadWithInertia(0), alphaM(0.0), theEigenvectors(0),
  index(-1), reaction(0)//, displayLocation(0)
 {
@@ -107,7 +113,9 @@ Node::Node(int tag, int ndof, double Crd1, Vector *dLoc)
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0),
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
  incrDeltaDisp(0),
- disp(0), vel(0), accel(0), dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
+ disp(0), vel(0), accel(0), 
+ rotation(nullptr),
+ dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
  R(0), mass(0), unbalLoadWithInertia(0), alphaM(0.0), theEigenvectors(0),
  index(-1), reaction(0)//, displayLocation(0)
 {
@@ -134,7 +142,9 @@ Node::Node(int tag, int ndof, double Crd1, double Crd2, Vector *dLoc)
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0),
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
  incrDeltaDisp(0),
- disp(0), vel(0), accel(0), dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
+ disp(0), vel(0), accel(0), 
+ rotation(nullptr),
+ dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
  R(0), mass(0), unbalLoadWithInertia(0), alphaM(0.0), theEigenvectors(0),
  reaction(0)//, displayLocation(0)
 {
@@ -165,7 +175,9 @@ Node::Node(int tag, int ndof, double Crd1, double Crd2, Vector *dLoc)
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0),
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
  incrDeltaDisp(0),
- disp(0), vel(0), accel(0), dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
+ disp(0), vel(0), accel(0), 
+ rotation(nullptr),
+ dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
  R(0), mass(0), unbalLoadWithInertia(0), alphaM(0.0), theEigenvectors(0),
  reaction(0)//, displayLocation(0)
 {
@@ -197,7 +209,9 @@ Node::Node(const Node &otherNode, bool copyMass)
  Crd(0), commitDisp(0), commitVel(0), commitAccel(0),
  trialDisp(0), trialVel(0), trialAccel(0), unbalLoad(0), incrDisp(0),
  incrDeltaDisp(0),
- disp(0), vel(0), accel(0), dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
+ disp(0), vel(0), accel(0), 
+ rotation(nullptr),
+ dbTag1(0), dbTag2(0), dbTag3(0), dbTag4(0),
  R(0), mass(0), unbalLoadWithInertia(0), alphaM(0.0), theEigenvectors(0),
    reaction(0)//, displayLocation(0)
 {
@@ -277,6 +291,9 @@ Node::~Node()
 
     if (trialAccel != 0)
       delete trialAccel;
+
+    if (rotation != nullptr)
+      delete rotation;
 
     if (incrDisp != 0)
       delete incrDisp;
@@ -358,7 +375,7 @@ Node::getCrds() const
 
 
 const Vector &
-Node::getDisp(void)
+Node::getDisp()
 {
   // construct memory and Vectors for trial and committed
   // displacement on first call to this method, getTrialDisp()
@@ -372,7 +389,7 @@ Node::getDisp(void)
 }
 
 const Vector &
-Node::getVel(void)
+Node::getVel()
 {
   // construct memory and Vectors for trial and committed
   // velocity on first call to this method, getTrialVel()
@@ -386,7 +403,7 @@ Node::getVel(void)
 
 
 const Vector &
-Node::getAccel(void)
+Node::getAccel()
 {
   // construct memory and Vectors for trial and committed
   // accel on first call to this method, getTrialAccel()
@@ -405,7 +422,7 @@ Node::getAccel(void)
 ** *********************************************************************/
 
 const Vector &
-Node::getTrialDisp(void)
+Node::getTrialDisp()
 {
 #if 0
     if (trialDisp == nullptr)
@@ -425,7 +442,7 @@ Node::getIncrDisp(void)
 }
 
 const Vector &
-Node::getIncrDeltaDisp(void)
+Node::getIncrDeltaDisp()
 {
 #if 0
     if (incrDeltaDisp == 0)
@@ -434,10 +451,22 @@ Node::getIncrDeltaDisp(void)
     return *incrDeltaDisp;
 }
 
+Versor
+Node::getTrialRotation()
+{
+  if (rotation == nullptr) {
+    if (this->getNumberDOF() < 6)
+      return Versor();
+    else
+      rotation = new Versor{0.0, 0.0, 0.0, 1.0};
+  }
+
+  return *rotation;
+}
 
 
 const Vector &
-Node::getTrialVel(void)
+Node::getTrialVel()
 {
     if (trialVel == nullptr)
       this->createVel();
@@ -542,6 +571,9 @@ Node::incrTrialDisp(const Vector &incrDispl)
         disp[i+2*numberDOF] += incrDispI;
         disp[i+3*numberDOF]  = incrDispI;
     }
+    if (rotation != nullptr && this->getNumberDOF() >= 6) {
+      (*rotation) = (*rotation) * Versor::from_vector(&disp[3+3*numberDOF]);
+    }
 
     return 0;
 }
@@ -614,8 +646,8 @@ Node::incrTrialAccel(const Vector &incrAccel)
 void
 Node::zeroUnbalancedLoad(void)
 {
-    if (unbalLoad != nullptr)
-      unbalLoad->Zero();
+  if (unbalLoad != nullptr)
+    unbalLoad->Zero();
 }
 
 int
@@ -707,7 +739,7 @@ Node::addInertiaLoadSensitivityToUnbalance(const Vector &accelG, double fact, bo
 
 
 const Vector &
-Node::getUnbalancedLoad(void)
+Node::getUnbalancedLoad()
 {
   // make sure it was created before we return it
   if (unbalLoad == nullptr)
@@ -720,7 +752,7 @@ Node::getUnbalancedLoad(void)
 
 
 const Vector &
-Node::getUnbalancedLoadIncInertia(void)
+Node::getUnbalancedLoadIncInertia()
 {
     // make sure it was created before we return it
     if (unbalLoadWithInertia == nullptr) {
@@ -746,29 +778,28 @@ Node::getUnbalancedLoadIncInertia(void)
 int
 Node::commitState()
 {
-    // check disp exists, if does set commit = trial, incr = 0.0
-    if (trialDisp != 0) {
-      for (int i=0; i<numberDOF; i++) {
-      disp[i+numberDOF] = disp[i];
-        disp[i+2*numberDOF] = 0.0;
-        disp[i+3*numberDOF] = 0.0;
-      }
+  // check disp exists, if does set commit = trial, incr = 0.0
+  if (trialDisp != 0) {
+    for (int i=0; i<numberDOF; i++) {
+    disp[i+numberDOF] = disp[i];
+      disp[i+2*numberDOF] = 0.0;
+      disp[i+3*numberDOF] = 0.0;
     }
+  }
 
-    // check vel exists, if does set commit = trial
-    if (trialVel != 0) {
-      for (int i=0; i<numberDOF; i++)
-      vel[i+numberDOF] = vel[i];
-    }
+  // Check vel exists, if does set commit = trial
+  if (trialVel != 0) {
+    for (int i=0; i<numberDOF; i++)
+    vel[i+numberDOF] = vel[i];
+  }
 
-    // check accel exists, if does set commit = trial
-    if (trialAccel != 0) {
-      for (int i=0; i<numberDOF; i++)
-      accel[i+numberDOF] = accel[i];
-    }
+  // Check accel exists, if does set commit = trial
+  if (trialAccel != 0) {
+    for (int i=0; i<numberDOF; i++)
+    accel[i+numberDOF] = accel[i];
+  }
 
-    // if we get here we are done
-    return 0;
+  return 0;
 }
 
 
@@ -776,74 +807,75 @@ Node::commitState()
 int
 Node::revertToLastCommit()
 {
-    // check disp exists, if does set trial = last commit, incr = 0
-    if (disp != 0) {
-      for (int i=0 ; i<numberDOF; i++) {
-      disp[i] = disp[i+numberDOF];
-      disp[i+2*numberDOF] = 0.0;
-      disp[i+3*numberDOF] = 0.0;
-      }
+  // check memory was allocated, if it does set trial = last commit, incr = 0
+  if (disp != 0) {
+    for (int i=0 ; i<numberDOF; i++) {
+    disp[i] = disp[i+numberDOF];
+    disp[i+2*numberDOF] = 0.0;
+    disp[i+3*numberDOF] = 0.0;
     }
+  }
 
-    // check vel exists, if does set trial = last commit
-    if (vel != 0) {
-      for (int i=0 ; i<numberDOF; i++)
-      vel[i] = vel[numberDOF+i];
-    }
+  // check vel exists, if does set trial = last commit
+  if (vel != 0) {
+    for (int i=0 ; i<numberDOF; i++)
+    vel[i] = vel[numberDOF+i];
+  }
 
-    // check accel exists, if does set trial = last commit
-    if (accel != 0) {
-      for (int i=0 ; i<numberDOF; i++)
-      accel[i] = accel[numberDOF+i];
-    }
+  // check accel exists, if does set trial = last commit
+  if (accel != 0) {
+    for (int i=0 ; i<numberDOF; i++)
+    accel[i] = accel[numberDOF+i];
+  }
 
-    // if we get here we are done
-    return 0;
+  // if we get here we are done
+  return 0;
 }
 
 
 int
 Node::revertToStart()
 {
-    // check disp exists, if does set all to zero
-    if (disp != 0) {
-      for (int i=0 ; i<4*numberDOF; i++)
-      disp[i] = 0.0;
-    }
+  // check disp exists, if does set all to zero
+  if (disp != 0) {
+    for (int i=0 ; i<4*numberDOF; i++)
+    disp[i] = 0.0;
+  }
 
-    // check vel exists, if does set all to zero
-    if (vel != 0) {
-      for (int i=0 ; i<2*numberDOF; i++)
-      vel[i] = 0.0;
-    }
+  // check vel exists, if does set all to zero
+  if (vel != 0) {
+    for (int i=0 ; i<2*numberDOF; i++)
+    vel[i] = 0.0;
+  }
 
-    // check accel exists, if does set all to zero
-    if (accel != 0) {
-      for (int i=0 ; i<2*numberDOF; i++)
-      accel[i] = 0.0;
-    }
+  // check accel exists, if does set all to zero
+  if (accel != 0) {
+    for (int i=0 ; i<2*numberDOF; i++)
+    accel[i] = 0.0;
+  }
 
-    if (unbalLoad != nullptr)
-      (*unbalLoad) *= 0;
+  if (unbalLoad != nullptr)
+    (*unbalLoad) *= 0;
 
 
-// AddingSensitivity: BEGIN /////////////////////////////////
-    if (dispSensitivity != 0)
-            dispSensitivity->Zero();
+  if (dispSensitivity != 0)
+    dispSensitivity->Zero();
 
-    if (velSensitivity != 0)
-            velSensitivity->Zero();
+  if (velSensitivity != 0)
+    velSensitivity->Zero();
 
-    if (accSensitivity != 0)
-            accSensitivity->Zero();
-// AddingSensitivity: END ///////////////////////////////////
+  if (accSensitivity != 0)
+    accSensitivity->Zero();
 
-    return 0;
+  if (rotation != nullptr)
+    *rotation = Versor{0.0, 0.0, 0.0, 1.0};
+
+  return 0;
 }
 
 
 const Matrix &
-Node::getMass(void)
+Node::getMass()
 {
     if (index == -1) {
       setGlobalMatrices();
@@ -866,7 +898,7 @@ Node::setRayleighDampingFactor(double alpham) {
 
 
 const Matrix &
-Node::getDamp(void)
+Node::getDamp()
 {
     if (index == -1) {
       setGlobalMatrices();
@@ -1763,7 +1795,8 @@ Node::getResponse(NodeData responseType)
 
     return unbalLoadWithInertia;
 
-  } else
+  } 
+  else
     return NULL;
 
   return result;

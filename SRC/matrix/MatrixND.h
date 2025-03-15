@@ -447,10 +447,10 @@ struct MatrixND {
     return prod;
   }
 
-  VectorND<NR>
+  VectorND<NC>
   operator^(const VectorND<NR> &V) const
   {
-      VectorND<NR> result;
+      VectorND<NC> result;
 
       const double *dataPtr = &values[0][0];
       for (int i=0; i<NC; i++) {
@@ -559,6 +559,8 @@ template <index_t nr, index_t nc, typename T> inline int
 MatrixND<nr,nc,T>::invert(MatrixND<nr,nc,T> &M) const
 {
   int status;
+  static_assert(nr == nc, "Matrix must be square");
+  static_assert(nr > 1 && nr < 7, "Matrix must be 2x2, 3x3, 4x4, 5x5, or 6x6");
   switch (nr) {
     case 2:
       cmx_inv2(&this->values[0][0], &M.values[0][0], &status);

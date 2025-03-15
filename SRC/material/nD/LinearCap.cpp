@@ -365,7 +365,19 @@ int LinearCap::getResponse (int responseID, Information &matInfo)  {
 
 };
 
-void LinearCap::Print(OPS_Stream &s, int flag)  {return;};
+void
+LinearCap::Print(OPS_Stream &s, int flag)  {
+    if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+        s << TaggedObject::JsonPropertyIndent ;
+        s << "{\"name\": " << this->getTag() << ", ";
+        s << "\"type\":\"" << this->getClassType() << "\", ";
+        s << "\"shearModulus\":" << shearModulus << ", \"bulkModulus\":";
+        s << bulkModulus << ", \"rho\":" << rho << ", \"theta\":" << theta << ", \"alpha\":";
+        s << alpha << ", \"T\":" << T << ", \"tol_k\":" << tol_k << "}";
+        return;
+    }
+    return;
+};
 
 
 // ------------------------------------------

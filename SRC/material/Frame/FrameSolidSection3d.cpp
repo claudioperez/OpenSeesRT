@@ -20,7 +20,6 @@
 #include <Matrix.h>
 #include <MatrixND.h>
 #include <Matrix3D.h>
-#include <Rotations.hpp>
 #include <classTags.h>
 #include "FrameSolidSection3d.h"
 #include <ID.h>
@@ -33,26 +32,17 @@ typedef SensitiveResponse<FrameSection> SectionResponse;
 
 #define SEC_TAG_FrameSolidSection3d 0
 
-using OpenSees::VectorND;
-using OpenSees::MatrixND;
-using OpenSees::Matrix3D;
+using namespace OpenSees;
 
 ID FrameSolidSection3d::code(nsr);
 
-FrameSolidSection3d::FrameSolidSection3d(int tag, int num, double a, bool compCentroid): 
+FrameSolidSection3d::FrameSolidSection3d(int tag, int num): 
     FrameSection(tag, SEC_TAG_FrameSolidSection3d),
-    Abar(0.0), 
-    QyBar(0.0), QzBar(0.0), 
-    yBar(0.0), zBar(0.0), 
-    computeCentroid(compCentroid),
-    alpha(a),
-    e(nsr), s(nullptr), ks(nullptr), 
+    e_wrap(e), s_wrap(s),
     parameterID(0), dedh(nsr),
-    fibers(new std::vector<FiberData>)
+    fibers(new std::vector<FiberData>),
+    K_init(new Tangent)
 {
-  s = new Vector(sData, nsr);
-  ks = new Matrix(kData, nsr, nsr);
-
   code(inx) = SECTION_RESPONSE_P;
   code(iny) = SECTION_RESPONSE_VY;
   code(inz) = SECTION_RESPONSE_VZ;
@@ -70,17 +60,10 @@ FrameSolidSection3d::FrameSolidSection3d(int tag, int num, double a, bool compCe
 // constructor for blank object that recvSelf needs to be invoked upon
 FrameSolidSection3d::FrameSolidSection3d():
   FrameSection(0, SEC_TAG_FrameSolidSection3d),
-  Abar(0.0), QyBar(0.0), QzBar(0.0), 
-  yBar(0.0), zBar(0.0), 
-  computeCentroid(true),
-  alpha(1.0), 
-  e(nsr), s(nullptr), ks(nullptr),
+  e_wrap(e), s_wrap(s),
   parameterID(0), dedh(nsr),
   fibers(new std::vector<FiberData>)
 {
-  s = new Vector(sData, nsr);
-  ks = new Matrix(kData, nsr, nsr);
-
   code(inx) = SECTION_RESPONSE_P;
   code(iny) = SECTION_RESPONSE_VY;
   code(inz) = SECTION_RESPONSE_VZ;
@@ -127,7 +110,7 @@ FrameSolidSection3d::getIntegral(Field field, State state, double& value) const
     case Field::UnitY: // TODO: Centroid
       for (int i=0; i<nf; i++) {
         const double A  = (*fibers)[i].area;
-        const double y  = (*fibers)[i].y - yBar;
+        const double y  = (*fibers)[i].y; // - yBar;
         value += A*y;
       }
       return 0;
@@ -138,7 +121,7 @@ FrameSolidSection3d::getIntegral(Field field, State state, double& value) const
       for (int i=0; i<nf; i++) {
         const double A  = (*fibers)[i].area;
         const double y  = (*fibers)[i].y
-                        - yBar*(Field::UnitCentroidYY == field);
+                        ; //- yBar*(Field::UnitCentroidYY == field);
         value += A*y*y;
       }
       return 0;
@@ -148,7 +131,7 @@ FrameSolidSection3d::getIntegral(Field field, State state, double& value) const
       for (int i=0; i<nf; i++) {
         const double A  = (*fibers)[i].area;
         const double z  = (*fibers)[i].z
-                        - zBar*(Field::UnitCentroidZZ == field);
+                        ; //- zBar*(Field::UnitCentroidZZ == field);
         value += A*z*z;
       }
 
@@ -171,20 +154,8 @@ FrameSolidSection3d::addFiber(NDMaterial& theMat,
 
   materials.emplace_back(theMat.getCopy("BeamFiber"));
 
-  if (materials[materials.size()-1] == nullptr) {
-    opserr <<"FrameSolidSection3d::addFiber -- failed to get copy of a Material\n";
+  if (materials[materials.size()-1] == nullptr)
     return -1;
-  }
-
-  // Recompute centroid
-  if (computeCentroid) {
-    Abar  += Area;
-    QzBar += yLoc*Area;
-    QyBar += zLoc*Area;
-    
-    yBar = QzBar/Abar;
-    zBar = QyBar/Abar;
-  }
   
   return materials.size()-1;
 }
@@ -197,48 +168,42 @@ FrameSolidSection3d::~FrameSolidSection3d()
     if (material != nullptr)
       delete material;
   }
-
-  if (s != nullptr)
-    delete s;
-
-  if (ks != nullptr)
-    delete ks;
 }
 
 int
 FrameSolidSection3d::setTrialSectionDeformation(const Vector &e_trial)
 {
   e = e_trial;
-  s->Zero();
-  ks->Zero();
-  return stateDetermination(*ks, s, &e, CurrentTangent);
+  s.zero();
+  return stateDetermination(K_pres, &s, &e, CurrentTangent);
 }
 
 int
-FrameSolidSection3d::stateDetermination(Matrix& ksi_, Vector* s_trial, const Vector * const e_trial, int tangentFlag)
+FrameSolidSection3d::stateDetermination(Tangent& K, VectorND<nsr>* s_trial, const VectorND<nsr> * const e_trial, int tangentFlag)
 {
 
-  const Vector3D kappa {
-    e_trial? (*e_trial)(imx) : 0.0,
-    e_trial? (*e_trial)(imy) : 0.0,
-    e_trial? (*e_trial)(imz) : 0.0 
-  };
   const Vector3D gamma {
     e_trial? (*e_trial)(inx) : 0.0,
     e_trial? (*e_trial)(iny) : 0.0,
     e_trial? (*e_trial)(inz) : 0.0 
   };
+  const Vector3D kappa {
+    e_trial? (*e_trial)(imx) : 0.0,
+    e_trial? (*e_trial)(imy) : 0.0,
+    e_trial? (*e_trial)(imz) : 0.0 
+  };
+  const Vector3D dalpha {
+    e_trial? (*e_trial)(iwx) : 0.0,
+    e_trial? (*e_trial)(iwy) : 0.0,
+    e_trial? (*e_trial)(iwz) : 0.0 
+  };
+  const Vector3D alpha {
+    e_trial? (*e_trial)(ivx) : 0.0,
+    e_trial? (*e_trial)(ivy) : 0.0,
+    e_trial? (*e_trial)(ivz) : 0.0 
+  };
 
-  Kmm.zero();
-  Kmn.zero();
-  Kmw.zero();
-  Knn.zero();
-  Knw.zero();
-  Kvv.zero();
-  Knv.zero();
-  Kww.zero();
-  Kmv.zero();
-
+  K.zero();
 
   int res = 0;
   const int nf = fibers->size();
@@ -248,19 +213,29 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi_, Vector* s_trial, const Vec
     auto & fiber = (*fibers)[i];
     auto & w = fiber.warp;
 
+    const Vector3D r = fiber.r;
+    double tr2 = 0;
+
+    bool wagner = getenv("Wagner") != nullptr;
+
     if (e_trial != nullptr) {
       // Form material strain
-      Vector3D eps = gamma + kappa.cross(fiber.r);
-        for (int j=1; j<3; j++)
-          for (int k=0; k<nwm; k++)
-            eps[j] += w[k][j];
+      Vector3D eps = gamma + kappa.cross(r);
+      for (int k=0; k<nwm; k++) {
+          eps[0] += w[k][0]*dalpha[k];
+          for (int j=1; j<3; j++)
+              eps[j] += w[k][j]*alpha[k];
+      }
+      if (wagner) {
+          tr2 = r.dot(r)*kappa[0];
+          eps[0] += 0.5*kappa[0]*tr2;
+      }
       res += theMat.setTrialStrain(eps);
     }
 
     const Matrix &tangent = tangentFlag==CurrentTangent
                             ? theMat.getTangent()
                             : theMat.getInitialTangent();
-
 
     Matrix3D C{};
     C.addMatrix(tangent, fiber.area);
@@ -278,35 +253,56 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi_, Vector* s_trial, const Vec
       {    0.0, w[2][1], w[2][2]}
     }};
 
-    Knn.addMatrix(C, 1.0);
+
+    K.nn.addMatrix(C, 1.0);
     {
       Matrix3D rxC{};
-      rxC.addSpinMatrixProduct(fiber.r, C, 1.0);
-      Kmm.addMatrixSpinProduct(rxC, fiber.r, -1.0);
-      Kmn.addMatrix(rxC, 1.0);
-      Kmw.addMatrixProduct(rxC, iow,  1.0);
-      Kmv.addMatrixProduct(rxC, iodw, 1.0);
+      rxC.addSpinMatrixProduct(r, C, 1.0);
+      K.mm.addMatrixSpinProduct(rxC, r, -1.0);
+      K.mn.addMatrix(rxC, 1.0);
+      K.mw.addMatrixProduct(rxC, iow,  1.0);
+      K.mv.addMatrixProduct(rxC, iodw, 1.0);
     }
     {
       Matrix3D Ciow{};
       Ciow.addMatrixProduct(C, iow, 1.0);
-      Knw.addMatrix(Ciow,  1.0);
-      Kww.addMatrixTransposeProduct(1.0, iow,  Ciow, 1.0);
+      K.nw.addMatrix(Ciow,  1.0);
+      K.ww.addMatrixTransposeProduct(1.0, iow,  Ciow, 1.0);
     }
     {
       Matrix3D Ciodw{};
       Ciodw.addMatrixProduct(C, iodw, 1.0);
-      Knv.addMatrix(Ciodw, 1.0);
-      Kvv.addMatrixTransposeProduct(1.0, iodw,  Ciodw, 1.0);
+      K.nv.addMatrix(Ciodw, 1.0);
+      K.vv.addMatrixTransposeProduct(1.0, iodw,  Ciodw, 1.0);
+    }
+
+    const Vector &stress  = theMat.getStress();
+
+    if (wagner && e_trial != nullptr) {
+      Matrix3D ioi {{{1, 0, 0},
+                     {0, 0, 0},
+                     {0, 0, 0}}};
+       Matrix3D ioiC = ioi*C;
+       K.mn.addMatrix(ioiC, tr2);
+       //
+       K.mm.addSpinMatrixProduct(r, ioiC.transpose(), tr2);
+       K.mm.addMatrixSpinProduct(ioiC, r, -tr2);
+       K.mm.addMatrixProduct(ioiC, ioi, tr2*tr2);
+
+       // Geometric part,  equivalent to Kmm.addMatrix(ioi, r2*stress(0));
+       if (kappa[0] != 0)
+          K.mm(0,0) += tr2/kappa[0]*stress(0)*fiber.area;
+
+       K.mw.addMatrixProduct(ioiC, iow,  tr2);
+       K.mv.addMatrixProduct(ioiC, iodw, tr2);
     }
 
     if (s_trial != nullptr) {
       const double y = fiber.r[1];
       const double z = fiber.r[2];
-      const Vector &stress  = theMat.getStress();
-      double sig0 = stress(0)*fiber.area;
-      double sig1 = stress(1)*fiber.area;
-      double sig2 = stress(2)*fiber.area;
+      const double sig0 = stress(0)*fiber.area;
+      const double sig1 = stress(1)*fiber.area;
+      const double sig2 = stress(2)*fiber.area;
       // n += s da
       (*s_trial)(inx) +=    sig0;
       (*s_trial)(iny) +=    sig1;
@@ -315,16 +311,34 @@ FrameSolidSection3d::stateDetermination(Matrix& ksi_, Vector* s_trial, const Vec
       (*s_trial)(imx) += -z*sig1 + y*sig2;
       (*s_trial)(imy) +=  z*sig0;
       (*s_trial)(imz) += -y*sig0;
+      for (int j=0; j<nwm; j++) {
+        // w += w[j]*s da
+        (*s_trial)(iwx+j) += w[j][0]*sig0;
+        // v += dw[j]*s da
+        (*s_trial)(ivx+j) += w[j][1]*sig1;
+        (*s_trial)(ivx+j) += w[j][2]*sig2;
+      }
+
+      if (wagner && e_trial != nullptr)
+        (*s_trial)(imx) += tr2*sig0;
     }
   }
 
+  // if (e_trial) {
+  //   VectorND<nsr> e_print = *e_trial;
+  //   opserr << "e = " << Vector(e_print);
+  // }
+  // if (s_trial) {
+  //   VectorND<nsr> s_print = *s_trial;
+  //   opserr << "s = " << Vector(s_print);
+  // }
   return res;
 }
 
 const Vector&
 FrameSolidSection3d::getSectionDeformation()
 {
-  return e;
+  return e_wrap;
 }
 
 const Matrix&
@@ -334,59 +348,72 @@ FrameSolidSection3d::getInitialTangent()
   static Matrix ksi(kInitial, nsr, nsr);
 
   ksi.Zero();
-  this->stateDetermination(ksi, nullptr, nullptr, InitialTangent);
+  this->stateDetermination(*K_init, nullptr, nullptr, InitialTangent);
 
+  ksi.Zero();
+  ksi.Assemble(K_init->nn, 0, 0, 1.0);
+  ksi.Assemble(K_init->nw, 0, 6, 1.0);
+  ksi.Assemble(K_init->nv, 0, 9, 1.0);
+  ksi.Assemble(K_init->mn, 3, 0, 1.0);
+  ksi.Assemble(K_init->mm, 3, 3, 1.0);
+  ksi.Assemble(K_init->mw, 3, 6, 1.0);
+  ksi.Assemble(K_init->mv, 3, 9, 1.0);
+  ksi.Assemble(K_init->ww, 6, 6, 1.0);
+  ksi.Assemble(K_init->vv, 9, 9, 1.0);
+
+  ksi.AssembleTranspose(K_init->nw, 6, 0, 1.0);
+  ksi.AssembleTranspose(K_init->nv, 9, 0, 1.0);
+  ksi.AssembleTranspose(K_init->mn, 0, 3, 1.0);
+  ksi.AssembleTranspose(K_init->mw, 6, 3, 1.0);
+  ksi.AssembleTranspose(K_init->mv, 9, 3, 1.0);
   return ksi;
 }
 
 const Matrix&
 FrameSolidSection3d::getSectionTangent()
 {
-  ks->Zero();
-  ks->Assemble(Knn, 0, 0, 1.0);
-  ks->Assemble(Knw, 0, 6, 1.0);
-  ks->Assemble(Knv, 0, 9, 1.0);
-  ks->Assemble(Kmn, 3, 0, 1.0);
-  ks->Assemble(Kmm, 3, 3, 1.0);
-  ks->Assemble(Kmw, 3, 6, 1.0);
-  ks->Assemble(Kmv, 3, 9, 1.0);
-  ks->Assemble(Kww, 6, 6, 1.0);
-  ks->Assemble(Kvv, 9, 9, 1.0);
+#ifndef SEES_SECTION_THREADS
+  static Matrix K_wrap(nsr, nsr);
+#endif
+  K_wrap.Zero();
+  K_wrap.Assemble(K_pres.nn, 0, 0, 1.0);
+  K_wrap.Assemble(K_pres.nw, 0, 6, 1.0);
+  K_wrap.Assemble(K_pres.nv, 0, 9, 1.0);
+  K_wrap.Assemble(K_pres.mn, 3, 0, 1.0);
+  K_wrap.Assemble(K_pres.mm, 3, 3, 1.0);
+  K_wrap.Assemble(K_pres.mw, 3, 6, 1.0);
+  K_wrap.Assemble(K_pres.mv, 3, 9, 1.0);
+  K_wrap.Assemble(K_pres.ww, 6, 6, 1.0);
+  K_wrap.Assemble(K_pres.vv, 9, 9, 1.0);
 
-  ks->AssembleTranspose(Knw, 6, 0, 1.0);
-  ks->AssembleTranspose(Knv, 9, 0, 1.0);
-  ks->AssembleTranspose(Kmn, 0, 3, 1.0);
-  ks->AssembleTranspose(Kmw, 6, 3, 1.0);
-  ks->AssembleTranspose(Kmv, 9, 3, 1.0);
-  return *ks;
+  K_wrap.AssembleTranspose(K_pres.nw, 6, 0, 1.0);
+  K_wrap.AssembleTranspose(K_pres.nv, 9, 0, 1.0);
+  K_wrap.AssembleTranspose(K_pres.mn, 0, 3, 1.0);
+  K_wrap.AssembleTranspose(K_pres.mw, 6, 3, 1.0);
+  K_wrap.AssembleTranspose(K_pres.mv, 9, 3, 1.0);
+  return K_wrap;
 }
 
 const Vector&
 FrameSolidSection3d::getStressResultant()
 {
-  return *s;
+  return s_wrap;
 }
 
 FrameSection*
 FrameSolidSection3d::getFrameCopy()
 {
-  FrameSolidSection3d *theCopy = new FrameSolidSection3d ();
+  FrameSolidSection3d *theCopy = new FrameSolidSection3d();
   theCopy->setTag(this->getTag());
 
 
   for (auto& material: materials)
-    theCopy->materials.push_back(material->getCopy()); // "BeamFiber"
+    theCopy->materials.push_back(material->getCopy("BeamFiber"));
 
   theCopy->fibers = fibers;
   theCopy->e = e;
-  theCopy->QzBar = QzBar;
-  theCopy->QyBar = QyBar;
-  theCopy->Abar = Abar;
-  theCopy->yBar = yBar;
-  theCopy->zBar = zBar;
-  theCopy->computeCentroid = computeCentroid;
-  theCopy->alpha = alpha;
   theCopy->parameterID = parameterID;
+  theCopy->K_init = K_init;
 
   return theCopy;
 }
@@ -421,10 +448,10 @@ FrameSolidSection3d::revertToLastCommit()
   for (auto& material : materials)
     err += material->revertToLastCommit();
 
-
-  ks->Zero();
-  s->Zero();
-  err += this->stateDetermination(*ks, s, nullptr, CurrentTangent);
+  // TODO: we may need to recompute e to be perfectly consistent
+  // when Wagner is enabled.
+  s.zero();
+  err += this->stateDetermination(K_pres, &s, nullptr, CurrentTangent);
 
   return err;
 }
@@ -436,9 +463,8 @@ FrameSolidSection3d::revertToStart()
   for (auto& material: materials)
     err += material->revertToStart();
 
-  ks->Zero();
-  s->Zero();
-  err += stateDetermination(*ks, s, nullptr, CurrentTangent);
+  s.zero();
+  err += this->stateDetermination(K_pres, &s, nullptr, CurrentTangent);
 
   return err;
 }
@@ -446,14 +472,14 @@ FrameSolidSection3d::revertToStart()
 int
 FrameSolidSection3d::sendSelf(int commitTag, Channel &theChannel)
 {
-  return 0;
+  return -1;
 }
 
 int
 FrameSolidSection3d::recvSelf(int , Channel &,
                               FEM_ObjectBroker &)
 {
-  return 0;
+  return -1;
 }
 
 void
@@ -462,7 +488,7 @@ FrameSolidSection3d::Print(OPS_Stream &s, int flag)
   const int nf = fibers->size();
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << OPS_PRINT_JSON_MATE_INDENT << "{";
-    s << "\"name\": \"" << this->getTag() << "\", ";
+    s << "\"name\": " << this->getTag() << ", ";
     s << "\"type\": \"" << this->getClassType() << "\", ";
 
     double mass;
@@ -620,9 +646,6 @@ FrameSolidSection3d::setParameter(const char **argv, int argc, Parameter &param)
 
   int result = -1;
 
-  if (strcmp(argv[0],"alpha") == 0)
-    return param.addObject(Param::alpha, this);
-
 
   if (strcmp(argv[0], "warp") == 0) {
     // ... warp $fiberID $warpField
@@ -642,7 +665,7 @@ FrameSolidSection3d::setParameter(const char **argv, int argc, Parameter &param)
   }
 
   // Check if the parameter belongs to the material (only option for now)
-  if (strstr(argv[0],"material") != 0) {
+  if (strstr(argv[0], "material") != 0) {
     
     if (argc < 3)
       return 0;
@@ -672,10 +695,6 @@ FrameSolidSection3d::setParameter(const char **argv, int argc, Parameter &param)
 int
 FrameSolidSection3d::updateParameter(int paramID, Information &info)
 {
-  if (paramID == Param::alpha){
-    alpha = info.theDouble;
-    return 0;
-  }
 
   if (paramID >= Param::FiberFieldBase) {
     int fiberID = (paramID - Param::FiberFieldBase) / 100;
@@ -764,25 +783,10 @@ FrameSolidSection3d::getStressResultantSensitivity(int gradIndex, bool condition
   static double dzdh[10000];
   static double areaDeriv[10000];
   const int nf = fibers->size();
-  {
-    for (int i = 0; i < nf; i++) {
-      dydh[i] = 0.0;
-      dzdh[i] = 0.0;
-      areaDeriv[i] = 0.0;
-    }
-  }
-  
-  double rootAlpha = 1.0;
-  if (alpha != 1.0)
-    rootAlpha = sqrt(alpha);
-
-  double drootAlphadh = 0.0;
-  if (parameterID == 1)
-    drootAlphadh = 0.5/rootAlpha;
 
   for (int i = 0; i < nf; i++) {
-    const double y = (*fibers)[i].r[1] - yBar;
-    const double z = (*fibers)[i].r[2] - zBar;
+    const double y = (*fibers)[i].r[1]; // - yBar;
+    const double z = (*fibers)[i].r[2]; // - zBar;
     const double A = (*fibers)[i].area;
     
     dsigdh = materials[i]->getStressSensitivity(gradIndex,true);
@@ -790,8 +794,8 @@ FrameSolidSection3d::getStressResultantSensitivity(int gradIndex, bool condition
     ds[0] += dsigdh(0)*A;
     ds[1] += -y*dsigdh(0)*A;
     ds[2] +=  z*dsigdh(0)*A;
-    ds[3] += rootAlpha*dsigdh(1)*A;
-    ds[4] += rootAlpha*dsigdh(2)*A;
+    ds[3] +=  dsigdh(1)*A;
+    ds[4] +=  dsigdh(2)*A;
     ds[5] += (-z*dsigdh(1)+y*dsigdh(2))*A;
 
     if (areaDeriv[i] != 0.0 || dydh[i] != 0.0 ||  dzdh[i] != 0.0 || parameterID == 1)
@@ -808,8 +812,8 @@ FrameSolidSection3d::getStressResultantSensitivity(int gradIndex, bool condition
       ds[0] += sig_dAdh(0);
       ds[1] += -y*sig_dAdh(0);
       ds[2] +=  z*sig_dAdh(0);
-      ds[3] += rootAlpha*sig_dAdh(1);
-      ds[4] += rootAlpha*sig_dAdh(2);
+      ds[3] +=    sig_dAdh(1);
+      ds[4] +=    sig_dAdh(2);
       ds[5] += -z*sig_dAdh(1)+y*sig_dAdh(2);
     }
 
@@ -824,28 +828,28 @@ FrameSolidSection3d::getStressResultantSensitivity(int gradIndex, bool condition
     }
 
     if (parameterID == 1) {
-      ds[3] += drootAlphadh * (stress(1)*A);
-      ds[4] += drootAlphadh * (stress(2)*A);
+      ds[3] += (stress(1)*A);
+      ds[4] += (stress(2)*A);
     }
 
     MatrixND<3,6> as;
     as(0,0) =  1;
+    as(1,3) =  1;
+    as(2,4) =  1;
     as(0,1) = -y;
     as(0,2) =  z;
-    as(1,3) = rootAlpha;
-    as(2,4) = rootAlpha;
     as(1,5) = -z;
     as(2,5) =  y;
     
-    static Matrix dasdh(3,6);
+    static Matrix dasdh(3,nsr);
     dasdh(0,1) = -dydh[i];
     dasdh(0,2) = dzdh[i];
-    dasdh(1,3) = drootAlphadh;
-    dasdh(2,4) = drootAlphadh;
+    dasdh(1,3) = 0;
+    dasdh(2,4) = 0;
     dasdh(1,5) = -dzdh[i];
     dasdh(2,5) = dydh[i];
     
-    static Matrix tmpMatrix(6,6);
+    static Matrix tmpMatrix(nsr,nsr);
     tmpMatrix.addMatrixTripleProduct(0.0, as, tangent, dasdh, 1.0);
     
     ds.addMatrixVector(1.0, tmpMatrix, e, A);
@@ -889,23 +893,16 @@ FrameSolidSection3d::commitSensitivity(const Vector& defSens,
 
   static Vector depsdh(3);
 
-  double rootAlpha = 1.0;
-  if (alpha != 1.0)
-    rootAlpha = sqrt(alpha);
-
-  double drootAlphadh = 0.0;
-  if (parameterID == 1)
-    drootAlphadh = 0.5/rootAlpha;
 
   for (int i = 0; i < nf; i++) {
     auto& fiber = (*fibers)[i];
-    const double y  = fiber.r[1] - yBar;
-    const double z  = fiber.r[2] - zBar;
+    const double y  = fiber.r[1]; // - yBar;
+    const double z  = fiber.r[2]; // - zBar;
 
     // determine material strain sensitivity
     depsdh[0] = d0 - y*d1 + z*d2 - dydh[i]*e(1) + dzdh[i]*e(2);
-    depsdh[1] = rootAlpha*d3 - z*d5 + drootAlphadh*e(3) - dzdh[i]*e(5);
-    depsdh[2] = rootAlpha*d4 + y*d5 + drootAlphadh*e(4) + dydh[i]*e(5);
+    depsdh[1] = d3 - z*d5 + e(3) - dzdh[i]*e(5);
+    depsdh[2] = d4 + y*d5 + e(4) + dydh[i]*e(5);
 
     materials[i]->commitSensitivity(depsdh,gradIndex,numGrads);
   }

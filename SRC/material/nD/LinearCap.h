@@ -45,6 +45,10 @@ class LinearCap : public NDMaterial {
       const Matrix &getTangent(void);
       const Matrix &getInitialTangent(void) ;
 
+      const char *getClassType(void) const {
+        return "LinearCap";
+      }
+
       const Vector &getStress(void);
       const Vector &getStrain(void);
 

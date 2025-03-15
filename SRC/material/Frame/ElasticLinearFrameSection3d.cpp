@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-using OpenSees::MatrixND;
+using namespace OpenSees;
 
 constexpr int SEC_TAG_ElasticLinearFrame3d = 0;
 
@@ -59,8 +59,6 @@ ElasticLinearFrameSection3d::ElasticLinearFrameSection3d(int tag,
     // n-m
     double Qz,     //  int y = A*zs
     double Qy,     //  int z
-    double Qzx,    //  int Phi y
-    double Qyx,    //  int Phi z
     // n-w
     double Rw,
     double Ry,
@@ -80,38 +78,37 @@ ElasticLinearFrameSection3d::ElasticLinearFrameSection3d(int tag,
   Ks(new MatrixND<nr,nr> {})
 {
   // TODO: remove
-  double yc = 0; // Centroid location
-  double zc = 0;
-  double zs = 0;
-  centroid = {yc, zc};
+  // double yc = 0; // Centroid location
+  // double zc = 0;
+  // double zs = 0;
+  centroid = {Qz/A, Qy/A};
 
   // Polar moment of inertia
   const double I0   = Iy + Iz;
 
   // Centroidal moments of inertia
-  const double Ic33 =  Iy  - A*zc*zc;
-  const double Ic22 =  Iz  - A*yc*yc;
-  const double Icyz =  Iyz - A*yc*zc;
+  // const double Ic33 =  Iy  - A*zc*zc;
+  // const double Ic22 =  Iz  - A*yc*yc;
+  // const double Icyz =  Iyz - A*yc*zc;
 
-  const double Qw3  = -Ic33*yc + Icyz*zc;
-  const double Qw2  =  Ic22*zc - Icyz*yc;
+  // const double Qw3  = -Ic33*yc + Icyz*zc;
+  // const double Qw2  =  Ic22*zc - Icyz*yc;
 
   *Ks = {
     //                        |                        |              |
-    {{  E*A,      0.,     0.,      0.,   E*Qy,   E*Qz,   E*Rw  ,    0.},
-     {    0.,   G*Ay,     0.,   G*Qyx,     0.,     0.,     0.  ,  G*Qy},
-     {    0.,     0.,   G*Az,   G*Qzx,     0.,     0.,     0.  , -G*Qz},
+    {{  E*A,      0.,     0.,      0.,   E*Qy,  -E*Qz,   E*Rw  ,    0.},
+     {    0.,   G*Ay,     0.,   -G*Qy,     0.,     0.,     0.  ,  G*Ry},
+     {    0.,     0.,   G*Az,    G*Qz,     0.,     0.,     0.  ,  G*Rz},
     //                        |                        |              |
-     {    0.,  G*Qyx,  G*Qzx,    G*I0,     0.,     0.,     0.  ,  G*Sa},
-     {  E*Qy,     0.,     0.,      0.,  E*Iy , -E*Iyz,    E*Qw3,    0.},
-     {  E*Qz,     0.,     0.,      0., -E*Iyz,  E*Iz ,   -E*Qw2,    0.},
+     {    0.,  -G*Qy,   G*Qz,    G*I0,     0.,     0.,     0.  ,  G*Sa},
+     {  E*Qy,     0.,     0.,      0.,  E*Iy , -E*Iyz,     E*Sy,    0.},
+     { -E*Qz,     0.,     0.,      0., -E*Iyz,  E*Iz ,    -E*Sz,    0.},
     //                        |                        |              |
-     {  E*Rw,     0.,     0.,      0.,  E*Qw3, -E*Qw2,    E*Cw ,    0.},
-     {    0.,   G*Qy,  -G*Qz,    G*Sa,     0.,     0.,     0.  ,  G*Ca}}
+     {  E*Rw,     0.,     0.,      0.,   E*Sy,  -E*Sz,    E*Cw ,    0.},
+     {    0.,   G*Ry,   G*Rz,    G*Sa,     0.,     0.,     0.  ,  G*Ca}}
   };
     //                        |                        |                |
     //    0       1       2   |    3       4       5   |      6     7   |
-
 }
 
 void
@@ -213,6 +210,7 @@ ElasticLinearFrameSection3d::getFrameCopy(const FrameStressLayout& layout)
 
   // Revoke any pointers that are owned by this instance
   theCopy->Ksen = nullptr;
+  return theCopy;
 
   int ni=0;
   bool ind[nr]{};
@@ -234,7 +232,7 @@ ElasticLinearFrameSection3d::getFrameCopy(const FrameStressLayout& layout)
   // Count number of independent variables
   for (int i=0; i<nr; i++)
     if (Kc(i,i) != 0.0) {
-      // dont include twist term if its being condensed
+      // // dont include twist term if its being condensed
       if (i == 7 && uniform_twist)
         continue;
       ind[i] = true;
@@ -328,7 +326,7 @@ ElasticLinearFrameSection3d::setTrialSectionDeformation(const Vector &def)
 
 
 const Vector &
-ElasticLinearFrameSection3d::getSectionDeformation() // needed ?
+ElasticLinearFrameSection3d::getSectionDeformation() // TODO: needed ?
 {
   v.setData(e);
   return v;
@@ -338,17 +336,20 @@ ElasticLinearFrameSection3d::getSectionDeformation() // needed ?
 const Vector &
 ElasticLinearFrameSection3d::getStressResultant()
 {
+  #ifdef THREAD_SAFE 
+  #else 
+  static VectorND<nr> s;
+  static Vector s_wrap(s);
+  #endif
   s = (*Ks)*e;
-  v.setData(s);
-  return v;
+  return s_wrap;
 }
 
 
 const Matrix &
 ElasticLinearFrameSection3d::getSectionTangent()
 {
-  M.setData(*Ks);
-  return M;
+  return getInitialTangent();
 }
 
 
@@ -363,15 +364,7 @@ ElasticLinearFrameSection3d::getInitialTangent()
 const Matrix &
 ElasticLinearFrameSection3d::getSectionFlexibility()
 {
-  if (Fs == nullptr) {
-    // This only happens when getCopy is called without
-    // the layout  argument
-    Fs = new Matrix(nr,nr);
-    Matrix Kwrap(*Ks);
-    Kwrap.Invert(*Fs);
-  }
-
-  return *Fs;
+    return getInitialFlexibility();
 }
 
 
@@ -379,10 +372,12 @@ const Matrix &
 ElasticLinearFrameSection3d::getInitialFlexibility()
 {
   if (Fs == nullptr) {
+    // This only happens when getCopy is called without
+    // the layout  argument
     Fs = new Matrix(nr,nr);
+    Matrix Kwrap(*Ks);
+    Kwrap.Invert(*Fs);
   }
-  Matrix Kwrap(*Ks);
-  Kwrap.Invert(*Fs);
 
   return *Fs;
 }
@@ -476,7 +471,7 @@ ElasticLinearFrameSection3d::Print(OPS_Stream &s, int flag)
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
     s << OPS_PRINT_JSON_MATE_INDENT << "{";
-    s << "\"name\": \"" << this->getTag() << "\", ";
+    s << "\"name\": " << this->getTag() << ", ";
     s << "\"type\": \"ElasticLinearFrameSection3d\", ";
     s << "\"E\": "   << E  << ", ";
     s << "\"G\": "   << G  << ", ";

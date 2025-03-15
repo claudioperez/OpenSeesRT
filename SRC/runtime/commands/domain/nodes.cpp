@@ -19,6 +19,7 @@
 #include <ID.h>
 #include <Vector.h>
 #include <Matrix.h>
+#include <Versor.h>
 #include <Domain.h>
 #include <DOF_Group.h>
 #include <Node.h>
@@ -641,6 +642,40 @@ nodeUnbalance(ClientData clientData, Tcl_Interp *interp, int argc,
 }
 
 int
+nodeRotation(ClientData clientData, Tcl_Interp *interp, int argc,
+             TCL_Char ** const argv)
+{
+  assert(clientData != nullptr);
+  Domain *the_domain = (Domain*)clientData;
+
+  if (argc < 2) {
+    opserr << "WARNING want - nodeRotation tag\n";
+    return TCL_ERROR;
+  }
+
+  int tag;
+  if (Tcl_GetInt(interp, argv[1], &tag) != TCL_OK) {
+    opserr << "WARNING could not read nodeTag? \n";
+    return TCL_ERROR;
+  }
+
+  // TODO: This may need some adjusting for PartitionedDomains and parallel
+  Node *theNode = the_domain->getNode(tag);
+  if (theNode == nullptr)
+    return TCL_ERROR;
+
+  Versor rotation = theNode->getTrialRotation();
+
+  Tcl_Obj* list = Tcl_NewListObj(4, nullptr);
+  for (int i = 0; i < 4; ++i)
+      Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(rotation[i]));
+
+  Tcl_SetObjResult(interp, list);
+
+  return TCL_OK;
+}
+
+int
 nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
              TCL_Char ** const argv)
 {
@@ -663,17 +698,34 @@ nodeResponse(ClientData clientData, Tcl_Interp *interp, int argc,
     return TCL_ERROR;
   }
   if (Tcl_GetInt(interp, argv[3], &responseID) != TCL_OK) {
-    opserr << "WARNING nodeResponse nodeTag? dof? responseID? - could not read "
-              "responseID? \n";
-    return TCL_ERROR;
+    if (strcmp(argv[3], "displacement") == 0)
+      responseID = (int)NodeData::Disp;
+    else if (strcmp(argv[3], "velocity") == 0)
+      responseID = (int)NodeData::Vel;
+    else if (strcmp(argv[3], "acceleration") == 0)
+      responseID = (int)NodeData::Accel;
+    else if (strcmp(argv[3], "resiudal") == 0)
+      responseID = (int)NodeData::UnbalancedLoad;
+    else
+      opserr << "WARNING unknown response " << argv[3] << "\n";
+      return TCL_ERROR;
   }
 
   dof--;
 
-  const Vector *nodalResponse =
-      the_domain->getNodeResponse(tag, (NodeData)responseID);
+  const Vector *nodalResponse = nullptr;
+  if (false) {
+    // This would need some adjusting for PartitionedDomain
+    Node *theNode = the_domain->getNode(tag);
+    if (theNode == nullptr)
+      return TCL_ERROR;
 
-  if (nodalResponse == 0 || nodalResponse->Size() < dof || dof < 0)
+    nodalResponse = theNode->getResponse((NodeData)responseID);
+  } else
+    nodalResponse =
+        the_domain->getNodeResponse(tag, (NodeData)responseID);
+
+  if (nodalResponse == nullptr || nodalResponse->Size() < dof || dof < 0)
     // TODO: add error message
     return TCL_ERROR;
 

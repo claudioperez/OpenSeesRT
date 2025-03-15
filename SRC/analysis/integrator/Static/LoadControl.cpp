@@ -103,11 +103,8 @@ LoadControl::update(const Vector &deltaU)
 {
     AnalysisModel *myModel = this->getAnalysisModel();
     LinearSOE *theSOE = this->getLinearSOE();
-    if (myModel == nullptr || theSOE == nullptr) {
-      opserr << "WARNING LoadControl::update() ";
-      opserr << "No AnalysisModel or LinearSOE has been set\n";
-      return -1;
-    }
+    if (myModel == nullptr || theSOE == nullptr)
+      return -10;
 
     myModel->incrDisp(deltaU);
     if (myModel->updateDomain() < 0) {

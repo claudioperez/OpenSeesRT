@@ -430,12 +430,7 @@ G3_newBFGS(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
   assert(clientData != nullptr);
   BasicAnalysisBuilder *builder = (BasicAnalysisBuilder *)clientData;
 
-  ConvergenceTest *theTest = builder->getConvergenceTest();
-
-  if (theTest == nullptr) {
-    opserr << G3_ERROR_PROMPT << "No ConvergenceTest yet specified\n";
-    return nullptr;
-  }
+  // ConvergenceTest *theTest = builder->getConvergenceTest();
 
 
   int formTangent = CURRENT_TANGENT;
@@ -452,9 +447,9 @@ G3_newBFGS(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Char ** cons
 
   EquiSolnAlgo *theNewAlgo = nullptr;
   if (count == -1)
-    theNewAlgo = new BFGS(*theTest, formTangent);
+    theNewAlgo = new BFGS(formTangent, 10);
   else
-    theNewAlgo = new BFGS(*theTest, formTangent, count);
+    theNewAlgo = new BFGS(formTangent, count);
 
   return theNewAlgo;
 }

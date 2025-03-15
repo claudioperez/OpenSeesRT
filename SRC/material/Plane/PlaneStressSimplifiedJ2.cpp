@@ -1,7 +1,7 @@
 // Written: Quan Gu and Zhijian Qiu
 // Created: 2013.7
 //
-// Reference:JP Conte, MK. Jagannath, Seismic relibility analysis of concrete 
+// Reference: JP Conte, MK. Jagannath, Seismic relibility analysis of concrete 
 // gravity dams, A Report on Research, Rice University, 1995. 
 //           EA de Souza Neto, D Peri´c, DRJ Owen, Computational methods for 
 // plasticity, Theory and applications (see pages 357 to 366), 2008.
@@ -440,7 +440,14 @@ int PlaneStressSimplifiedJ2::getResponse (int responseID, Information &matInfo){
 };
 
 void PlaneStressSimplifiedJ2::Print(OPS_Stream &s, int flag){
-	// -- to be implemented.
+	if (flag == OPS_PRINT_PRINTMODEL_JSON) {
+		s << TaggedObject::JsonPropertyIndent;
+		s << "{";
+		s << "\"name\": \"" << this->getTag() << "\", ";
+		s << "\"type\": \"PlaneStressSimplifiedJ2\", ";
+		s << "}";
+		return;
+	}
 	return;
 };
 

@@ -130,7 +130,7 @@ printDomain(OPS_Stream &s, BasicModelBuilder* builder, int flag)
 
   Domain* theDomain = builder->getDomain();
 
-  const char* tab = "    ";
+  const char* tab = "  ";
   // TODO: maybe add a method called countRegistry<>
   // to BasicModelBuilder
 

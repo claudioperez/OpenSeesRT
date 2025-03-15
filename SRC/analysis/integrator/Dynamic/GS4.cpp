@@ -439,7 +439,7 @@ GS4::formNodTangent(DOF_Group *theDof)
 {
   if (determiningMass == true)
       return 0;
-  
+
   theDof->zeroTangent();
   theDof->addCtoTang(alphaF*cv);
   theDof->addMtoTang(alphaM*ca);
