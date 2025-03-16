@@ -283,6 +283,17 @@ struct MatrixND {
        }
     }
   }
+
+  template <int nr> inline void
+  assemble(const VectorND<nr> &v, int init_row, int init_col, double fact) 
+  {
+ 
+    [[maybe_unused]] int final_row = init_row + nr - 1;
+    assert((init_row >= 0) && (final_row < NR));
+
+    for (int j=0; j<nr; j++)
+       (*this)(init_row+j, init_col) += v(j)*fact;
+  }
   
   template<int nr, int nc> void
   assembleTranspose(const MatrixND<nr, nc, double> &M, int init_row, int init_col, double fact) 
@@ -300,6 +311,18 @@ struct MatrixND {
           (*this)(pos_Rows,pos_Cols) += M(i,j)*fact;
        }
     }
+  }
+
+  template<int nr> void
+  assembleTranspose(const VectorND<nr> &v, int init_row, int init_col, double scale)
+  { 
+    {
+      [[maybe_unused]] int final_col = init_col + nr - 1; 
+      assert((init_row >= 0) && (final_row < NR) && (init_col >= 0) && (final_col < NC));
+    }
+
+    for (int i=0; i<nr; i++)
+      (*this)(init_row, init_col+i) += v(i)*scale;
   }
 
 
