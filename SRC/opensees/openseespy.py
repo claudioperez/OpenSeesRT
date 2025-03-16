@@ -27,9 +27,6 @@ from .tcl import Interpreter, _lift
 successful = 0
 
 
-class OpenSeesError(Exception):
-    pass
-
 def _split_iter(source, sep=None, regex=False):
     """
     generator version of str.split()
@@ -162,13 +159,7 @@ class OpenSeesPy:
         if _final is not None:
             cmd += _as_str_arg(_final)
 
-        # TODO: make sure errors print nicely
-        try:
-            ret = self.eval(cmd)
-        except Exception as e:
-            import sys
-            sys.stderr.flush()
-            raise OpenSeesError(str(e)) from e
+        ret = self.eval(cmd)
 
         if ret is None or ret == "":
             return None

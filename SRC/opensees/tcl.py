@@ -23,14 +23,14 @@ except:
 
 from opensees.library.obj import Component
 
-def custom_error_handler(type, value, traceback):
-    raise TclError(f"OpenSees Error: {value}")
 
-tkinter.Tk.report_callback_exception = custom_error_handler
-
-class TclError(Exception):
+class InterpreterError(Exception):
     pass
 
+def custom_error_handler(type, value, traceback):
+    raise InterpreterError(f"OpenSees Error: {value}")
+
+tkinter.Tk.report_callback_exception = custom_error_handler
 
 def exec(script: str, silent=False, analysis=True)->dict:
     """
@@ -166,9 +166,7 @@ class Interpreter:
 
         except tkinter._tkinter.TclError as e:
             err = self._tcl.getvar("errorInfo")
-            print(err)
-            print(e)
-            raise TclError(self._tcl.getvar("errorInfo"))
+            raise InterpreterError(err) from None
 
     def serialize(self)->dict:
         import tempfile, pathlib
