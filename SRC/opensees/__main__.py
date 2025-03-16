@@ -186,7 +186,7 @@ def main():
         try:
             code = tcl.eval(script)
 
-        except opensees.tcl.TclError as e:
+        except opensees.tcl.InterpreterError as e:
             print(e, file=sys.stderr)
             if not opts["interact"]:
                 sys.exit(-1)
