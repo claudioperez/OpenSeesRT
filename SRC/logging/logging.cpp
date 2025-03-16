@@ -84,6 +84,7 @@ int G3_SetStreamColor(G3_Runtime* rt, int strm, int flag)
     G3_ERROR_PROMPT                 = OpenSees::Internal::ErrorPromptColor;
     G3_DEBUG_PROMPT                 = OpenSees::Internal::DebugPromptColor;
     OpenSees::PromptParseError      = OpenSees::Internal::ErrorPromptColor;
+    OpenSees::PromptValueError      = OpenSees::Internal::ErrorPromptColor;
     OpenSees::PromptAnalysisFailure = OpenSees::Internal::AnalysisFailureColor;
     OpenSees::PromptAnalysisSuccess = OpenSees::Internal::AnalysisSuccessColor;
     OpenSees::PromptAnalysisIterate = OpenSees::Internal::AnalysisIterateColor;
