@@ -167,13 +167,12 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////
     if (argc == 6) {
       theMaterial = new PressureDependentElastic3D(tag, E, v, rho);
       // opserr << "nDMaterial PressureDependentElastic3D: expp =" << expp <<
       // "\n";
     }
-    //////////////////////////////////////////////////////////////////////////////////
+
     else if (argc == 7) {
       // get the exponent of the pressure sensitive elastic material)
       if (Tcl_GetDouble(interp, argv[6], &expp) != TCL_OK) {
@@ -185,7 +184,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       // opserr << "nDMaterial PressureDependentElastic3D: expp =" << expp <<
       // "\n";
     }
-    //////////////////////////////////////////////////////////////////////////////////
+
     else if (argc == 8) {
       // get the exponent pressure of the pressure sensitive elastic material)
       if (Tcl_GetDouble(interp, argv[6], &expp) != TCL_OK) {
@@ -202,7 +201,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
       // opserr << "nDMaterial ElasticIsotropic3D: prp =" << prp << "\n";
       theMaterial = new PressureDependentElastic3D(tag, E, v, rho, expp, prp);
     }
-    //////////////////////////////////////////////////////////////////////////////////
+
     else if (argc >= 9) {
       // get the exponent of the pressure sensitive elastic material)
       if (Tcl_GetDouble(interp, argv[6], &expp) != TCL_OK) {
@@ -222,8 +221,6 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
         opserr << "nDMaterial PressureDependentElastic3D: pop" << tag << "\n";
         return TCL_ERROR;
       }
-      // opserr << "nDMaterial PressureDependentElastic3D: pop =" << pop <<
-      // "\n";
       theMaterial =
           new PressureDependentElastic3D(tag, E, v, rho, expp, prp, pop);
     }
@@ -245,14 +242,7 @@ TclCommand_addNDMaterial(ClientData clientData, Tcl_Interp *interp,
   /////////////////////////////////////////////////////////////////
   /*
      nDmaterial PlaneStressJ2  $matTag  $G  $K  $sig0  $H_kin  $H_iso
-
-
-       PlaneStress (int tag,
-                                   int nd,
-                                   NDMaterial &the3DMaterial);
-
   */
-
   else if ((strcmp(argv[1], "PlaneStressSimplifiedJ2") == 0)) {
     if (argc < 8) {
       opserr << "WARNING insufficient arguments\n";
