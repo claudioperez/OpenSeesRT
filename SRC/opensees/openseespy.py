@@ -298,7 +298,7 @@ class OpenSeesPy:
 
         if load is not None:
             loads = [
-                    ("load", k, *v) for k,v in load.items()
+                    ("load", k, *v, ";\n") for k,v in load.items()
             ]
             return self._invoke_proc("pattern", *args, **kwds, _final=loads)
         else:
