@@ -41,7 +41,9 @@ public:
 //  ~FiniteElement();
 
     // For Element
-    virtual const ID& getExternalNodes() final {return connectedExternalNodes;}
+    virtual const ID& getExternalNodes() final {
+      return connectedExternalNodes;
+    }
     virtual Node **getNodePtrs() final {return theNodes.data();}
     virtual int  getNumExternalNodes() const final {return nen;}
     virtual int  getNumDOF() final {return nen*ndf;}
@@ -122,6 +124,8 @@ protected:
     const VectorND<ndm>& getNodeVelocity(int tag);
     const VectorND<ndm>& getNodeLocation(int tag, State state);
 #endif
+
+// TODO: Rename setNodes to setReference
     virtual                       int setNodes() = 0;
 
     // Supplied for children
