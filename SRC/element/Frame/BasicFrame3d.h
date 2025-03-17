@@ -14,6 +14,7 @@
 #include <MatrixND.h>
 #include <Vector.h>
 #include <VectorND.h>
+#include <FrameLoad.h>
 #include <ElementalLoad.h>
 #include <vector>
 #include <utility>
@@ -29,8 +30,8 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
                  FrameTransform3d& tran)
       : FiniteElement<2, 3, 6> (tag, clstag, nodes), 
         theCoordTransf(tran.getCopy()),
-        p_iner(12),
         wx(0.0), wy(0.0), wz(0.0),
+        p_iner(12),
         // numEleLoads(0), // sizeEleLoads(0), eleLoads(0), eleLoadFactors(0),
         parameterID(0)
     {
@@ -82,7 +83,7 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
     virtual const Vector &getResistingForce();
 #endif
 
-    virtual void  zeroLoad() final;
+    virtual void  zeroLoad();
     virtual int   addLoad(ElementalLoad *theLoad, double loadFactor) final;
 
     virtual int   addInertiaLoadToUnbalance(const Vector &accel) final;
@@ -98,6 +99,12 @@ class BasicFrame3d : public FiniteElement<2, 3, 6> {
 
 protected:
 
+    // Loads
+    double wx, wy, wz;
+    OpenSees::VectorND<6>   q0;  // Fixed end forces in basic system
+    OpenSees::VectorND<6>   p0;  // Reactions in basic system
+                                 // TODO(cmp): change to size 12
+
   // Implemented by children
   virtual VectorND<6>&   getBasicForce() = 0;
   virtual MatrixND<6,6>& getBasicTangent(State state, int rate) = 0;
@@ -112,21 +119,11 @@ protected:
 
 // to be made private
    FrameTransform3d* theCoordTransf;
-   OpenSees::VectorND<6>   q0;  // Fixed end forces in basic system
-   OpenSees::VectorND<6>   p0;  // Reactions in basic system
-                                // { 
-                                // TODO(cmp): change to size 12
-   static Matrix K;
-   static Vector P;
-
 
    int parameterID;
 
-   double wx;
-   double wy;
-   double wz;
-
    std::vector<std::pair<ElementalLoad*,double>> eleLoads;
+   std::vector<FrameLoad*> frame_loads;
 
 
    Vector p_iner;
@@ -142,5 +139,7 @@ protected:
     int releasez; // moment release for bending about z-axis 0=none, 1=I, 2=J, 3=I,J
     int releasey; // same for y-axis
 
+    // Matrix K;
+    // Vector P;
 };
 
