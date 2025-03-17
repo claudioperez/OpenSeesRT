@@ -55,9 +55,6 @@ Information::Information(const ID &val)
 {
   // Make a copy
   theID = new ID(val);
-
-  if (theID == 0)
-    opserr << "Information::Information -- failed to allocate\n";
 }
 
 Information::Information(const Vector &val) 
@@ -66,9 +63,6 @@ Information::Information(const Vector &val)
 {
   // Make a copy
   theVector = new Vector(val);
-  
-  if (theVector == 0)
-    opserr << "Information::Information -- failed to allocate Vector\n";
 }
 
 Information::Information(const Matrix &val) 
@@ -89,9 +83,6 @@ Information::Information(const ID &val1, const Vector &val2)
   // Make a copy
   theID = new ID(val1);
   theVector = new Vector(val2);
-
-  if (theID == 0)
-    opserr << "Information::Information -- failed to allocate\n";
 }
 
 
@@ -112,7 +103,6 @@ int
 Information::setInt(int newInt)
 {
   theInt = newInt;
-  
   return 0;
 }
 
@@ -120,7 +110,6 @@ int
 Information::setDouble(double newDouble)
 {
   theDouble = newDouble;
-  
   return 0;
 }
 
