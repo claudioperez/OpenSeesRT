@@ -939,6 +939,7 @@ EulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
           theResponse =  points[sectionNum-1].material->setResponse(&argv[2], argc-2, output);
           
           output.endTag();
+
         } else if (sectionNum == 0) { 
           // argv[1] was not an int, we want all sections, 
         
@@ -949,7 +950,7 @@ EulerFrame3d::setResponse(const char **argv, int argc, OPS_Stream &output)
             
             output.tag("GaussPointOutput");
             output.attr("number",i+1);
-            output.attr("eta",xi[i]*L);
+            output.attr("eta", xi[i]*L);
             
             Response *theSectionResponse = points[i].material->setResponse(&argv[1], argc-1, output);
             
