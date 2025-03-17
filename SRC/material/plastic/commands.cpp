@@ -2,17 +2,21 @@
 #include <tcl.h>
 #include <string.h>
 #include <Logging.h>
+#include <Parsing.h>
+#include <isotropy.h>
 #include <BasicModelBuilder.h>
 // #include <PlasticMaterial.h>
 
 #include <J2Plasticity.h>
 #include <MultiaxialCyclicPlasticity.h>
 
+Tcl_CmdProc TclCommand_setIsotropicParameters;
+
 int
-TclCommand_newPlasticMaterial(ClientData clientData,
-                              Tcl_Interp* interp,
-                              int argc,
-                              const char** const argv)
+TclCommand_newJ2Material(ClientData clientData,
+                         Tcl_Interp* interp,
+                         int argc,
+                         const char** const argv)
 {
   BasicModelBuilder* builder = static_cast<BasicModelBuilder*>(clientData);
 
