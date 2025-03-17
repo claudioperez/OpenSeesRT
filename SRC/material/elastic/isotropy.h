@@ -1,6 +1,14 @@
 #ifndef ISOTROPIC_UTILITIES_H
 #define ISOTROPIC_UTILITIES_H
 
+struct IsotropicConstants {
+  double E;      // Young's modulus
+  double G;      // Shear modulus
+  double K;      // Bulk modulus
+  double nu;     // Poisson's ratio
+  double lambda; // Lamé's first parameter
+};
+
 namespace Isotropy {
 
   // A scoped enum with modern names for the isotropic parameters.
@@ -29,12 +37,11 @@ namespace Isotropy {
 //   Example: To compute the shear modulus (G) from a pair of inputs,
 //     flag_out should be set to the value corresponding to Isotropy::Parameter::ShearModulus
 //
-//   New signature:
-//
-int isotropic_parameters(int flag1, double in1,
+int isotropic_convert(int flag1, double in1,
                          int flag2, double in2,
                          int flag_out,
                          double & out);
 
+int isotropic_constants(int flag1, double in1, int flag2, double in2, IsotropicConstants &iso);
 #endif
 
