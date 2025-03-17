@@ -65,7 +65,7 @@ public:
     
     void Print(OPS_Stream &s, int flag = 0);
     
-    // method used to rotate consistent mass matrix
+    // Rotate consistent mass matrix
     const Matrix &getGlobalMatrixFromLocal(const Matrix &local);
 
     // methods used in post-processing only
@@ -88,7 +88,7 @@ private:
     
     double *nodeIOffset, *nodeJOffset;    // rigid joint offsets
 
-    Vector3D xi, xj, vz;
+    Vector3D xi, xj;
     
     Matrix3D R;          // rotation matrix
     double L;            // undeformed element length
