@@ -6,13 +6,10 @@
 //
 #include <Node.h>
 #include <Parameter.h>
+#include <FrameLoad.h>
 #include <element/Frame/BasicFrame3d.h>
 
 using OpenSees::VectorND;
-
-Matrix BasicFrame3d::K(12,12);
-Vector BasicFrame3d::P(12);
-
 
 BasicFrame3d::~BasicFrame3d()
 {
@@ -139,7 +136,7 @@ BasicFrame3d::getTangentStiff()
 
   // Transform basic stiffness to local system
   static MatrixND<12,12> kl;  // Local stiffness
-  static double tmp[12][12];  // Temporary storage
+  static double tmp[6][12];  // Temporary storage
   // First compute kb*T_{bl}
   for (int i = 0; i < 6; i++) {
     tmp[i][ 0] = -kb(i, 0);
@@ -219,13 +216,15 @@ BasicFrame3d::addInertiaLoadToUnbalance(const Vector &accel)
     }
     p_iner.addMatrixVector(1.0, this->getMass(), Raccel, -1.0);
   }
-  
+
   return 0;
 }
 
 const Vector &
 BasicFrame3d::getResistingForceIncInertia()
-{        
+{
+  static VectorND<12> P_{0.0};
+  static Vector P(P_);
   P = this->getResistingForce(); 
   
   // add the damping forces if rayleigh damping
@@ -334,15 +333,15 @@ BasicFrame3d::getMass()
 void 
 BasicFrame3d::zeroLoad()
 {
-  eleLoads.clear();
-
-  p_iner.Zero();
   q0.zero();
   p0.zero();
 
   wx = 0.0;
   wy = 0.0;
   wz = 0.0;
+  // return BasicFrame3d::zeroLoad();
+  p_iner.Zero();
+  eleLoads.clear();
   return;
 }
 
@@ -370,6 +369,13 @@ BasicFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
   const Vector &data = theLoad->getData(type, loadFactor);
   double L = theCoordTransf->getInitialLength();
 
+  // if (type == LOAD_TAG_FrameLoad && loadFactor == 1.0)
+  //   frame_loads.push_back((FrameLoad*)theLoad);
+
+  // else if (type == LOAD_TAG_FrameLoad && loadFactor == 1.0)
+  //     frame_loads.push_back((FrameLoad*)theLoad);
+
+  // else 
   if (type == LOAD_TAG_Beam3dUniformLoad) {
     double wy = data(0)*loadFactor;  // Transverse
     double wz = data(1)*loadFactor;  // Transverse
@@ -377,15 +383,13 @@ BasicFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
 
     this->wx += wx; // NOTE: This is not done in DispBeamColumn; why??
     this->wy += wy;
-    this->wz += wz;    
+    this->wz += wz;
     
+    double P  =     wx*L;
     double Vy = 0.5*wy*L;
-    double Mz = Vy*L/6.0; // wy*L*L/12
     double Vz = 0.5*wz*L;
-    double My = Vz*L/6.0; // wz*L*L/12
-    double P  = wx*L;
 
-    // Reactions in basic system
+    // Reactions in basic system (projections on linear shape functions)
     p0[0] -=  P;
     p0[1] -= Vy;
     p0[2] -= Vy;
@@ -393,37 +397,75 @@ BasicFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
     p0[4] -= Vz;
 
     // Fixed end forces in basic system
+    double Mz = Vy/6.0*L; // wy*L*L/12
+    double My = Vz/6.0*L; // wz*L*L/12
     q0[0] -= 0.5*P;
     if (releasez == 0) {
       q0[1] -= Mz;
       q0[2] += Mz;
     }
-    if (releasez == 1) {
-      q0[2] += wy*L*L/8;
-    }
-    if (releasez == 2) {
-      q0[1] -= wy*L*L/8;
-    }
+    if (releasez == 1)
+      q0[2] += wy/8*L*L;
+      
+    if (releasez == 2)
+      q0[1] -= wy/8*L*L;
     
     if (releasey == 0) {
       q0[3] += My;
       q0[4] -= My;
     }
-    if (releasey == 1) {
-      q0[4] -= wz*L*L/8;
-    }
-    if (releasey == 2) {
-      q0[3] += wz*L*L/8;
-    }
+    if (releasey == 1)
+      q0[4] -= wz/8*L*L;
+
+    if (releasey == 2)
+      q0[3] += wz/8*L*L;
+  }
+
+  else if (type == LOAD_TAG_Beam3dPointLoad) {
+    double Py     = data(0)*loadFactor;
+    double Pz     = data(1)*loadFactor;
+    double N      = data(2)*loadFactor;
+    double aOverL = data(3);
+
+    if (aOverL < 0.0 || aOverL > 1.0)
+      return 0;
+
+    double a = aOverL*L;
+    double b = L-a;
+
+    // Reactions in basic system
+    p0[0] -= N;
+    double V1 = Py*(1.0-a/L);
+    double V2 = Py*a/L;
+    p0[1] -= V1;
+    p0[2] -= V2;
+    p0[3] = Pz*(1.0-a/L); // V1
+    p0[4] = Pz*a/L; // V2
+
+
+    double L2 = 1.0/(L*L);
+    double a2 = a*a;
+    double b2 = b*b;
+
+    // Fixed end forces in basic system
+    q0[0] -= N*a/L;
+    double M1 = -a * b2 * Py * L2;
+    double M2 = a2 *  b * Py * L2;
+    q0[1] += M1;
+    q0[2] += M2;
+    M1 = -a * b2 * Pz * L2;
+    M2 = a2 * b * Pz * L2;
+    q0[3] -= M1;
+    q0[4] -= M2;
   }
 
   else if (type == LOAD_TAG_Beam3dPartialUniformLoad) {
-      double wa = data(2) * loadFactor;  // Axial
-      double wy = data(0) * loadFactor;  // Transverse
-      double wz = data(1) * loadFactor;  // Transverse
-      double a = data(3) * L;
-      double b = data(4) * L;
-      double c = 0.5 * (b + a);
+      const double wa = data(2) * loadFactor;  // Axial
+      const double wy = data(0) * loadFactor;  // Transverse
+      const double wz = data(1) * loadFactor;  // Transverse
+      const double a  = data(3) * L;
+      const double b  = data(4) * L;
+      const double c  = 0.5 * (b + a);
       double cOverL = c / L;
 
       double P = wa * (b - a);
@@ -433,11 +475,11 @@ BasicFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
       // Reactions in basic system
       p0[0] -= P;
       double V1, V2;
-      V1 = Fy * (1.0 - cOverL);
-      V2 = Fy * cOverL;
+      V1 = Fy * (1.0 - c/L);
+      V2 = Fy * c/L;
       p0[1] -= V1;
       p0[2] -= V2;
-      V1 = Fz * (1.0 - cOverL);
+      V1 = Fz * (1.0 - c/L);
       V2 = Fz * cOverL;
       p0[3] -= V1;
       p0[4] -= V2;
@@ -449,9 +491,8 @@ BasicFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
       double gamma2 = (b - a) / L;
       gamma2 *= gamma2;
 
-      double M1, M2;
-      M1 = -wy * (b - a) * (c * beta2 + gamma2 / 12.0 * (L - 3 * (L - c)));
-      M2 = wy * (b - a) * ((L - c) * alfa2 + gamma2 / 12.0 * (L - 3 * c));
+      double M1 = -wy * (b - a) * (c * beta2 + gamma2 / 12.0 * (L - 3 * (L - c)));
+      double M2 =  wy * (b - a) * ((L - c) * alfa2 + gamma2 / 12.0 * (L - 3 * c));
       q0[1] += M1;
       q0[2] += M2;
       M1 = -wz * (b - a) * (c * beta2 + gamma2 / 12.0 * (L - 3 * (L - c)));
@@ -460,46 +501,6 @@ BasicFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
       q0[4] -= M2;
   }
 
-  else if (type == LOAD_TAG_Beam3dPointLoad) {
-    double Py = data(0)*loadFactor;
-    double Pz = data(1)*loadFactor;
-    double N  = data(2)*loadFactor;
-    double aOverL = data(3);
-
-    if (aOverL < 0.0 || aOverL > 1.0)
-      return 0;
-
-    double a = aOverL*L;
-    double b = L-a;
-
-    // Reactions in basic system
-    p0[0] -= N;
-    double V1, V2;
-    V1 = Py*(1.0-aOverL);
-    V2 = Py*aOverL;
-    p0[1] -= V1;
-    p0[2] -= V2;
-    V1 = Pz*(1.0-aOverL);
-    V2 = Pz*aOverL;
-    p0[3] -= V1;
-    p0[4] -= V2;
-
-    double L2 = 1.0/(L*L);
-    double a2 = a*a;
-    double b2 = b*b;
-
-    // Fixed end forces in basic system
-    q0[0] -= N*aOverL;
-    double M1, M2;
-    M1 = -a * b2 * Py * L2;
-    M2 = a2 * b * Py * L2;
-    q0[1] += M1;
-    q0[2] += M2;
-    M1 = -a * b2 * Pz * L2;
-    M2 = a2 * b * Pz * L2;
-    q0[3] -= M1;
-    q0[4] -= M2;
-  }
   else {
     opserr << "BasicFrame3d::addLoad()  -- load type unknown for element with tag: " << this->getTag() << "\n";
     return -1;
@@ -512,27 +513,30 @@ const Matrix &
 BasicFrame3d::getMassSensitivity(int gradNumber)
 {
   // From DispBeamColumn
-  K.Zero();
+  static MatrixND<12,12> M_;
+  static Matrix M(M_);
+  M.Zero();
   
   if (total_mass == 0.0 || parameterID != 1)
-    return K;
+    return M;
   
   double L = theCoordTransf->getInitialLength();
   if (cMass == 0)  {
     // lumped mass matrix
     //double m = 0.5*rho*L;
     double m = 0.5*L;
-    K(0,0) = K(1,1) = K(2,2) = K(6,6) = K(7,7) = K(8,8) = m;
+    M(0,0) = M(1,1) = M(2,2) = M(6,6) = M(7,7) = M(8,8) = m;
+  }
 
-  } else  {
+  else {
     // consistent mass matrix
     static Matrix ml(12,12);
     //double m = rho*L/420.0;
     double m = L/420.0;
     ml(0,0) = ml(6,6) = m*140.0;
     ml(0,6) = ml(6,0) = m*70.0;
-    //ml(3,3) = ml(9,9) = m*(Jx/A)*140.0;  // CURRENTLY NO TORSIONAL MASS 
-    //ml(3,9) = ml(9,3) = m*(Jx/A)*70.0;   // CURRENTLY NO TORSIONAL MASS
+    //ml(3,3) = ml(9,9) = m*(Jx/A)*140.0;  // TODO: CURRENTLY NO TORSIONAL MASS 
+    //ml(3,9) = ml(9,3) = m*(Jx/A)*70.0;   // TODO: CURRENTLY NO TORSIONAL MASS
     
     ml(2, 2) = ml( 8, 8) =  m*156.0;
     ml(2, 8) = ml( 8, 2) =  m*54.0;
@@ -553,10 +557,10 @@ BasicFrame3d::getMassSensitivity(int gradNumber)
     ml(5, 7) = ml(7,5) = -ml(1,11);
     
     // transform local mass matrix to global system
-    K = theCoordTransf->getGlobalMatrixFromLocal(ml);
+    M = theCoordTransf->getGlobalMatrixFromLocal(ml);
   }
   
-  return K;
+  return M;
 }
 
 int
