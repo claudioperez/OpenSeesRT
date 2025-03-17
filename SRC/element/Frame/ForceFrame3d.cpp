@@ -446,7 +446,7 @@ ForceFrame3d::update()
   // update the transformation
   theCoordTransf->update();
 
-  double L        = theCoordTransf->getInitialLength();
+  double L   = theCoordTransf->getInitialLength();
   double jsx = 1.0 / L;
 
   //
@@ -463,7 +463,7 @@ ForceFrame3d::update()
   Dv -= dv;
 
 
-  THREAD_LOCAL VectorND<NBV> vr;      // element residual displacements
+  THREAD_LOCAL VectorND<NBV> vr;       // element residual deformations
   THREAD_LOCAL MatrixND<NBV, NBV> F;   // element flexibility matrix
   THREAD_LOCAL VectorND<NBV> dvToDo,
                              dv_trial;
@@ -542,7 +542,7 @@ ForceFrame3d::update()
           // Interpolation of q_trial
           //    b*q_trial
           //
-          VectorND<nsr> si {  // use layout declared in this::scheme
+          VectorND<nsr> si {
                q_trial[0],                           // N
                (q_trial[1] + q_trial[2])/L,          // VY
                (q_trial[3] + q_trial[4])/L,          // VZ
@@ -773,8 +773,8 @@ ForceFrame3d::update()
             subdivision++;
           }
         }
-      } // for (int j=0; j < numIters; j++)
-    }   // for (int l=0; l < 3; l++)
+      } // for (iteration)
+    }   // for (strategy)
 
 iterations_completed:
         ;
