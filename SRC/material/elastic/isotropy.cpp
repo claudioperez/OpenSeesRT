@@ -1,7 +1,6 @@
 #include "isotropy.h"
 #include <cmath>
 
-// For convenience, define constants for each flag.
 namespace {
   const int E_FLAG       = static_cast<int>(Isotropy::Parameter::YoungModulus);
   const int G_FLAG       = static_cast<int>(Isotropy::Parameter::ShearModulus);
@@ -11,7 +10,7 @@ namespace {
 
   const double TOL = 1e-12;
 
-  // Helper: Convert any input pair (flag1,in1) and (flag2,in2) to the canonical pair (E, ν).
+  // Convert any input pair (flag1,in1) and (flag2,in2) to the canonical pair (E, ν).
   // Returns 0 on success, nonzero on failure.
   int convertToEN(int flag1, double in1,
                   int flag2, double in2,
@@ -45,7 +44,8 @@ namespace {
         (flag1 == NU_FLAG && flag2 == LAMBDA_FLAG)) {
       double lambda = (flag1 == LAMBDA_FLAG) ? in1 : in2;
       nu            = (flag1 == NU_FLAG) ? in1 : in2;
-      if (std::fabs(nu) < TOL) return -1;
+      if (std::fabs(nu) < TOL)
+        return -1;
       E = lambda * (1.0 + nu) * (1.0 - 2.0 * nu) / nu;
       return 0;
     }
@@ -128,24 +128,47 @@ namespace {
   }
 } // end anonymous namespace
 
+
+int isotropic_constants(int flag1, double in1, int flag2, double in2, IsotropicConstants &iso)
+{
+  // Convert to canonical (E, ν)
+  double E, nu;
+  if (convertToEN(flag1, in1, flag2, in2, E, nu) != 0)
+    return -1;
+
+  iso.E  = E;
+  iso.nu = nu;
+  iso.G  = E / (2.0 * (1.0 + nu));
+  iso.K  = E / (3.0 * (1.0 - 2.0 * nu));
+  iso.lambda = E * nu / ((1.0 + nu) * (1.0 - 2.0 * nu));
+  return 0;
+}
+
 //---------------------------------------------------------------------
 // Main conversion function.
 // First converts the given input pair into (E, ν) and then computes the requested
 // property (if not already provided as one of the inputs).
 //
-int isotropic_parameters(int flag1, double in1,
+int isotropic_convert(int flag1, double in1,
                          int flag2, double in2,
                          int flag_out,
                          double & out)
 {
   // If the output is already one of the inputs, return it.
-  if (flag_out == flag1) { out = in1; return 0; }
-  if (flag_out == flag2) { out = in2; return 0; }
-  
+  if (flag_out == flag1) {
+    out = in1;
+    return 0;
+  }
+  if (flag_out == flag2) {
+    out = in2;
+    return 0;
+  }
+
   // Convert to canonical (E, ν)
   double E, nu;
-  if (convertToEN(flag1, in1, flag2, in2, E, nu) != 0) return -1;
-  
+  if (convertToEN(flag1, in1, flag2, in2, E, nu) != 0)
+    return -1;
+
   // Now, based solely on (E, ν), compute the desired property.
   if (flag_out == E_FLAG) {
     out = E;
