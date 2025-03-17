@@ -23,9 +23,7 @@ struct FrameSectionConstants {
          Ca;
   // n-m
   double Qy, 
-         Qz, 
-         Qyx, 
-         Qzx;
+         Qz;
   // n-w
   double Rw, 
          Ry, 
@@ -153,6 +151,7 @@ public:
                       ? this->getInitialTangent()
                       : this->getSectionTangent();
 
+
     constexpr FrameLayout e = WarpIndex(n, scheme);
 
     int sect_bishear[3] = {-1,-1,-1};
@@ -192,9 +191,9 @@ public:
         for (int i=0; i<n; i++)
           for (int j=0; j<m; j++)
             if (layout(j) == scheme[i]) {
-              if (std::fabs(ks(j,sect_bishear[0])) > 1e-12)
+              // if (std::fabs(ks(j,sect_bishear[0])) > 1e-12)
                 kout(i,e.m[0]) += ks(j,sect_bishear[0]);
-              if (std::fabs(ks(sect_bishear[0],j)) > 1e-12)
+              // if (std::fabs(ks(sect_bishear[0],j)) > 1e-12)
                 kout(e.m[0],i) += ks(sect_bishear[0],j);
             }
       }
