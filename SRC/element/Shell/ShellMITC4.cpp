@@ -18,11 +18,14 @@
 **                                                                    **
 ** ****************************************************************** */
 //
+// Bathe MITC 4 four node shell element with membrane and drill
+//
 // Original implementation: Ed "C++" Love
 // Reimplementation: Leopoldo Tesser, Diego A. Talledo, Veronique Le Corvec
 //
-// Bathe MITC 4 four node shell element with membrane and drill
-// Ref: Dvorkin,Bathe, A continuum mechanics based four node shell
+// [1] https://opensees.berkeley.edu/OpenSees/doc/plate.pdf
+//
+// [2]  Dvorkin,Bathe, A continuum mechanics based four node shell
 //      element for general nonlinear analysis,
 //      Eng.Comput.,1,77-88,1984
 //
