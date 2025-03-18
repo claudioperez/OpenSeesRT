@@ -23,6 +23,7 @@ class BeamIntegration;
 
 using namespace OpenSees;
 
+template <int NIP, int nsr>
 class ForceFrame3d: public BasicFrame3d
 {
  public:
@@ -100,11 +101,11 @@ class ForceFrame3d: public BasicFrame3d
   //
   constexpr static int 
         NDF = 6,
-        nsr = 6,              // number of section resultants
+//      nsr = 6,              // number of section resultants
         ndm = 3,              // dimension of the problem (3D)
         NEN = 2,              // number of element nodes
         NBV = 6,              // number of element dof's in the basic system
-        maxNumSections = 20,
+//      maxNumSections = 20,
         maxSubdivisions= 10;
 
   static constexpr FrameStressLayout scheme = {
@@ -200,4 +201,5 @@ class ForceFrame3d: public BasicFrame3d
   Matrix *Ki;
 };
 
+#include "ForceFrame3d.tpp"
 #endif
