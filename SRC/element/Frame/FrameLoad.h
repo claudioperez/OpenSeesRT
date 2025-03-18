@@ -166,7 +166,7 @@ public:
         if (w == 0.0)
             return;
 
-        for (int q = 0; q < r.size(); q++) {
+        for (unsigned q = 0; q < r.size(); q++) {
             Vector3D px,mx,rx;
             rx = r[q];
             rx[0] = 0.0;
@@ -198,7 +198,7 @@ public:
                         scale *= 0.0;
                     break;
                 case Lagrange:
-                    for (int s=0; s<r.size(); s++)
+                    for (unsigned s=0; s<r.size(); s++)
                       if (s != q)
                         scale *= (x - r[s][0]) / (r[q][0] - r[s][0]);
                     break;
