@@ -28,58 +28,16 @@
 #include <math.h>
 #include <string>
 
-#include <ReinfBar.h>
+#include <Cell.h>
 #include <StraightReinfLayer.h>
 
 StraightReinfLayer::StraightReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
-                                       const Vector& InitialPosition, const Vector& FinalPosition)
- : nReinfBars(numReinfBars),
-   matID(materialID),
-   area(reinfBarArea),
-   barDiam(0.0),
+                                       const VectorND<2>& InitialPosition, const VectorND<2>& FinalPosition)
+ : ReinfLayer(materialID, reinfBarArea),
+   nReinfBars(numReinfBars),
    initPosit(InitialPosition),
    finalPosit(FinalPosition)
 {
-}
-
-StraightReinfLayer::~StraightReinfLayer() {}
-
-void
-StraightReinfLayer::setNumReinfBars(int numReinfBars)
-{
-  nReinfBars = numReinfBars;
-}
-
-void
-StraightReinfLayer::setMaterialID(int materialID)
-{
-  matID = materialID;
-}
-
-void
-StraightReinfLayer::setReinfBarDiameter(double reinfBarDiameter)
-{
-  barDiam   = reinfBarDiameter;
-  double pi = acos(-1.0);
-  area      = pi * barDiam * barDiam / 4.0;
-}
-
-void
-StraightReinfLayer::setReinfBarArea(double reinfBarArea)
-{
-  area = reinfBarArea;
-}
-
-void
-StraightReinfLayer::setInitialPosition(const Vector& initialPosition)
-{
-  initPosit = initialPosition;
-}
-
-void
-StraightReinfLayer::setFinalPosition(const Vector& finalPosition)
-{
-  finalPosit = finalPosition;
 }
 
 int
@@ -88,86 +46,41 @@ StraightReinfLayer::getNumReinfBars() const
   return nReinfBars;
 }
 
-int
-StraightReinfLayer::getMaterialID() const
-{
-  return matID;
-}
-
-double
-StraightReinfLayer::getReinfBarDiameter() const
-{
-  return barDiam;
-}
-
-double
-StraightReinfLayer::getReinfBarArea() const
-{
-  return area;
-}
-
-ReinfBar*
+std::vector<Cell> 
 StraightReinfLayer::getReinfBars() const
 {
-  Vector barPosit(2);
-  ReinfBar* reinfBars;
+  VectorND<2> barPosit;
+  // ReinfBar* reinfBars;
+  std::vector<Cell> bars(nReinfBars);
 
   if (nReinfBars == 1) {
-    barPosit(0) = (initPosit(0) + finalPosit(0)) / 2;
-    barPosit(1) = (initPosit(1) + finalPosit(1)) / 2;
+    VectorND<2> location {
+      barPosit(0) = (initPosit(0) + finalPosit(0)) / 2,
+      barPosit(1) = (initPosit(1) + finalPosit(1)) / 2
+    };
 
-    reinfBars = new ReinfBar[1];
+    // reinfBars = new ReinfBar[1];
+    bars[0] = Cell(material, area, location);
 
-    reinfBars[0].setPosition(barPosit);
-    reinfBars[0].setArea(this->area);
+    // bars[0].setPosition(barPosit);
+    // bars[0].setArea(this->area);
   }
 
   else if (nReinfBars > 1) {
     double dy = (finalPosit(0) - initPosit(0)) / (nReinfBars - 1);
     double dz = (finalPosit(1) - initPosit(1)) / (nReinfBars - 1);
 
-    reinfBars = new ReinfBar[nReinfBars];
+    // reinfBars = new ReinfBar[nReinfBars];
 
     for (int i = 0; i < nReinfBars; i++) {
-      barPosit(0) = initPosit(0) + dy * i;
-      barPosit(1) = initPosit(1) + dz * i;
+      VectorND<2> location {
+         initPosit(0) + dy * i,
+         initPosit(1) + dz * i
+      };
 
-      reinfBars[i].setPosition(barPosit);
-      reinfBars[i].setArea(this->area);
+      bars[i] = Cell(material, area, location);
     }
-  } else
-    return 0;
+  }
 
-  return reinfBars;
-}
-
-const Vector&
-StraightReinfLayer::getInitialPosition() const
-{
-  return initPosit;
-}
-
-const Vector&
-StraightReinfLayer::getFinalPosition() const
-{
-  return finalPosit;
-}
-
-ReinfLayer*
-StraightReinfLayer::getCopy() const
-{
-  StraightReinfLayer* theCopy =
-      new StraightReinfLayer(matID, nReinfBars, area, initPosit, finalPosit);
-  return theCopy;
-}
-
-void
-StraightReinfLayer::Print(OPS_Stream& s, int flag) const
-{
-  s << "\nReinforcing Layer type:  Straight";
-  s << "\nMaterial ID: " << matID;
-  s << "\nReinf. bar diameter: " << barDiam;
-  s << "\nReinf. bar area: " << area;
-  s << "\nInitial Position: " << initPosit;
-  s << "\nFinal Position: " << finalPosit;
+  return bars;
 }

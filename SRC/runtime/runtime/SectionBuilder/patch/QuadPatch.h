@@ -25,43 +25,39 @@
 #ifndef QuadPatch_h
 #define QuadPatch_h
 
-#include <Matrix.h>
+#include <MatrixND.h>
 #include <Patch.h>
 #include <Vector.h>
 
 class Cell;
 class Matrix;
+using OpenSees::MatrixND;
 
 class QuadPatch : public Patch {
 public:
   QuadPatch();
-  QuadPatch(int materialID, int numSubdivIJ, int numSubdivJK, const Matrix& vertexCoords);
+  QuadPatch(int materialID, int numSubdivIJ, int numSubdivJK, const MatrixND<4,2>& vertexCoords);
 
   ~QuadPatch();
 
-  // edition functions
-
   void setMaterialID(int materialID);
   void setDiscretization(int numSubdivIJ, int numSubdivJK);
-  void setVertCoords(const Matrix& vertexCoords);
+  // void setVertCoords(const MatrixND<4,2>& vertexCoords);
 
   // reinforcing bar inquiring functions
 
   int getMaterialID() const;
   int getNumCells() const;
   Cell** getCells() const;
-  Patch* getCopy() const;
 
-  void getDiscretization(int& numSubdivIJ, int& numSubdivJK) const;
-  const Matrix& getVertCoords() const;
-
-  void Print(OPS_Stream& s, int flag = 0) const;
+  // void getDiscretization(int& numSubdivIJ, int& numSubdivJK) const;
+  // const MatrixND<4,2>& getVertCoords() const;
 
 protected:
 private:
   int matID;
   int nDivIJ, nDivJK;
-  Matrix vertCoord;
+  MatrixND<4,2> vertCoord;
 };
 
 #endif

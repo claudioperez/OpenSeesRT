@@ -111,7 +111,7 @@ DataFileStream::~DataFileStream()
 }
 
 int 
-DataFileStream::setFile(const char *name, openMode mode)
+DataFileStream::setFile(const char *name, openMode mode, bool echo)
 {
   if (name == 0) {
     std::cerr << "DataFileStream::setFile() - no name passed\n";

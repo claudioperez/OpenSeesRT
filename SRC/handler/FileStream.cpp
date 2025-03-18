@@ -69,7 +69,7 @@ FileStream::~FileStream()
 }
 
 int 
-FileStream::setFile(const char *name, openMode mode)
+FileStream::setFile(const char *name, openMode mode, bool echo)
 {
   if (name == 0) {
     std::cerr << "FileStream::setFile() - no name passed\n";
@@ -124,7 +124,7 @@ FileStream::setFile(const char *name, openMode mode)
 }
 
 int 
-FileStream::open(void)
+FileStream::open()
 {
   // check setFile has been called
   if (fileName == 0) {
@@ -165,7 +165,7 @@ FileStream::open(void)
 }
 
 int 
-FileStream::close(void)
+FileStream::close()
 {
   if (fileOpen != 0)
     theFile.close();

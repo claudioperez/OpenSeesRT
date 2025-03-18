@@ -43,9 +43,9 @@ class BinaryFileStream : public OPS_Stream
   BinaryFileStream(const char *fileName, openMode mode = openMode::OVERWRITE);
   ~BinaryFileStream();
 
-  int setFile(const char *fileName, openMode mode = openMode::OVERWRITE);
-  int open(void);
-  int close(void);
+  int setFile(const char *fileName, openMode mode = openMode::OVERWRITE, bool echo=false);
+  int open();
+  int close();
   int flush();
 
   int setPrecision(int precision);

@@ -63,19 +63,19 @@ TCP_Stream::~TCP_Stream()
 }
 
 int 
-TCP_Stream::setFile(const char *name, openMode mode)
+TCP_Stream::setFile(const char *name, openMode mode, bool echo)
 {
   return 0;
 }
 
 int 
-TCP_Stream::open(void)
+TCP_Stream::open()
 {
   return 0;
 }
 
 int 
-TCP_Stream::close(void)
+TCP_Stream::close()
 {
   return 0;
 }

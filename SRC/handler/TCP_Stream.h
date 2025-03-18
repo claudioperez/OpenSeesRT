@@ -42,9 +42,9 @@ class TCP_Stream : public OPS_Stream
 
     ~TCP_Stream();
 
-    int setFile(const char *fileName, openMode mode = openMode::OVERWRITE);
-    int open(void);
-    int close(void);
+    int setFile(const char *fileName, openMode mode = openMode::OVERWRITE, bool echo=false);
+    int open();
+    int close();
     
     // xml stuff
     int tag(const char *);

@@ -25,21 +25,26 @@
 
 #ifndef Cell_h
 #define Cell_h
+#include <VectorND.h>
 
-class Vector;
-
+using OpenSees::VectorND;
 class Cell {
 public:
+  Cell() : area(0.0) {}
+  Cell(int mat, double area, const VectorND<2>& loc) : area(area), location(loc)
+  {
+  }
   // reinforcing bar inquiring functions
 
-  virtual double getArea() const              = 0;
-  virtual double getdValue() const            = 0;
-  virtual const Vector& getCentroidPosition() = 0;
-
-  virtual void Print(OPS_Stream& s, int flag = 0) const = 0;
-  friend OPS_Stream& operator<<(OPS_Stream& s, const Cell& Cell);
+  double getArea() const {return area;};
+  double getdValue() const {return 1.0;};
+  const VectorND<2>& getPosition() const {return location;};
+  int getMaterial() const {return matID;};
 
 protected:
+  VectorND<2> location;
+  double area;
+  int matID;
 private:
 };
 

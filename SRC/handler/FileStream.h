@@ -37,7 +37,7 @@ class FileStream : public OPS_Stream
   FileStream(const char *fileName, openMode mode = openMode::OVERWRITE, int indent=2);
   ~FileStream();
 
-  int setFile(const char *fileName, openMode mode = openMode::OVERWRITE);
+  int setFile(const char *fileName, openMode mode = openMode::OVERWRITE, bool echo=false);
   int open(void);
   int close(void);
   int flush(void);

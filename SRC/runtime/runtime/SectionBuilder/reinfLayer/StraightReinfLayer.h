@@ -26,49 +26,26 @@
 #define StraightReinfLayer_h
 
 #include <ReinfLayer.h>
-#include <Vector.h>
+#include <VectorND.h>
+#include <Cell.h>
 
-class ReinfBar;
+using OpenSees::VectorND;
 
 class StraightReinfLayer : public ReinfLayer {
 public:
   StraightReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
-                     const Vector& initialPosition, const Vector& finalPosition);
+                     const VectorND<2>& initialPosition, const VectorND<2>& finalPosition);
 
-  virtual ~StraightReinfLayer();
-
-  // edition functions
-
-  void setNumReinfBars(int numReinfBars);
-  void setMaterialID(int materialID);
-  void setReinfBarDiameter(double reinfBarDiameter);
-  void setReinfBarArea(double reinfBarArea);
-
-  void setInitialPosition(const Vector& initialPosition);
-  void setFinalPosition(const Vector& finalPosition);
-
-  // inquiring functions
+  virtual ~StraightReinfLayer() {};
 
   int getNumReinfBars() const;
-  int getMaterialID() const;
-  double getReinfBarDiameter() const;
-  double getReinfBarArea() const;
-  ReinfBar* getReinfBars() const;
-
-  ReinfLayer* getCopy() const;
-  const Vector& getInitialPosition() const;
-  const Vector& getFinalPosition() const;
-
-  void Print(OPS_Stream& s, int flag = 0) const;
+  std::vector<Cell> getReinfBars() const;
 
 protected:
 private:
   int nReinfBars;
-  int matID;
-  double barDiam;
-  double area;
-  Vector initPosit;
-  Vector finalPosit;
+  VectorND<2> initPosit;
+  VectorND<2> finalPosit;
 };
 
 #endif

@@ -26,58 +26,31 @@
 #define CircReinfLayer_h
 
 #include <ReinfLayer.h>
-#include <Vector.h>
+#include <VectorND.h>
+#include <Cell.h>
 
-class ReinfBar;
+using OpenSees::VectorND;
 
 class CircReinfLayer : public ReinfLayer {
 public:
-  CircReinfLayer();
   // Constructor for an arc
   CircReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
-                 const Vector& centerPosition, double arcRadius, double initialAngle,
+                 const VectorND<2>& centerPosition, double arcRadius, double initialAngle,
                  double finalAngle);
   // Constructor for full circle
   CircReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
-                 const Vector& centerPosition, double radius);
+                 const VectorND<2>& centerPosition, double radius);
 
-  virtual ~CircReinfLayer();
-
-  // edition functions
-
-  void setNumReinfBars(int numReinfBars);
-  void setMaterialID(int materialID);
-  void setReinfBarDiameter(double reinfBarDiameter);
-  void setReinfBarArea(double reinfBarArea);
-
-  void setCenterPosition(const Vector& centerPosition);
-  void setArcRadius(double arcRadius);
-  void setInitAngle(double initialAngle);
-  void setFinalAngle(double finalAngle);
-
-  // inquiring functions
+  virtual ~CircReinfLayer() final {};
 
   int getNumReinfBars() const;
-  int getMaterialID() const;
-  double getReinfBarDiameter() const;
-  double getReinfBarArea() const;
-  ReinfBar* getReinfBars() const;
+  std::vector<Cell> getReinfBars() const;
 
-  ReinfLayer* getCopy() const;
-  const Vector& getCenterPosition() const;
-  double getArcRadius() const;
-  double getInitAngle() const;
-  double getFinalAngle() const;
-
-  void Print(OPS_Stream& s, int flag = 0) const;
 
 protected:
 private:
   int nReinfBars;
-  int matID;
-  double barDiam;
-  double area;
-  Vector centerPosit;
+  VectorND<2> centerPosit;
   double arcRad;
   double initAng;
   double finalAng;

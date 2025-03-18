@@ -93,10 +93,9 @@ BinaryFileStream::~BinaryFileStream()
 }
 
 int 
-BinaryFileStream::setFile(const char *name, openMode mode)
+BinaryFileStream::setFile(const char *name, openMode mode, bool echo)
 {
   if (name == 0) {
-    std::cerr << "BinaryFileStream::setFile() - no name passed\n";
     return -1;
   }
 
@@ -109,11 +108,6 @@ BinaryFileStream::setFile(const char *name, openMode mode)
 
   if (fileName == 0) {
     fileName = new char[strlen(name)+5];
-    if (fileName == 0) {
-      std::cerr << "BinaryFileStream::setFile() - out of memory copying name: " << name << std::endl;
-      return -1;
-    }
-    
     // copy the strings
     strcpy(fileName, name);
   }

@@ -25,30 +25,26 @@
 #ifndef ReinfLayer_h
 #define ReinfLayer_h
 
-class ReinfBar;
-class OPS_Stream;
-
+#include <vector>
+#include <Cell.h>
 class ReinfLayer {
 public:
+  ReinfLayer(int material, double area) : material(material), area(area) {}
   virtual ~ReinfLayer() {};
-  // edition functions
-  virtual void setNumReinfBars(int numReinfBars)            = 0;
-  virtual void setMaterialID(int materialID)                = 0;
-  virtual void setReinfBarDiameter(double reinfBarDiemater) = 0;
-  virtual void setReinfBarArea(double reinfBarArea)         = 0;
 
-  // reinforcing layer inquiring functions
+  int getMaterialID() const {
+    return material;
+  };
+  double getReinfBarArea() const {
+    return area;
+  };
 
   virtual int getNumReinfBars() const        = 0;
-  virtual int getMaterialID() const          = 0;
-  virtual double getReinfBarDiameter() const = 0;
-  virtual double getReinfBarArea() const     = 0;
-  virtual ReinfLayer* getCopy() const        = 0;
-  virtual ReinfBar* getReinfBars() const     = 0;
-
-  virtual void Print(OPS_Stream& s, int flag = 0) const = 0;
+  virtual std::vector<Cell> getReinfBars() const     = 0;
 
 protected:
+  int material;
+  double area;
 private:
 };
 

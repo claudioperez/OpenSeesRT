@@ -12,7 +12,6 @@
 #include <Matrix.h>
 #include <OPS_Stream.h>
 #include <Patch.h>
-#include <QuadCell.h>
 #include <math.h>
 #include <string>
 
@@ -86,12 +85,6 @@ CircPatch::getAngles(double& initialAngle, double& finalAngle) const
   finalAngle   = finalAng;
 }
 
-VectorND<2>
-CircPatch::getCenterPosition() const
-{
-  return centerPosit;
-}
-
 int
 CircPatch::getNumCells() const
 {
@@ -131,23 +124,8 @@ CircPatch::getCells() const
 
         theta_i = initAngRadians + deltaTheta * i;
 
-        /*
-        theta_i1 = theta_i + deltaTheta;
-        cellVertCoord(0,0) = centerPosit(0) + rad_j  * cos(theta_i1);
-        cellVertCoord(0,1) = centerPosit(1) + rad_j  * sin(theta_i1);
-        cellVertCoord(1,0) = centerPosit(0) + rad_j  * cos(theta_i);
-        cellVertCoord(1,1) = centerPosit(1) + rad_j  * sin(theta_i);
-        cellVertCoord(2,0) = centerPosit(0) + rad_j1 * cos(theta_i);
-        cellVertCoord(2,1) = centerPosit(1) + rad_j1 * sin(theta_i);
-        cellVertCoord(3,0) = centerPosit(0) + rad_j1 * cos(theta_i1);
-        cellVertCoord(3,1) = centerPosit(1) + rad_j1 * sin(theta_i1);
-
-        cells[k] = new QuadCell(cellVertCoord);
-        */
-
         theta_i1 = theta_i + deltaTheta / 2.0;
-        cells[k] = new CircSectionCell(rad_j, rad_j1, deltaTheta, theta_i1, centerPosit(0),
-                                       centerPosit(1));
+        cells[k] = new CircSectionCell(rad_j, rad_j1, deltaTheta, theta_i1, centerPosit(0), centerPosit(1));
 
         k++;
       }
@@ -156,24 +134,4 @@ CircPatch::getCells() const
     return 0;
 
   return cells;
-}
-
-Patch*
-CircPatch::getCopy() const
-{
-  CircPatch* theCopy =
-      new CircPatch(matID, nDivCirc, nDivRad, centerPosit, intRad, extRad, initAng, finalAng);
-  return theCopy;
-}
-
-void
-CircPatch::Print(OPS_Stream& s, int flag) const
-{
-  s << "\nPatch Type: CircPatch";
-  s << "\nMaterial Id: " << matID;
-  s << "\nNumber of subdivisions in the radial direction: " << nDivRad;
-  s << "\nNumber of subdivisions in the circunferential direction: " << nDivCirc;
-  // s << "\nCenter Position: " << Vector(centerPosit);
-  s << "\nInternal Radius: " << intRad << "\tExternal Radius: " << extRad;
-  s << "\nInitial Angle: " << initAng << "\tFinal Angle: " << finalAng;
 }

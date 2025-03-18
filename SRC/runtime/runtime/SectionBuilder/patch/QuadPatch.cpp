@@ -33,9 +33,9 @@
 
 using OpenSees::VectorND;
 
-QuadPatch::QuadPatch() : matID(0), nDivIJ(1), nDivJK(1), vertCoord(4, 2) {}
+// QuadPatch::QuadPatch() : matID(0), nDivIJ(1), nDivJK(1), vertCoord(4, 2) {}
 
-QuadPatch::QuadPatch(int materialID, int numSubdivIJ, int numSubdivJK, const Matrix& vertexCoords)
+QuadPatch::QuadPatch(int materialID, int numSubdivIJ, int numSubdivJK, const MatrixND<4,2>& vertexCoords)
  : matID(materialID), nDivIJ(numSubdivIJ), nDivJK(numSubdivJK), vertCoord(vertexCoords)
 
 {
@@ -56,11 +56,11 @@ QuadPatch::setDiscretization(int numSubdivIJ, int numSubdivJK)
   nDivJK = numSubdivJK;
 }
 
-void
-QuadPatch::setVertCoords(const Matrix& vertexCoords)
-{
-  vertCoord = vertexCoords;
-}
+// void
+// QuadPatch::setVertCoords(const MatrixND<4,2>& vertexCoords)
+// {
+//   vertCoord = vertexCoords;
+// }
 
 int
 QuadPatch::getMaterialID() const
@@ -68,18 +68,18 @@ QuadPatch::getMaterialID() const
   return matID;
 }
 
-void
-QuadPatch::getDiscretization(int& numSubdivIJ, int& numSubdivJK) const
-{
-  numSubdivIJ = nDivIJ;
-  numSubdivJK = nDivJK;
-}
+// void
+// QuadPatch::getDiscretization(int& numSubdivIJ, int& numSubdivJK) const
+// {
+//   numSubdivIJ = nDivIJ;
+//   numSubdivJK = nDivJK;
+// }
 
-const Matrix&
-QuadPatch::getVertCoords() const
-{
-  return vertCoord;
-}
+// const MatrixND<4,2>&
+// QuadPatch::getVertCoords() const
+// {
+//   return vertCoord;
+// }
 
 int
 QuadPatch::getNumCells() const
@@ -90,9 +90,6 @@ QuadPatch::getNumCells() const
 Cell**
 QuadPatch::getCells() const
 {
-  double deltaXi;
-  double deltaEta;
-  Matrix cellVertCoord(4, 2);
   VectorND<4> N;
   double xi, eta;
   int numCells;
@@ -106,14 +103,15 @@ QuadPatch::getCells() const
     if (!cells)
       return 0;
 
-    deltaXi  = 2.0 / nDivIJ;
-    deltaEta = 2.0 / nDivJK;
+    double deltaXi  = 2.0 / nDivIJ;
+    double deltaEta = 2.0 / nDivJK;
 
     int k = 0;
     for (int j = 0; j < nDivJK; j++)
       for (int i = 0; i < nDivIJ; i++) {
         // compute natural coordinates
 
+        MatrixND<4,2> cellVertCoord;
         cellVertCoord(0, 0) = -1.0 + deltaXi * i;
         cellVertCoord(0, 1) = -1.0 + deltaEta * j;
         cellVertCoord(1, 0) = -1.0 + deltaXi * (i + 1);
@@ -145,7 +143,6 @@ QuadPatch::getCells() const
         }
 
         cells[k] = new QuadCell(cellVertCoord);
-        // opserr << "\ncreating cells Cell " << k << " :" << cells[k];
         k++;
       }
   } else
@@ -154,19 +151,3 @@ QuadPatch::getCells() const
   return cells;
 }
 
-Patch*
-QuadPatch::getCopy() const
-{
-  QuadPatch* theCopy = new QuadPatch(matID, nDivIJ, nDivJK, vertCoord);
-  return theCopy;
-}
-
-void
-QuadPatch::Print(OPS_Stream& s, int flag) const
-{
-  s << "\nPatch Type: QuadPatch";
-  s << "\nMaterial Id: " << matID;
-  s << "\nNumber of subdivisions in the IJ direction: " << nDivIJ;
-  s << "\nNumber of subdivisions in the JK direction: " << nDivJK;
-  s << "\nVertex Coordinates: " << vertCoord;
-}

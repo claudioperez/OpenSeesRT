@@ -43,9 +43,6 @@ public:
   void getDiscretization(int& numSubdivCircunf, int& numSubdivRadial) const;
   void getRadii(double& internRadius, double& externRadius) const;
   void getAngles(double& initialAngle, double& finalAngle) const;
-  VectorND<2> getCenterPosition() const;
-
-  void Print(OPS_Stream& s, int flag = 0) const;
 
 protected:
 private:

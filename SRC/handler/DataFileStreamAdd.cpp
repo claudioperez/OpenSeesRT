@@ -109,9 +109,9 @@ DataFileStreamAdd::~DataFileStreamAdd()
 }
 
 int 
-DataFileStreamAdd::setFile(const char *name, openMode mode)
+DataFileStreamAdd::setFile(const char *name, openMode mode, bool echo)
 {
-  if (name == 0) {
+  if (name == nullptr) {
     std::cerr << "DataFileStreamAdd::setFile() - no name passed\n";
     return -1;
   }
@@ -124,11 +124,6 @@ DataFileStreamAdd::setFile(const char *name, openMode mode)
   }
   if (fileName == 0) {
     fileName = new char[strlen(name)+5];
-    if (fileName == 0) {
-      std::cerr << "DataFileStreamAdd::setFile() - out of memory copying name: " << name << std::endl;
-      return -1;
-    }
-    
     // copy the strings
     strcpy(fileName, name);
   }
@@ -148,7 +143,7 @@ DataFileStreamAdd::setFile(const char *name, openMode mode)
 }
 
 int 
-DataFileStreamAdd::open(void)
+DataFileStreamAdd::open()
 {
   // check setFile has been called
   if (fileName == 0) {

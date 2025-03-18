@@ -29,27 +29,15 @@
 #include <string>
 
 #include <CircReinfLayer.h>
-#include <ReinfBar.h>
+#include <Cell.h>
 
-CircReinfLayer::CircReinfLayer()
- : nReinfBars(0),
-   matID(0),
-   barDiam(0.0),
-   area(0.0),
-   centerPosit(2),
-   arcRad(0.0),
-   initAng(0.0),
-   finalAng(0.0)
-{
-}
 
-CircReinfLayer::CircReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
-                               const Vector& centerPosition, double arcRadius, double initialAngle,
+
+CircReinfLayer::CircReinfLayer(int material, int numReinfBars, double reinfBarArea,
+                               const VectorND<2>& centerPosition, double arcRadius, double initialAngle,
                                double finalAngle)
- : nReinfBars(numReinfBars),
-   matID(materialID),
-   area(reinfBarArea),
-   barDiam(0.0),
+ : ReinfLayer(material, reinfBarArea),
+   nReinfBars(numReinfBars),
    centerPosit(centerPosition),
    arcRad(arcRadius),
    initAng(initialAngle),
@@ -58,11 +46,9 @@ CircReinfLayer::CircReinfLayer(int materialID, int numReinfBars, double reinfBar
 }
 
 CircReinfLayer::CircReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
-                               const Vector& centerPosition, double radius)
- : nReinfBars(numReinfBars),
-   matID(materialID),
-   area(reinfBarArea),
-   barDiam(0.0),
+                               const VectorND<2>& centerPosition, double radius)
+ : ReinfLayer(materialID, area),
+   nReinfBars(numReinfBars),
    centerPosit(centerPosition),
    arcRad(radius),
    initAng(0.0),
@@ -74,65 +60,20 @@ CircReinfLayer::CircReinfLayer(int materialID, int numReinfBars, double reinfBar
     finalAng = 360.0 - 360.0 / nReinfBars;
 }
 
-CircReinfLayer::~CircReinfLayer() {}
-
-void
-CircReinfLayer::setNumReinfBars(int numReinfBars)
-{
-  nReinfBars = numReinfBars;
-}
-
-void
-CircReinfLayer::setMaterialID(int materialID)
-{
-  matID = materialID;
-}
-
-void
-CircReinfLayer::setReinfBarDiameter(double reinfBarDiameter)
-{
-  barDiam   = reinfBarDiameter;
-  double pi = acos(-1.0);
-  area      = pi * barDiam * barDiam / 4.0;
-}
-
-void
-CircReinfLayer::setReinfBarArea(double reinfBarArea)
-{
-  area = reinfBarArea;
-}
-
 int
 CircReinfLayer::getNumReinfBars() const
 {
   return nReinfBars;
 }
 
-int
-CircReinfLayer::getMaterialID() const
-{
-  return matID;
-}
-
-double
-CircReinfLayer::getReinfBarDiameter() const
-{
-  return barDiam;
-}
-
-double
-CircReinfLayer::getReinfBarArea() const
-{
-  return area;
-}
-
-ReinfBar*
+std::vector<Cell>
 CircReinfLayer::getReinfBars() const
 {
+  std::vector<Cell> bars(nReinfBars);
   double theta, dtheta;
   static Vector barPosit(2);
-  int i;
-  ReinfBar* reinfBars;
+
+  // Cell* reinfBars;
   double pi = acos(-1.0);
   double initAngRad, finalAngRad;
 
@@ -145,63 +86,17 @@ CircReinfLayer::getReinfBars() const
     else
       dtheta = 0.0; // Doesn't really matter what this is
 
-    reinfBars = new ReinfBar[nReinfBars];
+    // reinfBars = new ReinfBar[nReinfBars];
 
-    for (i = 0; i < nReinfBars; i++) {
+    for (int i = 0; i < nReinfBars; i++) {
       theta       = initAngRad + dtheta * i;
-      barPosit(0) = centerPosit(0) + arcRad * cos(theta);
-      barPosit(1) = centerPosit(1) + arcRad * sin(theta);
-
-      reinfBars[i].setPosition(barPosit);
-      reinfBars[i].setArea(this->area);
+      VectorND<2> position {
+           centerPosit(0) + arcRad * cos(theta),
+           centerPosit(1) + arcRad * sin(theta)
+      };
+      bars[i] = Cell(material, this->area, position);
     }
-  } else
-    return 0;
+  }
 
-  return reinfBars;
-}
-
-const Vector&
-CircReinfLayer::getCenterPosition() const
-{
-  return centerPosit;
-}
-
-double
-CircReinfLayer::getArcRadius() const
-{
-  return arcRad;
-}
-
-double
-CircReinfLayer::getInitAngle() const
-{
-  return initAng;
-}
-
-double
-CircReinfLayer::getFinalAngle() const
-{
-  return finalAng;
-}
-
-ReinfLayer*
-CircReinfLayer::getCopy() const
-{
-  CircReinfLayer* theCopy =
-      new CircReinfLayer(matID, nReinfBars, area, centerPosit, arcRad, initAng, finalAng);
-  return theCopy;
-}
-
-void
-CircReinfLayer::Print(OPS_Stream& s, int flag) const
-{
-  s << "\nReinforcing Layer type:  Circ";
-  s << "\nMaterial ID: " << matID;
-  s << "\nReinf. bar diameter: " << barDiam;
-  s << "\nReinf. bar area: " << area;
-  s << "\nCenter Position: " << centerPosit;
-  s << "\nArc Radius: " << arcRad;
-  s << "\nInitial angle: " << initAng;
-  s << "\nFinal angle: " << finalAng;
+  return bars;
 }

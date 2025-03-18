@@ -279,7 +279,6 @@ TclCommand_newFatigueMaterial(ClientData clientData, Tcl_Interp* interp, int arg
 
   if (Tcl_GetInt(interp, argv[3], &matTag) != TCL_OK) {
     opserr << G3_ERROR_PROMPT << "invalid component tag\n";
-    opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
     return TCL_ERROR;
   }
 
@@ -292,49 +291,40 @@ TclCommand_newFatigueMaterial(ClientData clientData, Tcl_Interp* interp, int arg
   for (int j = 4; j < argc; j++) {
     if (strcmp(argv[j], "-Dmax") == 0) {
       if ((j + 1 >= argc) ||
-          (Tcl_GetDouble(interp, argv[j + 1], &Dmax) != TCL_OK)) {
+          (Tcl_GetDouble(interp, argv[++j], &Dmax) != TCL_OK)) {
         opserr << G3_ERROR_PROMPT << "invalid -Dmax";
-        opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[j], "-E0") == 0) {
-      if ((j + 1 >= argc) ||
-          (Tcl_GetDouble(interp, argv[j + 1], &E0) != TCL_OK)) {
+      if ((j + 1 >= argc) || (Tcl_GetDouble(interp, argv[++j], &E0) != TCL_OK)) {
         opserr << G3_ERROR_PROMPT << "invalid -E0";
-        opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[j], "-m") == 0) {
       if ((j + 1 >= argc) ||
-          (Tcl_GetDouble(interp, argv[j + 1], &m) != TCL_OK)) {
+          (Tcl_GetDouble(interp, argv[++j], &m) != TCL_OK)) {
         opserr << G3_ERROR_PROMPT << "invalid -m";
-        opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[j], "-min") == 0) {
       if ((j + 1 >= argc) ||
-          (Tcl_GetDouble(interp, argv[j + 1], &epsmin) != TCL_OK)) {
+          (Tcl_GetDouble(interp, argv[++j], &epsmin) != TCL_OK)) {
         opserr << G3_ERROR_PROMPT << "invalid -min ";
-        opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
         return TCL_ERROR;
       }
     } else if (strcmp(argv[j], "-max") == 0) {
       if ((j + 1 >= argc) ||
-          (Tcl_GetDouble(interp, argv[j + 1], &epsmax) != TCL_OK)) {
+          (Tcl_GetDouble(interp, argv[++j], &epsmax) != TCL_OK)) {
         opserr << G3_ERROR_PROMPT << "invalid -max";
-        opserr << "uniaxialMaterial Fatigue: " << tag << "\n";
         return TCL_ERROR;
       }
     }
-    j++;
   }
 
   UniaxialMaterial *theMat = builder->getTypedObject<UniaxialMaterial>(matTag);
 
   if (theMat == nullptr) {
     opserr << G3_ERROR_PROMPT << "component material does not exist\n";
-    opserr << "Component material: " << matTag;
-    opserr << "\nuniaxialMaterial Fatigue: " << tag << "\n";
     return TCL_ERROR;
   }
 

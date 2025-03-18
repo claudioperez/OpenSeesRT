@@ -39,7 +39,7 @@ class DataFileStream : public OPS_Stream
   DataFileStream(const char *fileName, openMode mode = openMode::OVERWRITE, int indent=2, int doCSV =0, bool closeOnWrite = false, int precision = 6, bool doScientific = false);
   ~DataFileStream();
 
-  int setFile(const char *fileName, openMode mode = openMode::OVERWRITE);
+  int setFile(const char *fileName, openMode mode = openMode::OVERWRITE, bool echo=false);
   int open(void);
   int close(void);
   int flush();

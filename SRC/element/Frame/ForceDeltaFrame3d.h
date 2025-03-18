@@ -95,11 +95,11 @@ private:
 
   static constexpr FrameStressLayout scheme = {
     FrameStress::N,
-    FrameStress::Vy,
-    FrameStress::Vz,
     FrameStress::T,
     FrameStress::My,
     FrameStress::Mz,
+    FrameStress::Vy,
+    FrameStress::Vz,
   };
 
   void setSectionPointers(int numSections, FrameSection** secPtrs);

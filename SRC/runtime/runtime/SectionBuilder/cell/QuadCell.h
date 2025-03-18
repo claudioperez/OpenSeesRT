@@ -27,36 +27,19 @@
 #define QuadCell_h
 
 #include <Cell.h>
-#include <Vector.h>
+#include <VectorND.h>
+#include <MatrixND.h>
 
-class Matrix;
-class Vector;
-class OPS_Stream;
+using OpenSees::MatrixND;
+using OpenSees::VectorND;
+
 
 class QuadCell : public Cell {
 public:
-  QuadCell();
-  QuadCell(const Matrix& vertexCoords);
-
-  ~QuadCell();
-
-  // edition functions
-
-  void setVertCoords(const Matrix& vertexCoords);
-
-  // reinforcing bar inquiring functions
-
-  double getArea() const;
-  double getdValue() const;
-  const Matrix& getVertCoords() const;
-  const Vector& getCentroidPosition();
-
-  void Print(OPS_Stream& s, int flag = 0) const;
+  QuadCell(const MatrixND<4,2>& vertexCoords);
 
 protected:
 private:
-  Matrix vertCoord;
-  Vector Centroid;
 };
 
 #endif

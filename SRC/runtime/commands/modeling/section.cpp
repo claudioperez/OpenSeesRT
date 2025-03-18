@@ -52,17 +52,14 @@ extern "C" int OPS_ResetInputNoBuilder(ClientData clientData,
 
 
 #include <LayeredShellFiberSection.h> // Yuli Huang & Xinzheng Lu
-
 #include <ElasticMembranePlateSection.h>
 #include <MembranePlateFiberSection.h>
 
 // SectionBuilder
 #include <QuadPatch.h>
 #include <CircPatch.h>
-#include <QuadCell.h>
 #include <StraightReinfLayer.h>
 #include <CircReinfLayer.h>
-#include <ReinfBar.h>
 #include <SectionBuilder/FiberSectionBuilder.h>
 
 //
@@ -1249,7 +1246,7 @@ TclCommand_addPatch(ClientData clientData,
   if (strcmp(argv[1], "quad") == 0 || strcmp(argv[1], "quadr") == 0) {
     int numSubdivIJ, numSubdivJK, matTag;
     double vertexCoordY, vertexCoordZ;
-    Matrix vertexCoords(4, 2);
+    MatrixND<4,2> vertexCoords{};
 
     if (argc < 13) {
       opserr << OpenSees::PromptValueError << "invalid number of parameters: patch quad matTag "
@@ -1312,7 +1309,7 @@ TclCommand_addPatch(ClientData clientData,
 
     int numSubdivIJ, numSubdivJK, matTag;
     double vertexCoordY, vertexCoordZ;
-    Matrix vertexCoords(4, 2);
+    MatrixND<4,2> vertexCoords;
 
     if (argc < 9) {
       opserr << OpenSees::PromptValueError << "invalid number of parameters: patch quad matTag "
@@ -1889,19 +1886,20 @@ TclCommand_addReinfLayer(ClientData clientData, Tcl_Interp *interp, int argc,
     center(0) = yCenter;
     center(1) = zCenter;
 
-    CircReinfLayer *reinfLayer = nullptr;
-    if (anglesSpecified)
+    int error = -1;
+    // construct and add to section
+    if (anglesSpecified) {
       // Construct arc
-      reinfLayer = new CircReinfLayer(matTag, numReinfBars, reinfBarArea,
-                                      center, radius, startAng, endAng);
-    else
+      CircReinfLayer reinfLayer(matTag, numReinfBars, reinfBarArea,
+                                center, radius, startAng, endAng);
+      error = fiberSectionRepr->addLayer(reinfLayer);
+    } else {
       // Construct circle
-      reinfLayer = new CircReinfLayer(matTag, numReinfBars, reinfBarArea,
-                                      center, radius);
+      CircReinfLayer reinfLayer(matTag, numReinfBars, reinfBarArea,
+                                center, radius);
+      error = fiberSectionRepr->addLayer(reinfLayer);
+    }
 
-    // add reinfLayer to section
-    int error = fiberSectionRepr->addLayer(*reinfLayer);
-    delete reinfLayer;
     if (error)
       return TCL_ERROR;
 
@@ -2088,7 +2086,7 @@ buildSectionInt(ClientData clientData, Tcl_Interp *interp, TclBasicBuilder *theT
       for (int j = 0; j < numCells; j++) {
         fibersMaterial(k) = matTag;
         fibersArea(k) = cell[j]->getArea();
-        fiberPosition = cell[j]->getCentroidPosition();
+        fiberPosition = cell[j]->getPosition();
         fibersPosition(0, k) = fiberPosition(0);
         fibersPosition(1, k) = fiberPosition(1);
         k++;
