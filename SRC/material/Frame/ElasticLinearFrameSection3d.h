@@ -29,10 +29,10 @@ class ElasticLinearFrameSection3d : public FrameSection
                               double mass, bool use_mass)
     : ElasticLinearFrameSection3d(tag, 
                                     E,   G, 
-                                    A, 0.0, 0.0,
+                                    A,
                                    Iy,  Iz, 0.0,
                                   0.0, Iy+Iz-J,       // Cw, Ca
-                                  0.0, 0.0, 0.0, 0.0, // Q
+                                  0.0, 0.0,           // Q
                                   0.0, 0.0, 0.0,      // R
                            -(Iy+Iz-J), 0.0, 0.0,      // S
                                   mass, use_mass)
@@ -42,10 +42,10 @@ class ElasticLinearFrameSection3d : public FrameSection
   ElasticLinearFrameSection3d(int tag, double E, double A, double Iz, double mass, bool use_mass)
     : ElasticLinearFrameSection3d(tag, 
                                     E, 0.0,           // Material
-                                    A, 0.0, 0.0,      // Axial and Shear
+                                    A,                // Axial
                                   0.0,  Iz, 0.0,      // Flexure
                                   0.0, 0.0,           // Warping (Cw, Ca)
-                                  0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0,
                                   0.0, 0.0, 0.0,
                                   0.0, 0.0, 0.0,
                                   mass, use_mass)
@@ -57,8 +57,6 @@ class ElasticLinearFrameSection3d : public FrameSection
       double G, 
       // n-n
       double A,
-      double Ay,
-      double Az,
       // m-m
       double Iy,
       double Iz,
@@ -67,10 +65,8 @@ class ElasticLinearFrameSection3d : public FrameSection
       double Cw,
       double Ca,
       // n-m
-      double Qy,
-      double Qz,
-      double Qyx,
-      double Qzx,
+      double cy,
+      double cz,
       // n-w
       double Rw,
       double Ry,
@@ -87,7 +83,9 @@ class ElasticLinearFrameSection3d : public FrameSection
   ElasticLinearFrameSection3d();
   ~ElasticLinearFrameSection3d();
 
-  const char *getClassType() const {return "ElasticLinearFrameSection3d";};
+  const char *getClassType() const {
+       return "ElasticLinearFrameSection3d";
+  }
   
   int commitState();
   int revertToLastCommit();
@@ -109,9 +107,8 @@ class ElasticLinearFrameSection3d : public FrameSection
   const ID &getType();
   int getOrder() const;
   
-  int sendSelf(int commitTag, Channel &theChannel);
-  int recvSelf(int commitTag, Channel &theChannel,
-               FEM_ObjectBroker &theBroker);
+  int sendSelf(int commitTag, Channel &);
+  int recvSelf(int commitTag, Channel &, FEM_ObjectBroker &);
   
   void Print(OPS_Stream &s, int flag = 0);
 
@@ -125,12 +122,24 @@ class ElasticLinearFrameSection3d : public FrameSection
  protected:
   
  private:
-  
+  struct Tangent {
+     OpenSees::MatrixND<3,3> nn,         nw, nv, 
+                                 mn, mm, mw, mv, 
+                                         ww,
+                                             vv;
+     void zero() {
+            nn.zero();            nw.zero(); nv.zero();
+            mn.zero(); mm.zero(); mw.zero(); mv.zero();
+                                  ww.zero();
+                                             vv.zero();
+     }
+  } K_pres;
+
   void getConstants(FrameSectionConstants& consts) const; 
 
   double E, G;
 
-  constexpr static int nr = 8;
+  constexpr static int nr = 12;
 
   Vector  v;
   Matrix  M,         // Generic matrix for returning Ks or Fs (nr x nr)

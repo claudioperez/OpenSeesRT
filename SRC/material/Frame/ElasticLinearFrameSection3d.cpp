@@ -27,7 +27,11 @@ static int layout_array[] = {
     FrameStress::My,
     FrameStress::Mz,
     FrameStress::Bimoment,
-    FrameStress::Bishear
+    FrameStress::By,
+    FrameStress::Bz,
+    FrameStress::Bishear,
+    FrameStress::Qy,
+    FrameStress::Qz
 };
 
 ID ElasticLinearFrameSection3d::layout(layout_array, nr);
@@ -40,6 +44,7 @@ ElasticLinearFrameSection3d::ElasticLinearFrameSection3d()
   Ks(new MatrixND<nr,nr> {}),
   Ksen(nullptr)
 {
+
 }
 
 ElasticLinearFrameSection3d::ElasticLinearFrameSection3d(int tag,
@@ -47,40 +52,34 @@ ElasticLinearFrameSection3d::ElasticLinearFrameSection3d(int tag,
     double G_in,
     // n-n
     double A,
-    double Ay,     //  int Phi
-    double Az,     //  int Phi
     // m-m
     double Iy,     //   \int z^2
     double Iz,     //   \int y^2
-    double Iyz,    // - I23 = int z y
+    double Iyz,    //
     // w-w 
     double Cw,     // 
     double Ca,     // 
     // n-m
-    double Qz,     //  int y = A*zs
-    double Qy,     //  int z
-    // n-w
-    double Rw,
-    double Ry,
+    double Qy,     //  int y = A*zs
+    double Qz,     //  int z
+
+    double Rw,     // n-w
+    double Ry,     // n-v
     double Rz,
-    // m-w
-    double Sa,
-    double Sy,
-    double Sz,
+
+    double Sa,     // m-v
+    double Sy,     // m-w, int  z warp(x,y)
+    double Sz,     // m-w, int -y warp(x,y) 
     //
     double mass_,
     bool use_mass
-    )
+)
 : FrameSection(tag, SEC_TAG_ElasticLinearFrame3d, mass_, use_mass),
   E(E_in),
   G(G_in),
   Ksen(nullptr),
   Ks(new MatrixND<nr,nr> {})
 {
-  // TODO: remove
-  // double yc = 0; // Centroid location
-  // double zc = 0;
-  // double zs = 0;
   centroid = {Qz/A, Qy/A};
 
   // Polar moment of inertia
@@ -95,18 +94,24 @@ ElasticLinearFrameSection3d::ElasticLinearFrameSection3d(int tag,
   // const double Qw2  =  Ic22*zc - Icyz*yc;
 
   *Ks = {
-    //                        |                        |              |
-    {{  E*A,      0.,     0.,      0.,   E*Qy,  -E*Qz,   E*Rw  ,    0.},
-     {    0.,   G*Ay,     0.,   -G*Qy,     0.,     0.,     0.  ,  G*Ry},
-     {    0.,     0.,   G*Az,    G*Qz,     0.,     0.,     0.  ,  G*Rz},
-    //                        |                        |              |
-     {    0.,  -G*Qy,   G*Qz,    G*I0,     0.,     0.,     0.  ,  G*Sa},
-     {  E*Qy,     0.,     0.,      0.,  E*Iy , -E*Iyz,     E*Sy,    0.},
-     { -E*Qz,     0.,     0.,      0., -E*Iyz,  E*Iz ,    -E*Sz,    0.},
-    //                        |                        |              |
-     {  E*Rw,     0.,     0.,      0.,   E*Sy,  -E*Sz,    E*Cw ,    0.},
-     {    0.,   G*Ry,   G*Rz,    G*Sa,     0.,     0.,     0.  ,  G*Ca}}
+    //            N                       M                      W                 Q    
+    //                        |                        |                 |                |
+    {{  E*A,      0.,     0.,      0.,   E*Qy,  -E*Qz,    E*Rw ,  0.,  0.,    0.,  0.,  0.},
+     {    0.,    G*A,     0.,   -G*Qy,     0.,     0.,     0.  ,  0.,  0.,  G*Ry,  0.,  0.},
+     {    0.,     0.,    G*A,    G*Qz,     0.,     0.,     0.  ,  0.,  0.,  G*Rz,  0.,  0.},
+    //                        |                        |          0.,  0.,      ,  0.,  0.|
+     {    0.,  -G*Qy,   G*Qz,    G*I0,     0.,     0.,     0.  ,  0.,  0.,  G*Sa,  0.,  0.},
+     {  E*Qy,     0.,     0.,      0.,  E*Iy , -E*Iyz,     E*Sy,  0.,  0.,    0.,  0.,  0.},
+     { -E*Qz,     0.,     0.,      0., -E*Iyz,  E*Iz ,     E*Sz,  0.,  0.,    0.,  0.,  0.},
+    //                        |                        |          0.,  0.,      ,  0.,  0.|
+     {  E*Rw,     0.,     0.,      0.,   E*Sy,   E*Sz,    E*Cw ,  0.,  0.,    0.,  0.,  0.}, // Bimoment
+     {    0.,     0.,     0.,      0.,     0.,     0.,      0. ,  0.,  0.,    0.,  0.,  0.},
+     {    0.,     0.,     0.,      0.,     0.,     0.,      0. ,  0.,  0.,    0.,  0.,  0.},
+     {    0.,   G*Ry,   G*Rz,    G*Sa,     0.,     0.,      0. ,  0.,  0.,  G*Ca,  0.,  0.}, // Bishear
+     {    0.,     0.,     0.,      0.,     0.,     0.,      0. ,  0.,  0.,    0.,  0.,  0.},
+     {    0.,     0.,     0.,      0.,     0.,     0.,      0. ,  0.,  0.,    0.,  0.,  0.}}
   };
+
     //                        |                        |                |
     //    0       1       2   |    3       4       5   |      6     7   |
 }
@@ -210,7 +215,7 @@ ElasticLinearFrameSection3d::getFrameCopy(const FrameStressLayout& layout)
 
   // Revoke any pointers that are owned by this instance
   theCopy->Ksen = nullptr;
-  return theCopy;
+  // return theCopy;
 
   int ni=0;
   bool ind[nr]{};
@@ -320,6 +325,7 @@ ElasticLinearFrameSection3d::revertToStart()
 int
 ElasticLinearFrameSection3d::setTrialSectionDeformation(const Vector &def)
 {
+  assert(def.Size() == nr);
   e = def;
   return 0;
 }
@@ -475,7 +481,7 @@ ElasticLinearFrameSection3d::Print(OPS_Stream &s, int flag)
     s << "\"type\": \"ElasticLinearFrameSection3d\", ";
     s << "\"E\": "   << E  << ", ";
     s << "\"G\": "   << G  << ", ";
-    s << "\"A\": "   << consts.A  << ", ";
+    s << "\"A\": "   << consts.A   << ", ";
     s << "\"Ay\": "  << consts.Ay  << ", ";
     s << "\"Az\": "  << consts.Az  << ", ";
     s << "\"Jx\": " <<        J  << ", ";
@@ -544,7 +550,7 @@ ElasticLinearFrameSection3d::updateParameter(int paramID, Information &info)
   // w-w
   double &Cw=consts.Cw, &Ca=consts.Ca;
   // n-m
-  double &Qy=consts.Qy, &Qz=consts.Qz, &Qyx=consts.Qyx, &Qzx=consts.Qzx;
+  double &Qy=consts.Qy, &Qz=consts.Qz;
   // n-w
   double &Rw=consts.Rw, &Ry=consts.Ry, &Rz=consts.Rz;
   // m-w
@@ -566,18 +572,24 @@ ElasticLinearFrameSection3d::updateParameter(int paramID, Information &info)
     Ca = Iy + Iz - J;
   }
 
-  // TODO: update this
-  (*Ks) = {
-     {{  E*A,      0.,     0.,           0.,   E*Qy,   E*Qz,   E*Rw ,    0.},
-      {    0.,   G*Ay,     0.,        G*Qyx,     0.,     0.,     0. ,  G*Ry},
-      {    0.,     0.,   G*Az,        G*Qzx,     0.,     0.,     0. , -G*Rz},
-     //                        |                        |             |
-      {    0.,  G*Qyx,  G*Qzx,    G*(Iy+Iz),     0.,     0.,     0. ,  G*Sa},
-      {  E*Qy,     0.,     0.,           0.,  E*Iy , -E*Iyz,    E*Sy,    0.},
-      {  E*Qz,     0.,     0.,           0., -E*Iyz,  E*Iz ,   -E*Sz,    0.},
-     //                        |                             |             |
-      {  E*Rw,     0.,     0.,           0.,  E*Sy , -E*Sz ,    E*Cw,    0.},
-      {    0.,   G*Ry,  -G*Rz,         G*Sa,     0.,     0.,     0. ,  G*Ca}}
+  double I0 = Iy + Iz;
+  *Ks = {
+    //            N                       M                      W                 Q    
+    //                        |                        |                 |                |
+    {{  E*A,      0.,     0.,      0.,   E*Qy,  -E*Qz,   E*Rw  ,  0.,  0.,    0.,  0.,  0.},
+     {    0.,    G*A,     0.,   -G*Qy,     0.,     0.,     0.  ,  0.,  0.,  G*Ry,  0.,  0.},
+     {    0.,     0.,    G*A,    G*Qz,     0.,     0.,     0.  ,  0.,  0.,  G*Rz,  0.,  0.},
+    //                        |                        |          0.,  0.,      ,  0.,  0.|
+     {    0.,  -G*Qy,   G*Qz,    G*I0,     0.,     0.,     0.  ,  0.,  0.,  G*Sa,  0.,  0.},
+     {  E*Qy,     0.,     0.,      0.,  E*Iy , -E*Iyz,     E*Sy,  0.,  0.,    0.,  0.,  0.},
+     { -E*Qz,     0.,     0.,      0., -E*Iyz,  E*Iz ,     E*Sz,  0.,  0.,    0.,  0.,  0.},
+    //                        |                        |          0.,  0.,      ,  0.,  0.|
+     {  E*Rw,     0.,     0.,      0.,   E*Sy,   E*Sz,    E*Cw ,  0.,  0.,    0.,  0.,  0.},
+     {    0.,     0.,     0.,      0.,     0.,     0.,      0. ,  0.,  0.,    0.,  0.,  0.},
+     {    0.,     0.,     0.,      0.,     0.,     0.,      0. ,  0.,  0.,    0.,  0.,  0.},
+     {    0.,   G*Ry,   G*Rz,    G*Sa,     0.,     0.,      0. ,  0.,  0.,  G*Ca,  0.,  0.},
+     {    0.,     0.,     0.,      0.,     0.,     0.,      0. ,  0.,  0.,    0.,  0.,  0.},
+     {    0.,     0.,     0.,      0.,     0.,     0.,      0. ,  0.,  0.,    0.,  0.,  0.},}
   };
 
   return 0;

@@ -300,7 +300,7 @@ LinearFrameTransf3d::computeElemtLengthAndOrient()
   if (L == 0.0)
     return -2;
 
-  // calculate the element local x axis components (direction cosines)
+  // Calculate the element local x axis components (direction cosines)
   // wrt to the global coordinates
   R(0,0) = dx(0) / L;
   R(1,0) = dx(1) / L;
@@ -688,9 +688,9 @@ LinearFrameTransf3d::getGlobalResistingForce(const Vector &pb, const Vector &p0)
   pl[1]  =  oneOverL * (q1 + q2);  // Viy
   pl[2]  = -oneOverL * (q3 + q4);  // Viz
   pl[3]  = -q5;                    // Ti
-  pl[4]  = q3;
-  pl[5]  = q1;
-  pl[6]  = q0;                     // Nj
+  pl[4]  =  q3;
+  pl[5]  =  q1;
+  pl[6]  =  q0;                    // Nj
   pl[7]  = -pl[1];                 // Vjy
   pl[8]  = -pl[2];                 // Vjz
   pl[9]  = q5;                     // Tj
@@ -856,156 +856,6 @@ LinearFrameTransf3d::getCopy()
       theCopy->R(j,i) = R(j,i);
 
   return theCopy;
-}
-
-int
-LinearFrameTransf3d::sendSelf(int cTag, Channel &theChannel)
-{
-  int res = 0;
-
-  static Vector data(23);
-  data(0) = this->getTag();
-  data(1) = L;
-
-  if (nodeIOffset != 0) {
-    data(2) = nodeIOffset[0];
-    data(3) = nodeIOffset[1];
-    data(4) = nodeIOffset[2];
-  } else {
-    data(2) = 0.0;
-    data(3) = 0.0;
-    data(4) = 0.0;
-  }
-
-  if (nodeJOffset != 0) {
-    data(5) = nodeJOffset[0];
-    data(6) = nodeJOffset[1];
-    data(7) = nodeJOffset[2];
-  } else {
-    data(5) = 0.0;
-    data(6) = 0.0;
-    data(7) = 0.0;
-  }
-
-  if (nodeIInitialDisp != 0) {
-    data(8)  = nodeIInitialDisp[0];
-    data(9)  = nodeIInitialDisp[1];
-    data(10) = nodeIInitialDisp[2];
-    data(11) = nodeIInitialDisp[3];
-    data(12) = nodeIInitialDisp[4];
-    data(13) = nodeIInitialDisp[5];
-  } else {
-    data(8)  = 0.0;
-    data(9)  = 0.0;
-    data(10) = 0.0;
-    data(11) = 0.0;
-    data(12) = 0.0;
-    data(13) = 0.0;
-  }
-
-  if (nodeJInitialDisp != 0) {
-    data(14) = nodeJInitialDisp[0];
-    data(15) = nodeJInitialDisp[1];
-    data(16) = nodeJInitialDisp[2];
-    data(17) = nodeJInitialDisp[3];
-    data(18) = nodeJInitialDisp[4];
-    data(19) = nodeJInitialDisp[5];
-  } else {
-    data(14) = 0.0;
-    data(15) = 0.0;
-    data(16) = 0.0;
-    data(17) = 0.0;
-    data(18) = 0.0;
-    data(19) = 0.0;
-  }
-
-  data(20) = R(0,2);
-  data(21) = R(1,2);
-  data(22) = R(2,2);
-
-  res += theChannel.sendVector(this->getDbTag(), cTag, data);
-  if (res < 0) {
-    opserr << "LinearFrameTransf3d::sendSelf - failed to send Vector\n";
-
-    return res;
-  }
-
-  return res;
-}
-
-int
-LinearFrameTransf3d::recvSelf(int cTag, Channel &theChannel,
-                            FEM_ObjectBroker &theBroker)
-{
-  int res = 0;
-
-  static Vector data(23);
-
-  res += theChannel.recvVector(this->getDbTag(), cTag, data);
-  if (res < 0) {
-    opserr << "LinearFrameTransf3d::recvSelf - failed to receive Vector\n";
-
-    return res;
-  }
-
-  this->setTag((int)data(0));
-  L       = data(1);
-  data(0) = this->getTag();
-  data(1) = L;
-
-  int flag;
-  int i, j;
-
-  flag = 0;
-  for (int i = 2; i <= 4; i++)
-    if (data(i) != 0.0)
-      flag = 1;
-  if (flag == 1) {
-    if (nodeIOffset == 0)
-      nodeIOffset = new double[3];
-    for (i = 2, j = 0; i <= 4; i++, j++)
-      nodeIOffset[j] = data(i);
-  }
-
-  flag = 0;
-  for (i = 5; i <= 7; i++)
-    if (data(i) != 0.0)
-      flag = 1;
-  if (flag == 1) {
-    if (nodeJOffset == 0)
-      nodeJOffset = new double[3];
-    for (int i = 5, j = 0; i <= 7; i++, j++)
-      nodeJOffset[j] = data(i);
-  }
-
-  flag = 0;
-  for (int i = 8; i <= 13; i++)
-    if (data(i) != 0.0)
-      flag = 1;
-  if (flag == 1) {
-    if (nodeIInitialDisp == 0)
-      nodeIInitialDisp = new double[6];
-    for (i = 8, j = 0; i <= 13; i++, j++)
-      nodeIInitialDisp[j] = data(i);
-  }
-
-  flag = 0;
-  for (int i = 14; i <= 19; i++)
-    if (data(i) != 0.0)
-      flag = 1;
-  if (flag == 1) {
-    if (nodeJInitialDisp == 0)
-      nodeJInitialDisp = new double[6];
-    for (i = 14, j = 0; i <= 19; i++, j++)
-      nodeJInitialDisp[j] = data(i);
-  }
-
-  R(0,2) = data(20);
-  R(1,2) = data(21);
-  R(2,2) = data(22);
-
-  initialDispChecked = true;
-  return res;
 }
 
 const Matrix &
@@ -1241,4 +1091,155 @@ LinearFrameTransf3d::Print(OPS_Stream &s, int flag)
       s << "\tNode J offset: " << nodeJOffset[0] << " " << nodeJOffset[1] << " "
         << nodeJOffset[2] << "\n";
   }
+}
+
+
+int
+LinearFrameTransf3d::sendSelf(int cTag, Channel &theChannel)
+{
+  int res = 0;
+
+  static Vector data(23);
+  data(0) = this->getTag();
+  data(1) = L;
+
+  if (nodeIOffset != 0) {
+    data(2) = nodeIOffset[0];
+    data(3) = nodeIOffset[1];
+    data(4) = nodeIOffset[2];
+  } else {
+    data(2) = 0.0;
+    data(3) = 0.0;
+    data(4) = 0.0;
+  }
+
+  if (nodeJOffset != 0) {
+    data(5) = nodeJOffset[0];
+    data(6) = nodeJOffset[1];
+    data(7) = nodeJOffset[2];
+  } else {
+    data(5) = 0.0;
+    data(6) = 0.0;
+    data(7) = 0.0;
+  }
+
+  if (nodeIInitialDisp != 0) {
+    data(8)  = nodeIInitialDisp[0];
+    data(9)  = nodeIInitialDisp[1];
+    data(10) = nodeIInitialDisp[2];
+    data(11) = nodeIInitialDisp[3];
+    data(12) = nodeIInitialDisp[4];
+    data(13) = nodeIInitialDisp[5];
+  } else {
+    data(8)  = 0.0;
+    data(9)  = 0.0;
+    data(10) = 0.0;
+    data(11) = 0.0;
+    data(12) = 0.0;
+    data(13) = 0.0;
+  }
+
+  if (nodeJInitialDisp != 0) {
+    data(14) = nodeJInitialDisp[0];
+    data(15) = nodeJInitialDisp[1];
+    data(16) = nodeJInitialDisp[2];
+    data(17) = nodeJInitialDisp[3];
+    data(18) = nodeJInitialDisp[4];
+    data(19) = nodeJInitialDisp[5];
+  } else {
+    data(14) = 0.0;
+    data(15) = 0.0;
+    data(16) = 0.0;
+    data(17) = 0.0;
+    data(18) = 0.0;
+    data(19) = 0.0;
+  }
+
+  data(20) = R(0,2);
+  data(21) = R(1,2);
+  data(22) = R(2,2);
+
+  res += theChannel.sendVector(this->getDbTag(), cTag, data);
+  if (res < 0) {
+    opserr << "LinearFrameTransf3d::sendSelf - failed to send Vector\n";
+
+    return res;
+  }
+
+  return res;
+}
+
+int
+LinearFrameTransf3d::recvSelf(int cTag, Channel &theChannel,
+                            FEM_ObjectBroker &theBroker)
+{
+  int res = 0;
+
+  static Vector data(23);
+
+  res += theChannel.recvVector(this->getDbTag(), cTag, data);
+  if (res < 0) {
+    opserr << "LinearFrameTransf3d::recvSelf - failed to receive Vector\n";
+
+    return res;
+  }
+
+  this->setTag((int)data(0));
+  L       = data(1);
+  data(0) = this->getTag();
+  data(1) = L;
+
+  int flag;
+  int i, j;
+
+  flag = 0;
+  for (int i = 2; i <= 4; i++)
+    if (data(i) != 0.0)
+      flag = 1;
+  if (flag == 1) {
+    if (nodeIOffset == 0)
+      nodeIOffset = new double[3];
+    for (i = 2, j = 0; i <= 4; i++, j++)
+      nodeIOffset[j] = data(i);
+  }
+
+  flag = 0;
+  for (i = 5; i <= 7; i++)
+    if (data(i) != 0.0)
+      flag = 1;
+  if (flag == 1) {
+    if (nodeJOffset == 0)
+      nodeJOffset = new double[3];
+    for (int i = 5, j = 0; i <= 7; i++, j++)
+      nodeJOffset[j] = data(i);
+  }
+
+  flag = 0;
+  for (int i = 8; i <= 13; i++)
+    if (data(i) != 0.0)
+      flag = 1;
+  if (flag == 1) {
+    if (nodeIInitialDisp == 0)
+      nodeIInitialDisp = new double[6];
+    for (i = 8, j = 0; i <= 13; i++, j++)
+      nodeIInitialDisp[j] = data(i);
+  }
+
+  flag = 0;
+  for (int i = 14; i <= 19; i++)
+    if (data(i) != 0.0)
+      flag = 1;
+  if (flag == 1) {
+    if (nodeJInitialDisp == 0)
+      nodeJInitialDisp = new double[6];
+    for (i = 14, j = 0; i <= 19; i++, j++)
+      nodeJInitialDisp[j] = data(i);
+  }
+
+  R(0,2) = data(20);
+  R(1,2) = data(21);
+  R(2,2) = data(22);
+
+  initialDispChecked = true;
+  return res;
 }

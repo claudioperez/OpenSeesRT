@@ -27,6 +27,7 @@
 #include <LinearFrameTransf3d.h>
 #include <PDeltaFrameTransf3d.h>
 #include <CorotFrameTransf3d.h>
+#include <CorotFrameTransf3d03.h>
 
 //
 // Create a coordinate transformation
@@ -253,7 +254,9 @@ TclCommand_addGeomTransf(ClientData clientData, Tcl_Interp *interp, int argc,
       if (!getenv("CRD"))
         crdTransf3d = new CorotFrameTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
       else
-        crdTransf3d = new CorotCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+        crdTransf3d = new CorotFrameTransf3d03(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
+//    else
+//      crdTransf3d = new CorotCrdTransf3d(crdTransfTag, vecxzPlane, jntOffsetI, jntOffsetJ);
 
     else {
       opserr << G3_ERROR_PROMPT << "invalid Type\n";

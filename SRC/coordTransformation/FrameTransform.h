@@ -51,7 +51,6 @@ public:
 public:
   FrameTransform3d(int tag, int classTag) : CrdTransf(tag, classTag) {}
 
-
   // TODO(cmp) : make almost everything pure virtual
   virtual FrameTransform3d *getCopy() {
     return nullptr;
@@ -61,13 +60,18 @@ public:
     return getCopy();
   }
 
-
   /*
-  virtual VectorND<ndf>  pullNodeUnknowns(int tag, int rate);
-  virtual VectorND<ndm>  pullNodePosition(int tag, State state);
-  virtual Rotation       pullNodeRotation(int tag, State state);
-  virtual VectorND<ndm>  pullNodeVelocity(int tag);
-  virtual VectorND<ndm>  pullNodeLocation(int tag, State state);
+  virtual Versor         getRotation();
+  virtual VectorND<ndm>  getNodePosition(int tag, State state) {
+    VectorND<ndm> u{};
+  }
+  virtual Versor         getNodeRotation(int tag, State state);
+  virtual VectorND<ndm>  getNodeVelocity(int tag);
+  virtual VectorND<ndm>  getNodeLocation(int tag, State state);
+  virtual VectorND<ndf>  getNodeUnknowns(int tag, int rate);
+
+  pushNodeCouple(int tag, VectorND<ndm>& couple);
+  pushNodeForce( int tag, VectorND<ndm>& force);
   */
 
 //template <int n>
@@ -81,6 +85,7 @@ public:
   //
   //
   //
+
 
   virtual VectorND<12>    pushResponse(VectorND<12>&pl) {
     static VectorND<12> empty{};
@@ -292,7 +297,8 @@ getBasic(double ug[12], const Matrix3D& R, double nodeIOffset[], double nodeJOff
   return ub;
 }
 
-static VectorND<12>
+template <int nen=2, int ndf=6>
+static VectorND<nen*ndf>
 pushLocal(const Vector& q, double L)
 {
   
@@ -311,14 +317,14 @@ pushLocal(const Vector& q, double L)
   pl[1]  =  oneOverL * (q1 + q2);  // Viy
   pl[2]  = -oneOverL * (q3 + q4);  // Viz
   pl[3]  = -q5;                    // Ti
-  pl[4]  = q3;
-  pl[5]  = q1;
-  pl[6]  = q0;                     // Nj
+  pl[4]  =  q3; 
+  pl[5]  =  q1;                    // Mzi
+  pl[6]  =  q0;                    // Nj
   pl[7]  = -pl[1];                 // Vjy
   pl[8]  = -pl[2];                 // Vjz
-  pl[9]  = q5;                     // Tj
-  pl[10] = q4;
-  pl[11] = q2;
+  pl[9]  =  q5;                    // Tj
+  pl[10] =  q4;
+  pl[11] =  q2;                    // Mzj
 
   return pl;
 }

@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cmath>
+#include <stdlib.h>
 #include "Versor.h"
 #include "Matrix3D.h"
 #include "Vector3D.h"
@@ -535,6 +536,12 @@ LogC90(const Matrix3D &R)
   // function by Claudio Perez                                            2024
   //===--------------------------------------------------------------------===//
   // Crisfield's approximation to the logarithm on SO(3)
+  if (getenv("CRD"))
+    return Vector3D {
+     -std::asin(0.5*(R(1,2) - R(2,1))),
+      std::asin(0.5*(R(0,2) - R(2,0))),
+     -std::asin(0.5*(R(0,1) - R(1,0))),
+    };
   return Vector3D {
     std::asin(0.5*(R(1,2) - R(2,1))),
     std::asin(0.5*(R(0,1) - R(1,0))),
