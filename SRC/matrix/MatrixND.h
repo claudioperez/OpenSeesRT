@@ -318,7 +318,7 @@ struct MatrixND {
   { 
     {
       [[maybe_unused]] int final_col = init_col + nr - 1; 
-      assert((init_row >= 0) && (final_row < NR) && (init_col >= 0) && (final_col < NC));
+      assert((init_row >= 0) && (init_col >= 0) && (final_col < NC));
     }
 
     for (int i=0; i<nr; i++)
