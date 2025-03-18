@@ -83,7 +83,6 @@ public:
       this->Load::setDomain(theDomain);
     
       if (theDomain == nullptr) {
-        opserr << "Removing all elements\n";
         for (auto e: elements)
             e->addLoad(this, 0.0);
         return;
@@ -166,6 +165,7 @@ public:
     {   
         if (w == 0.0)
             return;
+
         for (int q = 0; q < r.size(); q++) {
             Vector3D px,mx,rx;
             rx = r[q];
