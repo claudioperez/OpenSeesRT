@@ -34,7 +34,6 @@
 //
 // Claudio M. Perez
 //
-#include <utility>
 #include <cstddef>
 #include <ExactFrame3d.h>
 #include <Flag.h>
@@ -44,6 +43,7 @@
 #include <MatrixND.h>
 #include <VectorND.h>
 
+#include "for_int.tpp"
 #include <FrameSection.h>
 #include <FrameTransform.h>
 #include <Logging.h>
@@ -105,17 +105,6 @@ B_nat(MatrixND<6+2*nwm,6+nwm> &B, double shape[2][nen], const Vector3D& dx, int 
 
 }
 
-
-template<std::size_t N>
-struct num { static constexpr std::size_t value = N; };
-
-template <std::size_t N, class F>
-void for_int(F func) {
-    // Lambda with templated parameter pack (C++20 feature)
-    ([]<std::size_t... Is>(F func, std::index_sequence<Is...>){
-        (func(num<Is>{}), ...);
-    })(func, std::make_index_sequence<N>{});
-}
 
 
 template<std::size_t nen, int nwm>

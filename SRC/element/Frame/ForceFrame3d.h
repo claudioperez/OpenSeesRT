@@ -101,20 +101,18 @@ class ForceFrame3d: public BasicFrame3d
   //
   constexpr static int 
         NDF = 6,
-//      nsr = 6,              // number of section resultants
         ndm = 3,              // dimension of the problem (3D)
         NEN = 2,              // number of element nodes
         NBV = 6,              // number of element dof's in the basic system
-//      maxNumSections = 20,
         maxSubdivisions= 10;
 
   static constexpr FrameStressLayout scheme = {
     FrameStress::N,
-    FrameStress::Vy,
-    FrameStress::Vz,
     FrameStress::T,
     FrameStress::My,
     FrameStress::Mz,
+    FrameStress::Vy,
+    FrameStress::Vz,
   };
 
   //
@@ -165,7 +163,6 @@ class ForceFrame3d: public BasicFrame3d
 
   int    max_iter;               // maximum number of local iterations
   double tol;	                   // tolerance for relative energy norm for local iterations
-
 
   // Element state
   MatrixND<12,12> tangent;

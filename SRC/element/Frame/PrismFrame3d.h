@@ -50,8 +50,9 @@ class PrismFrame3d : public BasicFrame3d
     const char *getClassType() const {
       return "PrismFrame3d";
     }
+
+    // void zeroLoad();	
 /*
-//  void zeroLoad();	
 //  int addLoad(ElementalLoad *theLoad, double loadFactor);
 //  int addInertiaLoadToUnbalance(const Vector &accel);
 */
@@ -101,8 +102,7 @@ class PrismFrame3d : public BasicFrame3d
     void formBasicStiffness(OpenSees::MatrixND<6,6>& kb) const;
     VectorND<NBV> getBasicForceGrad(int grad);
 
-    double E;    // elastic modulus
-    double G;    // shear modulus
+    double E,G;    // elastic properties
 
     double A;    // cross sectional area
     double Ay;   // shear area along local y axis
@@ -133,11 +133,12 @@ class PrismFrame3d : public BasicFrame3d
 
     int section_tag;
 
-    OpenSees::MatrixND<6,6> ke;
+    OpenSees::MatrixND<6,6> ke;  // TODO: make shared_ptr?
     OpenSees::MatrixND<6,6> km;
     OpenSees::MatrixND<6,6> kg;
     OpenSees::VectorND<6>   q;
-
+    // Matrix K;
+    // Vector P;
 };
 
 #endif

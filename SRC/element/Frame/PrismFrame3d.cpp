@@ -28,7 +28,8 @@
 PrismFrame3d::PrismFrame3d()
  : BasicFrame3d(0,ELE_TAG_ElasticBeam3d),
    E(0.0), G(0.0), A(0.0), Ay(0.0), Az(0.0),
-   Jx(0.0), Iy(0.0), Iz(0.0),
+   Jx(0.0), 
+   Iy(0.0), Iz(0.0), Iyz(0.0),
    total_mass(0.0), twist_mass(0.0),
    geom_flag(0)
 {
@@ -39,11 +40,13 @@ PrismFrame3d::PrismFrame3d(int tag, std::array<int, 2>& nodes,
                            double  a, double  E, double  G, 
                            double jx, double iy, double iz,
                            FrameTransform3d &coordTransf, 
-                           double r, int cm, int rz, int ry,
+                           double r, int cm, 
+                           int rz, int ry,
                            int geom)
 
   :BasicFrame3d(tag,ELE_TAG_ElasticBeam3d, nodes, coordTransf),
-   A(a), E(E), G(G), Jx(jx), Iy(iy), Iz(iz), 
+   A(a), E(E), G(G), Jx(jx), 
+   Iy(iy), Iz(iz), Iyz(0),
    mass_flag(cm), density(r),
    releasez(rz), releasey(ry),
    geom_flag(geom),
@@ -69,13 +72,15 @@ PrismFrame3d::PrismFrame3d(int tag,
   q.zero();
 
   section_tag = section.getTag();
-
   section.getIntegral(Field::Unit,   State::Init, A);
-  section.getIntegral(Field::UnitY,  State::Init, Ay);
-  section.getIntegral(Field::UnitZ,  State::Init, Az);
   section.getIntegral(Field::UnitZZ, State::Init, Iy);
   section.getIntegral(Field::UnitYY, State::Init, Iz);
+  if (section.getIntegral(Field::UnitY,  State::Init, Ay) != 0)
+    Ay = 0; //A;
+  if (section.getIntegral(Field::UnitZ,  State::Init, Az) != 0)
+    Az = 0; // A;
   Jx = Iy + Iz;
+  Iyz = 0.0;
 
   const Matrix &sectTangent = section.getInitialTangent();
   const ID &sectCode = section.getType();
@@ -193,6 +198,7 @@ PrismFrame3d::revertToLastCommit()
 int
 PrismFrame3d::revertToStart()
 {
+  q.zero();
   return theCoordTransf->revertToStart();
 }
 
@@ -380,7 +386,6 @@ PrismFrame3d::getResistingForce()
   pf[2] = p0[3];
   pf[8] = p0[4];
 
-
   thread_local VectorND<12> pg;
   thread_local Vector wrapper(pg);
 
@@ -390,7 +395,7 @@ PrismFrame3d::getResistingForce()
   // Subtract other external nodal loads ... P_res = P_int - P_ext
   if (total_mass != 0.0)
     wrapper.addVector(1.0, p_iner, -1.0);
-
+  // opserr << wrapper;
   return wrapper;
 }
 
@@ -399,6 +404,7 @@ PrismFrame3d::getBasicTangent(State flag, int rate)
 {
   return ke;
 }
+
 
 const Matrix &
 PrismFrame3d::getMass()
@@ -554,14 +560,12 @@ PrismFrame3d::sendSelf(int cTag, Channel &theChannel)
     // Send the data vector
     res += theChannel.sendVector(this->getDbTag(), cTag, data);
     if (res < 0) {
-      opserr << "PrismFrame3d::sendSelf -- could not send data Vector\n";
       return res;
     }
 
     // Ask the CoordTransf to send itself
     res += theCoordTransf->sendSelf(cTag, theChannel);
     if (res < 0) {
-      opserr << "PrismFrame3d::sendSelf -- could not send CoordTransf\n";
       return res;
     }
 
@@ -576,7 +580,6 @@ PrismFrame3d::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroke
 
   res += theChannel.recvVector(this->getDbTag(), cTag, data);
   if (res < 0) {
-    opserr << "PrismFrame3d::recvSelf -- could not receive data Vector\n";
     return res;
   }
 
@@ -660,15 +663,17 @@ PrismFrame3d::Print(OPS_Stream &s, int flag)
 
       // 
       if (section_tag > 0) {
-        s << "\"section\": " << section_tag ; // << ", ";
-      } else {
-        s << "\"E\": "  << E  << ", ";
-        s << "\"G\": "  << G  << ", ";
-        s << "\"A\": "  << A  << ", ";
-        s << "\"Jx\": " << Jx << ", ";
-        s << "\"Iy\": " << Iy << ", ";
-        s << "\"Iz\": " << Iz;
+        s << "\"section\": " << section_tag << ", ";
       }
+      s << "\"E\": "  << E  << ", ";
+      s << "\"G\": "  << G  << ", ";
+      s << "\"A\": "  << A  << ", ";
+      s << "\"Ay\": "  << Ay  << ", ";
+      s << "\"Az\": "  << Az  << ", ";
+      s << "\"Jx\": " << Jx << ", ";
+      s << "\"Iy\": " << Iy << ", ";
+      s << "\"Iz\": " << Iz;
+
       //
       s << "}";
   }
@@ -839,6 +844,8 @@ PrismFrame3d::getResponse(int responseID, Information &info)
     return info.setVector(Res);
     
   case 3: { // local forces
+    static Vector P(12);
+    P.Zero();
     double V, Mi, Mj, T;
     // Axial
     double N = q[0];

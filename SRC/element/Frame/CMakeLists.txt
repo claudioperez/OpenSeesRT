@@ -7,6 +7,10 @@
 
 target_sources(OPS_Runtime PRIVATE commands.cpp)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
+  target_compile_options(OPS_Runtime PRIVATE -g -save-temps=obj -fverbose-asm)
+endif()
+
 target_sources(OPS_Element
   PRIVATE
     BasicFrame3d.cpp
@@ -18,13 +22,12 @@ target_sources(OPS_Element
 
     MixedFrame3d.cpp
 
-    ForceFrame3d.cpp
-    ForceDeltaFrame3d.cpp
-
     EulerFrame3d.cpp
     EulerDeltaFrame3d.cpp
   PUBLIC
     BasicFrame3d.h
+    ForceFrame3d.h
+    ForceDeltaFrame3d.h
 )
 
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})

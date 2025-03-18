@@ -61,7 +61,8 @@ typedef int FrameStressLayout[FrameStress::Max];
 static inline constexpr FrameLayout
 WarpIndex(const int n, const FrameStressLayout& layout) {
     
-    FrameLayout L {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
+    FrameLayout L {{-1, -1, -1}, {-1, -1, -1},
+                   {-1, -1, -1}, {-1, -1, -1}};
     // Save layout locations
     for (int i=0; i<n; i++) {
       switch (layout[i]) {
@@ -148,8 +149,8 @@ public:
     int m = this->getOrder();
 
     const Matrix& ks = (state == State::Init)
-                      ? this->getInitialTangent()
-                      : this->getSectionTangent();
+                     ? this->getInitialTangent()
+                     : this->getSectionTangent();
 
 
     constexpr FrameLayout e = WarpIndex(n, scheme);

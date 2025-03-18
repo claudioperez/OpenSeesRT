@@ -1049,9 +1049,6 @@ ForceFrame3d::getStressGrad(VectorND<nsr>& dspdh, int isec, int gradNumber)
   double x    = points[isec].point * L;
   double dxdh = points[isec].point * dLdh + dxidh[isec] * L;
 
-  int order      = points[isec].material->getOrder();
-  const ID& code = points[isec].material->getType();
-
   for (auto[load, loadFactor] : eleLoads) {
     int type;
     const  Vector& data = load->getData(type, loadFactor);

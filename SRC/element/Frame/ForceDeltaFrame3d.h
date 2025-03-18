@@ -20,6 +20,7 @@ class Response;
 class ElementalLoad;
 class BeamIntegration;
 
+template<int NIP, int nsr>
 class ForceDeltaFrame3d : public BasicFrame3d {
 public:
   ForceDeltaFrame3d(int tag, 
@@ -28,7 +29,7 @@ public:
                BeamIntegration&  stencil,
                FrameTransform3d& coordTransf, 
                double rho, int mass_type, bool use_mass,
-               int maxNumIters, double tolerance,
+               int num_iter, double tolerance,
                bool includeShear
   );
 
@@ -85,11 +86,10 @@ protected:
 
 private:
   constexpr static int
-         nsr = 6,
          nen = 2,               // number of element nodes
          ndm = 3 ,              // dimension of the problem (2d)
          ndf = 6 ,              // dofs per node
-         nq = 6 ,               // number of element dof's in the basic system
+         nq  = 6 ,              // number of element dof's in the basic system
          maxNumSections = 20,
          maxNumEleLoads = 100;
 
@@ -182,4 +182,5 @@ private:
   int parameterID;
 };
 
+#include "ForceDeltaFrame3d.tpp"
 #endif

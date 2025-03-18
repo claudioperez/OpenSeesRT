@@ -406,9 +406,9 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
   }
 
   struct Options options;
-  options.mass_flag  = 0;
-  options.shear_flag = 1;
-  options.geom_flag  = 0;
+  options.mass_flag  =  0;
+  options.shear_flag = -1;
+  options.geom_flag  =  0;
 
   int max_iter = 10;
   double tol  = 1.0e-12;
@@ -444,7 +444,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
       }
 
       // Shear
-      if (strcmp(argv[argi], "-order") == 0) {
+      else if (strcmp(argv[argi], "-order") == 0) {
         if (argc < argi + 2) {
           opserr << G3_ERROR_PROMPT << "not enough arguments, expected -order $flag\n";
           status = TCL_ERROR;
@@ -476,9 +476,9 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
           goto clean_up;
         }
         argi += 3;
-
+      }
       // mass
-      } else if (strcmp(argv[argi], "-mass") == 0) {
+      else if (strcmp(argv[argi], "-mass") == 0) {
         if (argc < argi + 2) {
           opserr << G3_ERROR_PROMPT << "not enough arguments, expected -mass $mass\n";
           status = TCL_ERROR;
@@ -539,7 +539,6 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         }
         argi++;
       }
-
 
       // Section
       else if (strcmp(argv[argi], "-section") == 0) {
@@ -750,6 +749,14 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
     nIP = sections.size();
     secptrs = (SectionForceDeformation**)(sections.data());
 
+    if (options.shear_flag == -1) {
+      options.shear_flag = 0;
+      const ID& resultants = sections[0]->getType();
+      for (int i=0; i< sections[0]->getOrder(); i++)
+        if (resultants(i) == FrameStress::Vy)
+          options.shear_flag = 1;
+    }
+
 
     // Finalize the coordinate transform
     switch (ndm) {
@@ -834,23 +841,43 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
         std::array<int, 2> nodes {iNode, jNode};
 
         if (strcmp(argv[1], "ForceDeltaFrame") == 0 || options.geom_flag) {
-
-          theElement = new ForceDeltaFrame3d(tag, nodes, sections,
-                                        *beamIntegr, *theTransf3d, 
-                                        mass, options.mass_flag, use_mass,
-                                        max_iter, tol,
-                                        options.shear_flag
-                                        );
+          if (!options.shear_flag)
+            theElement = new ForceDeltaFrame3d<20, 4>(tag, nodes, sections,
+                                          *beamIntegr, *theTransf3d, 
+                                          mass, options.mass_flag, use_mass,
+                                          max_iter, tol,
+                                          options.shear_flag
+                                          );
+          else
+            theElement = new ForceDeltaFrame3d<20, 6>(tag, nodes, sections,
+              *beamIntegr, *theTransf3d, 
+              mass, options.mass_flag, use_mass,
+              max_iter, tol,
+              options.shear_flag
+              );
         } else {
-          theElement = new ForceFrame3d(tag, nodes, sections,
-                                        *beamIntegr, *theTransf3d,
-                                        mass, options.mass_flag, use_mass,
-                                        max_iter, tol
-                                        );
+          if (!options.shear_flag) {
+            theElement = new ForceFrame3d<20, 4>(tag, nodes, sections,
+                                          *beamIntegr, *theTransf3d,
+                                          mass, options.mass_flag, use_mass,
+                                          max_iter, tol
+                                          );
+          }
+          else
+            theElement = new ForceFrame3d<20, 6>(tag, nodes, sections,
+                                          *beamIntegr, *theTransf3d,
+                                          mass, options.mass_flag, use_mass,
+                                          max_iter, tol
+                                          );
         }
       }
 
       else if (strcmp(argv[1], "ExactFrame") == 0) {
+        if (!options.shear_flag) {
+          opserr << G3_ERROR_PROMPT << "ExactFrame3d requires shear formulation\n";
+          status = TCL_ERROR;
+          goto clean_up;
+        }
         int ndf = builder->getNDF();
         if (multi_node && sections.size() < multi_nodes.size()-1)
           for (int i = 0; i < multi_nodes.size()-1; ++i)
@@ -1357,7 +1384,7 @@ TclBasicBuilder_addBeamWithHinges(ClientData clientData, Tcl_Interp *interp,
 
         if (strcmp(argv[i], "-shear") == 0 && ++i < argc) {
           if (Tcl_GetDouble(interp, argv[i], &shearLength) != TCL_OK) {
-            opserr << "WARNING invalid shearLength\n";
+            opserr << "WARNING invalid shear\n";
             return TCL_ERROR;
           }
         }

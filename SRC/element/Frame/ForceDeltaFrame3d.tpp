@@ -65,8 +65,9 @@
 #define THREAD_LOCAL static
 #define ELE_TAG_ForceDeltaFrame3d 0 // TODO
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::getHk(int n, double xi[], Matrix& H)
+ForceDeltaFrame3d<NIP,nsr>::getHk(int n, double xi[], Matrix& H)
 {
   for (int i = 0; i < n; i++) {
     for (int j = 0; j < n; j++)
@@ -76,16 +77,18 @@ ForceDeltaFrame3d::getHk(int n, double xi[], Matrix& H)
   return;
 }
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::getHkp(int n, double xi[], Matrix& H)
+ForceDeltaFrame3d<NIP,nsr>::getHkp(int n, double xi[], Matrix& H)
 {
   for (int i = 0; i < n; i++)
     for (int j = 0; j < n; j++)
       H(i, j) = pow(xi[i], j + 1) / (j + 1) - 1.0 / (j + 1) / (j + 2);
 }
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::getHg(int n, double xi[], Matrix& H)
+ForceDeltaFrame3d<NIP,nsr>::getHg(int n, double xi[], Matrix& H)
 {
   for (int i = 0; i < n; i++) {
     H(i, 0) = 0;
@@ -94,8 +97,9 @@ ForceDeltaFrame3d::getHg(int n, double xi[], Matrix& H)
   }
 }
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::getHgp(int n, double xi[], Matrix& H)
+ForceDeltaFrame3d<NIP,nsr>::getHgp(int n, double xi[], Matrix& H)
 {
   for (int i = 0; i < n; i++) {
     H(i, 0) = 0;
@@ -106,7 +110,8 @@ ForceDeltaFrame3d::getHgp(int n, double xi[], Matrix& H)
 
 
 // invoked by a FEM_ObjectBroker, recvSelf() needs to be invoked on this object.
-ForceDeltaFrame3d::ForceDeltaFrame3d()
+template<int NIP, int nsr>
+ForceDeltaFrame3d<NIP,nsr>::ForceDeltaFrame3d()
  : BasicFrame3d(0, ELE_TAG_ForceDeltaFrame3d),
    stencil(nullptr),
    shear_flag(false),
@@ -124,7 +129,8 @@ ForceDeltaFrame3d::ForceDeltaFrame3d()
 }
 
 
-ForceDeltaFrame3d::ForceDeltaFrame3d(int tag, 
+template<int NIP, int nsr>
+ForceDeltaFrame3d<NIP,nsr>::ForceDeltaFrame3d(int tag, 
                            std::array<int,2>& nodes,
                            std::vector<FrameSection*>& sections,
                            BeamIntegration& bi, 
@@ -154,7 +160,8 @@ ForceDeltaFrame3d::ForceDeltaFrame3d(int tag,
 }
 
 
-ForceDeltaFrame3d::~ForceDeltaFrame3d()
+template<int NIP, int nsr>
+ForceDeltaFrame3d<NIP,nsr>::~ForceDeltaFrame3d()
 {
   for (GaussPoint& point : points)
     if (point.material != nullptr)
@@ -167,8 +174,9 @@ ForceDeltaFrame3d::~ForceDeltaFrame3d()
     delete Ki;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::setNodes()
+ForceDeltaFrame3d<NIP,nsr>::setNodes()
 {
   this->BasicFrame3d::setNodes();
 
@@ -192,8 +200,9 @@ ForceDeltaFrame3d::setNodes()
   return 0;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::commitState()
+ForceDeltaFrame3d<NIP,nsr>::commitState()
 {
   int err = 0;
 
@@ -223,8 +232,9 @@ ForceDeltaFrame3d::commitState()
   return err;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::revertToLastCommit()
+ForceDeltaFrame3d<NIP,nsr>::revertToLastCommit()
 {
 
   for (GaussPoint& point : points) {
@@ -254,8 +264,9 @@ ForceDeltaFrame3d::revertToLastCommit()
   return 0;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::revertToStart()
+ForceDeltaFrame3d<NIP,nsr>::revertToStart()
 {
   // Revert the transformation to start
   if (theCoordTransf->revertToStart() != 0)
@@ -285,8 +296,9 @@ ForceDeltaFrame3d::revertToStart()
 
 
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::initializeSectionHistoryVariables()
+ForceDeltaFrame3d<NIP,nsr>::initializeSectionHistoryVariables()
 {
   for (int i = 0; i < points.size(); i++) {
     points[i].Fs.zero();
@@ -298,15 +310,16 @@ ForceDeltaFrame3d::initializeSectionHistoryVariables()
 
 
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::update()
+ForceDeltaFrame3d<NIP,nsr>::update()
 {
   const int nip = points.size();
 
   // TODO: remove hard limit on sections
-  THREAD_LOCAL VectorND<nsr>     es_trial[maxNumSections]; //  strain
-  THREAD_LOCAL VectorND<nsr>     sr_trial[maxNumSections]; //  stress resultant
-  THREAD_LOCAL MatrixND<nsr,nsr> Fs_trial[maxNumSections]; //  flexibility
+  THREAD_LOCAL VectorND<nsr>     es_trial[NIP]; //  strain
+  THREAD_LOCAL VectorND<nsr>     sr_trial[NIP]; //  stress resultant
+  THREAD_LOCAL MatrixND<nsr,nsr> Fs_trial[NIP]; //  flexibility
 
   // if have completed a recvSelf() - do a revertToLastCommit
   // to get sr, etc. set correctly
@@ -319,7 +332,7 @@ ForceDeltaFrame3d::update()
   // get basic displacements and increments
   const Vector& v = theCoordTransf->getBasicTrialDisp();
 
-  THREAD_LOCAL VectorND<nq> dv{0.0};
+  THREAD_LOCAL VectorND<nq> dv;
   dv = theCoordTransf->getBasicIncrDeltaDisp();
 
   if (state_flag != 0 && dv.norm() <= DBL_EPSILON && eleLoads.size() == 0)
@@ -350,7 +363,7 @@ ForceDeltaFrame3d::update()
 
   Vector stilde(nsr * points.size());
   for (int i = 0; i < points.size(); i++) {
-    auto s = points[i].material->getResultant<nsr,scheme>();
+    auto s = points[i].material->template getResultant<nsr,scheme>();
     for (int j = 0; j < nsr; j++)
       stilde(nsr*i + j) = s[j];
   }
@@ -500,8 +513,8 @@ ForceDeltaFrame3d::update()
     //
     K_tilde.Zero();
     for (int i = 0; i < nip; i++) {
-      Fs_trial[i] = points[i].material->getFlexibility<nsr,scheme>();
-      const MatrixND<nsr,nsr> Ks = points[i].material->getTangent<nsr,scheme>(State::Pres);
+      Fs_trial[i] = points[i].material->template getFlexibility<nsr,scheme>();
+      const MatrixND<nsr,nsr> Ks = points[i].material->template getTangent<nsr,scheme>(State::Pres);
 
 
       for (int j = 0; j < nip; j++) {
@@ -581,11 +594,11 @@ ForceDeltaFrame3d::update()
     K_tilde.Zero();
     for (int i = 0; i < nip; i++) {
 
-      points[i].material->setTrialState<nsr,scheme>(es_trial[i]);
+      points[i].material->template setTrialState<nsr,scheme>(es_trial[i]);
 
-      sr_trial[i] = points[i].material->getResultant<nsr, scheme>();
-      Fs_trial[i] = points[i].material->getFlexibility<nsr,scheme>();
-      const MatrixND<nsr,nsr> Ks = points[i].material->getTangent<nsr,scheme>(State::Pres);
+      sr_trial[i] = points[i].material->template getResultant<nsr, scheme>();
+      Fs_trial[i] = points[i].material->template getFlexibility<nsr,scheme>();
+      const MatrixND<nsr,nsr> Ks = points[i].material->template getTangent<nsr,scheme>(State::Pres);
 
 
       double xL = points[i].point;
@@ -731,8 +744,10 @@ ForceDeltaFrame3d::update()
     //
     //
     //
-    MatrixND<nsr, nq> Bstr{0};
-    MatrixND<nsr, nq> Bhat{0};
+    MatrixND<nsr, nq> Bstr;
+    MatrixND<nsr, nq> Bhat;
+    Bstr.zero();
+    Bhat.zero();
     for (int i = 0; i < nip; i++) {
       double xL = points[i].point;
       double wtL = points[i].weight * L;
@@ -911,8 +926,9 @@ ForceDeltaFrame3d::update()
 }
 
 
+template<int NIP, int nsr>
 const Vector &
-ForceDeltaFrame3d::getResistingForce()
+ForceDeltaFrame3d<NIP,nsr>::getResistingForce()
 {
  
   double q0 = q_pres[0];
@@ -949,7 +965,8 @@ ForceDeltaFrame3d::getResistingForce()
   if (eleLoads.size() > 0) // (eleLoads.size() > 0)
     this->computeReactions(p0);
 
-  thread_local VectorND<12> pf{0.0};
+  thread_local VectorND<12> pf;
+  pf.zero();
   pf[0] = p0[0];
   pf[1] = p0[1];
   pf[7] = p0[2];
@@ -963,8 +980,9 @@ ForceDeltaFrame3d::getResistingForce()
   return wrapper;
 }
 
+template<int NIP, int nsr>
 const Matrix &
-ForceDeltaFrame3d::getTangentStiff()
+ForceDeltaFrame3d<NIP,nsr>::getTangentStiff()
 {
   MatrixND<nq,nq> kb = this->getBasicTangent(State::Pres, 0);
 
@@ -977,7 +995,7 @@ ForceDeltaFrame3d::getTangentStiff()
 
   double oneOverL = 1.0 / theCoordTransf->getInitialLength();
 
-  THREAD_LOCAL VectorND<12> pl{0.0};
+  THREAD_LOCAL VectorND<12> pl;
   pl[0]  = -q0;                    // Ni
   pl[1]  =  oneOverL * (q1 + q2);  // Viy
   pl[2]  = -oneOverL * (q3 + q4);  // Viz
@@ -993,7 +1011,7 @@ ForceDeltaFrame3d::getTangentStiff()
   
 
   // Transform basic stiffness to local system
-  THREAD_LOCAL double tmp[12][12]{};  // Temporary storage
+  THREAD_LOCAL double tmp[6][12];  // Temporary storage
   // First compute kb*T_{bl}
   for (int i = 0; i < 6; i++) {
     tmp[i][ 0] = -kb(i, 0);
@@ -1010,7 +1028,7 @@ ForceDeltaFrame3d::getTangentStiff()
     tmp[i][11] =  kb(i, 2);
   }
 
-  THREAD_LOCAL MatrixND<12,12> kl{0.0};  // Local stiffness
+  THREAD_LOCAL MatrixND<12,12> kl;  // Local stiffness
   // Now compute T'_{bl}*(kb*T_{bl})
   for (int i = 0; i < 12; i++) {
     kl( 0, i) = -tmp[0][i];
@@ -1036,8 +1054,9 @@ ForceDeltaFrame3d::getTangentStiff()
 
 
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::computew(Vector& w, Vector& wp, double xi[], const Vector& kappa, const Vector& gamma)
+ForceDeltaFrame3d<NIP,nsr>::computew(Vector& w, Vector& wp, double xi[], const Vector& kappa, const Vector& gamma)
 {
   int numSections = points.size();
   double L = theCoordTransf->getInitialLength();
@@ -1076,28 +1095,29 @@ ForceDeltaFrame3d::computew(Vector& w, Vector& wp, double xi[], const Vector& ka
   }
 }
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::computedwdq(Matrix& dwidq, 
+ForceDeltaFrame3d<NIP,nsr>::computedwdq(Matrix& dwidq, 
                                const Vector& q, 
                                const Vector& w,    const Vector& wp,
                                const Matrix& lsk,  const Matrix& lsg, 
                                const Matrix& lskp, const Matrix& lsgp)
 {
-  int numSections = points.size();
+  const int nip = points.size();
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
-  Matrix A(2 * numSections, 2 * numSections);
-  Matrix b(2 * numSections, nq);
+  Matrix A(2 * nip, 2 * nip);
+  Matrix b(2 * nip, nq);
 
-  Matrix Fksb(numSections, nq);
-  Matrix Fgsb(numSections, nq);
+  Matrix Fksb(nip, nq);
+  Matrix Fgsb(nip, nq);
 
   bool isGamma = false;
 
-  for (int i = 0; i < numSections; i++) {
+  for (int i = 0; i < nip; i++) {
 
-    const MatrixND<nsr,nsr> Fs = points[i].material->getFlexibility<nsr,scheme>();
+    const MatrixND<nsr,nsr> Fs = points[i].material->template getFlexibility<nsr,scheme>();
 
     double FkM = 0.0;
     double FgM = 0.0;
@@ -1152,43 +1172,43 @@ ForceDeltaFrame3d::computedwdq(Matrix& dwidq,
     isGamma = shear_flag && isGamma;
 
     A(i, i)                             = 1.0;
-    A(i + numSections, i + numSections) = 1.0;
+    A(i + nip, i + nip) = 1.0;
 
     double q1 = q(0);
 
-    for (int j = 0; j < numSections; j++) {
+    for (int j = 0; j < nip; j++) {
       A(j, i) -= q1 * L * L * FkM * lsk(j, i);
       if (isGamma) {
         A(j, i) -= q1 * L * FgM * lsg(j, i);
 
-        A(j, i + numSections) += q1 * L * L * FkV * lsk(j, i);
-        A(j, i + numSections) += q1 * L * FgV * lsg(j, i);
+        A(j, i + nip) += q1 * L * L * FkV * lsk(j, i);
+        A(j, i + nip) += q1 * L * FgV * lsg(j, i);
 
-        A(j + numSections, i) -= q1 * L * FkM * lskp(j, i);
-        A(j + numSections, i) -= q1 * FgM * lsgp(j, i);
+        A(j + nip, i) -= q1 * L * FkM * lskp(j, i);
+        A(j + nip, i) -= q1 * FgM * lsgp(j, i);
 
-        A(j + numSections, i + numSections) += q1 * L * FkV * lskp(j, i);
-        A(j + numSections, i + numSections) += q1 * FgV * lsgp(j, i);
+        A(j + nip, i + nip) += q1 * L * FkV * lskp(j, i);
+        A(j + nip, i + nip) += q1 * FgV * lsgp(j, i);
       }
     }
   }
 
-  Matrix mhs(numSections, nq);
+  Matrix mhs(nip, nq);
 
   mhs.addMatrixProduct(0.0, lsk, Fksb, L * L);
   if (isGamma)
     mhs.addMatrixProduct(1.0, lsg, Fgsb, L);
 
-  for (int i = 0; i < numSections; i++)
+  for (int i = 0; i < nip; i++)
     for (int j = 0; j < nq; j++)
       b(i, j) = mhs(i, j);
 
   if (isGamma) {
     mhs.addMatrixProduct(0.0, lskp, Fksb, L);
     mhs.addMatrixProduct(1.0, lsgp, Fgsb, 1.0);
-    for (int i = 0; i < numSections; i++)
+    for (int i = 0; i < nip; i++)
       for (int j = 0; j < nq; j++)
-        b(i + numSections, j) = mhs(i, j);
+        b(i + nip, j) = mhs(i, j);
   }
 
   A.Solve(b, dwidq);
@@ -1196,8 +1216,9 @@ ForceDeltaFrame3d::computedwdq(Matrix& dwidq,
   return;
 }
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::computedwzdq(Matrix& dwzidq, const Vector& q, const Vector& wz, const Vector& wpz,
+ForceDeltaFrame3d<NIP,nsr>::computedwzdq(Matrix& dwzidq, const Vector& q, const Vector& wz, const Vector& wpz,
                            const Matrix& lsk, const Matrix& lsg, const Matrix& lskp,
                            const Matrix& lsgp)
 {
@@ -1215,7 +1236,7 @@ ForceDeltaFrame3d::computedwzdq(Matrix& dwzidq, const Vector& q, const Vector& w
 
   for (int i = 0; i < numSections; i++) {
 
-    MatrixND<nsr,nsr> Fs = points[i].material->getFlexibility<nsr,scheme>();
+    MatrixND<nsr,nsr> Fs = points[i].material->template getFlexibility<nsr,scheme>();
 
     double FkM = 0.0;
     double FgM = 0.0;
@@ -1315,11 +1336,11 @@ ForceDeltaFrame3d::computedwzdq(Matrix& dwzidq, const Vector& q, const Vector& w
 }
 
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::computeSectionForces(VectorND<nsr>& sp, int isec)
+ForceDeltaFrame3d<NIP,nsr>::computeSectionForces(VectorND<nsr>& sp, int isec)
 {
 
-  int numSections = points.size();
   double L = theCoordTransf->getInitialLength();
 
 //double xi[maxNumSections];
@@ -1484,8 +1505,9 @@ ForceDeltaFrame3d::computeSectionForces(VectorND<nsr>& sp, int isec)
   }
 }
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::getStressGrad(VectorND<nsr>& dspdh, int isec, int igrad)
+ForceDeltaFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int igrad)
 {
   int numSections = points.size();
 
@@ -1500,9 +1522,6 @@ ForceDeltaFrame3d::getStressGrad(VectorND<nsr>& dspdh, int isec, int igrad)
 
   double x    = xi[isec] * L;
   double dxdh = xi[isec] * dLdh + dxidh[isec] * L;
-
-  int order      = points[isec].material->getOrder();
-  const ID& code = points[isec].material->getType();
 
   for (auto[load, loadFactor] : eleLoads) {
     int type;
@@ -1520,7 +1539,7 @@ ForceDeltaFrame3d::getStressGrad(VectorND<nsr>& dspdh, int isec, int igrad)
       double dwadh       = sens(2);
       for (int ii = 0; ii < nsr; ii++) {
 
-        switch (code(ii)) {
+        switch (scheme[ii]) {
         case SECTION_RESPONSE_P:
           //sp[ii] += wa*(L-x);
           dspdh(ii) += dwadh * (L - x) + wa * (dLdh - dxdh);
@@ -1577,7 +1596,7 @@ ForceDeltaFrame3d::getStressGrad(VectorND<nsr>& dspdh, int isec, int igrad)
       for (int ii = 0; ii < nsr; ii++) {
 
         if (x <= a) {
-          switch (code(ii)) {
+          switch (scheme[ii]) {
           case SECTION_RESPONSE_P:
             //sp[ii] += N;
             dspdh(ii) += dNdh;
@@ -1602,7 +1621,7 @@ ForceDeltaFrame3d::getStressGrad(VectorND<nsr>& dspdh, int isec, int igrad)
           default: break;
           }
         } else {
-          switch (code(ii)) {
+          switch (scheme[ii]) {
           case SECTION_RESPONSE_MZ:
             //sp[ii] -= (L-x)*Vy2;
             dspdh(ii) -= (dLdh - dxdh) * Vy2 + (L - x) * dVy2dh;
@@ -1631,21 +1650,24 @@ ForceDeltaFrame3d::getStressGrad(VectorND<nsr>& dspdh, int isec, int igrad)
   }
 }
 
+template<int NIP, int nsr>
 VectorND<6>&
-ForceDeltaFrame3d::getBasicForce()
+ForceDeltaFrame3d<NIP,nsr>::getBasicForce()
 {
   return q_pres;
 }
 
+template<int NIP, int nsr>
 MatrixND<6, 6>&
-ForceDeltaFrame3d::getBasicTangent(State state, int rate)
+ForceDeltaFrame3d<NIP,nsr>::getBasicTangent(State state, int rate)
 {
   return K_pres;
 }
 
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::getInitialFlexibility(Matrix& fe)
+ForceDeltaFrame3d<NIP,nsr>::getInitialFlexibility(Matrix& fe)
 {
   int numSections = points.size();
   fe.Zero();
@@ -1661,9 +1683,6 @@ ForceDeltaFrame3d::getInitialFlexibility(Matrix& fe)
 
   for (int i = 0; i < numSections; i++) {
 
-    int order      = points[i].material->getOrder();
-    const ID& code = points[i].material->getType();
-
     MatrixND<nsr, nq> fb;
 
     double xL  = xi[i];
@@ -1673,9 +1692,8 @@ ForceDeltaFrame3d::getInitialFlexibility(Matrix& fe)
     const Matrix& fSec = points[i].material->getInitialFlexibility();
     fb.zero();
     double tmp;
-    int ii, jj;
     for (int ii = 0; ii < nsr; ii++) {
-      switch (code(ii)) {
+      switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
         for (int jj = 0; jj < nsr; jj++)
           fb(jj, 0) += fSec(jj, ii) * wtL;
@@ -1716,7 +1734,7 @@ ForceDeltaFrame3d::getInitialFlexibility(Matrix& fe)
       }
     }
     for (int ii = 0; ii < nsr; ii++) {
-      switch (code(ii)) {
+      switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
         for (int jj = 0; jj < nq; jj++)
           fe(0, jj) += fb(ii, jj);
@@ -1761,8 +1779,9 @@ ForceDeltaFrame3d::getInitialFlexibility(Matrix& fe)
   return 0;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::getInitialDeformations(Vector& v0)
+ForceDeltaFrame3d<NIP,nsr>::getInitialDeformations(Vector& v0)
 {
   int numSections = points.size();
 
@@ -1790,7 +1809,7 @@ ForceDeltaFrame3d::getInitialDeformations(Vector& v0)
 
     this->computeSectionForces(sp, i);
 
-    MatrixND<nsr,nsr> fse = points[i].material->getFlexibility<nsr,scheme>(State::Init);
+    MatrixND<nsr,nsr> fse = points[i].material->template getFlexibility<nsr,scheme>(State::Init);
 
     VectorND<nsr> e;
     e.addMatrixVector(0.0, fse, sp, 1.0);
@@ -1830,8 +1849,9 @@ ForceDeltaFrame3d::getInitialDeformations(Vector& v0)
 
 
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::computedwdh(double dwidh[], int igrad, const Vector& q)
+ForceDeltaFrame3d<NIP,nsr>::computedwdh(double dwidh[], int igrad, const Vector& q)
 {
   int numSections = points.size();
 
@@ -1907,8 +1927,6 @@ ForceDeltaFrame3d::computedwdh(double dwidh[], int igrad, const Vector& q)
     double FkV = 0.0;
     double FgV = 0.0;
 
-    const ID& code = points[i].material->getType();
-    int order      = points[i].material->getOrder();
     for (int j = 0; j < nsr; j++) {
       if (scheme[j] == SECTION_RESPONSE_MZ) {
         FkM += fs(j, j);
@@ -2054,8 +2072,9 @@ ForceDeltaFrame3d::computedwdh(double dwidh[], int igrad, const Vector& q)
 }
 
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
+ForceDeltaFrame3d<NIP,nsr>::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
 {
   int numSections = points.size();
   // get basic displacements and increments
@@ -2083,15 +2102,14 @@ ForceDeltaFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector secti
   for (int i = 0; i < numSections; i++) {
     // THIS IS VERY INEFFICIENT ... CAN CHANGE LATER
     int sectionKey = 0;
-    const ID& code = points[i].material->getType();
     int ii;
-    for (ii = 0; ii < code.Size(); ii++)
-      if (code(ii) == SECTION_RESPONSE_MZ) {
+    for (ii = 0; ii < nsr; ii++)
+      if (scheme[ii] == SECTION_RESPONSE_MZ) {
         sectionKey = ii;
         break;
       }
 
-    if (ii == code.Size()) {
+    if (ii == nsr) {
       opserr
           << "FATAL NLBeamColumnCBDI3d::compSectionDispls - section does not provide Mz response\n";
     }
@@ -2103,7 +2121,7 @@ ForceDeltaFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector secti
 
   Vector w(numSections);
   VectorND<ndm> xl, uxb;
-  VectorND<ndm> xg, uxg;
+//VectorND<ndm> xg, uxg;
 
   // w = ls * kappa;
   w.addMatrixVector(0.0, ls, kappa, 1.0);
@@ -2130,8 +2148,9 @@ ForceDeltaFrame3d::compSectionDisplacements(Vector sectionCoords[], Vector secti
 
 
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::Print(OPS_Stream& s, int flag)
+ForceDeltaFrame3d<NIP,nsr>::Print(OPS_Stream& s, int flag)
 {
   const int numSections = points.size();
   const ID& node_tags = this->getExternalNodes();
@@ -2180,44 +2199,12 @@ ForceDeltaFrame3d::Print(OPS_Stream& s, int flag)
     s << "#NODE " << xj(0) << " " << xj(1) << " " << uj(0) << " " << uj(1)
       << " " << uj(2) << "\n";
   }
-
-  if (flag == OPS_PRINT_CURRENTSTATE) {
-
-    s << "\nEment: " << this->getTag() << " Type: ForceDeltaFrame3d ";
-    s << "\tConnected Nodes: " << connectedExternalNodes;
-    s << "\tNumber of Sections: " << numSections;
-    s << "\tMass density: " << density << "\n";
-    stencil->Print(s, flag);
-    double P     = q_past(0);
-    double M1    = q_past(1);
-    double M2    = q_past(2);
-    double L     = theCoordTransf->getInitialLength();
-    double V     = (M1 + M2) / L;
-
-    double p0[6];
-    p0[0] = 0.0;
-    p0[1] = 0.0;
-    p0[2] = 0.0;
-    p0[3] = 0.0;
-    p0[4] = 0.0;
-    p0[5] = 0.0;
-    if (eleLoads.size() > 0)
-      this->computeReactions(p0);
-
-    s << "\tEnd 1 Forces (P V M): " << -P + p0[0] << " " << V + p0[1] << " " << M1 << "\n";
-    s << "\tEnd 2 Forces (P V M): " << P << " " << -V + p0[2] << " " << M2 << "\n";
-
-    if (flag == 1) {
-      for (int i = 0; i < numSections; i++)
-        s << "\nSection " << i << " :" << *points[i].material;
-    }
-  }
-
 }
 
 
+template<int NIP, int nsr>
 void
-ForceDeltaFrame3d::setSectionPointers(int numSec, FrameSection** secPtrs)
+ForceDeltaFrame3d<NIP,nsr>::setSectionPointers(int numSec, FrameSection** secPtrs)
 {
   // Return value of 0 indicates success
 
@@ -2238,8 +2225,9 @@ ForceDeltaFrame3d::setSectionPointers(int numSec, FrameSection** secPtrs)
 }
 
 
+template<int NIP, int nsr>
 Response*
-ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
+ForceDeltaFrame3d<NIP,nsr>::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
   int numSections = points.size();
   Response* theResponse = nullptr;
@@ -2390,8 +2378,7 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
       if (strcmp(argv[2], "dsdh") != 0) {
         theResponse = points[sectionNum].material->setResponse(&argv[2], argc - 2, output);
       } else {
-        int order         = points[sectionNum].material->getOrder();
-        theResponse       = new ElementResponse(this, 76, Vector(order));
+        theResponse       = new ElementResponse(this, 76, Vector(nsr));
         Information& info = theResponse->getInformation();
         info.theInt       = sectionNum;
       }
@@ -2465,8 +2452,9 @@ ForceDeltaFrame3d::setResponse(const char** argv, int argc, OPS_Stream& output)
   return theResponse;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::getResponse(int responseID, Information& info)
+ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
 {
   static Vector vp(6);
 
@@ -2564,16 +2552,13 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& info)
     if (fabs(q_pres[1] + q_pres[2]) > DBL_EPSILON)
       LI = q_pres[1] / (q_pres[1] + q_pres[2]) * L;
 
-    int i;
     for (int i = 0; i < numSections; i++) {
       double x = xi[i] * L;
       if (x > LI)
         continue;
-      const ID& type = points[i].material->getType();
-      int order      = points[i].material->getOrder();
       double kappa   = 0.0;
       for (int j = 0; j < nsr; j++)
-        if (type(j) == SECTION_RESPONSE_MZ)
+        if (scheme[j] == SECTION_RESPONSE_MZ)
           kappa += points[i].es[j];
       double b = -LI + x;
       d2 += (wt[i] * L) * kappa * b;
@@ -2611,7 +2596,6 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& info)
   else if (responseID == 7) {
     Vector curv(numSections);
     for (int i = 0; i < numSections; i++) {
-      int order = points[i].material->getOrder();
       const ID &type = points[i].material->getType();
       const Vector &dedh = points[i].material->getdedh();
       for (int j = 0; j < nsr; j++) {
@@ -2671,9 +2655,7 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& info)
     Vector kappaz(numSections); // about section z
     Vector kappay(numSections); // about section y
     for (int i = 0; i < numSections; i++) {
-      const ID& code  = points[i].material->getType();
       const Vector& e = points[i].material->getSectionDeformation();
-      int order       = points[i].material->getOrder();
       for (int j = 0; j < nsr; j++) {
         if (scheme[j] == SECTION_RESPONSE_MZ)
           kappaz(i) += e(j);
@@ -2718,9 +2700,7 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& info)
     Vector kappaz(numSections); // about section z
     Vector kappay(numSections); // about section y
     for (int i = 0; i < numSections; i++) {
-      const ID& code  = points[i].material->getType();
       const Vector& e = points[i].material->getSectionDeformation();
-      int order       = points[i].material->getOrder();
       for (int j = 0; j < nsr; j++) {
         if (scheme[j] == SECTION_RESPONSE_MZ)
           kappaz(i) += e(j);
@@ -2752,8 +2732,9 @@ ForceDeltaFrame3d::getResponse(int responseID, Information& info)
   return -1;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::getResponseSensitivity(int responseID, int igrad, Information& info)
+ForceDeltaFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int igrad, Information& info)
 {
   // Basic deformation sensitivity
   if (responseID == 3) {
@@ -2808,8 +2789,6 @@ ForceDeltaFrame3d::getResponseSensitivity(int responseID, int igrad, Information
     bool isGamma = false;
 
     for (int i = 0; i < numSections; i++) {
-      int order      = points[i].material->getOrder();
-      const ID& code = points[i].material->getType();
       for (int j = 0; j < nsr; j++) {
         if (scheme[j] == SECTION_RESPONSE_MZ)
           kappa(i) += (points[i].es)(j);
@@ -2945,8 +2924,9 @@ ForceDeltaFrame3d::getResponseSensitivity(int responseID, int igrad, Information
     return -1;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::setParameter(const char** argv, int argc, Parameter& param)
+ForceDeltaFrame3d<NIP,nsr>::setParameter(const char** argv, int argc, Parameter& param)
 {
   if (argc < 1)
     return -1;
@@ -3032,8 +3012,9 @@ ForceDeltaFrame3d::setParameter(const char** argv, int argc, Parameter& param)
 }
 
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::updateParameter(int parameterID, Information& info)
+ForceDeltaFrame3d<NIP,nsr>::updateParameter(int parameterID, Information& info)
 {
   if (parameterID == 1) {
     density = info.theDouble;
@@ -3042,32 +3023,36 @@ ForceDeltaFrame3d::updateParameter(int parameterID, Information& info)
     return -1;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::activateParameter(int passedParameterID)
+ForceDeltaFrame3d<NIP,nsr>::activateParameter(int passedParameterID)
 {
   parameterID = passedParameterID;
 
   return 0;
 }
 
+template<int NIP, int nsr>
 const Matrix&
-ForceDeltaFrame3d::getKiSensitivity(int igrad)
+ForceDeltaFrame3d<NIP,nsr>::getKiSensitivity(int igrad)
 {
   static MatrixND<12,12> dKi{};
   static Matrix wrapper(dKi);
   return wrapper;
 }
 
+template<int NIP, int nsr>
 const Matrix&
-ForceDeltaFrame3d::getMassSensitivity(int igrad)
+ForceDeltaFrame3d<NIP,nsr>::getMassSensitivity(int igrad)
 {
   static MatrixND<12,12> dM{};
   static Matrix wrapper(dM);
   return wrapper;
 }
 
+template<int NIP, int nsr>
 const Vector&
-ForceDeltaFrame3d::getResistingForceSensitivity(int igrad)
+ForceDeltaFrame3d<NIP,nsr>::getResistingForceSensitivity(int igrad)
 {
   VectorND<6> dqdh = this->getBasicForceGrad(igrad);
 
@@ -3099,8 +3084,9 @@ ForceDeltaFrame3d::getResistingForceSensitivity(int igrad)
   return P;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::commitSensitivity(int igrad, int numGrads)
+ForceDeltaFrame3d<NIP,nsr>::commitSensitivity(int igrad, int numGrads)
 {
   int err = 0;
   int numSections = points.size();
@@ -3133,8 +3119,6 @@ ForceDeltaFrame3d::commitSensitivity(int igrad, int numGrads)
   Vector kappa(numSections);
   Vector gamma(numSections);
   for (int i = 0; i < numSections; i++) {
-    int order      = points[i].material->getOrder();
-    const ID& code = points[i].material->getType();
     for (int j = 0; j < nsr; j++) {
       if (scheme[j] == SECTION_RESPONSE_MZ)
         kappa(i) += (points[i].es)(j);
@@ -3184,10 +3168,6 @@ ForceDeltaFrame3d::commitSensitivity(int igrad, int numGrads)
 
   // Loop over integration points
   for (int i = 0; i < numSections; i++) {
-
-    int order      = points[i].material->getOrder();
-    const ID& code = points[i].material->getType();
-
     double xL  = pts[i];
     double xL1 = xL - 1.0;
 
@@ -3236,7 +3216,7 @@ ForceDeltaFrame3d::commitSensitivity(int igrad, int numGrads)
       }
     }
 
-    Vector de(order);
+    Vector de(nsr);
     const Matrix& fs = points[i].material->getSectionFlexibility();
     de.addMatrixVector(0.0, fs, ds, 1.0);
 
@@ -3247,8 +3227,9 @@ ForceDeltaFrame3d::commitSensitivity(int igrad, int numGrads)
 }
 
 
+template<int NIP, int nsr>
 VectorND<6>
-ForceDeltaFrame3d::getBasicForceGrad(int igrad)
+ForceDeltaFrame3d<NIP,nsr>::getBasicForceGrad(int igrad)
 {
   int numSections = points.size();
 
@@ -3277,8 +3258,6 @@ ForceDeltaFrame3d::getBasicForceGrad(int igrad)
   Vector kappa(numSections);
   Vector gamma(numSections);
   for (int i = 0; i < numSections; i++) {
-    int order      = points[i].material->getOrder();
-    const ID& code = points[i].material->getType();
     for (int j = 0; j < nsr; j++) {
       if (scheme[j] == SECTION_RESPONSE_MZ)
         kappa(i) += (points[i].es)(j);
@@ -3303,8 +3282,6 @@ ForceDeltaFrame3d::getBasicForceGrad(int igrad)
   // Loop over the integration points
   for (int i = 0; i < numSections; i++) {
 
-    int order      = points[i].material->getOrder();
-    const ID& code = points[i].material->getType();
 
     double xL  = pts[i];
     double xL1 = xL - 1.0;
@@ -3314,7 +3291,7 @@ ForceDeltaFrame3d::getBasicForceGrad(int igrad)
     double dwtLdh = wts[i] * dLdh + dwtsdh[i] * L;
 
     // Get section stress resultant gradient
-    Vector dsdh(order);
+    Vector dsdh(nsr);
     dsdh = points[i].material->getStressResultantSensitivity(igrad, true);
 
 
@@ -3343,7 +3320,7 @@ ForceDeltaFrame3d::getBasicForceGrad(int igrad)
       }
     }
 
-    Vector dedh(order);
+    Vector dedh(nsr);
     const Matrix& fs = points[i].material->getSectionFlexibility();
     dedh.addMatrixVector(0.0, fs, dsdh, 1.0);
 
@@ -3368,10 +3345,12 @@ ForceDeltaFrame3d::getBasicForceGrad(int igrad)
     const Vector& e = points[i].es;
     for (int j = 0; j < nsr; j++) {
       switch (scheme[j]) {
-      case SECTION_RESPONSE_P: dvdh(0) -= e(j) * dwtLdh; break;
+      case SECTION_RESPONSE_P:
+        dvdh(0) -= e(j) * dwtLdh;
+        break;
       case SECTION_RESPONSE_MZ:
         dvdh(1) -= xL1 * e(j) * dwtLdh;
-        dvdh(2) -= xL * e(j) * dwtLdh;
+        dvdh(2) -= xL  * e(j) * dwtLdh;
         dvdh(0) -= 0.5 * wi[i] * e(j) * dwtLdh;
 
         dvdh(1) -= dxLdh * e(j) * wtL;
@@ -3402,8 +3381,9 @@ ForceDeltaFrame3d::getBasicForceGrad(int igrad)
   return dqdh;
 }
 
+template<int NIP, int nsr>
 const Matrix&
-ForceDeltaFrame3d::computedfedh(int igrad)
+ForceDeltaFrame3d<NIP,nsr>::computedfedh(int igrad)
 {
   int numSections = points.size();
   static Matrix dfedh(6, 6);
@@ -3416,25 +3396,22 @@ ForceDeltaFrame3d::computedfedh(int igrad)
   double dLdh   = theCoordTransf->getLengthGrad();
   double d1oLdh = theCoordTransf->getd1overLdh();
 
-  double xi[maxNumSections];
+  double xi[NIP];
   stencil->getSectionLocations(numSections, L, xi);
 
-  double wt[maxNumSections];
+  double wt[NIP];
   stencil->getSectionWeights(numSections, L, wt);
 
-  double dptsdh[maxNumSections];
+  double dptsdh[NIP];
   stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
 
-  double dwtsdh[maxNumSections];
+  double dwtsdh[NIP];
   stencil->getWeightsDeriv(numSections, L, dLdh, dwtsdh);
 
   for (int i = 0; i < numSections; i++) {
 
-    int order      = points[i].material->getOrder();
-    const ID& code = points[i].material->getType();
-
-    Matrix fb(order, nq);
-    Matrix fb2(order, nq);
+    Matrix fb(nsr, nq);
+    Matrix fb2(nsr, nq);
 
     double xL  = xi[i];
     double xL1 = xL - 1.0;
@@ -3450,7 +3427,7 @@ ForceDeltaFrame3d::computedfedh(int igrad)
 
     double tmp;
     for (int ii = 0; ii < nsr; ii++) {
-      switch (code(ii)) {
+      switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
         for (int jj = 0; jj < nsr; jj++) {
           fb(jj, 0) += dfsdh(jj, ii) * wtL; // 1
@@ -3492,7 +3469,7 @@ ForceDeltaFrame3d::computedfedh(int igrad)
       }
     }
     for (int ii = 0; ii < nsr; ii++) {
-      switch (code(ii)) {
+      switch (scheme[ii]) {
       case SECTION_RESPONSE_P:
         for (int jj = 0; jj < nq; jj++)
           dfedh(0, jj) += fb(ii, jj);
@@ -3526,8 +3503,9 @@ ForceDeltaFrame3d::computedfedh(int igrad)
 }
 
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::sendSelf(int commitTag, Channel& theChannel)
+ForceDeltaFrame3d<NIP,nsr>::sendSelf(int commitTag, Channel& theChannel)
 {
   int numSections = points.size();
   // place the integer data into an ID
@@ -3614,11 +3592,7 @@ ForceDeltaFrame3d::sendSelf(int commitTag, Channel& theChannel)
   }
 
   // into a vector place distrLoadCommit, density, UeCommit, q_past and K_past
-  int secDefSize = 0;
-  for (int i = 0; i < numSections; i++) {
-    int size = points[i].material->getOrder();
-    secDefSize += size;
-  }
+  int secDefSize = numSections*nsr;
 
   Vector dData(1 + 1 + nq + nq * nq + secDefSize + 4);
   loc = 0;
@@ -3659,14 +3633,17 @@ ForceDeltaFrame3d::sendSelf(int commitTag, Channel& theChannel)
   return 0;
 }
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& theBroker)
+ForceDeltaFrame3d<NIP,nsr>::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& theBroker)
 {
+#if 1
+  return -1;
+#else
   //
   // receive the integer data containing tag, numSections and coord transformation info
   //
   int dbTag = this->getDbTag();
-  int i, j, k;
 
   static ID idData(11); // one bigger than needed
 
@@ -3867,12 +3844,14 @@ ForceDeltaFrame3d::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker
   state_flag = 2;
 
   return 0;
+#endif
 }
 
 
 #if 0
+template<int NIP, int nsr>
 void 
-ForceDeltaFrame3d::zeroLoad()
+ForceDeltaFrame3d<NIP,nsr>::zeroLoad()
 {
   // This is a semi-hack -- MHS
   numEleLoads = 0;
@@ -3881,8 +3860,9 @@ ForceDeltaFrame3d::zeroLoad()
 }
 
 
+template<int NIP, int nsr>
 int
-ForceDeltaFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
+ForceDeltaFrame3d<NIP,nsr>::addLoad(ElementalLoad *theLoad, double loadFactor)
 {
   if (numEleLoads == sizeEleLoads) {
 
@@ -3912,8 +3892,9 @@ ForceDeltaFrame3d::addLoad(ElementalLoad *theLoad, double loadFactor)
   return 0;
 }
 
+template<int NIP, int nsr>
 int 
-ForceDeltaFrame3d::addInertiaLoadToUnbalance(const Vector &accel)
+ForceDeltaFrame3d<NIP,nsr>::addInertiaLoadToUnbalance(const Vector &accel)
 {
   // Check for a quick return
   if (density == 0.0)
@@ -3939,8 +3920,9 @@ ForceDeltaFrame3d::addInertiaLoadToUnbalance(const Vector &accel)
   return 0;
 }
 
+template<int NIP, int nsr>
 const Vector &
-ForceDeltaFrame3d::getResistingForceIncInertia()
+ForceDeltaFrame3d<NIP,nsr>::getResistingForceIncInertia()
 {
   // Compute the current resisting force
   theVector = this->getResistingForce();
@@ -3973,8 +3955,9 @@ ForceDeltaFrame3d::getResistingForceIncInertia()
   return theVector;
 }
 
+template<int NIP, int nsr>
 const Matrix &
-ForceDeltaFrame3d::getInitialStiff()
+ForceDeltaFrame3d<NIP,nsr>::getInitialStiff()
 {
   // check for quick return
   if (Ki != nullptr)
@@ -3990,8 +3973,9 @@ ForceDeltaFrame3d::getInitialStiff()
   return *Ki;
 }
 
+template<int NIP, int nsr>
 const Matrix &
-ForceDeltaFrame3d::getTangentStiff()
+ForceDeltaFrame3d<NIP,nsr>::getTangentStiff()
 {
   return theCoordTransf->getGlobalStiffMatrix(K_pres, q_pres);
 }
