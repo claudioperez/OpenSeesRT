@@ -60,7 +60,7 @@ public:
                      {0.7222222222222222, 0.4444444444444444},
                      {1.0, 0.2777777777777778}};
             if (shape == Heaviside)
-                for (int i=0; i<gauss.size(); i++) {
+                for (unsigned i=0; i<gauss.size(); i++) {
                     gauss[i][0] = r[0][0] + (1.0 - r[0][0]) * gauss[i][0];
                     gauss[i][1] *= (1 - r[0][0]);
                 }
@@ -217,7 +217,7 @@ public:
     {
         if (w == 0.0)
             return;
-        for (int q = 0; q < r.size(); q++) {
+        for (unsigned q = 0; q < r.size(); q++) {
             Vector3D px, mx, rx;
             rx = r[q];
             rx[0] = 0.0;
@@ -252,7 +252,7 @@ public:
                         scale *= 0.0;
                     break;
                 case Lagrange:
-                    for (int s=0; s<r.size(); s++)
+                    for (unsigned s=0; s<r.size(); s++)
                       if (s != q)
                         scale *= (x - r[s][0]) / (r[q][0] - r[s][0]);
                     break;
