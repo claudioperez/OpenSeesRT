@@ -253,35 +253,36 @@ FrameSection::setTrialState(OpenSees::VectorND<n, double> e) {
         trial[j] = e[i];
   }
 
-  if (l.m[0] != -1) {
-    // Case 2 and 3
-    // If element has a twisting DOF and no Bishear
-    // DOF, then twist == alpha, where alpha is the
-    // bishear DOF.
-    // Note that elem_twist and elem_bishear are computable
-    // at compile time, so this branch can theoretically be 
-    // optimized out by the compiler, however this might be 
-    // optimistic
-    //
-    if (l.v[0] == -1) {
-      for (int j=0; j<m; j++)
-        switch (layout(j)) {
-          case FrameStress::Bishear:
-            // Set alpha = tau
+  // Case 2 and 3
+  // If element has a twisting DOF and no Bishear
+  // DOF, then twist == alpha, where alpha is the
+  // bishear DOF.
+  // Note that elem_twist and elem_bishear are computable
+  // at compile time, so this branch can theoretically be 
+  // optimized out by the compiler, however this might be 
+  // optimistic
+  //
+  if (l.v[0] == -1) {
+    for (int j=0; j<m; j++)
+      switch (layout(j)) {
+        case FrameStress::Bishear:
+          // Set alpha = tau
+          if (l.m[0] != -1)
             trial[j] = e[l.m[0]];
-            break;
-          case FrameStress::Qy:
-            // Set alpha_y = gamma_y
+          break;
+        case FrameStress::Qy:
+          // Set alpha_y = gamma_y
+          if (l.n[1] != -1)
             trial[j] = e[l.n[1]];
-            break;
-          case FrameStress::Qz:
-            // Set alpha_z = gamma_z
+          break;
+        case FrameStress::Qz:
+          // Set alpha_z = gamma_z
+          if (l.n[2] != -1)
             trial[j] = e[l.n[2]];
-            break;
-          default:
-            ;
-        }
-    }
+          break;
+        default:
+          ;
+      }
   }
   return this->setTrialSectionDeformation(trial);
 }
