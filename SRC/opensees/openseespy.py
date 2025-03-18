@@ -18,6 +18,7 @@ from openseespy, for example:
 
 """
 import re
+import os
 import json
 from functools import partial
 
@@ -129,12 +130,14 @@ class OpenSeesPy:
         self._interp  = Interpreter(*args,  **kwds)
         self._partial = partial
         self._save    = save
+        if echo_file is None and "XARA_ECHO_FILE" in os.environ:
+            echo_file = open(os.environ["XARA_ECHO_FILE"], "w+")
         self._echo    = echo_file #sys.stdout # echo_file
 
         self._mesh = {"line": {}, "quad": {}}
 
         # Enable OpenSeesPy command behaviors
-        self._interp.eval("pragma openseespy")
+        self.eval("pragma openseespy")
 
     def _invoke_proc(self, proc_name: str, *args, _final=None, _return_string=False, **kwds)->str:
         """
