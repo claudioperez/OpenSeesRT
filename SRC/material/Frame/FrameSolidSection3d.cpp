@@ -664,7 +664,7 @@ FrameSolidSection3d::setParameter(const char **argv, int argc, Parameter &param)
     return param.addObject(Param::FiberFieldBase+fiberID*100+field, this);
   }
 
-  // Check if the parameter belongs to the material (only option for now)
+  // Check if the parameter belongs to the material
   if (strstr(argv[0], "material") != 0) {
     
     if (argc < 3)
