@@ -1064,15 +1064,9 @@ Truss::computeCurrentStrainRate() const
 {
   // NOTE method will not be called if L == 0
 
-<<<<<<< HEAD
-    // determine the strain
-    const Vector &vel1 = theNodes[0]->getTrialVel();
-    const Vector &vel2 = theNodes[1]->getTrialVel();        
-=======
   // Determine the strain
   const Vector &vel1 = theNodes[0]->getTrialVel();
   const Vector &vel2 = theNodes[1]->getTrialVel();	
->>>>>>> ea99df22a6c8994562dd6f567778d5b015f6789f
 
   double dLength = 0.0;
   for (int i = 0; i < dimension; i++)
@@ -1358,14 +1352,9 @@ Truss::getResistingForceSensitivity(int gradNumber)
 {
         theVector->Zero();
 
-<<<<<<< HEAD
         // Initial declarations
-        int i;
+//      int i;
         double stressSensitivity, temp1, temp2;
-=======
-	// Initial declarations
-	double stressSensitivity, temp1, temp2;
->>>>>>> ea99df22a6c8994562dd6f567778d5b015f6789f
 
         // Make sure the material is up to date
         double strain = this->computeCurrentStrain();
@@ -1435,21 +1424,12 @@ Truss::getResistingForceSensitivity(int gradNumber)
                         dcosXdh[2] = 0.0;
                 }
 
-<<<<<<< HEAD
                 const Vector &disp1 = theNodes[0]->getTrialDisp();
                 const Vector &disp2 = theNodes[1]->getTrialDisp();
                 double dLengthDerivative = 0.0;
                 for (int i = 0; i < dimension; i++) {
-                        dLengthDerivative += (disp2(i)-disp1(i))*dcosXdh[i];
+                    dLengthDerivative += (disp2(i) - disp1(i))*dcosXdh[i];
                 }
-=======
-		const Vector &disp1 = theNodes[0]->getTrialDisp();
-		const Vector &disp2 = theNodes[1]->getTrialDisp();
-		double dLengthDerivative = 0.0;
-		for (int i = 0; i < dimension; i++) {
-			dLengthDerivative += (disp2(i)-disp1(i))*dcosXdh[i];
-		}
->>>>>>> ea99df22a6c8994562dd6f567778d5b015f6789f
 
                 double materialTangent = theMaterial->getTangent();
                 double strainSensitivity = 0.0;
@@ -1470,7 +1450,6 @@ Truss::getResistingForceSensitivity(int gradNumber)
         }
 
 
-<<<<<<< HEAD
         // Compute sensitivity depending on 'parameter'
         double stress = theMaterial->getStress();
         int numDOF2 = numDOF/2;
@@ -1494,32 +1473,6 @@ Truss::getResistingForceSensitivity(int gradNumber)
         // subtract external load sensitivity
         if (theLoadSens == nullptr)
             theLoadSens = new Vector(numDOF);
-=======
-	// Compute sensitivity depending on 'parameter'
-	double stress = theMaterial->getStress();
-	int numDOF2 = numDOF/2;
-	double temp;
-	if (parameterID == 1) {			// Cross-sectional area
-	  for (int i = 0; i < dimension; i++) {
-	    temp = (stress + A*stressSensitivity)*cosX[i];
-	    (*theVector)(i) = -temp;
-	    (*theVector)(i+numDOF2) = temp;
-	  }
-	}
-	else {		// Density, material parameter or nodal coordinate
-	  for (int i = 0; i < dimension; i++) {
-	    temp = A*(stressSensitivity*cosX[i] + stress*dcosXdh[i]);
-	    (*theVector)(i) = -temp;
-	    (*theVector)(i+numDOF2) = temp;
-	  }
-	}
-
-	// subtract external load sensitivity
-	if (theLoadSens == nullptr) {
-		theLoadSens = new Vector(numDOF);
-	}
-	(*theVector) -= *theLoadSens;
->>>>>>> ea99df22a6c8994562dd6f567778d5b015f6789f
 
         (*theVector) -= *theLoadSens;
 
@@ -1536,7 +1489,6 @@ Truss::commitSensitivity(int gradNumber, int numGrads)
     double strain = this->computeCurrentStrain();
     double dLength = strain*L;
 
-<<<<<<< HEAD
     // Displacement sensitivity difference between the two ends
     double sens1;
     double sens2;
@@ -1546,17 +1498,6 @@ Truss::commitSensitivity(int gradNumber, int numGrads)
       sens2 = theNodes[1]->getDispSensitivity(i+1, gradNumber);
       dSensitivity += (sens2-sens1)*cosX[i];
     }
-=======
-	// Displacement sensitivity difference between the two ends
-	double sens1;
-	double sens2;
-	double dSensitivity = 0.0;
-	for (int i=0; i<dimension; i++){
-	  sens1 = theNodes[0]->getDispSensitivity(i+1, gradNumber);
-	  sens2 = theNodes[1]->getDispSensitivity(i+1, gradNumber);
-	  dSensitivity += (sens2-sens1)*cosX[i];
-	}
->>>>>>> ea99df22a6c8994562dd6f567778d5b015f6789f
 
     double strainSensitivity = dSensitivity/L;
 
@@ -1618,21 +1559,12 @@ Truss::commitSensitivity(int gradNumber, int numGrads)
               dcosXdh[2] = 0.0;
       }
 
-<<<<<<< HEAD
       const Vector &disp1 = theNodes[0]->getTrialDisp();
       const Vector &disp2 = theNodes[1]->getTrialDisp();
       double dLengthDerivative = 0.0;
       for (int i = 0; i < dimension; i++){
-          dLengthDerivative += (disp2(i)-disp1(i))*dcosXdh[i];
+          dLengthDerivative += (disp2(i) - disp1(i))*dcosXdh[i];
       }
-=======
-		const Vector &disp1 = theNodes[0]->getTrialDisp();
-		const Vector &disp2 = theNodes[1]->getTrialDisp();
-		double dLengthDerivative = 0.0;
-		for (int i = 0; i < dimension; i++){
-			dLengthDerivative += (disp2(i)-disp1(i))*dcosXdh[i];
-		}
->>>>>>> ea99df22a6c8994562dd6f567778d5b015f6789f
 
       strainSensitivity += dLengthDerivative/L;
 
