@@ -26,15 +26,6 @@ public:
 
   ~CircPatch();
 
-  // edition functions
-
-  void setMaterialID(int materialID);
-  void setDiscretization(int numSubdivCircunf, int numSubdivRadial);
-  void setRadii(double internRadius, double externRadius);
-  void setAngles(double initialAngle, double finalAngle);
-
-  // reinforcing bar inquiring functions
-
   int getMaterialID() const;
   int getNumCells() const;
   Cell** getCells() const;

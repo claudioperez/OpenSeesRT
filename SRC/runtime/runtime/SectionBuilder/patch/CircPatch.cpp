@@ -31,33 +31,6 @@ CircPatch::CircPatch(int materialID, int numSubdivCircunf, int numSubdivRadial,
 
 CircPatch::~CircPatch() {}
 
-void
-CircPatch::setMaterialID(int materialID)
-{
-  matID = materialID;
-}
-
-void
-CircPatch::setDiscretization(int numSubdivCircunf, int numSubdivRadial)
-{
-  nDivRad  = numSubdivRadial;
-  nDivCirc = numSubdivCircunf;
-}
-
-void
-CircPatch::setRadii(double internRadius, double externRadius)
-{
-  intRad = internRadius;
-  extRad = externRadius;
-}
-
-void
-CircPatch::setAngles(double initialAngle, double finalAngle)
-{
-  initAng  = initialAngle;
-  finalAng = finalAngle;
-}
-
 int
 CircPatch::getMaterialID() const
 {

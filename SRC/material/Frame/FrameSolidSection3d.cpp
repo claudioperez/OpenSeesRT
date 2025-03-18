@@ -323,15 +323,6 @@ FrameSolidSection3d::stateDetermination(Tangent& K, VectorND<nsr>* s_trial, cons
         (*s_trial)(imx) += tr2*sig0;
     }
   }
-
-  // if (e_trial) {
-  //   VectorND<nsr> e_print = *e_trial;
-  //   opserr << "e = " << Vector(e_print);
-  // }
-  // if (s_trial) {
-  //   VectorND<nsr> s_print = *s_trial;
-  //   opserr << "s = " << Vector(s_print);
-  // }
   return res;
 }
 

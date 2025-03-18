@@ -40,18 +40,9 @@ public:
 
   ~QuadPatch();
 
-  void setMaterialID(int materialID);
-  void setDiscretization(int numSubdivIJ, int numSubdivJK);
-  // void setVertCoords(const MatrixND<4,2>& vertexCoords);
-
-  // reinforcing bar inquiring functions
-
   int getMaterialID() const;
   int getNumCells() const;
   Cell** getCells() const;
-
-  // void getDiscretization(int& numSubdivIJ, int& numSubdivJK) const;
-  // const MatrixND<4,2>& getVertCoords() const;
 
 protected:
 private:

@@ -316,7 +316,6 @@ ForceDeltaFrame3d<NIP,nsr>::update()
 {
   const int nip = points.size();
 
-  // TODO: remove hard limit on sections
   THREAD_LOCAL VectorND<nsr>     es_trial[NIP]; //  strain
   THREAD_LOCAL VectorND<nsr>     sr_trial[NIP]; //  stress resultant
   THREAD_LOCAL MatrixND<nsr,nsr> Fs_trial[NIP]; //  flexibility
@@ -1343,7 +1342,7 @@ ForceDeltaFrame3d<NIP,nsr>::computeSectionForces(VectorND<nsr>& sp, int isec)
 
   double L = theCoordTransf->getInitialLength();
 
-//double xi[maxNumSections];
+//double xi[NIP];
 //stencil->getSectionLocations(numSections, L, xi);
   double x = xi[isec] * L;
 
@@ -1514,10 +1513,10 @@ ForceDeltaFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int ig
   double L    = theCoordTransf->getInitialLength();
   double dLdh = theCoordTransf->getLengthGrad();
 
-  double xi[maxNumSections];
+  double xi[NIP];
   stencil->getSectionLocations(numSections, L, xi);
 
-  double dxidh[maxNumSections];
+  double dxidh[NIP];
   stencil->getLocationsDeriv(numSections, L, dLdh, dxidh);
 
   double x    = xi[isec] * L;
@@ -1675,10 +1674,10 @@ ForceDeltaFrame3d<NIP,nsr>::getInitialFlexibility(Matrix& fe)
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
-  double xi[maxNumSections];
+  double xi[NIP];
   stencil->getSectionLocations(numSections, L, xi);
 
-  double wt[maxNumSections];
+  double wt[NIP];
   stencil->getSectionWeights(numSections, L, wt);
 
   for (int i = 0; i < numSections; i++) {
@@ -1792,10 +1791,10 @@ ForceDeltaFrame3d<NIP,nsr>::getInitialDeformations(Vector& v0)
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
-  double xi[maxNumSections];
+  double xi[NIP];
   stencil->getSectionLocations(numSections, L, xi);
 
-  double wt[maxNumSections];
+  double wt[NIP];
   stencil->getSectionWeights(numSections, L, wt);
 
   for (int i = 0; i < numSections; i++) {
@@ -1858,7 +1857,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedwdh(double dwidh[], int igrad, const Vector&
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
-  double xi[maxNumSections];
+  double xi[NIP];
   stencil->getSectionLocations(numSections, L, xi);
 
   Matrix G(numSections, numSections);
@@ -1892,7 +1891,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedwdh(double dwidh[], int igrad, const Vector&
   lsgp.addMatrixProduct(0.0, Hgp, Ginv, 1.0);
 
   double dLdh = theCoordTransf->getLengthGrad();
-  double dxidh[maxNumSections];
+  double dxidh[NIP];
   stencil->getLocationsDeriv(numSections, L, dLdh, dxidh);
 
   bool isdxidh = false;
@@ -2084,7 +2083,7 @@ ForceDeltaFrame3d<NIP,nsr>::compSectionDisplacements(Vector sectionCoords[], Vec
   double L = theCoordTransf->getInitialLength();
 
   // get integration point positions and weights
-  static double xi_pts[maxNumSections];
+  static double xi_pts[NIP];
   stencil->getSectionLocations(numSections, L, xi_pts);
 
   //
@@ -2356,7 +2355,7 @@ ForceDeltaFrame3d<NIP,nsr>::setResponse(const char** argv, int argc, OPS_Stream&
     if (argc > 2) {
       float sectionLoc = atof(argv[1]);
 
-      double xi[maxNumSections];
+      double xi[NIP];
       double L = theCoordTransf->getInitialLength();
       stencil->getSectionLocations(numSections, L, xi);
 
@@ -2392,7 +2391,7 @@ ForceDeltaFrame3d<NIP,nsr>::setResponse(const char** argv, int argc, OPS_Stream&
 
       int sectionNum = atoi(argv[1]);
 
-      double xi[maxNumSections];
+      double xi[NIP];
 
       if (sectionNum > 0 && sectionNum <= numSections && argc > 2) {
         FrameSection* section = points[sectionNum - 1].material;
@@ -2646,7 +2645,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
   else if (responseID == 111) {
     int numSections = points.size();
     double L = theCoordTransf->getInitialLength();
-    double pts[maxNumSections];
+    double pts[NIP];
     stencil->getSectionLocations(numSections, L, pts);
     // CBDI influence matrix
     Matrix ls(numSections, numSections);
@@ -2688,7 +2687,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
   else if (responseID == 112) {
     int numSections = points.size();
     double L = theCoordTransf->getInitialLength();
-    double ipts[maxNumSections];
+    double ipts[NIP];
     stencil->getSectionLocations(numSections, L, ipts);
     // CBDI influence matrix
     double pts[20];
@@ -2777,7 +2776,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int igrad, In
 
     double L        = theCoordTransf->getInitialLength();
     double oneOverL = 1.0 / L;
-    double pts[maxNumSections];
+    double pts[NIP];
     stencil->getSectionLocations(numSections, L, pts);
 
     double xL  = pts[sectionNum - 1];
@@ -2801,9 +2800,9 @@ ForceDeltaFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int igrad, In
 
     isGamma = shear_flag && isGamma;
 
-    double wi[maxNumSections];
+    double wi[NIP];
     Vector w(wi, numSections);
-    double wpi[maxNumSections];
+    double wpi[NIP];
     Vector wp(wpi, numSections);
     wp.Zero();
     this->computew(w, wp, pts, kappa, gamma);
@@ -2834,7 +2833,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int igrad, In
     Matrix dwidq(2 * numSections, nq);
     this->computedwdq(dwidq, q_pres, w, wp, ls, lsg, lskp, lsgp);
 
-    double dwidh[2 * maxNumSections];
+    double dwidh[2 * NIP];
     this->computedwdh(dwidh, igrad, q_pres);
 
     for (int ii = 0; ii < nsr; ii++) {
@@ -2861,7 +2860,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int igrad, In
     double dLdh   = theCoordTransf->getLengthGrad();
     double d1oLdh = theCoordTransf->getd1overLdh();
 
-    double dptsdh[maxNumSections];
+    double dptsdh[NIP];
     stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
     double dxLdh = dptsdh[sectionNum - 1]; // - xL/L*dLdh;
 
@@ -2942,7 +2941,7 @@ ForceDeltaFrame3d<NIP,nsr>::setParameter(const char** argv, int argc, Parameter&
     if (argc > 2) {
       float sectionLoc = atof(argv[1]);
 
-      double xi[maxNumSections];
+      double xi[NIP];
       double L = theCoordTransf->getInitialLength();
       stencil->getSectionLocations(numSections, L, xi);
 
@@ -3094,15 +3093,15 @@ ForceDeltaFrame3d<NIP,nsr>::commitSensitivity(int igrad, int numGrads)
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
-  double pts[maxNumSections];
+  double pts[NIP];
   stencil->getSectionLocations(numSections, L, pts);
 
-  double wts[maxNumSections];
+  double wts[NIP];
   stencil->getSectionWeights(numSections, L, wts);
 
   double dLdh = theCoordTransf->getLengthGrad();
 
-  double dptsdh[maxNumSections];
+  double dptsdh[NIP];
   stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
 
   double d1oLdh = theCoordTransf->getd1overLdh();
@@ -3130,9 +3129,9 @@ ForceDeltaFrame3d<NIP,nsr>::commitSensitivity(int igrad, int numGrads)
   }
   isGamma = shear_flag && isGamma;
 
-  double wi[maxNumSections];
+  double wi[NIP];
   Vector w(wi, numSections);
-  double wpi[maxNumSections];
+  double wpi[NIP];
   Vector wp(wpi, numSections);
   wp.Zero();
   this->computew(w, wp, pts, kappa, gamma);
@@ -3163,7 +3162,7 @@ ForceDeltaFrame3d<NIP,nsr>::commitSensitivity(int igrad, int numGrads)
   Matrix dwidq(2 * numSections, nq);
   this->computedwdq(dwidq, q_pres, w, wp, ls, lsg, lskp, lsgp);
 
-  double dwidh[2 * maxNumSections];
+  double dwidh[2 * NIP];
   this->computedwdh(dwidh, igrad, q_pres);
 
   // Loop over integration points
@@ -3236,18 +3235,18 @@ ForceDeltaFrame3d<NIP,nsr>::getBasicForceGrad(int igrad)
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
-  double pts[maxNumSections];
+  double pts[NIP];
   stencil->getSectionLocations(numSections, L, pts);
 
-  double wts[maxNumSections];
+  double wts[NIP];
   stencil->getSectionWeights(numSections, L, wts);
 
   double dLdh = theCoordTransf->getLengthGrad();
 
-  double dptsdh[maxNumSections];
+  double dptsdh[NIP];
   stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
 
-  double dwtsdh[maxNumSections];
+  double dwtsdh[NIP];
   stencil->getWeightsDeriv(numSections, L, dLdh, dwtsdh);
 
   double d1oLdh = theCoordTransf->getd1overLdh();
@@ -3266,9 +3265,9 @@ ForceDeltaFrame3d<NIP,nsr>::getBasicForceGrad(int igrad)
     }
   }
 
-  double wi[maxNumSections];
+  double wi[NIP];
   Vector w(wi, numSections);
-  double wpi[maxNumSections];
+  double wpi[NIP];
   Vector wp(wpi, numSections);
   wp.Zero();
   this->computew(w, wp, pts, kappa, gamma);
@@ -3276,7 +3275,7 @@ ForceDeltaFrame3d<NIP,nsr>::getBasicForceGrad(int igrad)
   Matrix Ginv(numSections, numSections);
   vandermonde_inverse(numSections, pts, Ginv);
 
-  double dwidh[2 * maxNumSections];
+  double dwidh[2 * NIP];
   this->computedwdh(dwidh, igrad, q_pres);
 
   // Loop over the integration points

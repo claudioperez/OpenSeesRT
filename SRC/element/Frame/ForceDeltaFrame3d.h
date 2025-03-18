@@ -90,7 +90,6 @@ private:
          ndm = 3 ,              // dimension of the problem (2d)
          ndf = 6 ,              // dofs per node
          nq  = 6 ,              // number of element dof's in the basic system
-         maxNumSections = 20,
          maxNumEleLoads = 100;
 
   static constexpr FrameStressLayout scheme = {
@@ -137,8 +136,8 @@ private:
   // Section forces due to element loads
   void computeSectionForces(VectorND<nsr>& sp, int isec);
   // TODO
-  double wt[maxNumSections];
-  double xi[maxNumSections];
+  double wt[NIP];
+  double xi[NIP];
 
   // Parameters
   double density;                // mass density per unit length

@@ -16,8 +16,6 @@ class OPS_Stream;
 class Patch {
 public:
 
-  virtual void setMaterialID(int materialID) = 0;
-
   // inquiring functions
 
   virtual int getMaterialID() const = 0;

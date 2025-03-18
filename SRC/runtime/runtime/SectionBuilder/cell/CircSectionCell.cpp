@@ -38,7 +38,7 @@ CircSectionCell::CircSectionCell(double r1, double r2, double alpha, double thet
   double A1 = a * r1 * r1;
   double c1 = 2.0 * r1 * sin(a) / (3.0 * a);
 
-  area        = At - A1;
+  area     = At - A1;
   double c = (At * ct - A1 * c1) / area;
 
   location[0] = std::cos(theta) * c + offsetX;

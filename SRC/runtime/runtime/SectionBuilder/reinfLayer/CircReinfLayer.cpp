@@ -71,13 +71,11 @@ CircReinfLayer::getReinfBars() const
 {
   std::vector<Cell> bars(nReinfBars);
 
-  // Cell* reinfBars;
   double pi = acos(-1.0);
-  double initAngRad, finalAngRad;
 
   if (nReinfBars > 0) {
-    initAngRad  = pi * initAng / 180.0;
-    finalAngRad = pi * finalAng / 180.0;
+    double initAngRad  = pi * initAng / 180.0;
+    double finalAngRad = pi * finalAng / 180.0;
 
     double dtheta;
     if (nReinfBars > 1)
@@ -85,7 +83,6 @@ CircReinfLayer::getReinfBars() const
     else
       dtheta = 0.0; // Doesn't really matter what this is
 
-    // reinfBars = new ReinfBar[nReinfBars];
 
     for (int i = 0; i < nReinfBars; i++) {
       double theta = initAngRad + dtheta * i;

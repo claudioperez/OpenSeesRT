@@ -33,9 +33,8 @@
 
 using OpenSees::VectorND;
 
-// QuadPatch::QuadPatch() : matID(0), nDivIJ(1), nDivJK(1), vertCoord(4, 2) {}
-
-QuadPatch::QuadPatch(int materialID, int numSubdivIJ, int numSubdivJK, const MatrixND<4,2>& vertexCoords)
+QuadPatch::QuadPatch(int materialID, int numSubdivIJ, int numSubdivJK, 
+                     const MatrixND<4,2>& vertexCoords)
  : matID(materialID), nDivIJ(numSubdivIJ), nDivJK(numSubdivJK), vertCoord(vertexCoords)
 
 {
@@ -43,43 +42,11 @@ QuadPatch::QuadPatch(int materialID, int numSubdivIJ, int numSubdivJK, const Mat
 
 QuadPatch::~QuadPatch() {}
 
-void
-QuadPatch::setMaterialID(int materialID)
-{
-  matID = materialID;
-}
-
-void
-QuadPatch::setDiscretization(int numSubdivIJ, int numSubdivJK)
-{
-  nDivIJ = numSubdivIJ;
-  nDivJK = numSubdivJK;
-}
-
-// void
-// QuadPatch::setVertCoords(const MatrixND<4,2>& vertexCoords)
-// {
-//   vertCoord = vertexCoords;
-// }
-
 int
 QuadPatch::getMaterialID() const
 {
   return matID;
 }
-
-// void
-// QuadPatch::getDiscretization(int& numSubdivIJ, int& numSubdivJK) const
-// {
-//   numSubdivIJ = nDivIJ;
-//   numSubdivJK = nDivJK;
-// }
-
-// const MatrixND<4,2>&
-// QuadPatch::getVertCoords() const
-// {
-//   return vertCoord;
-// }
 
 int
 QuadPatch::getNumCells() const
