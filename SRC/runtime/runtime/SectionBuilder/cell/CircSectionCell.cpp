@@ -23,7 +23,7 @@
 
 #include <Matrix.h>
 #include <Vector.h>
-#include <math.h>
+#include <cmath>
 #include <OPS_Stream.h>
 
 #include <CircSectionCell.h>
@@ -41,6 +41,6 @@ CircSectionCell::CircSectionCell(double r1, double r2, double alpha, double thet
   area        = At - A1;
   double c = (At * ct - A1 * c1) / area;
 
-  location(0) = std::cos(theta) * c + offsetX;
-  location(1) = std::sin(theta) * c + offsetY;
+  location[0] = std::cos(theta) * c + offsetX;
+  location[1] = std::sin(theta) * c + offsetY;
 }

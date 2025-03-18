@@ -34,12 +34,13 @@ using OpenSees::VectorND;
 class CircReinfLayer : public ReinfLayer {
 public:
   // Constructor for an arc
-  CircReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
-                 const VectorND<2>& centerPosition, double arcRadius, double initialAngle,
+  CircReinfLayer(int material, int n, double area,
+                 const VectorND<2>& center, double radius, 
+                 double initialAngle,
                  double finalAngle);
   // Constructor for full circle
-  CircReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
-                 const VectorND<2>& centerPosition, double radius);
+  CircReinfLayer(int material, int n, double area,
+                 const VectorND<2>& center, double radius);
 
   virtual ~CircReinfLayer() final {};
 

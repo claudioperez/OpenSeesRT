@@ -31,12 +31,13 @@
 #include <Cell.h>
 #include <StraightReinfLayer.h>
 
-StraightReinfLayer::StraightReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
-                                       const VectorND<2>& InitialPosition, const VectorND<2>& FinalPosition)
- : ReinfLayer(materialID, reinfBarArea),
-   nReinfBars(numReinfBars),
-   initPosit(InitialPosition),
-   finalPosit(FinalPosition)
+StraightReinfLayer::StraightReinfLayer(int material, int n, double area,
+                                       const VectorND<2>& xi, 
+                                       const VectorND<2>& xj)
+ : ReinfLayer(material, area),
+   nReinfBars(n),
+   initPosit(xi),
+   finalPosit(xj)
 {
 }
 
@@ -60,7 +61,7 @@ StraightReinfLayer::getReinfBars() const
     };
 
     // reinfBars = new ReinfBar[1];
-    bars[0] = Cell(material, area, location);
+    bars[0] = Cell(this->getMaterialID(), this->getCellArea(), location);
 
     // bars[0].setPosition(barPosit);
     // bars[0].setArea(this->area);
@@ -78,7 +79,7 @@ StraightReinfLayer::getReinfBars() const
          initPosit(1) + dz * i
       };
 
-      bars[i] = Cell(material, area, location);
+      bars[i] = Cell(this->getMaterialID(), this->getCellArea(), location);
     }
   }
 

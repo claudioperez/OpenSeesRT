@@ -33,10 +33,10 @@
 
 
 
-CircReinfLayer::CircReinfLayer(int material, int numReinfBars, double reinfBarArea,
+CircReinfLayer::CircReinfLayer(int material, int numReinfBars, double area,
                                const VectorND<2>& centerPosition, double arcRadius, double initialAngle,
                                double finalAngle)
- : ReinfLayer(material, reinfBarArea),
+ : ReinfLayer(material, area),
    nReinfBars(numReinfBars),
    centerPosit(centerPosition),
    arcRad(arcRadius),
@@ -45,9 +45,9 @@ CircReinfLayer::CircReinfLayer(int material, int numReinfBars, double reinfBarAr
 {
 }
 
-CircReinfLayer::CircReinfLayer(int materialID, int numReinfBars, double reinfBarArea,
+CircReinfLayer::CircReinfLayer(int material, int numReinfBars, double area,
                                const VectorND<2>& centerPosition, double radius)
- : ReinfLayer(materialID, area),
+ : ReinfLayer(material, area),
    nReinfBars(numReinfBars),
    centerPosit(centerPosition),
    arcRad(radius),
@@ -70,8 +70,6 @@ std::vector<Cell>
 CircReinfLayer::getReinfBars() const
 {
   std::vector<Cell> bars(nReinfBars);
-  double theta, dtheta;
-  static Vector barPosit(2);
 
   // Cell* reinfBars;
   double pi = acos(-1.0);
@@ -81,6 +79,7 @@ CircReinfLayer::getReinfBars() const
     initAngRad  = pi * initAng / 180.0;
     finalAngRad = pi * finalAng / 180.0;
 
+    double dtheta;
     if (nReinfBars > 1)
       dtheta = (finalAngRad - initAngRad) / (nReinfBars - 1);
     else
@@ -89,12 +88,12 @@ CircReinfLayer::getReinfBars() const
     // reinfBars = new ReinfBar[nReinfBars];
 
     for (int i = 0; i < nReinfBars; i++) {
-      theta       = initAngRad + dtheta * i;
+      double theta = initAngRad + dtheta * i;
       VectorND<2> position {
            centerPosit(0) + arcRad * cos(theta),
            centerPosit(1) + arcRad * sin(theta)
       };
-      bars[i] = Cell(material, this->area, position);
+      bars[i] = Cell(this->getMaterialID(), this->getCellArea(), position);
     }
   }
 

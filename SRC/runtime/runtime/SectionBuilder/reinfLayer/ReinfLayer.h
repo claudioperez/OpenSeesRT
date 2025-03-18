@@ -27,6 +27,7 @@
 
 #include <vector>
 #include <Cell.h>
+
 class ReinfLayer {
 public:
   ReinfLayer(int material, double area) : material(material), area(area) {}
@@ -35,17 +36,17 @@ public:
   int getMaterialID() const {
     return material;
   };
-  double getReinfBarArea() const {
-    return area;
-  };
 
-  virtual int getNumReinfBars() const        = 0;
-  virtual std::vector<Cell> getReinfBars() const     = 0;
+  virtual int getNumReinfBars() const = 0;
+  virtual std::vector<Cell> getReinfBars() const = 0;
 
 protected:
+  double getCellArea() const {
+    return area;
+  };
+private:
   int material;
   double area;
-private:
 };
 
 #endif
