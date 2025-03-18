@@ -8,7 +8,6 @@
 //
 #ifndef FiberSectionBuilder_h 
 #define FiberSectionBuilder_h
-#include <ReinfBar.h>
 #include <Patch.h>
 #include <ReinfLayer.h>
 #include <cell/Cell.h>
@@ -33,10 +32,12 @@ public:
     Cell**  cells  = patch.getCells();
     const int nc   = patch.getNumCells();
     const int mat  = patch.getMaterialID();
+    Vector cPos(2);
     for(int j=0; j<nc; j++) {
       double area        = cells[j]->getArea();
-      const Vector& cPos = cells[j]->getCentroidPosition();
-
+      const VectorND<2>& x = cells[j]->getPosition();
+      cPos(0) = x(0);
+      cPos(1) = x(1);
       if (this->addFiber(j, mat, area, cPos) < 0)
         return -1;
     }
@@ -46,12 +47,14 @@ public:
   int addLayer(const ReinfLayer& layer) {
 
     int numReinfBars   = layer.getNumReinfBars();
-    ReinfBar* reinfBar = layer.getReinfBars();
+    std::vector<Cell> bars = layer.getReinfBars();
     int mat            = layer.getMaterialID();
-
+    Vector cPos(2);
     for(int j=0; j<numReinfBars; j++) {
-        double area        = reinfBar[j].getArea();
-        const Vector& cPos = reinfBar[j].getPosition();
+        double area        = bars[j].getArea();
+        const VectorND<2>& x = bars[j].getPosition();
+        cPos(0) = x(0);
+        cPos(1) = x(1);
         if (this->addFiber(j, mat, area, cPos) < 0)
           return -1;
     }
@@ -69,6 +72,8 @@ public:
   virtual int addHFiber(int tag, int mat, double area, const Vector& cPos);
 
   int setWarping(int tag, int field, double w[3]) {
+    // Warping is set using the setParameter interface
+
     std::string ts = std::to_string(tag);
 
     for (int i=0; i<3; i++) {
