@@ -1,9 +1,10 @@
-/* ****************************************************************** **
-**    OpenSees - Open System for Earthquake Engineering Simulation    **
-**          Pacific Earthquake Engineering Research Center            **
-** ****************************************************************** */
+//===----------------------------------------------------------------------===//
 //
-// File: CircPatch.C
+//        OpenSees - Open System for Earthquake Engineering Simulation    
+//
+//===----------------------------------------------------------------------===//
+//
+// Adapted from CircPatch.C
 // Written by Remo M. de Souza
 // December 1998
 //
@@ -37,27 +38,6 @@ CircPatch::getMaterialID() const
   return matID;
 }
 
-void
-CircPatch::getDiscretization(int& numSubdivCircunf, int& numSubdivRadial) const
-{
-  numSubdivCircunf = nDivCirc;
-  numSubdivRadial  = nDivRad;
-}
-
-void
-CircPatch::getRadii(double& internRadius, double& externRadius) const
-{
-  internRadius = intRad;
-  externRadius = extRad;
-}
-
-void
-CircPatch::getAngles(double& initialAngle, double& finalAngle) const
-{
-  initialAngle = initAng;
-  finalAngle   = finalAng;
-}
-
 int
 CircPatch::getNumCells() const
 {
@@ -70,7 +50,7 @@ CircPatch::getCells() const
   double pi = acos(-1.0);
   double deltaRad, deltaTheta;
   double initAngRadians, finalAngRadians;
-  double rad_j, rad_j1, theta_i, theta_i1;
+  double theta_i, theta_i1;
   Matrix cellVertCoord(4, 2);
 
   int numCells;
@@ -89,11 +69,10 @@ CircPatch::getCells() const
 
     int k = 0;
     for (int j = 0; j < nDivRad; j++) {
-      rad_j  = intRad + deltaRad * j;
-      rad_j1 = rad_j + deltaRad;
+      double rad_j  = intRad + deltaRad * j;
+      double rad_j1 = rad_j + deltaRad;
 
       for (int i = 0; i < nDivCirc; i++) {
-        // compute coordinates
 
         theta_i = initAngRadians + deltaTheta * i;
 

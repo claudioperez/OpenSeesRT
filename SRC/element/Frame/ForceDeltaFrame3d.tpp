@@ -39,7 +39,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Claudio Perez
+// fcf, rms, mhs, cmp, fmk
 //
 #include <array>
 #include <vector>
@@ -138,7 +138,7 @@ ForceDeltaFrame3d<NIP,nsr>::ForceDeltaFrame3d(int tag,
                            double dens, int mass_type, bool use_mass,
                            int maxNumIters, double tolerance,
                            bool includeShear
-    )
+  )
  : BasicFrame3d(tag, ELE_TAG_ForceDeltaFrame3d, nodes, coordTransf),
    stencil(nullptr),
    state_flag(0),
@@ -226,8 +226,8 @@ ForceDeltaFrame3d<NIP,nsr>::commitState()
   K_past = K_pres;
   q_past = q_pres;
 
-  //   state_flag = 0;  fmk - commented out, see what happens to Example3.1.tcl if uncommented
-  //                         - i have not a clue why, ask remo if he ever gets in contact with us again!
+  // state_flag = 0;  fmk - commented out, see what happens to Example3.1.tcl if uncommented
+  //                       - i have not a clue why, ask remo if he ever gets in contact with us again!
 
   return err;
 }
@@ -295,7 +295,6 @@ ForceDeltaFrame3d<NIP,nsr>::revertToStart()
 }
 
 
-
 template<int NIP, int nsr>
 void
 ForceDeltaFrame3d<NIP,nsr>::initializeSectionHistoryVariables()
@@ -316,11 +315,6 @@ ForceDeltaFrame3d<NIP,nsr>::update()
 {
   // const int nip = points.size();
   constexpr static int nip = NIP;
-  // if (nip != NIP) {
-  //   opserr << "ForceDeltaFrame3d::update() - " << nip << "!= " << NIP << "\n";
-  //   exit(1);
-  //   return -1;
-  // }
 
   THREAD_LOCAL VectorND<nsr>     es_trial[NIP]; //  strain
   THREAD_LOCAL VectorND<nsr>     sr_trial[NIP]; //  stress resultant
@@ -428,8 +422,6 @@ ForceDeltaFrame3d<NIP,nsr>::update()
   MatrixND<nsr * nip, nsr * nip> K_tilde; // (nsr * nip, nsr * nip);
   Vector de_tilde(nsr * nip);
 
-
-  bool converged   = false;
   for (int j = 0; j < max_iter; j++) {
     // initialize F and vr for integration
     F.zero();
