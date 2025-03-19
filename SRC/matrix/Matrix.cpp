@@ -32,6 +32,7 @@
 #include "ID.h"
 
 #include <stdlib.h>
+#include <stdexcept>
 #include <OPS_Stream.h>
 
 #define MATRIX_VERY_LARGE_VALUE 1.0e213
