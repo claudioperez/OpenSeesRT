@@ -747,9 +747,6 @@ CorotFrameTransf3d03::update()
         // Update the nodal triads RI and RJ
         Q_pres[0] = VersorProduct(Q_pres[0],  Versor::from_vector(dAlphaI));
         Q_pres[1] = VersorProduct(Q_pres[1],  Versor::from_vector(dAlphaJ));
-  
-        // this->RI = MatrixFromVersor(Q_pres[0]);
-        // this->RJ = MatrixFromVersor(Q_pres[1]);
       }
       else {
         // this->RI = R0*MatrixFromVersor(nodes[0]->getTrialRotation());
@@ -1069,17 +1066,17 @@ CorotFrameTransf3d03::addTangent(MatrixND<12,12>& kg, const VectorND<12>& pl)
 {
     const Versor& Qbar = crs.getReference();
     
-    const Triad E{crs.getRotation()},
-                r{MatrixFromVersor(Qbar)},
+    const Triad E {crs.getRotation()},
+                r {MatrixFromVersor(Qbar)},
                 rI{MatrixFromVersor(Q_pres[0])},
                 rJ{MatrixFromVersor(Q_pres[1])};
     const Vector3D 
-      &e1  = E[1],
-      &e2  = E[2],
-      &e3  = E[3],
-      &r1  = r[1], // .rotate(E1), 
-      &r2  = r[2], // .rotate(E2), 
-      &r3  = r[3], // .rotate(E3),
+      &e1  =  E[1],
+      &e2  =  E[2],
+      &e3  =  E[3],
+      &r1  =  r[1], // .rotate(E1), 
+      &r2  =  r[2], // .rotate(E2), 
+      &r3  =  r[3], // .rotate(E3),
       &rI1 = rI[1], // .rotate(E1), 
       &rI2 = rI[2], // .rotate(E2), 
       &rI3 = rI[3], // .rotate(E3),
