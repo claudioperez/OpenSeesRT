@@ -667,8 +667,9 @@ nodeRotation(ClientData clientData, Tcl_Interp *interp, int argc,
   Versor rotation = theNode->getTrialRotation();
 
   Tcl_Obj* list = Tcl_NewListObj(4, nullptr);
-  for (int i = 0; i < 4; ++i)
-      Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(rotation[i]));
+  for (int i = 0; i < 3; ++i)
+    Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(rotation.vector[i]));
+  Tcl_ListObjAppendElement(interp, list, Tcl_NewDoubleObj(rotation.scalar));
 
   Tcl_SetObjResult(interp, list);
 

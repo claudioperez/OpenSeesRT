@@ -2,12 +2,38 @@
 #include <cmath>
 #include <VectorND.h>
 
-struct Versor: public OpenSees::VectorND<4> {
-//  inline VectorND<3>
-//  as_vector()
-//  {
-//    VectorND<3> v;
-//  }
+struct Versor {
+    Vector3D vector;
+    double   scalar;
+
+    template <typename Vec3T>
+    inline Vec3T 
+    rotate(const Vec3T& u) const {
+        return u + 2.0 * vector.cross( scalar*u + vector.cross(u) );
+    }
+
+    inline Versor conjugate() const {
+        Versor c;
+        c.scalar = scalar; 
+        c.vector = -1.0*vector;  // element-wise negation
+        return c;
+    }
+
+    inline Versor mult_conj(const Versor& other) const 
+    {
+        // Equivalent to R_IJ = R_I @ R_J^T, 
+        // i.e.  q_IJ = q_I * conj(q_J).
+        // Versor out = *this;
+        // out *= other.conjugate();
+        // return out;
+
+        Versor out;
+        out.scalar = scalar * other.scalar + vector.dot(other.vector);
+        out.vector =      (vector    * other.scalar)
+                       - (other.vector * scalar)
+                       - vector.cross(other.vector);
+        return out;
+    }
 
     template<typename Vec3T>
     static inline Versor
@@ -21,43 +47,41 @@ struct Versor: public OpenSees::VectorND<4> {
 
         Versor q;
         if (t == 0)
-            q.zero();
+            q.vector.zero();
 
         else {
             const double factor = std::sin(t*0.5) / t;
             for (int i = 0; i < 3; i++)
-                q[i] = theta[i] * factor;
+                q.vector[i] = theta[i] * factor;
         }
 
-        // Scalar part
-        q[3] = std::cos(t*0.5);
+        q.scalar = std::cos(t*0.5);
 
         return q;
     }
 
-  inline Versor &operator*= (const Versor& b)
-  {
-
-      values[0] = values[3]*b[0] + values[0]*b[3] + values[1]*b[2] - values[2]*b[1];
-      values[1] = values[3]*b[1] + values[1]*b[3] + values[2]*b[0] - values[0]*b[2];
-      values[2] = values[3]*b[2] + values[2]*b[3] + values[0]*b[1] - values[1]*b[0];
-      values[3] = values[3]*b[3] - values[0]*b[0] - values[1]*b[1] - values[2]*b[2];
-      return *this;
-  }
+//   inline Versor &operator*= (const Versor& b)
+//   {
+//       vector[0] = scalar*b.vector[0] + vector[0]*b.scalar + vector[1]*b.vector[2] - vector[2]*b.vector[1];
+//       vector[1] = scalar*b.vector[1] + vector[1]*b.scalar + vector[2]*b.vector[0] - vector[0]*b.vector[2];
+//       vector[2] = scalar*b.vector[2] + vector[2]*b.scalar + vector[0]*b.vector[1] - vector[1]*b.vector[0];
+//       scalar =    scalar*b.scalar - vector[0]*b.vector[0] - vector[1]*b.vector[1] - vector[2]*b.vector[2];
+//       return *this;
+//   }
 };
 
 #if 1
 inline Versor
 operator*(const Versor &qa, const Versor &qb)
 {
-    const double qa0 = qa[0],
-                 qa1 = qa[1],
-                 qa2 = qa[2],
-                 qa3 = qa[3],
-                 qb0 = qb[0],
-                 qb1 = qb[1],
-                 qb2 = qb[2],
-                 qb3 = qb[3];
+    const double qa0 = qa.vector[0],
+                 qa1 = qa.vector[1],
+                 qa2 = qa.vector[2],
+                 qa3 = qa.scalar,
+                 qb0 = qb.vector[0],
+                 qb1 = qb.vector[1],
+                 qb2 = qb.vector[2],
+                 qb3 = qb.scalar;
 
     // Calculate the dot product qa.qb
     const double qaTqb = qa0*qb0 + qa1*qb1 + qa2*qb2;
@@ -70,10 +94,10 @@ operator*(const Versor &qa, const Versor &qb)
 
     // Calculate the quaternion product
     Versor q12;
-    q12[0] = qa3*qb0 + qb3*qa0 - qaxqb0;
-    q12[1] = qa3*qb1 + qb3*qa1 - qaxqb1;
-    q12[2] = qa3*qb2 + qb3*qa2 - qaxqb2;
-    q12[3] = qa3*qb3 - qaTqb;
+    q12.vector[0] = qa3*qb0 + qb3*qa0 - qaxqb0;
+    q12.vector[1] = qa3*qb1 + qb3*qa1 - qaxqb1;
+    q12.vector[2] = qa3*qb2 + qb3*qa2 - qaxqb2;
+    q12.scalar = qa3*qb3 - qaTqb;
     return q12;
 }
 #else

@@ -22,7 +22,7 @@
 #include <Versor.h>
 #include <Matrix3D.h>
 #include <Vector3D.h>
-
+#include "Orient/CrisfieldTransform.h"
 
 struct Triad;
 using namespace OpenSees; // TODO
@@ -99,7 +99,7 @@ protected:
 
 private:
     // compute the transformation matrix
-    void compTransfMatrixBasicGlobal(const Triad&  r, const Triad&  E, const Triad&  rI, const Triad&  rJ);
+    void compTransfMatrixBasicGlobal(const Versor&, const Triad&  E, const Versor* Q);
 
     //
     // Internal data
@@ -153,10 +153,11 @@ private:
 
     double L;                        // initial element length
     double Ln;                       // current element length (at trial state)
-    
+
     Versor alphaIq;                  // quaternion for node I
     Versor alphaJq;                  // quaternion for node J
     Versor Q_past[2];                // commited quaternions
+    Versor Q_pres[2];                // trial quaternions
 
     Vector alphaI;                   // last trial rotations end i
     Vector alphaJ;                   // last trial rotatations end j
@@ -169,7 +170,11 @@ private:
 
     OpenSees::Matrix3D A;
     OpenSees::Matrix3D R0;           // rotation from local to global coordinates
-    OpenSees::Matrix3D e, RI, RJ, Rbar;
+    // OpenSees::Matrix3D RI, RJ;
+    CrisfieldTransform crs;
+    constexpr static Vector3D E1 {1, 0, 0}, 
+                              E2 {0, 1, 0},
+                              E3 {0, 0, 1};
 
     // Static workspace variables
     static MatrixND<12,3> Lr2, Lr3;   // auxiliary matrices

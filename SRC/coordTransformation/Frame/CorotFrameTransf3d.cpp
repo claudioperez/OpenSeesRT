@@ -1864,10 +1864,12 @@ CorotFrameTransf3d::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &th
   for (int i = 0; i<7; i++)
     ulcommit[i] = data(i);
 
-  for (int j = 0; j<4; j++) {
-    alphaIqcommit[j] = data(7+j);
-    alphaJqcommit[j] = data(11+j);
+  for (int j = 0; j<3; j++) {
+    alphaIqcommit.vector[j] = data(7+j);
+    alphaJqcommit.vector[j] = data(11+j);
   }
+  alphaIqcommit.scalar = data(10);
+  alphaJqcommit.scalar = data(15);
 
   for (int k=0; k<3; k++) {
     xAxis(k) = data(15+k);
@@ -1919,10 +1921,12 @@ CorotFrameTransf3d::sendSelf(int cTag, Channel &theChannel)
   for (int i = 0; i<7; i++)
     data[i] = ulcommit[i];
 
-  for (int j = 0; j<4; j++) {
-    data(7+j) = alphaIqcommit[j];
-    data(11+j) = alphaJqcommit[j];
+  for (int j = 0; j<3; j++) {
+    data(7+j)  = alphaIqcommit.vector[j];
+    data(11+j) = alphaJqcommit.vector[j];
   }
+  data(10) = alphaIqcommit.scalar;
+  data(15) = alphaJqcommit.scalar;
 
   for (int k=0; k<3; k++) {
     data(15+k) = xAxis(k);

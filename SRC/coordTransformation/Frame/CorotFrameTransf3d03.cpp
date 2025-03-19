@@ -47,6 +47,7 @@
 #include <Matrix3D.h>
 #include <Rotations.hpp>
 #include "blk3x12x3.h"
+#include "Orient/CrisfieldTransform.h"
 using namespace OpenSees;
 
 MatrixND<12,3> CorotFrameTransf3d03::Lr2{};
@@ -254,86 +255,6 @@ getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double L
 }
 
 
-class CrisfieldTransform {
-public:
-  CrisfieldTransform(Matrix3D &R0) : R0(R0) {}
-
-  int
-  update(const Matrix3D& RI, const Matrix3D& RJ, const Vector3D& e1)
-  {
-    {
-      Matrix3D dRgamma; // = RJ*RI';
-      for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++) {
-          dRgamma(i,j) = 0.0;
-          for (int k = 0; k < 3; k++)
-            dRgamma(i,j) += RJ(i,k) * RI(j,k);
-        }
-
-      Vector3D gammaw = CayleyFromVersor(VersorFromMatrix(dRgamma));
-
-      gammaw *= 0.5;
-
-      dRgamma = CaySO3(gammaw);
-
-      Rbar.zero();
-      Rbar.addMatrixProduct(dRgamma, RI, 1.0);
-    }
-    //
-    // Compute the base vectors e2, e3
-    //
-    {
-      Vector3D e2, e3;
-      const Triad r(Rbar);
-      // 'rotate' the mean rotation matrix Rbar on to e1 to
-      // obtain e2 and e3 (using the 'mid-point' procedure)
-  
-      // e2 = r2 - (e1 + r1)*((r2^e1)*0.5);
-      // e3 = r3 - (e1 + r1)*((r3^e1)*0.5);
-  
-      Vector3D tmp;
-      tmp  = e1;
-      tmp += r[1];
-  
-      e2 = tmp;
-      e3 = e2;
-  
-      e2 *= 0.5*r[2].dot(e1);
-      e2.addVector(-1.0,  r[2], 1.0);
-  
-      // e2 = r2 - (e1 + r1)*((r2^e1)*0.5);
-  
-      e3 *= r[3].dot(e1)*0.5;
-      e3.addVector(-1.0,  r[3], 1.0);
-  
-      for (int k = 0; k < 3; k ++) {
-        e(k,0) = e1[k];
-        e(k,1) = e2[k];
-        e(k,2) = e3[k];
-      }
-    }
-    return 0;
-  }
-
-  Matrix3D
-  getRotation()
-  {
-    return e;
-  }
-
-  Triad 
-  getReference()
-  {
-    return r;
-  }
-
-private:
-  const Matrix3D& R0;
-  Matrix3D Rbar;
-  Matrix3D e;
-  Triad r;
-};
-
 CorotFrameTransf3d03::CorotFrameTransf3d03(int tag, const Vector &vecInLocXZPlane,
                                        const Vector &rigJntOffsetI,
                                        const Vector &rigJntOffsetJ)
@@ -442,14 +363,14 @@ CorotFrameTransf3d03::getCopy()
     return 0;
   }
 
-  theCopy->nodes[0]      = nodes[0];
-  theCopy->nodes[1]      = nodes[1];
-  theCopy->xAxis         = xAxis;
-  theCopy->L             = L;
-  theCopy->Ln            = Ln;
-  theCopy->R0            = R0;
-  theCopy->alphaIq       = alphaIq;
-  theCopy->alphaJq       = alphaJq;
+  theCopy->nodes[0]  = nodes[0];
+  theCopy->nodes[1]  = nodes[1];
+  theCopy->xAxis     = xAxis;
+  theCopy->L         = L;
+  theCopy->Ln        = Ln;
+  theCopy->R0        = R0;
+  theCopy->Q_pres[0] = Q_pres[0];
+  theCopy->Q_pres[1] = Q_pres[1];
   theCopy->Q_past[0] = Q_past[0];
   theCopy->Q_past[1] = Q_past[1];
   theCopy->ul = ul;
@@ -463,8 +384,8 @@ int
 CorotFrameTransf3d03::revertToStart()
 {
   ul.zero();
-  alphaIq = VersorFromMatrix(R0);
-  alphaJq = VersorFromMatrix(R0);
+  Q_pres[0] = VersorFromMatrix(R0);
+  Q_pres[1] = VersorFromMatrix(R0);
 
   alphaI.Zero();
   alphaJ.Zero();
@@ -477,10 +398,9 @@ CorotFrameTransf3d03::revertToStart()
 int
 CorotFrameTransf3d03::commitState()
 {
-  ulcommit      = ul;
-  Q_past[0] = alphaIq;
-  Q_past[1] = alphaJq;
-
+  ulcommit  = ul;
+  Q_past[0] = Q_pres[0];
+  Q_past[1] = Q_pres[1];
   return 0;
 }
 
@@ -497,19 +417,9 @@ CorotFrameTransf3d03::revertToLastCommit()
       alphaJ(k) =  dispJ(k+3);
     }
 
-    if (nodeIInitialDisp != 0) {
-      for (int j = 0; j<3; j++)
-        alphaI[j] -= nodeIInitialDisp[j+3];
-    }
-
-    if (nodeJInitialDisp != 0) {
-      for (int j = 0; j<3; j++)
-        alphaJ[j] -= nodeJInitialDisp[j+3];
-    }
-
-    ul      = ulcommit;
-    alphaIq = Q_past[0];
-    alphaJq = Q_past[1];
+    ul        = ulcommit;
+    Q_pres[0] = Q_past[0];
+    Q_pres[1] = Q_past[1];
 
     this->update();
 
@@ -562,8 +472,8 @@ CorotFrameTransf3d03::initialize(Node *nodeIPointer, Node *nodeJPointer)
       return error;
 
     // Compute initial pseudo-vectors for nodal triads
-    alphaIq = VersorFromMatrix(R0);
-    alphaJq = VersorFromMatrix(R0);
+    Q_pres[0] = VersorFromMatrix(R0);
+    Q_pres[1] = VersorFromMatrix(R0);
 
     this->commitState();
 
@@ -572,17 +482,28 @@ CorotFrameTransf3d03::initialize(Node *nodeIPointer, Node *nodeJPointer)
 
 void inline
 CorotFrameTransf3d03::compTransfMatrixBasicGlobal(
-                                                const Triad& __restrict r, 
+                                                const Versor& Qbar, 
                                                 const Triad& __restrict E, 
-                                                const Triad& __restrict rI, 
-                                                const Triad& __restrict rJ)
+                                                const Versor* Q_pres)
 {
 
     // extract columns of rotation matrices
-    const Vector3D &r1 = r[1], &r2 = r[2], &r3 = r[3],
-                   &e1 = E[1], &e2 = E[2], &e3 = E[3],
-                   &rI1=rI[1], &rI2=rI[2], &rI3=rI[3],
-                   &rJ1=rJ[1], &rJ2=rJ[2], &rJ3=rJ[3];
+    const Triad r{MatrixFromVersor(Qbar)},
+                rI{MatrixFromVersor(Q_pres[0])},
+                rJ{MatrixFromVersor(Q_pres[1])};
+    const Vector3D 
+      &e1  = E[1],
+      &e2  = E[2],
+      &e3  = E[3],
+      &r1  = r[1], // .rotate(E1), 
+      &r2  = r[2], // .rotate(E2), 
+      &r3  = r[3], // .rotate(E3),
+      &rI1 = rI[1], // .rotate(E1), 
+      &rI2 = rI[2], // .rotate(E2), 
+      &rI3 = rI[3], // .rotate(E3),
+      &rJ1 = rJ[1], // .rotate(E1), 
+      &rJ2 = rJ[2], // .rotate(E2), 
+      &rJ3 = rJ[3]; // .rotate(E3);
 
     // Compute the transformation matrix from the basic to the
     // global system
@@ -744,9 +665,6 @@ CorotFrameTransf3d03::compTransfMatrixBasicGlobal(
       T(jmx,i) -= T(imx,i);
       T(imx,i) = 0;
     }
-    // ag = T;
-    // opserr << "ag = " << Matrix(ag);
-    // exit(1);
 }
 
 //
@@ -762,12 +680,12 @@ CorotFrameTransf3d03::update()
     dispJ = nodes[1]->getTrialDisp();
 
     if (nodeIInitialDisp != 0) {
-      for (int j = 0; j<6; j++)
+      for (int j = 0; j<3; j++)
         dispI[j] -= nodeIInitialDisp[j];
     }
 
     if (nodeJInitialDisp != 0) {
-      for (int j = 0; j<6; j++)
+      for (int j = 0; j<3; j++)
         dispJ[j] -= nodeJInitialDisp[j];
     }
 
@@ -827,82 +745,20 @@ CorotFrameTransf3d03::update()
         }
   
         // Update the nodal triads RI and RJ
+        Q_pres[0] = VersorProduct(Q_pres[0],  Versor::from_vector(dAlphaI));
+        Q_pres[1] = VersorProduct(Q_pres[1],  Versor::from_vector(dAlphaJ));
   
-        const Versor dQI = Versor::from_vector(dAlphaI);
-        const Versor dQJ = Versor::from_vector(dAlphaJ);
-  
-        alphaIq = VersorProduct(alphaIq, dQI);
-        alphaJq = VersorProduct(alphaJq, dQJ);
-  
-        this->RI = MatrixFromVersor(alphaIq);
-        this->RJ = MatrixFromVersor(alphaJq);
+        // this->RI = MatrixFromVersor(Q_pres[0]);
+        // this->RJ = MatrixFromVersor(Q_pres[1]);
       }
       else {
-        this->RI = R0*MatrixFromVersor(nodes[0]->getTrialRotation());
-        this->RJ = R0*MatrixFromVersor(nodes[1]->getTrialRotation());
+        // this->RI = R0*MatrixFromVersor(nodes[0]->getTrialRotation());
+        // this->RJ = R0*MatrixFromVersor(nodes[1]->getTrialRotation());
       }
     }
 
-    //
-    // Compute the mean triad from RI and RJ
-    //
-    {
-      Matrix3D dRgamma; // = RJ*RI';
-      for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++) {
-          dRgamma(i,j) = 0.0;
-          for (int k = 0; k < 3; k++)
-            dRgamma(i,j) += RJ(i,k) * RI(j,k);
-        }
-
-      Vector3D gammaw = CayleyFromVersor(VersorFromMatrix(dRgamma));
-
-      gammaw *= 0.5;
-
-      dRgamma = CaySO3(gammaw);
-
-      Rbar.zero();
-      Rbar.addMatrixProduct(dRgamma, RI, 1.0);
-    }
-    const Triad r{Rbar};
-
-    //
-    // Compute the base vectors e2, e3
-    //
-    {
-      // 'rotate' the mean rotation matrix Rbar on to e1 to
-      // obtain e2 and e3 (using the 'mid-point' procedure)
-      Vector3D e2, e3;
-
-      // e2 = r2 - (e1 + r1)*((r2^e1)*0.5);
-
-      OPS_STATIC Vector3D tmp;
-      tmp  = e1;
-      tmp += r[1];
-
-      e2 = tmp; // = e1 + r1
-
-      e2 *= 0.5*r[2].dot(e1);
-      e2.addVector(-1.0,  r[2], 1.0);
-
-      // e3 = r3 - (e1 + r1)*((r3^e1)*0.5);
-
-      e3 = tmp; // = e1 + r1
-      e3 *= r[3].dot(e1)*0.5;
-      e3.addVector(-1.0,  r[3], 1.0);
-
-      for (int k = 0; k < 3; k ++) {
-        e(k,0) = e1[k];
-        e(k,1) = e2[k];
-        e(k,2) = e3[k];
-      }
-    }
-
-
-    // CrisfieldTransform crs(R0);
-    // crs.update(RI, RJ, e1);
-    // e = crs.getRotation();
-    // const Triad r = crs.getReference();
+    crs.update(Q_pres[0], Q_pres[1], e1);
+    Matrix3D e = crs.getRotation();
 
     // -----------------------------------------------
     // Compute the local deformations
@@ -913,6 +769,8 @@ CorotFrameTransf3d03::update()
 
     // Rotations
     {
+      Matrix3D RI = MatrixFromVersor(Q_pres[0]);
+      Matrix3D RJ = MatrixFromVersor(Q_pres[1]);
       Vector3D theta = LogC90(e^RI);//^e);
       for (int i=0; i<3; i++)
         ul[imx+i] = theta[i];
@@ -930,8 +788,7 @@ CorotFrameTransf3d03::update()
     ul(jnx) = Ln - L; // 2. * xJI.dot(dJI) / (Ln + L);  // mid-point formula
 
     // Compute the transformation matrix
-    const Triad rI{RI}, rJ{RJ};
-    this->compTransfMatrixBasicGlobal(r, Triad{e}, rI, rJ);
+    this->compTransfMatrixBasicGlobal(crs.getReference(), Triad{e}, Q_pres);
 
     return 0;
 }
@@ -1199,7 +1056,6 @@ CorotFrameTransf3d03::pushResponse(MatrixND<12,12>& kl, const VectorND<12>& pl)
   return K;
 }
 
-
 //
 // Add geometric part of the transformation tangent
 //
@@ -1211,11 +1067,25 @@ CorotFrameTransf3d03::pushResponse(MatrixND<12,12>& kl, const VectorND<12>& pl)
 int
 CorotFrameTransf3d03::addTangent(MatrixND<12,12>& kg, const VectorND<12>& pl)
 {
-    const Triad r{Rbar}, rI{RI}, rJ{RJ}, E{e};
-    const Vector3D &r1 = r[1], &r2 = r[2], &r3 = r[3],
-                   &e1 = E[1], &e2 = E[2], &e3 = E[3],
-                   &rI1=rI[1], &rI2=rI[2], &rI3=rI[3],
-                   &rJ1=rJ[1], &rJ2=rJ[2], &rJ3=rJ[3];
+    const Versor& Qbar = crs.getReference();
+    
+    const Triad E{crs.getRotation()},
+                r{MatrixFromVersor(Qbar)},
+                rI{MatrixFromVersor(Q_pres[0])},
+                rJ{MatrixFromVersor(Q_pres[1])};
+    const Vector3D 
+      &e1  = E[1],
+      &e2  = E[2],
+      &e3  = E[3],
+      &r1  = r[1], // .rotate(E1), 
+      &r2  = r[2], // .rotate(E2), 
+      &r3  = r[3], // .rotate(E3),
+      &rI1 = rI[1], // .rotate(E1), 
+      &rI2 = rI[2], // .rotate(E2), 
+      &rI3 = rI[3], // .rotate(E3),
+      &rJ1 = rJ[1], // .rotate(E1), 
+      &rJ2 = rJ[2], // .rotate(E2), 
+      &rJ3 = rJ[3]; // .rotate(E3);
     // NOTE[cmp] 
     // CorotFrameTransf3d03::compTransfMatrixBasicGlobal must be 
     // called first to set Lr1, Lr2 and T
@@ -1664,10 +1534,12 @@ CorotFrameTransf3d03::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &
   for (int i = 0; i<7; i++)
     ulcommit[i] = data(i);
 
-  for (int j = 0; j<4; j++) {
-    Q_past[0][j] = data(7+j);
-    Q_past[1][j] = data(11+j);
+  for (int j = 0; j<3; j++) {
+    Q_past[0].vector[j] = data(7+j);
+    Q_past[1].vector[j] = data(11+j);
   }
+  Q_past[0].scalar = data(10);
+  Q_past[1].scalar = data(15);
 
   for (int k=0; k<3; k++) {
     xAxis(k) = data(15+k);
@@ -1705,8 +1577,8 @@ CorotFrameTransf3d03::recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &
   Ln = data(47);
 
   ul = ulcommit;
-  alphaIq = Q_past[0];
-  alphaJq = Q_past[1];
+  Q_pres[0] = Q_past[0];
+  Q_pres[1] = Q_past[1];
 
   initialDispChecked = true;
   return 0;
@@ -1719,10 +1591,13 @@ CorotFrameTransf3d03::sendSelf(int cTag, Channel &theChannel)
   for (int i = 0; i<7; i++)
     data[i] = ulcommit[i];
 
-  for (int j = 0; j<4; j++) {
-    data(7+j) = Q_past[0][j];
-    data(11+j) = Q_past[1][j];
+  // [7 - 15]: 4 times 2 quaternions
+  for (int j = 0; j<3; j++) {
+    data(7+j)  = Q_past[0].vector[j];
+    data(11+j) = Q_past[1].vector[j];
   }
+  data(10) = Q_past[0].scalar;
+  data(15) = Q_past[1].scalar;
 
   for (int k=0; k<3; k++) {
     data(15+k) = xAxis(k);

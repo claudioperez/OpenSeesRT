@@ -1565,7 +1565,7 @@ ForceDeltaFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int ig
     } else if (type == LOAD_TAG_Beam3dPointLoad) {
       double Py     = data(0) * 1.0;
       double Pz     = data(1) * 1.0;
-      double N      = data(2) * 1.0;
+//    double N      = data(2) * 1.0;
       double aOverL = data(3);
 
       if (aOverL < 0.0 || aOverL > 1.0)
