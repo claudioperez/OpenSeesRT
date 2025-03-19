@@ -23,6 +23,7 @@ struct Versor {
     {
         // Equivalent to R_IJ = R_I @ R_J^T, 
         // i.e.  q_IJ = q_I * conj(q_J).
+
         // Versor out = *this;
         // out *= other.conjugate();
         // return out;

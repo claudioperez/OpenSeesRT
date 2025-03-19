@@ -154,13 +154,11 @@ private:
     double L;                        // initial element length
     double Ln;                       // current element length (at trial state)
 
-    // Versor alphaIq;                  // quaternion for node I
-    // Versor alphaJq;                  // quaternion for node J
     Versor Q_past[2];                // commited quaternions
     Versor Q_pres[2];                // trial quaternions
 
-    Vector alphaI;                   // last trial rotations end i
-    Vector alphaJ;                   // last trial rotatations end j
+    Vector3D alphaI;                   // last trial rotations end i
+    Vector3D alphaJ;                   // last trial rotatations end j
 
     VectorND<12> ul;                 // local displacements (size=7)
     VectorND<12> ulcommit;           // commited local displacements

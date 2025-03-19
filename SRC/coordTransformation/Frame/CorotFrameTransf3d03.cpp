@@ -261,12 +261,11 @@ CorotFrameTransf3d03::CorotFrameTransf3d03(int tag, const Vector &vecInLocXZPlan
   : FrameTransform3d(tag, CRDTR_TAG_CorotFrameTransf3d),
     nodeIOffset(3), nodeJOffset(3),
     L(0), Ln(0),
-    alphaI(3), alphaJ(3),
     nodeIInitialDisp(0), nodeJInitialDisp(0),
     initialDispChecked(false)
 {
-    alphaI.Zero();
-    alphaJ.Zero();
+    alphaI.zero();
+    alphaJ.zero();
 
     // Check vector that defines local xz plane
     if (vecInLocXZPlane.Size() != 3 ) {
@@ -319,7 +318,6 @@ CorotFrameTransf3d03::CorotFrameTransf3d03():
   FrameTransform3d(0, CRDTR_TAG_CorotFrameTransf3d),
   nodeIOffset(3), nodeJOffset(3),
   L(0.0), Ln(0.0),
-  alphaI(3), alphaJ(3),
   nodeIInitialDisp(0), nodeJInitialDisp(0), 
   initialDispChecked(false)
 {
@@ -387,8 +385,8 @@ CorotFrameTransf3d03::revertToStart()
   Q_pres[0] = VersorFromMatrix(R0);
   Q_pres[1] = VersorFromMatrix(R0);
 
-  alphaI.Zero();
-  alphaJ.Zero();
+  alphaI.zero();
+  alphaJ.zero();
 
   this->update();
   return 0;
@@ -673,20 +671,10 @@ int
 CorotFrameTransf3d03::update()
 {
     // determine global displacement increments from last iteration
-    static Vector dispI(6);
-    static Vector dispJ(6);
-    dispI = nodes[0]->getTrialDisp();
-    dispJ = nodes[1]->getTrialDisp();
 
-    if (nodeIInitialDisp != 0) {
-      for (int j = 0; j<3; j++)
-        dispI[j] -= nodeIInitialDisp[j];
-    }
+    const Vector& dispI = nodes[0]->getTrialDisp();
+    const Vector& dispJ = nodes[1]->getTrialDisp();
 
-    if (nodeJInitialDisp != 0) {
-      for (int j = 0; j<3; j++)
-        dispJ[j] -= nodeJInitialDisp[j];
-    }
 
     // -----------------------------------------------
     // First basis e1 and node offsets
@@ -743,7 +731,7 @@ CorotFrameTransf3d03::update()
           alphaJ[k]  =  dispJ(k+3);
         }
   
-        // Update the nodal triads RI and RJ
+        // Update the nodal rotations
         Q_pres[0] = VersorProduct(Q_pres[0],  Versor::from_vector(dAlphaI));
         Q_pres[1] = VersorProduct(Q_pres[1],  Versor::from_vector(dAlphaJ));
       }
@@ -775,11 +763,8 @@ CorotFrameTransf3d03::update()
     }
 
     // Axial
-    // ul(6) = Ln - L;
-    // ul(6) = 2 * ((xJI + dJI/2)^dJI) / (Ln + L);  // mid-point formula
-//  xJI.addVector(1.0, dJI, 0.5);
     ul(inx) = 0;
-    ul(jnx) = Ln - L; // 2. * xJI.dot(dJI) / (Ln + L);  // mid-point formula
+    ul(jnx) = Ln - L;
 
     // Compute the transformation matrix
     this->compTransfMatrixBasicGlobal(crs.getReference(), Triad{e}, Q_pres);
@@ -1060,11 +1045,9 @@ CorotFrameTransf3d03::pushResponse(MatrixND<12,12>& kl, const VectorND<12>& pl)
 //         ks3 + ks3' + ks4 + ks5;
 int
 CorotFrameTransf3d03::addTangent(MatrixND<12,12>& kg, const VectorND<12>& pl)
-{
-    const Versor& Qbar = crs.getReference();
-    
+{    
     const Triad E {crs.getRotation()},
-                r {MatrixFromVersor(Qbar)},
+                r {MatrixFromVersor(crs.getReference())},
                 rI{MatrixFromVersor(Q_pres[0])},
                 rJ{MatrixFromVersor(Q_pres[1])};
     const Vector3D 
