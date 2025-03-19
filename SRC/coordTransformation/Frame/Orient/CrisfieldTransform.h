@@ -22,8 +22,11 @@ public:
     }
 
     int
-    update(const Versor& qI, const Versor& qJ, const Vector3D& e1)
+    update(const Versor& qI, const Versor& qJ, const Vector3D& dx)
     {
+
+        Ln = dx.norm();
+
         {
             Vector3D gammaw = CayleyFromVersor(qJ.mult_conj(qI));
 
@@ -40,7 +43,9 @@ public:
             // 'rotate' the mean rotation matrix Rbar on to e1 to
             // obtain e2 and e3 (using the 'mid-point' procedure)
             //
-            Vector3D e2, e3;
+            Vector3D e1, e2, e3;
+            e1  = dx;
+            e1 /= Ln;
             Triad r = Triad{MatrixFromVersor(Qbar)};
             Vector3D r1 = r[1],
                      r2 = r[2],
@@ -78,6 +83,7 @@ public:
 private:
     Versor Qbar;
     Matrix3D e;
+    double Ln;
     constexpr static Vector3D E1 {1, 0, 0}, 
                               E2 {0, 1, 0},
                               E3 {0, 0, 1};

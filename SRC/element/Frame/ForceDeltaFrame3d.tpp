@@ -947,8 +947,8 @@ ForceDeltaFrame3d<NIP,nsr>::getResistingForce()
   pl[11] = q2;
 
   // Push to global system
-  thread_local VectorND<12> pg;
-  thread_local Vector wrapper(pg);
+  static VectorND<12> pg;
+  static Vector wrapper(pg);
 
   pg  = theCoordTransf->pushResponse(pl);
 
@@ -957,7 +957,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResistingForce()
   if (eleLoads.size() > 0) // (eleLoads.size() > 0)
     this->computeReactions(p0);
 
-  thread_local VectorND<12> pf;
+  static VectorND<12> pf;
   pf.zero();
   pf[0] = p0[0];
   pf[1] = p0[1];
@@ -1054,7 +1054,7 @@ ForceDeltaFrame3d<NIP,nsr>::computew(Vector& w, Vector& wp, double xi[], const V
   double L = theCoordTransf->getInitialLength();
 
 
-  Matrix Ginv(numSections, numSections);
+  Matrix Ginv(NIP, NIP);
   vandermonde_inverse(numSections, xi, Ginv);
 
 
@@ -2083,15 +2083,15 @@ ForceDeltaFrame3d<NIP,nsr>::compSectionDisplacements(Vector sectionCoords[], Vec
 
   // get integration point positions and weights
   static double xi_pts[NIP];
-  stencil->getSectionLocations(numSections, L, xi_pts);
+  stencil->getSectionLocations(NIP, L, xi_pts);
 
   //
   // setup Vandermode and CBDI influence matrices
   //
 
   // get CBDI influence matrix
-  Matrix ls(numSections, numSections);
-  getCBDIinfluenceMatrix(numSections, xi_pts, L, ls);
+  Matrix ls(NIP, NIP);
+  getCBDIinfluenceMatrix(NIP, xi_pts, L, ls);
 
   // get section curvatures
   Vector kappa(numSections); // curvature
@@ -2545,8 +2545,6 @@ ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
     double d2 = 0.0;
     double d3 = 0.0;
 
-    // int numSections = points.size();
-    constexpr static int numSections = NIP;
     double L = theCoordTransf->getInitialLength();
 
     // Location of inflection point from node I
@@ -2996,7 +2994,6 @@ ForceDeltaFrame3d<NIP,nsr>::setParameter(const char** argv, int argc, Parameter&
 
   // Default, send to everything
   int ok;
-
   for (int i = 0; i < NIP; i++) {
     ok = points[i].material->setParameter(argv, argc, param);
     if (ok != -1)

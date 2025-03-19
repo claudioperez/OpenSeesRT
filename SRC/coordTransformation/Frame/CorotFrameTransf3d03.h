@@ -38,12 +38,13 @@ public:
     ~CorotFrameTransf3d03();
 
     const char *getClassType() const {
-      return "CorotFrameTransf3d03";
+      return "CorotFrameTransf3d";
     }
 
+    // NOTE: maybe add arg for rotation parameterization
     FrameTransform3d *getCopy();
 
-    int initialize(Node *nodeIPointer, Node *nodeJPointer);
+    int initialize(Node *nodeI, Node *nodeJ);
     int update();
     int commitState();
     int revertToLastCommit();        
@@ -51,14 +52,20 @@ public:
     int  getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
 
     double getInitialLength();
+    double getDeformedLength();
 //  double getPresentLength();
 //  double getCurrentLength();
-    double getDeformedLength();
     const Vector &getBasicTrialDisp();
     const Vector &getBasicIncrDisp();
     const Vector &getBasicIncrDeltaDisp();
     const Vector &getBasicTrialVel();
     const Vector &getBasicTrialAccel();
+
+    Versor getNodeRotation(int node) {
+      // use union for storage? then we just switch to
+      // whatever element has been requesting
+      return Versor::from_vector(vr[node]);
+    };
 
     virtual VectorND<12>    pushResponse(VectorND<12>&pl) override final;
     virtual VectorND<12>    pushConstant(const VectorND<12>&pl) const override final;
@@ -66,12 +73,12 @@ public:
     virtual MatrixND<12,12> pushResponse(MatrixND<12,12>& kl, const VectorND<12>& pl) override final;
     virtual MatrixND<12,12> pushConstant(const MatrixND<12,12>& kl) override final;
 
-    const Vector &getGlobalResistingForce(const Vector &basicForce, const Vector &p0);
-    const Matrix &getGlobalStiffMatrix(const Matrix &basicStiff, const Vector &basicForce);
-    const Matrix &getInitialGlobalStiffMatrix(const Matrix &basicStiff);
+    const Vector &getGlobalResistingForce(const Vector &qb, const Vector &p0);
+    const Matrix &getGlobalStiffMatrix(const Matrix &Kb, const Vector &qb);
+    const Matrix &getInitialGlobalStiffMatrix(const Matrix &Kb);
 
     // method used to rotate consistent mass matrix
-    const Matrix &getGlobalMatrixFromLocal(const Matrix &local);
+    const Matrix &getGlobalMatrixFromLocal(const Matrix &Ml);
 
     // methods used in post-processing only
     const Vector &getPointGlobalCoordFromLocal(const Vector &localCoords);
@@ -90,7 +97,7 @@ public:
 
 protected:
     int addTangent(MatrixND<12,12>& M, const VectorND<12>& pl);
-    
+
     VectorND<6>   pushResponse(const VectorND<6>& pa, int a, int b);
     MatrixND<6,6> pushResponse(const MatrixND<6,6>& K, const VectorND<12>& pl, int a, int b);
     int addTangent(MatrixND<6,6>& K, const VectorND<6>& p, int a, int b, int c);
@@ -101,22 +108,19 @@ private:
     // compute the transformation matrix
     void compTransfMatrixBasicGlobal(const Versor&, const Triad&  E, const Versor* Q);
 
-    //
-    // Internal data
-    //
-    std::array<Node*, 2> nodes;                // pointers to the element two endnodes
+    template<typename VecL, typename VecB>
+    void
+    LocalToBasic(const VecL& ul, VecB& ub)
+    {
+      ub[0] =  ul[jnx] - ul[inx];
+      ub[1] =  ul[imz];
+      ub[2] =  ul[jmz];
+      ub[3] =  ul[imy];
+      ub[4] =  ul[jmy];
+      ub[5] =  ul[jmx] - ul[imx];
+    }
 
-    Vector3D xAxis;                              // local x axis
-    Vector3D vz;                                 // Vector that lies in local plane xz
-    Vector3D xI, xJ;
-
-    // Rigid joint offsets
-    enum {
-      end_i = 0<<1,
-      end_j = 0<<2,
-    };
-    int joint_offsets;
-
+    constexpr static int nn = 2;
     enum {
       inx= 0, // axial
       iny= 1, // Vy
@@ -133,20 +137,25 @@ private:
       jmz=11, // rot z J
     };
 
-    template<typename VecL, typename VecB>
-    void 
-    LocalToBasic(const VecL& ul, VecB& ub)
-    {
-      ub[0] =  ul[jnx] - ul[inx];
-      ub[1] =  ul[imz];
-      ub[2] =  ul[jmz];
-      ub[3] =  ul[imy];
-      ub[4] =  ul[jmy];
-      ub[5] =  ul[jmx] - ul[imx];
-    }
+    //
+    // Member data
+    //
+    std::array<Node*, nn> nodes;
+
+    Vector3D xAxis;                              // local x axis
+    Vector3D vz;                                 // Vector that lies in local plane xz
+    Vector3D xJI;
+
+    // Rigid joint offsets
+    enum {
+      end_i = 0<<1,
+      end_j = 0<<2,
+    };
+    int joint_offsets;
 
     Vector nodeIOffset, 
            nodeJOffset;
+    Vector3D* offset[nn];
 
     double *nodeIInitialDisp, *nodeJInitialDisp;
     bool  initialDispChecked;                    
@@ -154,27 +163,28 @@ private:
     double L;                        // initial element length
     double Ln;                       // current element length (at trial state)
 
-    Versor Q_past[2];                // commited quaternions
-    Versor Q_pres[2];                // trial quaternions
+    Versor Q_past[nn];                // commited rotations
+    Versor Q_pres[nn];                // trial rotations
 
-    Vector3D alphaI;                   // last trial rotations end i
-    Vector3D alphaJ;                   // last trial rotatations end j
+    Vector3D alphaI;                 // last trial rotations end i
+    Vector3D alphaJ;                 // last trial rotatations end j
 
     VectorND<12> ul;                 // local displacements (size=7)
+    Vector3D     vr[nn];             //
     VectorND<12> ulcommit;           // commited local displacements
     VectorND<12> ulpr;               // previous local displacements
 
     OpenSees::MatrixND<12,12> T;     // transformation from local to global system
 
-    OpenSees::Matrix3D A;
     OpenSees::Matrix3D R0;           // rotation from local to global coordinates
     CrisfieldTransform crs;
-    constexpr static Vector3D E1 {1, 0, 0}, 
+    constexpr static Vector3D E1 {1, 0, 0},
                               E2 {0, 1, 0},
                               E3 {0, 0, 1};
 
     // Static workspace variables
-    static MatrixND<12,3> Lr2, Lr3;   // auxiliary matrices
+    Matrix3D A;
+    MatrixND<12,3> Lr2, Lr3;   // auxiliary matrices
 };
 
 #endif

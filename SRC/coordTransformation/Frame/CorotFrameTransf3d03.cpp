@@ -50,11 +50,11 @@
 #include "Orient/CrisfieldTransform.h"
 using namespace OpenSees;
 
-MatrixND<12,3> CorotFrameTransf3d03::Lr2{};
-MatrixND<12,3> CorotFrameTransf3d03::Lr3{};
+// MatrixND<12,3> CorotFrameTransf3d03::Lr2{};
+// MatrixND<12,3> CorotFrameTransf3d03::Lr3{};
 
 #undef OPS_STATIC
-#define OPS_STATIC // static 
+#define OPS_STATIC static 
 #ifndef THREAD_LOCAL
 # define THREAD_LOCAL static
 #endif
@@ -260,6 +260,7 @@ CorotFrameTransf3d03::CorotFrameTransf3d03(int tag, const Vector &vecInLocXZPlan
                                        const Vector &rigJntOffsetJ)
   : FrameTransform3d(tag, CRDTR_TAG_CorotFrameTransf3d),
     nodeIOffset(3), nodeJOffset(3),
+    offset{nullptr, nullptr},
     L(0), Ln(0),
     nodeIInitialDisp(0), nodeJInitialDisp(0),
     initialDispChecked(false)
@@ -438,6 +439,8 @@ CorotFrameTransf3d03::initialize(Node *nodeIPointer, Node *nodeJPointer)
       return -1;
     }
 
+    xJI  = nodes[1]->getCrds() - nodes[0]->getCrds();
+
     // Add initial displacements at nodes
     if (initialDispChecked == false) {
       const Vector &nodeIDisp = nodes[0]->getDisp();
@@ -459,6 +462,18 @@ CorotFrameTransf3d03::initialize(Node *nodeIPointer, Node *nodeJPointer)
         }
       initialDispChecked = true;
     }
+
+    // if (nodeIInitialDisp != nullptr) {
+    //   xJI[0] -= nodeIInitialDisp[0];
+    //   xJI[1] -= nodeIInitialDisp[1];
+    //   xJI[2] -= nodeIInitialDisp[2];
+    // }
+
+    // if (nodeJInitialDisp != nullptr) {
+    //   xJI[0] += nodeJInitialDisp[0];
+    //   xJI[1] += nodeJInitialDisp[1];
+    //   xJI[2] += nodeJInitialDisp[2];
+    // }
 
     int error;
     static Vector XAxis(3);
@@ -505,6 +520,7 @@ CorotFrameTransf3d03::compTransfMatrixBasicGlobal(
     // Compute the transformation matrix from the basic to the
     // global system
     //   A = (1/Ln)*(I - e1*e1');
+    // Matrix3D A;
     for (int i = 0; i < 3; i++)
       for (int j = 0; j < 3; j++)
         A(i,j) = (double(i==j) - e1[i]*e1[j])/Ln;
@@ -675,99 +691,72 @@ CorotFrameTransf3d03::update()
     const Vector& dispI = nodes[0]->getTrialDisp();
     const Vector& dispJ = nodes[1]->getTrialDisp();
 
-
-    // -----------------------------------------------
-    // First basis e1 and node offsets
-    // -----------------------------------------------
-    OPS_STATIC Vector3D e1;
+    //
+    // Update state
+    //
+    // 1.1 Relative translation
+    Vector3D dx = xJI;// dx = xJI + dJI;
     {
       // Relative translation
-      OPS_STATIC Vector3D dJI;
       for (int k = 0; k < 3; k++)
-        dJI[k] = dispJ(k) - dispI(k);
+        dx[k] += dispJ(k) - dispI(k);
 
-      // element projection
-      OPS_STATIC Vector3D xJI;
-      xJI  = nodes[1]->getCrds() - nodes[0]->getCrds();
 
-      if (nodeIInitialDisp != nullptr) {
-        xJI[0] -= nodeIInitialDisp[0];
-        xJI[1] -= nodeIInitialDisp[1];
-        xJI[2] -= nodeIInitialDisp[2];
-      }
-
-      if (nodeJInitialDisp != nullptr) {
-        xJI[0] += nodeJInitialDisp[0];
-        xJI[1] += nodeJInitialDisp[1];
-        xJI[2] += nodeJInitialDisp[2];
-      }
-
-      OPS_STATIC Vector3D dx;
-      // dx = xJI + dJI;
-      dx  = xJI;
-      dx += dJI;
-
-      // Calculate the deformed element length
+      // Calculate the deformed length
       Ln = dx.norm();
 
       if (Ln == 0.0) {
         opserr << "\nCorotFrameTransf3d03: deformed length is 0.0\n";
         return -2;
       }
-      e1  = dx;
-      e1 /= Ln;
     }
 
-    // Get the iterative spins dAlphaI and dAlphaJ
-    // (rotational displacement increments at both nodes)
+    // 1.2 Rotational displacement increments
     {
-      if constexpr (true) {
-        OPS_STATIC Vector3D dAlphaI, dAlphaJ;
+      Vector3D dAlphaI, dAlphaJ;
 
-        for (int k = 0; k < 3; k++) {
-          dAlphaI[k] =  dispI(k+3) - alphaI[k];
-          dAlphaJ[k] =  dispJ(k+3) - alphaJ[k];
-          alphaI[k]  =  dispI(k+3);
-          alphaJ[k]  =  dispJ(k+3);
-        }
-  
-        // Update the nodal rotations
-        Q_pres[0] = VersorProduct(Q_pres[0],  Versor::from_vector(dAlphaI));
-        Q_pres[1] = VersorProduct(Q_pres[1],  Versor::from_vector(dAlphaJ));
+      for (int k = 0; k < 3; k++) {
+        dAlphaI[k] =  dispI(k+3) - alphaI[k];
+        dAlphaJ[k] =  dispJ(k+3) - alphaJ[k];
+        alphaI[k]  =  dispI(k+3);
+        alphaJ[k]  =  dispJ(k+3);
       }
-      else {
-        // this->RI = R0*MatrixFromVersor(nodes[0]->getTrialRotation());
-        // this->RJ = R0*MatrixFromVersor(nodes[1]->getTrialRotation());
-      }
+
+      // Update the nodal rotations
+      Q_pres[0] = VersorProduct(Q_pres[0],  Versor::from_vector(dAlphaI));
+      Q_pres[1] = VersorProduct(Q_pres[1],  Versor::from_vector(dAlphaJ));
     }
 
-    crs.update(Q_pres[0], Q_pres[1], e1);
-    Matrix3D e = crs.getRotation();
+    //
+    // 2) Form transformation
+    //
 
-    // -----------------------------------------------
-    // Compute the local deformations
-    // -----------------------------------------------
+    crs.update(Q_pres[0], Q_pres[1], dx);
+    Matrix3D e = crs.getRotation();
+    // Form the transformation tangent
+    this->compTransfMatrixBasicGlobal(crs.getReference(), Triad{e}, Q_pres);
+
+    //
+    // 3) Local deformations
+    //
 
     // Save previous state
     ulpr = ul;
 
     // Rotations
     {
-      Vector3D theta = LogC90(e^MatrixFromVersor(Q_pres[0]));
+      vr[0] = LogC90(e^MatrixFromVersor(Q_pres[0]));
       for (int i=0; i<3; i++)
-        ul[imx+i] = theta[i];
+        ul[imx+i] = vr[0][i];
 
-      theta = LogC90(e^MatrixFromVersor(Q_pres[1]));
+      vr[1] = LogC90(e^MatrixFromVersor(Q_pres[1]));
       for (int i=0; i<3; i++)
-        ul[jmx+i] = theta[i];
+        ul[jmx+i] = vr[1][i];
     }
 
     // Axial
     ul(inx) = 0;
     ul(jnx) = Ln - L;
-
-    // Compute the transformation matrix
-    this->compTransfMatrixBasicGlobal(crs.getReference(), Triad{e}, Q_pres);
 
     return 0;
 }
@@ -776,18 +765,18 @@ CorotFrameTransf3d03::update()
 inline VectorND<12>
 CorotFrameTransf3d03::pushResponse(VectorND<12>&pl)
 {
-  return T^pl;
-  // VectorND<12> pg{};
-  // for (int a = 0; a<2; a++) {
-  //   VectorND<6> pa {pl(a*6+0), pl(a*6+1), pl(a*6+2), 
-  //                   pl(a*6+3), pl(a*6+4), pl(a*6+5)};
+  // return T^pl;
+  VectorND<12> pg{};
+  for (int a = 0; a<2; a++) {
+    VectorND<6> pa {pl(a*6+0), pl(a*6+1), pl(a*6+2), 
+                    pl(a*6+3), pl(a*6+4), pl(a*6+5)};
 
-  //   for (int b = 0; b<2; b++) {
-  //     VectorND<6> pab = pushResponse(pa, a, b);
-  //     pg.assemble(b*6, pab, 1.0);
-  //   }
-  // }
-  // return pg;
+    for (int b = 0; b<2; b++) {
+      VectorND<6> pab = pushResponse(pa, a, b);
+      pg.assemble(b*6, pab, 1.0);
+    }
+  }
+  return pg;
 }
 
 VectorND<6>
@@ -968,9 +957,6 @@ CorotFrameTransf3d03::getGlobalResistingForce(const Vector &pb, const Vector &p0
     pl0[2] = p0[3]; // Viz
     pl0[8] = p0[4]; // Vjz
 
-//  static Matrix Tlg(12,12);
-//  this->compTransfMatrixLocalGlobal(Tlg);
-//  wrapper.addMatrixTransposeVector(1.0, Tlg, pl0, 1.0);
     pg += pushConstant(pl0);
 
     return wrapper;
@@ -993,6 +979,7 @@ CorotFrameTransf3d03::getInitialGlobalStiffMatrix(const Matrix &kb)
 
   return kg;
 }
+
 
 const Matrix &
 CorotFrameTransf3d03::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
@@ -1066,8 +1053,13 @@ CorotFrameTransf3d03::addTangent(MatrixND<12,12>& kg, const VectorND<12>& pl)
     // NOTE[cmp] 
     // CorotFrameTransf3d03::compTransfMatrixBasicGlobal must be 
     // called first to set Lr1, Lr2 and T
-    getLMatrix(A, e1, r1, r2, Lr2);
-    getLMatrix(A, e1, r1, r3, Lr3);
+
+    // Matrix3D A;
+    // for (int i = 0; i < 3; i++)
+    //   for (int j = 0; j < 3; j++)
+    //     A(i,j) = (double(i==j) - e1[i]*e1[j])/Ln;
+    // getLMatrix(A, e1, r1, r2, Lr2);
+    // getLMatrix(A, e1, r1, r3, Lr3);
 
     //
     // Ksigma1
@@ -1442,7 +1434,7 @@ CorotFrameTransf3d03::getLengthGrad()
   if (dj != 0)
     dxj(dj-1) = 1.0;
 
-  return 1/L*(xJ - xI).dot(dxj - dxi);
+  return 1/L * xJI.dot(dxj - dxi);
 }
 
 
