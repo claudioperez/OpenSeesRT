@@ -175,7 +175,7 @@ VersorProduct(const Versor &qa, const Versor &qb)
     //              qb2 = qb[2],
     //              qb3 = qb[3];
 
-    const double qa0 = qa.vector[0],
+    const double  qa0 = qa.vector[0],
                   qa1 = qa.vector[1],
                   qa2 = qa.vector[2],
                   qa3 = qa.scalar,
@@ -230,11 +230,10 @@ VectorFromVersor(const Versor& q)
 
   double q0 = q.scalar;
 
-  // qn = norm(qv);  % Norm of the vector part
+  //  Norm of the vector part
   double qn = q.vector.norm();
 
   const double* const qv = &q.vector[0];
-
 
   // Return zero-vector
   if (qn == 0)
@@ -268,7 +267,7 @@ VersorFromMatrix(const Matrix3D &R)
   //===--------------------------------------------------------------------===//
   Versor q;
 
-  // Trace of the rotation matrix R
+  // Trace of the rotation R
   const double trR = R(0,0) + R(1,1) + R(2,2);
 
   // a = max([trR R(0,0) R(1,1) R(2,2)]);
@@ -283,7 +282,7 @@ VersorFromMatrix(const Matrix3D &R)
     for (int i = 0; i < 3; i++) {
       int j = (i+1)%3;
       int k = (i+2)%3;
-      q.vector[i] = (R(k,j) - R(j,k))/(4*q.scalar);
+      q.vector[i] = (R(k,j) - R(j,k))/(4.0*q.scalar);
     }
   }
   else {

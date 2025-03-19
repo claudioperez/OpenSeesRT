@@ -34,9 +34,8 @@
 #include <math.h>
 #include <assert.h>
 #include <array>
-#include <stdexcept>
-#include <functional>
-#include <iostream> // overloading <<
+// #include <stdexcept>
+// #include <functional>
 #include <Vector.h>
 #include <Matrix.h>
 #include "blasdecl.h"
@@ -77,7 +76,7 @@ struct VectorND {
   }
 
   inline constexpr const T&
-  operator()(index_t index) const {
+  operator()(index_t index) const noexcept {
     return values[index];
   }
 
@@ -101,7 +100,7 @@ struct VectorND {
 
   template<typename VecT> inline
   constexpr T
-  dot(const VecT &other) const {
+  dot(const VecT &other) const noexcept {
     T sum = 0.0;
     for (index_t i = 0; i < N; ++i) {
       sum += values[i] * other[i];
@@ -115,15 +114,15 @@ struct VectorND {
   bun(const VectorND<nc> &other) const {
     OpenSees::MatrixND<N,nc,double> prod;
 
-    for (int j = 0; j < other.size(); ++j)
-      for (int i = 0; i < this->size(); ++i)
+    for (index_t j = 0; j < other.size(); ++j)
+      for (index_t i = 0; i < this->size(); ++i)
         prod(i,j) = values[i] * other.values[j];
 
     return prod;
   }
 
   constexpr T
-  norm() const {
+  norm() const noexcept {
     return sqrt(this->dot(*this));
   }
   
@@ -131,22 +130,22 @@ struct VectorND {
     double n = norm();
 
     if (n != 0.0)
-      for (int i=0; i<N; i++)
+      for (index_t i=0; i<N; i++)
         values[i] /= n;
 
     return n;
   }
 
   template<typename VecT> inline
-  VectorND<N> &operator=(const VecT &right) {
-    for (int i=0; i< N; i++)
+  VectorND<N> &operator=(const VecT &right) noexcept {
+    for (index_t i=0; i< N; i++)
       values[i] = right[i];
     return *this;
   }
 
   inline
   VectorND<N> &operator/=(const double &right) {
-    for (int i=0; i< N; i++)
+    for (index_t i=0; i< N; i++)
       values[i] /= right;
     return *this;
   }
@@ -158,22 +157,22 @@ struct VectorND {
     return res;
   }
 
-  inline
-  VectorND<N> &operator*=(const double &right) {
+  inline constexpr
+  VectorND<N> &operator*=(const double &right) noexcept{
     for (int i=0; i< N; i++)
       values[i] *= right;
     return *this;
   }
 
-  inline
-  VectorND<N>  operator*(const double &right) const {
+  inline constexpr
+  VectorND<N>  operator*(const double &right) const noexcept {
     VectorND<N> res(*this);
     res *= right;
     return res;
   }
 
-  inline
-  VectorND<N> &operator+=(const VectorND<N> &right) {
+  inline constexpr
+  VectorND<N> &operator+=(const VectorND<N> &right) noexcept {
     for (int i=0; i< N; i++)
       values[i] += right[i];
     return *this;
@@ -187,29 +186,31 @@ struct VectorND {
   }
 
   template <class VecT>
-  VectorND<N> operator+(const VecT &right) const {
+  VectorND<N> operator+(const VecT &right) const noexcept {
     VectorND<N> res {*this};
     res += right;
     return res;
   }
 
-  template <class VecT>
-  VectorND<N> &operator-=(const VecT &right) {
+  template <class VecT> 
+  constexpr inline
+  VectorND<N> &operator-=(const VecT &right) noexcept {
     for (int i=0; i< N; i++)
       values[i] -= right[i];
     return *this;
   }
 
   template <class VecT>
-  VectorND<N> operator-(const VecT &right) const {
+  constexpr inline
+  VectorND<N> operator-(const VecT &right) const noexcept {
     VectorND<N> res {*this};
     res -= right;
     return res;
   }
 
   // Return the cross product this vector with another vector, b.
-  template <class VecB, class VecC> inline 
-  void cross(const VecB& b, VecC& c) const requires(N==3) {
+  template <class VecB, class VecC> inline constexpr
+  void cross(const VecB& b, VecC& c) requires(N==3) const  noexcept{
       c[0] = values[1] * b[2] - values[2] * b[1];
       c[1] = values[2] * b[0] - values[0] * b[2];
       c[2] = values[0] * b[1] - values[1] * b[0];
@@ -217,24 +218,14 @@ struct VectorND {
   }
 
 
-  template <class Vec3T> inline
-  VectorND<N> cross(const Vec3T& b) const requires(N==3) {
+  template <class Vec3T> inline constexpr
+  VectorND<N> cross(const Vec3T& b) const noexcept requires(N==3) {
       VectorND<3> c;
       c[0] = values[1] * b[2] - values[2] * b[1];
       c[1] = values[2] * b[0] - values[0] * b[2];
       c[2] = values[0] * b[1] - values[1] * b[0];
       return c;
   }
-
-  friend std::ostream &
-  operator<<(std::ostream &out, const VectorND &vec) {
-    out << "{";
-    for (int r=0; r<N; r++){
-        out << vec[r] << ( r < N-1? ", ": "");
-    }
-    return out << "}\n";
-  }
-
 #include "VectorND.tpp"
 
 };

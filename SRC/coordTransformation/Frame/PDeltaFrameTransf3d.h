@@ -84,7 +84,7 @@ private:
     
     // internal data
     Node *nodeIPtr, *nodeJPtr;       // pointers to the element two endnodes
-    std::array<Node*, 2> nodes;                // pointers to the element two endnodes
+//  std::array<Node*, 2> nodes;                // pointers to the element two endnodes
     
     double *nodeIOffset, *nodeJOffset;    // rigid joint offsets
 

@@ -9,7 +9,7 @@
   }
 
   template<int nr> void
-  assemble(int a, const VectorND<nr>& v, double scale)
+  assemble(int a, const VectorND<nr>& v, double scale) noexcept
   {
     for (int i=0; i<nr; i++)
       (*this)[a+i] += v[i]*scale;
@@ -17,7 +17,8 @@
 
 
   int
-  addVector(const T thisFact, const Vector &other, const T otherFact) {
+  addVector(const T thisFact, const Vector &other, const T otherFact) 
+  {
     if (otherFact == 0.0 && thisFact == 1.0)
       return 0; 
 
@@ -76,7 +77,8 @@
   }
 
   int
-  addVector(const T thisFact, const VectorND<N> &other, const T otherFact) {
+  addVector(const T thisFact, const VectorND<N> &other, const T otherFact) 
+  {
     if (otherFact == 0.0 && thisFact == 1.0)
       return 0; 
 

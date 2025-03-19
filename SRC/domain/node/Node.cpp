@@ -458,7 +458,7 @@ Node::getTrialRotation()
     if (this->getNumberDOF() < 6)
       return Versor();
     else
-      rotation = new Versor{0.0, 0.0, 0.0, 1.0};
+      rotation = new Versor{{0.0, 0.0, 0.0}, 1.0};
   }
 
   return *rotation;
@@ -868,7 +868,7 @@ Node::revertToStart()
     accSensitivity->Zero();
 
   if (rotation != nullptr)
-    *rotation = Versor{0.0, 0.0, 0.0, 1.0};
+    *rotation = Versor{{0.0, 0.0, 0.0}, 1.0};
 
   return 0;
 }

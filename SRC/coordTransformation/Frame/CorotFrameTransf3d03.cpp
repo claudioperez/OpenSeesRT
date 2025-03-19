@@ -495,12 +495,12 @@ CorotFrameTransf3d03::initialize(Node *nodeIPointer, Node *nodeJPointer)
 void inline
 CorotFrameTransf3d03::compTransfMatrixBasicGlobal(
                                                 const Versor& Qbar, 
-                                                const Triad& __restrict E, 
+                                                const Triad&  E, 
                                                 const Versor* Q_pres)
 {
 
     // extract columns of rotation matrices
-    const Triad r{MatrixFromVersor(Qbar)},
+    const Triad r {MatrixFromVersor(Qbar)},
                 rI{MatrixFromVersor(Q_pres[0])},
                 rJ{MatrixFromVersor(Q_pres[1])};
     const Vector3D 
@@ -510,7 +510,7 @@ CorotFrameTransf3d03::compTransfMatrixBasicGlobal(
       &r1  =  r[1], // .rotate(E1), 
       &r2  =  r[2], // .rotate(E2), 
       &r3  =  r[3], // .rotate(E3),
-      &rI1 = rI[1], // .rotate(E1), 
+      &rI1 = rI[1], // .rotate(E1),
       &rI2 = rI[2], // .rotate(E2), 
       &rI3 = rI[3], // .rotate(E3),
       &rJ1 = rJ[1], // .rotate(E1), 
