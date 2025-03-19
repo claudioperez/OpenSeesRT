@@ -19,18 +19,20 @@ set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 add_subdirectory(AMD/)
 add_subdirectory(UMFPACK/)
 add_subdirectory(ITPACK/)
-# add_subdirectory(ARPACK/)
-set(arpack_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/arpack-ng)
-add_subdirectory(arpack-ng/)
+add_subdirectory(ARPACK/)
+if (FALSE)
+# set(arpack_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/arpack-ng)
+# add_subdirectory(arpack-ng/)
 
-if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(arpack PRIVATE -Wno-unused-variable
+  if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(arpack PRIVATE -Wno-unused-variable
 #   $<$<COMPILE_LANG_AND_ID:Fortran,GNU>:"-Wno-unused-variable">
-  )
-endif()
+    )
+  endif()
 
-add_library(ARPACK INTERFACE)
-target_link_libraries(ARPACK INTERFACE arpack)
+  add_library(ARPACK INTERFACE)
+  target_link_libraries(ARPACK INTERFACE arpack)
+endif()
 
 add_subdirectory(SuperLU_5.1.1/)
 add_subdirectory(CSPARSE/)

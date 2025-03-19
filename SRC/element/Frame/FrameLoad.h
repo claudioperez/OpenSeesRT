@@ -42,12 +42,12 @@ public:
               std::vector<Vector3D>& r,
               LoadPattern& pattern)
     : ElementalLoad(classTag),
+      basis(basis),
+      shape(shape),
       pattern(pattern),
       p(p),
       m(m),
-      r(r),
-      basis(basis),
-      shape(shape)
+      r(r)
     {
         switch (shape) {
         case Dirac:

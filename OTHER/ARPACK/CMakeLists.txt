@@ -24,6 +24,15 @@ endif()
 
 # TODO: These are problems that should be fixed
 if ("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
+  if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+    target_compile_options(ARPACK PRIVATE 
+      -ffpe-trap=invalid,zero,overflow
+      -fcheck=bounds
+      -fcheck=mem
+      -fsanitize=address,undefined
+      -fno-omit-frame-pointer -O0 -g
+    )
+  endif()
   target_compile_options(ARPACK PRIVATE 
     -Wno-compare-reals 
     -Wno-unused-variable
