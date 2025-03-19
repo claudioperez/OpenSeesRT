@@ -116,11 +116,6 @@ private:
   void initializeSectionHistoryVariables();
 
 
-  static void getHk(int numSections, double xi[], Matrix& H);
-  static void getHg(int numSections, double xi[], Matrix& H);
-  static void getHkp(int numSections, double xi[], Matrix& H);
-  static void getHgp(int numSections, double xi[], Matrix& H);
-
   //
   // Sensitivity
   //
