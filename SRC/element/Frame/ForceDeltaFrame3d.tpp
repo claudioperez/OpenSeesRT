@@ -300,7 +300,7 @@ template<int NIP, int nsr>
 void
 ForceDeltaFrame3d<NIP,nsr>::initializeSectionHistoryVariables()
 {
-  for (int i = 0; i < points.size(); i++) {
+  for (unsigned i = 0; i < points.size(); i++) {
     points[i].Fs.zero();
     points[i].es.zero();
     points[i].sr.zero();
