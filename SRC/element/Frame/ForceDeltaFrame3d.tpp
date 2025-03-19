@@ -224,7 +224,7 @@ ForceDeltaFrame3d<NIP,nsr>::commitState()
   q_past = q_pres;
 
   // state_flag = 0;  fmk - commented out, see what happens to Example3.1.tcl if uncommented
-  //                       - i have not a clue why, ask remo if he ever gets in contact with us again!
+  //                      - i have not a clue why, ask remo if he ever gets in contact with us again!
 
   return err;
 }
@@ -296,7 +296,7 @@ template<int NIP, int nsr>
 void
 ForceDeltaFrame3d<NIP,nsr>::initializeSectionHistoryVariables()
 {
-  for (unsigned i = 0; i < points.size(); i++) {
+  for (unsigned i = 0; i < NIP; i++) {
     points[i].Fs.zero();
     points[i].es.zero();
     points[i].sr.zero();
@@ -310,7 +310,6 @@ template<int NIP, int nsr>
 int
 ForceDeltaFrame3d<NIP,nsr>::update()
 {
-  // const int nip = points.size();
   constexpr static int nip = NIP;
 
   THREAD_LOCAL VectorND<nsr>     es_trial[NIP]; //  strain
@@ -1051,7 +1050,7 @@ template<int NIP, int nsr>
 void
 ForceDeltaFrame3d<NIP,nsr>::computew(Vector& w, Vector& wp, double xi[], const Vector& kappa, const Vector& gamma)
 {
-  int numSections = points.size();
+  constexpr static int numSections = NIP;
   double L = theCoordTransf->getInitialLength();
 
 
@@ -1096,7 +1095,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedwdq(Matrix& dwidq,
                                const Matrix& lsk,  const Matrix& lsg, 
                                const Matrix& lskp, const Matrix& lsgp)
 {
-  const int nip = points.size();
+  constexpr static int nip = NIP;
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
@@ -1211,19 +1210,20 @@ ForceDeltaFrame3d<NIP,nsr>::computedwdq(Matrix& dwidq,
 
 template<int NIP, int nsr>
 void
-ForceDeltaFrame3d<NIP,nsr>::computedwzdq(Matrix& dwzidq, const Vector& q, const Vector& wz, const Vector& wpz,
+ForceDeltaFrame3d<NIP,nsr>::computedwzdq(Matrix& dwzidq, 
+                           const Vector& q, const Vector& wz, const Vector& wpz,
                            const Matrix& lsk, const Matrix& lsg, const Matrix& lskp,
-                           const Matrix& lsgp)
+                           const Matrix& lsgp) const
 {
-  int numSections = points.size();
+  constexpr static int numSections = NIP;
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
 
   Matrix A(2 * numSections, 2 * numSections);
   Matrix b(2 * numSections, nq);
 
-  Matrix Fksb(numSections, nq);
-  Matrix Fgsb(numSections, nq);
+  Matrix Fksb(NIP, nq);
+  Matrix Fgsb(NIP, nq);
 
   bool isGamma = false;
 
@@ -1305,7 +1305,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedwzdq(Matrix& dwzidq, const Vector& q, const 
     }
   }
 
-  Matrix mhs(numSections, nq);
+  Matrix mhs(NIP, nq);
 
   mhs.addMatrixProduct(0.0, lsk, Fksb, L * L);
   if (isGamma)
@@ -1502,7 +1502,8 @@ template<int NIP, int nsr>
 void
 ForceDeltaFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int igrad)
 {
-  int numSections = points.size();
+  // int numSections = points.size();
+  constexpr static int numSections = NIP;
 
   double L    = theCoordTransf->getInitialLength();
   double dLdh = theCoordTransf->getLengthGrad();
@@ -1662,7 +1663,8 @@ template<int NIP, int nsr>
 int
 ForceDeltaFrame3d<NIP,nsr>::getInitialFlexibility(Matrix& fe)
 {
-  int numSections = points.size();
+  // int numSections = points.size();
+  constexpr static int numSections = NIP;
   fe.Zero();
 
   double L        = theCoordTransf->getInitialLength();
@@ -1776,7 +1778,8 @@ template<int NIP, int nsr>
 int
 ForceDeltaFrame3d<NIP,nsr>::getInitialDeformations(Vector& v0)
 {
-  int numSections = points.size();
+  // int numSections = points.size();
+  constexpr static int numSections = NIP;
 
   v0.Zero();
   if (eleLoads.size() < 1)
@@ -1846,7 +1849,8 @@ template<int NIP, int nsr>
 void
 ForceDeltaFrame3d<NIP,nsr>::computedwdh(double dwidh[], int igrad, const Vector& q)
 {
-  int numSections = points.size();
+  // int numSections = points.size();
+  constexpr static int numSections = NIP;
 
   double L        = theCoordTransf->getInitialLength();
   double oneOverL = 1.0 / L;
@@ -2069,7 +2073,8 @@ template<int NIP, int nsr>
 void
 ForceDeltaFrame3d<NIP,nsr>::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
 {
-  int numSections = points.size();
+  // int numSections = points.size();
+  constexpr static int numSections = NIP;
   // get basic displacements and increments
   static Vector ub(nq);
   ub = theCoordTransf->getBasicTrialDisp();
@@ -2145,7 +2150,8 @@ template<int NIP, int nsr>
 void
 ForceDeltaFrame3d<NIP,nsr>::Print(OPS_Stream& s, int flag)
 {
-  const int numSections = points.size();
+  // const int numSections = points.size();
+  constexpr static int numSections = NIP;
   const ID& node_tags = this->getExternalNodes();
 
   if (flag == OPS_PRINT_PRINTMODEL_JSON) {
@@ -2223,7 +2229,8 @@ template<int NIP, int nsr>
 Response*
 ForceDeltaFrame3d<NIP,nsr>::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
-  int numSections = points.size();
+  // int numSections = points.size();
+  constexpr static int numSections = NIP;
   Response* theResponse = nullptr;
 
   output.tag("ElementOutput");
@@ -2415,7 +2422,7 @@ ForceDeltaFrame3d<NIP,nsr>::setResponse(const char** argv, int argc, OPS_Stream&
         double L = theCoordTransf->getInitialLength();
         stencil->getSectionLocations(numSections, L, xi);
 
-        for (int i = 0; i < points.size(); i++) {
+        for (int i = 0; i < NIP; i++) {
 
           output.tag("GaussPointOutput");
           output.attr("number", i + 1);
@@ -2538,7 +2545,8 @@ ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
     double d2 = 0.0;
     double d3 = 0.0;
 
-    int numSections = points.size();
+    // int numSections = points.size();
+    constexpr static int numSections = NIP;
     double L = theCoordTransf->getInitialLength();
 
     // Location of inflection point from node I
@@ -2546,7 +2554,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
     if (fabs(q_pres[1] + q_pres[2]) > DBL_EPSILON)
       LI = q_pres[1] / (q_pres[1] + q_pres[2]) * L;
 
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < NIP; i++) {
       double x = xi[i] * L;
       if (x > LI)
         continue;
@@ -2560,7 +2568,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
 
     d2 += stencil->getTangentDriftI(L, LI, q_pres[1], q_pres[2]);
 
-    for (int i = numSections - 1; i >= 0; i--) {
+    for (int i = NIP - 1; i >= 0; i--) {
       double x = xi[i] * L;
       if (x < LI)
         continue;
@@ -2608,8 +2616,8 @@ ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
 
     double L = theCoordTransf->getInitialLength();
 
-    Vector locs(points.size());
-    for (int i = 0; i < points.size(); i++)
+    Vector locs(NIP);
+    for (int i = 0; i < NIP; i++)
       locs[i] = xi[i] * L;
 
     return info.setVector(locs);
@@ -2622,33 +2630,31 @@ ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
 
     double L = theCoordTransf->getInitialLength();
 
-    Vector weights(points.size());
-    for (int i = 0; i < points.size(); i++)
+    Vector weights(NIP);
+    for (int i = 0; i < NIP; i++)
       weights[i] = wt[i] * L;
 
     return info.setVector(weights);
   }
 
   else if (responseID == 110) {
-    int numSections = points.size();
-    ID tags(numSections);
-    for (int i = 0; i < numSections; i++)
+    ID tags(NIP);
+    for (int i = 0; i < NIP; i++)
       tags(i) = points[i].material->getTag();
     return info.setID(tags);
   }
 
   else if (responseID == 111) {
-    int numSections = points.size();
     double L = theCoordTransf->getInitialLength();
     double pts[NIP];
-    stencil->getSectionLocations(numSections, L, pts);
+    stencil->getSectionLocations(NIP, L, pts);
     // CBDI influence matrix
-    Matrix ls(numSections, numSections);
-    getCBDIinfluenceMatrix(numSections, pts, L, ls);
+    Matrix ls(NIP, NIP);
+    getCBDIinfluenceMatrix(NIP, pts, L, ls);
     // Curvature vector
-    Vector kappaz(numSections); // about section z
-    Vector kappay(numSections); // about section y
-    for (int i = 0; i < numSections; i++) {
+    Vector kappaz(NIP); // about section z
+    Vector kappay(NIP); // about section y
+    for (int i = 0; i < NIP; i++) {
       const Vector& e = points[i].material->getSectionDeformation();
       for (int j = 0; j < nsr; j++) {
         if (scheme[j] == FrameStress::Mz)
@@ -2658,16 +2664,16 @@ ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
       }
     }
     // Displacement vector
-    Vector dispsy(numSections); // along local y
-    Vector dispsz(numSections); // along local z
+    Vector dispsy(NIP); // along local y
+    Vector dispsz(NIP); // along local z
     dispsy.addMatrixVector(0.0, ls, kappaz, 1.0);
     dispsz.addMatrixVector(0.0, ls, kappay, 1.0);
-    stencil->getSectionLocations(numSections, L, pts);
+    stencil->getSectionLocations(NIP, L, pts);
     static Vector uxb(3);
     static Vector uxg(3);
-    Matrix disps(numSections, 3);
+    Matrix disps(NIP, 3);
     vp = theCoordTransf->getBasicTrialDisp();
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < NIP; i++) {
       uxb(0)      = pts[i] * vp(0); // linear shape function
       uxb(1)      = dispsy(i);
       uxb(2)      = dispsz(i);
@@ -2680,20 +2686,19 @@ ForceDeltaFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
   }
 
   else if (responseID == 112) {
-    int numSections = points.size();
     double L = theCoordTransf->getInitialLength();
     double ipts[NIP];
-    stencil->getSectionLocations(numSections, L, ipts);
+    stencil->getSectionLocations(NIP, L, ipts);
     // CBDI influence matrix
     double pts[20];
     for (int i = 0; i < 20; i++)
       pts[i] = 1.0 / (20 - 1) * i;
-    Matrix ls(20, numSections);
-    getCBDIinfluenceMatrix(20, pts, numSections, ipts, L, ls);
+    Matrix ls(20, NIP);
+    getCBDIinfluenceMatrix(20, pts, NIP, ipts, L, ls);
     // Curvature vector
-    Vector kappaz(numSections); // about section z
-    Vector kappay(numSections); // about section y
-    for (int i = 0; i < numSections; i++) {
+    Vector kappaz(NIP); // about section z
+    Vector kappay(NIP); // about section y
+    for (int i = 0; i < NIP; i++) {
       const Vector& e = points[i].material->getSectionDeformation();
       for (int j = 0; j < nsr; j++) {
         if (scheme[j] == FrameStress::Mz)
@@ -2772,17 +2777,17 @@ ForceDeltaFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int igrad, In
     double L        = theCoordTransf->getInitialLength();
     double oneOverL = 1.0 / L;
     double pts[NIP];
-    stencil->getSectionLocations(numSections, L, pts);
+    stencil->getSectionLocations(NIP, L, pts);
 
     double xL  = pts[sectionNum - 1];
     double xL1 = xL - 1.0;
 
-    Vector kappa(numSections);
-    Vector gamma(numSections);
+    Vector kappa(NIP);
+    Vector gamma(NIP);
 
     bool isGamma = false;
 
-    for (int i = 0; i < numSections; i++) {
+    for (int i = 0; i < NIP; i++) {
       for (int j = 0; j < nsr; j++) {
         if (scheme[j] == FrameStress::Mz)
           kappa(i) += (points[i].es)(j);
@@ -2796,27 +2801,27 @@ ForceDeltaFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int igrad, In
     isGamma = shear_flag && isGamma;
 
     double wi[NIP];
-    Vector w(wi, numSections);
+    Vector w(wi, NIP);
     double wpi[NIP];
-    Vector wp(wpi, numSections);
+    Vector wp(wpi, NIP);
     wp.Zero();
     this->computew(w, wp, pts, kappa, gamma);
 
-    Matrix Ginv(numSections, numSections);
-    vandermonde_inverse(numSections, pts, Ginv);
+    Matrix Ginv(NIP, NIP);
+    vandermonde_inverse(NIP, pts, Ginv);
 
-    Matrix ls(numSections, numSections);
-    Matrix Hk(numSections, numSections);
+    Matrix ls(NIP, NIP);
+    Matrix Hk(NIP, NIP);
     getHk<NIP>(pts, Hk);
     ls.addMatrixProduct(0.0, Hk, Ginv, 1.0);
 
-    Matrix lsg(numSections, numSections);
-    Matrix Hg(numSections, numSections);
+    Matrix lsg(NIP, NIP);
+    Matrix Hg(NIP, NIP);
     getHg<NIP>(pts, Hg);
     lsg.addMatrixProduct(0.0, Hg, Ginv, 1.0);
 
-    Matrix lskp(numSections, numSections);
-    Matrix Hkp(numSections, numSections);
+    Matrix lskp(NIP, NIP);
+    Matrix Hkp(NIP, NIP);
     getHkp<NIP>(pts, Hkp);
     lskp.addMatrixProduct(0.0, Hkp, Ginv, 1.0);
 
@@ -2944,7 +2949,7 @@ ForceDeltaFrame3d<NIP,nsr>::setParameter(const char** argv, int argc, Parameter&
 
       float minDistance = fabs(xi[0] - sectionLoc);
       int sectionNum    = 0;
-      for (int i = 1; i < numSections; i++) {
+      for (int i = 1; i < NIP; i++) {
         if (fabs(xi[i] - sectionLoc) < minDistance) {
           minDistance = fabs(xi[i] - sectionLoc);
           sectionNum  = i;
@@ -2964,7 +2969,7 @@ ForceDeltaFrame3d<NIP,nsr>::setParameter(const char** argv, int argc, Parameter&
     // Get section number: 1...Np
     int sectionNum = atoi(argv[1]);
 
-    if (sectionNum > 0 && sectionNum <= points.size())
+    if (sectionNum > 0 && sectionNum <= NIP)
       return points[sectionNum - 1].material->setParameter(&argv[2], argc - 2, param);
 
     else
@@ -2992,7 +2997,7 @@ ForceDeltaFrame3d<NIP,nsr>::setParameter(const char** argv, int argc, Parameter&
   // Default, send to everything
   int ok;
 
-  for (int i = 0; i < points.size(); i++) {
+  for (int i = 0; i < NIP; i++) {
     ok = points[i].material->setParameter(argv, argc, param);
     if (ok != -1)
       result = ok;
@@ -3231,26 +3236,26 @@ ForceDeltaFrame3d<NIP,nsr>::getBasicForceGrad(int igrad)
   double oneOverL = 1.0 / L;
 
   double pts[NIP];
-  stencil->getSectionLocations(numSections, L, pts);
+  stencil->getSectionLocations(NIP, L, pts);
 
   double wts[NIP];
-  stencil->getSectionWeights(numSections, L, wts);
+  stencil->getSectionWeights(NIP, L, wts);
 
   double dLdh = theCoordTransf->getLengthGrad();
 
   double dptsdh[NIP];
-  stencil->getLocationsDeriv(numSections, L, dLdh, dptsdh);
+  stencil->getLocationsDeriv(NIP, L, dLdh, dptsdh);
 
   double dwtsdh[NIP];
-  stencil->getWeightsDeriv(numSections, L, dLdh, dwtsdh);
+  stencil->getWeightsDeriv(NIP, L, dLdh, dwtsdh);
 
   double d1oLdh = theCoordTransf->getd1overLdh();
 
   static Vector dvdh(nq);
   dvdh.Zero();
 
-  Vector kappa(numSections);
-  Vector gamma(numSections);
+  Vector kappa(NIP);
+  Vector gamma(NIP);
   for (int i = 0; i < numSections; i++) {
     for (int j = 0; j < nsr; j++) {
       if (scheme[j] == FrameStress::Mz)

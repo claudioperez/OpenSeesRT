@@ -111,7 +111,7 @@ private:
   void computedwdq(Matrix& dwidq, const Vector& q, const Vector& w, const Vector& wp,
                    const Matrix& lsk, const Matrix& lsg, const Matrix& lskp, const Matrix& lsgp);
   void computedwzdq(Matrix& dwidzq, const Vector& q, const Vector& wz, const Vector& wpz,
-                    const Matrix& lsk, const Matrix& lsg, const Matrix& lskp, const Matrix& lsgp);
+                    const Matrix& lsk, const Matrix& lsg, const Matrix& lskp, const Matrix& lsgp) const;
   void compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const;
   void initializeSectionHistoryVariables();
 
