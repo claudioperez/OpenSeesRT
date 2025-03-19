@@ -314,7 +314,13 @@ template<int NIP, int nsr>
 int
 ForceDeltaFrame3d<NIP,nsr>::update()
 {
-  const int nip = points.size();
+  // const int nip = points.size();
+  constexpr static int nip = NIP;
+  // if (nip != NIP) {
+  //   opserr << "ForceDeltaFrame3d::update() - " << nip << "!= " << NIP << "\n";
+  //   exit(1);
+  //   return -1;
+  // }
 
   THREAD_LOCAL VectorND<nsr>     es_trial[NIP]; //  strain
   THREAD_LOCAL VectorND<nsr>     sr_trial[NIP]; //  stress resultant
@@ -353,15 +359,15 @@ ForceDeltaFrame3d<NIP,nsr>::update()
   q_trial  = q_pres;
   K_trial  = K_pres;
 
-  for (int i = 0; i < points.size(); i++) {
+  for (int i = 0; i < nip; i++) {
     es_trial[i] = points[i].es;
     Fs_trial[i] = points[i].Fs;
     sr_trial[i] = points[i].sr;
   }
 
 
-  Vector stilde(nsr * points.size());
-  for (int i = 0; i < points.size(); i++) {
+  Vector stilde(nsr * nip);
+  for (int i = 0; i < nip; i++) {
     auto s = points[i].material->template getResultant<nsr,scheme>();
     for (int j = 0; j < nsr; j++)
       stilde(nsr*i + j) = s[j];
@@ -409,28 +415,27 @@ ForceDeltaFrame3d<NIP,nsr>::update()
   // dq_trial = kv * dv;
   dq_trial.addMatrixVector(0.0, K_trial, dv_trial, 1.0);
 
-  Vector gamma(nip);
-  Vector gammaz(nip);
-  Vector kappa(nip);
-  Vector kappay(nip);
+  VectorND<NIP> gamma; // (nip);
+  VectorND<NIP> gammaz; // (nip);
+  VectorND<NIP> kappa; // (nip);
+  VectorND<NIP> kappay; // (nip);
 
   Vector w(nip);
   Vector wp(nip);
   Vector wz(nip);
   Vector wpz(nip);
   Vector ds_tilde(nsr * nip);
-  Matrix K_tilde(nsr * nip, nsr * nip);
+  MatrixND<nsr * nip, nsr * nip> K_tilde; // (nsr * nip, nsr * nip);
   Vector de_tilde(nsr * nip);
 
 
   bool converged   = false;
   for (int j = 0; j < max_iter; j++) {
-
-    q_trial += dq_trial;
-
     // initialize F and vr for integration
     F.zero();
     vr.zero();
+
+    q_trial += dq_trial;
 
     //
     // Preliminary Gauss Loop
@@ -441,9 +446,9 @@ ForceDeltaFrame3d<NIP,nsr>::update()
       kappay(i) = 0.0;
       gammaz(i) = 0.0;
       for (int j = 0; j < nsr; j++) {
-        if (scheme[j] == SECTION_RESPONSE_VY)
+        if (scheme[j] == FrameStress::Vy)
           gamma(i) += es_trial[i][j];
-        if (scheme[j] == SECTION_RESPONSE_VZ)
+        if (scheme[j] == FrameStress::Vz)
           gammaz(i) += es_trial[i][j];
         if (scheme[j] == SECTION_RESPONSE_MY)
           kappay(i) += es_trial[i][j];
@@ -485,9 +490,9 @@ ForceDeltaFrame3d<NIP,nsr>::update()
 
         if (scheme[j] == SECTION_RESPONSE_P)
           ds_tilde(index) = q_trial[0] - stilde(index);
-        if (scheme[j] == SECTION_RESPONSE_VY)
+        if (scheme[j] == FrameStress::Vy)
           ds_tilde(index) =  -wp(i) * q_trial[0] - oneOverL * (q_trial[1] + q_trial[2]) - stilde(index);
-        if (scheme[j] == SECTION_RESPONSE_VZ)
+        if (scheme[j] == FrameStress::Vz)
           ds_tilde(index) = -wpz(i) * q_trial[0] - oneOverL * (q_trial[3] + q_trial[4]) - stilde(index);
         if (scheme[j] == SECTION_RESPONSE_T)
           ds_tilde(index) = q_trial[5] - stilde(index);
@@ -507,10 +512,10 @@ ForceDeltaFrame3d<NIP,nsr>::update()
         for (int ii = 0; ii < nsr; ii++)
           ds_tilde(nsr*i + ii) += sp[ii];
       }
-    } // Section loop
+    } // Gauss loop
 
     //
-    K_tilde.Zero();
+    K_tilde.zero();
     for (int i = 0; i < nip; i++) {
       Fs_trial[i] = points[i].material->template getFlexibility<nsr,scheme>();
       const MatrixND<nsr,nsr> Ks = points[i].material->template getTangent<nsr,scheme>(State::Pres);
@@ -518,13 +523,13 @@ ForceDeltaFrame3d<NIP,nsr>::update()
 
       for (int j = 0; j < nip; j++) {
         for (int k = 0; k < nsr; k++) {
-          if (shear_flag && scheme[k] == SECTION_RESPONSE_VY) {
+          if (shear_flag && scheme[k] == FrameStress::Vy) {
             K_tilde(nsr*i + k, nsr*j + k)     -= lsgp(i, j) * q_trial[0];
             for (int l=0; l< nsr; l++)
               if (scheme[l] == SECTION_RESPONSE_MZ)
                 K_tilde(nsr*i + k, nsr*j + l) -= lskp(i, j) * L * q_trial[0];
           }
-          if (shear_flag && scheme[k] == SECTION_RESPONSE_VZ) {
+          if (shear_flag && scheme[k] == FrameStress::Vz) {
             K_tilde(nsr*i + k, nsr*j + k) -= lsgp(i, j) * q_trial[0];
             for (int l=0; l< nsr; l++)
               if (scheme[l] == SECTION_RESPONSE_MY)
@@ -534,13 +539,13 @@ ForceDeltaFrame3d<NIP,nsr>::update()
           if (scheme[k] == SECTION_RESPONSE_MY) {
             K_tilde(nsr*i + k, nsr*j + k) += ls(i, j) * L * L * q_trial[0];
             for (int l=0; l< nsr; l++)
-              if (shear_flag && scheme[l] == SECTION_RESPONSE_VZ)
+              if (shear_flag && scheme[l] == FrameStress::Vz)
                 K_tilde(nsr*i + k, nsr*j + l) += lsg(i, j) * L * q_trial[0];
           }
           if (scheme[k] == SECTION_RESPONSE_MZ) {
             K_tilde(nsr*i + k, nsr*j + k) += ls(i, j) * L * L * q_trial[0];
             for (int l=0; l< nsr; l++)
-              if (shear_flag && scheme[l] == SECTION_RESPONSE_VY)
+              if (shear_flag && scheme[l] == FrameStress::Vy)
                 K_tilde(nsr*i + k, nsr*j + l) += lsg(i, j) * L * q_trial[0];
           }
         }
@@ -550,7 +555,7 @@ ForceDeltaFrame3d<NIP,nsr>::update()
           K_tilde(nsr*i + ii, nsr*i + jj) -= Ks(ii, jj);
     }
 
-    K_tilde.Solve(ds_tilde, de_tilde);
+    K_tilde.solve(ds_tilde, de_tilde);
 
     for (int i = 0; i < nip; i++) {
       for (int k = 0; k < nsr; k++)
@@ -563,9 +568,9 @@ ForceDeltaFrame3d<NIP,nsr>::update()
       kappay(i) = 0.0;
       gammaz(i) = 0.0;
       for (int k = 0; k < nsr; k++) {
-        if (scheme[k] == SECTION_RESPONSE_VY)
+        if (scheme[k] == FrameStress::Vy)
           gamma(i) += es_trial[i][k];
-        if (scheme[k] == SECTION_RESPONSE_VZ)
+        if (scheme[k] == FrameStress::Vz)
           gammaz(i) += es_trial[i][k];
         if (scheme[k] == SECTION_RESPONSE_MY)
           kappay(i) += es_trial[i][k];
@@ -590,7 +595,7 @@ ForceDeltaFrame3d<NIP,nsr>::update()
     //
     //
     //
-    K_tilde.Zero();
+    K_tilde.zero();
     for (int i = 0; i < nip; i++) {
 
       points[i].material->template setTrialState<nsr,scheme>(es_trial[i]);
@@ -607,9 +612,9 @@ ForceDeltaFrame3d<NIP,nsr>::update()
 
         if (scheme[j] == SECTION_RESPONSE_P)
           ds_tilde(index) = q_trial[0];
-        if (scheme[j] == SECTION_RESPONSE_VY)
+        if (scheme[j] == FrameStress::Vy)
           ds_tilde(index) = -wp(i) * q_trial[0] - oneOverL * (q_trial[1] + q_trial[2]);
-        if (scheme[j] == SECTION_RESPONSE_VZ)
+        if (scheme[j] == FrameStress::Vz)
           ds_tilde(index) = -wpz(i) * q_trial[0] - oneOverL * (q_trial[3] + q_trial[4]);
         if (scheme[j] == SECTION_RESPONSE_T)
           ds_tilde(index) = q_trial[5];
@@ -633,13 +638,13 @@ ForceDeltaFrame3d<NIP,nsr>::update()
 
       for (int j = 0; j < nip; j++) {
         for (int k = 0; k < nsr; k++) {
-          if (shear_flag && scheme[k] == SECTION_RESPONSE_VY) {
+          if (shear_flag && scheme[k] == FrameStress::Vy) {
             K_tilde(nsr*i + k, nsr*j + k)     -= lsgp(i, j) * q_trial[0];
             for (int l=0; l< nsr; l++)
               if (scheme[l] == SECTION_RESPONSE_MZ)
                 K_tilde(nsr*i + k, nsr*j + l) -= lskp(i, j) * L * q_trial[0];
           }
-          if (shear_flag && scheme[k] == SECTION_RESPONSE_VZ) {
+          if (shear_flag && scheme[k] == FrameStress::Vz) {
             K_tilde(nsr*i + k, nsr*j + k) -= lsgp(i, j) * q_trial[0];
             for (int l=0; l< nsr; l++)
               if (scheme[l] == SECTION_RESPONSE_MY)
@@ -649,13 +654,13 @@ ForceDeltaFrame3d<NIP,nsr>::update()
           if (scheme[k] == SECTION_RESPONSE_MY) {
             K_tilde(nsr*i + k, nsr*j + k) += ls(i, j) * L * L * q_trial[0];
             for (int l=0; l< nsr; l++)
-              if (shear_flag && scheme[l] == SECTION_RESPONSE_VZ)
+              if (shear_flag && scheme[l] == FrameStress::Vz)
                 K_tilde(nsr*i + k, nsr*j + l) += lsg(i, j) * L * q_trial[0];
           }
           if (scheme[k] == SECTION_RESPONSE_MZ) {
             K_tilde(nsr*i + k, nsr*j + k) += ls(i, j) * L * L * q_trial[0];
             for (int l=0; l< nsr; l++)
-              if (shear_flag && scheme[l] == SECTION_RESPONSE_VY)
+              if (shear_flag && scheme[l] == FrameStress::Vy)
                 K_tilde(nsr*i + k, nsr*j + l) += lsg(i, j) * L * q_trial[0];
           }
         }
@@ -669,7 +674,7 @@ ForceDeltaFrame3d<NIP,nsr>::update()
     //
     //
     //
-    K_tilde.Solve(ds_tilde, de_tilde);
+    K_tilde.solve(ds_tilde, de_tilde);
 
     for (int i = 0; i < nip; i++) {
       for (int j = 0; j < nsr; j++)
@@ -682,9 +687,9 @@ ForceDeltaFrame3d<NIP,nsr>::update()
       kappay(i) = 0.0;
       gammaz(i) = 0.0;
       for (int j = 0; j < nsr; j++) {
-        if (scheme[j] == SECTION_RESPONSE_VY)
+        if (scheme[j] == FrameStress::Vy)
           gamma(i) += es_trial[i][j];
-        if (scheme[j] == SECTION_RESPONSE_VZ)
+        if (scheme[j] == FrameStress::Vz)
           gammaz(i) += es_trial[i][j];
         if (scheme[j] == SECTION_RESPONSE_MY)
           kappay(i) += es_trial[i][j];
@@ -713,9 +718,9 @@ ForceDeltaFrame3d<NIP,nsr>::update()
       for (int j = 0; j < nsr; j++) {
         if (scheme[j] == SECTION_RESPONSE_P)
           stilde(index) = q_trial[0];
-        if (scheme[j] == SECTION_RESPONSE_VY)
+        if (scheme[j] == FrameStress::Vy)
           stilde(index) = -wp(i) * q_trial[0] - oneOverL * (q_trial[1] + q_trial[2]);
-        if (scheme[j] == SECTION_RESPONSE_VZ)
+        if (scheme[j] == FrameStress::Vz)
           stilde(index) = -wp(i) * q_trial[0] - oneOverL * (q_trial[3] + q_trial[4]);
         if (scheme[j] == SECTION_RESPONSE_T)
           stilde(index) = q_trial[5];
@@ -756,16 +761,7 @@ ForceDeltaFrame3d<NIP,nsr>::update()
           Bstr(j, 0) = 1.0;
           Bhat(j, 0) = 1.0;
         }
-        if (scheme[j] == SECTION_RESPONSE_MZ) {
-          Bstr(j, 0) = 0.5 * w(i);
-          Bstr(j, 1) = xL - 1;
-          Bstr(j, 2) = xL;
-
-          Bhat(j, 0) = w(i);
-          Bhat(j, 1) = xL - 1;
-          Bhat(j, 2) = xL;
-        }
-        if (scheme[j] == SECTION_RESPONSE_VY) {
+        if (scheme[j] == FrameStress::Vy) {
           Bstr(j, 0) = -0.5 * wp(i);
           Bstr(j, 1) = -oneOverL;
           Bstr(j, 2) = -oneOverL;
@@ -774,16 +770,7 @@ ForceDeltaFrame3d<NIP,nsr>::update()
           Bhat(j, 1) = -oneOverL;
           Bhat(j, 2) = -oneOverL;
         }
-        if (scheme[j] == SECTION_RESPONSE_MY) {
-          Bstr(j, 0) = 0.5 * wz(i);
-          Bstr(j, 3) = xL - 1;
-          Bstr(j, 4) = xL;
-
-          Bhat(j, 0) = wz(i);
-          Bhat(j, 3) = xL - 1;
-          Bhat(j, 4) = xL;
-        }
-        if (scheme[j] == SECTION_RESPONSE_VZ) {
+        if (scheme[j] == FrameStress::Vz) {
           Bstr(j, 0) = -0.5 * wpz(i);
           Bstr(j, 3) = -oneOverL;
           Bstr(j, 4) = -oneOverL;
@@ -796,9 +783,28 @@ ForceDeltaFrame3d<NIP,nsr>::update()
           Bstr(j, 5) = 1.0;
           Bhat(j, 5) = 1.0;
         }
+        if (scheme[j] == SECTION_RESPONSE_MY) {
+          Bstr(j, 0) = 0.5 * wz(i);
+          Bstr(j, 3) = xL - 1;
+          Bstr(j, 4) = xL;
+
+          Bhat(j, 0) = wz(i);
+          Bhat(j, 3) = xL - 1;
+          Bhat(j, 4) = xL;
+        }
+        if (scheme[j] == SECTION_RESPONSE_MZ) {
+          Bstr(j, 0) = 0.5 * w(i);
+          Bstr(j, 1) = xL - 1;
+          Bstr(j, 2) = xL;
+
+          Bhat(j, 0) = w(i);
+          Bhat(j, 1) = xL - 1;
+          Bhat(j, 2) = xL;
+        }
       }
 
-      MatrixND<nsr,nsr> &fSec = Fs_trial[i]; /// points[i].material->getFlexibility<nsr,scheme>();
+      MatrixND<nsr,nsr> &fSec = Fs_trial[i]; 
+        // points[i].material->getFlexibility<nsr,scheme>();
 
       // F = F + Bstr' (fSec * Bhat) * wtL;
       F.addMatrixTripleProduct(1.0, Bstr, fSec, Bhat, wtL);
@@ -816,10 +822,10 @@ ForceDeltaFrame3d<NIP,nsr>::update()
       F.addMatrixTripleProduct(1.0, Bstr, fSec, Bhat, wtL);
       Bhat.zero();
       for (int j = 0; j < nsr; j++) {
-        if (scheme[j] == SECTION_RESPONSE_VY)
+        if (scheme[j] == FrameStress::Vy)
           for (int k = 0; k < nq; k++)
             Bhat(j, k) = -q_trial[0] * dwidq(i + nip, k);
-        if (scheme[j] == SECTION_RESPONSE_VZ)
+        if (scheme[j] == FrameStress::Vz)
           for (int k = 0; k < nq; k++)
             Bhat(j, k) = -q_trial[0] * dwzidq(i + nip, k);
       }
@@ -831,17 +837,16 @@ ForceDeltaFrame3d<NIP,nsr>::update()
         if (scheme[j] == SECTION_RESPONSE_MZ)
           for (int k = 0; k < nq; k++)
             F(0, k) += 0.5 * e[j] * dwidq(i, k) * wtL;
-        if (scheme[j] == SECTION_RESPONSE_VY)
+        if (scheme[j] == FrameStress::Vy)
           for (int k = 0; k < nq; k++)
             F(0, k) -= 0.5 * e[j] * dwidq(i + nip, k) * wtL;
         if (scheme[j] == SECTION_RESPONSE_MY)
           for (int k = 0; k < nq; k++)
             F(0, k) += 0.5 * e[j] * dwzidq(i, k) * wtL;
-        if (scheme[j] == SECTION_RESPONSE_VZ)
+        if (scheme[j] == FrameStress::Vz)
           for (int k = 0; k < nq; k++)
             F(0, k) -= 0.5 * e[j] * dwzidq(i + nip, k) * wtL;
       }
-
 
       //
       // Integrate residual deformations
@@ -858,13 +863,13 @@ ForceDeltaFrame3d<NIP,nsr>::update()
         case SECTION_RESPONSE_P:
           vr[0] += dei;
           break;
-        case SECTION_RESPONSE_VY:
+        case FrameStress::Vy:
           tmp = oneOverL * dei;
           vr[0] -= 0.5 * wp(i) * dei;
           vr[1] -= tmp;
           vr[2] -= tmp;
           break;
-        case SECTION_RESPONSE_VZ:
+        case FrameStress::Vz:
           tmp = oneOverL * dei;
           vr[0] -= 0.5 * wpz(i) * dei;
           vr[3] -= tmp;
@@ -908,7 +913,7 @@ ForceDeltaFrame3d<NIP,nsr>::update()
 
   // Calculate element stiffness matrix
   if (F.invert(K_trial) < 0)
-    opserr << "ForceDeltaFrame3d::update() -- could not invert flexibility\n";
+    opserr << "ForceDeltaFrame3d::update() - Failed to invert flexibility\n";
 
 
   K_pres = K_trial;
@@ -1136,7 +1141,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedwdq(Matrix& dwidq,
             Fksb(i, 1) += (xi[i] - 1) * Fs(j, k);
             Fksb(i, 2) += xi[i] * Fs(j, k);
           }
-          if (scheme[k] == SECTION_RESPONSE_VY) {
+          if (scheme[k] == FrameStress::Vy) {
             FkV += Fs(j, k);
 
             Fksb(i, 0) -= wp(i) * Fs(j, k);
@@ -1145,7 +1150,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedwdq(Matrix& dwidq,
           }
         }
       }
-      if (scheme[j] == SECTION_RESPONSE_VY) {
+      if (scheme[j] == FrameStress::Vy) {
         isGamma = true;
         FgV += Fs(j, j);
 
@@ -1159,7 +1164,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedwdq(Matrix& dwidq,
             Fgsb(i, 1) += (xi[i] - 1) * Fs(j, k);
             Fgsb(i, 2) += xi[i] * Fs(j, k);
           }
-          if (scheme[k] == SECTION_RESPONSE_VY) {
+          if (scheme[k] == FrameStress::Vy) {
             Fgsb(i, 0) -= wp(i) * Fs(j, k);
             Fgsb(i, 1) -= oneOverL * Fs(j, k);
             Fgsb(i, 2) -= oneOverL * Fs(j, k);
@@ -1255,7 +1260,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedwzdq(Matrix& dwzidq, const Vector& q, const 
             Fksb(i, 3) += (xi[i] - 1) * Fs(j, k);
             Fksb(i, 4) += xi[i] * Fs(j, k);
           }
-          if (scheme[k] == SECTION_RESPONSE_VZ) {
+          if (scheme[k] == FrameStress::Vz) {
             FkV += Fs(j, k);
 
             Fksb(i, 0) -= wpz(i) * Fs(j, k);
@@ -1264,7 +1269,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedwzdq(Matrix& dwzidq, const Vector& q, const 
           }
         }
       }
-      if (scheme[j] == SECTION_RESPONSE_VZ) {
+      if (scheme[j] == FrameStress::Vz) {
         isGamma = true;
         FgV += Fs(j, j);
 
@@ -1278,7 +1283,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedwzdq(Matrix& dwzidq, const Vector& q, const 
             Fgsb(i, 3) += (xi[i] - 1) * Fs(j, k);
             Fgsb(i, 4) += xi[i] * Fs(j, k);
           }
-          if (scheme[k] == SECTION_RESPONSE_VZ) {
+          if (scheme[k] == FrameStress::Vz) {
             Fgsb(i, 0) -= wpz(i) * Fs(j, k);
             Fgsb(i, 3) -= oneOverL * Fs(j, k);
             Fgsb(i, 4) -= oneOverL * Fs(j, k);
@@ -1362,9 +1367,9 @@ ForceDeltaFrame3d<NIP,nsr>::computeSectionForces(VectorND<nsr>& sp, int isec)
         switch (scheme[ii]) {
         case SECTION_RESPONSE_P:  sp[ii] += wa * (L - x); break;
         case SECTION_RESPONSE_MZ: sp[ii] += wy * 0.5 * x * (x - L); break;
-        case SECTION_RESPONSE_VY: sp[ii] += wy * (x - 0.5 * L); break;
+        case FrameStress::Vy: sp[ii] += wy * (x - 0.5 * L); break;
         case SECTION_RESPONSE_MY: sp[ii] += wz * 0.5 * x * (L - x); break;
-        case SECTION_RESPONSE_VZ: sp[ii] += wz * (0.5 * L - x); break;
+        case FrameStress::Vz: sp[ii] += wz * (0.5 * L - x); break;
         default:                  break;
         }
       }
@@ -1406,10 +1411,10 @@ ForceDeltaFrame3d<NIP,nsr>::computeSectionForces(VectorND<nsr>& sp, int isec)
           case SECTION_RESPONSE_MY:
             sp(ii) += VzI*x;
             break;            
-          case SECTION_RESPONSE_VY:
+          case FrameStress::Vy:
             sp(ii) -= VyI;
             break;
-          case SECTION_RESPONSE_VZ:
+          case FrameStress::Vz:
         sp(ii) += VzI;
             break;            
           default:
@@ -1424,10 +1429,10 @@ ForceDeltaFrame3d<NIP,nsr>::computeSectionForces(VectorND<nsr>& sp, int isec)
           case SECTION_RESPONSE_MY:
             sp(ii) -= VzJ*(x-L);
             break;            
-          case SECTION_RESPONSE_VY:
+          case FrameStress::Vy:
             sp(ii) += VyJ;
             break;
-          case SECTION_RESPONSE_VZ:
+          case FrameStress::Vz:
             sp(ii) -= VzJ;            
             break;
           default:
@@ -1447,10 +1452,10 @@ ForceDeltaFrame3d<NIP,nsr>::computeSectionForces(VectorND<nsr>& sp, int isec)
           case SECTION_RESPONSE_MY:
             sp(ii) += VzI * x - 0.5 * wz * (x - a) * (x - a) - 0.5 * (wzz - wz) * (x - a) * (x - a) / 3.0;
             break;            
-          case SECTION_RESPONSE_VY:
+          case FrameStress::Vy:
             sp(ii) += -VyI + wy * (x - a) + 0.5 * (wyy - wy) * (x - a);
             break;
-          case SECTION_RESPONSE_VZ:           
+          case FrameStress::Vz:           
             sp(ii) -= -VzI + wz * (x - a) - 0.5 * (wzz - wz) * (x - a);
             break;
           default:
@@ -1482,17 +1487,17 @@ ForceDeltaFrame3d<NIP,nsr>::computeSectionForces(VectorND<nsr>& sp, int isec)
           switch (scheme[ii]) {
           case SECTION_RESPONSE_P:  sp[ii] += N; break;
           case SECTION_RESPONSE_MZ: sp[ii] -= x * Vy1; break;
-          case SECTION_RESPONSE_VY: sp[ii] -= Vy1; break;
+          case FrameStress::Vy: sp[ii] -= Vy1; break;
           case SECTION_RESPONSE_MY: sp[ii] += x * Vz1; break;
-          case SECTION_RESPONSE_VZ: sp[ii] -= Vz1; break;
+          case FrameStress::Vz: sp[ii] -= Vz1; break;
           default:                  break;
           }
         } else {
           switch (scheme[ii]) {
           case SECTION_RESPONSE_MZ: sp[ii] -= (L - x) * Vy2; break;
-          case SECTION_RESPONSE_VY: sp[ii] += Vy2; break;
+          case FrameStress::Vy: sp[ii] += Vy2; break;
           case SECTION_RESPONSE_MY: sp[ii] += (L - x) * Vz2; break;
-          case SECTION_RESPONSE_VZ: sp[ii] += Vz2; break;
+          case FrameStress::Vz: sp[ii] += Vz2; break;
           default:                  break;
           }
         }
@@ -1548,7 +1553,7 @@ ForceDeltaFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int ig
           //dspdh(ii) += 0.5 * (dwydh*x*(x-L) + wy*dxdh*(x-L) + wy*x*(dxdh-dLdh));
           dspdh(ii) += 0.5 * (dwydh * x * (x - L) + wy * (dxdh * (2 * x - L) - x * dLdh));
           break;
-        case SECTION_RESPONSE_VY:
+        case FrameStress::Vy:
           //sp[ii] += wy*(x-0.5*L);
           dspdh(ii) += dwydh * (x - 0.5 * L) + wy * (dxdh - 0.5 * dLdh);
           break;
@@ -1557,7 +1562,7 @@ ForceDeltaFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int ig
           //dspdh(ii) += 0.5*(dwzdh*x*(L-x) + wz*dxdh*(L-x) + wz*x*(dLdh-dxdh));
           dspdh(ii) += 0.5 * (dwzdh * x * (L - x) + wz * (dxdh * (L - 2 * x) + x * dLdh));
           break;
-        case SECTION_RESPONSE_VZ:
+        case FrameStress::Vz:
           //sp[ii] += wz*(x-0.5*L);
           dspdh(ii) += dwzdh * (0.5 * L - x) + wz * (0.5 * dLdh - dxdh);
           break;
@@ -1604,7 +1609,7 @@ ForceDeltaFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int ig
             //sp[ii] -= x*Vy1;
             dspdh(ii) -= (dxdh * Vy1 + x * dVy1dh);
             break;
-          case SECTION_RESPONSE_VY:
+          case FrameStress::Vy:
             //sp[ii] -= Vy1;
             dspdh(ii) -= dVy1dh;
             break;
@@ -1612,7 +1617,7 @@ ForceDeltaFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int ig
             //sp[ii] += x*Vz1;
             dspdh(ii) += (dxdh * Vz1 + x * dVz1dh);
             break;
-          case SECTION_RESPONSE_VZ:
+          case FrameStress::Vz:
             //sp[ii] -= Vz1;
             dspdh(ii) -= dVz1dh;
             break;
@@ -1625,7 +1630,7 @@ ForceDeltaFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int ig
             //sp[ii] -= (L-x)*Vy2;
             dspdh(ii) -= (dLdh - dxdh) * Vy2 + (L - x) * dVy2dh;
             break;
-          case SECTION_RESPONSE_VY:
+          case FrameStress::Vy:
             //sp[ii] += Vy2;
             dspdh(ii) += dVy2dh;
             break;
@@ -1633,7 +1638,7 @@ ForceDeltaFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int ig
             //sp[ii] += (L-x)*Vz2;
             dspdh(ii) += (dLdh - dxdh) * Vz2 + (L - x) * dVz2dh;
             break;
-          case SECTION_RESPONSE_VZ:
+          case FrameStress::Vz:
             //sp[ii] += Vz2;
             dspdh(ii) += dVz2dh;
             break;
@@ -1704,7 +1709,7 @@ ForceDeltaFrame3d<NIP,nsr>::getInitialFlexibility(Matrix& fe)
           fb(jj, 2) += xL * tmp;
         }
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         for (int jj = 0; jj < nsr; jj++) {
           tmp = oneOverL * fSec(jj, ii) * wtL;
           fb(jj, 1) += tmp;
@@ -1718,7 +1723,7 @@ ForceDeltaFrame3d<NIP,nsr>::getInitialFlexibility(Matrix& fe)
           fb(jj, 4) += xL * tmp;
         }
         break;
-      case SECTION_RESPONSE_VZ:
+      case FrameStress::Vz:
         for (int jj = 0; jj < nsr; jj++) {
           tmp = oneOverL * fSec(jj, ii) * wtL;
           fb(jj, 3) += tmp;
@@ -1745,7 +1750,7 @@ ForceDeltaFrame3d<NIP,nsr>::getInitialFlexibility(Matrix& fe)
           fe(2, jj) += xL * tmp;
         }
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         for (int jj = 0; jj < nq; jj++) {
           tmp = oneOverL * fb(ii, jj);
           fe(1, jj) += tmp;
@@ -1759,7 +1764,7 @@ ForceDeltaFrame3d<NIP,nsr>::getInitialFlexibility(Matrix& fe)
           fe(4, jj) += xL * tmp;
         }
         break;
-      case SECTION_RESPONSE_VZ:
+      case FrameStress::Vz:
         for (int jj = 0; jj < nq; jj++) {
           tmp = oneOverL * fb(ii, jj);
           fe(3, jj) += tmp;
@@ -1823,7 +1828,7 @@ ForceDeltaFrame3d<NIP,nsr>::getInitialDeformations(Vector& v0)
         v0(1) += xL1 * dei;
         v0(2) += xL * dei;
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         tmp = oneOverL * dei;
         v0(1) += tmp;
         v0(2) += tmp;
@@ -1832,7 +1837,7 @@ ForceDeltaFrame3d<NIP,nsr>::getInitialDeformations(Vector& v0)
         v0(3) += xL1 * dei;
         v0(4) += xL * dei;
         break;
-      case SECTION_RESPONSE_VZ:
+      case FrameStress::Vz:
         tmp = oneOverL * dei;
         v0(3) += tmp;
         v0(4) += tmp;
@@ -1932,11 +1937,11 @@ ForceDeltaFrame3d<NIP,nsr>::computedwdh(double dwidh[], int igrad, const Vector&
         kappa(i) += (points[i].es)(j);
         for (int k = 0; k < nsr; k++) {
           Fksdsdh(i) -= fs(j, k) * dsdh(k);
-          if (scheme[k] == SECTION_RESPONSE_VY)
+          if (scheme[k] == FrameStress::Vy)
             FkV += fs(j, k);
         }
       }
-      if (scheme[j] == SECTION_RESPONSE_VY) {
+      if (scheme[j] == FrameStress::Vy) {
         FgV += fs(j, j);
         gamma(i) += (points[i].es)(j);
         for (int k = 0; k < nsr; k++) {
@@ -2792,7 +2797,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int igrad, In
       for (int j = 0; j < nsr; j++) {
         if (scheme[j] == SECTION_RESPONSE_MZ)
           kappa(i) += (points[i].es)(j);
-        if (scheme[j] == SECTION_RESPONSE_VY) {
+        if (scheme[j] == FrameStress::Vy) {
           isGamma = true;
           gamma(i) += (points[i].es)(j);
         }
@@ -2847,7 +2852,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int igrad, In
           dsdh(ii) += q_pres[0] * dwidq(sectionNum - 1, jj) * dqdh(jj);
         dsdh(ii) += q_pres[0] * dwidh[sectionNum - 1];
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         dsdh(ii) -= oneOverL * (dqdh(1) + dqdh(2));
         dsdh(ii) -= wpi[sectionNum - 1] * dqdh(0);
         for (int jj = 0; jj < nq; jj++)
@@ -2872,7 +2877,7 @@ ForceDeltaFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int igrad, In
         //dsdh(j) -= dLdh*xL/L*(q_pres[1]+q_pres[2]);
         //dsdh(j) -= dxLdh*ti[sectionNum-1]*q_pres[0];
         break;
-      case SECTION_RESPONSE_VY: dsdh(j) -= d1oLdh * (q_pres[1] + q_pres[2]); break;
+      case FrameStress::Vy: dsdh(j) -= d1oLdh * (q_pres[1] + q_pres[2]); break;
       default:                  break;
       }
     }
@@ -3122,7 +3127,7 @@ ForceDeltaFrame3d<NIP,nsr>::commitSensitivity(int igrad, int numGrads)
     for (int j = 0; j < nsr; j++) {
       if (scheme[j] == SECTION_RESPONSE_MZ)
         kappa(i) += (points[i].es)(j);
-      if (scheme[j] == SECTION_RESPONSE_VY) {
+      if (scheme[j] == FrameStress::Vy) {
         gamma(i) += (points[i].es)(j);
         isGamma = true;
       }
@@ -3187,7 +3192,7 @@ ForceDeltaFrame3d<NIP,nsr>::commitSensitivity(int igrad, int numGrads)
         ds(j) += xL1 * dqdh(1) + xL * dqdh(2);
         ds(j) += wi[i] * dqdh(0);
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         ds(j) -= oneOverL * (dqdh(1) + dqdh(2));
         ds(j) -= wpi[i] * dqdh(0);
         break;
@@ -3206,7 +3211,7 @@ ForceDeltaFrame3d<NIP,nsr>::commitSensitivity(int igrad, int numGrads)
             (dwidq(i, 0) * dqdh(0) + dwidq(i, 1) * dqdh(1) + dwidq(i, 2) * dqdh(2) + dwidh[i]) *
             q_pres[0];
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         ds(j) -= d1oLdh * (q_pres[1] + q_pres[2]);
         ds(j) -= (dwidq(i + numSections, 0) * dqdh(0) + dwidq(i + numSections, 1) * dqdh(1) +
                   dwidq(i + numSections, 2) * dqdh(2) + dwidh[i + numSections]) *
@@ -3261,7 +3266,7 @@ ForceDeltaFrame3d<NIP,nsr>::getBasicForceGrad(int igrad)
     for (int j = 0; j < nsr; j++) {
       if (scheme[j] == SECTION_RESPONSE_MZ)
         kappa(i) += (points[i].es)(j);
-      if (scheme[j] == SECTION_RESPONSE_VY)
+      if (scheme[j] == FrameStress::Vy)
         gamma(i) += (points[i].es)(j);
     }
   }
@@ -3312,7 +3317,7 @@ ForceDeltaFrame3d<NIP,nsr>::getBasicForceGrad(int igrad)
         dsdh(j) -= dwidh[i] * q_pres[0];
         //dsdh(j) += (2*wi[i]*oneOverL)*q_pres[0]*dLdh;
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         dsdh(j) += d1oLdh * (q_pres[1] + q_pres[2]);
         dsdh(j) += dwidh[i + numSections] * q_pres[0];
         break;
@@ -3333,7 +3338,7 @@ ForceDeltaFrame3d<NIP,nsr>::getBasicForceGrad(int igrad)
         dvdh(2) += xL * dei;
         dvdh(0) += 0.5 * wi[i] * dei;
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         dei = oneOverL * dei;
         dvdh(1) -= dei;
         dvdh(2) -= dei;
@@ -3360,7 +3365,7 @@ ForceDeltaFrame3d<NIP,nsr>::getBasicForceGrad(int igrad)
 
         //dvdh(0) += (wi[i]*oneOverL)*dLdh*e(j)*wtL;
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         dvdh(1) += oneOverL * e(j) * dwtLdh;
         dvdh(2) += oneOverL * e(j) * dwtLdh;
         dvdh(0) += 0.5 * wpi[i] * e(j) * dwtLdh;
@@ -3456,7 +3461,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedfedh(int igrad)
           //fb2(jj,2) += xL*tmp;
         }
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         for (int jj = 0; jj < nsr; jj++) {
           tmp = oneOverL * dfsdh(jj, ii) * wtL;
           fb(jj, 1) += tmp;
@@ -3485,7 +3490,7 @@ ForceDeltaFrame3d<NIP,nsr>::computedfedh(int igrad)
           //dfedh(2,jj) += dxLdh*tmp;
         }
         break;
-      case SECTION_RESPONSE_VY:
+      case FrameStress::Vy:
         for (int jj = 0; jj < nq; jj++) {
           tmp = oneOverL * fb(ii, jj);
           dfedh(1, jj) += tmp;
