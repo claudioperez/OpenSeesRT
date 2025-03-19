@@ -37,14 +37,14 @@ public:
   // reinforcing bar inquiring functions
 
   double getArea() const {return area;};
-  double getdValue() const {return 1.0;};
+  double getdValue() const {return 0.0;};
   const VectorND<2>& getPosition() const {return location;};
   int getMaterial() const {return matID;};
 
 protected:
-  VectorND<2> location;
   double area;
   int matID;
+  VectorND<2> location;
 private:
 };
 

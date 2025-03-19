@@ -42,7 +42,7 @@ public:
   CircReinfLayer(int material, int n, double area,
                  const VectorND<2>& center, double radius);
 
-  virtual ~CircReinfLayer() final {};
+  virtual ~CircReinfLayer() {};
 
   int getNumReinfBars() const;
   std::vector<Cell> getReinfBars() const;

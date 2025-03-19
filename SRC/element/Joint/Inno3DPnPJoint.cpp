@@ -110,7 +110,7 @@ void* OPS_ADD_RUNTIME_VPV(OPS_Inno3DPnPJoint)
 	// opserr << "numRemainingArgs " << numRemainingArgs << endln;
 	
 	// get the id and end nodes
-	int iData[37]; // vector with 38 positions for ele tag, nodes tag and material tags
+	int iData[38]; // vector with 38 positions for ele tag, nodes tag and material tags
 	
 	// variables 1-6 (eleTag + 5xNodes)
 	int numData;

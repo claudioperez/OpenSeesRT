@@ -131,7 +131,8 @@ class OpenSeesPy:
         self._partial = partial
         self._save    = save
         if echo_file is None and "XARA_ECHO_FILE" in os.environ:
-            echo_file = open(os.environ["XARA_ECHO_FILE"], "w+")
+            mode = os.environ.get("XARA_ECHO_MODE", "w+")
+            echo_file = open(os.environ["XARA_ECHO_FILE"], mode)
         self._echo    = echo_file #sys.stdout # echo_file
 
         self._mesh = {"line": {}, "quad": {}}
@@ -186,6 +187,10 @@ class OpenSeesPy:
             try:    return json.loads(ret)
             except: return ret
 
+    def echo(self, *args):
+        print(*args)
+        for arg in args:
+            self.eval(f'puts "{arg}"')
 
     def eval(self, cmd: str) -> str:
         "Evaluate a Tcl command"

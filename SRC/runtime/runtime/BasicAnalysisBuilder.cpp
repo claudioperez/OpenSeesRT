@@ -64,15 +64,17 @@ BasicAnalysisBuilder::BasicAnalysisBuilder(Domain* domain)
   theDomain(domain),
   theHandler(nullptr),
   theNumberer(nullptr),
+  theAnalysisModel(new AnalysisModel()),
   theAlgorithm(nullptr),
   theSOE(nullptr),
   theEigenSOE(nullptr),
   theStaticIntegrator(nullptr),
   theTransientIntegrator(nullptr),
   theTest(nullptr),
- CurrentAnalysisFlag(EMPTY_ANALYSIS)
+  CurrentAnalysisFlag(EMPTY_ANALYSIS),
+  domainStamp(0)
 {
-  theAnalysisModel = new AnalysisModel();
+
 }
 
 BasicAnalysisBuilder::~BasicAnalysisBuilder()

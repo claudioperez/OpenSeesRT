@@ -2233,7 +2233,7 @@ ForceDeltaFrame3d<NIP,nsr>::setResponse(const char** argv, int argc, OPS_Stream&
   Response* theResponse = nullptr;
 
   output.tag("ElementOutput");
-  output.attr("eleType", "ForceDeltaFrame3d");
+  output.attr("eleType", this->getClassType());
   output.attr("eleTag", this->getTag());
   output.attr("node1", connectedExternalNodes[0]);
   output.attr("node2", connectedExternalNodes[1]);
