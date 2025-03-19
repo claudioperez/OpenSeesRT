@@ -439,7 +439,8 @@ template <int NIP, int nsr>
 void
 ForceFrame3d<NIP,nsr>::initializeSectionHistoryVariables()
 {
-  for (int i = 0; i < points.size(); i++) {
+  const int nip = points.size();
+  for (int i = 0; i < nip; i++) {
     points[i].Fs.zero();
     points[i].es.zero();
     points[i].sr.zero();
@@ -520,6 +521,7 @@ ForceFrame3d<NIP,nsr>::update()
   int subdivision = 1;
   bool converged   = false;
 
+  const int nip = points.size();
   while (converged == false && subdivision <= maxSubdivisions) {
 
     for (Strategy strategy : solve_strategy ) {
@@ -527,7 +529,7 @@ ForceFrame3d<NIP,nsr>::update()
       // Allow 10 times more iterations for initial tangent strategy
       const int numIters = (strategy==Strategy::InitialIterations) ? 10*max_iter : max_iter;
 
-      for (int i = 0; i < points.size(); i++) {
+      for (int i = 0; i < nip; i++) {
         es_trial[i]  = points[i].es;
         Fs_trial[i]  = points[i].Fs;
         sr_trial[i]  = points[i].sr;
@@ -549,7 +551,7 @@ ForceFrame3d<NIP,nsr>::update()
         //
         // Gauss Loop
         //
-        for (int i = 0; i < points.size(); i++) {
+        for (int i = 0; i < nip; i++) {
           double xL = points[i].point;
           double xL1 = xL - 1.0;
           double wtL = points[i].weight * L;
@@ -817,7 +819,7 @@ ForceFrame3d<NIP,nsr>::update()
           K_pres = K_trial;
           q_pres = q_trial;
 
-          for (int k = 0; k < points.size(); k++) {
+          for (int k = 0; k < nip; k++) {
             points[k].es  = es_trial[k];
             points[k].Fs  = Fs_trial[k];
             points[k].sr  = sr_trial[k];
@@ -2331,9 +2333,9 @@ ForceFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
       return -1;
 
     double L = theCoordTransf->getInitialLength();
-
-    Vector locs(points.size());
-    for (int i = 0; i < points.size(); i++)
+    const int nip = points.size();
+    Vector locs(nip);
+    for (int i = 0; i < nip; i++)
       locs[i] = points[i].point * L;
 
     return info.setVector(locs);
@@ -2346,8 +2348,9 @@ ForceFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
 
     double L = theCoordTransf->getInitialLength();
 
-    Vector weights(points.size());
-    for (int i = 0; i < points.size(); i++)
+    const int nip = points.size();
+    Vector weights(nip);
+    for (int i = 0; i < nip; i++)
       weights(i) = points[i].weight * L;
 
     return info.setVector(weights);

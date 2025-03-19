@@ -37,39 +37,39 @@ class DummyStream : public OPS_Stream
   ~DummyStream();
 
   // xml stuff
-  int tag(const char *) {return 0;};
-  int tag(const char *, const char *) {return 0;};
-  int endTag() {return 0;};
-  int attr(const char *name, int value) {return 0;};
-  int attr(const char *name, double value) {return 0;};
-  int attr(const char *name, const char *value) {return 0;};
-  int write(Vector &data) {return 0;};
+  int tag(const char *) {return 0;}
+  int tag(const char *, const char *) {return 0;}
+  int endTag() {return 0;}
+  int attr([[maybe_unused]] const char *name, [[maybe_unused]] int value) {return 0;}
+  int attr([[maybe_unused]] const char *name, [[maybe_unused]] double value) {return 0;}
+  int attr([[maybe_unused]] const char *name, [[maybe_unused]] const char *value) {return 0;}
+  int write(Vector &data) {return 0;}
 
 
-  OPS_Stream& write([[maybe_unused]] const char *s, int n) {return *this;};
-  OPS_Stream& write([[maybe_unused]] const unsigned char *s, int n) {return *this;};
-  OPS_Stream& write([[maybe_unused]] const signed char *s, int n) {return *this;};
-  OPS_Stream& write([[maybe_unused]] const void *s, int n) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] char c) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] unsigned char c) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] signed char c) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] const char *s) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] const unsigned char *s) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] const signed char *s) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] const void *p) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] int n) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] unsigned int n) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] long n) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] unsigned long n) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] short n) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] unsigned short n) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] bool b) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] double n) {return *this;};
-  OPS_Stream& operator<<([[maybe_unused]] float n) {return *this;};
+  OPS_Stream& write([[maybe_unused]] const char *s, [[maybe_unused]] int n) {return *this;}
+  OPS_Stream& write([[maybe_unused]] const unsigned char *s, [[maybe_unused]] int n) {return *this;}
+  OPS_Stream& write([[maybe_unused]] const signed char *s, [[maybe_unused]] int n) {return *this;}
+  OPS_Stream& write([[maybe_unused]] const void *s, [[maybe_unused]] int n) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] char c) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] unsigned char c) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] signed char c) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] const char *s) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] const unsigned char *s) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] const signed char *s) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] const void *p) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] int n) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] unsigned int n) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] long n) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] unsigned long n) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] short n) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] unsigned short n) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] bool b) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] double n) {return *this;}
+  OPS_Stream& operator<<([[maybe_unused]] float n) {return *this;}
 
   int sendSelf(int commitTag, Channel &theChannel) {return 0;};  
   int recvSelf(int commitTag, Channel &theChannel, 
-	       FEM_ObjectBroker &theBroker) {return 0;};
+	       FEM_ObjectBroker &theBroker) {return 0;}
 
  private:
 };

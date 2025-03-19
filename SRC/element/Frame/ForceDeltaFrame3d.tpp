@@ -2208,6 +2208,7 @@ ForceDeltaFrame3d<NIP,nsr>::setSectionPointers(int numSec, FrameSection** secPtr
   // Return value of 0 indicates success
 
   points.clear();
+  assert(numSec <= NIP);
 
   for (int i = 0; i < numSec; i++) {
     FrameSection* section = secPtrs[i];

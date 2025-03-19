@@ -842,7 +842,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
 
         if (strcmp(argv[1], "ForceDeltaFrame") == 0 || options.geom_flag) {
           if (!options.shear_flag)
-            for_int<10>([&](auto nip) constexpr {
+            static_loop<1,10>([&](auto nip) constexpr {
               if (nip.value == sections.size())
                 theElement = new ForceDeltaFrame3d<nip.value, 4>(tag, nodes, sections,
                                               *beamIntegr, *theTransf3d, 
@@ -852,7 +852,7 @@ TclBasicBuilder_addForceBeamColumn(ClientData clientData, Tcl_Interp *interp,
                                               );
             });
           else
-            for_int<10>([&](auto nip) constexpr {
+            static_loop<1,10>([&](auto nip) constexpr {
               if (nip.value == sections.size())
                 theElement = new ForceDeltaFrame3d<nip.value, 6>(tag, nodes, sections,
                                               *beamIntegr, *theTransf3d, 
