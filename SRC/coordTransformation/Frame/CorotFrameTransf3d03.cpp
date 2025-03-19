@@ -440,7 +440,7 @@ CorotFrameTransf3d03::initialize(Node *nodeIPointer, Node *nodeJPointer)
       return -1;
     }
 
-    // see if there is some initial displacements at nodes
+    // Add initial displacements at nodes
     if (initialDispChecked == false) {
       const Vector &nodeIDisp = nodes[0]->getDisp();
       const Vector &nodeJDisp = nodes[1]->getDisp();
@@ -472,8 +472,7 @@ CorotFrameTransf3d03::initialize(Node *nodeIPointer, Node *nodeJPointer)
       return error;
 
     // Compute initial pseudo-vectors for nodal triads
-    Q_pres[0] = VersorFromMatrix(R0);
-    Q_pres[1] = VersorFromMatrix(R0);
+    Q_pres[0] = Q_pres[1] = VersorFromMatrix(R0);
 
     this->commitState();
 
@@ -492,12 +491,12 @@ CorotFrameTransf3d03::compTransfMatrixBasicGlobal(
                 rI{MatrixFromVersor(Q_pres[0])},
                 rJ{MatrixFromVersor(Q_pres[1])};
     const Vector3D 
-      &e1  = E[1],
-      &e2  = E[2],
-      &e3  = E[3],
-      &r1  = r[1], // .rotate(E1), 
-      &r2  = r[2], // .rotate(E2), 
-      &r3  = r[3], // .rotate(E3),
+      &e1  =  E[1],
+      &e2  =  E[2],
+      &e3  =  E[3],
+      &r1  =  r[1], // .rotate(E1), 
+      &r2  =  r[2], // .rotate(E2), 
+      &r3  =  r[3], // .rotate(E3),
       &rI1 = rI[1], // .rotate(E1), 
       &rI2 = rI[2], // .rotate(E2), 
       &rI3 = rI[3], // .rotate(E3),
@@ -766,13 +765,11 @@ CorotFrameTransf3d03::update()
 
     // Rotations
     {
-      Matrix3D RI = MatrixFromVersor(Q_pres[0]);
-      Matrix3D RJ = MatrixFromVersor(Q_pres[1]);
-      Vector3D theta = LogC90(e^RI);//^e);
+      Vector3D theta = LogC90(e^MatrixFromVersor(Q_pres[0]));
       for (int i=0; i<3; i++)
         ul[imx+i] = theta[i];
 
-      theta = LogC90(e^RJ);//^e);
+      theta = LogC90(e^MatrixFromVersor(Q_pres[1]));
       for (int i=0; i<3; i++)
         ul[jmx+i] = theta[i];
     }
@@ -1001,7 +998,7 @@ CorotFrameTransf3d03::getInitialGlobalStiffMatrix(const Matrix &kb)
 {
   // transform tangent from the basic system to local coordinates
   static Matrix kl(12,12);
-  kl.addMatrixTripleProduct(0.0, T12_6, kb, 1.0);      // kl = Tp ^ kb * Tp;
+  kl.addMatrixTripleProduct(0.0, T12_6, kb, 1.0);   // kl = Tp ^ kb * Tp;
 
   // transform tangent from local to global coordinates
   static Matrix kg(12,12);
@@ -1339,8 +1336,7 @@ CorotFrameTransf3d03::getLocalAxes(Vector &XAxis, Vector &YAxis, Vector &ZAxis)
       return -2;
   }
 
-  // calculate the element local x axis components (direction cossines)
-  // wrt to the global coordinates
+  // calculate the element local x axis components wrt to the global coordinates
 
   xAxis(0) = dx(0)/L;
   xAxis(1) = dx(1)/L;
