@@ -62,14 +62,10 @@
 
 #define ELE_TAG_ForceFrame3d 0 // TODO
 
-#define THREAD_LOCAL  static
-#define ALWAYS_STATIC static // used when we need to do things like return a Matrix reference
-
-
 // Constructor invoked by FEM_ObjectBroker; 
 // recvSelf() needs to be invoked on this object.
-template <int NIP, int nsr>
-ForceFrame3d<NIP,nsr>::ForceFrame3d()
+template <int NIP, int nsr, int nwm>
+ForceFrame3d<NIP,nsr,nwm>::ForceFrame3d()
  : BasicFrame3d(0, ELE_TAG_ForceFrame3d),
    stencil(nullptr),
    max_iter(0), tol(0.0),
@@ -85,8 +81,8 @@ ForceFrame3d<NIP,nsr>::ForceFrame3d()
   q_pres.zero();
 }
 
-template <int NIP, int nsr>
-ForceFrame3d<NIP,nsr>::ForceFrame3d(int tag, std::array<int, 2>& nodes, 
+template <int NIP, int nsr, int nwm>
+ForceFrame3d<NIP,nsr,nwm>::ForceFrame3d(int tag, std::array<int, 2>& nodes, 
                            std::vector<FrameSection*>& sec,
                            BeamIntegration& bi,
                            FrameTransform3d& coordTransf, 
@@ -113,8 +109,8 @@ ForceFrame3d<NIP,nsr>::ForceFrame3d(int tag, std::array<int, 2>& nodes,
 }
 
 
-template <int NIP, int nsr>
-ForceFrame3d<NIP,nsr>::~ForceFrame3d()
+template <int NIP, int nsr, int nwm>
+ForceFrame3d<NIP,nsr,nwm>::~ForceFrame3d()
 {
 
   for (GaussPoint& point : points)
@@ -129,9 +125,9 @@ ForceFrame3d<NIP,nsr>::~ForceFrame3d()
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::setNodes()
+ForceFrame3d<NIP,nsr,nwm>::setNodes()
 {
   this->BasicFrame3d::setNodes();
 
@@ -161,9 +157,9 @@ ForceFrame3d<NIP,nsr>::setNodes()
   return 0;
 }
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::getIntegral(Field field, State state, double& total)
+ForceFrame3d<NIP,nsr,nwm>::getIntegral(Field field, State state, double& total)
 {
 
   if (this->setState(State::Init) != 0)
@@ -225,9 +221,9 @@ ForceFrame3d<NIP,nsr>::getIntegral(Field field, State state, double& total)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::commitState()
+ForceFrame3d<NIP,nsr,nwm>::commitState()
 {
   int status = 0;
 
@@ -257,9 +253,9 @@ ForceFrame3d<NIP,nsr>::commitState()
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::revertToLastCommit()
+ForceFrame3d<NIP,nsr,nwm>::revertToLastCommit()
 {
   for (GaussPoint& point : points) {
     FrameSection& section = *point.material;
@@ -289,9 +285,9 @@ ForceFrame3d<NIP,nsr>::revertToLastCommit()
 
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::revertToStart()
+ForceFrame3d<NIP,nsr,nwm>::revertToStart()
 {
   // Revert the transformation to start
   if (theCoordTransf->revertToStart() != 0)
@@ -319,25 +315,25 @@ ForceFrame3d<NIP,nsr>::revertToStart()
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 VectorND<6>&
-ForceFrame3d<NIP,nsr>::getBasicForce()
+ForceFrame3d<NIP,nsr,nwm>::getBasicForce()
 {
   return q_pres;
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 MatrixND<6, 6>&
-ForceFrame3d<NIP,nsr>::getBasicTangent(State state, int rate)
+ForceFrame3d<NIP,nsr,nwm>::getBasicTangent(State state, int rate)
 {
   return K_pres;
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 const Matrix &
-ForceFrame3d<NIP,nsr>::getMass()
+ForceFrame3d<NIP,nsr,nwm>::getMass()
 {
   if (!mass_initialized) {
     total_mass = 0.0;
@@ -411,19 +407,19 @@ ForceFrame3d<NIP,nsr>::getMass()
 
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 const Matrix &
-ForceFrame3d<NIP,nsr>::getInitialStiff()
+ForceFrame3d<NIP,nsr,nwm>::getInitialStiff()
 {
   // check for quick return
   if (Ki != nullptr)
     return *Ki;
 
-  THREAD_LOCAL MatrixND<NBV,NBV> F_init;
+  MatrixND<NBV,NBV> F_init;
   this->getInitialFlexibility(F_init);
 
   // calculate element stiffness matrix
-  THREAD_LOCAL MatrixND<NBV, NBV> K_init;
+  ALWAYS_STATIC MatrixND<NBV, NBV> K_init;
   if (F_init.invert(K_init) < 0)
     opserr << "ForceFrame3d: Failed to invert flexibility";
 
@@ -435,9 +431,9 @@ ForceFrame3d<NIP,nsr>::getInitialStiff()
 
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 void
-ForceFrame3d<NIP,nsr>::initializeSectionHistoryVariables()
+ForceFrame3d<NIP,nsr,nwm>::initializeSectionHistoryVariables()
 {
   const int nip = points.size();
   for (int i = 0; i < nip; i++) {
@@ -449,9 +445,9 @@ ForceFrame3d<NIP,nsr>::initializeSectionHistoryVariables()
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::update()
+ForceFrame3d<NIP,nsr,nwm>::update()
 {
   constexpr static double TOL_SUBDIV = DBL_EPSILON;
 
@@ -519,10 +515,10 @@ ForceFrame3d<NIP,nsr>::update()
   };
 
   int subdivision = 1;
-  bool converged   = false;
+  bool converged = false;
 
   const int nip = points.size();
-  while (converged == false && subdivision <= maxSubdivisions) {
+  while (converged == false && subdivision <= max_subdivision) {
 
     for (Strategy strategy : solve_strategy ) {
 
@@ -589,6 +585,9 @@ ForceFrame3d<NIP,nsr>::update()
                 break;
               case FrameStress::Mz:
                 si[ii] = xL1 * q_trial[1] + xL * q_trial[2];
+                break;
+              case FrameStress::Bimoment:
+                si[ii] = xL1 * q_trial[5] + xL * q_trial[6];
                 break;
             }
           }
@@ -770,6 +769,11 @@ ForceFrame3d<NIP,nsr>::update()
         } // Gauss loop
 
 
+        // dv = Dv + dv_trial  - vr
+        dv = Dv;
+        dv += dv_trial;
+        dv -= vr;
+
         //
         // Finalize trial element state 
         //
@@ -778,11 +782,6 @@ ForceFrame3d<NIP,nsr>::update()
         //
         if (F.invert(K_trial) < 0)
           opserr << "ForceFrame3d: Failed to invert flexibility\n";
-
-        // dv = Dv + dv_trial  - vr
-        dv = Dv;
-        dv += dv_trial;
-        dv -= vr;
 
         VectorND<NBV> dqe = K_trial * dv;
       //dqe.addMatrixVector(0.0, K_trial, dv, 1.0);
@@ -827,7 +826,6 @@ ForceFrame3d<NIP,nsr>::update()
 
           // break out of j & l loops
           goto iterations_completed;
-
         }
         else { //  if (fabs(dW) < tol) {
 
@@ -847,7 +845,6 @@ iterations_completed:
   } // while (converged == false)
 
 
-
   if (converged == false) {
     opserr << "WARNING - ForceFrame3d failed internal state determination ";
     opserr << "for element " << this->getTag() 
@@ -862,9 +859,9 @@ iterations_completed:
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 const Matrix &
-ForceFrame3d<NIP,nsr>::getTangentStiff()
+ForceFrame3d<NIP,nsr,nwm>::getTangentStiff()
 {
   MatrixND<6,6> kb = this->getBasicTangent(State::Pres, 0);
 
@@ -928,17 +925,17 @@ ForceFrame3d<NIP,nsr>::getTangentStiff()
   }
 
 
-  THREAD_LOCAL MatrixND<12,12> Kg;
-  THREAD_LOCAL Matrix Wrapper(Kg);
+  ALWAYS_STATIC MatrixND<12,12> Kg;
+  ALWAYS_STATIC Matrix Wrapper(Kg);
   Kg = theCoordTransf->pushResponse(kl, pl);
   return Wrapper;
 }
 
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 void
-ForceFrame3d<NIP,nsr>::addLoadAtSection(VectorND<nsr>& sp, double x)
+ForceFrame3d<NIP,nsr,nwm>::addLoadAtSection(VectorND<nsr>& sp, double x)
 {
   double L = theCoordTransf->getInitialLength();
 
@@ -1102,9 +1099,9 @@ ForceFrame3d<NIP,nsr>::addLoadAtSection(VectorND<nsr>& sp, double x)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 void
-ForceFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int gradNumber)
+ForceFrame3d<NIP,nsr,nwm>::getStressGrad(VectorND<nsr>& dspdh, int isec, int gradNumber)
 {
 
   double L    = theCoordTransf->getInitialLength();
@@ -1162,7 +1159,6 @@ ForceFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int gradNum
     } else if (type == LOAD_TAG_Beam3dPointLoad) {
       double Py     = data(0) * 1.0;
       double Pz     = data(1) * 1.0;
-      double N      = data(2) * 1.0;
       double aOverL = data(3);
 
       if (aOverL < 0.0 || aOverL > 1.0)
@@ -1243,9 +1239,9 @@ ForceFrame3d<NIP,nsr>::getStressGrad(VectorND<nsr>& dspdh, int isec, int gradNum
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::sendSelf(int commitTag, Channel& theChannel)
+ForceFrame3d<NIP,nsr,nwm>::sendSelf(int commitTag, Channel& theChannel)
 {
   // place the integer data into an ID
   int dbTag = this->getDbTag();
@@ -1380,9 +1376,9 @@ ForceFrame3d<NIP,nsr>::sendSelf(int commitTag, Channel& theChannel)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& theBroker)
+ForceFrame3d<NIP,nsr,nwm>::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBroker& theBroker)
 {
 #if 1
   return -1;
@@ -1604,9 +1600,9 @@ ForceFrame3d<NIP,nsr>::recvSelf(int commitTag, Channel& theChannel, FEM_ObjectBr
 
 
 // addBFsB(F, s, i)
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::getInitialFlexibility(MatrixND<NBV,NBV>& fe)
+ForceFrame3d<NIP,nsr,nwm>::getInitialFlexibility(MatrixND<NBV,NBV>& fe)
 {
   fe.zero();
 
@@ -1712,9 +1708,9 @@ ForceFrame3d<NIP,nsr>::getInitialFlexibility(MatrixND<NBV,NBV>& fe)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::getInitialDeformations(Vector& v0)
+ForceFrame3d<NIP,nsr,nwm>::getInitialDeformations(Vector& v0)
 {
   v0.Zero();
   if (eleLoads.size() < 1 || (this->setState(State::Init) != 0))
@@ -1774,9 +1770,9 @@ ForceFrame3d<NIP,nsr>::getInitialDeformations(Vector& v0)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 void
-ForceFrame3d<NIP,nsr>::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
+ForceFrame3d<NIP,nsr,nwm>::compSectionDisplacements(Vector sectionCoords[], Vector sectionDispls[]) const
 {
   // get basic displacements and increments
   THREAD_LOCAL Vector ub(NBV);
@@ -1848,9 +1844,9 @@ ForceFrame3d<NIP,nsr>::compSectionDisplacements(Vector sectionCoords[], Vector s
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 void
-ForceFrame3d<NIP,nsr>::Print(OPS_Stream& s, int flag)
+ForceFrame3d<NIP,nsr,nwm>::Print(OPS_Stream& s, int flag)
 {
   const int nip = points.size();
   const ID& node_tags = this->getExternalNodes();
@@ -2006,9 +2002,9 @@ ForceFrame3d<NIP,nsr>::Print(OPS_Stream& s, int flag)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 Response*
-ForceFrame3d<NIP,nsr>::setResponse(const char** argv, int argc, OPS_Stream& output)
+ForceFrame3d<NIP,nsr,nwm>::setResponse(const char** argv, int argc, OPS_Stream& output)
 {
   Response* theResponse = nullptr;
   const ID& node_tags = this->getExternalNodes();
@@ -2191,7 +2187,6 @@ ForceFrame3d<NIP,nsr>::setResponse(const char** argv, int argc, OPS_Stream& outp
       if (sectionNum > 0 && sectionNum <= points.size() && argc > 2) {
         if (this->setState(State::Init) != 0)
           return nullptr;
-        double L = theCoordTransf->getInitialLength();
 
         output.tag("GaussPointOutput");
         output.attr("number", sectionNum);
@@ -2253,9 +2248,9 @@ ForceFrame3d<NIP,nsr>::setResponse(const char** argv, int argc, OPS_Stream& outp
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
+ForceFrame3d<NIP,nsr,nwm>::getResponse(int responseID, Information& info)
 {
   THREAD_LOCAL Vector vp(6);
   THREAD_LOCAL MatrixND<NBV,NBV> fe;
@@ -2697,9 +2692,9 @@ ForceFrame3d<NIP,nsr>::getResponse(int responseID, Information& info)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int gradNumber, Information& info)
+ForceFrame3d<NIP,nsr,nwm>::getResponseSensitivity(int responseID, int gradNumber, Information& info)
 {
   // Basic deformation sensitivity
   if (responseID == 3) {
@@ -2817,9 +2812,9 @@ ForceFrame3d<NIP,nsr>::getResponseSensitivity(int responseID, int gradNumber, In
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::setParameter(const char** argv, int argc, Parameter& param)
+ForceFrame3d<NIP,nsr,nwm>::setParameter(const char** argv, int argc, Parameter& param)
 {
   if (argc < 1)
     return -1;
@@ -2913,9 +2908,9 @@ ForceFrame3d<NIP,nsr>::setParameter(const char** argv, int argc, Parameter& para
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::updateParameter(int parameterID, Information& info)
+ForceFrame3d<NIP,nsr,nwm>::updateParameter(int parameterID, Information& info)
 {
   if (parameterID == 1) {
     this->density = info.theDouble;
@@ -2925,9 +2920,9 @@ ForceFrame3d<NIP,nsr>::updateParameter(int parameterID, Information& info)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::activateParameter(int passedParameterID)
+ForceFrame3d<NIP,nsr,nwm>::activateParameter(int passedParameterID)
 {
   parameterID = passedParameterID;
 
@@ -2935,22 +2930,22 @@ ForceFrame3d<NIP,nsr>::activateParameter(int passedParameterID)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 const Matrix&
-ForceFrame3d<NIP,nsr>::getKiSensitivity(int gradNumber)
+ForceFrame3d<NIP,nsr,nwm>::getKiSensitivity(int gradNumber)
 {
-  THREAD_LOCAL MatrixND<12,12> Ksen{};
-  THREAD_LOCAL Matrix wrapper(Ksen);
+  ALWAYS_STATIC MatrixND<12,12> Ksen{};
+  ALWAYS_STATIC Matrix wrapper(Ksen);
   return wrapper;
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 const Matrix&
-ForceFrame3d<NIP,nsr>::getMassSensitivity(int gradNumber)
+ForceFrame3d<NIP,nsr,nwm>::getMassSensitivity(int gradNumber)
 {
-  THREAD_LOCAL MatrixND<12,12> Msen{};
-  THREAD_LOCAL Matrix wrapper(Msen);
+  ALWAYS_STATIC MatrixND<12,12> Msen{};
+  ALWAYS_STATIC Matrix wrapper(Msen);
 
   double L = theCoordTransf->getInitialLength();
   if (parameterID == 1) {
@@ -2967,9 +2962,9 @@ ForceFrame3d<NIP,nsr>::getMassSensitivity(int gradNumber)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 const Vector&
-ForceFrame3d<NIP,nsr>::getResistingForceSensitivity(int gradNumber)
+ForceFrame3d<NIP,nsr,nwm>::getResistingForceSensitivity(int gradNumber)
 {
   static Vector P(12);
   P.Zero();
@@ -2999,9 +2994,9 @@ ForceFrame3d<NIP,nsr>::getResistingForceSensitivity(int gradNumber)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::commitSensitivity(int gradNumber, int numGrads)
+ForceFrame3d<NIP,nsr,nwm>::commitSensitivity(int gradNumber, int numGrads)
 {
   //
   //
@@ -3088,9 +3083,9 @@ ForceFrame3d<NIP,nsr>::commitSensitivity(int gradNumber, int numGrads)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 VectorND<6>
-ForceFrame3d<NIP,nsr>::getBasicForceGrad(int gradNumber)
+ForceFrame3d<NIP,nsr,nwm>::getBasicForceGrad(int gradNumber)
 {
 
   double L   = theCoordTransf->getInitialLength();
@@ -3231,9 +3226,9 @@ ForceFrame3d<NIP,nsr>::getBasicForceGrad(int gradNumber)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 const Matrix&
-ForceFrame3d<NIP,nsr>::computedfedh(int gradNumber)
+ForceFrame3d<NIP,nsr,nwm>::computedfedh(int gradNumber)
 {
   static Matrix dfedh(NBV, NBV);
 
@@ -3346,9 +3341,9 @@ ForceFrame3d<NIP,nsr>::computedfedh(int gradNumber)
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 int
-ForceFrame3d<NIP,nsr>::setSectionPointers(std::vector<FrameSection*>& new_sections)
+ForceFrame3d<NIP,nsr,nwm>::setSectionPointers(std::vector<FrameSection*>& new_sections)
 {
   // Return value of 0 indicates success
 
@@ -3367,9 +3362,9 @@ ForceFrame3d<NIP,nsr>::setSectionPointers(std::vector<FrameSection*>& new_sectio
 }
 
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm>
 const Vector &
-ForceFrame3d<NIP,nsr>::getResistingForce()
+ForceFrame3d<NIP,nsr,nwm>::getResistingForce()
 {
   double p0[5]{};
   
@@ -3423,7 +3418,7 @@ ForceFrame3d<NIP,nsr>::getResistingForce()
 #if 0
 
 void
-ForceFrame3d<NIP,nsr>::getDistrLoadInterpolatMatrix(double xi, Matrix& bp, const ID& code)
+ForceFrame3d<NIP,nsr,nwm>::getDistrLoadInterpolatMatrix(double xi, Matrix& bp, const ID& code)
 {
   bp.Zero();
 
@@ -3453,7 +3448,7 @@ ForceFrame3d<NIP,nsr>::getDistrLoadInterpolatMatrix(double xi, Matrix& bp, const
 }
 
 void
-ForceFrame3d<NIP,nsr>::getForceInterpolatMatrix(double xi, Matrix& b, const ID& code)
+ForceFrame3d<NIP,nsr,nwm>::getForceInterpolatMatrix(double xi, Matrix& b, const ID& code)
 {
   b.Zero();
 
