@@ -102,9 +102,9 @@ LinearFrameTransf3d::LinearFrameTransf3d(int tag, const Vector &vecInLocXZPlane)
   for (int i=0; i<3; i++)
     vz[i] = vecInLocXZPlane[i];
 
-  R(0,2) = vecInLocXZPlane(0);
-  R(1,2) = vecInLocXZPlane(1);
-  R(2,2) = vecInLocXZPlane(2);
+  R(0,2) = vz(0);
+  R(1,2) = vz(1);
+  R(2,2) = vz(2);
 }
 
 // constructor:
@@ -117,7 +117,8 @@ LinearFrameTransf3d::LinearFrameTransf3d(int tag, const Vector &vecInLocXZPlane,
     nodeIOffset(nullptr), nodeJOffset(nullptr), 
     L(0),
     nodeIInitialDisp(0),
-    nodeJInitialDisp(0), initialDispChecked(false)
+    nodeJInitialDisp(0), 
+    initialDispChecked(false)
 {
   R.zero();
 
