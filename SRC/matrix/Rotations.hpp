@@ -542,7 +542,7 @@ LogC90(const Matrix3D &R)
   // function by Claudio Perez                                            2024
   //===--------------------------------------------------------------------===//
   // Crisfield's approximation to the logarithm on SO(3)
-  if (getenv("CRD"))
+  if (getenv("CRD03"))
     return Vector3D {
      -std::asin(0.5*(R(1,2) - R(2,1))),
       std::asin(0.5*(R(0,2) - R(2,0))),

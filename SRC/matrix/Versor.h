@@ -19,6 +19,16 @@ struct Versor {
         return c;
     }
 
+    inline Versor conj_mult(const Versor& other) const 
+    {
+        // Equivalent to R_IJ = R_I.T @ R_J, 
+        // i.e.  q_IJ = conj(q_I)*q_J.
+        Versor out;
+        out.scalar = scalar * other.scalar + vector.dot(other.vector);
+        out.vector = (other.vector * scalar) - (vector * other.scalar) - vector.cross(other.vector);
+        return out;
+    }
+
     inline Versor mult_conj(const Versor& other) const 
     {
         // Equivalent to R_IJ = R_I @ R_J^T, 
