@@ -138,9 +138,9 @@ public:
 
     std::array<GaussPoint,nip> pres;
     std::array<GaussPoint,nip> past;
-    BeamIntegration*        stencil;
     FrameTransform3d*       transform;
     Logarithm               logarithm;
+    BeamIntegration*        stencil;
 
     //
     //
