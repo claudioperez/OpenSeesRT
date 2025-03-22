@@ -494,8 +494,7 @@ CorotFrameTransf3d03::initialize(Node *nodeIPointer, Node *nodeJPointer)
 
 void inline
 CorotFrameTransf3d03::compTransfMatrixBasicGlobal(
-                                                const Versor& Qbar, 
-                                                const Triad&  E, 
+                                                const Versor& Qbar,
                                                 const Versor* Q_pres)
 {
 
@@ -504,9 +503,9 @@ CorotFrameTransf3d03::compTransfMatrixBasicGlobal(
                 rI{MatrixFromVersor(Q_pres[0])},
                 rJ{MatrixFromVersor(Q_pres[1])};
     const Vector3D 
-      &e1  =  E[1],
-      &e2  =  E[2],
-      &e3  =  E[3],
+      &e1  =  crs.getBasisE1(), // E[1],
+      &e2  =  crs.getBasisE2(), // E[2],
+      &e3  =  crs.getBasisE3(), // E[3],
       &r1  =  r[1], // .rotate(E1), 
       &r2  =  r[2], // .rotate(E2), 
       &r3  =  r[3], // .rotate(E3),
@@ -732,9 +731,8 @@ CorotFrameTransf3d03::update()
     //
 
     crs.update(Q_pres[0], Q_pres[1], dx);
-    Matrix3D e = crs.getRotation();
     // Form the transformation tangent
-    this->compTransfMatrixBasicGlobal(crs.getReference(), Triad{e}, Q_pres);
+    this->compTransfMatrixBasicGlobal(crs.getReference(), Q_pres);
 
     //
     // 3) Local deformations
@@ -745,6 +743,7 @@ CorotFrameTransf3d03::update()
 
     // Rotations
     {
+      Matrix3D e = crs.getRotation();
       vr[0] = LogC90(e^MatrixFromVersor(Q_pres[0]));
       for (int i=0; i<3; i++)
         ul[imx+i] = vr[0][i];
@@ -989,8 +988,8 @@ CorotFrameTransf3d03::getGlobalStiffMatrix(const Matrix &kb, const Vector &pb)
   static Matrix Kl(kl);
 
   // transform basic stiffness to 7x7 Remo layout
-  // Kl.addMatrixTripleProduct(0.0, Tp, kb, 1.0);      // kl = Tp ^ kb * Tp;
-  Kl.addMatrixTripleProduct(0.0, T12_6, kb, 1.0);      // kl = Tp ^ kb * Tp;
+  // Kl.addMatrixTripleProduct(0.0, Tp, kb, 1.0); // kl = Tp ^ kb * Tp;
+  Kl.addMatrixTripleProduct(0.0, T12_6, kb, 1.0); //
 
 
   // transform resisting forces from the basic system to local
@@ -1033,14 +1032,13 @@ CorotFrameTransf3d03::pushResponse(MatrixND<12,12>& kl, const VectorND<12>& pl)
 int
 CorotFrameTransf3d03::addTangent(MatrixND<12,12>& kg, const VectorND<12>& pl)
 {    
-    const Triad E {crs.getRotation()},
-                r {MatrixFromVersor(crs.getReference())},
+    const Triad r {MatrixFromVersor(crs.getReference())},
                 rI{MatrixFromVersor(Q_pres[0])},
                 rJ{MatrixFromVersor(Q_pres[1])};
     const Vector3D 
-      &e1  =  E[1],
-      &e2  =  E[2],
-      &e3  =  E[3],
+      &e1  =  crs.getBasisE1(), // E[1],
+      &e2  =  crs.getBasisE2(), // E[2],
+      &e3  =  crs.getBasisE3(), // E[3],
       &r1  =  r[1], // .rotate(E1), 
       &r2  =  r[2], // .rotate(E2), 
       &r3  =  r[3], // .rotate(E3),
