@@ -49,7 +49,7 @@ public:
     int commitState();
     int revertToLastCommit();        
     int revertToStart();
-    int  getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
+    int getLocalAxes(Vector &xAxis, Vector &yAxis, Vector &zAxis);
 
     double getInitialLength();
     double getDeformedLength();
@@ -89,8 +89,8 @@ public:
     double getLengthGrad();
 
     // Movable Object
-    int sendSelf(int cTag, Channel &theChannel);
-    int recvSelf(int cTag, Channel &theChannel, FEM_ObjectBroker &theBroker);
+    int sendSelf(int tag, Channel &);
+    int recvSelf(int tag, Channel &, FEM_ObjectBroker &);
 
     // Tagged Object
     void Print(OPS_Stream &s, int flag = 0);
@@ -106,7 +106,7 @@ protected:
 
 private:
     // compute the transformation matrix
-    void compTransfMatrixBasicGlobal(const Versor&, const Triad&  E, const Versor* Q);
+    void compTransfMatrixBasicGlobal(const Versor&, const Versor* Q);
 
     template<typename VecL, typename VecB>
     void
