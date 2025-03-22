@@ -23,7 +23,7 @@ class BeamIntegration;
 
 using namespace OpenSees;
 
-template <int NIP, int nsr>
+template <int NIP, int nsr, int nwm=0>
 class ForceFrame3d: public BasicFrame3d
 {
  public:
@@ -101,10 +101,10 @@ class ForceFrame3d: public BasicFrame3d
   //
   constexpr static int 
         NDF = 6,
-        ndm = 3,              // dimension of the problem (3D)
-        NEN = 2,              // number of element nodes
-        NBV = 6,              // number of element dof's in the basic system
-        maxSubdivisions= 10;
+        ndm = 3,        // dimension of the problem (3D)
+        NEN = 2,        // number of element nodes
+        NBV = 6,        // number of element dof's in the basic system
+        max_subdivision= 10;
 
   static constexpr FrameStressLayout scheme = {
     FrameStress::N,
@@ -193,10 +193,13 @@ class ForceFrame3d: public BasicFrame3d
 
   std::vector<GaussPoint> points;
   BeamIntegration*        stencil;
-  
 
   Matrix *Ki;
 };
 
+#define THREAD_LOCAL  static
+#define ALWAYS_STATIC static // used when we need to do things like return a Matrix reference
 #include "ForceFrame3d.tpp"
+#undef THREAD_LOCAL
+#undef ALWAYS_STATIC
 #endif
