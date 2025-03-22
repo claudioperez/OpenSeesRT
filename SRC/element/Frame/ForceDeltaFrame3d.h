@@ -176,5 +176,9 @@ private:
   int parameterID;
 };
 
+#define THREAD_LOCAL static
+#define ELE_TAG_ForceDeltaFrame3d 0 // TODO
 #include "ForceDeltaFrame3d.tpp"
+#undef THREAD_LOCAL
+#undef ELE_TAG_ForceDeltaFrame3d
 #endif

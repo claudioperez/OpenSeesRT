@@ -62,9 +62,6 @@
 #include <CompositeResponse.h>
 #include <ElementalLoad.h>
 
-#define THREAD_LOCAL static
-#define ELE_TAG_ForceDeltaFrame3d 0 // TODO
-
 
 template<int n, typename MatT>
 void getHk(double xi[], MatT& H)
@@ -468,8 +465,6 @@ ForceDeltaFrame3d<NIP,nsr>::update()
 
       int index = nsr * i;
       double xL = points[i].point;
-
-      FrameSection& section = *points[i].material;
 
       //
       // a. Calculate interpolated section force
