@@ -10,7 +10,7 @@
 #define FrameTransform_h
 
 #include <vector>
-#include <stdexcept>
+#include <Versor.h>
 #include <VectorND.h>
 #include <MatrixND.h>
 #include <Matrix3D.h>
@@ -29,6 +29,79 @@ enum {
  CRDTR_TAG_CorotFrameTransf3d,
  CRDTR_TAG_LinearFrameTransf3d,
  CRDTR_TAG_PDeltaFrameTransf3d
+};
+
+//
+// Generalized 
+//
+template <int nn, int ndf>
+class FrameTransform : public TaggedObject
+{
+public:
+  constexpr static int ndm = 3;
+
+public:
+  FrameTransform<nn,ndf>(int tag) : TaggedObject(tag) {}
+
+  // TODO(cmp) : make (almost?) everything pure virtual
+  virtual FrameTransform<nn,ndf> *getCopy() {
+    return nullptr;
+  }
+
+  virtual VectorND<nn*ndf> getStateVariation() =0;
+
+  // virtual VectorND<ndm>  getNodePosition(int tag);
+  // virtual Versor         getNodeRotation(int tag);
+  // virtual Vector3D       getNodeRotationVariation(int tag);
+  // virtual VectorND<ndf>  getNodeRotationLogarithm(int tag);
+  // virtual VectorND<ndf>  getNodeRotationIncrement(int tag);
+
+  // virtual VectorND<ndf>  getNodeLogarithm(int tag) =0;
+  // virtual VectorND<ndf>  getNodeVariation(int tag) =0;
+  // virtual VectorND<ndf>  getNodeVelocity(int tag);
+  // virtual VectorND<ndm>  getNodeLocation(int tag);
+
+  // const Vector &getBasicIncrDeltaDisp();
+  // const Vector &getBasicTrialVel();
+  // const Vector &getBasicTrialAccel();
+
+
+  virtual int initialize(std::array<Node*, nn>& nodes)=0;
+  virtual int update() = 0;
+  virtual int commit() = 0;
+  // virtual int revert() = 0;
+  virtual int revertToLastCommit() = 0;
+  virtual int revertToStart() = 0;
+
+  virtual double getInitialLength() = 0;
+  virtual double getDeformedLength() = 0;
+
+  virtual VectorND<nn*ndf>    pushResponse(VectorND<nn*ndf>&pl) =0;
+  virtual VectorND<nn*ndf>    pushConstant(const VectorND<nn*ndf>&pl) const =0;
+
+  virtual MatrixND<nn*ndf,nn*ndf> pushResponse(MatrixND<nn*ndf,nn*ndf>& kl, const VectorND<nn*ndf>& pl) =0;
+  virtual MatrixND<nn*ndf,nn*ndf> pushConstant(const MatrixND<nn*ndf,nn*ndf>& kl) =0;
+
+  //
+  virtual int getLocalAxes(Vector3D &x, Vector3D &y, Vector3D &z) = 0;
+
+  // Recorders
+  virtual Response *setResponse(const char **argv, int argc, 
+                                OPS_Stream &theHandler) {
+    return nullptr;
+  };
+  virtual int getResponse(int responseID, Information &eleInformation) {
+    return -1;
+  };
+
+  // Sensitivity
+  virtual const Vector &getBasicDisplTotalGrad(int grad);
+  virtual const Vector &getBasicDisplFixedGrad();
+  virtual const Vector &getGlobalResistingForceShapeSensitivity(const Vector &pb, const Vector &p0, int gradNumber);
+  virtual bool   isShapeSensitivity() {return false;}
+  virtual double getLengthGrad() {return 0.0;}
+  virtual double getd1overLdh() {return 0.0;}
+  //
 };
 
 //
@@ -61,17 +134,6 @@ public:
   }
 
   /*
-  virtual Versor         getRotation();
-  virtual VectorND<ndm>  getNodePosition(int tag, State state) {
-    VectorND<ndm> u{};
-  }
-  virtual Versor         getNodeRotation(int tag, State state);
-  virtual VectorND<ndm>  getNodeVelocity(int tag);
-  virtual VectorND<ndm>  getNodeLocation(int tag, State state);
-  virtual VectorND<ndf>  getNodeUnknowns(int tag, int rate);
-
-  pushNodeCouple(int tag, VectorND<ndm>& couple);
-  pushNodeForce( int tag, VectorND<ndm>& force);
   */
 
 //template <int n>
@@ -105,120 +167,13 @@ public:
     return empty;
   }
 
-#if 0
-  template<int nn, int ndf=6>
-  VectorND<nn*ndf> push(const VectorND<nn*ndf>&q) {
-      constexpr int n = nn*ndf;
-
-      constexpr static int layout[] {
-        N, Vy, Vz, T, My, Mz
-      };
-
-      VectorND<n> p;
-
-      const Layout &u_layout = this->getForceLayout();
-      const Layout &n_layout = this->getNodeLayout();
-      int m = u_layout.size();
-      Vector qt(m);
-      static Vector p0(m);
-
-      for (int node=0; node<nn; node++)
-        for (int i=0; i<ndf; i++)
-          for (int ti =0; ti < m; ti++)
-            if (layout[i] == u_layout[ti] && node == n_layout[ti]) {
-              qt[ti] = q[i];
-            }
-      
-      const Vector& pt = this->getGlobalResistingForce(qt, p0);
-
-      for (int node=0; node<nn; node++)
-        for (int i=0; i<ndf; i++)
-          for (int ti =0; ti < m; ti++)
-            if (layout[i] == u_layout[ti] && node == n_layout[ti])
-              p[i] = pt[ti];
-
-      return p;
-  }
-
-  template<int nn, int ndf=6>
-  MatrixND<nn*ndf,nn*ndf> push(const MatrixND<nn*ndf,nn*ndf>&k, const VectorND<nn*ndf>*q) {
-    constexpr static int layout[] {
-      N, Vy, Vz, T, My, Mz
-    };
-    constexpr int n = nn*ndf;
-    MatrixND<n,n> M;
-
-    const Layout &u_layout = this->getForceLayout();
-    const Layout &n_layout = this->getNodeLayout();
-    int m = u_layout.size();
-
-    Matrix kt(m,m);
-
-    // (1/3)
-    for (int nodei = 0; nodei<nn; nodei++) {
-      for (int i=0; i<ndf; i++) {
-        for (int ti=0; ti<m; ti++) {
-          if (layout[i] == u_layout[ti]) {
-            for (int nodej = 0; nodej<nn; nodej++) {
-              for (int j=0; j<ndf; j++) {
-                kt(i,j) = 0.0;
-                for (int tj=0; tj<m; tj++) {
-                  if (layout[j] == u_layout[tj]) {
-                    kt(tj,ti) = k(nodej*ndf+j,nodei*ndf+i);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // (2/3) Perform the computation
-    const Matrix& Mt = (q == nullptr)
-                       ? this->getGlobalMatrixFromLocal(kt)
-                       : this->getGlobalStiffMatrix(kt, q);
-
-    // (3/3) Transform back
-    for (int nodei = 0; nodei<nn; nodei++) {
-      for (int i=0; i<ndf; i++) {
-        for (int ti=0; ti<m; ti++) {
-          if (layout[i] == u_layout[ti] && nodei == n_layout[ti]) {
-            for (int nodej = 0; nodej<nn; nodej++) {
-              for (int j=0; j<n; j++) {
-                M(i,j) = 0.0;
-                for (int tj=0; tj<m; tj++) {
-                  if (layout[j] == u_layout[tj] && nodej == n_layout[tj]) {
-                    M(j+nodej*ndf,i+nodei*ndf) = Mt(tj,ti);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    return M;
-  }
-#endif
-
-protected:
-  virtual const Layout& getForceLayout() const {
-    static std::vector<int> l(0);
-    return l;
-  }
-
-  virtual const Layout& getNodeLayout() const {
-    static std::vector<int> l(0);
-    return l;
-  }
-
 };
 
-static inline VectorND<12>
-getLocal(double ug[12], const Matrix3D& R, double nodeIOffset[], double nodeJOffset[])
+template<int nn, int ndf, typename VecT>
+static inline VectorND<nn*ndf>
+getLocal(VecT ug, const Matrix3D& R, double nodeIOffset[], double nodeJOffset[])
 {
-  VectorND<12> ul;
+  VectorND<nn*ndf> ul;
 
   for (int i=0; i<4; i++)
     for (int j=0; j<3; j++)
@@ -248,11 +203,45 @@ getLocal(double ug[12], const Matrix3D& R, double nodeIOffset[], double nodeJOff
   return ul;
 }
 
+template<int nn, int ndf, typename VecT>
+static inline VectorND<nn*ndf>
+getLocal(VectorND<nn*ndf>& ug, const Matrix3D& R, std::array<Vector3D,nn>* offset)
+{
+  VectorND<nn*ndf> ul = ug;
+
+  for (int i=0; i<nn; i++)
+    for (int j=0; j<6; j++)
+      ul[i*ndf+j%3] = R(0,j%3)*ug[i*ndf] + R(1,j%3)*ug[i*ndf+1] + R(2,j%3)*ug[3*i+2];
+
+  if (offset) {
+    double Wu[3];
+    std::array<Vector3D, nn>& offsets = *offset;
+
+    Wu[0] =  offsets[0][2] * ug[4] - offsets[0][1] * ug[5];
+    Wu[1] = -offsets[0][2] * ug[3] + offsets[0][0] * ug[5];
+    Wu[2] =  offsets[0][1] * ug[3] - offsets[0][0] * ug[4];
+
+    ul[0] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    ul[1] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[2] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
+
+    Wu[0] =  offsets[1][2] * ug[10] - offsets[1][1] * ug[11];
+    Wu[1] = -offsets[1][2] * ug[ 9] + offsets[1][0] * ug[11];
+    Wu[2] =  offsets[1][1] * ug[ 9] - offsets[1][0] * ug[10];
+
+    ul[6] += R(0,0) * Wu[0] + R(1,0) * Wu[1] + R(2,0) * Wu[2];
+    ul[7] += R(0,1) * Wu[0] + R(1,1) * Wu[1] + R(2,1) * Wu[2];
+    ul[8] += R(0,2) * Wu[0] + R(1,2) * Wu[1] + R(2,2) * Wu[2];
+  }
+
+  return ul;
+}
+
 static inline VectorND<6>
 getBasic(double ug[12], const Matrix3D& R, double nodeIOffset[], double nodeJOffset[], double oneOverL)
 {
   VectorND<6> ub;
-  VectorND<12> ul = getLocal(ug, R, nodeIOffset, nodeJOffset);
+  VectorND<12> ul = getLocal<2,6>(ug, R, nodeIOffset, nodeJOffset);
 
 #if 0
   static double ul[12];

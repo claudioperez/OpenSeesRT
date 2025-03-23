@@ -144,7 +144,7 @@ private:
 
     Vector3D xAxis;                              // local x axis
     Vector3D vz;                                 // Vector that lies in local plane xz
-    Vector3D xJI;
+    Vector3D dX;
 
     // Rigid joint offsets
     enum {

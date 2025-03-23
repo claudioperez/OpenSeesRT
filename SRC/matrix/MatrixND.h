@@ -268,6 +268,23 @@ struct MatrixND {
   }
 
   template <int nr, int nc> inline void
+  insert(const MatrixND<nr, nc, double> &M, int init_row, int init_col, double fact) 
+  {
+ 
+    [[maybe_unused]] int final_row = init_row + nr - 1;
+    [[maybe_unused]] int final_col = init_col + nc - 1; 
+    assert((init_row >= 0) && (final_row < NR) && (init_col >= 0) && (final_col < NC));
+
+    for (int i=0; i<nc; i++) {
+       int pos_Cols = init_col + i;
+       for (int j=0; j<nr; j++) {
+          int pos_Rows = init_row + j; 
+          (*this)(pos_Rows,pos_Cols) = M(j,i)*fact;
+       }
+    }
+  }
+
+  template <int nr, int nc> inline void
   assemble(const MatrixND<nr, nc, double> &M, int init_row, int init_col, double fact) 
   {
  

@@ -542,12 +542,24 @@ LogC90(const Matrix3D &R)
   // function by Claudio Perez                                            2024
   //===--------------------------------------------------------------------===//
   // Crisfield's approximation to the logarithm on SO(3)
-  if (getenv("CRD03"))
-    return Vector3D {
-     -std::asin(0.5*(R(1,2) - R(2,1))),
-      std::asin(0.5*(R(0,2) - R(2,0))),
-     -std::asin(0.5*(R(0,1) - R(1,0))),
-    };
+
+  return Vector3D {
+    -std::asin(0.5*(R(1,2) - R(2,1))),
+    std::asin(0.5*(R(0,2) - R(2,0))),
+    -std::asin(0.5*(R(0,1) - R(1,0))),
+  };
+}
+
+static inline Vector3D
+LogC90_Skew(const Matrix3D &R)
+{
+  //===--------------------------------------------------------------------===//
+  //
+  //   Crisfield M (1990) A consistent co-rotational formulation for non-linear,
+  //   three-dimensional, beam-elements
+  //
+  //===--------------------------------------------------------------------===//
+  // Crisfield's approximation to the logarithm on SO(3)
   return Vector3D {
     std::asin(0.5*(R(1,2) - R(2,1))),
     std::asin(0.5*(R(0,1) - R(1,0))),

@@ -892,11 +892,11 @@ CorotFrameTransf3d::update()
 
     // Rotations
     {
-      Vector3D thetaI = LogC90(RI^e);
+      Vector3D thetaI = LogC90_Skew(RI^e);
       for (int i=0; i<3; i++)
         ul[i] = thetaI[i];
 
-      thetaI = LogC90(RJ^e);
+      thetaI = LogC90_Skew(RJ^e);
       for (int i=3; i<6; i++)
         ul[i] = thetaI[i-3];
     }

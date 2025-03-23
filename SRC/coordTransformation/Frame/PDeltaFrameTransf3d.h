@@ -41,7 +41,7 @@ public:
     virtual int commitState();
     virtual int revertToLastCommit();        
     virtual int revertToStart();
-    
+
     const Vector &getBasicTrialDisp();
     const Vector &getBasicIncrDisp();
     const Vector &getBasicIncrDeltaDisp();
@@ -84,7 +84,7 @@ private:
     
     // internal data
     Node *nodeIPtr, *nodeJPtr;       // pointers to the element two endnodes
-//  std::array<Node*, 2> nodes;                // pointers to the element two endnodes
+//  std::array<Node*, 2> nodes;
     
     double *nodeIOffset, *nodeJOffset;    // rigid joint offsets
 

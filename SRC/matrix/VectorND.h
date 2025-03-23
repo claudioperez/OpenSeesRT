@@ -210,7 +210,7 @@ struct VectorND {
 
   // Return the cross product this vector with another vector, b.
   template <class VecB, class VecC> inline constexpr
-  void cross(const VecB& b, VecC& c) requires(N==3) const  noexcept{
+  void cross(const VecB& b, VecC& c) requires(N==3) const  noexcept {
       c[0] = values[1] * b[2] - values[2] * b[1];
       c[1] = values[2] * b[0] - values[0] * b[2];
       c[2] = values[0] * b[1] - values[1] * b[0];

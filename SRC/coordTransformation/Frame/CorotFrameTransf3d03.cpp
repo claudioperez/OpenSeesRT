@@ -102,159 +102,6 @@ static MatrixND<6,12> T12_6 {
     {0, 0, 1, 0, 0, 0}} // Mz
 };
 
-static inline void
-getLMatrix(const Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const Vector3D &ri, MatrixND<12,3>& L)
-{
-  OPS_STATIC Matrix3D L1, L2;
-  OPS_STATIC Matrix3D rie1r1;
-  OPS_STATIC Matrix3D e1e1r1;
-
-  const double rie1 = ri.dot(e1);
-
-  for (int k = 0; k < 3; k++) {
-    const double e1r1k = (e1[k] + r1[k]);
-    for (int j = 0; j < 3; j++) {
-      rie1r1(j,k) = ri[j]*e1r1k;
-      e1e1r1(j,k) = e1[j]*e1r1k;
-    }
-  }
-
-  // L1  = ri'*e1 * A/2 + A*ri*(e1 + r1)'/2;
-  L1.zero();
-  L1.addMatrix(A, rie1*0.5);
-  L1.addMatrixProduct(A, rie1r1, 0.5);
-
-  // L2  = Sri/2 - ri'*e1*S(r1)/4 - Sri*e1*(e1 + r1)'/4;
-  L2.zero();
-  L2.addSpin(ri, 0.5);
-  L2.addSpin(r1, -rie1/4.0);
-  L2.addSpinMatrixProduct(ri, e1e1r1, -0.25);
-
-  // L = [L1
-  //      L2
-  //     -L1
-  //      L2];
-
-  L.zero();
-  L.assemble(L1, 0, 0,  1.0);
-  L.assemble(L2, 3, 0,  1.0);
-  L.assemble(L1, 6, 0, -1.0);
-  L.assemble(L2, 9, 0,  1.0);
-
-}
-
-static inline const MatrixND<12,12> &
-getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double Ln, const Vector3D &ri, const Vector3D &z)
-{
-    static MatrixND<12,12> ks2;
-
-    //  Ksigma2 = [ K11   K12 -K11   K12
-    //              K12'  K22 -K12'  K22
-    //             -K11  -K12  K11  -K12
-    //              K12'  K22 -K12'  K22];
-
-    // U = (-1/2)*A*z*ri'*A + ri'*e1*A*z*e1'/(2*Ln)+...
-    //      z'*(e1+r1)*A*ri*e1'/(2*Ln);
-
-    const double rite1 = ri.dot(e1);
-    const double zte1  =  z.dot(e1);
-    const double ztr1  =  z.dot(r1);
-
-    OPS_STATIC Matrix3D zrit, ze1t;
-    OPS_STATIC Matrix rizt(3,3), rie1t(3,3);
-    OPS_STATIC Matrix3D e1zt;
-
-    //  const Matrix3D e1zt = e1.bun(z);
-
-    // Chrystal's looping order
-    for (int j = 0; j < 3; j++) {
-      for (int i = 0; i < 3; i++) {
-        zrit(i,j)  = z[i]*ri[j];
-        rizt(i,j)  = ri[i]*z[j];
-        ze1t(i,j)  = z[i]*e1[j];
-        e1zt(i,j)  = e1[i]*z[j];
-        rie1t(i,j) = ri[i]*e1[j];
-      }
-    }
-
-    OPS_STATIC Matrix3D U;
-
-    U.addMatrixTripleProduct(0.0, A, zrit, -0.5);
-    U.addMatrixProduct(A, ze1t,   rite1/(2*Ln));
-    U.addMatrixProduct(A, rie1t, (zte1 + ztr1)/(2*Ln));
-
-    OPS_STATIC Matrix3D ks;
-    OPS_STATIC Matrix3D m1;
-
-    // K11 = U + U' + ri'*e1*(2*(e1'*z)+z'*r1)*A/(2*Ln);
-    ks.zero();
-    ks.addMatrix(U, 1.0);
-
-    // Add matrix U transpose
-    for (int i = 0; i < 3; i++)
-      for (int j = 0; j < 3; j++)
-        ks(i,j) += U(j,i);
-
-    ks.addMatrix(A, rite1*(2*zte1 + ztr1)/(2*Ln));
-
-    ks2.zero();
-    ks2.assemble(ks, 0, 0,  1.0);
-    ks2.assemble(ks, 0, 6, -1.0);
-    ks2.assemble(ks, 6, 0, -1.0);
-    ks2.assemble(ks, 6, 6,  1.0);
-
-    // K12 = (1/4)*(-A*z*e1'*Sri - A*ri*z'*Sr1 - z'*(e1+r1)*A*Sri);
-    m1.zero();
-    m1.addMatrixProduct(A, ze1t, -1.0);
-    ks.zero();
-    ks.addMatrixSpinProduct(m1, ri, 0.25);
-
-    m1.zero();
-    m1.addMatrixProduct(A, rizt, -1.0);
-    ks.addMatrixSpinProduct(m1, r1, 0.25);
-    ks.addMatrixSpinProduct(A, ri, -0.25*(zte1+ztr1));
-
-    ks2.assemble(ks, 0, 3,  1.0);
-    ks2.assemble(ks, 0, 9,  1.0);
-    ks2.assemble(ks, 6, 3, -1.0);
-    ks2.assemble(ks, 6, 9, -1.0);
-
-    ks2.assembleTranspose(ks, 3, 0,  1.0);
-    ks2.assembleTranspose(ks, 3, 6, -1.0);
-    ks2.assembleTranspose(ks, 9, 0,  1.0);
-    ks2.assembleTranspose(ks, 9, 6, -1.0);
-
-    // K22 = (1/8)*((-ri'*e1)*Sz*Sr1 + Sr1*z*e1'*Sri + ...
-    //       Sri*e1*z'*Sr1 - (e1+r1)'*z*S(e1)*Sri + 2*Sz*Sri);
-
-    ks.zero();
-    ks.addSpinProduct(z, r1, -0.125*(rite1));
-
-    m1.zero();
-    m1.addSpinMatrixProduct( r1, ze1t, 1.0);
-    ks.addMatrixSpinProduct( m1, ri, 0.125);
-
-    m1.zero();
-    m1.addSpinMatrixProduct(ri, e1zt, 1.0);
-    ks.addMatrixSpinProduct(m1, r1, 0.125);
-
-    ks.addSpinProduct(e1, ri, -0.125*(zte1 + ztr1));
-    ks.addSpinProduct( z, ri, 0.25);
-
-    // Ksigma2 = [ K11   K12 -K11   K12;
-    //             K12t  K22 -K12t  K22;
-    //            -K11  -K12  K11  -K12;
-    //             K12t  K22 -K12t  K22];
-
-    ks2.assemble(ks, 3, 3, 1.0);
-    ks2.assemble(ks, 3, 9, 1.0);
-    ks2.assemble(ks, 9, 3, 1.0);
-    ks2.assemble(ks, 9, 9, 1.0);
-
-    return ks2;
-}
-
-
 CorotFrameTransf3d03::CorotFrameTransf3d03(int tag, const Vector &vecInLocXZPlane,
                                        const Vector &rigJntOffsetI,
                                        const Vector &rigJntOffsetJ)
@@ -439,7 +286,7 @@ CorotFrameTransf3d03::initialize(Node *nodeIPointer, Node *nodeJPointer)
       return -1;
     }
 
-    xJI  = nodes[1]->getCrds() - nodes[0]->getCrds();
+    dX  = nodes[1]->getCrds() - nodes[0]->getCrds();
 
     // Add initial displacements at nodes
     if (initialDispChecked == false) {
@@ -464,15 +311,15 @@ CorotFrameTransf3d03::initialize(Node *nodeIPointer, Node *nodeJPointer)
     }
 
     // if (nodeIInitialDisp != nullptr) {
-    //   xJI[0] -= nodeIInitialDisp[0];
-    //   xJI[1] -= nodeIInitialDisp[1];
-    //   xJI[2] -= nodeIInitialDisp[2];
+    //   dX[0] -= nodeIInitialDisp[0];
+    //   dX[1] -= nodeIInitialDisp[1];
+    //   dX[2] -= nodeIInitialDisp[2];
     // }
 
     // if (nodeJInitialDisp != nullptr) {
-    //   xJI[0] += nodeJInitialDisp[0];
-    //   xJI[1] += nodeJInitialDisp[1];
-    //   xJI[2] += nodeJInitialDisp[2];
+    //   dX[0] += nodeJInitialDisp[0];
+    //   dX[1] += nodeJInitialDisp[1];
+    //   dX[2] += nodeJInitialDisp[2];
     // }
 
     int error;
@@ -525,8 +372,8 @@ CorotFrameTransf3d03::compTransfMatrixBasicGlobal(
         A(i,j) = (double(i==j) - e1[i]*e1[j])/Ln;
 
     // This must be called up here
-    getLMatrix(A, e1, r1, r2, Lr2);
-    getLMatrix(A, e1, r1, r3, Lr3);
+    CrisfieldTransform::getLMatrix(A, e1, r1, r2, Lr2);
+    CrisfieldTransform::getLMatrix(A, e1, r1, r3, Lr3);
 
     //               3 |             3            |     3    |           3              |
     //   T1 = [      O', (-S(rI3)*e2 + S(rI2)*e3)',        O',                        O']'; imx
@@ -694,7 +541,7 @@ CorotFrameTransf3d03::update()
     // Update state
     //
     // 1.1 Relative translation
-    Vector3D dx = xJI;// dx = xJI + dJI;
+    Vector3D dx = dX;// dx = dX + dJI;
     {
       // Relative translation
       for (int k = 0; k < 3; k++)
@@ -1251,17 +1098,17 @@ CorotFrameTransf3d03::addTangent(MatrixND<12,12>& kg, const VectorND<12>& pl)
 
     rm = rI3;
     rm.addVector(1.0, rJ3, -1.0);
-    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r2, rm), m[3]);
+    kg.addMatrix(CrisfieldTransform::getKs2Matrix(A, e1, r1, Ln, r2, rm), m[3]);
 
 //  rm = rJ2;
     rm.addVector(0.0, rJ2, -1.0);
     rm.addVector(1.0, rI2, -1.0);
-    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r3,  rm), m[3]);
-    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r2, rI1), m[1]);
-    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r3, rI1), m[2]);
+    kg.addMatrix(CrisfieldTransform::getKs2Matrix(A, e1, r1, Ln, r3,  rm), m[3]);
+    kg.addMatrix(CrisfieldTransform::getKs2Matrix(A, e1, r1, Ln, r2, rI1), m[1]);
+    kg.addMatrix(CrisfieldTransform::getKs2Matrix(A, e1, r1, Ln, r3, rI1), m[2]);
     //
-    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r2, rJ1), m[4]);
-    kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r3, rJ1), m[5]);
+    kg.addMatrix(CrisfieldTransform::getKs2Matrix(A, e1, r1, Ln, r2, rJ1), m[4]);
+    kg.addMatrix(CrisfieldTransform::getKs2Matrix(A, e1, r1, Ln, r3, rJ1), m[5]);
 
     //
     //  T' * diag (M .* tan(thetal))*T
@@ -1432,7 +1279,7 @@ CorotFrameTransf3d03::getLengthGrad()
   if (dj != 0)
     dxj(dj-1) = 1.0;
 
-  return 1/L * xJI.dot(dxj - dxi);
+  return 1/L * dX.dot(dxj - dxi);
 }
 
 

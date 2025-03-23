@@ -569,7 +569,7 @@ LinearFrameTransf3d::pushConstant(const MatrixND<12,12>& kl)
   static double RWI[3][3];
 
   if (nodeIOffset) {
-    // Compute RWI
+    // Compute -R'*Wi
     RWI[0][0] = -R(1,0) * nodeIOffset[2] + R(2,0) * nodeIOffset[1];
     RWI[1][0] = -R(1,1) * nodeIOffset[2] + R(2,1) * nodeIOffset[1];
     RWI[2][0] = -R(1,2) * nodeIOffset[2] + R(2,2) * nodeIOffset[1];
@@ -1024,7 +1024,7 @@ LinearFrameTransf3d::getBasicDisplFixedGrad()
 
   //
   //
-  VectorND<12> ul = getLocal(ug, R, nodeIOffset, nodeJOffset);
+  VectorND<12> ul = getLocal<2,6>(ug, R, nodeIOffset, nodeJOffset);
   //
   dub[0] += 0;
   double dL = this->getLengthGrad();

@@ -22,16 +22,18 @@ class FiniteElement : public Element {
 public:
      FiniteElement(int tag, int classtag)
        : Element(tag, classtag),
-         e_state(State::None),
-         connectedExternalNodes(nen) {
+         connectedExternalNodes(nen),
+         e_state(State::None)
+    {
          for (int i=0; i<nen; i++)
            theNodes[i] = nullptr;
      }
 
      FiniteElement(int tag, int classtag, std::array<int, nen>& nodes)
        : Element(tag, classtag),
-         e_state(State::None),
-         connectedExternalNodes(nen) {
+         connectedExternalNodes(nen),
+         e_state(State::None)
+    {
          for (int i=0; i<nen; i++) {
            connectedExternalNodes(i) = nodes[i];
            theNodes[i] = nullptr;

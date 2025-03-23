@@ -104,255 +104,159 @@ public:
     {
       return Qbar;
     }
-#if 0
-    int
-    addTangent(MatrixND<12,12>& kg, const VectorND<12>& pl)
-    {    
-        const Triad rI{MatrixFromVersor(Q_pres[0])},
-                    rJ{MatrixFromVersor(Q_pres[1])};
-        const Vector3D 
-        &e1  =  getBasisE1(), // E[1],
-        &e2  =  getBasisE2(), // E[2],
-        &e3  =  getBasisE3(), // E[3],
-        &rI1 = rI[1], // .rotate(E1), 
-        &rI2 = rI[2], // .rotate(E2), 
-        &rI3 = rI[3], // .rotate(E3),
-        &rJ1 = rJ[1], // .rotate(E1), 
-        &rJ2 = rJ[2], // .rotate(E2), 
-        &rJ3 = rJ[3]; // .rotate(E3);
-        // NOTE[cmp] 
-        // CorotFrameTransf3d03::compTransfMatrixBasicGlobal must be 
-        // called first to set Lr1, Lr2 and T
 
-        // Matrix3D A;
-        // for (int i = 0; i < 3; i++)
-        //   for (int j = 0; j < 3; j++)
-        //     A(i,j) = (double(i==j) - e1[i]*e1[j])/Ln;
-        // getLMatrix(A, e1, r1, r2, Lr2);
-        // getLMatrix(A, e1, r1, r3, Lr3);
+    static inline void
+    getLMatrix(const Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const Vector3D &ri, MatrixND<12,3>& L)
+    {
+      static Matrix3D L1, L2;
+      static Matrix3D rie1r1;
+      static Matrix3D e1e1r1;
 
-        //
-        // Ksigma1
-        //
-        {
-        const double N = -pl[0]; // Axial force
-        // a=0
-        kg.assemble(A, 0, 0,  N);
-        kg.assemble(A, 0, 6, -N);
-        // a=1
-        kg.assemble(A, 6, 0, -N);
-        kg.assemble(A, 6, 6,  N);
+      const double rie1 = ri.dot(e1);
+
+      for (int k = 0; k < 3; k++) {
+        const double e1r1k = (e1[k] + r1[k]);
+        for (int j = 0; j < 3; j++) {
+          rie1r1(j,k) = ri[j]*e1r1k;
+          e1e1r1(j,k) = e1[j]*e1r1k;
         }
+      }
 
-        //
-        // Ksigma3
-        //
-        //  ks3 = [o kbar2  |  o kbar4];
-        //
-        //  where
-        //
-        //    kbar2 = -Lr2*(m(3)*S(rI3) + m(1)*S(rI1)) + Lr3*(m(3)*S(rI2) - m(2)*S(rI1)) ;
-        //
-        //    kbar4 =  Lr2*(m(3)*S(rJ3) - m(4)*S(rJ1)) - Lr3*(m(3)*S(rJ2) + m(5)*S(rJ1));
-        //
-        // or
-        //
-        //  ks3 = [o ka+kb  |  o kc+kd];
-        //      = [o ka     |  o kc] + [o kb  |  o kd];
-        //
-        //  where
-        //
-        //    ka = -Lr2*S(rI3)*m(3)  
-        //         +Lr2*S(rI1)*m(1);
-        //    kb =  Lr3*S(rI2)*m(3)  
-        //         -Lr3*S(rI1)*m(2);
-        //
-        //    kc =  Lr2*S(rJ3)*m(3)
-        //         -Lr2*S(rJ1)*m(4);
-        //    kd = -Lr3*S(rJ2)*m(3)  
-        //         +Lr3*S(rJ1)*m(5);
+      // L1  = ri'*e1 * A/2 + A*ri*(e1 + r1)'/2;
+      L1.zero();
+      L1.addMatrix(A, rie1*0.5);
+      L1.addMatrixProduct(A, rie1r1, 0.5);
 
-        static VectorND<6> m;
-        m[0] =  0.5*pl[imx]/std::cos(ul(imx));
-        m[2] = -0.5*pl[imy]/std::cos(ul(imy));
-        m[1] =  0.5*pl[imz]/std::cos(ul(imz));
+      // L2  = Sri/2 - ri'*e1*S(r1)/4 - Sri*e1*(e1 + r1)'/4;
+      L2.zero();
+      L2.addSpin(ri, 0.5);
+      L2.addSpin(r1, -rie1/4.0);
+      L2.addSpinMatrixProduct(ri, e1e1r1, -0.25);
 
-        m[3] =  0.5*pl[jmx]/std::cos(ul(jmx));
-        m[5] = -0.5*pl[jmy]/std::cos(ul(jmy));
-        m[4] =  0.5*pl[jmz]/std::cos(ul(jmz));
+      // L = [L1
+      //      L2
+      //     -L1
+      //      L2];
 
+      L.zero();
+      L.assemble(L1, 0, 0,  1.0);
+      L.assemble(L2, 3, 0,  1.0);
+      L.assemble(L1, 6, 0, -1.0);
+      L.assemble(L2, 9, 0,  1.0);
 
-        static Matrix3D Sm;
-        Sm.zero();
-        Sm.addSpin(rI3,  m[3]);
-        Sm.addSpin(rI1,  m[1]);
-        static MatrixND<12,3> kbar;
-        kbar.zero();
-        kbar.addMatrixProduct(Lr2, Sm, -1.0);
+    }
 
-        Sm.zero();
-        Sm.addSpin(rI2,  m[3]);
-        Sm.addSpin(rI1, -m[2]);
-        kbar.addMatrixProduct(Lr3, Sm,  1.0);
+    static inline const MatrixND<12,12> &
+    getKs2Matrix(Matrix3D& A, const Vector3D& e1, const Vector3D& r1, const double Ln, const Vector3D &ri, const Vector3D &z)
+    {
+        static MatrixND<12,12> ks2;
 
-        kg.assemble(kbar, 0, 3, 1.0);
-        kg.assembleTranspose(kbar, 3, 0, 1.0);
+        //  Ksigma2 = [ K11   K12 -K11   K12
+        //              K12'  K22 -K12'  K22
+        //             -K11  -K12  K11  -K12
+        //              K12'  K22 -K12'  K22];
 
-        Sm.zero();
-        Sm.addSpin(rJ3,  m[3]);
-        Sm.addSpin(rJ1, -m[4]);
-        kbar.zero();
-        kbar.addMatrixProduct(Lr2, Sm, 1.0);
+        // U = (-1/2)*A*z*ri'*A + ri'*e1*A*z*e1'/(2*Ln)+...
+        //      z'*(e1+r1)*A*ri*e1'/(2*Ln);
 
-        Sm.zero();
-        Sm.addSpin(rJ2, m[3]);
-        Sm.addSpin(rJ1, m[5]);
-        kbar.addMatrixProduct(Lr3, Sm,  -1.0);
+        const double rite1 = ri.dot(e1);
+        const double zte1  =  z.dot(e1);
+        const double ztr1  =  z.dot(r1);
 
-        kg.assemble(kbar, 0, 9, 1.0);
-        kg.assembleTranspose(kbar, 9, 0, 1.0);
+        static Matrix3D zrit, ze1t;
+        static Matrix rizt(3,3), rie1t(3,3);
+        static Matrix3D e1zt;
 
+        //  const Matrix3D e1zt = e1.bun(z);
 
-        //
-        // Ksigma4
-        //
-        {
-        static Matrix3D ks33;
-    
-        ks33.zero();
-        ks33.addSpinProduct(e2, rI3,  m[3]);
-        ks33.addSpinProduct(e3, rI2, -m[3]);
-        ks33.addSpinProduct(e2, rI1,  m[1]);
-        ks33.addSpinProduct(e1, rI2, -m[1]);
-        ks33.addSpinProduct(e3, rI1,  m[2]);
-        ks33.addSpinProduct(e1, rI3, -m[2]);
-        kg.assemble(ks33, 3, 3, 1.0);
-        }
-
-        //
-        // Ksigma4
-        //
-        {
-        static Matrix3D ks33;
-        ks33.zero();
-        ks33.addSpinProduct(e2, rJ3, -m[3]);
-        ks33.addSpinProduct(e3, rJ2,  m[3]);
-        ks33.addSpinProduct(e2, rJ1,  m[4]);
-        ks33.addSpinProduct(e1, rJ2, -m[4]);
-        ks33.addSpinProduct(e3, rJ1,  m[5]);
-        ks33.addSpinProduct(e1, rJ3, -m[5]);
-    
-        kg.assemble(ks33, 9, 9, 1.0);
-        }
-
-
-        //
-        // Ksigma5
-        //
-        //  Ks5 = [ Ks5_11   Ks5_12 | -Ks5_11   Ks5_14;
-        //          Ks5_12'    O    | -Ks5_12'   O;
-        //         -Ks5_11  -Ks5_12 |  Ks5_11  -Ks5_14;
-        //          Ks5_14t     O   | -Ks5_14'   O];
-        //
-        //
-        // v = (1/Ln)*(m(2)*rI2 + m(3)*rI3 + m(5)*rJ2 + m(6)*rJ3);
-        //   = 1/Ln * (m[1]*rI2 + m[2]*rI3)
-        //   + 1/Ln * (m[4]*rJ2 + m[5]*rJ3);
-        //   = vi + vj
-        //
-        {
-        OPS_STATIC Vector3D v;
-        v.addVector(0.0, rI2, m[1]);
-        v.addVector(1.0, rI3, m[2]);
-        v.addVector(1.0, rJ2, m[4]);
-        v.addVector(1.0, rJ3, m[5]);
-        v /= Ln;
-
-        // Ks5_11 = A*v*e1' + e1*v'*A + (e1'*v)*A;
-        //        = A*vi*e1' + e1*vi'*A + (e1'*vi)*A
-        //        + A*vj*e1' + e1*vj'*A + (e1'*vj)*A;
-        //
-        Matrix3D ks33;
-        ks33.zero();
-        ks33.addMatrix(A, e1.dot(v));
-
-        static Matrix3D m33;
-        m33.zero();
-        m33.addTensorProduct(v, e1, 1.0);
-
-        ks33.addMatrixProduct(A, m33, 1.0);
-
-        for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 3; j++)
-            m33(i,j) = e1[i]*v[j];
-
-        ks33.addMatrixProduct(m33, A, 1.0);
-
-        kg.assemble(ks33, 0, 0,  1.0);
-        kg.assemble(ks33, 0, 6, -1.0);
-        kg.assemble(ks33, 6, 0, -1.0);
-        kg.assemble(ks33, 6, 6,  1.0);
-        }
-
-        // Ks5_12 = -(m(2)*A*S(rI2) + m(3)*A*S(rI3));
-
-        Matrix3D ks33;
-        ks33.zero();
-        ks33.addMatrixSpinProduct(A, rI2, -m[1]);
-        ks33.addMatrixSpinProduct(A, rI3, -m[2]);
-
-        kg.assemble(ks33, 0, 3,  1.0);
-        kg.assemble(ks33, 6, 3, -1.0);
-        kg.assembleTranspose(ks33, 3, 0,  1.0);
-        kg.assembleTranspose(ks33, 3, 6, -1.0);
-
-        //  Ks5_14 = -(m(5)*A*S(rJ2) + m(6)*A*S(rJ3));
-
-        ks33.zero();
-        ks33.addMatrixSpinProduct(A, rJ2, -m[4]);
-        ks33.addMatrixSpinProduct(A, rJ3, -m[5]);
-
-        kg.assemble(ks33, 0, 9,  1.0);
-        kg.assemble(ks33, 6, 9, -1.0);
-
-        kg.assembleTranspose(ks33, 9, 0,  1.0);
-        kg.assembleTranspose(ks33, 9, 6, -1.0);
-
-        // Ksigma -------------------------------
-        OPS_STATIC Vector3D rm;
-
-        rm = rI3;
-        rm.addVector(1.0, rJ3, -1.0);
-        kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r2, rm), m[3]);
-
-    //  rm = rJ2;
-        rm.addVector(0.0, rJ2, -1.0);
-        rm.addVector(1.0, rI2, -1.0);
-        kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r3,  rm), m[3]);
-        kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r2, rI1), m[1]);
-        kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r3, rI1), m[2]);
-        //
-        kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r2, rJ1), m[4]);
-        kg.addMatrix(getKs2Matrix(A, e1, r1, Ln, r3, rJ1), m[5]);
-
-        //
-        //  T' * diag (M .* tan(thetal))*T
-        //
-
-        for (int node=0; node<2; node++) {
-          for (int k = 0; k < 3; k++) {
-              const double factor =  pl[6*node+3+k] * std::tan(ul[(node ? jmx : imx) + k]);
-              for (int i = 0; i < 12; i++) {
-              const double Tki = T((node ? jmx : imx) + k,i);
-              for (int j = 0; j < 12; j++)
-                  kg(i,j) += Tki * factor * T((node ? jmx : imx) + k, j);
-              }
+        // Chrystal's looping order
+        for (int j = 0; j < 3; j++) {
+          for (int i = 0; i < 3; i++) {
+            zrit(i,j)  = z[i]*ri[j];
+            rizt(i,j)  = ri[i]*z[j];
+            ze1t(i,j)  = z[i]*e1[j];
+            e1zt(i,j)  = e1[i]*z[j];
+            rie1t(i,j) = ri[i]*e1[j];
           }
         }
 
-        return 0;
+        static Matrix3D U;
+
+        U.addMatrixTripleProduct(0.0, A, zrit, -0.5);
+        U.addMatrixProduct(A, ze1t,   rite1/(2*Ln));
+        U.addMatrixProduct(A, rie1t, (zte1 + ztr1)/(2*Ln));
+
+        static Matrix3D ks;
+        static Matrix3D m1;
+
+        // K11 = U + U' + ri'*e1*(2*(e1'*z)+z'*r1)*A/(2*Ln);
+        ks.zero();
+        ks.addMatrix(U, 1.0);
+
+        // Add matrix U transpose
+        for (int i = 0; i < 3; i++)
+          for (int j = 0; j < 3; j++)
+            ks(i,j) += U(j,i);
+
+        ks.addMatrix(A, rite1*(2*zte1 + ztr1)/(2*Ln));
+
+        ks2.zero();
+        ks2.assemble(ks, 0, 0,  1.0);
+        ks2.assemble(ks, 0, 6, -1.0);
+        ks2.assemble(ks, 6, 0, -1.0);
+        ks2.assemble(ks, 6, 6,  1.0);
+
+        // K12 = (1/4)*(-A*z*e1'*Sri - A*ri*z'*Sr1 - z'*(e1+r1)*A*Sri);
+        m1.zero();
+        m1.addMatrixProduct(A, ze1t, -1.0);
+        ks.zero();
+        ks.addMatrixSpinProduct(m1, ri, 0.25);
+
+        m1.zero();
+        m1.addMatrixProduct(A, rizt, -1.0);
+        ks.addMatrixSpinProduct(m1, r1, 0.25);
+        ks.addMatrixSpinProduct(A, ri, -0.25*(zte1+ztr1));
+
+        ks2.assemble(ks, 0, 3,  1.0);
+        ks2.assemble(ks, 0, 9,  1.0);
+        ks2.assemble(ks, 6, 3, -1.0);
+        ks2.assemble(ks, 6, 9, -1.0);
+
+        ks2.assembleTranspose(ks, 3, 0,  1.0);
+        ks2.assembleTranspose(ks, 3, 6, -1.0);
+        ks2.assembleTranspose(ks, 9, 0,  1.0);
+        ks2.assembleTranspose(ks, 9, 6, -1.0);
+
+        // K22 = (1/8)*((-ri'*e1)*Sz*Sr1 + Sr1*z*e1'*Sri + ...
+        //       Sri*e1*z'*Sr1 - (e1+r1)'*z*S(e1)*Sri + 2*Sz*Sri);
+
+        ks.zero();
+        ks.addSpinProduct(z, r1, -0.125*(rite1));
+
+        m1.zero();
+        m1.addSpinMatrixProduct( r1, ze1t, 1.0);
+        ks.addMatrixSpinProduct( m1, ri, 0.125);
+
+        m1.zero();
+        m1.addSpinMatrixProduct(ri, e1zt, 1.0);
+        ks.addMatrixSpinProduct(m1, r1, 0.125);
+
+        ks.addSpinProduct(e1, ri, -0.125*(zte1 + ztr1));
+        ks.addSpinProduct( z, ri, 0.25);
+
+        // Ksigma2 = [ K11   K12 -K11   K12;
+        //             K12t  K22 -K12t  K22;
+        //            -K11  -K12  K11  -K12;
+        //             K12t  K22 -K12t  K22];
+
+        ks2.assemble(ks, 3, 3, 1.0);
+        ks2.assemble(ks, 3, 9, 1.0);
+        ks2.assemble(ks, 9, 3, 1.0);
+        ks2.assemble(ks, 9, 9, 1.0);
+
+        return ks2;
     }
-#endif
+
 private:
     Versor Qbar;
     Vector3D r1, r2, r3;

@@ -1,3 +1,4 @@
+#pragma once
 template <class TC, class TA>
 static inline int
 //blk3x12x3(const MatrixND<3, 3> B, const MatrixND<12, 12>& C, MatrixND<12, 12>& A)
