@@ -4,18 +4,6 @@
 *.txt   linguist-documentation
 *.tex   linguist-documentation
 
-SRC/quadrature/**  linguist-vendored
-SRC/reliability/** linguist-vendored
-SRC/material/**    linguist-vendored
-SRC/element/**     linguist-vendored
-SRC/runtime/**     linguist-vendored
-
-OTHER/arpack-ng/** linguist-vendored
-OTHER/CBLAS/**     linguist-vendored
-OTHER/METIS/**     linguist-vendored
-OTHER/Tetgen/**    linguist-vendored
-OTHER/AMD/**       linguist-vendored
-OTHER/eigenAPI/**  linguist-vendored
 
 tests/** linguist-detectable=true
 
