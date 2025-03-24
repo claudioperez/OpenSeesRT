@@ -41,19 +41,19 @@ OpenSeesPy (see *Getting Started* below), and generally provides a substantial p
 
 ### Getting Started
 
-The `sees` package can be installed into a Python environment
+The `xara` package can be installed into a Python environment
 in the standard manner. For example, using `pip`:
 
 ```shell
-pip install sees
+pip install xara
 ```
 
-There are several ways to use the `sees` package:
+There are several ways to use the `xara` package:
 
 - To execute Tcl procedures from a Python script, just create an instance
-  of the `sees.Model` class and call its `eval()` method:
+  of the `xara.Model` class and call its `eval()` method:
   ```python
-  model = sees.Model()
+  model = xara.Model()
   model.eval("model Basic -ndm 2")
   model.eval("print -json")
   ```
@@ -68,7 +68,7 @@ There are several ways to use the `sees` package:
   opensees > exit
   ```
 
-- The `sees` package exposes a compatibility layer that exactly reproduces
+- The `xara` package exposes a compatibility layer that exactly reproduces
   the *OpenSeesPy* functions, but does so without mandating a single
   global program state. To run OpenSeesPy scripts, just change the import:
 
@@ -80,7 +80,7 @@ There are several ways to use the `sees` package:
   import opensees.openseespy
   ```
   For true stateless modeling, the `Model` class should be used instead of the legacy
-  `model` function; see the documentation [here](https://opensees.stairlab.io/user/manual/model/model_class.html).
+  `model` function; see the documentation [here](https://xara.so/user/manual/model/model_class.html).
 
 
 ## Development
