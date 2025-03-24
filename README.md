@@ -96,15 +96,6 @@ To compile the project see [about/compiling](https://github.com/claudioperez/Ope
 [pypi-v-link]: https://pypi.org/project/opensees
 
 
-## See also
-
-- [`osmg`](https://pypi.org/project/osmg) OpenSees Model Generator
-- [`mdof`](https://pypi.org/project/mdof) Optimized system identification library
-- [`sdof`](https://pypi.org/project/sdof) Optimized integration for single degree of freedom systems
-
-For more projects by the STAIRlab, visit https://github.com/STAIRlab .
-
-
 ## Support
 
 <table align="center" style="border: 0;">
