@@ -1,10 +1,9 @@
 [project]
-name = "opensees"
-version = "0.1.13"
-# authors = [
-#   {name=""}
-#   # <50180406+claudioperez@users.noreply.github.com>"
-# ]
+name = "xara"
+version = "0.0.0"
+authors = [
+  {name="Claudio M Perez", email="50180406+claudioperez@users.noreply.github.com"}
+]
 
 # license = {file = "LICENSE.txt"}
 
@@ -13,10 +12,9 @@ readme = "about/README.pypi.md"
 description = "Nonlinear finite element analysis."
 
 classifiers = [
-    'Development Status :: 5 - Production/Stable',
+    'Development Status :: 4 - Beta',
     'Intended Audience :: Science/Research',
     'Intended Audience :: Developers',
-#   'License :: OSI Approved :: BSD License',
 
     'Programming Language :: C',
     'Programming Language :: C++',
@@ -40,24 +38,16 @@ classifiers = [
 ]
 
 keywords = [
-    "seismic",
     "computational-mechanics",
     "structural-analysis",
     "finite-element-analysis",
     "earthquake",
     "engineering",
+    "berkeley",
 ] 
 
 dependencies = [
-    "shps", # Shape functions and quadrature
-    "numpy < 1.20.0; python_version<'3.8'",
-    "numpy ; python_version>='3.8'",
-
-# Full-featured REPL
-    "pyparsing",
-    "prompt_toolkit",
-    "pygments",
-    "platformdirs"
+    "opensees"
 ]
 
 [project.optional-dependencies]
@@ -73,7 +63,7 @@ testing = [
 
 [project.urls]
 Repository = "https://github.com/claudioperez/OpenSeesRT"
-Documentation = "https://opensees.stairlab.io"
+Documentation = "https://xara.so"
 Examples = "https://gallery.stairlab.io"
 
 [build-system]
